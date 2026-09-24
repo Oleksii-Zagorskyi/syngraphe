@@ -1,0 +1,52 @@
+# Locally mounted working directories. Not part of the product.
+ai/
+workspace/
+
+# Agent and editor state
+.claude/
+.obsidian/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Secrets and local configuration. Never commit a real one.
+.env
+.env.*
+!.env.example
+*-local-notes.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+/dist/
+/build/
+*.whl
+.venv/
+venv/
+ENV/
+
+# Django
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_collected/
+
+# Test and tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes

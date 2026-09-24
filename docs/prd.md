@@ -1,0 +1,216 @@
+---
+tags:
+  - prd
+aliases:
+  - Syngraphē PRD
+status: draft
+date: 2026-09-21
+---
+
+# PRD — Syngraphē
+
+> [!note] Walking skeleton
+> Structurally complete, thin where grounding is thin. Sections resting on an open question name it inline.
+
+## Goal
+
+An enterprise collaborative authoring platform where teams of human and AI editors create, review, approve and maintain authoritative documents. One cycle, end to end: **edit → commit → review → accept → edition → canonical → read and export.** Git is the substrate and is invisible; the interface has its own vocabulary in Ukrainian.
+
+## Target users
+
+Staff of a tenant organisation revising the tenant's own authoritative documents — enterprise policies and technical instructions first, later marketing material, decision records and contracts. Nobody is expected to know git.
+
+## What a document is
+
+**One Markdown file** in its own repository. `document.md` carries title and language in its frontmatter and the whole text as its body. Beside it sit the entity definitions, the images, and a **passport** recording review and approval decisions (DL-0041).
+
+**A section is a heading.** Structure is the heading hierarchy, and restructuring a document is editing its text.
+
+Concretely (DL-0046):
+
+```
+{tenant}/{document-id}/        # repository root, one per document (DL-0111)
+├── document.md       # frontmatter: title, language · body: the whole text
+├── entities.yaml     # role, action and term definitions
+├── images/           # uploaded binary assets the text embeds
+├── analysis/         # editor-facing companion analyses (stage 2)
+└── passport.md       # review and approval decisions (DL-0041)
+```
+
+The stored form is a constrained **Markdown** subset. Entities are marked with attributed spans — `[CMO]{.role #cmo}` — never backticks, which mean *code* to every parser and export path; the editor never shows the syntax. Heading numbers are a render rule derived from depth, never stored, so moving a section renumbers everything and breaks nothing.
+
+## Roles
+
+Named by the action performed, never by corporate title (DL-0017).
+
+| Role | Stance | Scope |
+|---|---|---|
+| reader | reads | canonical documents |
+| editor | edits, commits | whole document |
+| reviewer | accepts changes; may correct before accepting, including their own | whole document |
+| decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
+| approver | records the approval making a frozen edition canonical | document |
+| designer | authors the organization's style documents and applies a selection to a document | organization, then document |
+| pending edits viewer | sees committed, unaccepted changes | whole document |
+| tenant administrator | users, document sets, role assignments, heuristic selection | tenant |
+| platform administrator | the platform, the seeded heuristic catalogue, the base prompts | platform |
+
+Board approval is recorded by one designated person; quorum and voting happen outside the software (DL-0017).
+
+Two AI actors, not roles a person holds. The **companion** runs actions for the editor, is edit-scoped, and never reads a document the editor cannot read. The **reviewer agent** runs when a document is sent for review and produces two artefacts from **two separate runs**: a reviewer-eyes-only analysis from a run that reads the guidance, and an editor-facing analysis from a run whose context never contains it (DL-0007, DL-0095).
+
+**Access is data** (DL-0051). Rights are rows of `document, user, rights` with a full change history carrying timestamp and actor; only a tenant or platform administrator may edit them. Confidential guidance is **an ordinary document with restricted rows** — authored, edited and reviewed like any other — not a separate mechanism.
+
+## Editing is linear
+
+One editing sequence per document. No branches, no forks, no merges, and therefore no conflicts (ADR-0003).
+
+1. An editor **takes the document** for editing. Nobody else edits it meanwhile.
+2. Edits are **captured continuously** — there is no Save control. The draft persists so a closed laptop loses nothing; it is not yet a version and nobody else can see it.
+3. **Undo** works within the editing session.
+4. At any point the editor may **call companion actions** — individually, not all of them — to answer *"what do my changes introduce so far?"*. Results are cached against the content, so asking twice about unchanged text costs nothing.
+5. **There is no Save button.** In its place is *send for review*. Pressing it shows the companion analyses for the current content and two choices: **продовжити редагування** or **відправити на розгляд**.
+6. **Відправити на розгляд commits** (DL-0054). The analyses are written into the same commit as the content, so no identifier has to be resolved after the fact — they are part of the tree, and they are what the reviewer reads as the change's description.
+7. Versions accumulate, attributed, until a reviewer accepts a run of them.
+
+Going back is only ever forward: an unwanted change is undone by a new version that reverts it, computed per sentence from authorship, never by erasing history.
+
+A **hold expires** and can be released by the tenant administrator; the interrupted draft is preserved, not discarded. Holds cover the whole document — there is no smaller unit (DL-0091).
+
+## Rights and administration
+
+Three application roles (DL-0079). A **platform administrator** grants platform administration and edits users and access rights. A **tenant administrator** grants access within their tenant, creates users by email, blocks users within their own tenant only, assigns side-document types and companion actions, archives and restores documents, and creates documents. A **user** edits and creates documents. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
+
+Five rights, all **document-scoped**: read, edit, accept edits, freeze an edition, approve canonical (DL-0083, DL-0091). Comment is stage 2 with the rest of the annotation surface.
+
+**There are no section-scoped roles and no code owners** (DL-0091). A right is held over a document or not at all.
+
+**No segregation of duties is enforced by default** (DL-0092). A reviewer may edit and then accept their own work. The control is the record rather than the prevention: every version is attributed, authorship is visible, and the audit history answers who did what (ASR-18).
+
+**One optional check, per tenant, off by default** (DL-0101, DL-0115): an edition cannot be approved by anyone who accepted a run since the previous canonical edition. One comparison at the single transition where text becomes authoritative — enough to give a tenant a second pair of eyes to show an auditor, without slowing everyday editing.
+
+**A new document starts with its creator holding edit, and nothing else** (DL-0089). The tenant administrator is notified that it was created and grants the rest. Until a reviewer exists the document reads *no reviewer assigned*, and acceptance is blocked with that stated reason rather than silently.
+
+**Archiving** is visible to administrators only (DL-0084). An archived document's links stop resolving anywhere, including where its name appears in another document's prose; its access rights are archived with it, vanish from the administration panel, and **resurrect unchanged** on restore.
+
+**Cross-tenant, nothing.** No links, no analyses, no searches. A user with several memberships switches tenant; a user with one sees the tenant name and no switcher. A tenant administrator adding a user by email learns nothing about that user's existence elsewhere (ASR-17).
+
+**Every change is attributable and authorisation is reconstructible** (DL-0082, ASR-18). Every row carries who created it and whether the actor was a person, the system, or an agent; membership and access changes carry typed append-only history, so *who could read this document on the day that edition was approved* is a query rather than an inference.
+
+## Notifications
+
+**No notification carries document text** (DL-0113) — in the application or by email. Email carries the event and a link; a correction notice renders the two wordings from the document, under the reader's current rights.
+
+Three surfaces (DL-0070). A **notifications section** in the application; **email** for the same events, whose sending identity is settled at DL-0072; and the **document list**, which shows each document's current state — so a reviewer seeing *pending edits* decides whether to review now or wait for more to arrive. The list is the quiet one and probably the most used: it turns notification from a stream of events into a standing picture of what is waiting.
+
+## Types, folders and links
+
+**Document types** are a platform-administrator-managed set — **policy**, **controls**, **technical instruction**, **job description**, **notes** — assigned per document by the tenant administrator and used as filters in the document list (DL-0057). A document needs no relatives: a technical instruction about changing a serial number in the ERP stands alone.
+
+Worth keeping apart: a **controls document** is authored, with its own editing and review pipeline; the controls **view** generated from a policy only reports what that policy already says. Same subject, different artefacts.
+
+**Folders exist in the interface, not in storage.** Each document is its own repository, named by its id, in a flat directory under its tenant (DL-0111); the interface shows folders with unlimited nesting, held as metadata (DL-0058). Moving a document changes nothing on disk, breaks no link, and orphans no history.
+
+**Links.** A mention of another document becomes a link **when the reader may access it**, and renders as plain text otherwise — a link is never allowed to disclose that a document exists (DL-0060, ASR-16). Each document carries an auto-generated **see also** listing what it links to, filtered the same way. Together with types and folders, this is what makes the document set a wiki: everything in one place, browsable and cross-linked.
+
+**Numbering and navigation.** Paragraphs are numbered within their section — `1.1-3` is section 1, subsection 1, paragraph 3; `4.3.2-6` is section 4, subsection 3, subsection 2, paragraph 6 — with the hyphen separating the heading path from the paragraph index. Heading depth is capped at four. Numbers are derived at render, never stored, and appear in the PDF, the DOCX and the reading view; in the editor they sit in a non-editable gutter beside the text (DL-0065). Every document also carries an **outline** of its sections and subsections as navigation links.
+
+**Images** live in the document's `images/` folder. A changed image is flagged in review and shown before-and-after, because a text diff cannot show it and a reviewer must not accept a change they could not see (DL-0059).
+
+## Stances
+
+Ukrainian is canonical; English follows the same logic (DL-0047).
+
+| Ukrainian                  | English            | Shows                                                 |
+| -------------------------- | ------------------ | ----------------------------------------------------- |
+| **Затверджена версія**     | Canonical version  | the last edition approved as authoritative            |
+| **Прийняті правки**        | Accepted edits     | the last revision a reviewer accepted                 |
+| **Всі неприйняті правки**  | Pending edits      | everything committed since, attributed and unaccepted |
+| **Мої правки**             | My edits           | the holder's own uncommitted session                  |
+| **Мої правки на розгляді** | My edits in review | what the editor has sent                              |
+
+**Four of the five are *правки* — edits, not document states.** The user is not switching between five documents; there is one document and a filter over which layers of edits are shown, with authorship toggled on top. That is how the tool being replaced works, and the interface follows it rather than the substrate.
+
+**Authorship is visible to everyone**, behind a *show author* toggle so a diff can be read without it (DL-0040). A **time machine** steps through versions with a visual boundary between accepted history and pending edits.
+
+## Acceptance
+
+The reviewer reads an agent analysis of the difference between the **last accepted revision** and the current one. Accepting makes the current revision the new accepted baseline, and is recorded as a commit to the document's **passport** — so an acceptance always leaves a trace even when no text changes (DL-0041).
+
+Where the reviewer wants corrections, the same commit touches the content files too.
+
+**In stage 1** the platform generates a **correction notice** at acceptance for each author whose text the reviewer changed — what they wrote, what was accepted, who changed it — delivered through the notification surface. Generated rather than authored, so the reviewer has no discretion about whether the author finds out. The reviewer may instead **return the run without accepting it**, with a reason — recorded as a passport commit like an acceptance, so the decision travels with the document (DL-0114). The next send presents the whole run since the last acceptance, returned versions included.
+
+*Stage 2, at low fidelity:* the notice becomes a durable **rejection record** the editor may escalate into the **Statement of Disagreements**, settled by agreement between editor and reviewer, or by the **decider** on deadlock (DL-0026, DL-0076).
+
+Acceptance is a **document-level act** covering the whole run since the last accepted version (DL-0090). Accepting only part of a run is a backlog refinement.
+
+## Editions
+
+A document is frozen as an **edition** and submitted for approval; on approval the edition becomes **canonical**. An edition cannot become canonical while any Statement entry is open (DL-0010). A new editing cycle may start against a canonical document at any time.
+
+## What the agents look for
+
+Three levels, and only the platform administrator sees the bottom one (DL-0049).
+
+| | What it is | Platform administrator | Tenant administrator | Editor |
+|---|---|---|---|---|
+| **heuristic** | one focused piece of prompt text | creates, edits | cannot see | cannot see |
+| **companion action** | a set of heuristics producing a user-facing analysis | creates, edits | sees title and description; attaches to a document | calls it |
+| **side-document type** | a set of heuristics producing and maintaining a generated view | creates, edits | sees title and description; attaches to a document | reads the view |
+
+The tenant's lever is the composed action, not its ingredients. Keeping prompt text out of reach of anyone who could write to the test is the point.
+
+The catalogue of what the heuristics look for is [`review-findings.md`](review-findings.md). Every run records the heuristics and versions it used; every finding names the heuristic that produced it.
+
+### How a user reaches an agent
+
+Three rules (DL-0050, ASR-11, ASR-12):
+
+- **No conversation.** A user calls predefined actions; nobody composes a prompt.
+- **No repeat for an unchanged version.** Once an action has answered for a version, the stored answer is returned — the source has not moved, so neither has the answer.
+- **Keyed to content, not to a session.** An action may run mid-edit; its result is stored against a hash of the document tree, so a commit is simply one content state among others (DL-0056). The send-for-review screen shows what was already computed rather than recomputing it.
+
+On sending for review the editor sees the analyses that will travel with the commit and confirms them.
+
+**Audience (DL-0021):** a finding reaches a recipient if and only if it is derivable from material that recipient may already read — computed per recipient, never by the prompt. An untagged finding is confidential.
+
+**Scope (DL-0032):** the companion reports only what this editor is introducing. The reviewer agent reports introduced, pre-existing, resolved and aggravated findings, separated.
+
+## Generated views
+
+Maintained by the agent and by nobody else, each with its own history (DL-0044). Two classes (DL-0063):
+
+**Mandatory** — recompiled on every commit:
+
+- **Directory of roles** — rights and obligations per role, with links back to the sections they come from.
+- **Directory of controls** — what the document says is controlled, and how.
+- **Contradictions**, **ambiguities**, **blind spots** — document-wide standing lists, a working backlog editors and reviewers act against, not a per-commit report.
+
+**Voluntary** — generated on request. A **job description** carrying a role's rights and obligations is the example. A voluntary view may also **seed an authored document**: the platform drafts it, a human takes it over, and from then on it is an ordinary document with its own pipeline. The view stays agent-only; what is seeded is a copy under human authorship, never an edited view.
+
+Both directories can render beside the document or be embedded in an export. Scope starts per document and extends to the whole repository later, since two policies can regulate one role. For a holder of the guidance grant, each list carries an **addendum** computed against the confidential requirements, visible only to them.
+
+## Document ADRs
+
+When a person changes the *logic* rather than the wording, a decision record is generated beside the document: who decided, when, why, and what the alternatives were (DL-0045). The agent pre-authors it; the person edits it or leaves it. One record covers one decision however many passages it touches — changing who approves a budget may rewrite fifteen of them.
+
+## Staging
+
+**Stage 1 — editor, diff viewer, versions, review and acceptance.** A working editor users can use the next morning.
+**Stage 2 — the agents and the generated views.**
+Architecture is designed for both now so stage 2 does not rebuild stage 1 (DL-0043, ASR-11).
+
+## Scope
+
+**In:** multi-tenancy with schema isolation; the linear cycle above on dummy documents; Ukrainian interface and per-document language; the entity layer, AI-proposed and human-confirmed, with read-only derived views; manual cross-document links; canonical documents readable as wiki pages; export to Markdown and PDF; heuristics and both agents; stances, time machine, presence, author toggle.
+
+**Out:** everything in [`backlog.md`](backlog.md) — Word import, automatic review of connected documents, repository-scope views, style linting, tenant-authored heuristics, the MCP server, and work items derived from the views. Plus per-tenant role-set configuration and board voting.
+
+## Success criteria
+
+A reviewer and an editor who have never seen git complete one full cycle on a dummy policy without meeting git vocabulary, and the canonical edition exports with its versions, reviews, disputes and approval traceable.
+
+## Publication
+
+Apache License 2.0, published while in development (DL-0162). Repository layout and secret handling follow from the first commit.

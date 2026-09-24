@@ -1,0 +1,8 @@
+# Text normalisation. Keep the working tree platform-native, the repository LF.
+* text=auto eol=lf
+
+# Documentation images are ordinary blobs, deliberately.
+# Git LFS is NOT used: on public GitHub its quota is shared across the account,
+# and an exhausted quota stops README images rendering and hands cloners an error.
+# If a genuinely large binary is ever needed, add a narrow LFS rule for that type
+# alone — never a catch-all.

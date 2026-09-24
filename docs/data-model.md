@@ -1,0 +1,369 @@
+---
+tags:
+  - technical-design
+aliases:
+  - Syngraphē data model
+status: draft
+date: 2026-09-21
+---
+
+# Data Model — stage 1
+
+The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at the end as attachment points, so the stage 1 schema has somewhere to put them without migration (ASR-14).
+
+## The rule that shapes everything below
+
+**Git holds content. PostgreSQL holds everything else, and never a second copy of content.** The only content-derived rows are navigation and search indexes, rebuildable from git at any time by replaying the repository. If a table would make git the second source of truth for a document's text, it is wrong.
+
+**Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on everything.
+
+**Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
+
+- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`.
+- **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
+
+**`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
+
+**`MEMBERSHIP_HISTORY`, `INVITATION` and `LANGUAGE` are shared** because each is about the platform-level object beside it: a membership, an email address that is the platform identifier, and a reference list every tenant draws from.
+
+A query that needs a document and a user joins across the boundary deliberately — the boundary is visible in the code that crosses it.
+
+## Platform, shared schema
+
+```mermaid
+erDiagram
+    TENANT ||--o{ MEMBERSHIP : has
+    USER ||--o{ MEMBERSHIP : holds
+    USER {
+        uuid id PK
+        string email UK "platform identifier"
+        string display_name "cleared on erasure; identifier kept"
+        string password_hash
+        bool is_platform_admin
+        bool is_tombstoned "former user (DL-0108)"
+        datetime last_login_at
+        datetime created_at "never exposed to a tenant admin"
+    }
+    USER ||--o{ INVITATION : invited_by
+    INVITATION {
+        uuid id PK
+        uuid tenant FK
+        string email
+        string token_hash UK "single use"
+        datetime expires_at
+        datetime accepted_at
+        uuid invited_by FK
+    }
+    TENANT {
+        uuid id PK
+        string name
+        string schema_name UK
+        bool require_distinct_approver "off by default (DL-0101, DL-0115)"
+    }
+    MEMBERSHIP {
+        uuid id PK
+        uuid tenant FK
+        uuid user FK
+        bool is_tenant_admin
+        string state "active | blocked"
+        datetime granted_at "what a tenant admin sees"
+        uuid granted_by FK
+    }
+    MEMBERSHIP ||--o{ MEMBERSHIP_HISTORY : records
+    MEMBERSHIP_HISTORY {
+        uuid id PK
+        uuid membership FK
+        string field "is_tenant_admin | state"
+        string before
+        string after
+        datetime at
+        uuid by FK
+        string actor_kind
+    }
+    LANGUAGE {
+        string code PK "uk | en"
+        string label
+    }
+    AUDIT_EVENT {
+        uuid id PK
+        uuid tenant FK "null for a platform-level action"
+        uuid actor FK "null when the system acted"
+        string actor_kind "user | system | agent"
+        string action "tenant.created | document.archived | image.uploaded | ..."
+        string object_type
+        uuid object_id
+        json before
+        json after
+        datetime at
+    }
+    SIGN_IN_ATTEMPT {
+        string key PK "the submitted email address, or the client address"
+        string key_kind "email | address"
+        int consecutive_failures
+        datetime next_allowed_at
+        datetime last_failure_at
+    }
+```
+
+**`SIGN_IN_ATTEMPT` is shared and deliberately keyless to a tenant.** Throttling happens before anyone is identified, so there is no tenant to scope it by; a row exists per submitted address and per client address, is reset on a successful sign-in, and is swept of rows older than a day. It holds no reference to `USER`, because a row must be writable for an address that belongs to nobody — that is exactly the case the identical-response rule exists to hide (T-14).
+
+**There is no self-registration** (DL-0107). A person exists because a tenant administrator invited them; `INVITATION` carries a hashed single-use token with an expiry, and sign-in, password reset and invitation acceptance all answer **identically whether or not an address is known** — they are the classic account-enumeration surfaces, and ASR-17 promises a tenant administrator learns nothing about a person's existence elsewhere.
+
+**`USER.is_tombstoned` is what erasure sets** (DL-0108): display name and email cleared, identifier kept, a *former user* label rendered in their place. Every reference from `created_by`, `ACCESS_CHANGE`, `ACCEPTANCE` and `EDITION` stays valid, so ASR-18 keeps its answers.
+
+**`MEMBERSHIP.granted_at` is what a tenant administrator sees; `USER.created_at` is not** (ASR-17). Adding a user who already exists elsewhere on the platform must look identical to adding a new one — same screens, same wording, same timestamps. Blocking sets `MEMBERSHIP.state`, never anything on `USER`.
+
+## Documents, tenant schema
+
+```mermaid
+erDiagram
+    FOLDER ||--o{ FOLDER : contains
+    FOLDER ||--o{ DOCUMENT : holds
+    DOCUMENT_TYPE ||--o{ DOCUMENT : classifies
+    DOCUMENT ||--o{ DOCUMENT_ACCESS : grants
+    DOCUMENT ||--o{ ACCESS_CHANGE : records
+    DOCUMENT ||--o{ VERSION : has
+    DOCUMENT ||--o{ HOLD : locked_by
+    DOCUMENT ||--o{ DRAFT : being_edited_as
+    DOCUMENT ||--o{ HEADING_INDEX : indexed_by
+    DOCUMENT ||--o{ IMAGE : embeds
+    DOCUMENT ||--o{ ENTITY : declares
+    DOCUMENT {
+        uuid id PK
+        string slug UK "stable human-readable identity in the interface; never a path"
+        string title "cache of document.md frontmatter"
+        string language FK "cache of document.md frontmatter"
+        uuid document_type FK
+        uuid folder FK "presentation only"
+        uuid created_by
+        datetime created_at
+        string state "creating | draft | active | archived"
+    }
+    DOCUMENT_TYPE {
+        uuid id PK
+        string code UK "policy | controls | instruction | job_description | notes"
+        string label
+    }
+    FOLDER {
+        uuid id PK
+        uuid parent FK "null at root"
+        string name
+    }
+    DOCUMENT_ACCESS {
+        uuid id PK
+        uuid document FK
+        uuid user FK
+        string right "read | edit | accept | freeze | approve"
+        bool archived "set with the document, restored with it"
+        datetime granted_at
+        uuid granted_by
+    }
+    ACCESS_CHANGE {
+        uuid id PK
+        uuid document FK
+        uuid user FK
+        string right
+        string action "granted | revoked | archived | restored"
+        datetime at
+        uuid by
+        string actor_kind
+    }
+```
+
+**`DOCUMENT.slug` is the identity and never changes** (ASR-15). `FOLDER` is presentation; moving a document rewrites one foreign key and nothing in git. **The repository on disk is named by `DOCUMENT.id`, not by the slug** (DL-0111) — a directory named by slug puts document titles, a confidential guidance document's included, into filesystem listings, backup manifests and operator shells that the access table does not govern.
+
+**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and an empty body — row becomes `draft`. Title and language live in that frontmatter, which is what lets a repository restored without its row recover them. The reconciler retries a row without a repository and reports a repository without a row as an orphan, never deleting it.
+
+**`DOCUMENT_ACCESS` is the whole permission model** (ASR-07, ASR-08). Five rights in stage 1 — **read, edit, accept, freeze, approve** — every one of them scoped to a whole document. There is no scope column and no code owner: section-scoped roles were dropped at DL-0091, which also removed the partially-approved state that section reviewers would have required. Comment is not among the rights; the annotation surface is stage 2 (DL-0083).
+
+**A document is created with one row**: its creator holding `edit` (DL-0089). The tenant administrator is notified and grants the rest. A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
+
+**Two audit mechanisms, split by a single question: must the answer be reconstructible at a past date?** (DL-0082)
+
+- **Yes → typed, append-only history.** `MEMBERSHIP_HISTORY` and `ACCESS_CHANGE` exist so that *"who could read this document on the day that edition was approved"* is a query, not an inference from a replayed event stream.
+- **No → `AUDIT_EVENT`.** Everything else a person did and should be answerable for: assigning a document type, attaching a side-document type, archiving, uploading an image. One table, actor and object typed loosely, because nobody reconstructs state from it — they read it.
+
+**Archiving preserves rights rather than removing them** (DL-0084). `DOCUMENT.state` goes to `archived`; the `DOCUMENT_ACCESS` rows are marked archived, disappear from the administration panel, and **resurrect unchanged** on restore. Rebuilding a permission set by hand is exactly where a restored document quietly becomes readable by the wrong people. Archiving is visible to tenant and platform administrators only, and an archived document's links stop resolving everywhere — including where its name sits in another document's prose.
+
+## Versions, holds and drafts
+
+```mermaid
+erDiagram
+    DOCUMENT ||--o{ VERSION : has
+    VERSION ||--o| ACCEPTANCE : accepted_by
+    VERSION ||--o{ EDITION : frozen_as
+    DOCUMENT ||--o{ HOLD : held_by
+    DOCUMENT ||--o{ DRAFT : drafted_in
+    VERSION {
+        uuid id PK
+        uuid document FK
+        string commit_sha UK
+        uuid author FK "git author name is this id; email is {id}@users.noreply.syngraphe.local"
+        string summary "agent-written, editor may edit"
+        string kind "edit | acceptance | revert"
+        datetime committed_at
+    }
+    ACCEPTANCE {
+        uuid id PK
+        uuid version FK "the passport commit"
+        uuid accepted_from FK "previous accepted version"
+        uuid reviewer FK
+        datetime at
+    }
+    ACCEPTANCE ||--o{ CORRECTION_NOTICE : generates
+    CORRECTION_NOTICE {
+        uuid id PK
+        uuid acceptance FK
+        uuid author FK "whose text was changed"
+        uuid author_version FK "render the original from here"
+        string file
+        string range_before "line range in the author's version"
+        string range_after "line range in the accepted version"
+        datetime at
+    }
+    VERSION ||--o{ RETURN : returned_by
+    RETURN {
+        uuid id PK
+        uuid version FK "the passport commit"
+        uuid returned_from FK "previous accepted version"
+        uuid reviewer FK
+        text reason
+        datetime at
+    }
+    EDITION {
+        uuid id PK
+        uuid version FK
+        string label "1.0, 1.1"
+        uuid frozen_by FK
+        datetime frozen_at
+        uuid approved_by FK
+        datetime approved_at "null until canonical"
+    }
+    HOLD {
+        uuid id PK
+        uuid document FK
+        uuid user FK
+        datetime acquired_at
+        datetime expires_at
+        datetime released_at
+        uuid released_by FK "set when forced"
+    }
+    DRAFT {
+        uuid id PK
+        uuid hold FK
+        json content "per-file working text"
+        datetime updated_at
+    }
+```
+
+**`VERSION.commit_sha` is the join to git**, and the row is a cache of what the commit already says — rebuildable, never authoritative. **`VERSION.author` is the only link between a commit and a person** (DL-0088): git holds the identifier, this table holds the mapping, and nothing personal is in the repository at all. Removing a person's **name and address** from the database therefore anonymises the record without rewriting history — pseudonymisation by construction. It does not remove the person from the record: `created_by`, `ACCESS_CHANGE`, `ACCEPTANCE` and `EDITION` all reference the identifier, and emptying those would destroy the audit answers ASR-18 promises. The erasure shape is a **tombstone** — identifier kept, name and address gone, a *former user* label in their place — settled at DL-0108.
+
+**`CORRECTION_NOTICE` is generated, never authored** (DL-0102, ADR-0001), and it **holds references, not text** (DL-0113). Both wordings are rendered from git when the notice is opened, under the reader's **current** rights — a stored copy would survive a revoked right and an archived document, and would escape the access table entirely, since a notice is read through the notification surface. In stage 2 it becomes the durable rejection record and gains an escalation path; the table is its first form, not a placeholder.
+
+**`RETURN` is the other reviewer decision, and it is a commit** (DL-0114). Returning a run without accepting it writes the passport exactly as an acceptance does, so the review history needs no second system to be believed and an export shows it. The derived row gives the document list what it needs to say *returned to its authors* rather than *awaiting review*. The next send for review presents the whole run since the last acceptance, returned versions included.
+
+**`TENANT.require_distinct_approver`** enforces the one optional segregation check: when set, `EDITION.approved_by` may not be the reviewer of **any** `ACCEPTANCE` between the previous canonical edition and this one (DL-0101, DL-0115). Not merely the last — accept a substantive run yourself, have a colleague accept a following run that changes a comma, and *last* stops meaning anything.
+
+**`EDITION.approved_at` null means frozen but not yet canonical.** The three stances fall out of these tables without a state column anywhere: canonical is the latest `EDITION` with `approved_at`; accepted is the latest `ACCEPTANCE`; pending is every `VERSION` after it.
+
+**`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or by expiry — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered.
+
+## Content index, entities, images
+
+```mermaid
+erDiagram
+    HEADING_INDEX {
+        uuid id PK
+        uuid document FK
+        uuid version FK
+        int position
+        int depth
+        string heading
+        int line
+    }
+    ENTITY {
+        uuid id PK
+        uuid document FK
+        string kind "role | action | term"
+        string key "cmo"
+        string label "Chief Marketing Officer"
+    }
+    IMAGE {
+        uuid id PK
+        uuid document FK
+        string path "images/plan.png"
+        string content_type "png | jpeg | gif"
+        int bytes
+        uuid uploaded_by FK
+        datetime uploaded_at
+    }
+```
+
+**`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` at a version, and it exists only to drive the outline and the rendered numbering. A row is valid for one version and rebuilt for the next.
+
+**There is no paragraph table, and that is deliberate.** Paragraph numbers are rendered labels derived from depth (DL-0065), and anything that must point at a passage — a finding, and later a comment — anchors with W3C text-quote selectors (DL-0027). Storing paragraph identifiers would put structure in two places and make every edit a reconciliation.
+
+**Comments are not here.** Threads, anchors and resolution are a surface rather than a field, and the whole of it is stage 2 (DL-0083).
+
+**`ENTITY` mirrors `entities.yaml` for lookup.** Occurrences are the attributed spans in the text and are not stored: the role directory is produced by parsing the sections at a version (DL-0073), which is why it ships in stage 1 without an agent.
+
+## Notifications and export
+
+```mermaid
+erDiagram
+    NOTIFICATION {
+        uuid id PK
+        uuid user FK
+        uuid document FK
+        string event "version_committed | accepted | edition_frozen | approved | hold_expiring | access_granted"
+        uuid version FK
+        datetime created_at
+        datetime read_at
+        datetime emailed_at
+    }
+    EXPORT_JOB {
+        uuid id PK
+        uuid document FK
+        uuid version FK
+        string format "pdf | docx | markdown"
+        uuid requested_by FK
+        string state "queued | done | failed"
+        string artifact_ref
+        datetime created_at
+    }
+```
+
+**`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent, so the email path can be built later without touching the schema (the sending identity is settled at DL-0072). The platform's single sending configuration is one row in the shared schema with the credential encrypted at rest and write-only in the interface (DL-0072).
+
+**`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce.
+
+## Stage 2 attachment points
+
+Not built now; the tables above must leave room for them without a migration that rewrites document, version or acceptance records (ASR-14).
+
+| Entity | Attaches to | Note |
+|---|---|---|
+| `HEURISTIC`, `COMPANION_ACTION`, `SIDE_DOCUMENT_TYPE` | shared schema, assigned per document | platform-authored; the tenant attaches, never authors (DL-0049) |
+| `ANALYSIS_RUN` | keyed by review scope and content state | scope is a set of documents the reviewer selects (DL-0077, DL-0078) |
+| `FINDING` | `ANALYSIS_RUN`, anchored by text-quote selector | carries provenance tags; audience computed per recipient (DL-0021) |
+| `REVIEW_SCOPE` | a reviewer and a set of documents | the unit an analysis is keyed to |
+| `GENERATED_VIEW` | `DOCUMENT`, one row per view type | mandatory views recompile per commit; voluntary on request (DL-0063) |
+| `DOCUMENT_ADR` | `DOCUMENT`, many versions | generated on a logic change, editable by a person (DL-0045) |
+| `DISPUTE`, `REJECTION_RECORD` | `VERSION` | deferred entirely to stage 2 (DL-0076) |
+| `THREAD`, `COMMENT` | `DOCUMENT`, anchored by text-quote selector | the annotation surface, deferred (DL-0083) |
+
+**The one thing stage 1 must get right for stage 2** is that `VERSION` is addressable and immutable, and that anchors are text-selectors rather than positions. Everything above hangs off those two facts.
+
+## What is deliberately absent
+
+- **No paragraph table** — see above.
+- **No section content table** — git holds it.
+- **No per-user analysis folder** — analyses key to scope, not person (DL-0078).
+- **No comment tables** — stage 2 (DL-0083).
+- **No soft-delete on `DOCUMENT_ACCESS`** — archived is a state, and the row survives so restoration is exact.
+- **No scope column anywhere** — rights and holds are whole-document (DL-0091).
+- **No partial-approval tables** — acceptance is a document act (DL-0090).
+- **No `state` column on `DOCUMENT` for the review cycle** — the stances are derived from `ACCEPTANCE` and `EDITION`, so there is no second place for them to disagree.
+- **No cross-tenant table of any kind** (ASR-17).
+- **No document text in any notification or notice row** (DL-0113) — references only, rendered from git under current rights.
+- **No normalizer version on the document** — it is recorded per commit (DL-0112).

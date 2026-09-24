@@ -1,0 +1,191 @@
+---
+tags:
+  - brief
+aliases:
+  - Syngraphē glossary
+status: draft
+date: 2026-09-21
+---
+
+# Glossary
+
+Every term in both languages, because the interface is Ukrainian and the design is in English, so each concept exists twice from the first day and the two drift silently — nothing fails when they do.
+
+**Format.** One line per term: **English** · Ukrainian · status — meaning. No tables, so nothing reformats itself between sessions.
+
+**Status.** *fixed* — the owner has settled it. *proposed* — the agent's suggestion, awaiting the owner. A term the owner has not seen is never treated as settled.
+
+**One term, one line.** A concept appears once. If a second name for it appears in a document, that is a finding, not a synonym.
+
+---
+
+## Documents and their parts
+
+**document** · документ · *proposed* — one Markdown file holding an authoritative text, with its entities, its images and its passport beside it.
+
+**frontmatter** · заголовок файлу · *proposed* — the title and the language at the top of `document.md`. Never shown in the editor; it is what a restored repository recovers its identity from.
+
+**section** · розділ · *proposed* — a top-level heading in a document.
+
+**subsection** · підрозділ · *proposed* — a heading below a section. Depth is capped at four.
+
+**paragraph** · пункт · *proposed* — the numbered unit inside a section. *Normative Ukrainian documents number розділ → підрозділ → пункт, which is exactly our `1.1-3`; **абзац** is the typographic word and is deliberately not used here.*
+
+**paragraph number** · номер пункту · *proposed* — `1.1-3` reads as розділ 1, підрозділ 1, пункт 3. Derived when the document is rendered, never stored.
+
+**passport** · паспорт документа · *proposed* — the file recording review and approval decisions, so that approvals travel with the document rather than living only in the application.
+
+**entity** · позначка · *proposed* — a marked piece of text: a **role** (роль), an **action** (дія) or a **term** (термін). Invisible in the reading view.
+
+**role directory** · довідник ролей · *proposed* — the list of roles a document declares, with their rights, obligations and the paragraphs each comes from. Derived by parsing the marks.
+
+**outline** · зміст · *proposed* — the navigable list of a document's sections and subsections.
+
+**see also** · див. також · *proposed* — the automatically maintained list of documents this one links to, filtered to what the reader may reach.
+
+**document type** · тип документа · *proposed* — policy (політика), controls (контролі), technical instruction (технічна інструкція), job description (посадова інструкція), notes (нотатки).
+
+**folder** · тека · *proposed* — where a document appears in the interface. Presentation only; storage is flat. *(папка is the common alternative.)*
+
+**style** · стиль · *proposed* — the organisation's rendering rules, authored by a designer and selected per document.
+
+**image** · зображення · *proposed* — an uploaded PNG, JPEG or GIF. HEIC is refused; metadata is stripped.
+
+---
+
+## States and what a reader sees
+
+The five stances. The Ukrainian is the owner's own and is the authority; the English follows it.
+
+**canonical version** · канонічна версія · *fixed* — the last edition approved as authoritative.
+
+**accepted** · прийняті правки · *fixed* — the last revision a reviewer accepted.
+
+**pending edits** · всі неприйняті правки · *fixed* — everything committed since, attributed and not yet accepted.
+
+**my edits** · мої правки · *fixed* — the holder's own uncommitted session.
+
+**my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent.
+
+**edition** · редакція · *proposed* — a frozen text put forward for approval. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
+
+**version** · правка · *proposed* — one committed change-set, the thing that appears in *мої правки*. Deliberately the same word as the stance names, because it is the same object seen from a different angle.
+
+**draft** · чернетка · *proposed* — typed but not yet committed. Held by the platform, visible to nobody else.
+
+**held** · зайнятий · *proposed* — somebody has the document open for editing and nobody else can.
+
+**archived** · заархівований · *proposed* — put away. Its links stop resolving; its access rights sleep and return unchanged on restore.
+
+---
+
+## What a user does
+
+**take for editing** · взяти на редагування · *proposed*
+
+**continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
+
+**send for review** · відправити на розгляд · *fixed* — the button that commits. There is no Save.
+
+**accept edits** · прийняти правки · *proposed* — make the current text the accepted baseline.
+
+**freeze an edition** · зафіксувати редакцію · *proposed*
+
+**approve** · затвердити · *proposed* — make a frozen edition canonical.
+
+**undo a contribution** · скасувати правку · *proposed* — a new version that reverses an earlier one. Nothing is erased.
+
+**archive / restore** · архівувати / відновити · *proposed*
+
+**export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version.
+
+> [!note] Worth your ruling — Ukrainian corporate practice already has this pair
+> Ukrainian document workflow distinguishes **погодження** (agreeing a document through its reviewers) from **затвердження** (final approval by an authority). That maps onto our two gates exactly: accept → **погодити**, approve → **затвердити**.
+>
+> It would replace *прийняти правки* with *погодити правки*, which pulls against your *прийняті правки* for the accepted stance. Two ways out: keep *прийняті* for the stance and use *погодити* for the act, or move both to *погодження*. The second buys vocabulary every Ukrainian office already understands; the first keeps what you have already fixed. Not a decision I should take.
+
+---
+
+## Who does it
+
+**reader** · читач · *proposed* — sees the canonical version only.
+
+**editor** · редактор · *proposed* — edits and commits.
+
+**reviewer** · погоджувач · *proposed* — accepts edits, and may correct wording first, including their own. *(Рецензент reads as academic; погоджувач is the corporate role.)*
+
+**approver** · затверджувач · *proposed* — records the approval that makes an edition canonical. The board's own procedure happens outside the platform.
+
+**designer** · дизайнер · *proposed* — authors the organisation's styles and selects them per document.
+
+**pending edits viewer** · переглядач неприйнятих правок · *proposed* — may see committed but unaccepted changes.
+
+**tenant administrator** · адміністратор організації · *proposed*
+
+**platform administrator** · адміністратор платформи · *proposed*
+
+---
+
+## Access and organisation
+
+**organisation** · організація · *proposed* — what a user sees. The internal word is *tenant*, and it never appears in the interface.
+
+**access right** · право доступу · *proposed* — read, edit, accept, freeze, approve. Held over a whole document.
+
+**access history** · історія доступу · *proposed* — who held what, when, granted by whom. Answerable for a past date.
+
+**notification** · сповіщення · *proposed*
+
+---
+
+## Agent concepts — stage 2
+
+Not in the first release. Listed so the vocabulary is settled before it is built.
+
+**companion** · помічник · *proposed* — the agent that assists an editor. Sees only what that editor may read.
+
+**reviewer agent** · агент-погоджувач · *proposed* — the agent that runs when a document is sent for review.
+
+**heuristic** · евристика · *proposed* — one focused piece of prompt text. Visible only to the platform administrator.
+
+**companion action** · дія помічника · *proposed* — a set of heuristics producing one analysis a user can ask for.
+
+**side-document type** · тип супровідного документа · *proposed* — a set of heuristics producing and maintaining a generated view.
+
+**generated view** · супровідний документ · *proposed* — a document written by the agent and by nobody else: contradictions (суперечності), ambiguities (неоднозначності), blind spots (прогалини), the role and control directories.
+
+**finding** · зауваження · *proposed* — one thing an agent reports, tagged with the material it was derived from.
+
+**review scope** · обсяг розгляду · *proposed* — the set of documents a reviewer puts in scope for one review. Neighbours are read at their accepted state unless the reviewer switches one to pending (DL-0104).
+
+**dispute** · розбіжність · *proposed* — a recorded disagreement over a passage. Stage 2.
+
+---
+
+## Internal terms, never shown to a user
+
+English only. If one of these reaches the interface, that is a defect.
+
+**tenant** — an organisation's isolated workspace, one PostgreSQL schema.
+
+**content state** — a hash of a document's tree, the key an analysis is cached against.
+
+**provenance tag** — the set of sources a finding was derived from, which decides who may see it.
+
+**review scope** — the ordered set of documents a reviewer put in scope, each at its content state, plus the heuristic set version. The key an analysis result is stored against.
+
+**audit event** — a recorded action with its actor, object and time.
+
+**hold** — the exclusive claim an editor has while editing.
+
+**normal form** — one sentence per line, whitelisted constructs, applied before every commit.
+
+---
+
+## Words we never use
+
+The substrate is invisible (ASR-06), so none of these appears anywhere a user can see, error messages included.
+
+**commit · branch · merge · pull request · repository · ref · diff · blame · LaTeX**
+
+And one that is not a git word: **save**. There is no Save button, and calling anything "save" reintroduces the idea that work can be lost by not doing it.
