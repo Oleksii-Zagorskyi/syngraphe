@@ -5,6 +5,9 @@ aliases:
   - Syngraphē glossary
 status: draft
 date: 2026-09-21
+language:
+  - en
+  - uk
 ---
 
 # Glossary
@@ -21,17 +24,31 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 ## Documents and their parts
 
-**document** · документ · *proposed* — one Markdown file holding an authoritative text, with its entities, its images and its passport beside it.
+**document** · документ · *proposed* — an authoritative text: its body, its appendices and its attachments, with its entities, images and passport beside them, in one repository.
 
-**frontmatter** · заголовок файлу · *proposed* — the title and the language at the top of `document.md`. Never shown in the editor; it is what a restored repository recovers its identity from.
+**body** · основний текст · *proposed* — the document's main text, `document.md`.
+
+**appendix** · додаток · *proposed* — a text that belongs to a document and is reviewed, accepted and frozen with it. One `#` section, whose heading is what the finished document shows; its **appendix title** names it in the interface and in an exported file name. Has no appendices or attachments of its own.
+
+**attachment** · вкладений файл · *proposed* — a file kept beside a document and never opened by the platform: a form, a spreadsheet template. Has a title; replacing it keeps earlier versions; changes to it are reviewed like text.
+
+**part** · частина документа · *proposed* — the body, an appendix or an attachment, when a sentence has to speak of all three.
+
+**title page** · титульна сторінка · *proposed* — an optional first page generated at export from the document's metadata. Never edited.
+
+**document template** · шаблон документа · *proposed* — the outline a new document starts from, one per organisation, kept by the tenant administrator.
+
+**attachment list** · перелік вкладених файлів · *proposed* — the table an export generates of a document's attachments: title, file name, hash.
+
+**frontmatter** · заголовок файлу · *proposed* — the title, the language, the title-page switch and the lists of appendices and attachments at the top of `document.md`. Never shown in the editor; it is what a restored repository recovers its identity from.
 
 **section** · розділ · *proposed* — a top-level heading in a document.
 
 **subsection** · підрозділ · *proposed* — a heading below a section. Depth is capped at four.
 
-**paragraph** · пункт · *proposed* — the numbered unit inside a section. *Normative Ukrainian documents number розділ → підрозділ → пункт, which is exactly our `1.1-3`; **абзац** is the typographic word and is deliberately not used here.*
+**clause** · пункт · *fixed* — the numbered unit inside a section: one paragraph of text. *Normative Ukrainian documents number розділ → підрозділ → пункт, which is exactly our `1.1-3`; **абзац** is the typographic word and is deliberately not used here.*
 
-**paragraph number** · номер пункту · *proposed* — `1.1-3` reads as розділ 1, підрозділ 1, пункт 3. Derived when the document is rendered, never stored.
+**clause number** · номер пункту · *fixed* — `1.1-3` reads as розділ 1, підрозділ 1, пункт 3. Derived when the document is rendered, never stored.
 
 **passport** · паспорт документа · *proposed* — the file recording review and approval decisions, so that approvals travel with the document rather than living only in the application.
 
@@ -45,7 +62,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **document type** · тип документа · *proposed* — policy (політика), controls (контролі), technical instruction (технічна інструкція), job description (посадова інструкція), notes (нотатки).
 
-**folder** · тека · *proposed* — where a document appears in the interface. Presentation only; storage is flat. *(папка is the common alternative.)*
+**folder** · тека · *fixed* — where a document appears in the interface. Presentation only; storage is flat.
 
 **style** · стиль · *proposed* — the organisation's rendering rules, authored by a designer and selected per document.
 
@@ -59,7 +76,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **canonical version** · канонічна версія · *fixed* — the last edition approved as authoritative.
 
-**accepted** · прийняті правки · *fixed* — the last revision a reviewer accepted.
+**accepted edits** · погоджені правки · *fixed* — the last revision a reviewer accepted.
 
 **pending edits** · всі неприйняті правки · *fixed* — everything committed since, attributed and not yet accepted.
 
@@ -85,9 +102,11 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
 
+**discard my edits** · відкинути мої правки · *proposed* — the third button on the send-for-review screen: throws away the whole draft, text and file operations alike, after the user confirms. The document is left as it was.
+
 **send for review** · відправити на розгляд · *fixed* — the button that commits. There is no Save.
 
-**accept edits** · прийняти правки · *proposed* — make the current text the accepted baseline.
+**accept edits** · погодити правки · *fixed* — make the current text the accepted baseline.
 
 **freeze an edition** · зафіксувати редакцію · *proposed*
 
@@ -97,12 +116,13 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **archive / restore** · архівувати / відновити · *proposed*
 
-**export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version.
+**export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version, composed from a scope, formats and a view.
 
-> [!note] Worth your ruling — Ukrainian corporate practice already has this pair
-> Ukrainian document workflow distinguishes **погодження** (agreeing a document through its reviewers) from **затвердження** (final approval by an authority). That maps onto our two gates exactly: accept → **погодити**, approve → **затвердити**.
->
-> It would replace *прийняти правки* with *погодити правки*, which pulls against your *прийняті правки* for the accepted stance. Two ways out: keep *прийняті* for the stance and use *погодити* for the act, or move both to *погодження*. The second buys vocabulary every Ukrainian office already understands; the first keeps what you have already fixed. Not a decision I should take.
+**edit the whole document** · редагувати весь документ · *proposed* — open one editor over the whole body or appendix.
+
+**edit a section** · редагувати розділ · *proposed* — open an editor over one `#` section; several may be open at once. Every editor writes into the same draft.
+
+**source view** · вихідний текст · *proposed* — the editor showing and accepting Markdown instead of formatted text. An editor, not an import.
 
 ---
 
@@ -152,7 +172,7 @@ Not in the first release. Listed so the vocabulary is settled before it is built
 
 **side-document type** · тип супровідного документа · *proposed* — a set of heuristics producing and maintaining a generated view.
 
-**generated view** · супровідний документ · *proposed* — a document written by the agent and by nobody else: contradictions (суперечності), ambiguities (неоднозначності), blind spots (прогалини), the role and control directories.
+**generated view** · супровідний документ · *fixed* — a document written by the agent and by nobody else: contradictions (суперечності), ambiguities (неоднозначності), blind spots (прогалини), the role and control directories.
 
 **finding** · зауваження · *proposed* — one thing an agent reports, tagged with the material it was derived from.
 

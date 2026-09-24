@@ -95,6 +95,10 @@ A second consequence worth stating: a development host that holds real tenant do
 **Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export.
 
 
+### T-15 — A malicious attachment
+
+**Who:** any editor. **How:** an attachment is an arbitrary file the platform keeps and hands to other users (DL-0166) — a document carrying a macro or an executable, or a file the browser would render if allowed: HTML, SVG, a PDF with script. **Answered by:** an attachment is **never rendered and never served inline**. Every download goes through the application's access check and is sent as a download, with a fixed generic content type and content sniffing disabled, under its stored file name; nothing is served from a public path. The tenant's size cap bounds what one upload can cost, and no agent ever reads an attachment (DL-0168). **Residual:** the platform does not inspect what an attachment contains; a reviewer sees that a file was added or replaced and can download it, and the protection on the reader's own machine is what judges its contents.
+
 ### T-07 — The record is altered
 
 **Who:** insider with database access. **How:** editing history to change what a document said or who approved it.
@@ -154,3 +158,4 @@ Two changes, both cheap now:
 - **An operator with database and filesystem access can alter the record consistently** (T-07). Signing and off-site replication are the answers and neither is in stage 1.
 - **A reviewer may accept their own work** (T-08). Taken knowingly; the control is the record.
 - **A person with read access can take what they may read** (T-09).
+- **Attachment contents are not inspected** (T-15). A file is served only as a download and never rendered; judging what is inside it is left to the reader's own machine.

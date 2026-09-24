@@ -27,7 +27,7 @@ The platform launches in Ukrainian; an English translation may follow (DL-0061).
 
 ## B-015 — Stale cross-reference detection
 
-An author writes *«як визначено в п. 4.2»* in the text. Somebody later inserts a section above it and the number is wrong, silently.
+An author writes *"as defined in clause 4.2"* in the text. Somebody later inserts a section above it and the number is wrong, silently.
 
 **Why it is a heuristic and not markup** (DL-0127). An author types the reference as plain text on day one, before any feature exists, so a markup mechanism would only ever catch references created after it shipped. A heuristic catches every one of them, including those written years earlier: *"this passage cites section 4.2 as being about asset disposal; section 4.2 is now about inventory."*
 
@@ -112,3 +112,11 @@ Stage 1 sends from one platform domain (DL-0072). Sending from each tenant's own
 **Why it is parked.** It is a design activity of its own with the owner in the loop. Built against an editor that is later rejected, the editing surface's mockup is thrown away.
 
 **What has to be true before it is taken up.** **The wireframes carry a release marker on every region, and the editor library is chosen** (`verification-plan.md` V-01).
+
+## B-020 — Comments in an export
+
+**Idea.** An option to carry a document's comment threads into a DOCX or PDF export, embedded beside the passages they are anchored to.
+
+**Why it is parked.** Release 0.1 has no comments (B-013), and exports carry text, generated title pages and attachment lists only (DL-0172).
+
+**What has to be true before it is taken up.** Comments exist, and a reader outside the platform has asked for the discussion along with the text.

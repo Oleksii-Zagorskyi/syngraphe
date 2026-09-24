@@ -4,6 +4,9 @@ tags:
 aliases:
   - Syngraphē concept pitch
 date: 2026-09-17
+language:
+  - en
+  - uk
 status: superseded in part
 supersedes-note: >
   The change-proposal model this pitch describes was abandoned for a single

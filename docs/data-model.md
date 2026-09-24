@@ -59,6 +59,7 @@ erDiagram
         string name
         string schema_name UK
         bool require_distinct_approver "off by default (DL-0101, DL-0115)"
+        int attachment_max_bytes "5 MB by default, tenant administrator sets it (DL-0166)"
     }
     MEMBERSHIP {
         uuid id PK
@@ -126,6 +127,7 @@ erDiagram
     DOCUMENT ||--o{ HOLD : locked_by
     DOCUMENT ||--o{ DRAFT : being_edited_as
     DOCUMENT ||--o{ HEADING_INDEX : indexed_by
+    DOCUMENT ||--o{ PART_INDEX : lists
     DOCUMENT ||--o{ IMAGE : embeds
     DOCUMENT ||--o{ ENTITY : declares
     DOCUMENT {
@@ -148,6 +150,12 @@ erDiagram
         uuid id PK
         uuid parent FK "null at root"
         string name
+    }
+    DOCUMENT_TEMPLATE {
+        uuid id PK
+        text outline "Markdown: section headings, optional starting text"
+        bool title_page "whether new documents get a title page"
+        text title_page_layout "the export template the title page renders through"
     }
     DOCUMENT_ACCESS {
         uuid id PK
@@ -172,9 +180,11 @@ erDiagram
 
 **`DOCUMENT.slug` is the identity and never changes** (ASR-15). `FOLDER` is presentation; moving a document rewrites one foreign key and nothing in git. **The repository on disk is named by `DOCUMENT.id`, not by the slug** (DL-0111) — a directory named by slug puts document titles, a confidential guidance document's included, into filesystem listings, backup manifests and operator shells that the access table does not govern.
 
-**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and an empty body — row becomes `draft`. Title and language live in that frontmatter, which is what lets a repository restored without its row recover them. The reconciler retries a row without a repository and reports a repository without a row as an orphan, never deleting it.
+**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `draft`. Title, language, the title-page switch and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler retries a row without a repository and reports a repository without a row as an orphan, never deleting it.
 
 **`DOCUMENT_ACCESS` is the whole permission model** (ASR-07, ASR-08). Five rights in stage 1 — **read, edit, accept, freeze, approve** — every one of them scoped to a whole document. There is no scope column and no code owner: section-scoped roles were dropped at DL-0091, which also removed the partially-approved state that section reviewers would have required. Comment is not among the rights; the annotation surface is stage 2 (DL-0083).
+
+**`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from, whether it gets a title page, and the layout the title page renders through at export (DL-0164). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
 
 **A document is created with one row**: its creator holding `edit` (DL-0089). The tenant administrator is notified and grants the rest. A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
 
@@ -251,8 +261,30 @@ erDiagram
     DRAFT {
         uuid id PK
         uuid hold FK
-        json content "per-file working text"
+        json content "per-file working text: body, appendices, frontmatter"
         datetime updated_at
+    }
+    DRAFT ||--o{ DRAFT_FILE : stages
+    DRAFT_FILE {
+        uuid id PK
+        uuid draft FK
+        string kind "image | attachment"
+        string path "images/... or attachments/{id}"
+        string operation "add | replace | remove"
+        bytes content "null for remove"
+        string file_name
+        string sha256
+        datetime at
+    }
+    DRAFT ||--o{ OPEN_EDITOR : edited_through
+    OPEN_EDITOR {
+        uuid id PK
+        uuid draft FK
+        string file "document.md or appendices/{id}.md"
+        string range "whole file, or a section by position"
+        string base_hash "hash of the range as this editor last saw it"
+        datetime last_seen_at "heartbeat"
+        datetime closed_at
     }
 ```
 
@@ -268,6 +300,10 @@ erDiagram
 
 **`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or by expiry — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered.
 
+**`DRAFT_FILE` holds uploads until they are committed** (DL-0175). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by *send for review*. It is the first copy of that content, not a second one.
+
+**`OPEN_EDITOR` is what makes several editors safe** (DL-0167). A capture is accepted only while its range of the draft still hashes to `base_hash`; an editor with no heartbeat past the timeout is closed; *send for review* is refused while any row is open.
+
 ## Content index, entities, images
 
 ```mermaid
@@ -276,6 +312,7 @@ erDiagram
         uuid id PK
         uuid document FK
         uuid version FK
+        string file "document.md or appendices/{id}.md"
         int position
         int depth
         string heading
@@ -288,6 +325,18 @@ erDiagram
         string key "cmo"
         string label "Chief Marketing Officer"
     }
+    PART_INDEX {
+        uuid id PK
+        uuid document FK
+        uuid version FK
+        string kind "appendix | attachment"
+        string part_id "the file's identifier"
+        int position
+        string title
+        string file_name "attachments only"
+        string sha256 "attachments only"
+        int bytes "attachments only"
+    }
     IMAGE {
         uuid id PK
         uuid document FK
@@ -299,9 +348,11 @@ erDiagram
     }
 ```
 
-**`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` at a version, and it exists only to drive the outline and the rendered numbering. A row is valid for one version and rebuilt for the next.
+**`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` and each appendix at a version, and it exists only to drive the outline, the section editors and the rendered numbering. A row is valid for one version and rebuilt for the next.
 
-**There is no paragraph table, and that is deliberate.** Paragraph numbers are rendered labels derived from depth (DL-0065), and anything that must point at a passage — a finding, and later a comment — anchors with W3C text-quote selectors (DL-0027). Storing paragraph identifiers would put structure in two places and make every edit a reconciliation.
+**`PART_INDEX` is the same kind of cache** over the frontmatter's lists of appendices and attachments (DL-0174), so a document page can list its parts without reading git. Git is the authority; the rows are rebuilt per version.
+
+**There is no paragraph table, and that is deliberate.** Clause numbers are rendered labels derived from depth (DL-0065), and anything that must point at a passage — a finding, and later a comment — anchors with W3C text-quote selectors (DL-0027). Storing paragraph identifiers would put structure in two places and make every edit a reconciliation.
 
 **Comments are not here.** Threads, anchors and resolution are a surface rather than a field, and the whole of it is stage 2 (DL-0083).
 
@@ -325,7 +376,10 @@ erDiagram
         uuid id PK
         uuid document FK
         uuid version FK
-        string format "pdf | docx | markdown"
+        string scope "document | with_appendices | archive | appendix | attachment | companion"
+        string part_id "the appendix, attachment or companion document, for a single-part scope"
+        string formats "any of pdf | docx | markdown"
+        string view "canonical | pending_edits | my_edits | my_edits_clean"
         uuid requested_by FK
         string state "queued | done | failed"
         string artifact_ref
@@ -335,7 +389,7 @@ erDiagram
 
 **`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent, so the email path can be built later without touching the schema (the sending identity is settled at DL-0072). The platform's single sending configuration is one row in the shared schema with the credential encrypted at rest and write-only in the interface (DL-0072).
 
-**`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce.
+**`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce. Scope, formats and view are the three choices the export screen composes (DL-0172); a *my edits* export reads the requester's own draft as well as the version.
 
 ## Stage 2 attachment points
 

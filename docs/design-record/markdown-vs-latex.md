@@ -46,7 +46,7 @@ Tables, mathematics and multi-column layout are not losses, because the document
 **Main file.** The proposed plain list works, but a `document.yaml` manifest is machine-authoritative and just as readable:
 
 ```yaml
-title: Назва документа
+title: Document title
 language: uk
 sections:
   - section01.md

@@ -63,7 +63,11 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0009** — As a tenant administrator or user, I create a document by giving it a title, a language and a type, so that work can begin on it. *(skeleton)*
 - Language comes from a fixed list; a document carries exactly one.
 - I hold edit on it. Nothing else is granted automatically.
-- What is created is one empty Markdown file.
+- The new document's text is the organisation's document template: its section headings and any starting text (DL-0169).
+
+**ST-0058** — As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page, so that every new document starts with the structure we expect.
+- One template per organisation. Editing it changes documents created afterwards, never existing ones.
+- The title page is generated at export from the document's metadata through a layout I configure; nobody types it (DL-0164).
 
 **ST-0051** — As a tenant administrator, I am notified when a document is created, so that I grant its rights while it is still empty.
 - Until someone holds accept, the document reads *no reviewer assigned* and acceptance is refused with that reason rather than failing quietly.
@@ -99,7 +103,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Only the fact of the edits is visible, never their content, until a version is committed.
 
 **ST-0019** — As an editor, I write and format text with headings, lists, bold, underline, italics, callouts and tables, so that a policy reads as a policy. *(skeleton)*
-- Nothing outside that set is available, and anything pasted that falls outside it is refused at the moment of pasting, never silently dropped.
+- Nothing outside that set is available, and anything pasted that falls outside it is refused at the moment of pasting, never silently dropped. The refusal names the offending lines and offers a conversion, shown before it is applied, and links to a help page listing what is allowed (DL-0171).
 - Tables are plain: one row per line, inline content only, **no merged cells**. A table needing merged cells is restructured — the constraint is stated to the business users rather than discovered by them.
 - Inside a table the **row** is what a change is attributed to, not the sentence (DL-0100).
 
@@ -107,12 +111,34 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Closing the browser, or losing it, loses nothing.
 - Because a user arriving from Word **will** look for it, the interface states that the work is captured rather than leaving the absence to be inferred.
 
+**ST-0059** — As an editor, I open an editor on just one section, so that a small correction in a long policy does not put the rest of the text in front of me.
+- Every `#` section has its own editor, and I may open several at once; the whole-document editor opens once they are closed.
+- All of them write into my one draft, and I send the document for review as a whole — never one section.
+- A heading I type inside a section editor becomes a section of its own once I close the editor.
+- If the same text is being edited in another tab, the editor that fell behind stops and shows me my unsaved text as changes against the current draft, so I can carry it over by hand (DL-0167).
+
+**ST-0060** — As an editor, I switch an editor to Markdown source and type or paste Markdown there, so that text I prepared elsewhere keeps its formatting.
+- Formatted text is the default; the source view is always one step away, in the whole-document and the section editors alike.
+
+**ST-0061** — As an editor, I add, rename, reorder and delete a document's appendices, so that material that belongs with the policy is approved with it.
+- An appendix has a title I type, including any number (DL-0165); the title names it in the interface and in an exported file and is never printed in the document.
+- An appendix holds one `#` section, and I edit it with the same editors as the body.
+- Appendices are listed in the order I added them until I reorder them.
+
+**ST-0062** — As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, so that the files people need sit beside the policy they belong to.
+- Every attachment has a title. Files above the organisation's size limit are refused with the limit stated (DL-0166).
+- The platform never opens an attachment; replacing it keeps the earlier version in the history.
+- Every change to an attachment is part of my draft and is reviewed with my text (DL-0168).
+
 **ST-0021** — As an editor, I undo changes I have just made, so that a wrong turn costs seconds.
 
-**ST-0022** — As an editor, I abandon an editing session, so that work I have decided against does not reach the document.
+**ST-0022** — As an editor, I discard my edits, so that work I have decided against does not reach the document.
+- Offered on the send-for-review screen beside *continue editing* and *send for review*, and confirmed before it acts.
+- It discards everything in the draft: text, and any attachment or appendix added, replaced, reordered or deleted. A file I deleted and then discarded is still there.
 
-**ST-0023** — As an editor, I see a number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
-- The form is `1.1-3` and `4.3.2-6`: the heading path, then the paragraph within it.
+**ST-0023** — As an editor, I see a clause number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
+- The form is `1.1-3` and `4.3.2-6`: the heading path, then the clause within it — each paragraph of text is one clause.
+- Inside an appendix the same numbers carry the appendix in front of them, so *Appendix 2, 1.1-3* is unambiguous.
 - The numbers are not part of the text and cannot be typed into; they sit in a gutter beside it.
 
 **ST-0024** — As any reader of a document, I navigate by an outline of its sections and subsections, so that a forty-page policy is usable.
@@ -145,12 +171,16 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0031** — As a reviewer, I read everything committed since the last acceptance, in order, with each change attributed to its author. *(skeleton)*
 - Authorship shows behind a toggle, so the same diff can be read with or without it.
+- Changes are marked word by word inside the formatted text, the way a word processor tracks changes; a change to formatting alone is marked as such (DL-0170).
+- As an editor I see my own draft the same way, as *my edits*.
 
 **ST-0032** — As any reader of a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not.
 
 **ST-0033** — As a reviewer, I compare any two versions directly, so that I am not forced to read a long run one step at a time.
 
 **ST-0034** — As a reviewer, I see that an image changed and view the old and new side by side, so that I never accept a change I could not see.
+
+**ST-0063** — As a reviewer, I see every appendix and attachment that was added, replaced, renamed, reordered or removed, and can download each version of an attachment and revert the operation before accepting, so that a form never becomes part of an approved document unseen (DL-0168).
 
 **ST-0035** — As a reviewer, I correct wording I find unacceptable and accept the result, so that a single sentence does not cost a round trip. *(skeleton)*
 - My correction is committed as mine and is visible as such.
@@ -204,6 +234,8 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0045** — As a reader, I export a stated version to PDF, to Word or to Markdown, so that I can circulate it outside the platform. *(skeleton)*
 - The export names the version it is of.
 - Numbering, structure and images survive into all three formats.
+- I compose it with checkboxes: what — the document, with its appendices embedded or as separate files, one appendix, one attachment, one companion document; which formats; which view — canonical, pending edits, my edits with or without marks. With nothing chosen, nothing exports (DL-0172).
+- The title page and a table of the attachments — title, file name, hash — are generated; attachments themselves never go inside a text export.
 
 **ST-0046** — As a designer, I edit the stylesheet the exports are rendered with, so that documents look the way the organisation expects.
 - One stylesheet per organisation, selected per document.

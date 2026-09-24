@@ -26,7 +26,7 @@ CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs it on every 
 
 ## Levels
 
-**Fast tests — no database, no repository.** The pure logic: the normalizer and its sentence splitter, the whitelist parser, the canonical table row, permission decisions computed from given rows, render rules such as paragraph numbering. They run as a group in about a second, so they can run constantly while working.
+**Fast tests — no database, no repository.** The pure logic: the normalizer and its sentence splitter, the whitelist parser, the canonical table row, permission decisions computed from given rows, render rules such as clause numbering. They run as a group in about a second, so they can run constantly while working.
 
 **Integration tests — a real PostgreSQL and real bare repositories.** Anything that crosses the two stores runs against both for real: tenant schemas created and migrated, repositories initialised in a temporary directory, commits made through the git service layer. Neither store is mocked, because the write protocol between them is the thing most likely to be wrong and a mock would agree with whatever the code assumes. Celery tasks are tested by calling them as functions against their rows; the broker is outside the test, since every task has a row behind it.
 

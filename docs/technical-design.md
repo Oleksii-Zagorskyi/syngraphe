@@ -27,7 +27,8 @@ date: 2026-09-21
 | Identity and access control | Django (DL-0042, supersedes DL-0015) | Decided |
 | Forgejo | **Dropped** (DL-0042) | Decided |
 | Document format | Constrained **Markdown** subset, pipe tables included | Decided (DL-0046, DL-0100) |
-| Editor | Constrained WYSIWYG over Markdown | Library not yet chosen |
+| Editor | Constrained rich editor over Markdown, with a Markdown source view; one instance per open editor | Library not yet chosen (V-01) |
+| Interface | Django templates, htmx, the editor as the one client island | Proposed (ADR-0004) |
 | Rendering | HTML with a designer-authored stylesheet through weasyprint for PDF; pandoc for DOCX | Decided (DL-0046) |
 
 ## Architecture
@@ -70,13 +71,13 @@ Two stores, one record. Without these rules the crash states are undefined and t
 
 **The passport wins over the row.** Where they disagree, the reconciler reports an audit event; the interface believes the passport.
 
-**Document creation is the one two-store write.** The row is written in a `creating` state; the repository is initialised and receives the manifest commit; the row becomes `draft`. The reconciler **retries** a row without a repository and **reports** a repository without a row as an orphan — never deleting it.
+**Document creation is the one two-store write.** The row is written in a `creating` state; the repository is initialised and receives its first commit — `document.md` built from the organisation's template (DL-0169); the row becomes `draft`. The reconciler **retries** a row without a repository and **reports** a repository without a row as an orphan — never deleting it.
 
 **Backup takes the database first and the repositories second.** The superset property holds per document: history is append-only and there is no cross-document commit, so each repository copied later contains at least what the database knew about it. Two hazards, neither about the number of repositories:
 
 - A repository copied **while it is being written** can yield a ref pointing at an object the copy missed. Use a filesystem snapshot of the repository root, or copy each repository **under its writer lock** — milliseconds, at this size.
 - A restore leaves git ahead of the database and the reconciler repairs that, but **database-only state between the last dump and the failure is gone** — holds, access changes, and above all **drafts**, which ADR-0003 makes load-bearing because a session has no intermediate commits. The database therefore needs **continuous archiving with point-in-time recovery**; the tooling is a deployment detail, the requirement is not.
-- A repository restored **without its row** is recreated from `document.md`'s frontmatter — title and language — with **no access rows at all**, and the tenant administrator is notified. Fail closed, the same instinct as an untagged finding.
+- A repository restored **without its row** is recreated from `document.md`'s frontmatter — title, language, and the appendix and attachment lists — with **no access rows at all**, and the tenant administrator is notified. Fail closed, the same instinct as an untagged finding.
 
 **Housekeeping for many small repositories.** Initialise from an empty template, or every repository carries a dozen sample hooks. Schedule a **periodic repack per repository under its lock**, because a library that writes commits does not repack and each version leaves loose objects; pruning removes only unreachable objects, and in an append-only linear history the only unreachable objects are debris from failed writes — so this does not touch ASR-02, and that sentence belongs beside the job or nobody will dare run it.
 
@@ -117,16 +118,25 @@ The condition the old design relied on is now explicit rather than structural: *
 
 ## Document storage and diff semantics
 
-A document is **one Markdown file** in its own repository:
+A document is **its body, zero or more appendices and zero or more attachments**, all in its own repository (DL-0165, DL-0166):
 
 ```
 {tenant}/{document-id}/        # repository root, one per document (DL-0111)
-├── document.md       # frontmatter: title, language · body: the whole text
+├── document.md       # frontmatter: title, language, appendix and attachment lists · body: the main text
+├── appendices/       # one Markdown file per appendix, named by its identifier
+├── attachments/      # one opaque file per attachment, named by its identifier
 ├── entities.yaml     # role, action and term definitions
 ├── images/           # uploaded binary assets the text embeds
 ├── analysis/         # editor-facing companion analyses (stage 2)
 └── passport.md       # review and approval decisions (DL-0041)
 ```
+
+### Appendices, attachments and the title page
+
+- **`document.md`'s frontmatter lists the parts**: appendices in display order, each with its identifier and title; attachments in display order, each with its identifier, title, original file name and SHA-256 hash. Adding, removing, renaming, replacing or reordering a part is a change to the document, versioned and reviewed like any other (DL-0168), and a repository restored without its row recovers every part from this one file.
+- **An appendix** is a Markdown file under the same whitelist as the body, holding **exactly one `#` section**, whose heading is what the finished document shows. Its title in the frontmatter names the appendix in the interface and its exported file, and is never rendered in DOCX or PDF. An appendix has no appendices or attachments of its own.
+- **An attachment** is stored as uploaded and never parsed, rendered or read by an agent. Its size is capped per tenant, 5 MB by default. Replacing it writes a new blob at the same path, so earlier versions stay in history; a download serves the original file name.
+- **The title page is not stored.** When a document has one, it is rendered at export from the document's metadata through the tenant's title-page template (DL-0164).
 
 ### The constrained Markdown subset
 
@@ -145,7 +155,7 @@ A document is **one Markdown file** in its own repository:
 | Images | `![alt](images/name.png)` | Repository-local paths only |
 | Links | `[text](url)` and repository-local paths | |
 
-Everything else is outside the subset: raw HTML, scripts, footnotes, definition lists, headings below depth four, task lists, nested tables, merged cells, horizontal rules, code blocks, math, and any remote image or stylesheet reference. The editor offers exactly the set above and nothing else; anything outside it is **rejected at edit time with a message**, never silently dropped.
+Everything else is outside the subset: raw HTML, scripts, footnotes, definition lists, headings below depth four, task lists, nested tables, merged cells, horizontal rules, code blocks, math, and any remote image or stylesheet reference. The editor offers exactly the set above and nothing else; anything outside it is **rejected at edit time with a message**, never silently dropped. Pasted Markdown that falls outside the set is refused with the offending lines named, and the user is offered a conversion — removing or rewriting what the set does not allow — previewed before it is applied (DL-0171). The message links to a help page listing the set, generated from the same specification as the editor schema and the parser configuration.
 - **The whitelist binds the parser, not only the editor** (DL-0096): raw HTML disabled, no script, no remote image or stylesheet references, and no network for the PDF renderer. Text arrives by paste and by import as well as by typing, so a rule that only the interface enforces protects nobody.
 - **Tables** are pipe tables: one row per line, inline content only, no merged cells, no nested blocks (DL-0100). Inside a table the **row** is the unit of diff, authorship and per-author undo — a cell cannot hold a line break, so the sentence stops being addressable there. The normalizer gives every row exactly one spelling: one space inside each cell edge, no alignment padding, a delimiter row keeping only its alignment colons. Without that, padding from an editor, a paste or a prettifier rewrites every row when one cell changes, and each rewritten row is re-attributed to whoever touched one of them.
 - **Entities** are attributed spans — `[CMO]{.role #cmo}`, `[obliged to approve]{.action}`, `[10 days]{.term #timeout}`. Real Pandoc syntax, so it survives every render target and stays machine-readable. Definitions live in `entities.yaml`; the spans mark occurrences. The editor never shows the syntax: a user selects text and marks it.
@@ -158,18 +168,22 @@ Everything else is outside the subset: raw HTML, scripts, footnotes, definition 
 - **Moved text** is the case to watch: a paragraph cut and pasted elsewhere arrives as a deletion and an insertion. If alignment recognises the moved block and carries its bytes and boundaries unchanged, blame can still attribute it to its original author; if it is re-split, the author becomes whoever moved it.
 ### Rendering, styles and layout
 
-- **Heading numbering is a render rule** derived from depth: `#` is 1, `##` is 1.1, `###` is 1.1.1. Never stored, so moving a section renumbers everything and breaks nothing. Comments and findings anchor by quoted text (DL-0027). A prose reference such as *«як визначено в п. 4.2»* is ordinary text; keeping it true as a document is restructured is a stage 2 heuristic, backlog B-015.
+- **Heading numbering is a render rule** derived from depth: `#` is 1, `##` is 1.1, `###` is 1.1.1. **Each appendix numbers its own headings from 1**, and a reference into one carries the appendix in front — *Appendix 2, 1.1-3*. Never stored, so moving a section renumbers everything and breaks nothing. Comments and findings anchor by quoted text (DL-0027). A prose reference such as *"as defined in clause 4.2"* is ordinary text; keeping it true as a document is restructured is a stage 2 heuristic, backlog B-015.
 - **Styles are a stylesheet** the designer authors at organization level and selects from per document (DL-0020). The CSS analogy is no longer an analogy.
 - Hunks are classified **sense** or **style**. Style hunks **collapse** in the review surface and are accepted **with the run** — they do not auto-accept, because acceptance is a document-level act with no per-hunk step to skip, and a classifier deciding a change needs no human eyes would contradict ASR-04.
-- **A section is a heading.** Structure is the heading hierarchy of `document.md`, and restructuring a document is editing its text.
-- **Images** are ordinary git blobs — **no LFS** (DL-0066). Allowed types and a per-image size cap are enforced on upload; anything not web-renderable is converted on the way in, which is not optional because no browser renders HEIC; metadata is stripped. A change to an image cannot be read as a diff, so the review surface flags it and renders before-and-after (ASR-04). Revisit LFS only if a repository's size becomes a measured problem.
-- **Paragraph numbering** is derived at render, never stored (DL-0065): `1.1-3` is section 1, subsection 1, paragraph 3; the hyphen separates the heading path from the paragraph index, and heading depth is capped at four. In the editor the numbers render in a non-editable gutter outside the editable region, recomputed as the text changes. A finding or a comment anchors by **quoted text** (DL-0027) and displays the current number — the number is a label, never an address.
+- **A section is a heading.** Structure is the heading hierarchy of `document.md` and of each appendix, and restructuring a document is editing its text. A section is a range of a file, never a file of its own.
+- **Images** are ordinary git blobs — **no LFS** (DL-0066). Allowed types and a per-image size cap are enforced on upload; anything not web-renderable is converted on the way in, which is not optional because no browser renders HEIC; metadata is stripped. A change to an image cannot be read as a diff, so the review surface flags it and renders before-and-after (ASR-04). Agents never read images (DL-0168). Revisit LFS only if a repository's size becomes a measured problem.
+- **Clause numbering** is derived at render, never stored (DL-0065): `1.1-3` is section 1, subsection 1, clause 3 — each paragraph of text is one clause; the hyphen separates the heading path from the clause index, and heading depth is capped at four. In the editor the numbers render in a non-editable gutter outside the editable region, recomputed as the text changes. A finding or a comment anchors by **quoted text** (DL-0027) and displays the current number — the number is a label, never an address.
 - **Storage layout is flat.** One repository per document under the tenant's directory; the nested tree a user sees is Django metadata, and a move never touches a path (DL-0058, DL-0111, ASR-15).
 
 ## Versions, holds and history
 
 - **Taking the document** opens a draft. It persists server-side, is invisible to others, and is not a version. There is no Save control.
-- **There is no Save.** *Send for review* is the commit (DL-0054). Pressing it presents the companion analyses for the current content, and the editor either continues editing or commits.
+- **Editors are views over the draft** (DL-0167). The whole-document editor and a section editor per `#` section are the same editor over different ranges, and several section editors may be open at once; the whole-document editor opens only when no section editor is open. Every editor writes into the one draft of the one hold.
+- **Captures are checked per range.** An editor remembers the text of the range it opened, and the server accepts its capture only while that range of the draft is unchanged since the editor last saw it — so editors over different sections never conflict, including across browser tabs. An editor whose range changed underneath it stops, turns read-only, and shows its unsaved text as changes against the current draft for the user to carry over by hand.
+- **Open editors are known to the server** by heartbeat. *Send for review* and an analysis request are refused while any editor is open; an editor whose tab closed without closing it times out.
+- **Uploads wait with the draft.** An image or attachment added, replaced or removed during a hold is held in the database beside the draft's text, covered by the same point-in-time recovery, and written to the repository in the commit that *send for review* makes.
+- **There is no Save.** *Send for review* is the commit (DL-0054). Pressing it presents the companion analyses for the current content, and the editor continues editing, commits, or discards the draft after confirming. A session that changed only attachments or appendix order ends the same three ways; discarding it leaves every file as it was, a deletion included (DL-0180).
 - **The analyses are written into the same commit** as the content, in `analysis/` (DL-0055). This is why the commit identifier is never needed: the analysis is part of the tree rather than a pointer at it, both halves are known before the commit is made, and the reasoning travels into any clone or export.
 - **Analysis files have fixed names and are overwritten on every commit** (DL-0067). Nothing is lost — the analysis as of any version is `git show {commit}:analysis/{name}`. Accumulating timestamped files would duplicate what history already gives.
 - **Only the editor-facing artefact goes into the tree.** The reviewer-eyes-only analysis (DL-0007) must never be committed into the document folder, because anyone with read access to the document would read it. It lives outside the tree, reachable only through the access table. Committing it would breach ASR-03 by a storage decision rather than a delivery one.
@@ -181,7 +195,7 @@ Everything else is outside the subset: raw HTML, scripts, footnotes, definition 
 
 ## The pending view
 
-A plain read, not a computation over branches: the commits since the last accepted revision, in order, attributed. Sentence-per-line keeps attribution exact, so *show author* (DL-0040) resolves to a sentence rather than a paragraph, and a per-author revert is exact.
+A plain read, not a computation over branches: the commits since the last accepted revision, in order, attributed. **Changes are shown word by word inside the rendered text** (DL-0170): the line diff finds the changed sentences, and only those are compared word by word; a change to formatting alone carries its own marker. Added, replaced and removed images and attachments are listed with their titles, each version viewable or downloadable. *My edits* uses the same presentation against the current text. Sentence-per-line keeps attribution exact, so *show author* (DL-0040) resolves to a sentence rather than a paragraph, and a per-author revert is exact.
 
 ## Presence
 
@@ -253,12 +267,20 @@ Runs against the editor's session with its own interface. Sees the working docum
 
 ## Interfaces
 
-- **Web UI** — Ukrainian, all roles, five document stances (DL-0033).
+- **Web UI** — Ukrainian, all roles, five document stances (DL-0033). Server-rendered pages with the editor as the one client island (ADR-0004).
 - **MCP server** — an external agent connects as a user and inherits exactly that user's rights. **Not in stage 1** — backlog B-007; the contract is recorded so the authorisation path is built once.
 
 ## Export
 
 Markdown, PDF and DOCX. PDF renders through HTML and the designer's stylesheet with weasyprint; DOCX through pandoc. All three are in stage 1 — Markdown made the Word path cheap (DL-0046).
+
+An export is composed from three choices (DL-0172):
+
+- **Scope** — the document alone; the document with every appendix embedded; the document and its appendices as separate files in one archive; one appendix; one attachment, as the stored file; one companion document — a mechanical analysis or a change summary.
+- **Format** — DOCX, PDF, Markdown, for every text scope.
+- **View** — the canonical version; *pending edits*, marked against the last approved text; *my edits*, marked against the current text, or unmarked. Change marks appear in DOCX and PDF only.
+
+The platform generates two parts no one authors: the **title page**, when the document has one, and the **attachment list** — title, file name and SHA-256 hash, on a page of its own in DOCX and PDF and as a final `#` section in Markdown. Attachment contents are never embedded in a text export.
 
 ## Publication and secret handling
 

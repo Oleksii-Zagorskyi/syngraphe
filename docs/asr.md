@@ -62,7 +62,7 @@ Audience is computed per recipient, never per finding, and never by the prompt (
 
 The working state accepts versions immediately; *Accepted* requires a reviewer accepting the whole run since the last acceptance (DL-0090); *Canonical* requires an approver, and — where a tenant has switched the check on — an approver who performed **none of the acceptances since the previous canonical edition** (DL-0101, DL-0115).
 
-*Forbids:* an approval recorded only as application state — acceptance is a commit to the document's passport, so approval history travels with the document. Also forbids a change the review surface cannot render: a replaced image produces a diff a reviewer cannot read, so image changes are flagged and shown before-and-after (DL-0059).
+*Forbids:* an approval recorded only as application state — acceptance is a commit to the document's passport, so approval history travels with the document. Also forbids a change the review surface cannot render: a replaced image produces a diff a reviewer cannot read, so image changes are flagged and shown before-and-after (DL-0059), and every attachment added, replaced, renamed, reordered or removed is listed in the review with each version downloadable (DL-0168).
 
 ## ASR-05 — One editing sequence per document *(constraint)*
 
@@ -211,7 +211,7 @@ With no Save control and no intermediate commits, the draft is the only copy of 
 
 ## ASR-23 — The envelope the budgets hold within *(constraint)*
 
-A document of up to **100 pages** — about 300 KB of Markdown — with each image up to **10 MB**. Up to **50 signed-in users per tenant** and **300 across the platform**. Tens of tenants on one host.
+A document of up to **100 pages** — about 300 KB of Markdown, body and appendices together — with each image up to **10 MB**, and up to **20 attachments**, each within the tenant's cap of **5 MB** by default. Up to **50 signed-in users per tenant** and **300 across the platform**. Tens of tenants on one host.
 
 One hundred pages is two and a half times the longest document the platform is expected to hold, and forty pages is what the verification spikes measure. *Forbids:* a promise in ASR-21 or ASR-22 made beyond this envelope; an estimate or a capacity decision that assumes a larger one without revising this entry first.
 

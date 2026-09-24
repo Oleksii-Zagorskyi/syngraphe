@@ -22,7 +22,9 @@ Staff of a tenant organisation revising the tenant's own authoritative documents
 
 ## What a document is
 
-**One Markdown file** in its own repository. `document.md` carries title and language in its frontmatter and the whole text as its body. Beside it sit the entity definitions, the images, and a **passport** recording review and approval decisions (DL-0041).
+**A body, its appendices and its attachments**, in one repository of its own (DL-0165, DL-0166). `document.md` carries the title, the language and the list of parts in its frontmatter, and the main text as its body. **Appendices** are texts of the same kind, reviewed, accepted and frozen with the body. **Attachments** are files the platform keeps and never opens — a form, a spreadsheet template — each with a title and every change to it reviewed. Beside them sit the entity definitions, the images, and a **passport** recording review and approval decisions (DL-0041).
+
+A new document starts from the organisation's **template** (DL-0169). An optional **title page** is generated at export from the document's metadata and is never typed (DL-0164).
 
 **A section is a heading.** Structure is the heading hierarchy, and restructuring a document is editing its text.
 
@@ -30,7 +32,9 @@ Concretely (DL-0046):
 
 ```
 {tenant}/{document-id}/        # repository root, one per document (DL-0111)
-├── document.md       # frontmatter: title, language · body: the whole text
+├── document.md       # frontmatter: title, language, parts · body: the main text
+├── appendices/       # one Markdown file per appendix
+├── attachments/      # one opaque file per attachment
 ├── entities.yaml     # role, action and term definitions
 ├── images/           # uploaded binary assets the text embeds
 ├── analysis/         # editor-facing companion analyses (stage 2)
@@ -65,12 +69,12 @@ Two AI actors, not roles a person holds. The **companion** runs actions for the 
 
 One editing sequence per document. No branches, no forks, no merges, and therefore no conflicts (ADR-0003).
 
-1. An editor **takes the document** for editing. Nobody else edits it meanwhile.
+1. An editor **takes the document** for editing. Nobody else edits it meanwhile. They edit it whole, or open an editor on any section — several at once — and every editor writes into the one draft (DL-0167). Formatted text is the default; a Markdown source view is always available.
 2. Edits are **captured continuously** — there is no Save control. The draft persists so a closed laptop loses nothing; it is not yet a version and nobody else can see it.
 3. **Undo** works within the editing session.
 4. At any point the editor may **call companion actions** — individually, not all of them — to answer *"what do my changes introduce so far?"*. Results are cached against the content, so asking twice about unchanged text costs nothing.
-5. **There is no Save button.** In its place is *send for review*. Pressing it shows the companion analyses for the current content and two choices: **продовжити редагування** or **відправити на розгляд**.
-6. **Відправити на розгляд commits** (DL-0054). The analyses are written into the same commit as the content, so no identifier has to be resolved after the fact — they are part of the tree, and they are what the reviewer reads as the change's description.
+5. **There is no Save button.** In its place is *send for review*. Pressing it shows the companion analyses for the current content and three choices: **continue editing**, **send for review**, or **discard my edits**, which asks for confirmation and throws the whole draft away.
+6. **Send for review commits** (DL-0054). The analyses are written into the same commit as the content, so no identifier has to be resolved after the fact — they are part of the tree, and they are what the reviewer reads as the change's description.
 7. Versions accumulate, attributed, until a reviewer accepts a run of them.
 
 Going back is only ever forward: an unwanted change is undone by a new version that reverts it, computed per sentence from authorship, never by erasing history.
@@ -113,23 +117,25 @@ Worth keeping apart: a **controls document** is authored, with its own editing a
 
 **Links.** A mention of another document becomes a link **when the reader may access it**, and renders as plain text otherwise — a link is never allowed to disclose that a document exists (DL-0060, ASR-16). Each document carries an auto-generated **see also** listing what it links to, filtered the same way. Together with types and folders, this is what makes the document set a wiki: everything in one place, browsable and cross-linked.
 
-**Numbering and navigation.** Paragraphs are numbered within their section — `1.1-3` is section 1, subsection 1, paragraph 3; `4.3.2-6` is section 4, subsection 3, subsection 2, paragraph 6 — with the hyphen separating the heading path from the paragraph index. Heading depth is capped at four. Numbers are derived at render, never stored, and appear in the PDF, the DOCX and the reading view; in the editor they sit in a non-editable gutter beside the text (DL-0065). Every document also carries an **outline** of its sections and subsections as navigation links.
+**Numbering and navigation.** Clauses — each paragraph of text — are numbered within their section: `1.1-3` is section 1, subsection 1, clause 3; `4.3.2-6` is section 4, subsection 3, subsection 2, clause 6 — with the hyphen separating the heading path from the clause index. Each appendix numbers its own headings from 1. Heading depth is capped at four. Numbers are derived at render, never stored, and appear in the PDF, the DOCX and the reading view; in the editor they sit in a non-editable gutter beside the text (DL-0065). Every document also carries an **outline** of its sections and subsections as navigation links.
 
-**Images** live in the document's `images/` folder. A changed image is flagged in review and shown before-and-after, because a text diff cannot show it and a reviewer must not accept a change they could not see (DL-0059).
+**Images** live in the document's `images/` folder. A changed image is flagged in review and shown before-and-after, because a text diff cannot show it and a reviewer must not accept a change they could not see (DL-0059). **Attachments** are reviewed the same way: every one added, replaced or removed is listed with its title, each version downloadable, and the reviewer may revert the change (DL-0168).
+
+**Changes read like tracked changes** — marked word by word inside the formatted text, not as source lines (DL-0170).
 
 ## Stances
 
-Ukrainian is canonical; English follows the same logic (DL-0047).
+English names are canonical; every translation, the Ukrainian interface names included, is in [`glossary.md`](glossary.md) (DL-0047, DL-0176).
 
-| Ukrainian                  | English            | Shows                                                 |
-| -------------------------- | ------------------ | ----------------------------------------------------- |
-| **Затверджена версія**     | Canonical version  | the last edition approved as authoritative            |
-| **Прийняті правки**        | Accepted edits     | the last revision a reviewer accepted                 |
-| **Всі неприйняті правки**  | Pending edits      | everything committed since, attributed and unaccepted |
-| **Мої правки**             | My edits           | the holder's own uncommitted session                  |
-| **Мої правки на розгляді** | My edits in review | what the editor has sent                              |
+| Stance | Shows |
+| --- | --- |
+| **Canonical version** | the last edition approved as authoritative |
+| **Accepted edits** | the last revision a reviewer accepted |
+| **Pending edits** | everything committed since, attributed and unaccepted |
+| **My edits** | the holder's own uncommitted session |
+| **My edits in review** | what the editor has sent |
 
-**Four of the five are *правки* — edits, not document states.** The user is not switching between five documents; there is one document and a filter over which layers of edits are shown, with authorship toggled on top. That is how the tool being replaced works, and the interface follows it rather than the substrate.
+**Four of the five are *edits*, not document states.** The user is not switching between five documents; there is one document and a filter over which layers of edits are shown, with authorship toggled on top. That is how the tool being replaced works, and the interface follows it rather than the substrate.
 
 **Authorship is visible to everyone**, behind a *show author* toggle so a diff can be read without it (DL-0040). A **time machine** steps through versions with a visual boundary between accepted history and pending edits.
 
@@ -203,7 +209,7 @@ Architecture is designed for both now so stage 2 does not rebuild stage 1 (DL-00
 
 ## Scope
 
-**In:** multi-tenancy with schema isolation; the linear cycle above on dummy documents; Ukrainian interface and per-document language; the entity layer, AI-proposed and human-confirmed, with read-only derived views; manual cross-document links; canonical documents readable as wiki pages; export to Markdown and PDF; heuristics and both agents; stances, time machine, presence, author toggle.
+**In:** multi-tenancy with schema isolation; the linear cycle above on dummy documents; Ukrainian interface and per-document language; the entity layer, AI-proposed and human-confirmed, with read-only derived views; manual cross-document links; canonical documents readable as wiki pages; appendices and attachments; section editing; export to Markdown, PDF and DOCX, composed by scope and view (DL-0172); heuristics and both agents; stances, time machine, presence, author toggle.
 
 **Out:** everything in [`backlog.md`](backlog.md) — Word import, automatic review of connected documents, repository-scope views, style linting, tenant-authored heuristics, the MCP server, and work items derived from the views. Plus per-tenant role-set configuration and board voting.
 

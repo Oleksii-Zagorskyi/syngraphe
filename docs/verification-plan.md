@@ -31,9 +31,17 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **The binding requirement.** The editor carries sentence boundaries as invisible nodes through a round trip and returns **paragraphs rather than lines** (`technical-design.md § The constrained Markdown subset`: the normalizer is a function of the previous version and the submitted paragraph text). That rules out any library whose model is a string of text with formatting laid over it, and points at editors with **a real document tree whose serialisation the application controls**. Two further constraints: the library's licence permits redistribution in an Apache-2.0 product (ASR-13), and it can refuse input outside the whitelist at paste with a message.
 
+**Requirements from the editing surface** (DL-0167, DL-0171, ADR-0004), measured on every candidate:
+
+- **Several independent instances on one page** — one per open section editor — each loading, editing and returning its own range with no state shared between them.
+- **Loading a range, not only a whole file** — a section's Markdown in, that section's paragraphs out, headings included, with a `#` typed inside it returned as a new heading.
+- **A source view switchable in place** — formatted text to Markdown and back without leaving the editor; the round trip across the switch is V-02's.
+- **Paste interception** — pasted Markdown or rich text reaches application code before it enters the document, so the refusal, the named lines and the conversion preview can be built on it.
+- **Mounting without a client framework** — the library runs as an island in a server-rendered page, driven by plain JavaScript.
+
 **Candidates to measure**, not a preference among them: ProseMirror used directly, Tiptap (on ProseMirror), Milkdown (ProseMirror with a Markdown pipeline), Lexical and Slate. The spike adds any candidate it finds that meets the constraints above, and records why each one is a candidate.
 
-**Pass condition.** A library is selected only if it passes V-02 and V-03 in full; among those that do, the spike records the trade-offs and an ADR records the choice.
+**Pass condition.** A library is selected only if it passes V-02 and V-03 in full and meets every requirement from the editing surface — three instances on one page editing three sections, and a source-view switch on each; among those that do, the spike records the trade-offs and an ADR records the choice, which also moves ADR-0004 from proposed to accepted or reopens it.
 
 **If no candidate passes.** Tables fall back to a source-view editor for tables only, and ST-0019's acceptance criteria change before it is estimated. If sentence-boundary nodes are what fails, server-side alignment remains the control (V-03).
 
@@ -129,7 +137,7 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 ### V-10 — The render chain carries every construct and the derived numbering into HTML, PDF and DOCX
 
-**Claim.** Markdown → HTML with a stylesheet → weasyprint PDF, and Markdown → pandoc DOCX, carry the whole whitelist and the `1.1-3` paragraph numbering into all three targets, with no network available to the renderer.
+**Claim.** Markdown → HTML with a stylesheet → weasyprint PDF, and Markdown → pandoc DOCX, carry the whole whitelist and the `1.1-3` clause numbering into all three targets, with no network available to the renderer.
 
 **Test.** A *conformance sample* exercises every whitelist row with hand-authored numbers; a *negative sample* carries a remote image reference. Render both through a throwaway stylesheet with the network blocked.
 

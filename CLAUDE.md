@@ -76,6 +76,13 @@ starts, not after.
 
 ## Conventions
 
+**English in every document.** The decision log, ADRs, product documents and
+every other Markdown file in this repository are written in English. Material
+that arrives in Ukrainian — an answer, a screenshot, an example — is translated
+when it is recorded. Ukrainian appears only where it is the subject: the
+glossary's Ukrainian terms, invented test prose, interface strings — or where
+a document's frontmatter lists both languages, which marks it bilingual by design.
+
 **Configuration, never code.** No hostname, domain, tenant name, display name,
 mailbox or timezone appears as a literal in `src/`. The test: could this file be
 copied to another organisation's installation and run unchanged? Defaults are
