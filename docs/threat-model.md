@@ -99,6 +99,10 @@ A second consequence worth stating: a development host that holds real tenant do
 
 **Who:** any editor. **How:** an attachment is an arbitrary file the platform keeps and hands to other users (DL-0166) — a document carrying a macro or an executable, or a file the browser would render if allowed: HTML, SVG, a PDF with script. **Answered by:** an attachment is **never rendered and never served inline**. Every download goes through the application's access check and is sent as a download, with a fixed generic content type and content sniffing disabled, under its stored file name; nothing is served from a public path. The tenant's size cap bounds what one upload can cost, and no agent ever reads an attachment (DL-0168). **Residual:** the platform does not inspect what an attachment contains; a reviewer sees that a file was added or replaced and can download it, and the protection on the reader's own machine is what judges its contents.
 
+### T-16 — Administrators read what they govern
+
+**Who:** a tenant administrator, or the platform administrator. **How:** in this release both read every document in their scope — the tenant administrator their organisation's, the platform administrator every organisation's (ADR-0007). **Answered by:** nothing in 0.1; the release is deployed to a single organisation that operates it. **Residual:** accepted for 0.1. Separating administering access from having it, and keeping the operator out of tenants' content, is EP-0001.
+
 ### T-07 — The record is altered
 
 **Who:** insider with database access. **How:** editing history to change what a document said or who approved it.
@@ -119,7 +123,7 @@ This is an **accepted risk taken knowingly by the owner**, recorded here so a la
 
 **Who:** departing employee with legitimate read access. **How:** exporting everything they may read.
 
-**Answered by:** partially, and honestly not much. Export is per document and of a stated version, every export is an audit event, and nobody holds raw repository access. A person who may read a document may take that document; that is what read access means.
+**Answered by:** partially, and honestly not much. Export is per document and of a stated version, every export is an audit event, and nobody holds raw repository access. A person who may read a document may take that document; that is what read access means. Copying a document into a new one (ST-0067) takes nothing copy and paste could not; the copy starts reachable only by its author until an administrator links groups, and its source is recorded (ADR-0007).
 
 ### T-10 — Model spend is driven up
 
@@ -158,4 +162,5 @@ Two changes, both cheap now:
 - **An operator with database and filesystem access can alter the record consistently** (T-07). Signing and off-site replication are the answers and neither is in stage 1.
 - **A reviewer may accept their own work** (T-08). Taken knowingly; the control is the record.
 - **A person with read access can take what they may read** (T-09).
+- **Administrators read everything in their scope** (T-16). Accepted while the platform serves one organisation; EP-0001 before it serves independent ones.
 - **Attachment contents are not inspected** (T-15). A file is served only as a download and never rendered; judging what is inside it is left to the reader's own machine.

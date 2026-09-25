@@ -1,15 +1,23 @@
 ---
 tags:
   - adr
+aliases:
+  - ADR-0003 Linear edit history
 status: accepted
 date: 2026-09-21
 amended: 2026-09-23
 title: Linear edit history — no branching, no merging
+supersedes: []
+superseded_by:
+  - ADR-0006 (in part — hold expiry)
 ---
 
-# ADR-0003 — Linear edit history: no branching, no merging
+# ADR-0003: Linear edit history: no branching, no merging
 
-*Originating decision-log entry: the project decision log DL-0039. Supersedes DL-0013, DL-0014, DL-0034, DL-0035, DL-0037. Restates DL-0028. Analysis that produced it: `linear-workflow.md`. Amended 2026-09-23 by owner override: the git operation set listed in full (DL-0142), and the section-level escape valve removed, since section-scoped roles no longer exist (DL-0161).*
+**Date:** 2026-09-21
+**Status:** Accepted
+**Deciders:** Oleksii
+**Supersedes:** DL-0013, DL-0014, DL-0034, DL-0035, DL-0037
 
 ## Context
 
@@ -60,10 +68,18 @@ The two requirements that had forced branching were a reviewable unit accumulati
 
 Neither invalidates the linear model. Both bound the claim made for it: divergence is confined to these two places and appears nowhere in the history.
 
-## Alternatives rejected
+## Alternatives Rejected
 
-**Branching with per-file locking (DL-0037).** Made conflicts structurally impossible but kept branches, proposals, merges and retained refs to achieve it. Rejected as a large mechanism preserving a model nothing required.
+| Option | Raised by | Outcome |
+|---|---|---|
+| Branching with per-file locking (DL-0037) | | Made conflicts structurally impossible but kept branches, proposals, merges and retained refs to achieve it. Rejected as a large mechanism preserving a model nothing required. |
+| Branching with sentence-level concurrency | | Two editors in one section, conflicts resolved by the reviewer. Rejected: it buys simultaneous editing of one section, which nobody asked for, at the price of the entire merge and conflict-resolution surface. |
+| A wiki engine | | The linear model comes from wiki practice, but the engines cannot carry a folder of section files with entity metadata, named immutable editions, long-lived drafts another person may edit, per-file approval, or a confidentiality layer. The user experience is borrowed; the engine is not. |
 
-**Branching with sentence-level concurrency.** Two editors in one section, conflicts resolved by the reviewer. Rejected: it buys simultaneous editing of one section, which nobody asked for, at the price of the entire merge and conflict-resolution surface.
+## References
 
-**A wiki engine.** The linear model comes from wiki practice, but the engines cannot carry a folder of section files with entity metadata, named immutable editions, long-lived drafts another person may edit, per-file approval, or a confidentiality layer. The user experience is borrowed; the engine is not.
+- Originating decision-log entry: the project decision log DL-0039.
+- Supersedes DL-0013, DL-0014, DL-0034, DL-0035, DL-0037.
+- Restates DL-0028.
+- Analysis that produced it: `linear-workflow.md`.
+- Amended 2026-09-23 by owner override: the git operation set listed in full (DL-0142), and the section-level escape valve removed, since section-scoped roles no longer exist (DL-0161).

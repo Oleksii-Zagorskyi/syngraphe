@@ -19,7 +19,7 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
-- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`.
+- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`.
 - **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
 
 **`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
@@ -40,7 +40,8 @@ erDiagram
         string display_name "cleared on erasure; identifier kept"
         string password_hash
         bool is_platform_admin
-        bool is_tombstoned "former user (DL-0108)"
+        bool is_tombstoned "former user (DL-0108); the procedure is backlog B-017"
+        bool self_blocked "blocks every membership until a platform administrator lifts it"
         datetime last_login_at
         datetime created_at "never exposed to a tenant admin"
     }
@@ -58,8 +59,10 @@ erDiagram
         uuid id PK
         string name
         string schema_name UK
+        string state "active | blocked; blocked closes it to all but platform administrators"
         bool require_distinct_approver "off by default (DL-0101, DL-0115)"
         int attachment_max_bytes "5 MB by default, tenant administrator sets it (DL-0166)"
+        int hold_inactivity_minutes "30 by default, tenant administrator sets it (ADR-0006)"
     }
     MEMBERSHIP {
         uuid id PK
@@ -80,6 +83,23 @@ erDiagram
         datetime at
         uuid by FK
         string actor_kind
+    }
+    USER ||--o{ ACCOUNT_BLOCK_HISTORY : records
+    ACCOUNT_BLOCK_HISTORY {
+        uuid id PK
+        uuid user FK
+        string action "self_blocked | unblocked"
+        datetime at
+        uuid by FK
+    }
+    TENANT ||--o{ TENANT_STATE_HISTORY : records
+    TENANT_STATE_HISTORY {
+        uuid id PK
+        uuid tenant FK
+        string before "active | blocked"
+        string after
+        datetime at
+        uuid by FK
     }
     LANGUAGE {
         string code PK "uk | en"
@@ -112,7 +132,9 @@ erDiagram
 
 **`USER.is_tombstoned` is what erasure sets** (DL-0108): display name and email cleared, identifier kept, a *former user* label rendered in their place. Every reference from `created_by`, `ACCESS_CHANGE`, `ACCEPTANCE` and `EDITION` stays valid, so ASR-18 keeps its answers.
 
-**`MEMBERSHIP.granted_at` is what a tenant administrator sees; `USER.created_at` is not** (ASR-17). Adding a user who already exists elsewhere on the platform must look identical to adding a new one — same screens, same wording, same timestamps. Blocking sets `MEMBERSHIP.state`, never anything on `USER`.
+**Blocking has three levels** (ADR-0007). A tenant administrator sets `MEMBERSHIP.state` in organisations they administer; a person sets `USER.self_blocked`; a platform administrator sets `TENANT.state`. An active tenant keeps at least one active tenant administrator — the last one may block themselves only as the tenant's last active user — and the last platform administrator can be neither blocked nor demoted. Every block and unblock is typed history — `MEMBERSHIP_HISTORY`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY` — so who could reach what on a past date stays answerable. A platform administrator is notified when a person ends up blocked in some tenants and active in others, and when a tenant is left without an active administrator.
+
+**`MEMBERSHIP.granted_at` is what a tenant administrator sees; `USER.created_at` is not** (ASR-17). Adding a user who already exists elsewhere on the platform must look identical to adding a new one — same screens, same wording, same timestamps. A tenant administrator's block sets `MEMBERSHIP.state`, never anything on `USER`; a person's own block is `USER.self_blocked` (below).
 
 ## Documents, tenant schema
 
@@ -121,8 +143,11 @@ erDiagram
     FOLDER ||--o{ FOLDER : contains
     FOLDER ||--o{ DOCUMENT : holds
     DOCUMENT_TYPE ||--o{ DOCUMENT : classifies
-    DOCUMENT ||--o{ DOCUMENT_ACCESS : grants
-    DOCUMENT ||--o{ ACCESS_CHANGE : records
+    DOCUMENT ||--o{ DOCUMENT_GROUP : linked_to
+    ACCESS_GROUP ||--o{ DOCUMENT_GROUP : reaches
+    ACCESS_GROUP ||--o{ GROUP_MEMBER : has
+    ACCESS_GROUP ||--o{ GROUP_RIGHT : holds
+    ACCESS_GROUP ||--o{ ACCESS_CHANGE : records
     DOCUMENT ||--o{ VERSION : has
     DOCUMENT ||--o{ HOLD : locked_by
     DOCUMENT ||--o{ DRAFT : being_edited_as
@@ -136,8 +161,10 @@ erDiagram
         string title "cache of document.md frontmatter"
         string language FK "cache of document.md frontmatter"
         uuid document_type FK
-        uuid folder FK "presentation only"
+        uuid folder FK "required; presentation only; moved by a tenant administrator"
         uuid created_by
+        bool author_only "true until the first group is linked (ADR-0007)"
+        uuid copied_from FK "source document of a copy; null otherwise"
         datetime created_at
         string state "creating | draft | active | archived"
     }
@@ -157,21 +184,33 @@ erDiagram
         bool title_page "whether new documents get a title page"
         text title_page_layout "the export template the title page renders through"
     }
-    DOCUMENT_ACCESS {
+    ACCESS_GROUP {
+        uuid id PK
+        string name
+    }
+    GROUP_RIGHT {
+        uuid id PK
+        uuid group FK
+        string right "view_canonical | view_accepted | view_pending | edit | create_and_edit | view_previous_canonical | view_all_history | accept | freeze | make_canonical | create_appendix | delete_appendix | upload_attachment | replace_attachment | delete_attachment"
+    }
+    GROUP_MEMBER {
+        uuid id PK
+        uuid group FK
+        uuid membership FK
+    }
+    DOCUMENT_GROUP {
         uuid id PK
         uuid document FK
-        uuid user FK
-        string right "read | edit | accept | freeze | approve"
-        bool archived "set with the document, restored with it"
-        datetime granted_at
-        uuid granted_by
+        uuid group FK
     }
     ACCESS_CHANGE {
         uuid id PK
-        uuid document FK
-        uuid user FK
-        string right
-        string action "granted | revoked | archived | restored"
+        string kind "member | right | link"
+        uuid group FK
+        uuid document FK "for a link"
+        uuid membership FK "for a member"
+        string right "for a right"
+        string action "added | removed"
         datetime at
         uuid by
         string actor_kind
@@ -182,18 +221,18 @@ erDiagram
 
 **`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `draft`. Title, language, the title-page switch and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler retries a row without a repository and reports a repository without a row as an orphan, never deleting it.
 
-**`DOCUMENT_ACCESS` is the whole permission model** (ASR-07, ASR-08). Five rights in stage 1 — **read, edit, accept, freeze, approve** — every one of them scoped to a whole document. There is no scope column and no code owner: section-scoped roles were dropped at DL-0091, which also removed the partially-approved state that section reviewers would have required. Comment is not among the rights; the annotation surface is stage 2 (DL-0083).
+**Groups are the whole permission model** (ADR-0007, ASR-07, ASR-08). A document's `DOCUMENT_GROUP` rows cannot change while a `HOLD` on it is open. A group holds rights (`GROUP_RIGHT`), has members (`GROUP_MEMBER`, through their tenant membership) and is linked to documents (`DOCUMENT_GROUP`); a person's rights on a document are the union of the rights of their groups linked to it. `create_and_edit` is the one right not tied to a link: it lets a member create and copy documents. The part rights apply only where the group can edit. Every right covers a whole document; there is no scope column (DL-0091). Comment is not among the rights; the annotation surface is stage 2 (DL-0083). The group table is `ACCESS_GROUP` so it does not collide with the framework's own.
 
 **`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from, whether it gets a title page, and the layout the title page renders through at export (DL-0164). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
 
-**A document is created with one row**: its creator holding `edit` (DL-0089). The tenant administrator is notified and grants the rest. A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
+**A new or copied document is author-only** (ADR-0007): `author_only` is set, no group is linked, and only its creator reaches it, with edit. The tenant administrator is notified and links groups; the first link clears `author_only`, after which the author reaches the document through their groups. A copy records `copied_from`, and an `AUDIT_EVENT` holds the source version's number and commit, visible to administrators. A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
 
 **Two audit mechanisms, split by a single question: must the answer be reconstructible at a past date?** (DL-0082)
 
-- **Yes → typed, append-only history.** `MEMBERSHIP_HISTORY` and `ACCESS_CHANGE` exist so that *"who could read this document on the day that edition was approved"* is a query, not an inference from a replayed event stream.
+- **Yes → typed, append-only history.** `MEMBERSHIP_HISTORY` and `ACCESS_CHANGE` — every membership, right and link added or removed — exist so that *"who could read this document on the day that edition was approved"* is a query, not an inference from a replayed event stream.
 - **No → `AUDIT_EVENT`.** Everything else a person did and should be answerable for: assigning a document type, attaching a side-document type, archiving, uploading an image. One table, actor and object typed loosely, because nobody reconstructs state from it — they read it.
 
-**Archiving preserves rights rather than removing them** (DL-0084). `DOCUMENT.state` goes to `archived`; the `DOCUMENT_ACCESS` rows are marked archived, disappear from the administration panel, and **resurrect unchanged** on restore. Rebuilding a permission set by hand is exactly where a restored document quietly becomes readable by the wrong people. Archiving is visible to tenant and platform administrators only, and an archived document's links stop resolving everywhere — including where its name sits in another document's prose.
+**Archiving preserves rights rather than removing them** (DL-0084). `DOCUMENT.state` goes to `archived`; its `DOCUMENT_GROUP` links stay, take no effect while it is archived, remain editable by the tenant administrator, and **apply as they then stand** on restore. An archived document enters no analysis scope and is exported only by administrators. Rebuilding a permission set by hand is exactly where a restored document quietly becomes readable by the wrong people. Archiving is visible to tenant and platform administrators only, and an archived document's links stop resolving everywhere — including where its name sits in another document's prose.
 
 ## Versions, holds and drafts
 
@@ -201,7 +240,8 @@ erDiagram
 erDiagram
     DOCUMENT ||--o{ VERSION : has
     VERSION ||--o| ACCEPTANCE : accepted_by
-    VERSION ||--o{ EDITION : frozen_as
+    VERSION ||--o| EDITION : made_canonical_as
+    DOCUMENT ||--o{ FREEZE : frozen_by
     DOCUMENT ||--o{ HOLD : held_by
     DOCUMENT ||--o{ DRAFT : drafted_in
     VERSION {
@@ -217,6 +257,7 @@ erDiagram
         uuid id PK
         uuid version FK "the passport commit"
         uuid accepted_from FK "previous accepted version"
+        string number "N.M, derived (DL-0183)"
         uuid reviewer FK
         datetime at
     }
@@ -240,21 +281,30 @@ erDiagram
         text reason
         datetime at
     }
-    EDITION {
+    FREEZE {
         uuid id PK
-        uuid version FK
-        string label "1.0, 1.1"
+        uuid document FK
+        text reason "optional: what the document waits for"
         uuid frozen_by FK
         datetime frozen_at
+        string ended_by_kind "made_canonical | unfrozen; null while active"
+        uuid ended_by FK
+        datetime ended_at
+    }
+    EDITION {
+        uuid id PK
+        uuid version FK "the accepted version made canonical"
+        uuid freeze FK "the freeze it ended"
+        string number "N.0 (DL-0183)"
         uuid approved_by FK
-        datetime approved_at "null until canonical"
+        datetime approved_at
     }
     HOLD {
         uuid id PK
         uuid document FK
         uuid user FK
         datetime acquired_at
-        datetime expires_at
+        datetime last_activity_at "released after the tenant's inactivity timeout (ADR-0006)"
         datetime released_at
         uuid released_by FK "set when forced"
     }
@@ -296,9 +346,11 @@ erDiagram
 
 **`TENANT.require_distinct_approver`** enforces the one optional segregation check: when set, `EDITION.approved_by` may not be the reviewer of **any** `ACCEPTANCE` between the previous canonical edition and this one (DL-0101, DL-0115). Not merely the last — accept a substantive run yourself, have a colleague accept a following run that changes a comma, and *last* stops meaning anything.
 
-**`EDITION.approved_at` null means frozen but not yet canonical.** The three stances fall out of these tables without a state column anywhere: canonical is the latest `EDITION` with `approved_at`; accepted is the latest `ACCEPTANCE`; pending is every `VERSION` after it.
+**Version numbers are derived, never typed** (DL-0183). Each acceptance is numbered `N.M`: N is the count of canonical editions before it, M counts acceptances since the last one and restarts at 1 — so 0.1, 0.2 before the first canonical edition. Making a frozen document canonical turns its latest accepted version into `N+1.0`; unfreezing changes no number. Numbers are written into the passport with the acceptance and the approval, so the repository carries them; these columns are caches. Unfreezing changes no number.
 
-**`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or by expiry — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered.
+**A freeze is a state of the document, an edition is a canonical version** (DL-0189). A `FREEZE` row with no `ended_at` means the document is frozen: only holders of both *accept* and *edit* may open an editor. It ends by *make canonical*, which writes an `EDITION` for the latest accepted version, or by *unfreeze*. The three stances fall out of these tables without a state column anywhere: canonical is the latest `EDITION`; accepted is the latest `ACCEPTANCE`; pending is every `VERSION` after it.
+
+**`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or after the inactivity timeout — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered.
 
 **`DRAFT_FILE` holds uploads until they are committed** (DL-0175). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by *send for review*. It is the first copy of that content, not a second one.
 
@@ -366,7 +418,7 @@ erDiagram
         uuid id PK
         uuid user FK
         uuid document FK
-        string event "version_committed | accepted | edition_frozen | approved | hold_expiring | access_granted"
+        string event "version_committed | accepted | frozen | unfrozen | made_canonical | hold_expiring | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin"
         uuid version FK
         datetime created_at
         datetime read_at
@@ -414,7 +466,7 @@ Not built now; the tables above must leave room for them without a migration tha
 - **No section content table** — git holds it.
 - **No per-user analysis folder** — analyses key to scope, not person (DL-0078).
 - **No comment tables** — stage 2 (DL-0083).
-- **No soft-delete on `DOCUMENT_ACCESS`** — archived is a state, and the row survives so restoration is exact.
+- **No per-person document rights** — rights are held by groups (ADR-0007); the author's access before the first link is a flag on the document, not a row.
 - **No scope column anywhere** — rights and holds are whole-document (DL-0091).
 - **No partial-approval tables** — acceptance is a document act (DL-0090).
 - **No `state` column on `DOCUMENT` for the review cycle** — the stances are derived from `ACCEPTANCE` and `EDITION`, so there is no second place for them to disagree.

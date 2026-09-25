@@ -40,7 +40,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **attachment list** · перелік вкладених файлів · *proposed* — the table an export generates of a document's attachments: title, file name, hash.
 
-**frontmatter** · заголовок файлу · *proposed* — the title, the language, the title-page switch and the lists of appendices and attachments at the top of `document.md`. Never shown in the editor; it is what a restored repository recovers its identity from.
+**frontmatter** · заголовок файлу · *proposed* — the title, the language, the title-page switch and the lists of appendices and attachments at the top of `document.md`. Never shown in the editor and never exported; it is what a restored repository recovers its identity from.
 
 **section** · розділ · *proposed* — a top-level heading in a document.
 
@@ -52,7 +52,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **passport** · паспорт документа · *proposed* — the file recording review and approval decisions, so that approvals travel with the document rather than living only in the application.
 
-**entity** · позначка · *proposed* — a marked piece of text: a **role** (роль), an **action** (дія) or a **term** (термін). Invisible in the reading view.
+**entity** · позначка · *proposed* — a marked piece of text: a **role** (роль), an **action** (дія) or a **term** (термін). Set apart by its formatting wherever text is rendered; its syntax shows only in the source view and the Markdown export.
 
 **role directory** · довідник ролей · *proposed* — the list of roles a document declares, with their rights, obligations and the paragraphs each comes from. Derived by parsing the marks.
 
@@ -84,7 +84,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent.
 
-**edition** · редакція · *proposed* — a frozen text put forward for approval. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
+**version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3+2` for pending work on top of acceptance 1.3. Derived, never typed.
+
+**edition** · редакція · *proposed* — a canonical version, numbered `N.0`. Never changes once made. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
 
 **version** · правка · *proposed* — one committed change-set, the thing that appears in *мої правки*. Deliberately the same word as the stance names, because it is the same object seen from a different angle.
 
@@ -98,7 +100,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 ## What a user does
 
-**take for editing** · взяти на редагування · *proposed*
+**take for editing** · взяти на редагування · *proposed* — what opening an editor does when nobody holds the document: it takes the hold. There is no button of that name (ADR-0006).
 
 **continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
 
@@ -108,9 +110,11 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **accept edits** · погодити правки · *fixed* — make the current text the accepted baseline.
 
-**freeze an edition** · зафіксувати редакцію · *proposed*
+**freeze** · заморозити · *proposed* — lock a document nobody is editing against editors while something outside it is resolved; people holding *accept* and *edit* may still edit. Ends by *make canonical* or *unfreeze*.
 
-**approve** · затвердити · *proposed* — make a frozen edition canonical.
+**make canonical** · затвердити · *proposed* — end a freeze by making the latest accepted version the next edition.
+
+**copy a document** · копіювати документ · *proposed* — create a new document from a version of one you may read; no history, no attachments, author-only until groups are linked.
 
 **undo a contribution** · скасувати правку · *proposed* — a new version that reverses an earlier one. Nothing is erased.
 
@@ -128,17 +132,17 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 ## Who does it
 
-**reader** · читач · *proposed* — sees the canonical version only.
+**reader** · читач · *proposed* — holds a viewing right: the canonical version, and more as the right allows (ADR-0007).
 
 **editor** · редактор · *proposed* — edits and commits.
 
 **reviewer** · погоджувач · *proposed* — accepts edits, and may correct wording first, including their own. *(Рецензент reads as academic; погоджувач is the corporate role.)*
 
-**approver** · затверджувач · *proposed* — records the approval that makes an edition canonical. The board's own procedure happens outside the platform.
+**approver** · затверджувач · *proposed* — holds *make canonical*: ends a freeze by making the latest accepted version the next edition. The approving body's own procedure happens outside the platform.
 
 **designer** · дизайнер · *proposed* — authors the organisation's styles and selects them per document.
 
-**pending edits viewer** · переглядач неприйнятих правок · *proposed* — may see committed but unaccepted changes.
+**pending edits viewer** · переглядач неприйнятих правок · *proposed* — holds *view pending*: may see committed but unaccepted changes.
 
 **tenant administrator** · адміністратор організації · *proposed*
 
@@ -150,7 +154,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **organisation** · організація · *proposed* — what a user sees. The internal word is *tenant*, and it never appears in the interface.
 
-**access right** · право доступу · *proposed* — read, edit, accept, freeze, approve. Held over a whole document.
+**access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical; create or delete appendices; upload, replace or delete attachments. Held over a whole document.
+
+**group** · група · *proposed* — a set of people in one organisation holding a set of access rights, linked to the documents those rights apply to. The only way a person holds a right on a document.
 
 **access history** · історія доступу · *proposed* — who held what, when, granted by whom. Answerable for a past date.
 

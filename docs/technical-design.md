@@ -92,7 +92,7 @@ A tenant is a fully independent group of users or a separate business (DL-0003).
 
 ## Identity and authorisation
 
-Both are Django's (DL-0042, superseding DL-0015). Role assignments at document granularity are the only permission model in the system — one authorisation surface, per ASR-07. The MCP contract, that an external agent holds exactly its user's rights, is a property of the same authorisation path the browser uses.
+Both are Django's (DL-0042, superseding DL-0015). Groups holding rights, linked to documents, are the only permission model in the system (ADR-0007) — one authorisation surface, per ASR-07. The MCP contract, that an external agent holds exactly its user's rights, is a property of the same authorisation path the browser uses.
 
 Principle of least privilege throughout: the burden is on expanding access, never on restricting it.
 
@@ -112,7 +112,7 @@ What was given up is the forge's web interface for inspecting a repository when 
 
 **One repository per document** (DL-0111), inside the tenant's directory, named by `DOCUMENT.id`. Confidential guidance is an ordinary document with restricted access (DL-0051, superseding DL-0008). The granularity is what makes the agent's mount list *be* the review scope, so the editor-facing run has no guidance on its filesystem at all.
 
-Access is **data with history** (ASR-08): rows of `document, user, rights`, every change carrying a timestamp and an actor, editable only by a tenant or platform administrator. This is the same table the role assignments live in; a confidential document is one whose rows are few.
+Access is **data with history** (ASR-08): groups, their rights, their members and their links to documents, every change carrying a timestamp and an actor, editable only by a tenant or platform administrator (ADR-0007). A confidential document is one linked to few groups; a new document is linked to none and reaches only its author.
 
 The condition the old design relied on is now explicit rather than structural: **no user ever receives raw repository access, and every export is per document**. Both are enforced by the application because the application is the only path to the repository.
 
@@ -158,8 +158,8 @@ A document is **its body, zero or more appendices and zero or more attachments**
 Everything else is outside the subset: raw HTML, scripts, footnotes, definition lists, headings below depth four, task lists, nested tables, merged cells, horizontal rules, code blocks, math, and any remote image or stylesheet reference. The editor offers exactly the set above and nothing else; anything outside it is **rejected at edit time with a message**, never silently dropped. Pasted Markdown that falls outside the set is refused with the offending lines named, and the user is offered a conversion — removing or rewriting what the set does not allow — previewed before it is applied (DL-0171). The message links to a help page listing the set, generated from the same specification as the editor schema and the parser configuration.
 - **The whitelist binds the parser, not only the editor** (DL-0096): raw HTML disabled, no script, no remote image or stylesheet references, and no network for the PDF renderer. Text arrives by paste and by import as well as by typing, so a rule that only the interface enforces protects nobody.
 - **Tables** are pipe tables: one row per line, inline content only, no merged cells, no nested blocks (DL-0100). Inside a table the **row** is the unit of diff, authorship and per-author undo — a cell cannot hold a line break, so the sentence stops being addressable there. The normalizer gives every row exactly one spelling: one space inside each cell edge, no alignment padding, a delimiter row keeping only its alignment colons. Without that, padding from an editor, a paste or a prettifier rewrites every row when one cell changes, and each rewritten row is re-attributed to whoever touched one of them.
-- **Entities** are attributed spans — `[CMO]{.role #cmo}`, `[obliged to approve]{.action}`, `[10 days]{.term #timeout}`. Real Pandoc syntax, so it survives every render target and stays machine-readable. Definitions live in `entities.yaml`; the spans mark occurrences. The editor never shows the syntax: a user selects text and marks it.
-- **Normal form:** one sentence per line; a server-side normalizer runs before every commit (DL-0012). Paragraph boundaries are blank lines — Markdown's native rule, not a convention imposed on it — and the renderer joins the sentences between them into one paragraph. The user never sees or manages a line break.
+- **Entities** are attributed spans — `[CMO]{.role #cmo}` (a synthetic example), `[obliged to approve]{.action}`, `[10 days]{.term #timeout}`. Real Pandoc syntax, so it survives every render target and stays machine-readable. Definitions live in `entities.yaml`; the spans mark occurrences. The editor never shows the syntax: a user selects text and marks it. Wherever text is rendered — reading view, editor, DOCX, PDF — marked text carries a distinct formatting set by the stylesheet (DL-0184).
+- **Normal form:** one sentence per line; a server-side normalizer runs before every commit (DL-0012). Paragraph boundaries are blank lines — Markdown's native rule, not a convention imposed on it — and the renderer joins the sentences between them into one paragraph. The user never sees or manages a line break — not in the reading view, the rich editor, the source view or any export. The source view and a Markdown export write each paragraph as one line, entity marks included exactly as stored (DL-0184) — a Markdown export is the source view saved to a file; the normalizer restores the stored breaks on the way back in (DL-0181).
 - **A stored line is never re-normalised** (DL-0112, ASR-20). No normalizer rule — the splitter, quote and dash typography, Unicode composition, the canonical table row — is ever applied to a line its edit did not touch. *Touched* means the submitted line differs from the stored line **after canonicalising the submitted one**, so a prettifier that pads every table row produces rows that canonicalise back to the stored bytes and count as untouched.
 - **The normalizer is a function of two inputs**, the previous version and the submitted text, because the editor returns paragraph text rather than lines. Within each paragraph it aligns the new text against the old, carries the old boundaries across unchanged spans, and runs the rules only over changed spans widened to the whole old lines they overlap.
 - **The normal form is therefore path-dependent.** The same text can legitimately be stored with different line breaks depending on its history. **The stored newline is the authority** — a check that re-runs the splitter over a file and compares is not valid, and the line structure cannot be rebuilt from the text, unlike the search and navigation indexes.
@@ -190,16 +190,19 @@ Everything else is outside the subset: raw HTML, scripts, footnotes, definition 
 - History is **linear and append-only** (ADR-0003, ASR-02). No branches, no merges, no rewriting. An unwanted change is undone by a commit that reverts it, computed per sentence from blame, with the platform resolving the case where a later author built on top.
 - **`refs/proposals/{id}/head` is no longer needed** — nothing is squashed, so nothing needs retaining. ADR-0002's retention consequence lapses.
 - **Acceptance** is a commit to the document's passport carrying the reviewer's decision, so approval history lives in the repository and travels with the document (DL-0041). Corrective edits ride in the same commit.
+- **Version numbers are derived** (DL-0183): an acceptance is `N.M` — N canonical editions before it, M acceptances since the last — and making a frozen document canonical gives its latest accepted version `N+1.0`. The passport records them, so no user ever needs a commit hash. Pending work is shown as the last accepted number plus the commits since it, `1.3+2`.
+- **Copying a document creates a new one** (ADR-0007): its first commit holds the chosen version's text — canonical, accepted or pending — with the chosen appendices, images and entity definitions, no attachments and no history. It is author-only until groups are linked, and records its source.
+- **A freeze locks the document, not a version** (DL-0189). A document is frozen only when nobody holds it; while frozen, only holders of both *accept* and *edit* may take the hold; their commits and acceptances continue the numbering. *Make canonical* tags the latest accepted version as the next edition and ends the freeze; *unfreeze* ends it without one.
 - **Acceptance is document-level** (DL-0090): one reviewer accepts the whole run since the last accepted version. No per-file ledger, no partially-approved state, no section owners (DL-0091).
-- **Holds** are exclusive per document. They expire; a tenant administrator can force release; the released draft is preserved, not discarded.
+- **Holds** are exclusive per document and taken by opening an editor (ADR-0006). A hold is released after a tenant-set period without activity — 30 minutes by default — once the holder has been asked whether they are still working and has not answered; a tenant administrator can force release. The released draft is preserved: if nobody has committed since, its holder takes it back; otherwise it opens read-only as changes against the current text.
 
 ## The pending view
 
-A plain read, not a computation over branches: the commits since the last accepted revision, in order, attributed. **Changes are shown word by word inside the rendered text** (DL-0170): the line diff finds the changed sentences, and only those are compared word by word; a change to formatting alone carries its own marker. Added, replaced and removed images and attachments are listed with their titles, each version viewable or downloadable. *My edits* uses the same presentation against the current text. Sentence-per-line keeps attribution exact, so *show author* (DL-0040) resolves to a sentence rather than a paragraph, and a per-author revert is exact.
+A plain read, not a computation over branches: the commits since the last accepted revision, in order, attributed. **Changes are shown word by word inside the rendered text** (DL-0170): the line diff finds the changed sentences, and only those are compared word by word; a change to formatting alone carries its own marker. Added, replaced and removed images and attachments are listed with their titles, each version viewable or downloadable. *My edits* uses the same presentation against the current text, and so does a comparison of two different documents, each at a version the reader may read (DL-0187). Sentence-per-line keeps attribution exact, so *show author* (DL-0040) resolves to a sentence rather than a paragraph, and a per-author revert is exact.
 
 ## Presence
 
-Derived, never declared (DL-0036). Whoever holds the document is shown to everyone. Content stays invisible until the version is committed.
+Derived, never declared (DL-0036). That a document is held is shown to everyone, in the list and on the document; who holds it, only to the tenant administrator (ADR-0006). Content stays invisible until the version is committed.
 
 ## Rejection records
 
@@ -281,6 +284,10 @@ An export is composed from three choices (DL-0172):
 - **View** — the canonical version; *pending edits*, marked against the last approved text; *my edits*, marked against the current text, or unmarked. Change marks appear in DOCX and PDF only.
 
 The platform generates two parts no one authors: the **title page**, when the document has one, and the **attachment list** — title, file name and SHA-256 hash, on a page of its own in DOCX and PDF and as a final `#` section in Markdown. Attachment contents are never embedded in a text export.
+
+**The frontmatter is never exported**, in any format: it is the platform's record of the document's parts and settings, not text anyone wrote for a reader (DL-0181).
+
+**DOCX and PDF carry page furniture** (DL-0182): the page number in the footer; in the header, the document title with its version number beside it, and the stance the export shows — canonical version, accepted edits, pending edits or my edits. A *pending edits* or *my edits* export shows the last accepted number plus the commits since it: *1.3+2 · pending edits*.
 
 ## Publication and secret handling
 

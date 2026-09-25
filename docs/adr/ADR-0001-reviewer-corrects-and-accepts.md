@@ -1,15 +1,22 @@
 ---
 tags:
   - adr
+aliases:
+  - ADR-0001 Reviewer corrects and accepts
 status: accepted
 date: 2026-09-18
 amended: 2026-09-21
 title: The reviewer corrects and accepts, and the disclosure ships with the power
+supersedes: []
+superseded_by: []
 ---
 
-# ADR-0001 — The reviewer corrects and accepts, and the disclosure ships with the power
+# ADR-0001: The reviewer corrects and accepts, and the disclosure ships with the power
 
-*Originating decision-log entries: DL-0024, DL-0026, DL-0102. Amended 2026-09-21 by owner override of the freeze rule, after ADR-0003 removed the branching vocabulary this was first written in and the architecture review's F-02 found that its safety mechanism had been deferred out from under it.*
+**Date:** 2026-09-18
+**Status:** Accepted
+**Deciders:** Oleksii
+**Supersedes:** None
 
 ## Context
 
@@ -50,7 +57,7 @@ There are no branches and no merge; the history is linear (ADR-0003) and accepta
 - With no segregation of duties enforced by default (DL-0092), a reviewer may correct and accept in one motion. The notice makes that visible to the person whose words changed, and the optional approval check (DL-0101) gives a tenant a second pair of eyes at the canonical gate.
 - Attribution inside a run is mixed: some sentences are the editor's, some the reviewer's. Sentence-per-line attribution and the *show author* toggle are what keep that legible.
 
-## Options considered
+## Alternatives Rejected
 
 | Option | Raised by | Outcome |
 |---|---|---|
@@ -60,3 +67,8 @@ There are no branches and no merge; the history is linear (ADR-0003) and accepta
 | Correction right in stage 1, rejection record deferred to stage 2 | agent | **Withdrawn after challenge** — shipped the power without its condition; found by the architecture review as F-02 |
 | Correction right with a generated notice, plus a return action | reviewer (architecture review) | **Chosen** — restores the pairing at a fraction of the cost of the full record, and the notice becomes that record's delivery mechanism |
 | Forbid the reviewer to touch text at all | agent | Rejected — forces every wording disagreement through a dispute, making the decider a bottleneck on ordinary editorial friction |
+
+## References
+
+- Originating decision-log entries: DL-0024, DL-0026, DL-0102.
+- Amended 2026-09-21 by owner override of the freeze rule, after ADR-0003 removed the branching vocabulary this was first written in and the architecture review's F-02 found that its safety mechanism had been deferred out from under it.

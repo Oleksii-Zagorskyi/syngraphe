@@ -43,7 +43,7 @@ Deferred at DL-0083. Threads anchored to passages, nested replies, resolution th
 
 ## B-010 — Disputes, the Statement of Disagreements and the decider
 
-Deferred at DL-0076 — the largest single cut available for stage 1. Carries a state machine, a register, a role and an authority model, none of it needed to prove a document can be edited, reviewed and approved. In stage 1 a disagreement is settled by the people involved, outside the platform. ADR-0001's substance stands; only the formal escalation path waits.
+**Taken up as [EP-0002](enhancements/EP-0002-disagreements-and-their-resolution.md).** Deferred at DL-0076; in stage 1 a disagreement is settled by the people involved, outside the platform.
 
 ## B-011 — Agent-workflow questions parked at DL-0081
 
@@ -76,6 +76,8 @@ The real accounting policy arrives once the platform is ready (DL-0002). Cheaper
 ## B-007 — MCP server for external agents
 
 An external agent connects as a user and inherits exactly that user's rights. Cheap now that identity is Django's, but it is not needed to prove the cycle.
+
+**What it may show is what the browser shows.** An MCP client authenticates as a user and reaches exactly the information that user reaches in the web interface, through the same rights — never a finer level of detail. Mutating and analysis operations over MCP are not designed yet.
 
 ## B-009 — Per-tenant email sending domains
 
@@ -120,3 +122,43 @@ Stage 1 sends from one platform domain (DL-0072). Sending from each tenant's own
 **Why it is parked.** Release 0.1 has no comments (B-013), and exports carry text, generated title pages and attachment lists only (DL-0172).
 
 **What has to be true before it is taken up.** Comments exist, and a reader outside the platform has asked for the discussion along with the text.
+
+## B-021 — Per-document rights for a group
+
+**Idea.** A group's rights set per document — the same group an editor of one document and a reader of another — instead of a group carrying one set of roles across the organisation.
+
+**Why it is parked.** Roles held by the group keep the permission model small enough to audit by reading it; per-document rights multiply the rows an administrator has to reason about.
+
+**What has to be true before it is taken up.** An organisation has been observed creating near-duplicate groups only to vary one role between documents.
+
+## B-022 — Deleting a user
+
+**Idea.** A designed path for removing a person from the platform, for the person themselves and for an administrator, beyond blocking.
+
+**Why it is parked.** A person's identifier is referenced by every version, acceptance and access change they took part in, and the record has to keep answering who did what. Blocking stops access without touching that record.
+
+**What has to be true before it is taken up.** The retention and erasure procedure (B-017) exists, since deletion is one of the cases it has to cover.
+
+## B-023 — Visibility per appendix and attachment
+
+**Idea.** Letting a group see a document without some of its appendices or attachments — a confidential annex, a template meant only for its editors.
+
+**Why it is parked.** In 0.1 whoever may view a document sees all of its parts; the parts are approved together and read together (ADR-0005), and a per-part rule would split both.
+
+**What has to be true before it is taken up.** An organisation has been observed keeping material out of a document only because some of its readers must not see it.
+
+## B-024 — An auditor
+
+**Idea.** A read-only role that sees documents, their whole history and the operations log, over a scope set when the role is granted — one folder, one organisation, or the platform — and can never change anything.
+
+**Why it is parked.** In 0.1 the administrators are the only readers of the operations log, and no one outside the organisation audits it yet.
+
+**What has to be true before it is taken up.** An audit is requested by someone who is not an administrator.
+
+## B-025 — Private working rounds during a freeze
+
+**Idea.** While a document is frozen and its reviewer is working through what the approver asked, the intermediate commits (`1.3+1`, `1.3+2`) are hidden from everyone else; after the freeze ends, other readers see only the step from `1.3` to `1.4`.
+
+**Why it is parked.** In 0.1 everyone who may see pending edits sees every commit (DL-0189); hiding some would add a visibility rule to the history.
+
+**What has to be true before it is taken up.** A reviewer has been observed avoiding the platform for a round with the approver because the intermediate work would be visible.

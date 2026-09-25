@@ -23,8 +23,14 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Not a screen — a one-off operation at install time. Every other story assumes it has happened.
 
 **ST-0001** — As a platform administrator, I create a tenant, so that an organisation can have its own independent workspace. *(skeleton)*
+- The tenant is created with its first tenant administrator: a person invited by email, or one already registered on the platform.
+- An active tenant always has at least one active tenant administrator.
+
+**ST-0065** — As a platform administrator, I block a tenant, so that nobody but platform administrators can reach it.
+- A blocked tenant may have no users at all.
 
 **ST-0002** — As a platform administrator, I grant platform administration to another user, so that I am not the only person who can operate the platform.
+- The last platform administrator cannot be blocked or lose the role; the command line and the database are the recovery path.
 
 **ST-0003** — As a tenant administrator, I add a user to my tenant by email address, so that they can work on our documents.
 - The email is the platform identifier, so a person already registered elsewhere is added, not created.
@@ -32,11 +38,19 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0004** — As a tenant administrator, I block a user, so that they lose access to our documents without losing access to other organisations they work with.
 - Blocking sets the membership state; nothing about the person changes.
+- If I administer several tenants the person belongs to, I am asked which of them to block them in. I never see or touch tenants I do not administer; a platform administrator is notified when the person stays active elsewhere.
+- I cannot block a tenant's last active administrator. If that is me, I can block myself only when I am also its last active user.
 
-**ST-0005** — As a tenant administrator, I grant a user a right on a document, so that people see and do exactly what their job requires.
-- The rights are read, edit, accept, freeze and approve, each held over the whole document.
+**ST-0066** — As any user, I block my own account, so that nobody can use it while I cannot.
+- It blocks every membership I hold; only a platform administrator can lift it. There is no deleting an account (backlog B-022).
 
-**ST-0006** — As a tenant administrator, I read the history of access changes for a document, so that I can answer who could see it at any past date and who granted that.
+**ST-0005** — As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to — so that people see and do exactly what their job requires (ADR-0007).
+- Rights: a viewing ladder (view canonical, view accepted, view pending, edit, create and edit), history rights (view previous canonical versions, view all history), acts (accept, freeze and unfreeze, make canonical), and part rights (create or delete appendices; upload, replace or delete attachments).
+- A person holds the union of the rights of their groups linked to a document; nothing is granted to a person directly.
+- I cannot change a document's links while someone is editing it; I see who it is and ask them to finish, or force the release as a last resort (ST-0030).
+- *Synthetic example:* a finance policy linked to *Accountants* (view canonical), *Finance reviewers* (accept) and *Executives* (make canonical).
+
+**ST-0006** — As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links — so that I can answer who could see a document at any past date and who granted that.
 - The answer is retrievable for a date in the past, not only for now (ASR-18).
 
 **ST-0007** — As a user with memberships in several tenants, I switch between them, so that I work in one organisation at a time.
@@ -53,54 +67,67 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0055** — As a user, I reset a forgotten password, so that losing it does not need an administrator.
 - The response is the same whether or not the address is known, and the link is single-use and expiring.
 
-**ST-0056** — As a person exercising a right to erasure, I have my name and address removed, so that the platform no longer holds them.
+**ST-0056** — As a person exercising a right to erasure, I have my name and address removed, so that the platform no longer holds them. *Not in stage 1 — backlog B-017 (DL-0186).*
 - What I did remains in the record, attributed to a *former user*. The identifier stays; the person does not (DL-0108).
 
 ---
 
 ## Documents and organisation
 
-**ST-0009** — As a tenant administrator or user, I create a document by giving it a title, a language and a type, so that work can begin on it. *(skeleton)*
-- Language comes from a fixed list; a document carries exactly one.
-- I hold edit on it. Nothing else is granted automatically.
+**ST-0009** — As a user holding *create and edit*, I create a document by giving it a title, a language, a type and a folder, so that work can begin on it. *(skeleton)*
+- Language comes from a fixed list; a document carries exactly one. The folder may be the root.
+- Only I can reach it until the tenant administrator links groups to it, who is notified; from the first link I reach it through my groups (ADR-0007).
 - The new document's text is the organisation's document template: its section headings and any starting text (DL-0169).
 
 **ST-0058** — As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page, so that every new document starts with the structure we expect.
 - One template per organisation. Editing it changes documents created afterwards, never existing ones.
 - The title page is generated at export from the document's metadata through a layout I configure; nobody types it (DL-0164).
 
-**ST-0051** — As a tenant administrator, I am notified when a document is created, so that I grant its rights while it is still empty.
-- Until someone holds accept, the document reads *no reviewer assigned* and acceptance is refused with that reason rather than failing quietly.
+**ST-0051** — As a tenant administrator, I am notified when a document is created or copied, so that I link its groups while only its author can reach it.
+- Until a linked group holds accept, the document reads *no reviewer assigned* and acceptance is refused with that reason rather than failing quietly.
 
 **ST-0010** — As a tenant administrator, I change a document's type, so that it is filed correctly as its purpose becomes clear.
 
 **ST-0011** — As a platform administrator, I maintain the list of document types, so that every tenant classifies documents the same way.
 - Policy, controls, technical instruction, job description, notes.
 
-**ST-0012** — As a user, I create folders and move documents between them, so that a growing set stays navigable.
-- Folders nest without limit and are presentation only; moving a document changes nothing about the document itself (ASR-15).
+**ST-0012** — As a tenant administrator, I create, rename and delete folders and move documents between them, so that a growing set stays navigable.
+- Folders nest without limit and are presentation only; moving a document changes nothing about the document itself or who may read it (ASR-15).
+- A folder holding a document or a subfolder cannot be deleted.
+
+**ST-0067** — As a user holding *create and edit*, I copy a document I can read into a new one, so that a similar policy starts from existing text.
+- I choose the version: canonical, accepted, or pending edits (the default), among those I may see. The copy starts with that text and no history, no accepted or canonical version.
+- I choose which appendices to copy — none, all, or some. Attachments are never copied, and I am told so.
+- The copy is author-only until groups are linked, like any new document. Administrators see where it came from: source, version number, commit, time and who copied it.
 
 **ST-0013** — As a user, I browse the document list and filter it by type and by folder, so that I find what I need in a corpus that grows.
+- A search box above the table filters by title; it is not a full-text search.
+- I can browse by folder, or show every document without folders.
+- Each row shows the canonical number, and — where I may see them — the accepted and pending state (*2.0 · 2.3+1*); icons for appendices and attachments; opening the title reads the document, and the row offers *edit* and *export* as my rights allow.
+- With *create and edit*, the list offers *create document*.
 
 **ST-0014** — As a reviewer, I see each document's current state in the list, so that I decide whether to review now or wait for more edits to arrive.
 - The state distinguishes canonical, accepted, and pending edits awaiting review.
 
 **ST-0015** — As a tenant administrator, I archive a document, so that material that is no longer current stops appearing in the corpus.
 - Its links stop resolving everywhere, including where its name is written in another document's text.
-- Its access rights are archived with it and vanish from the administration panel.
+- Only administrators see it. It enters no analysis scope, and administrators can still export it.
+- Its group links stay; I can change them while it is archived, and they apply as they then stand when it is restored.
 
 **ST-0016** — As a tenant administrator, I restore an archived document, so that material put away by mistake or revived by circumstance comes back exactly as it was.
-- Every access right returns unchanged; nothing is rebuilt by hand (DL-0084).
+- Its group links apply as they stand; nothing is rebuilt by hand (DL-0084).
 
 ---
 
 ## Editing
 
-**ST-0017** — As an editor, I take a document for editing, so that I can change it without anyone else changing it underneath me. *(skeleton)*
-- While I hold it, nobody else can edit it. Holds are over the whole document.
+**ST-0017** — As an editor, I open an editor on a document and hold it, so that I can change it without anyone else changing it underneath me. *(skeleton)*
+- Opening any editor takes the hold when nobody holds the document; there is no separate button for it (ADR-0006).
+- While I hold it, nobody else can open its edit tab. Holds are over the whole document.
 
-**ST-0018** — As any user of a document, I see who is holding it, so that I know to wait rather than to ask.
-- Only the fact of the edits is visible, never their content, until a version is committed.
+**ST-0018** — As any user of a document, I see that it is being edited, in the document list and on the document, so that I know to wait.
+- I see the fact, not the person; only a tenant administrator sees who holds it (ADR-0006).
+- The content of the edits is never visible until a version is committed.
 
 **ST-0019** — As an editor, I write and format text with headings, lists, bold, underline, italics, callouts and tables, so that a policy reads as a policy. *(skeleton)*
 - Nothing outside that set is available, and anything pasted that falls outside it is refused at the moment of pasting, never silently dropped. The refusal names the offending lines and offers a conversion, shown before it is applied, and links to a help page listing what is allowed (DL-0171).
@@ -119,13 +146,15 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0060** — As an editor, I switch an editor to Markdown source and type or paste Markdown there, so that text I prepared elsewhere keeps its formatting.
 - Formatted text is the default; the source view is always one step away, in the whole-document and the section editors alike.
+- The source view shows each paragraph as one line, as I would write it; how the platform stores sentences is never visible.
 
-**ST-0061** — As an editor, I add, rename, reorder and delete a document's appendices, so that material that belongs with the policy is approved with it.
+**ST-0061** — As an editor, I add, rename, reorder and delete a document's appendices, as my groups' part rights allow, so that material that belongs with the policy is approved with it.
 - An appendix has a title I type, including any number (DL-0165); the title names it in the interface and in an exported file and is never printed in the document.
 - An appendix holds one `#` section, and I edit it with the same editors as the body.
+- Creating and deleting need the part rights (ADR-0007); renaming and reordering need only *edit*.
 - Appendices are listed in the order I added them until I reorder them.
 
-**ST-0062** — As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, so that the files people need sit beside the policy they belong to.
+**ST-0062** — As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, as my groups' part rights allow, so that the files people need sit beside the policy they belong to.
 - Every attachment has a title. Files above the organisation's size limit are refused with the limit stated (DL-0166).
 - The platform never opens an attachment; replacing it keeps the earlier version in the history.
 - Every change to an attachment is part of my draft and is reviewed with my text (DL-0168).
@@ -147,7 +176,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0026** — As an editor, I mark a piece of text as a role, an action or a term, so that the platform knows what the document is talking about.
 - Marking picks an entity that already exists in the document, or declares a new one.
-- The marks are invisible in the reading view and in exports; the marked text reads normally.
+- Wherever the text is rendered — the reading view, the editor, DOCX and PDF — marked text is set apart by its formatting, a shaded background for example, and the syntax is never shown. The source view and the Markdown export show the marks as written (DL-0184).
 
 **ST-0027** — As any reader of a document, I see the directory of roles it declares, with each role's rights and obligations and the paragraphs they come from, so that I can check a role without reading the whole policy.
 - Derived from the marks, with no agent involved (DL-0073).
@@ -162,8 +191,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - In stage 1 the analyses shown are the mechanical ones; the agent's arrive in stage 2 on the same screen.
 
 **ST-0030** — As a tenant administrator, I release a document held by someone who has gone quiet, so that work is not blocked by an absence.
-- A hold expires on its own as well.
-- The interrupted draft is preserved, never discarded.
+- I see who holds it; nobody else does.
+- A hold is also released on its own after a period without activity — 30 minutes unless I set another for my organisation — once its holder has been asked whether they are still working and has not answered.
+- The interrupted draft is preserved, never discarded. If nobody has committed since, its holder takes it back and continues; otherwise it opens read-only as changes against the current text.
 
 ---
 
@@ -197,7 +227,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The run stays pending and its authors are notified with my reason (ADR-0001).
 - The return is recorded in the document itself, so it shows in an export like an acceptance does. The document list says *returned* rather than *awaiting review* (DL-0114).
 
-**ST-0053** — As a tenant administrator, I switch on a check that an edition cannot be approved by whoever last accepted before it was frozen, so that my organisation can show an auditor a second pair of eyes.
+**ST-0053** — As a tenant administrator, I switch on a check that a document cannot be made canonical by anyone who accepted any of its runs since the previous canonical edition, so that my organisation can show an auditor a second pair of eyes.
 - Off by default. The approver must have accepted **none** of the runs since the previous canonical edition — not merely not the last one (DL-0115).
 
 **ST-0037** — As a reviewer or a document editor, I undo one author's contribution, so that work that should not have entered can be removed.
@@ -208,15 +238,23 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 ## Editions and approval
 
-**ST-0038** — As a document editor, I freeze the accepted text as an edition and give it a label, so that a specific wording can be put to the board. *(skeleton)*
+**ST-0038** — As a holder of the freeze right, I freeze a document, so that it stays as accepted while something outside it is resolved — an approval, a discussion with whoever approves, work in another document. *(skeleton)*
+- I can freeze it only when nobody is editing it; otherwise I ask the person editing, outside the platform, to finish, or wait for the inactivity release.
+- I may say what it waits for. Editors cannot open an editor while it is frozen; people holding *accept* and *edit* can, and accept their fixes as the next number, *1.4* (DL-0189).
 
-**ST-0039** — As an approver, I approve a frozen edition, making it the canonical version. *(skeleton)*
-- One person records the decision; the board's own procedure happens outside the platform.
-- The person who froze the edition may be the person who approves it, unless the tenant has switched on the check in ST-0053.
+**ST-0039** — As a holder of the make-canonical right, I make a frozen document canonical, so that its latest accepted version becomes the next edition — *2.0*. *(skeleton)*
+- Refused while commits since the latest acceptance are unaccepted.
+- One person records the decision; the approving body's own procedure — a board, for example — happens outside the platform.
+- The person who froze the document may be the person who makes it canonical, unless the tenant has switched on the check in ST-0053.
 
-**ST-0040** — As a reviewer, I withdraw a frozen edition, so that a freeze made too early can be taken back without inventing a new version.
+**ST-0064** — As any reader, I compare two different documents — a version of each that I may read — so that I can see how a copy or a sibling policy differs from the original (DL-0187).
+- Started from the document list or from either document; the comparison is the same word-level view as between versions.
+- To compare appendices I pick one from each document myself; the platform never pairs them.
 
-**ST-0041** — As any reader, I see the list of canonical editions and compare any two, so that I can answer what changed between version 1.0 and version 1.1.
+**ST-0040** — As a holder of the freeze right, I unfreeze a document, so that editing resumes once what it waited for is resolved without an approval.
+- The document stays at its accepted number — *1.3* stays *1.3*; the next commit is *1.3+1*.
+
+**ST-0041** — As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two, so that I can answer what changed between version 1.0 and version 2.0.
 - This is the question the previous tool could not answer, and it is why editions are a first-class thing rather than a note in the margin.
 
 ---
@@ -236,6 +274,8 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Numbering, structure and images survive into all three formats.
 - I compose it with checkboxes: what — the document, with its appendices embedded or as separate files, one appendix, one attachment, one companion document; which formats; which view — canonical, pending edits, my edits with or without marks. With nothing chosen, nothing exports (DL-0172).
 - The title page and a table of the attachments — title, file name, hash — are generated; attachments themselves never go inside a text export.
+- Paragraphs read as paragraphs in every format, Markdown included; the document's frontmatter is never exported.
+- DOCX and PDF carry the page number in the footer, and in the header the title, the version number and the stance exported.
 
 **ST-0046** — As a designer, I edit the stylesheet the exports are rendered with, so that documents look the way the organisation expects.
 - One stylesheet per organisation, selected per document.
@@ -245,7 +285,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Notifications and audit
 
 **ST-0047** — As any user, I see in the application what is waiting for me, so that I do not have to go looking.
-- Committed versions awaiting my review, acceptances of work I wrote, freezes awaiting approval, a hold of mine about to expire, rights granted to me, and — for a tenant administrator — a document created without its rights assigned.
+- Committed versions awaiting my review, acceptances of work I wrote, frozen documents awaiting a decision, a hold of mine about to be released for inactivity, groups I was added to, and — for a tenant administrator — a document created or copied and not yet linked to any group.
 
 **ST-0048** — As any user, I receive an email for the same events, so that I notice them without visiting the platform.
 - Sent from one platform address, to the address I signed up with.
@@ -260,7 +300,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 ## The walking skeleton
 
-The stories marked *(skeleton)* in order: bootstrap the first administrator → create a tenant → sign in → create a document → take it for editing → write text → work captured without saving → send for review and commit → read the pending changes → correct and accept → accept the run → freeze an edition → approve it canonical → read it → export it.
+The stories marked *(skeleton)* in order: bootstrap the first administrator → create a tenant → sign in → create a document → open an editor → write text → work captured without saving → send for review and commit → read the pending changes → correct and accept → accept the run → freeze it → make it canonical → read it → export it.
 
 They carry one document through the whole cycle for one person. Everything else thickens that path: more people, more rights, more organisation, more ways to look at the same history. The build order is `story-mapping.md`.
 
@@ -275,8 +315,10 @@ Named here so the boundary is explicit rather than inferred from absence.
 | Generated views — contradictions, ambiguities, blind spots, control directory | stage 2 (DL-0044) |
 | Document ADRs | stage 2 (DL-0045) |
 | Comments and the annotation surface | backlog B-013 (DL-0083) |
-| Disputes, the Statement of Disagreements, the decider, rejection records | backlog B-010 (DL-0076) |
+| Disputes, the Statement of Disagreements, the decider, rejection records | EP-0002, from backlog B-010 (DL-0076) |
 | Importing a Word document | backlog B-006 (DL-0080) |
+| Erasure of a person's name and address (ST-0056) | backlog B-017 (DL-0186) |
+| Deleting a user | backlog B-022 |
 | MCP server for external agents | backlog B-007 |
 | Automatic review of connected documents | backlog B-002 |
 | Tenant-wide entity registry | backlog B-012 |

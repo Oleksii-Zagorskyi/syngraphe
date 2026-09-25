@@ -22,6 +22,7 @@ before inventing a new location.
 | `tests/` | The test suite. Top level, not per app — one place to look |
 | `docs/` | Product-level documents: PRD, technical design, ASRs, data model, glossary, lifecycle, backlog |
 | `docs/adr/` | Architecture decision records. Numbered, never rewritten once accepted |
+| `docs/enhancements/` | Enhancement proposals — one initiative each — and the roadmap in its README |
 | `docs/verification-plan.md` | Every claim the design has not yet proved, with its pass condition |
 | `docs/design-record/` | The decision log and the architecture reviews — how the design was reached |
 | `docs/interface/` | Page wireframes and interface vocabulary. Each region marked with the release it belongs to |
@@ -117,12 +118,14 @@ half-write.
 
 ## Commit messages
 
-Subject alone for milestone and housekeeping commits — a body only when the diff
-would make a reader ask *why this way*.
+**The 50/72 form.** A capitalised, imperative subject of about 50 characters,
+never over 72; a blank line; a body wrapped at 72, written only when it tells a
+reader something the subject does not. Plain ASCII text, no Markdown.
 
-**Cite the identifier that governs the change** where one exists — `ST-0035`,
-`DL-0111`, `ADR-0003`. That makes the history an index into the design record,
-which is most of what the record is for.
+**Cite the identifier that governs the change** where one exists, on `Refs:`
+lines at the end — `Refs: ST-0035`, `Refs: DL-0181 to DL-0191`. That makes the
+history an index into the design record, which is most of what the record is
+for.
 
 No session numbers, no tracker references that resolve to nothing outside this
 repository, and no tool or agent attribution of any kind.
@@ -144,6 +147,10 @@ organisation itself live outside the tree entirely.
 Test material is invented. If a test needs realistic Ukrainian prose, write
 invented Ukrainian prose. Anything sourced from a real document does not enter
 this repository at all.
+
+**An example is marked as one.** A group, a role holder, a department or a
+document named to illustrate a rule — *Accountants*, *the CFO*, a finance
+policy — is invented and marked as a synthetic example where it appears.
 
 This is permanent: history cannot be unpublished.
 

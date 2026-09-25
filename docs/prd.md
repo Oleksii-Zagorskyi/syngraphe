@@ -45,7 +45,7 @@ The stored form is a constrained **Markdown** subset. Entities are marked with a
 
 ## Roles
 
-Named by the action performed, never by corporate title (DL-0017).
+Named by the action performed, never by corporate title (DL-0017). A person holds a role through the groups they belong to (ADR-0007).
 
 | Role | Stance | Scope |
 |---|---|---|
@@ -53,7 +53,7 @@ Named by the action performed, never by corporate title (DL-0017).
 | editor | edits, commits | whole document |
 | reviewer | accepts changes; may correct before accepting, including their own | whole document |
 | decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
-| approver | records the approval making a frozen edition canonical | document |
+| approver | makes a frozen document canonical | document |
 | designer | authors the organization's style documents and applies a selection to a document | organization, then document |
 | pending edits viewer | sees committed, unaccepted changes | whole document |
 | tenant administrator | users, document sets, role assignments, heuristic selection | tenant |
@@ -79,13 +79,13 @@ One editing sequence per document. No branches, no forks, no merges, and therefo
 
 Going back is only ever forward: an unwanted change is undone by a new version that reverts it, computed per sentence from authorship, never by erasing history.
 
-A **hold expires** and can be released by the tenant administrator; the interrupted draft is preserved, not discarded. Holds cover the whole document — there is no smaller unit (DL-0091).
+A **hold is released after a period without activity**, once its holder has been asked whether they are still working, and can be released by the tenant administrator; the interrupted draft is preserved, not discarded (ADR-0006). Everyone sees that a document is held; only the tenant administrator sees by whom. Holds cover the whole document — there is no smaller unit (DL-0091).
 
 ## Rights and administration
 
-Three application roles (DL-0079). A **platform administrator** grants platform administration and edits users and access rights. A **tenant administrator** grants access within their tenant, creates users by email, blocks users within their own tenant only, assigns side-document types and companion actions, archives and restores documents, and creates documents. A **user** edits and creates documents. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
+Three application roles (DL-0079). A **platform administrator** does everything a tenant administrator can, in every tenant, and creates tenants, blocks them and grants platform administration. A **tenant administrator** invites users by email, blocks them in tenants they administer, manages groups and links them to documents, manages folders, archives and restores documents, and assigns side-document types and companion actions (ADR-0007). A **user** does what the rights of their groups allow — creating documents included, through *create and edit*. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
 
-Five rights, all **document-scoped**: read, edit, accept edits, freeze an edition, approve canonical (DL-0083, DL-0091). Comment is stage 2 with the rest of the annotation surface.
+**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept, freeze and unfreeze, make canonical; and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
 
 **There are no section-scoped roles and no code owners** (DL-0091). A right is held over a document or not at all.
 
@@ -153,7 +153,7 @@ Acceptance is a **document-level act** covering the whole run since the last acc
 
 ## Editions
 
-A document is frozen as an **edition** and submitted for approval; on approval the edition becomes **canonical**. An edition cannot become canonical while any Statement entry is open (DL-0010). A new editing cycle may start against a canonical document at any time.
+A document is **frozen** while something outside it is resolved — an approval, a discussion with whoever approves, work elsewhere — and only its reviewers may edit it meanwhile (DL-0189). The freeze ends by **making it canonical**, which makes the latest accepted version the next **edition**, or by unfreezing it. A frozen document cannot be made canonical while any Statement entry is open (DL-0010). A new editing cycle may start against a canonical document at any time.
 
 ## What the agents look for
 

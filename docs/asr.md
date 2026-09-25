@@ -84,9 +84,9 @@ Identity and access control are Django's; no second system holds overlapping per
 
 ## ASR-08 — Access is data, and its history is part of the record *(constraint)*
 
-Rights are rows of `document, user, rights`, edited only by a tenant or platform administrator, with every change carrying a timestamp and an actor (DL-0051).
+Rights are held by groups and reach documents through the groups linked to them (ADR-0007); groups, their rights, their members and their links are edited only by a tenant or platform administrator, and every change carries a timestamp and an actor (DL-0051).
 
-*Forbids:* permissions encoded in code, in file layout, or anywhere a change leaves no trace. Confidential material is an ordinary document with restricted rows, not a separate mechanism.
+*Forbids:* permissions encoded in code, in file layout, or anywhere a change leaves no trace. Confidential material is an ordinary document linked to few groups, not a separate mechanism.
 
 ## ASR-09 — Generated views have exactly one author *(constraint)*
 
