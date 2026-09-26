@@ -81,7 +81,7 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 ## B-009 — Per-tenant email sending domains
 
-Stage 1 sends from one platform domain (DL-0072). Sending from each tenant's own domain needs that tenant to publish SPF and DKIM records for us, which turns onboarding into a DNS exercise. Worth it only when a tenant asks for mail that carries their own name.
+**Taken up in release 0.1 (DL-0202):** a tenant may configure one sending address of its own; without one, its mail goes from the platform address.
 
 ## B-016 — Operator guide for the people who use it daily
 
@@ -109,11 +109,7 @@ Stage 1 sends from one platform domain (DL-0072). Sending from each tenant's own
 
 ## B-019 — HTML mockups from the page wireframes
 
-**Idea.** Clickable HTML mockups generated from [`docs/interface/pages.md`](interface/pages.md), worked through with the owner, so layout and navigation are judged on a screen rather than in ASCII.
-
-**Why it is parked.** It is a design activity of its own with the owner in the loop. Built against an editor that is later rejected, the editing surface's mockup is thrown away.
-
-**What has to be true before it is taken up.** **The wireframes carry a release marker on every region, and the editor library is chosen** (`verification-plan.md` V-01).
+**Taken up:** the interface is drawn in [`interface/mockup.html`](interface/mockup.html), described region by region in [`interface/pages.md`](interface/pages.md). Still to come: the reviewer's pages and the tenant administration pages in detail, a user profile page, visual style, and a mobile layout.
 
 ## B-020 — Comments in an export
 
@@ -157,8 +153,40 @@ Stage 1 sends from one platform domain (DL-0072). Sending from each tenant's own
 
 ## B-025 — Private working rounds during a freeze
 
-**Idea.** While a document is frozen and its reviewer is working through what the approver asked, the intermediate commits (`1.3+1`, `1.3+2`) are hidden from everyone else; after the freeze ends, other readers see only the step from `1.3` to `1.4`.
+**Idea.** While a document is frozen and its reviewer is working through what the approver asked, the intermediate commits (`1.3-1`, `1.3-2`) are hidden from everyone else; after the freeze ends, other readers see only the step from `1.3` to `1.4`.
 
 **Why it is parked.** In 0.1 everyone who may see pending edits sees every commit (DL-0189); hiding some would add a visibility rule to the history.
 
 **What has to be true before it is taken up.** A reviewer has been observed avoiding the platform for a round with the approver because the intermediate work would be visible.
+
+## B-026 — Hiding who acted in a document's history
+
+**Idea.** A setting that hides the person behind each event in a document's history — edit, acceptance, freeze, canonisation — from readers who do not need to know it.
+
+**Why it is parked.** In 0.1 every history entry names who acted, and attribution is part of what the platform promises (ASR-18).
+
+**What has to be true before it is taken up.** An organisation asks for readers to see what changed without seeing who changed it.
+
+## B-027 — Receiving email
+
+**Idea.** Incoming mail — replies to notifications, documents sent in by email — read from a mailbox the tenant configures.
+
+**Why it is parked.** The platform only sends mail (DL-0202); nothing yet needs to read it.
+
+**What has to be true before it is taken up.** A workflow that starts from an incoming message.
+
+## B-028 — Notification levels
+
+**Idea.** Each person chooses which events notify them, in the application and by email.
+
+**Why it is parked.** In 0.1 everyone receives the events that concern them (DL-0204); choosing among them needs a view of what people actually find noisy.
+
+**What has to be true before it is taken up.** Someone has been observed ignoring a class of notifications.
+
+## B-029 — A read-and-act workflow for notifications
+
+**Idea.** Notifications that stay open until acted on — dismissed, snoozed, assigned — rather than read by opening.
+
+**Why it is parked.** In 0.1 opening a notification marks it read (DL-0204).
+
+**What has to be true before it is taken up.** An administrator has lost track of an event they had opened but not dealt with.

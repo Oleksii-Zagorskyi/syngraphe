@@ -94,15 +94,6 @@ A second consequence worth stating: a development host that holds real tenant do
 
 **Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export.
 
-
-### T-15 — A malicious attachment
-
-**Who:** any editor. **How:** an attachment is an arbitrary file the platform keeps and hands to other users (DL-0166) — a document carrying a macro or an executable, or a file the browser would render if allowed: HTML, SVG, a PDF with script. **Answered by:** an attachment is **never rendered and never served inline**. Every download goes through the application's access check and is sent as a download, with a fixed generic content type and content sniffing disabled, under its stored file name; nothing is served from a public path. The tenant's size cap bounds what one upload can cost, and no agent ever reads an attachment (DL-0168). **Residual:** the platform does not inspect what an attachment contains; a reviewer sees that a file was added or replaced and can download it, and the protection on the reader's own machine is what judges its contents.
-
-### T-16 — Administrators read what they govern
-
-**Who:** a tenant administrator, or the platform administrator. **How:** in this release both read every document in their scope — the tenant administrator their organisation's, the platform administrator every organisation's (ADR-0007). **Answered by:** nothing in 0.1; the release is deployed to a single organisation that operates it. **Residual:** accepted for 0.1. Separating administering access from having it, and keeping the operator out of tenants' content, is EP-0001.
-
 ### T-07 — The record is altered
 
 **Who:** insider with database access. **How:** editing history to change what a document said or who approved it.
@@ -131,7 +122,7 @@ This is an **accepted risk taken knowingly by the owner**, recorded here so a la
 
 ### T-12 — Credentials in the database
 
-**Who:** insider, or anyone with a dump. **Answered by:** the SMTP credential is encrypted at rest with a key from the environment and is write-only in the interface (DL-0072). A dump alone does not yield a working sender.
+**Who:** insider, or anyone with a dump. **Answered by:** every sending password — the platform's and each tenant's — is encrypted at rest with authenticated encryption under a key from the environment, decrypted only in the worker when sending, never logged, and write-only in the interface (DL-0072, DL-0202). A dump alone does not yield a working sender.
 
 ### T-13 — Personal data cannot be erased
 
@@ -148,6 +139,22 @@ This is an **accepted risk taken knowingly by the owner**, recorded here so a la
 **Answered by** DL-0107 and DL-0116: local accounts with modern password hashing, **throttling with a growing delay and never a hard lockout**, session expiry, single-use expiring invitation and reset links, and **identical responses whether or not an address is known** on all three surfaces. The last is not politeness — it is what makes ASR-17 hold where it is easiest to break, since the email address is the platform identifier and a tenant administrator must learn nothing about a person's existence elsewhere. Lockout was ruled out for the same reason: a locked account answers differently from an unknown address, which reopens the oracle this entry exists to close, and a lock anyone can trigger with a known address is a way to shut a reviewer out before a board date.
 
 **Residual:** no second factor in stage 1, by owner decision. A stolen password is a full account takeover. Revisit when the platform leaves the development host or a tenant asks. **External OIDC stays a named attachment point** so a tenant with a corporate identity provider does not force a rework.
+
+### T-15 — A malicious attachment
+
+**Who:** any editor. **How:** an attachment is an arbitrary file the platform keeps and hands to other users (DL-0166) — a document carrying a macro or an executable, or a file the browser would render if allowed: HTML, SVG, a PDF with script. **Answered by:** an attachment is **never rendered and never served inline**. Every download goes through the application's access check and is sent as a download, with a fixed generic content type and content sniffing disabled, under its stored file name; nothing is served from a public path. The tenant's size cap bounds what one upload can cost, and no agent ever reads an attachment (DL-0168). **Residual:** the platform does not inspect what an attachment contains; a reviewer sees that a file was added or replaced and can download it, and the protection on the reader's own machine is what judges its contents.
+
+### T-16 — Administrators read what they govern
+
+**Who:** a tenant administrator, or the platform administrator. **How:** in this release both read every document in their scope — the tenant administrator their organisation's, the platform administrator every organisation's (ADR-0007). **Answered by:** nothing in 0.1; the release is deployed to a single organisation that operates it. **Residual:** accepted for 0.1. Separating administering access from having it, and keeping the operator out of tenants' content, is EP-0001.
+
+### T-17 — Probing document numbers
+
+**Who:** any signed-in user. **How:** document numbers run in sequence (ADR-0008), so trying `/document/1/`, `/document/2/`, … walks every number the tenant has used. **Answered by:** the same not-found response for a document that does not exist, one the user may not open, one archived and one in another tenant — status, page and timing alike (ADR-0008). **Residual:** the size of the sequence — roughly how many documents a tenant has created — can be estimated from the highest number a user sees; accepted.
+
+### T-18 — The framework's administration interface
+
+**Who:** anyone who finds it. **How:** Django's built-in interface exposes every table; reached with a stolen developer password, or found at its well-known path. **Answered by:** only operator accounts with the superuser flag reach it; it is never linked, never served on a tenant's domain, not at the default path, and every use is audited (DL-0210). **Residual:** a developer account is the most powerful credential on the platform; second factors for it are part of EP-0001.
 
 ## What this found
 

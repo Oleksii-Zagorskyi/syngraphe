@@ -31,7 +31,7 @@ A new document starts from the organisation's **template** (DL-0169). An optiona
 Concretely (DL-0046):
 
 ```
-{tenant}/{document-id}/        # repository root, one per document (DL-0111)
+tenant-N/document-M/          # repository root, one per document (DL-0111, ADR-0008)
 ├── document.md       # frontmatter: title, language, parts · body: the main text
 ├── appendices/       # one Markdown file per appendix
 ├── attachments/      # one opaque file per attachment
@@ -105,7 +105,7 @@ Three application roles (DL-0079). A **platform administrator** does everything 
 
 **No notification carries document text** (DL-0113) — in the application or by email. Email carries the event and a link; a correction notice renders the two wordings from the document, under the reader's current rights.
 
-Three surfaces (DL-0070). A **notifications section** in the application; **email** for the same events, whose sending identity is settled at DL-0072; and the **document list**, which shows each document's current state — so a reviewer seeing *pending edits* decides whether to review now or wait for more to arrive. The list is the quiet one and probably the most used: it turns notification from a stream of events into a standing picture of what is waiting.
+Three surfaces (DL-0070). A **notifications section** in the application; **email** for the same events, sent from the tenant's own address or the platform's (DL-0202); and the **document list**, which shows each document's current state — so a reviewer seeing *pending edits* decides whether to review now or wait for more to arrive. The list is the quiet one and probably the most used: it turns notification from a stream of events into a standing picture of what is waiting.
 
 ## Types, folders and links
 
@@ -113,7 +113,7 @@ Three surfaces (DL-0070). A **notifications section** in the application; **emai
 
 Worth keeping apart: a **controls document** is authored, with its own editing and review pipeline; the controls **view** generated from a policy only reports what that policy already says. Same subject, different artefacts.
 
-**Folders exist in the interface, not in storage.** Each document is its own repository, named by its id, in a flat directory under its tenant (DL-0111); the interface shows folders with unlimited nesting, held as metadata (DL-0058). Moving a document changes nothing on disk, breaks no link, and orphans no history.
+**Folders exist in the interface, not in storage.** Each document is its own repository, `tenant-N/document-M/`, in a flat directory under its tenant (DL-0111, ADR-0008); the interface shows folders with unlimited nesting, held as metadata (DL-0058). Moving a document changes nothing on disk, breaks no link, and orphans no history.
 
 **Links.** A mention of another document becomes a link **when the reader may access it**, and renders as plain text otherwise — a link is never allowed to disclose that a document exists (DL-0060, ASR-16). Each document carries an auto-generated **see also** listing what it links to, filtered the same way. Together with types and folders, this is what makes the document set a wiki: everything in one place, browsable and cross-linked.
 

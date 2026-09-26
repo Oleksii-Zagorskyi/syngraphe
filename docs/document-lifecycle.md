@@ -35,7 +35,7 @@ stateDiagram-v2
 Disputes are stage 2 (DL-0076), so nothing gates `Frozen --> Canonical` in stage 1 but the approver — and, where a tenant has switched it on, the rule that whoever makes it canonical accepted none of the runs since the previous canonical edition (DL-0101, DL-0115). The disagreement guard returns with the register.
 
 > [!important] A freeze locks the document, not a version
-> A document is frozen only when nobody holds it. While frozen, editors cannot open an editor; people holding both *accept* and *edit* can, and their commits and acceptances continue the numbering — `1.3+1`, then `1.4` (DL-0189). No version ever changes. *Make canonical* turns the latest accepted version into the next edition and is refused while commits since it are unaccepted; *unfreeze* returns to ordinary editing at the current number. The stances are derived from `ACCEPTANCE`, `FREEZE` and `EDITION` rows, with no state column for them to disagree with.
+> A document is frozen only when nobody holds it. While frozen, editors cannot open an editor; people holding both *accept* and *edit* can, and their commits and acceptances continue the numbering — `1.3-1`, then `1.4` (DL-0189). No version ever changes. *Make canonical* turns the latest accepted version into the next edition and is refused while commits since it are unaccepted; *unfreeze* returns to ordinary editing at the current number. The stances are derived from `ACCEPTANCE`, `FREEZE` and `EDITION` rows, with no state column for them to disagree with.
 
 ## An editing session
 

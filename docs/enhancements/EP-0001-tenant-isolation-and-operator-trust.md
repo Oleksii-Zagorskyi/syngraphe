@@ -32,6 +32,7 @@ A tenant is a fully independent group of users or a separate business (DL-0003).
 - A person's presence in one tenant is undiscoverable from any other.
 - Content at rest is unreadable without keys the tenant controls.
 - Model providers never receive content a tenant has not agreed to send.
+- Developer and administrator accounts — the platform's most powerful credentials — require a second factor.
 - The platform can demonstrate conformance to recognised global security standards.
 
 ### Non-goals

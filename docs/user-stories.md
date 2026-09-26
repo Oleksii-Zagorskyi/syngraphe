@@ -94,6 +94,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0012** — As a tenant administrator, I create, rename and delete folders and move documents between them, so that a growing set stays navigable.
 - Folders nest without limit and are presentation only; moving a document changes nothing about the document itself or who may read it (ASR-15).
 - A folder holding a document or a subfolder cannot be deleted.
+- People see only folders holding, at any depth, a document they may read; administrators see all (DL-0206). Folders sort alphabetically.
 
 **ST-0067** — As a user holding *create and edit*, I copy a document I can read into a new one, so that a similar policy starts from existing text.
 - I choose the version: canonical, accepted, or pending edits (the default), among those I may see. The copy starts with that text and no history, no accepted or canonical version.
@@ -101,9 +102,10 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The copy is author-only until groups are linked, like any new document. Administrators see where it came from: source, version number, commit, time and who copied it.
 
 **ST-0013** — As a user, I browse the document list and filter it by type and by folder, so that I find what I need in a corpus that grows.
-- A search box above the table filters by title; it is not a full-text search.
-- I can browse by folder, or show every document without folders.
-- Each row shows the canonical number, and — where I may see them — the accepted and pending state (*2.0 · 2.3+1*); icons for appendices and attachments; opening the title reads the document, and the row offers *edit* and *export* as my rights allow.
+- A search box finds documents by their titles and their appendices' titles, never by text; results are grouped by full folder path, and the folder pane shows only folders with results.
+- I always browse inside a folder, the organisation's root included (DL-0197). *In edit* and *In review* are views of their own, showing only the folders that hold matching documents.
+- Each row starts with the document's number, `#7`.
+- Each row shows the canonical version, linking to it, and the latest version I may see beyond it, linking where the title does (DL-0208); icons for appendices and attachments; the title opens the reading view, the pencil the edit tab. Export is on the document page, not the list.
 - With *create and edit*, the list offers *create document*.
 
 **ST-0014** — As a reviewer, I see each document's current state in the list, so that I decide whether to review now or wait for more edits to arrive.
@@ -187,7 +189,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - All metadata is removed on upload — no location, no device.
 
 **ST-0029** — As an editor, I press *send for review*, see what my changes introduce, and either continue editing or commit. *(skeleton)*
-- The commit carries a summary I may edit before sending.
+- The commit carries a summary I may edit before sending. It is for whoever reviews the run, and shows only with the version in pending edits (DL-0197).
 - In stage 1 the analyses shown are the mechanical ones; the agent's arrive in stage 2 on the same screen.
 
 **ST-0030** — As a tenant administrator, I release a document held by someone who has gone quiet, so that work is not blocked by an absence.
@@ -203,10 +205,14 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Authorship shows behind a toggle, so the same diff can be read with or without it.
 - Changes are marked word by word inside the formatted text, the way a word processor tracks changes; a change to formatting alone is marked as such (DL-0170).
 - As an editor I see my own draft the same way, as *my edits*.
+- Both views show the whole document with the changes marked in place (DL-0195).
 
 **ST-0032** — As any reader of a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not.
+- Each entry shows the version, the event — edit, acceptance, return, freeze, canonisation — and who acted (DL-0197).
+- Each version opens as a historical page in a new window: the reading view and export, never editing, and *compare with* any other version, the latest included (DL-0195).
 
 **ST-0033** — As a reviewer, I compare any two versions directly, so that I am not forced to read a long run one step at a time.
+- The comparison shows the newer version's whole text with the changes marked, links to both versions, appendices compared in pairs I pick, and each attachment with both files and whether it changed (DL-0208).
 
 **ST-0034** — As a reviewer, I see that an image changed and view the old and new side by side, so that I never accept a change I could not see.
 
@@ -252,7 +258,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - To compare appendices I pick one from each document myself; the platform never pairs them.
 
 **ST-0040** — As a holder of the freeze right, I unfreeze a document, so that editing resumes once what it waited for is resolved without an approval.
-- The document stays at its accepted number — *1.3* stays *1.3*; the next commit is *1.3+1*.
+- The document stays at its accepted number — *1.3* stays *1.3*; the next commit is *1.3-1*.
 
 **ST-0041** — As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two, so that I can answer what changed between version 1.0 and version 2.0.
 - This is the question the previous tool could not answer, and it is why editions are a first-class thing rather than a note in the margin.
@@ -261,8 +267,8 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 ## Reading and export
 
-**ST-0042** — As a reader, I read the canonical version of a document, with its numbering and outline, so that I can rely on what I am reading being the approved text. *(skeleton)*
-- A reader sees canonical only — no pending edits, no diffs.
+**ST-0042** — As a reader, I read a document, with its numbering and outline, and always know which version I am reading. *(skeleton)*
+- I see the latest version my rights allow — canonical, accepted or pending — named on the page, with a link to the latest canonical version (DL-0209). A reader who may see only canonical text never sees pending edits or diffs.
 
 **ST-0043** — As a reader, I follow a mention of another document as a link when I have access to it.
 - When I do not, the mention reads as ordinary text and offers no way through (ASR-16).
@@ -272,7 +278,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0045** — As a reader, I export a stated version to PDF, to Word or to Markdown, so that I can circulate it outside the platform. *(skeleton)*
 - The export names the version it is of.
 - Numbering, structure and images survive into all three formats.
-- I compose it with checkboxes: what — the document, with its appendices embedded or as separate files, one appendix, one attachment, one companion document; which formats; which view — canonical, pending edits, my edits with or without marks. With nothing chosen, nothing exports (DL-0172).
+- I choose one format, and what to include — the document, its appendices (embedded or as separate files), its attachments — all included by default; parts the document lacks are not offered. Several files come as one zip. The view: canonical, accepted, pending edits, or my edits with or without marks, as my rights allow (DL-0193, DL-0209).
 - The title page and a table of the attachments — title, file name, hash — are generated; attachments themselves never go inside a text export.
 - Paragraphs read as paragraphs in every format, Markdown included; the document's frontmatter is never exported.
 - DOCX and PDF carry the page number in the footer, and in the header the title, the version number and the stance exported.
@@ -285,10 +291,18 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Notifications and audit
 
 **ST-0047** — As any user, I see in the application what is waiting for me, so that I do not have to go looking.
+- Two tabs: *Document*, each entry linking to the document at the version concerned, and *Administrative*, with filters and *mark all as read*. Opening a notification marks it read (DL-0204).
 - Committed versions awaiting my review, acceptances of work I wrote, frozen documents awaiting a decision, a hold of mine about to be released for inactivity, groups I was added to, and — for a tenant administrator — a document created or copied and not yet linked to any group.
 
 **ST-0048** — As any user, I receive an email for the same events, so that I notice them without visiting the platform.
-- Sent from one platform address, to the address I signed up with.
+- It names the document, versions, people and the event, and links to the platform; it never contains text of the document (DL-0205).
+- Sent from my organisation's own address if it has one, otherwise the platform's; with neither configured, no email is sent (DL-0202, DL-0203).
+- Each email is queued, tried up to three times five minutes apart, and logged; a final failure notifies the administrators in the application.
+
+**ST-0068** — As a tenant administrator, I configure my organisation's own sending address, so that notifications carry our name.
+- One address or none; with none, the platform's address sends.
+- *Send a test email* sends from the address to itself — *Test message*, *Test email from {host}, sent at {time}* — and reports connected, signed in, sent (DL-0202).
+- The password can be replaced, never shown.
 
 **ST-0049** — As a platform administrator, I configure the sending address and its credentials, so that notification email leaves from an address we control.
 - The credential can be replaced but never read back.

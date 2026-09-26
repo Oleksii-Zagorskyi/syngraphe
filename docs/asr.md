@@ -136,7 +136,7 @@ The product ships under the Apache License 2.0 (DL-0011, DL-0162).
 
 ## ASR-15 — A document's identity is independent of where it is shown *(constraint)*
 
-A document is **one repository, named by its id**, in a flat directory under its tenant (DL-0111). The interface shows folders with unlimited nesting, held as metadata. Moving or renaming a document in the interface never changes anything on disk (DL-0058).
+A document is **one repository**, `document-M`, in a flat directory under its tenant, `tenant-N` (DL-0111, ADR-0008); people know it by its number, `#7`, which never changes (ADR-0008). The interface shows folders with unlimited nesting, held as metadata. Moving or renaming a document in the interface never changes anything on disk (DL-0058).
 
 *Forbids:* deriving a document's storage path from its presentation location, or from its title. A reorganised tree would otherwise rewrite paths, break every link, and orphan history; a path built from a title would also put document titles — including a confidential guidance document's — into filesystem listings and backup manifests the access table does not govern.
 

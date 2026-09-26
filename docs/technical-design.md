@@ -65,7 +65,7 @@ Two stores, one record. Without these rules the crash states are undefined and t
 
 **Git is the commit point.** The ref update is the moment a version, an acceptance or a return exists. Rows are **derived idempotently** — by the request that made the commit, and again by a **reconciler** that replays any commit lacking its row. A row is never the authority for something git holds.
 
-**One repository per document**, named by `DOCUMENT.id` rather than by slug — a directory named by slug puts document titles, including a confidential guidance document's title, into filesystem listings, backup manifests and operator shells that the access table does not govern.
+**One repository per document**, at `tenant-N/document-M/` — the tenant's platform number and the document's number in its tenant (ADR-0008). Never by title: a directory named by title puts document titles, including a confidential guidance document's title, into filesystem listings, backup manifests and operator shells that the access table does not govern.
 
 **A single-writer lock per document** covers every ref update. It is almost uncontended, because the editor's hold already serialises human editors, but it still has to exist: acceptance, per-author undo and any stage 2 worker write are not covered by that hold.
 
@@ -85,7 +85,7 @@ Two stores, one record. Without these rules the crash states are undefined and t
 
 ## Tenancy
 
-A tenant is a fully independent group of users or a separate business (DL-0003). Tenants share nothing but the heuristic catalogue their copies are seeded from.
+A tenant is a fully independent group of users or a separate business (DL-0003). **A tenant is recognised from the host** when it has its own domain (`TENANT_DOMAIN`), and from the session on the application's main domain; a person signing in on a tenant's domain lands in that tenant, and switching tenant moves between domains and may need signing in again (ADR-0008). Tenants share nothing but the heuristic catalogue their copies are seeded from.
 
 - **Database — schema per tenant** in PostgreSQL (DL-0029). Isolation is enforced by the database, not by application code: crossing it requires getting a whole request's `search_path` wrong rather than one query's `WHERE` clause. Migrations run per schema; platform-level tables live in a shared schema.
 - **Repositories** — a directory per tenant holding one repository per document, pairing with schema-per-tenant. DL-0003's mapping of a tenant to a Forgejo organization lapses with DL-0042.
@@ -95,6 +95,8 @@ A tenant is a fully independent group of users or a separate business (DL-0003).
 Both are Django's (DL-0042, superseding DL-0015). Groups holding rights, linked to documents, are the only permission model in the system (ADR-0007) — one authorisation surface, per ASR-07. The MCP contract, that an external agent holds exactly its user's rights, is a property of the same authorisation path the browser uses.
 
 Principle of least privilege throughout: the burden is on expanding access, never on restricting it.
+
+**Developers are not an application role** (DL-0210). Django's own administration interface is reachable only by operator accounts with its superuser flag, created from the command line; it is never linked from the application, is served only on the platform's main domain, sits at a non-default path, and every use is audited. Platform and tenant administration are the application's own pages.
 
 ## Who performs git operations
 
@@ -110,7 +112,7 @@ What was given up is the forge's web interface for inspecting a repository when 
 
 ## Repositories and access
 
-**One repository per document** (DL-0111), inside the tenant's directory, named by `DOCUMENT.id`. Confidential guidance is an ordinary document with restricted access (DL-0051, superseding DL-0008). The granularity is what makes the agent's mount list *be* the review scope, so the editor-facing run has no guidance on its filesystem at all.
+**One repository per document** (DL-0111), at `tenant-N/document-M/` (ADR-0008). Confidential guidance is an ordinary document with restricted access (DL-0051, superseding DL-0008). The granularity is what makes the agent's mount list *be* the review scope, so the editor-facing run has no guidance on its filesystem at all.
 
 Access is **data with history** (ASR-08): groups, their rights, their members and their links to documents, every change carrying a timestamp and an actor, editable only by a tenant or platform administrator (ADR-0007). A confidential document is one linked to few groups; a new document is linked to none and reaches only its author.
 
@@ -121,10 +123,10 @@ The condition the old design relied on is now explicit rather than structural: *
 A document is **its body, zero or more appendices and zero or more attachments**, all in its own repository (DL-0165, DL-0166):
 
 ```
-{tenant}/{document-id}/        # repository root, one per document (DL-0111)
+tenant-N/document-M/          # repository root, one per document (DL-0111, ADR-0008)
 ├── document.md       # frontmatter: title, language, appendix and attachment lists · body: the main text
-├── appendices/       # one Markdown file per appendix, named by its identifier
-├── attachments/      # one opaque file per attachment, named by its identifier
+├── appendices/       # one Markdown file per appendix, named by its number: 1.md, 2.md
+├── attachments/      # one opaque file per attachment, named by its number
 ├── entities.yaml     # role, action and term definitions
 ├── images/           # uploaded binary assets the text embeds
 ├── analysis/         # editor-facing companion analyses (stage 2)
@@ -190,7 +192,7 @@ Everything else is outside the subset: raw HTML, scripts, footnotes, definition 
 - History is **linear and append-only** (ADR-0003, ASR-02). No branches, no merges, no rewriting. An unwanted change is undone by a commit that reverts it, computed per sentence from blame, with the platform resolving the case where a later author built on top.
 - **`refs/proposals/{id}/head` is no longer needed** — nothing is squashed, so nothing needs retaining. ADR-0002's retention consequence lapses.
 - **Acceptance** is a commit to the document's passport carrying the reviewer's decision, so approval history lives in the repository and travels with the document (DL-0041). Corrective edits ride in the same commit.
-- **Version numbers are derived** (DL-0183): an acceptance is `N.M` — N canonical editions before it, M acceptances since the last — and making a frozen document canonical gives its latest accepted version `N+1.0`. The passport records them, so no user ever needs a commit hash. Pending work is shown as the last accepted number plus the commits since it, `1.3+2`.
+- **Version numbers are derived** (DL-0183): an acceptance is `N.M` — N canonical editions before it, M acceptances since the last — and making a frozen document canonical gives its latest accepted version `N+1.0`. The passport records them, so no user ever needs a commit hash. Pending work is shown as the last accepted number plus the commits since it, `1.3-2`.
 - **Copying a document creates a new one** (ADR-0007): its first commit holds the chosen version's text — canonical, accepted or pending — with the chosen appendices, images and entity definitions, no attachments and no history. It is author-only until groups are linked, and records its source.
 - **A freeze locks the document, not a version** (DL-0189). A document is frozen only when nobody holds it; while frozen, only holders of both *accept* and *edit* may take the hold; their commits and acceptances continue the numbering. *Make canonical* tags the latest accepted version as the next edition and ends the freeze; *unfreeze* ends it without one.
 - **Acceptance is document-level** (DL-0090): one reviewer accepts the whole run since the last accepted version. No per-file ledger, no partially-approved state, no section owners (DL-0091).
@@ -270,6 +272,9 @@ Runs against the editor's session with its own interface. Sees the working docum
 
 ## Interfaces
 
+- **Nothing to show** (ADR-0008): a document that does not exist, one the reader may not open, one archived and one in another tenant all get the same not-found response — status, page and timing — reading *Nothing to show here*, with no title, author, version or mention of access.
+- **URLs** (ADR-0008), within the tenant the host or session names: `/document/12/` the reading view; `/document/12/edit/` and one segment per tab — `my-edits`, `pending`, `history`, `analysis`, `info`; `/document/12/version/2.3/`, `/document/12/version/2.3-1/`; `/document/12/compare/?from=2.0&to=2.3-1`; `/document/12/appendix/3/`; `/document/12/attachment/3/`; `/folder/7/`; `/search/?q=…`.
+- **Help pages** are Markdown files shipped with the application and rendered by it, in the interface's language (DL-0195). They describe the product, belong to no tenant, and are not platform documents.
 - **Web UI** — Ukrainian, all roles, five document stances (DL-0033). Server-rendered pages with the editor as the one client island (ADR-0004).
 - **MCP server** — an external agent connects as a user and inherits exactly that user's rights. **Not in stage 1** — backlog B-007; the contract is recorded so the authorisation path is built once.
 
@@ -277,17 +282,19 @@ Runs against the editor's session with its own interface. Sees the working docum
 
 Markdown, PDF and DOCX. PDF renders through HTML and the designer's stylesheet with weasyprint; DOCX through pandoc. All three are in stage 1 — Markdown made the Word path cheap (DL-0046).
 
-An export is composed from three choices (DL-0172):
+An export is composed from three choices (DL-0172, DL-0193):
 
-- **Scope** — the document alone; the document with every appendix embedded; the document and its appendices as separate files in one archive; one appendix; one attachment, as the stored file; one companion document — a mechanical analysis or a change summary.
-- **Format** — DOCX, PDF, Markdown, for every text scope.
-- **View** — the canonical version; *pending edits*, marked against the last approved text; *my edits*, marked against the current text, or unmarked. Change marks appear in DOCX and PDF only.
+- **What** — checkboxes, all checked by default: the document; its appendices, embedded in the document or as separate files; its attachments, as stored. A part the document does not have is not offered.
+- **Format** — one of DOCX, PDF, Markdown.
+- **View** — the canonical version; the *accepted* version; *pending edits*, marked against the last approved text; *my edits*, marked against the current text, or unmarked — each as the reader's rights allow (DL-0209). Change marks appear in DOCX and PDF only.
+
+More than one file is always delivered as a zip. A single attachment is downloaded from the document page; there is no single-item export.
 
 The platform generates two parts no one authors: the **title page**, when the document has one, and the **attachment list** — title, file name and SHA-256 hash, on a page of its own in DOCX and PDF and as a final `#` section in Markdown. Attachment contents are never embedded in a text export.
 
 **The frontmatter is never exported**, in any format: it is the platform's record of the document's parts and settings, not text anyone wrote for a reader (DL-0181).
 
-**DOCX and PDF carry page furniture** (DL-0182): the page number in the footer; in the header, the document title with its version number beside it, and the stance the export shows — canonical version, accepted edits, pending edits or my edits. A *pending edits* or *my edits* export shows the last accepted number plus the commits since it: *1.3+2 · pending edits*.
+**DOCX and PDF carry page furniture** (DL-0182): the page number in the footer; in the header, the document title with its version number beside it, and the stance the export shows — canonical version, accepted edits, pending edits or my edits. A *pending edits* or *my edits* export shows the last accepted number plus the commits since it: *1.3-2 · pending edits*.
 
 ## Publication and secret handling
 
@@ -306,7 +313,7 @@ The same edit yields different findings for different readers: an editor who can
 ## Types, folders and links
 
 - **Document types** are a platform-managed table — policy, controls, technical instruction, job description, notes — assigned per document by the tenant administrator, used as list filters (DL-0057, DL-0063).
-- **Folders** are metadata with unlimited nesting; storage stays flat (ASR-15).
+- **Folders** are metadata with unlimited nesting; storage stays flat (ASR-15). A person sees only folders holding, at any depth, a document they may read; administrators see all (DL-0206).
 - **Outline** — every document renders a navigation outline of its sections and subsections.
 - **Links** resolve per reader: a mention becomes a link only if that reader may access the target, and renders as plain text otherwise (ASR-16). The generated **see also** applies the same filter. The filter runs at render time against the access table, never at authoring time.
 
@@ -326,7 +333,7 @@ Document ADRs (DL-0045) are generated when a person changes the document's logic
 
 ## Notifications
 
-An in-application notifications section, email for the same events, and document-list state as the standing picture of what is waiting (DL-0070). The sending identity is settled at DL-0072 — one platform address, credential encrypted at rest and write-only in the interface. Per-tenant sending domains are backlog B-009. **No notification carries document text** (DL-0113): email carries the event and a link.
+An in-application notifications section, email for the same events, and document-list state as the standing picture of what is waiting (DL-0070). A tenant may send from its own address, or from the platform's by default; every sending password is encrypted at rest under a key from the environment, decrypted only in the worker when sending, and write-only in the interface. *Send a test email* sends from the configured address to itself and reports each step (DL-0202). **Every email goes through an outbox** written before the first attempt: three attempts five minutes apart, then *failed* with an in-application notice to administrators; the outbox is the log of every email sent (DL-0203). Links in an email are built from the tenant's default host, or the platform's (ADR-0008). Notifications are shown in two tabs, *Document* and *Administrative* (DL-0204). **No notification carries document text** (DL-0113, DL-0205): an email may carry the document's number and title, versions, people, the event and the state, and a link — never any text of the document or its appendices, and never the change summary.
 
 ## Open technical questions
 

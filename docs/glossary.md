@@ -84,7 +84,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent.
 
-**version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3+2` for pending work on top of acceptance 1.3. Derived, never typed.
+**version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3-2` for pending work on top of acceptance 1.3. Derived, never typed.
 
 **edition** · редакція · *proposed* — a canonical version, numbered `N.0`. Never changes once made. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
 

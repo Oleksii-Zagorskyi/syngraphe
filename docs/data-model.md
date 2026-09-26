@@ -19,7 +19,7 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
-- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`.
+- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203).
 - **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
 
 **`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
@@ -55,10 +55,37 @@ erDiagram
         datetime accepted_at
         uuid invited_by FK
     }
+    TENANT ||--o{ TENANT_DOMAIN : served_at
+    TENANT_DOMAIN {
+        uuid id PK
+        uuid tenant FK
+        string host UK "host name, optional port; set only by a platform administrator (ADR-0008)"
+        bool is_default "one per tenant when it has any; builds the links in its emails"
+    }
+    PLATFORM_HOST {
+        uuid id PK
+        string host UK "the main set; at least one, 127.0.0.1 out of the box"
+        bool is_default "exactly one; builds the links in platform emails"
+    }
+    EMAIL_OUTBOX {
+        uuid id PK
+        uuid tenant FK "null for platform mail"
+        string sender
+        string recipient
+        string subject
+        text body "number, title, versions, people, event, state, link — never document text or the change summary (DL-0205)"
+        string status "queued | sent | failed"
+        int attempts "at most 3, five minutes apart (DL-0203)"
+        datetime next_attempt_at
+        datetime sent_at
+        string last_error
+        datetime created_at
+    }
     TENANT {
         uuid id PK
         string name
         string schema_name UK
+        int number UK "platform-wide, in creation order, never reused; names the tenant's directory (ADR-0008)"
         string state "active | blocked; blocked closes it to all but platform administrators"
         bool require_distinct_approver "off by default (DL-0101, DL-0115)"
         int attachment_max_bytes "5 MB by default, tenant administrator sets it (DL-0166)"
@@ -100,6 +127,13 @@ erDiagram
         string after
         datetime at
         uuid by FK
+    }
+    USER ||--o{ USER_PREFERENCE : keeps
+    USER_PREFERENCE {
+        uuid id PK
+        uuid user FK
+        string key "outline_width | panel_width | panel_view | ..."
+        string value
     }
     LANGUAGE {
         string code PK "uk | en"
@@ -157,7 +191,7 @@ erDiagram
     DOCUMENT ||--o{ ENTITY : declares
     DOCUMENT {
         uuid id PK
-        string slug UK "stable human-readable identity in the interface; never a path"
+        int number "per tenant, #7; assigned in creation order, never edited or reused (ADR-0008)"
         string title "cache of document.md frontmatter"
         string language FK "cache of document.md frontmatter"
         uuid document_type FK
@@ -175,8 +209,19 @@ erDiagram
     }
     FOLDER {
         uuid id PK
+        int number "per tenant, root is 1; in URLs (ADR-0008)"
         uuid parent FK "null at root"
         string name
+    }
+    MAIL_SENDER {
+        uuid id PK
+        string host
+        int port
+        string address "the sending address; one per tenant at most (DL-0202)"
+        string username
+        bytes password_encrypted "authenticated encryption; key from the environment"
+        datetime last_test_at
+        string last_test_result
     }
     DOCUMENT_TEMPLATE {
         uuid id PK
@@ -217,11 +262,13 @@ erDiagram
     }
 ```
 
-**`DOCUMENT.slug` is the identity and never changes** (ASR-15). `FOLDER` is presentation; moving a document rewrites one foreign key and nothing in git. **The repository on disk is named by `DOCUMENT.id`, not by the slug** (DL-0111) — a directory named by slug puts document titles, a confidential guidance document's included, into filesystem listings, backup manifests and operator shells that the access table does not govern.
+**`DOCUMENT.number` is the identity people use and never changes** (ASR-15, ADR-0008) — unique within the tenant, shown as `#7`, and the document's URL. `FOLDER` is presentation; moving a document rewrites one foreign key and nothing in git. **The repository on disk is `tenant-N/document-M/`** (ADR-0008) — `TENANT.number` and `DOCUMENT.number`, never a title; a directory named by title puts document titles, a confidential guidance document's included, into filesystem listings, backup manifests and operator shells that the access table does not govern.
 
 **`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `draft`. Title, language, the title-page switch and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler retries a row without a repository and reports a repository without a row as an orphan, never deleting it.
 
 **Groups are the whole permission model** (ADR-0007, ASR-07, ASR-08). A document's `DOCUMENT_GROUP` rows cannot change while a `HOLD` on it is open. A group holds rights (`GROUP_RIGHT`), has members (`GROUP_MEMBER`, through their tenant membership) and is linked to documents (`DOCUMENT_GROUP`); a person's rights on a document are the union of the rights of their groups linked to it. `create_and_edit` is the one right not tied to a link: it lets a member create and copy documents. The part rights apply only where the group can edit. Every right covers a whole document; there is no scope column (DL-0091). Comment is not among the rights; the annotation surface is stage 2 (DL-0083). The group table is `ACCESS_GROUP` so it does not collide with the framework's own.
+
+**`MAIL_SENDER` holds a tenant's own sending address, at most one row** (DL-0202); with none, the platform's sender in the shared schema is used. The password is stored only encrypted and is never read back into the interface.
 
 **`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from, whether it gets a title page, and the layout the title page renders through at export (DL-0164). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
 
@@ -382,7 +429,7 @@ erDiagram
         uuid document FK
         uuid version FK
         string kind "appendix | attachment"
-        string part_id "the file's identifier"
+        int part_number "per document from 1, in creation order; the file name; not the display order"
         int position
         string title
         string file_name "attachments only"
@@ -402,6 +449,8 @@ erDiagram
 
 **`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` and each appendix at a version, and it exists only to drive the outline, the section editors and the rendered numbering. A row is valid for one version and rebuilt for the next.
 
+**Appendices and attachments are numbered per document from 1** in creation order (ADR-0008); the number names the file, appears in the part's URL, and never changes when parts are reordered.
+
 **`PART_INDEX` is the same kind of cache** over the frontmatter's lists of appendices and attachments (DL-0174), so a document page can list its parts without reading git. Git is the authority; the rows are rebuilt per version.
 
 **There is no paragraph table, and that is deliberate.** Clause numbers are rendered labels derived from depth (DL-0065), and anything that must point at a passage — a finding, and later a comment — anchors with W3C text-quote selectors (DL-0027). Storing paragraph identifiers would put structure in two places and make every edit a reconciliation.
@@ -418,7 +467,8 @@ erDiagram
         uuid id PK
         uuid user FK
         uuid document FK
-        string event "version_committed | accepted | frozen | unfrozen | made_canonical | hold_expiring | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin"
+        string category "document | administrative (DL-0204)"
+        string event "version_committed | accepted | frozen | unfrozen | made_canonical | hold_expiring | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin | email_failed"
         uuid version FK
         datetime created_at
         datetime read_at
@@ -428,10 +478,11 @@ erDiagram
         uuid id PK
         uuid document FK
         uuid version FK
-        string scope "document | with_appendices | archive | appendix | attachment | companion"
-        string part_id "the appendix, attachment or companion document, for a single-part scope"
-        string formats "any of pdf | docx | markdown"
-        string view "canonical | pending_edits | my_edits | my_edits_clean"
+        bool include_document
+        string appendices "none | embedded | separate"
+        bool include_attachments
+        string format "pdf | docx | markdown"
+        string view "canonical | accepted | pending_edits | my_edits | my_edits_clean"
         uuid requested_by FK
         string state "queued | done | failed"
         string artifact_ref
@@ -439,9 +490,11 @@ erDiagram
     }
 ```
 
-**`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent, so the email path can be built later without touching the schema (the sending identity is settled at DL-0072). The platform's single sending configuration is one row in the shared schema with the credential encrypted at rest and write-only in the interface (DL-0072).
+**`EMAIL_OUTBOX` is written before any attempt to send** (DL-0203): three attempts five minutes apart, then *failed* and an in-application notification to the tenant's and the platform's administrators. It is also the log of every email sent. With no sender configured, nothing is queued.
 
-**`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce. Scope, formats and view are the three choices the export screen composes (DL-0172); a *my edits* export reads the requester's own draft as well as the version.
+**`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent. The platform's sender is one row in the shared schema, a tenant's own sender one row in its schema; each password is encrypted at rest and write-only in the interface (DL-0072, DL-0202).
+
+**`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce. What, format and view are the three choices the export screen composes (DL-0172, DL-0193); a *my edits* export reads the requester's own draft as well as the version.
 
 ## Stage 2 attachment points
 
