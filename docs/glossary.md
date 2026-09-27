@@ -84,7 +84,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent.
 
-**version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3-2` for pending work on top of acceptance 1.3. Derived, never typed.
+**version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3-2` for pending work on top of acceptance 1.3, counting content versions only (DL-0267). Derived, never typed.
 
 **edition** · редакція · *proposed* — a canonical version, numbered `N.0`. Never changes once made. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
 
@@ -92,7 +92,15 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **draft** · чернетка · *proposed* — typed but not yet committed. Held by the platform, visible to nobody else.
 
-**held** · зайнятий · *proposed* — somebody has the document open for editing and nobody else can.
+**held** · зайнятий · *fixed* — somebody has the document open for editing and nobody else can. The one name for the state, in the interface's tag as everywhere else (DL-0262); the claim itself is the *hold*.
+
+**awaiting review** · очікує на розгляд · *proposed* — the tag of a document with pending edits that no reviewer has yet accepted or returned.
+
+**returned** · повернено · *proposed* — the tag of a run a reviewer returned without accepting; it stays pending, with the reviewer's reason. Once a version is sent after the return, the run is *awaiting review* again (DL-0114).
+
+**no reviewer assigned** · погоджувача не призначено · *proposed* — no group linked to the document holds *accept*; acceptance is refused with this reason.
+
+**frozen** · заморожено · *proposed* — the tag of a frozen document; everyone who may read it sees it.
 
 **archived** · заархівований · *proposed* — put away. Its links stop resolving; its access rights sleep and return unchanged on restore.
 
@@ -110,9 +118,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **send for review** · відправити на розгляд · *fixed* — the button on the send-for-review screen that commits, for a holder of *edit* alone. There is no Save.
 
-**create version N.M-X** · створити версію N.M-X · *proposed* — for a holder of *accept* as well: commits the draft as a version that waits in pending edits. The button carries the number the version gets — *create version 2.3-1* (DL-0222).
+**create version N.M-X** · створити версію N.M-X · *proposed* — for a holder of *accept*: commits the draft as a version that waits in pending edits. The button carries the number the version gets — *create version 2.3-1* (DL-0222).
 
-**accept as N.M** · погодити як N.M · *proposed* — for a holder of *accept* as well: commits the draft and accepts the whole run since the last acceptance in one act. The button carries the accepted number that results — *accept as 2.4* (DL-0222).
+**accept as N.M** · погодити як N.M · *proposed* — for a holder of *accept*: commits the draft and accepts the whole run since the last acceptance in one act. The button carries the accepted number that results — *accept as 2.4* (DL-0222).
 
 **my reservations** · мої резервування · *proposed* — the list of documents a person has reserved for editing, each with its start date; in the user menu (DL-0241).
 
@@ -124,13 +132,25 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **accept edits** · погодити правки · *fixed* — make the current text the accepted baseline.
 
-**freeze** · заморозити · *proposed* — lock a document nobody is editing against editors while something outside it is resolved; people holding *accept* and *edit* may still edit. Ends by *make canonical* or *unfreeze*.
+**return without accepting** · повернути без погодження · *proposed* — a reviewer's act: the run stays pending and its authors are notified with the reviewer's reason; recorded in the passport like an acceptance (DL-0114).
+
+**correction notice** · сповіщення про виправлення · *proposed* — generated at acceptance for each author whose lines of the run a reviewer's version replaced or removed; one per author, listing every such line (ADR-0014). Never authored, never optional.
+
+**freeze** · заморозити · *proposed* — lock a document nobody is editing against editors while something outside it is resolved; holders of *accept* may still edit (ADR-0016). Ends by *make canonical* or *unfreeze*.
 
 **make canonical** · затвердити · *proposed* — end a freeze by making the latest accepted version the next edition.
 
 **copy a document** · копіювати документ · *proposed* — create a new document from a version of one you may read; no history, no attachments, author-only until groups are linked.
 
-**undo a contribution** · скасувати правку · *proposed* — a reviewer's act on the pending run: the reversal of one version (*undo this edit*) or of one author's edits since the last acceptance, applied to the reviewer's draft and committed as their version. Sentences a later version changed are left for editing by hand. Nothing is erased (DL-0243).
+**undo a contribution** · скасувати правку · *proposed* — a reviewer's act on the pending run: the reversal of one version (*undo this edit*) or of one author's edits since the last acceptance, applied to the reviewer's draft and committed as their version. Sentences a later version changed are left for editing by hand. Nothing is erased (ADR-0015).
+
+**undo this edit** · скасувати цю правку · *proposed* — the History tab's control for one version of the pending run (ADR-0015).
+
+**undo all of this author's edits** · скасувати всі правки цього автора · *proposed* — the History tab's control for one author's versions in the pending run (ADR-0015).
+
+**compare** · порівняти · *proposed* — show two versions of a document, or versions of two documents, word by word inside the rendered text (DL-0170, DL-0187).
+
+**history** · історія · *proposed* — the tab listing a document's versions and events; how far back a reader sees depends on their history rights, and a holder of *accept* sees the pending run's versions there (DL-0251).
 
 **archive / restore** · архівувати / відновити · *proposed*
 
@@ -150,7 +170,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **editor** · редактор · *proposed* — edits and commits.
 
-**reviewer** · погоджувач · *proposed* — accepts edits, and may correct wording first, including their own. *(Рецензент reads as academic; погоджувач is the corporate role.)*
+**reviewer** · погоджувач · *proposed* — accepts edits, and edits: may correct wording first, including their own (ADR-0016). *(Рецензент reads as academic; погоджувач is the corporate role.)*
 
 **approver** · затверджувач · *proposed* — holds *make canonical*: ends a freeze by making the latest accepted version the next edition. The approving body's own procedure happens outside the platform.
 
@@ -167,7 +187,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **organisation** · організація · *proposed* — what a user sees. The internal word is *tenant*, and it never appears in the interface.
 
-**access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical, reserve for editing; create or delete appendices; upload, replace or delete attachments. Held over a whole document.
+**access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical, reserve for editing; create or delete appendices; upload, replace or delete attachments. Held over a whole document. Some include others: each viewing right the ones below it; *accept*, *freeze* and *reserve for editing* include *edit* (ADR-0016); *make canonical* includes *view accepted* (DL-0234).
 
 **group** · група · *proposed* — a set of people in one organisation holding a set of access rights, linked to the documents those rights apply to. The only way a person holds a right on a document.
 

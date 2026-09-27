@@ -223,3 +223,6 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **What has to be true before it is taken up.** A self-blocked person asks to come back.
 
+## B-034 — Editing a language's abbreviation lists in the platform administration
+
+The sentence splitter's two abbreviation lists per language (ADR-0012) are rows in `LANGUAGE`, seeded from the repository. In release 0.1 a list is changed in the repository and re-seeded, or as a hotfix on the row with the same divergence rule as a prompt (`technical-design.md § Prompts are source`); no page in the platform administration edits them. The page is designed when a list edit is first needed on a running installation — the trigger is the first wrong boundary reported from a real document that a list edit corrects. Constraint: an edit applies only to text edited afterwards; a stored line is never re-normalised (DL-0112).

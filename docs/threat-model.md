@@ -98,7 +98,7 @@ A second consequence worth stating: a development host that holds real tenant do
 
 **Who:** insider with database access. **How:** editing history to change what a document said or who approved it.
 
-**Answered by:** ASR-02 — the platform offers no operation that rewrites history. And the acceptance record lives **in the repository as well as the database** (DL-0041), so altering the database alone leaves the two disagreeing. That is detection, not prevention.
+**Answered by:** ASR-02 — the platform offers no operation that rewrites history. And the acceptance, return and approval records live **in the repository as well as the database** (DL-0041, DL-0114, DL-0260), so altering the database alone leaves the two disagreeing. That is detection, not prevention.
 
 **Residual:** an operator with both database and filesystem access can alter both consistently. Complete mitigation is signing or off-site replication, and neither is in stage 1. Accepted, and named.
 
@@ -106,7 +106,7 @@ A second consequence worth stating: a development host that holds real tenant do
 
 **Who:** a reviewer. **How:** by design — no segregation of duties is enforced (DL-0092).
 
-**Answered by:** the record rather than prevention. Every version is attributed, authorship is visible with a toggle, the audit history answers who did what, and from DL-0102 every author whose text a reviewer changed receives a correction notice. A tenant may additionally switch on the check that an edition is not approved by anyone who accepted a run since the previous canonical edition (DL-0101, DL-0115) — one comparison at the single point where text becomes authoritative.
+**Answered by:** the record rather than prevention. Every version is attributed, authorship is visible with a toggle, the audit history answers who did what, and every author whose lines of the run a reviewer's version replaced or removed receives a correction notice at acceptance (DL-0102, ADR-0014). A tenant may additionally switch on the check that an edition is not approved by anyone who accepted a run since the previous canonical edition (DL-0101, DL-0115) — one comparison at the single point where text becomes authoritative. Since *freeze* includes *edit* (ADR-0016), a group holding *freeze* and *make canonical* can also write text in a run; the check refuses an approver who accepted a run since the previous edition, not one who wrote in it.
 
 This is an **accepted risk taken knowingly by the owner**, recorded here so a later reader does not mistake it for an oversight. The residual it leaves: a record detects only if somebody reads it.
 
@@ -115,6 +115,8 @@ This is an **accepted risk taken knowingly by the owner**, recorded here so a la
 **Who:** departing employee with legitimate read access. **How:** exporting everything they may read.
 
 **Answered by:** partially, and honestly not much. Export is per document and of a stated version, every export is an audit event, and nobody holds raw repository access. A person who may read a document may take that document; that is what read access means. Copying a document into a new one (ST-0067) takes nothing copy and paste could not; the copy starts reachable only by its author until an administrator links groups, and its source is recorded (ADR-0007).
+
+The same person may also leave documents **held or reserved**, so that nobody else can edit, freeze, review or re-link them. **Answered by:** the inactivity release for an ordinary hold (ADR-0006); a forced release, or break-the-glass for a reservation, by a tenant or platform administrator (ADR-0009); and the block itself, which ends every hold and reservation of the person on the documents it closes to them, drafts preserved (DL-0256).
 
 ### T-10 — Model spend is driven up
 
@@ -172,6 +174,7 @@ Two changes, both cheap now:
 - **Content is sent to a third-party model** (T-03). The largest residual risk in the system; an owner decision, required before stage 2 ships.
 - **An operator with database and filesystem access can alter the record consistently** (T-07). Signing and off-site replication are the answers and neither is in stage 1.
 - **A reviewer may accept their own work** (T-08). Taken knowingly; the control is the record.
+- **An approver may approve text they wrote** (T-08, ADR-0016). A group holding *freeze* and *make canonical* can edit a run; the distinct-approver check covers acceptance, not authorship.
 - **A person with read access can take what they may read** (T-09).
 - **Administrators read everything in their scope** (T-16). Accepted while the platform serves one organisation; EP-0001 before it serves independent ones.
 - **Attachment contents are not inspected** (T-15). A file is served only as a download and never rendered; judging what is inside it is left to the reader's own machine.

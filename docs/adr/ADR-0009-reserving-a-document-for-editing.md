@@ -7,7 +7,8 @@ status: approved
 date: 2026-09-27
 supersedes:
   - ADR-0006 (in part — the release of a reserved hold, who sees its holder, and the send-for-review screen)
-superseded_by: []
+superseded_by:
+  - ADR-0016 (in part — reserve for editing includes edit)
 ---
 
 # ADR-0009: Reserving a document for editing — a hold that lasts, and finishing it in one act

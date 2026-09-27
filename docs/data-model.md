@@ -13,7 +13,7 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 ## The rule that shapes everything below
 
-**Git holds content. PostgreSQL holds everything else, and never a second copy of content.** The only content-derived rows are navigation and search indexes, rebuildable from git at any time by replaying the repository. If a table would make git the second source of truth for a document's text, it is wrong.
+**Git holds content. PostgreSQL holds everything else, and never a second copy of content.** The only content-derived rows are navigation and search indexes and the per-line authorship cache (`LINE_AUTHORSHIP`), all rebuildable from git at any time by replaying the repository. If a table would make git the second source of truth for a document's text, it is wrong.
 
 **Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on everything.
 
@@ -140,6 +140,8 @@ erDiagram
     LANGUAGE {
         string code PK "uk | en"
         string label
+        string never_final "abbreviations a stop after which never ends a sentence; one per line; seeded from the repository (ADR-0012)"
+        string may_be_final "abbreviations a stop after which ends a sentence only before a capitalised word; one per line; seeded from the repository (ADR-0012)"
     }
     AUDIT_EVENT {
         uuid id PK
@@ -202,7 +204,7 @@ erDiagram
         bool author_only "true until the first group is linked (ADR-0007)"
         uuid copied_from FK "source document of a copy; null otherwise"
         datetime created_at
-        string state "creating | draft | active | archived"
+        string state "creating | active | archived"
     }
     DOCUMENT_TYPE {
         uuid id PK
@@ -267,9 +269,9 @@ erDiagram
 
 **`DOCUMENT.number` is the identity people use and never changes** (ASR-15, ADR-0008) — unique within the tenant, shown as `#7`, and the document's URL. `FOLDER` is presentation; moving a document rewrites one foreign key and nothing in git. **The repository on disk is `tenant-N/document-M/`** (ADR-0008) — `TENANT.number` and `DOCUMENT.number`, never a title; a directory named by title puts document titles, a confidential guidance document's included, into filesystem listings, backup manifests and operator shells that the access table does not govern.
 
-**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `draft`. Title, language, the title-page switch and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler retries a row without a repository and reports a repository without a row as an orphan, never deleting it.
+**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `active`; that it reaches only its author is `author_only`, not a state (DL-0260). Title, language, the title-page switch and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler retries a row without a repository and reports a repository without a row as an orphan, never deleting it.
 
-**Groups are the whole permission model** (ADR-0007, ASR-07, ASR-08). A document's `DOCUMENT_GROUP` rows cannot change while a `HOLD` on it is open. A group holds rights (`GROUP_RIGHT`), has members (`GROUP_MEMBER`, through their tenant membership) and is linked to documents (`DOCUMENT_GROUP`); a person's rights on a document are the union of the rights of their groups linked to it. `create_and_edit` is the one right not tied to a link: it lets a member create and copy documents. The part rights apply only where the group can edit. Every right covers a whole document; there is no scope column (DL-0091). Comment is not among the rights; the annotation surface is stage 2 (DL-0083). The group table is `ACCESS_GROUP` so it does not collide with the framework's own.
+**Groups are the whole permission model** (ADR-0007, ASR-07, ASR-08). A document's `DOCUMENT_GROUP` rows cannot change while a `HOLD` on it is open. A group holds rights (`GROUP_RIGHT`), has members (`GROUP_MEMBER`, through their tenant membership) and is linked to documents (`DOCUMENT_GROUP`); a person's rights on a document are the union of the rights of their groups linked to it. `create_and_edit` is the one right not tied to a link: it lets a member create and copy documents. The part rights apply only where the group can edit. *Accept*, *freeze* and *reserve_for_editing* include *edit* and the views below it, *make_canonical* includes *view_accepted* — an included right is implied, not stored (ADR-0016, DL-0234). Every right covers a whole document; there is no scope column (DL-0091). Comment is not among the rights; the annotation surface is stage 2 (DL-0083). The group table is `ACCESS_GROUP` so it does not collide with the framework's own.
 
 **`MAIL_SENDER` holds a tenant's own sending address, at most one row** (DL-0202); with none, the platform's sender in the shared schema is used. The password is stored only encrypted and is never read back into the interface.
 
@@ -294,13 +296,14 @@ erDiagram
     DOCUMENT ||--o{ FREEZE : frozen_by
     DOCUMENT ||--o{ HOLD : held_by
     DOCUMENT ||--o{ DRAFT : drafted_in
+    VERSION ||--o{ LINE_AUTHORSHIP : attributed_in
     VERSION {
         uuid id PK
         uuid document FK
         string commit_sha UK
         uuid author FK "git author name is this id; email is {id}@users.noreply.syngraphe.local"
-        string summary "agent-written, editor may edit"
-        string kind "edit | acceptance | revert"
+        string summary "starts from a mechanical draft naming the sections touched; the author edits it (DL-0261); agent-drafted from 0.2"
+        string kind "created | edit | reviewer_edit | acceptance | return | approval — created: the first commit of a new or copied document (DL-0268); reviewer_edit: a content version committed by a holder of accept (ADR-0014); the last three are passport commits (DL-0260)"
         datetime committed_at
     }
     ACCEPTANCE {
@@ -315,12 +318,20 @@ erDiagram
     CORRECTION_NOTICE {
         uuid id PK
         uuid acceptance FK
-        uuid author FK "whose text was changed"
-        uuid author_version FK "render the original from here"
+        uuid author FK "whose lines were changed; one notice per author per acceptance (ADR-0014)"
+        datetime at
+    }
+    CORRECTION_NOTICE ||--|{ CORRECTION_LINE : lists
+    CORRECTION_LINE {
+        uuid id PK
+        uuid notice FK
+        uuid changing_version FK "a reviewer_edit version of the run, or the acceptor's own version; its author is who changed it (ADR-0014)"
+        string entry "line | restored | part_operation — a line the author wrote, a line the author removed that was restored, an appendix or attachment operation reverted"
+        string part "the appendix or attachment, for a part operation; null otherwise"
+        uuid author_version FK "the version that wrote the line; render the original from here"
         string file
         string range_before "line range in the author's version"
         string range_after "line range in the accepted version"
-        datetime at
     }
     VERSION ||--o{ RETURN : returned_by
     RETURN {
@@ -344,6 +355,7 @@ erDiagram
     EDITION {
         uuid id PK
         uuid version FK "the accepted version made canonical"
+        uuid approval_version FK "the passport commit that records the approval, tagged (DL-0260)"
         uuid freeze FK "the freeze it ended"
         string number "N.0 (DL-0183)"
         uuid approved_by FK
@@ -357,8 +369,18 @@ erDiagram
         datetime last_activity_at "released after the tenant's inactivity timeout, unless reserved (ADR-0006)"
         datetime reserved_at "set while reserved for editing; exempt from the inactivity release (ADR-0009)"
         datetime released_at
-        uuid released_by FK "set when forced"
+        uuid released_by FK "set when forced; the blocking administrator when blocked; null for a self-block"
+        string release_kind "finished | discarded | inactivity | forced | blocked — blocked when the holder's membership, account or tenant is blocked (DL-0256)"
         string release_reason "required when an administrator ends a reservation (DL-0225)"
+    }
+    LINE_AUTHORSHIP {
+        uuid id PK
+        uuid version FK "kept for the head and the latest accepted version; older versions computed on demand (DL-0266)"
+        string file
+        int line
+        uuid introduced_by FK "the version that introduced the line"
+        bool ambiguous_move "a verbatim line matched more than once; recorded, not guessed (ADR-0011)"
+        datetime expires_at "null for the kept versions; set on rows computed on demand"
     }
     DRAFT {
         uuid id PK
@@ -392,7 +414,7 @@ erDiagram
 
 **`VERSION.commit_sha` is the join to git**, and the row is a cache of what the commit already says — rebuildable, never authoritative. **`VERSION.author` is the only link between a commit and a person** (DL-0088): git holds the identifier, this table holds the mapping, and nothing personal is in the repository at all. Removing a person's **name and address** from the database therefore anonymises the record without rewriting history — pseudonymisation by construction. It does not remove the person from the record: `created_by`, `ACCESS_CHANGE`, `ACCEPTANCE` and `EDITION` all reference the identifier, and emptying those would destroy the audit answers ASR-18 promises. The erasure shape is a **tombstone** — identifier kept, name and address gone, a *former user* label in their place — settled at DL-0108.
 
-**`CORRECTION_NOTICE` is generated, never authored** (DL-0102, ADR-0001), and it **holds references, not text** (DL-0113). Both wordings are rendered from git when the notice is opened, under the reader's **current** rights — a stored copy would survive a revoked right and an archived document, and would escape the access table entirely, since a notice is read through the notification surface. In stage 2 it becomes the durable rejection record and gains an escalation path; the table is its first form, not a placeholder.
+**`CORRECTION_NOTICE` is generated, never authored** (DL-0102, ADR-0001, ADR-0014), and it **holds references, not text** (DL-0113). It is written at acceptance, one row per author whose changes in the run a `reviewer_edit` version — or the acceptor's own version — replaced or reversed: a line written, a line removed and restored, an appendix or attachment operation reverted; a `CORRECTION_LINE` per change names the changing version (ADR-0014). `created` versions and moved lines generate nothing; nothing is written when a version is committed. Both wordings are rendered from git when the notice is opened, under the reader's **current** rights — a stored copy would survive a revoked right and an archived document, and would escape the access table entirely, since a notice is read through the notification surface. In stage 2 it becomes the durable rejection record and gains an escalation path; the table is its first form, not a placeholder.
 
 **`RETURN` is the other reviewer decision, and it is a commit** (DL-0114). Returning a run without accepting it writes the passport exactly as an acceptance does, so the review history needs no second system to be believed and an export shows it. The derived row gives the document list what it needs to say *returned to its authors* rather than *awaiting review*. The next send for review presents the whole run since the last acceptance, returned versions included.
 
@@ -400,9 +422,11 @@ erDiagram
 
 **Version numbers are derived, never typed** (DL-0183). Each acceptance is numbered `N.M`: N is the count of canonical editions before it, M counts acceptances since the last one and restarts at 1 — so 0.1, 0.2 before the first canonical edition. Making a frozen document canonical turns its latest accepted version into `N+1.0`; unfreezing changes no number. Numbers are written into the passport with the acceptance and the approval, so the repository carries them; these columns are caches. Unfreezing changes no number.
 
-**A freeze is a state of the document, an edition is a canonical version** (DL-0189). A `FREEZE` row with no `ended_at` means the document is frozen: only holders of both *accept* and *edit* may open an editor. It ends by *make canonical*, which writes an `EDITION` for the latest accepted version, or by *unfreeze*. The three stances fall out of these tables without a state column anywhere: canonical is the latest `EDITION`; accepted is the latest `ACCEPTANCE`; pending is every `VERSION` after it.
+**A freeze is a state of the document, an edition is a canonical version** (DL-0189). A `FREEZE` row with no `ended_at` means the document is frozen: only holders of *accept* may open an editor (ADR-0016). It ends by *make canonical*, which writes a passport commit — `VERSION.kind` `approval`, tagged — and an `EDITION` for the latest accepted version (DL-0260), or by *unfreeze*. The three stances fall out of these tables without a state column anywhere: canonical is the latest `EDITION`; accepted is the latest `ACCEPTANCE`; pending is every content version — `edit`, `reviewer_edit` — after it (DL-0267).
 
-**A reservation is a mark on `HOLD`, not a table** (ADR-0009, DL-0221). `reserved_at` set means the hold is exempt from the inactivity release; cancelling clears it and sets `last_activity_at` to that moment, so the inactivity clock starts afresh. It is set only by a holder whose group linked to the document holds both `reserve_for_editing` and `edit`, and never while a `FREEZE` is open. As for any open hold, freezing, `DOCUMENT_GROUP` changes and correction are refused; while it is set, acceptance and return by anyone else are refused as well — the holder's own *accept as N.M* ends the reservation in the same act. Starting, cancelling and ending a reservation each write an `AUDIT_EVENT`, so the record keeps every reservation after `reserved_at` is cleared (DL-0221). An administrator ending it also records `released_by` and `release_reason`, puts the draft's state in that event, and notifies the holder (`reservation_ended_by_admin`); starting one notifies the tenant administrator (`reservation_started`).
+**A reservation is a mark on `HOLD`, not a table** (ADR-0009, DL-0221). `reserved_at` set means the hold is exempt from the inactivity release; cancelling clears it and sets `last_activity_at` to that moment, so the inactivity clock starts afresh. It is set only by a holder whose group linked to the document holds `reserve_for_editing`, which includes `edit` (ADR-0016), and never while a `FREEZE` is open. As for any open hold, freezing, `DOCUMENT_GROUP` changes and correction are refused; while it is set, acceptance and return by anyone else are refused as well — the holder's own *accept as N.M* ends the reservation in the same act. Starting, cancelling and ending a reservation each write an `AUDIT_EVENT`, so the record keeps every reservation after `reserved_at` is cleared (DL-0221). An administrator ending it also records `released_by`, `release_kind` `forced` and `release_reason`, puts the draft's state in that event, and notifies the holder (`reservation_ended_by_admin`); starting one notifies the tenant administrator (`reservation_started`).
+
+**A block ends the hold** (DL-0256). Blocking a membership, an account or a tenant releases every hold and reservation of the person it closes documents to, with `release_kind` `blocked`, an `AUDIT_EVENT` naming the block and the draft's state, and the draft preserved as after a forced release.
 
 **`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or after the inactivity timeout — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered.
 
@@ -475,8 +499,9 @@ erDiagram
         uuid user FK
         uuid document FK
         string category "document | administrative (DL-0204)"
-        string event "version_committed | accepted | frozen | unfrozen | made_canonical | hold_expiring | reservation_started | reservation_ended_by_admin | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin | email_failed"
+        string event "version_committed | accepted | returned | correction_notice | frozen | unfrozen | made_canonical | hold_expiring | reservation_started | reservation_ended_by_admin | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin | email_failed"
         uuid version FK
+        uuid correction_notice FK "set for event correction_notice; one notification per notice"
         datetime created_at
         datetime read_at
         datetime emailed_at
@@ -533,3 +558,4 @@ Not built now; the tables above must leave room for them without a migration tha
 - **No cross-tenant table of any kind** (ASR-17).
 - **No document text in any notification or notice row** (DL-0113) — references only, rendered from git under current rights.
 - **No normalizer version on the document** — it is recorded per commit (DL-0112).
+- **No authorship on `VERSION` or computed at read** — `LINE_AUTHORSHIP` is a derived cache written by the worker after each commit and kept for the head and the latest accepted version, older versions computed on demand with an expiry (DL-0266); the pending run's own lines are attributed from its diffs at render, a version without its rows renders without an author and queues the job, and the reconciler re-queues any version missing them (DL-0135, ADR-0011).

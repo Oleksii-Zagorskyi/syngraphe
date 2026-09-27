@@ -6,7 +6,8 @@ aliases:
 status: accepted
 date: 2026-09-25
 supersedes: []
-superseded_by: []
+superseded_by:
+- ADR-0016 (in part — accept, freeze and unfreeze, and reserve for editing include edit)
 ---
 # ADR-0007: Group-based access — rights held by groups, groups linked to documents
 

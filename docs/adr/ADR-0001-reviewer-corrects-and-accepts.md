@@ -8,7 +8,9 @@ date: 2026-09-18
 amended: 2026-09-21
 title: The reviewer corrects and accepts, and the disclosure ships with the power
 supersedes: []
-superseded_by: []
+superseded_by:
+  - ADR-0014 (in part — which changes the correction notice covers and what it is computed from)
+  - ADR-0015 (in part — the per-author undo as a sentence-level instrument)
 ---
 
 # ADR-0001: The reviewer corrects and accepts, and the disclosure ships with the power

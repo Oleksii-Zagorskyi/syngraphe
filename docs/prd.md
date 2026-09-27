@@ -51,7 +51,7 @@ Named by the action performed, never by corporate title (DL-0017). A person hold
 |---|---|---|
 | reader | reads | canonical documents |
 | editor | edits, commits; with *reserve for editing*, keeps a document for weeks | whole document |
-| reviewer | accepts changes; may correct before accepting, including their own | whole document |
+| reviewer | accepts changes; edits, and corrects before accepting, including their own (ADR-0016) | whole document |
 | decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
 | approver | makes a frozen document canonical | document |
 | pending edits viewer | sees committed, unaccepted changes | whole document |
@@ -62,7 +62,7 @@ Board approval is recorded by one designated person; quorum and voting happen ou
 
 Two AI actors, not roles a person holds. The **companion** runs actions for the editor, is edit-scoped, and never reads a document the editor cannot read. The **reviewer agent** runs when a document is sent for review and produces two artefacts from **two separate runs**: a reviewer-eyes-only analysis from a run that reads the guidance, and an editor-facing analysis from a run whose context never contains it (DL-0007, DL-0095).
 
-**Access is data** (DL-0051). Rights are rows of `document, user, rights` with a full change history carrying timestamp and actor; only a tenant or platform administrator may edit them. Confidential guidance is **an ordinary document with restricted rows** — authored, edited and reviewed like any other — not a separate mechanism.
+**Access is data** (DL-0051). Groups, their rights, their members and their links to documents are rows with a full change history carrying timestamp and actor (ADR-0007); only a tenant or platform administrator may edit them. Confidential guidance is **an ordinary document with restricted rows** — authored, edited and reviewed like any other — not a separate mechanism.
 
 ## Editing is linear
 
@@ -71,12 +71,12 @@ One editing sequence per document. No branches, no forks, no merges, and therefo
 1. An editor **takes the document** for editing. Nobody else edits it meanwhile. They edit it whole, or open an editor on any section — several at once — and every editor writes into the one draft (DL-0167). Formatted text is the default; a Markdown source view is always available.
 2. Edits are **captured continuously** — there is no Save control. The draft persists so a closed laptop loses nothing; it is not yet a version and nobody else can see it.
 3. **Undo** works within the editing session.
-4. At any point the editor may **call companion actions** — individually, not all of them — to answer *"what do my changes introduce so far?"*. Results are cached against the content, so asking twice about unchanged text costs nothing.
-5. **There is no Save button.** In its place is *finish editing*. Pressing it shows the companion analyses for the current content and its choices: **continue editing**, **send for review** — or, for a holder of *accept*, **accept as N.M** and **create version N.M-X** — and **discard my edits**, which asks for confirmation and throws the whole draft away.
-6. **Send for review commits** (DL-0054). The analyses are written into the same commit as the content, so no identifier has to be resolved after the fact — they are part of the tree, and they are what the reviewer reads as the change's description.
+4. From release 0.2, at any point the editor may **call companion actions** — individually, not all of them — to answer *"what do my changes introduce so far?"*. Results are cached against the content, so asking twice about unchanged text costs nothing.
+5. **There is no Save button.** In its place is *finish editing*. Pressing it shows the holder's changes, the part operations and the change summary, which starts from a mechanical draft naming the sections touched (DL-0261) — the companion analyses join them in release 0.2 — and its choices: **continue editing**, **send for review** — or, for a holder of *accept*, **accept as N.M** and **create version N.M-X** — and **discard my edits**, which asks for confirmation and throws the whole draft away.
+6. **Send for review commits** (DL-0054). From release 0.2, the analyses are written into the same commit as the content, so no identifier has to be resolved after the fact — they are part of the tree, and they are what the reviewer reads as the change's description.
 7. Versions accumulate, attributed, until a reviewer accepts a run of them.
 
-Going back is only ever forward: an unwanted change is undone by a new version that reverts it, computed per sentence from authorship, never by erasing history.
+Going back is only ever forward: an unwanted change in the pending run is undone by a reviewer — one version, or all of one author's — into the reviewer's draft, and committed as the reviewer's version; sentences a later version changed are left for the reviewer to edit (ADR-0015). History is never erased.
 
 An ordinary **hold is released after a period without activity**, once its holder has been asked whether they are still working, and can be released by the tenant administrator; the interrupted draft is preserved, not discarded (ADR-0006). Everyone sees that a document is held; for an ordinary hold only the tenant administrator sees by whom. Holds cover the whole document — there is no smaller unit (DL-0091).
 
@@ -86,7 +86,7 @@ An ordinary **hold is released after a period without activity**, once its holde
 
 Three application roles (DL-0079). A **platform administrator** does everything a tenant administrator can, in every tenant, and creates tenants, blocks them and grants platform administration. A **tenant administrator** invites users by email, blocks them in tenants they administer, manages groups and links them to documents, manages folders, archives and restores documents, and assigns side-document types and companion actions (ADR-0007). A **user** does what the rights of their groups allow — creating documents included, through *create and edit*. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
 
-**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept (with the pending view), freeze and unfreeze, make canonical (with the accepted view), reserve for editing; and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
+**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept, freeze and unfreeze, and reserve for editing, each including edit (ADR-0016), and make canonical, with the accepted view (DL-0234); and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
 
 **There are no section-scoped roles and no code owners** (DL-0091). A right is held over a document or not at all.
 
@@ -142,11 +142,11 @@ English names are canonical; every translation, the Ukrainian interface names in
 
 ## Acceptance
 
-The reviewer reads an agent analysis of the difference between the **last accepted revision** and the current one. Accepting makes the current revision the new accepted baseline, and is recorded as a commit to the document's **passport** — so an acceptance always leaves a trace even when no text changes (DL-0041).
+The reviewer reads the difference between the **last accepted revision** and the current one — with an agent's analysis of it from release 0.2. Accepting makes the current revision the new accepted baseline, and is recorded as a commit to the document's **passport** — so an acceptance always leaves a trace even when no text changes (DL-0041).
 
-Where the reviewer wants corrections, the same commit touches the content files too.
+Where the reviewer wants corrections, they edit: a correction is a version of the run, committed with *accept as* or left pending with *create version* (DL-0222), or an undo applied to the reviewer's draft (ADR-0015). The acceptance commit itself touches only the passport.
 
-**In stage 1** the platform generates a **correction notice** at acceptance for each author whose text the reviewer changed — what they wrote, what was accepted, who changed it — delivered through the notification surface. Generated rather than authored, so the reviewer has no discretion about whether the author finds out. The reviewer may instead **return the run without accepting it**, with a reason — recorded as a passport commit like an acceptance, so the decision travels with the document (DL-0114). The next send presents the whole run since the last acceptance, returned versions included.
+**In stage 1** the platform generates a **correction notice** at acceptance for each author whose lines of the run a version by a holder of *accept* replaced or removed — one notice per author, listing what they wrote, what was accepted and who changed it (ADR-0014) — delivered through the notification surface. Generated rather than authored, so the reviewer has no discretion about whether the author finds out. The reviewer may instead **return the run without accepting it**, with a reason — recorded as a passport commit like an acceptance, so the decision travels with the document (DL-0114). The next send presents the whole run since the last acceptance, returned versions included.
 
 *Stage 2, at low fidelity:* the notice becomes a durable **rejection record** the editor may escalate into the **Statement of Disagreements**, settled by agreement between editor and reviewer, or by the **decider** on deadlock (DL-0026, DL-0076).
 
