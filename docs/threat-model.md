@@ -156,6 +156,10 @@ This is an **accepted risk taken knowingly by the owner**, recorded here so a la
 
 **Who:** anyone who finds it. **How:** Django's built-in interface exposes every table; reached with a stolen developer password, or found at its well-known path. **Answered by:** only operator accounts with the superuser flag reach it; it is never linked, never served on a tenant's domain, not at the default path, and every use is audited (DL-0210). **Residual:** a developer account is the most powerful credential on the platform; second factors for it are part of EP-0001.
 
+### T-19 — Claiming the platform before its operator
+
+**Who:** anyone who reaches a fresh installation. **How:** the first platform administrator is created through a first-run page (ST-0057); whoever completes it first holds every tenant. **Answered by:** the page accepts only a one-time token printed by the install command, single-use and expiring, and once a platform administrator exists it answers as an address that does not exist (DL-0231). Reaching the page is not enough; the token proves access to the server. **Residual:** the token appears in the install command's output, so a shared terminal log or a CI transcript can leak it until it is used or expires.
+
 ## What this found
 
 Two changes, both cheap now:

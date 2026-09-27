@@ -45,6 +45,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **If no candidate passes.** Tables fall back to a source-view editor for tables only, and ST-0019's acceptance criteria change before it is estimated. If sentence-boundary nodes are what fails, server-side alignment remains the control (V-03).
 
+**Status.** Proven — 2026-09-27: ProseMirror, used directly, passes V-02 and V-03 in full; three instances on one page edit three sections independently, each with a source-view switch; ranges load and return as sections; paste reaches application code before it enters the document, where pasted images become uploaded files (DL-0232). Tiptap, Milkdown and Lexical were measured beside it and Slate screened out; the choice and the alternatives are ADR-0010, accepted with ADR-0004.
+
 ### V-02 — The constrained editor round-trips the whitelist losslessly, tables included
 
 **Claim.** Every construct in the whitelist survives editor → Markdown → editor unchanged, and everything outside it is refused.
@@ -54,6 +56,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 **Pass condition.** **Zero differences** after canonicalisation across every whitelist row, images and links included; **every** refusal case refused at paste with a message and none silently dropped.
 
 **If it fails.** As V-01: a table failure moves tables to a source-view editor; any other construct that cannot round-trip leaves the whitelist before a story is estimated against it.
+
+**Status.** Proven — 2026-09-27, on ProseMirror direct with a markdown-it pipeline generated from one specification. Every whitelist row, tables, images and links included, round-trips with zero differences after canonicalisation through the editor, its DOM, its clipboard and the source view; every refusal case is refused at paste with the construct and its line named, in the source view and in the rich view. The tested set is the whitelist as amended by DL-0238 and DL-0239. Several spellings of one document are written back in a single canonical form, and the normalizer owns those rules (DL-0240).
 
 ### V-03 — Sentence boundaries survive the editor as invisible nodes
 
@@ -65,6 +69,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **If it fails.** Not a blocker: text also arrives by paste and import, so server-side alignment of the submitted paragraph against the previous version is the control either way. The loss is precision inside the editor, recorded in the finding.
 
+**Status.** Proven — 2026-09-27, on ProseMirror direct: a stored boundary is an invisible inline node that renders as the space between sentences. After an edit made with real keys — a word inside a sentence, inside a bold span, a list item or a callout, a sentence joined, deleted or split, a sentence typed — every boundary outside the edited sentence comes back unchanged, and undo restores the text exactly. The serialiser writes a boundary only between two pieces of text, so deleting a sentence cannot turn into a paragraph break. No line break can exist inside a paragraph; the editor returns paragraphs.
+
 ### V-04 — One specification drives both the editor and the server-side parser
 
 **Claim.** A single machine-readable specification of the whitelist can generate the editor's schema and the server-side parser's configuration, so the two cannot disagree (ASR-19: the parser is bound, not only the interface). The parser must also read attributed spans — `[CMO]{.role #cmo}` — which plain CommonMark does not.
@@ -74,6 +80,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 **Pass condition.** **Identical verdicts on every conformance case.** A single divergence is the same defect as having no whitelist.
 
 **If it fails** *(proposed during planning; no earlier document states it)*. Two specifications kept in step by the conformance suite in CI — a weaker control, recorded as such in the technical design.
+
+**Status.** Proven for what the specification carries; the rest held by the fallback's control — 2026-09-27. markdown-it in the editor and markdown-it-py on the server, both configured from one specification file, return identical verdicts, refusal codes and lines on a 100-case conformance list, on Python 3.12 / Debian, and the suite detects a planted divergence. The specification carries the parameters — depths, span types, callout types, patterns. The span tokenizer, the callout rule and the validator's walk are code written once per language, and for them the conformance suite in CI is the control, as the fallback above describes; the technical design records it. Pandoc, the other candidate, gave the same reading as the editor on 67 of the list's 69 accept cases and is not chosen (ADR-0010).
 
 ## The git library
 
@@ -87,6 +95,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **If it fails** *(proposed during planning; no earlier document states it)*. A library over five seconds is not a candidate. If none passes, authorship moves to incremental computation from each commit's diff, and blame becomes a repair path rather than the source.
 
+**Status.** Proven — 2026-09-27. On a generated corpus of 203 commits by three authors (a Ukrainian document of 17,060 words, and the same history in English), on Python 3.12 / Debian 12 with 2 CPUs: pygit2 1.20.1 (libgit2 1.9.7) performs every operation on a bare repository, revert included, without a working tree; GitPython 3.1.62 does too, but its revert over Debian's git 2.39.5 needs a temporary index because `merge-tree --merge-base` arrived in git 2.40; dulwich 1.2.15 has no blame. Cold blame over the whole history: 0.55 s through pygit2, 0.23 s through the `git` binary, 0.26 s through GitPython, the two libraries agreeing on every one of 1,624 lines. A full blame after one more commit costs the same; blame bounded to the commits since the cached one (`git blame ^cached new`) costs 8 ms. The choice is ADR-0011.
+
 ### V-06 — Blame detects a paragraph moved within a section
 
 **Claim.** The library's blame follows moved lines, so a paragraph cut and pasted within a section keeps its original author.
@@ -96,6 +106,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 **Pass condition.** **Every** moved line is attributed to its original author.
 
 **If it fails.** Moved text is attributed to whoever moved it. *Show author* and per-author undo (ST-0037) both degrade, and the scope agreement's wording on attribution changes before it is signed.
+
+**Status.** Disproven for the library's blame, met by the platform's own rule — 2026-09-27. On the English corpus `git blame -M` attributes every moved line to its original author; on the Ukrainian corpus no route does — git's move detection scores a moved block by its ASCII letters and digits and compares that score with the `-M` threshold, so a paragraph of Cyrillic text never qualifies (the same paragraph with a clause reference such as `(п. 4.2.1)` in each sentence is followed at `-M1`). libgit2, and so pygit2, has no move detection. The library's blame therefore does not meet the claim for the platform's own language. A move is nonetheless recognisable without git: in the platform's normal form a moved sentence is a line removed and re-added verbatim in one commit, and that rule, applied in V-11, followed all 68 moves in the Ukrainian history exactly. The fallback above is not taken: the platform detects moves itself and keeps the attribution the claim promises (ADR-0011), and the normalizer keeps a moved paragraph's stored lines on every path (DL-0244), which is the assumption the rule rests on. Attribution of moved text holds as the claim promises; ST-0037 was re-scoped separately by DL-0243, and Epic 4 tests the move paths at both layers.
 
 ### V-07 — Blame can skip named commits
 
@@ -107,6 +119,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **If it fails** *(proposed during planning; no earlier document states it)*. A future re-split migration has to rewrite authorship in the derived store rather than in blame. Recorded, nothing built.
 
+**Status.** Proven for every line that carries text — 2026-09-27. After a whitespace-only rewrite of all 1,302 sentence and heading lines, `git blame --ignore-rev` (and the `--ignore-revs-file` a migration would write) attributes every one of them exactly as the history before the rewrite did, on both corpora; the 322 blank lines, which the rewrite did not touch, are re-assigned by git's ignore heuristic to nearby lines, and a blank line carries no sentence. `-w` alone, and `--ignore-rev -w`, match on all 1,624 lines. libgit2 can ignore whitespace but cannot exclude a named commit, so this mechanism lives in the `git` binary (ADR-0011).
+
 ### V-08 — Repacking an append-only history loses no version
 
 **Claim.** Repack and prune remove only unreachable objects, and in an append-only linear history the only unreachable objects are debris from failed writes — so housekeeping never touches ASR-02.
@@ -117,21 +131,22 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **If it fails** *(proposed during planning; no earlier document states it)*. Housekeeping runs repack without prune, and repository size is watched instead. Running it under the document's writer lock is a constraint on Epic 3, which builds the lock, and is not tested here.
 
+**Status.** Proven — 2026-09-27. On both corpora, with a dangling blob and a dangling commit planted and the unreferenced side commits of the other spikes left behind as real debris: 629 objects reachable before `repack -a -d` and `prune --expire=now`, 629 after, none missing, every unreachable object gone, `fsck --strict` clean, and `document.md` at each of the 20 tags read back byte-identical through pygit2 and through GitPython; 0.4 s.
+
 ## Text and rendering
 
 ### V-09 — A rule-based splitter's disagreement rate on Ukrainian policy text is low enough to be invisible
 
 **Claim.** A rule-based sentence splitter with a per-language abbreviation list places boundaries a reader would agree with, closely enough that nobody notices a wrong one.
 
-**Test.** Against the **synthetic policy sample** specified in Epic 1 DD-3 — invented Ukrainian policy text written to exhibit the hard cases, with every intended boundary marked by its author as it is written. Count the boundaries that disagree with the marks and classify each as too coarse or too fine. Separately, introduce a deliberate break inside an inline construct and run the parse-preservation check.
+**Test.** Against a **synthetic policy sample** — invented Ukrainian policy text in the register of a real policy and at the length of the longest document the platform expects, written to exhibit the cases a splitter fails on, each many times: abbreviations ending in a full stop, initials before a surname, numbered and lettered clause hierarchies, decimal numbers, amounts and dates, quotations spanning more than one sentence, list items that are and are not sentences, and headings without terminal punctuation. Every intended boundary is marked by its author as it is written. Count the boundaries that disagree with the marks and classify each as too coarse or too fine. Separately, introduce a deliberate break inside an inline construct and run the parse-preservation check.
 
 **Pass condition.**
 - **Zero** breaks inside an inline construct — the one way a boundary is wrong rather than merely coarse or fine.
 - The parse-preservation check catches **every** deliberate bad break.
 - Disagreement rate **≤ 1 boundary in 200** against the marked reference.
 
-> [!warning] The disagreement threshold is an initial proposal, not yet approved
-> The rate is the owner's to set; 1 in 200 is proposed as roughly one visible oddity in a forty-page document. The owner also approves the sample itself at G4-b, and until then the result is provisional.
+The threshold was set by the owner in DL-0246. The owner approves the sample before the measurement counts; until then the result is provisional.
 
 **If it fails.** A wrong boundary degrades granularity, not correctness — an over-split renders and anchors identically — so a high rate changes attribution precision and the abbreviation list, not the architecture. A break inside an inline construct is a defect in the splitter and blocks it.
 
@@ -160,6 +175,32 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 **Pass condition.** **Every** sentence of the author classified; the choice presentable for **every** built-on sentence; the computation over the forty-page history **≤ 5 seconds**, the same budget as the authorship job. What the algorithm cannot resolve is listed, and the owner judges the result against the scope agreement's promise.
 
 **If it fails.** The scope agreement's bullet on taking one person's contribution back out is reworded before it is signed, and ST-0037 is re-scoped.
+
+**Status.** Proven — 2026-09-27; the owner judged the same day that the result supports the scope agreement's promise. For one author of the corpus, every sentence the author added — 440, found in the diffs of the author's 71 commits — is classified from blame: 414 untouched, 22 built on by a later author, 4 removed; the classification, the later wording of every built-on sentence and the text before the author agree with the generator's own record on all 440, with nothing unresolved. The computation is a reverse blame from each of the author's commits to HEAD, plus the diff of the commit that changed a sentence: 3.1 s over the Ukrainian history, 2.1 s over the English, against a budget of 5 s, on 2 CPUs. The Ukrainian history needs the platform's own move rule (V-06): without it a paragraph moved by someone else reads as that author removing the sentences.
+
+### V-14 — A per-version revert separates the lines a later version changed from those that revert cleanly
+
+**Claim.** For *undo this edit* on any version of the pending run, every line that version changed is classified as reverting cleanly, or as changed again by a later version of the run and left for the reviewer (DL-0243) — the per-author walk of V-11 restricted to one commit.
+
+**Test.** In the tests of the story that builds undo in Epic 4: on the V-05 corpus, revert each of a run's versions in turn; compare every line's classification with the generator's record, and apply the clean reversal to a draft.
+
+**Pass condition.** **Every** line of the version classified, **none** misclassified against the generator's record, and the draft after the reversal equal to the text before that version on every clean line.
+
+**If it fails** *(proposed during planning; no earlier document states it)*. *Undo this edit* is withdrawn and the per-author undo, which V-11 proved, remains; ST-0037 loses its first form.
+
+**Status.** Accepted as a risk before the design review — resolved in Epic 4 by the test above (DL-0247).
+
+### V-15 — The normalizer keeps unchanged text's stored lines on every text path
+
+**Claim.** Text whose canonical form equals stored text — a whole paragraph, or a sentence that is a stored line — keeps the stored bytes wherever it moves and however it arrives: the rich editor, the source view or an outside paste (DL-0244). V-06's exact-line rule rests on it.
+
+**Test.** In the tests of the normalizer story in Epic 4, on a synthetic Ukrainian document: a paragraph moved within a section, moved between sections, moved through the source view, pasted back from outside the editor, and moved with one sentence reworded; and two identical sentences, one moved. Compare every stored line after the commit with the lines before it.
+
+**Pass condition.** **Every** unchanged sentence keeps its stored bytes on **every** path; only the reworded sentence is re-split; the identical pair leaves the same bytes whichever line is matched.
+
+**If it fails** *(proposed during planning; no earlier document states it)*. Moved text is attributed to whoever moved it on the failing path, V-06's status reopens, and the scope agreement's wording on attribution changes before it is signed.
+
+**Status.** Accepted as a risk before the design review — resolved in Epic 4 by the test above (DL-0249).
 
 ## The platform
 

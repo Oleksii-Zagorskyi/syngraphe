@@ -10,6 +10,7 @@ title: Linear edit history — no branching, no merging
 supersedes: []
 superseded_by:
   - ADR-0006 (in part — hold expiry)
+  - DL-0243 (in part — undoing a contribution, ST-0037)
 ---
 
 # ADR-0003: Linear edit history: no branching, no merging

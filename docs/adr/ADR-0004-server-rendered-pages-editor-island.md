@@ -3,7 +3,7 @@ tags:
   - adr
 aliases:
   - ADR-0004 Server-rendered pages, editor island
-status: proposed
+status: accepted
 date: 2026-09-24
 supersedes: []
 superseded_by: []
@@ -12,7 +12,7 @@ superseded_by: []
 # ADR-0004: Server-rendered pages, the editor as the one client island
 
 **Date:** 2026-09-24
-**Status:** Proposed — accepted once the editor library is chosen (`verification-plan.md` V-01)
+**Status:** Accepted — 2026-09-27, once the editor library was chosen (ADR-0010, `verification-plan.md` V-01)
 **Deciders:** Oleksii
 **Supersedes:** None
 
@@ -63,3 +63,4 @@ htmx covers the interactions a full reload would spoil in a long document — op
 - ADR-0002 — Django owns the workflow
 - ADR-0003 — linear edit history, continuous capture
 - DL-0167, DL-0170
+- ADR-0010 — the editor library, whose choice accepted this record

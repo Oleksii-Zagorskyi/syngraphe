@@ -54,9 +54,8 @@ Named by the action performed, never by corporate title (DL-0017). A person hold
 | reviewer | accepts changes; may correct before accepting, including their own | whole document |
 | decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
 | approver | makes a frozen document canonical | document |
-| designer | authors the organization's style documents and applies a selection to a document | organization, then document |
 | pending edits viewer | sees committed, unaccepted changes | whole document |
-| tenant administrator | users, document sets, role assignments, heuristic selection | tenant |
+| tenant administrator | users, document sets, role assignments, heuristic selection, the export stylesheet (DL-0230) | tenant |
 | platform administrator | the platform, the seeded heuristic catalogue, the base prompts | platform |
 
 Board approval is recorded by one designated person; quorum and voting happen outside the software (DL-0017).
@@ -87,7 +86,7 @@ An ordinary **hold is released after a period without activity**, once its holde
 
 Three application roles (DL-0079). A **platform administrator** does everything a tenant administrator can, in every tenant, and creates tenants, blocks them and grants platform administration. A **tenant administrator** invites users by email, blocks them in tenants they administer, manages groups and links them to documents, manages folders, archives and restores documents, and assigns side-document types and companion actions (ADR-0007). A **user** does what the rights of their groups allow — creating documents included, through *create and edit*. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
 
-**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept, freeze and unfreeze, make canonical, reserve for editing; and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
+**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept (with the pending view), freeze and unfreeze, make canonical (with the accepted view), reserve for editing; and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
 
 **There are no section-scoped roles and no code owners** (DL-0091). A right is held over a document or not at all.
 
@@ -111,7 +110,7 @@ Three surfaces (DL-0070). A **notifications section** in the application; **emai
 
 ## Types, folders and links
 
-**Document types** are a platform-administrator-managed set — **policy**, **controls**, **technical instruction**, **job description**, **notes** — assigned per document by the tenant administrator and used as filters in the document list (DL-0057). A document needs no relatives: a technical instruction about changing a serial number in the ERP stands alone.
+**Document types** are each tenant's own list, maintained by its tenant administrator — a new tenant starts with one type, *document* — assigned per document and used as filters in the document list (DL-0057, DL-0235). A document needs no relatives: a technical instruction about changing a serial number in the ERP stands alone.
 
 Worth keeping apart: a **controls document** is authored, with its own editing and review pipeline; the controls **view** generated from a policy only reports what that policy already says. Same subject, different artefacts.
 

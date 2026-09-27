@@ -26,6 +26,8 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **`MEMBERSHIP_HISTORY`, `INVITATION` and `LANGUAGE` are shared** because each is about the platform-level object beside it: a membership, an email address that is the platform identifier, and a reference list every tenant draws from.
 
+**The first-run setup token is one row in the shared schema** — its hash and expiry, deleted when used or expired (DL-0231, T-19). Using it is an `AUDIT_EVENT`. Once a platform administrator exists there is no row, and the first-run page answers as not found.
+
 A query that needs a document and a user joins across the boundary deliberately — the boundary is visible in the code that crosses it.
 
 ## Platform, shared schema
@@ -204,7 +206,8 @@ erDiagram
     }
     DOCUMENT_TYPE {
         uuid id PK
-        string code UK "policy | controls | instruction | job_description | notes"
+        string code UK "per tenant; seeded with document (DL-0235)"
+        datetime retired_at "set when retired; a type still assigned is retired, never deleted"
         string label
     }
     FOLDER {

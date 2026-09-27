@@ -207,3 +207,19 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **What has to be true before it is taken up.** The 0.2 agent runs are being designed (DL-0120).
 
+## B-032 — A source view with line numbers
+
+**Idea.** Raised in the editor spike (ADR-0010). The Markdown source view as a code-editor component — CodeMirror 6 is MIT and mounts without a framework — rather than a plain text field, so it can show line numbers and mark the lines a refused paste names.
+
+**Why it is parked.** A plain text field meets DL-0171: a refusal names the offending lines in its message. A second editor library adds weight to the one client island (ADR-0004) for a convenience nobody has yet asked for.
+
+**What has to be true before it is taken up.** Users find the lines a refusal names hard to locate in the source view, or the source view needs features a text field cannot give.
+
+## B-033 — Lifting a self-blocked account
+
+**Idea.** A control, and a story, for lifting the block a person puts on their own account (ST-0066). ADR-0007 already gives the power to a platform administrator; the owner has also raised letting a tenant administrator lift it for their own organisation, which needs a self-block held per membership rather than one flag on the person, and so a change to ADR-0007 and the data model.
+
+**Why it is parked.** Release 0.1 leaves the interface without it; until then the database is the recovery path, as it is for the last platform administrator. Who may lift it is decided when the entry is taken up.
+
+**What has to be true before it is taken up.** A self-blocked person asks to come back.
+

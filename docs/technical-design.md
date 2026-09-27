@@ -17,19 +17,19 @@ date: 2026-09-21
 | Layer | Choice | Status |
 |---|---|---|
 | Application | Django, Python | Decided (seed) |
-| Git access | A git library inside Django, on bare repositories it owns | Decided (DL-0030, DL-0042, ADR-0002) |
+| Git access | pygit2 inside Django, on bare repositories it owns; the `git` binary in the image, for blame | Decided (DL-0030, DL-0042, ADR-0002, ADR-0011) |
 | Database | PostgreSQL, schema per tenant | Decided (DL-0029) |
 | Host | A single Linux host; the production target is chosen when the platform leaves development | Open (DL-0086, DL-0109, DL-0117) |
 | Runtime | Containers: web, PostgreSQL, Redis, Celery worker | Decided (DL-0086, DL-0134) |
 | Queue | **Celery over Redis**, Redis without persistence — every task has a database row behind it | Decided (DL-0134) |
-| Markdown parser | A server-side parser bound to the whitelist, built from one specification file the editor schema also reads | Chosen in Epic 1 |
+| Markdown parser | markdown-it-py on the server and markdown-it in the editor, bound to the whitelist and configured from one specification file | Decided (ADR-0010) |
 | Agent runtime | A plain model API behind a **provider interface**, in a container job the platform drives | Decided (DL-0120) |
 | Identity and access control | Django (DL-0042, supersedes DL-0015) | Decided |
 | Forgejo | **Dropped** (DL-0042) | Decided |
 | Document format | Constrained **Markdown** subset, pipe tables included | Decided (DL-0046, DL-0100) |
-| Editor | Constrained rich editor over Markdown, with a Markdown source view; one instance per open editor | Library not yet chosen (V-01) |
-| Interface | Django templates, htmx, the editor as the one client island | Proposed (ADR-0004) |
-| Rendering | HTML with a designer-authored stylesheet through weasyprint for PDF; pandoc for DOCX | Decided (DL-0046) |
+| Editor | ProseMirror, used directly: a constrained rich editor over Markdown, with a Markdown source view; one instance per open editor | Decided (ADR-0010) |
+| Interface | Django templates, htmx, the editor as the one client island | Decided (ADR-0004) |
+| Rendering | HTML with the organisation's stylesheet through weasyprint for PDF; pandoc for DOCX | Decided (DL-0046) |
 
 ## Architecture
 
@@ -40,7 +40,7 @@ Browser (Ukrainian UI)
    └── Django — the only authorisation surface
         ├── workflow: holds, versions, acceptance, disputes, editions, rejections,
         │             comments, entities, findings, heuristics, roles, tenants
-        ├── git library on bare repositories: init, commit, read, diff, blame, revert, tag
+        ├── pygit2 on bare repositories: init, commit, read, diff, revert, tag; the git binary for blame (ADR-0011)
         └── agent jobs: sandboxed containers the platform starts
 ```
 
@@ -67,7 +67,7 @@ Two stores, one record. Without these rules the crash states are undefined and t
 
 **One repository per document**, at `tenant-N/document-M/` — the tenant's platform number and the document's number in its tenant (ADR-0008). Never by title: a directory named by title puts document titles, including a confidential guidance document's title, into filesystem listings, backup manifests and operator shells that the access table does not govern.
 
-**A single-writer lock per document** covers every ref update. It is almost uncontended, because the editor's hold already serialises human editors, but it still has to exist: acceptance, per-author undo and any stage 2 worker write are not covered by that hold.
+**A single-writer lock per document** covers every ref update. It is almost uncontended, because the editor's hold already serialises human editors, but it still has to exist: acceptance and any stage 2 worker write are not covered by that hold; undoing a contribution is made inside the reviewer's own hold (DL-0243).
 
 **The passport wins over the row.** Where they disagree, the reconciler reports an audit event; the interface believes the passport.
 
@@ -100,7 +100,7 @@ Principle of least privilege throughout: the burden is on expanding access, neve
 
 ## Who performs git operations
 
-Django, through a git library, on bare repositories it owns — **Forgejo was dropped at DL-0042** (ADR-0002). The reasoning was the owner's: edits accumulate in the application and are committed on a user's behalf, so a forge cannot authenticate per commit and cannot hold the authorisation; and once the events that start agent runs are the platform's own, forge runners add nothing either.
+Django, through pygit2, on bare repositories it owns, with the `git` binary in the image for blame — pygit2 has no bounded blame, no excluded commits and no reverse walk (ADR-0011) — **Forgejo was dropped at DL-0042** (ADR-0002). The reasoning was the owner's: edits accumulate in the application and are committed on a user's behalf, so a forge cannot authenticate per commit and cannot hold the authorisation; and once the events that start agent runs are the platform's own, forge runners add nothing either.
 
 The operation set is small because the model is linear (ADR-0003): **init, commit, read, diff, blame, revert, tag** — `init` because creating a document creates a repository (DL-0111). No branches, no merges, no conflict resolution.
 
@@ -152,29 +152,33 @@ tenant-N/document-M/          # repository root, one per document (DL-0111, ADR-
 | Emphasis | `*italic*`, `**bold**` | |
 | Underline | `[text]{.underline}` | An attributed span, not `<u>` |
 | Entity spans | `[CMO]{.role #cmo}` and the other types | Defined in `entities.yaml` |
-| Callouts | typed blockquote, `> [!note]` | Types: note, warning, example |
-| Tables | pipe tables | No merged cells, no nested blocks; the row is the unit |
-| Images | `![alt](images/name.png)` | Repository-local paths only |
+| Quotes | blockquote, `> text` | Paragraphs and lists inside; no nested quote, callout or table (DL-0238) |
+| Callouts | typed blockquote, `> [!note]` | Types: note, warning, example; paragraphs and lists inside, no nested quote, callout or table; the marker stands alone on its line, and text written after it moves to the first paragraph (DL-0238) |
+| Tables | pipe tables | At the top level only (DL-0239); no merged cells, no nested blocks; the row is the unit |
+| Images | `![alt](images/name.png)` | Repository-local paths only; every image stands as a paragraph of its own, however it arrives — one inside a sentence is refused (DL-0232, DL-0253) |
 | Links | `[text](url)` and repository-local paths | |
 
 Everything else is outside the subset: raw HTML, scripts, footnotes, definition lists, headings below depth four, task lists, nested tables, merged cells, horizontal rules, code blocks, math, and any remote image or stylesheet reference. The editor offers exactly the set above and nothing else; anything outside it is **rejected at edit time with a message**, never silently dropped. Pasted Markdown that falls outside the set is refused with the offending lines named, and the user is offered a conversion — removing or rewriting what the set does not allow — previewed before it is applied (DL-0171). The message links to a help page listing the set, generated from the same specification as the editor schema and the parser configuration.
-- **The whitelist binds the parser, not only the editor** (DL-0096): raw HTML disabled, no script, no remote image or stylesheet references, and no network for the PDF renderer. Text arrives by paste and by import as well as by typing, so a rule that only the interface enforces protects nobody.
+- **One specification, two parsers** (ADR-0010). The editor's markdown-it and the server's markdown-it-py are configured from one specification file; the span, callout and validation rules are written once per language, and a conformance suite in CI holds them in step — for those rules the weaker of the two controls V-04 weighed.
+- **The whitelist binds the parser, not only the editor** (DL-0096): raw HTML disabled, no script, no remote image or stylesheet references, and no network for the PDF renderer. *Raw HTML disabled* means never rendered: the parser recognises raw HTML only to refuse it with a message, because left unrecognised it would pass through as literal text without a word (ADR-0010). Text arrives by paste and by import as well as by typing, so a rule that only the interface enforces protects nobody.
 - **Tables** are pipe tables: one row per line, inline content only, no merged cells, no nested blocks (DL-0100). Inside a table the **row** is the unit of diff, authorship and per-author undo — a cell cannot hold a line break, so the sentence stops being addressable there. The normalizer gives every row exactly one spelling: one space inside each cell edge, no alignment padding, a delimiter row keeping only its alignment colons. Without that, padding from an editor, a paste or a prettifier rewrites every row when one cell changes, and each rewritten row is re-attributed to whoever touched one of them.
 - **Entities** are attributed spans — `[CMO]{.role #cmo}` (a synthetic example), `[obliged to approve]{.action}`, `[10 days]{.term #timeout}`. Real Pandoc syntax, so it survives every render target and stays machine-readable. Definitions live in `entities.yaml`; the spans mark occurrences. The editor never shows the syntax: a user selects text and marks it. Wherever text is rendered — reading view, editor, DOCX, PDF — marked text carries a distinct formatting set by the stylesheet (DL-0184).
+- **One spelling per construct** (DL-0240). Text inside the subset but spelled otherwise is accepted and rewritten by the normalizer: `-` bullets, `1.` ordered markers, a nested list indented by its parent's marker width, `*italic*` and `**bold**`, an entity span outermost when marks nest, `#` headings without closing hashes, pipe tables with edge pipes, a callout marker alone on its line. A literal `<` is stored escaped, and so is an `&` that would begin an HTML entity, so text never reads as markup.
 - **Normal form:** one sentence per line; a server-side normalizer runs before every commit (DL-0012). Paragraph boundaries are blank lines — Markdown's native rule, not a convention imposed on it — and the renderer joins the sentences between them into one paragraph. The user never sees or manages a line break — not in the reading view, the rich editor, the source view or any export. The source view and a Markdown export write each paragraph as one line, entity marks included exactly as stored (DL-0184) — a Markdown export is the source view saved to a file; the normalizer restores the stored breaks on the way back in (DL-0181).
 - **A stored line is never re-normalised** (DL-0112, ASR-20). No normalizer rule — the splitter, quote and dash typography, Unicode composition, the canonical table row — is ever applied to a line its edit did not touch. *Touched* means the submitted line differs from the stored line **after canonicalising the submitted one**, so a prettifier that pads every table row produces rows that canonicalise back to the stored bytes and count as untouched.
-- **The normalizer is a function of two inputs**, the previous version and the submitted text, because the editor returns paragraph text rather than lines. Within each paragraph it aligns the new text against the old, carries the old boundaries across unchanged spans, and runs the rules only over changed spans widened to the whole old lines they overlap.
+- **What reaches the normalizer.** The rich editor submits each paragraph with a line break at every stored sentence boundary it kept (V-03); the source view and an outside paste submit each paragraph as one line. **The normalizer relies on neither**: it joins each submitted paragraph's lines and treats every path alike. The editor's breaks only make an untouched paragraph arrive byte-identical to its stored lines.
+- **The normalizer is a function of two inputs**, the previous version and the submitted text. Within each paragraph it aligns the new text against the old, carries the old boundaries across unchanged spans, and runs the rules only over changed spans widened to the whole old lines they overlap — the third of the four steps below.
 - **The normal form is therefore path-dependent.** The same text can legitimately be stored with different line breaks depending on its history. **The stored newline is the authority** — a check that re-runs the splitter over a file and compares is not valid, and the line structure cannot be rebuilt from the text, unlike the search and navigation indexes.
 - **Normalisation preserves the parse** — an invariant checked on every write. A wrong boundary degrades granularity, not correctness: an over-split renders identically and anchors identically. The one way a boundary can be *wrong* is a break inside an inline construct, and this invariant is what catches it.
 - **The normalizer version is recorded per commit**, not per document — one document holds lines split by several versions at once, so a per-document field would be untrue on the day of the first upgrade.
-- **Moved text** is the case to watch: a paragraph cut and pasted elsewhere arrives as a deletion and an insertion. If alignment recognises the moved block and carries its bytes and boundaries unchanged, blame can still attribute it to its original author; if it is re-split, the author becomes whoever moved it.
+- **Moved text keeps its stored lines** (DL-0244). A paragraph cut and pasted elsewhere arrives as a deletion and an insertion. Before anything is split, in order: whole paragraphs equal to a stored paragraph anywhere in the file reuse its lines; other paragraphs are aligned in place (above); in what is still unmatched, the previous version's stored lines are found as whole-word runs, longest first, and reuse their bytes; only the remainder is split. Which author a tie between identical lines keeps is the authorship worker's (ADR-0011).
 ### Rendering, styles and layout
 
 - **Heading numbering is a render rule** derived from depth: `#` is 1, `##` is 1.1, `###` is 1.1.1. **Each appendix numbers its own headings from 1**, and a reference into one carries the appendix in front — *Appendix 2, 1.1-3*. Never stored, so moving a section renumbers everything and breaks nothing. Comments and findings anchor by quoted text (DL-0027). A prose reference such as *"as defined in clause 4.2"* is ordinary text; keeping it true as a document is restructured is a stage 2 heuristic, backlog B-015.
-- **Styles are a stylesheet** the designer authors at organization level and selects from per document (DL-0020). The CSS analogy is no longer an analogy.
+- **Styles are a stylesheet** the tenant administrator authors at organization level and selects from per document (DL-0020, DL-0230). The CSS analogy is no longer an analogy.
 - Hunks are classified **sense** or **style**. Style hunks **collapse** in the review surface and are accepted **with the run** — they do not auto-accept, because acceptance is a document-level act with no per-hunk step to skip, and a classifier deciding a change needs no human eyes would contradict ASR-04.
 - **A section is a heading.** Structure is the heading hierarchy of `document.md` and of each appendix, and restructuring a document is editing its text. A section is a range of a file, never a file of its own.
-- **Images** are ordinary git blobs — **no LFS** (DL-0066). Allowed types and a per-image size cap are enforced on upload; anything not web-renderable is converted on the way in, which is not optional because no browser renders HEIC; metadata is stripped. A change to an image cannot be read as a diff, so the review surface flags it and renders before-and-after (ASR-04). Agents never read images (DL-0168). Revisit LFS only if a repository's size becomes a measured problem.
+- **Images** are ordinary git blobs — **no LFS** (DL-0066). PNG, JPEG and GIF are accepted and a per-image size cap is enforced on upload; HEIC and every other type are refused with a message, never converted; metadata is stripped (DL-0074, DL-0242). **An image pasted or dropped into the editor is an upload like any other** and always stands as a paragraph of its own; one known only by a web address is never fetched — it is left out of the paste with a one-line notice (DL-0232). A change to an image cannot be read as a diff, so the review surface flags it and renders before-and-after (ASR-04). Agents never read images (DL-0168). Revisit LFS only if a repository's size becomes a measured problem.
 - **Clause numbering** is derived at render, never stored (DL-0065): `1.1-3` is section 1, subsection 1, clause 3 — each paragraph of text is one clause; the hyphen separates the heading path from the clause index, and heading depth is capped at four. In the editor the numbers render in a non-editable gutter outside the editable region, recomputed as the text changes. A finding or a comment anchors by **quoted text** (DL-0027) and displays the current number — the number is a label, never an address.
 - **Storage layout is flat.** One repository per document under the tenant's directory; the nested tree a user sees is Django metadata, and a move never touches a path (DL-0058, DL-0111, ASR-15).
 
@@ -189,7 +193,7 @@ Everything else is outside the subset: raw HTML, scripts, footnotes, definition 
 - **The analyses are written into the same commit** as the content, in `analysis/` (DL-0055). This is why the commit identifier is never needed: the analysis is part of the tree rather than a pointer at it, both halves are known before the commit is made, and the reasoning travels into any clone or export.
 - **Analysis files have fixed names and are overwritten on every commit** (DL-0067). Nothing is lost — the analysis as of any version is `git show {commit}:analysis/{name}`. Accumulating timestamped files would duplicate what history already gives.
 - **Only the editor-facing artefact goes into the tree.** The reviewer-eyes-only analysis (DL-0007) must never be committed into the document folder, because anyone with read access to the document would read it. It lives outside the tree, reachable only through the access table. Committing it would breach ASR-03 by a storage decision rather than a delivery one.
-- History is **linear and append-only** (ADR-0003, ASR-02). No branches, no merges, no rewriting. An unwanted change is undone by a commit that reverts it, computed per sentence from blame, with the platform resolving the case where a later author built on top.
+- History is **linear and append-only** (ADR-0003, ASR-02). No branches, no merges, no rewriting. An unwanted change is undone by reverting it into the reviewer's draft — one version, or one author's versions since the last acceptance — computed from blame; lines a later version changed are left for the reviewer to edit by hand, and the draft is committed as the reviewer's version (DL-0243).
 - **`refs/proposals/{id}/head` is no longer needed** — nothing is squashed, so nothing needs retaining. ADR-0002's retention consequence lapses.
 - **Acceptance** is a commit to the document's passport carrying the reviewer's decision, so approval history lives in the repository and travels with the document (DL-0041). Corrective edits ride in the same commit.
 - **Version numbers are derived** (DL-0183): an acceptance is `N.M` — N canonical editions before it, M acceptances since the last — and making a frozen document canonical gives its latest accepted version `N+1.0`. The passport records them, so no user ever needs a commit hash. Pending work is shown as the last accepted number plus the commits since it, `1.3-2`.
@@ -281,7 +285,7 @@ Runs against the editor's session with its own interface. Sees the working docum
 
 ## Export
 
-Markdown, PDF and DOCX. PDF renders through HTML and the designer's stylesheet with weasyprint; DOCX through pandoc. All three are in stage 1 — Markdown made the Word path cheap (DL-0046).
+Markdown, PDF and DOCX. PDF renders through HTML and the organisation's stylesheet with weasyprint; DOCX through pandoc. All three are in stage 1 — Markdown made the Word path cheap (DL-0046).
 
 An export is composed from three choices (DL-0172, DL-0193):
 
@@ -313,7 +317,7 @@ The same edit yields different findings for different readers: an editor who can
 
 ## Types, folders and links
 
-- **Document types** are a platform-managed table — policy, controls, technical instruction, job description, notes — assigned per document by the tenant administrator, used as list filters (DL-0057, DL-0063).
+- **Document types** are a table in each tenant's schema, maintained by its tenant administrator and seeded with one type, *document*; assigned per document, used as list filters (DL-0057, DL-0063, DL-0235).
 - **Folders** are metadata with unlimited nesting; storage stays flat (ASR-15). A person sees only folders holding, at any depth, a document they may read; administrators see all (DL-0206).
 - **Outline** — every document renders a navigation outline of its sections and subsections.
 - **Links** resolve per reader: a mention becomes a link only if that reader may access the target, and renders as plain text otherwise (ASR-16). The generated **see also** applies the same filter. The filter runs at render time against the access table, never at authoring time.

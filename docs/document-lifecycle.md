@@ -104,15 +104,15 @@ Entries arrive two ways: a reviewer marks a passage disputed, or an editor escal
 | correct before accepting | reviewer | document Pending, not reserved | commit touching content and passport, including reverting an appendix or attachment operation; a correction notice generated for every author whose text changed |
 | accept the run | reviewer | a reviewer is assigned; versions exist since the last acceptance; not reserved | commit to the passport; document becomes Accepted; a correction notice goes to every author whose text the reviewer changed |
 | return without accepting | reviewer | versions exist since the last acceptance; not reserved | run stays pending; authors notified with the reviewer's reason (ADR-0001) |
-| revert a contribution | reviewer, editor | — | new commit undoing it; never a history rewrite |
+| revert a contribution | reviewer | versions exist since the last acceptance; not reserved; nobody else holds the document | the reversal of one version, or of one author's versions in the run, applied to the reviewer's draft where it reverts cleanly; sentences a later version changed are listed for editing by hand; committed when the reviewer finishes, with correction notices; never a history rewrite (DL-0243) |
 | freeze | holder of freeze | document not frozen, and nobody holds it | document Frozen; editors locked out, holders of *accept* and *edit* may still edit (DL-0189) |
 | unfreeze | holder of freeze | document Frozen | ordinary editing resumes at the current accepted number |
-| make canonical | holder of make canonical | document Frozen; no unaccepted commits since the latest acceptance | latest accepted version becomes the next edition, `N+1.0`; freeze ends |
+| make canonical | holder of make canonical, which includes the accepted view (DL-0234) | document Frozen; no unaccepted commits since the latest acceptance | latest accepted version becomes the next edition, `N+1.0`; freeze ends |
 | read | holder of a viewing right | — | *view canonical* sees Canonical; *view accepted* adds Accepted; *view pending* adds Pending; history rights add earlier versions (ADR-0007) |
 | follow a link to another document | any reader | the reader may access the target | otherwise the mention renders as plain text and is absent from *see also* (ASR-16) |
 | move a document between folders | tenant administrator | — | metadata only; no repository path changes, no access change (ASR-15) |
 | copy a document | holder of create and edit | may see the chosen version | new author-only document with that text, chosen appendices, no attachments, no history (ADR-0007) |
-| set a document's type | tenant administrator | the type exists in the platform table | changes list filtering only |
+| set a document's type | tenant administrator | the type is on the organisation's list (DL-0235) | changes list filtering only |
 | toggle show author | anyone who can see a diff | — | attribution shown or hidden (DL-0040) |
 | download an attachment | anyone who may read the version it belongs to | — | the stored file, under its original name |
 | export | anyone who may read the chosen view | at least one scope and one format chosen | an export job (DL-0172) |

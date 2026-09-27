@@ -60,11 +60,11 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **see also** · див. також · *proposed* — the automatically maintained list of documents this one links to, filtered to what the reader may reach.
 
-**document type** · тип документа · *proposed* — policy (політика), controls (контролі), technical instruction (технічна інструкція), job description (посадова інструкція), notes (нотатки).
+**document type** · тип документа · *proposed* — each tenant's own classification of its documents; a new tenant starts with one, *document* (документ) (DL-0235). *Synthetic examples:* policy (політика), controls (контролі), technical instruction (технічна інструкція).
 
 **folder** · тека · *fixed* — where a document appears in the interface. Presentation only; storage is flat.
 
-**style** · стиль · *proposed* — the organisation's rendering rules, authored by a designer and selected per document.
+**style** · стиль · *proposed* — the organisation's rendering rules, authored by its tenant administrator and selected per document (DL-0230).
 
 **image** · зображення · *proposed* — an uploaded PNG, JPEG or GIF. HEIC is refused; metadata is stripped.
 
@@ -104,7 +104,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
 
-**discard my edits** · відкинути мої правки · *proposed* — a button on the send-for-review screen: throws away the whole draft, text and file operations alike, after the user confirms. The document is left as it was.
+**discard my edits** · відкинути мої правки · *proposed* — a button in the edit tab and on the send-for-review screen (DL-0237): throws away the whole draft, text and file operations alike, after the user confirms. The document is left as it was.
 
 **finish editing** · завершити редагування · *proposed* — the control that closes an editing session and opens the send-for-review screen, for every holder (DL-0222).
 
@@ -113,6 +113,8 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 **create version N.M-X** · створити версію N.M-X · *proposed* — for a holder of *accept* as well: commits the draft as a version that waits in pending edits. The button carries the number the version gets — *create version 2.3-1* (DL-0222).
 
 **accept as N.M** · погодити як N.M · *proposed* — for a holder of *accept* as well: commits the draft and accepts the whole run since the last acceptance in one act. The button carries the accepted number that results — *accept as 2.4* (DL-0222).
+
+**my reservations** · мої резервування · *proposed* — the list of documents a person has reserved for editing, each with its start date; in the user menu (DL-0241).
 
 **reserve for editing** · зарезервувати для редагування · *proposed* — keep the document one holds for days or weeks: the hold is no longer released for inactivity. Taken from an open editing session, by a member of a group holding the right of the same name (ADR-0009).
 
@@ -128,7 +130,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **copy a document** · копіювати документ · *proposed* — create a new document from a version of one you may read; no history, no attachments, author-only until groups are linked.
 
-**undo a contribution** · скасувати правку · *proposed* — a new version that reverses an earlier one. Nothing is erased.
+**undo a contribution** · скасувати правку · *proposed* — a reviewer's act on the pending run: the reversal of one version (*undo this edit*) or of one author's edits since the last acceptance, applied to the reviewer's draft and committed as their version. Sentences a later version changed are left for editing by hand. Nothing is erased (DL-0243).
 
 **archive / restore** · архівувати / відновити · *proposed*
 
@@ -152,7 +154,6 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **approver** · затверджувач · *proposed* — holds *make canonical*: ends a freeze by making the latest accepted version the next edition. The approving body's own procedure happens outside the platform.
 
-**designer** · дизайнер · *proposed* — authors the organisation's styles and selects them per document.
 
 **pending edits viewer** · переглядач неприйнятих правок · *proposed* — holds *view pending*: may see committed but unaccepted changes.
 

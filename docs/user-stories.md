@@ -20,7 +20,8 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Access and tenancy
 
 **ST-0057** — As the person standing the platform up, I create the first platform administrator, so that there is somebody who can do everything else. *(skeleton)*
-- Not a screen — a one-off operation at install time. Every other story assumes it has happened.
+- The install command prints a one-time setup token; a first-run page accepts only that token, then the administrator's email address and password (DL-0231).
+- The token is single-use and expires. Once a platform administrator exists, the page answers as an address that does not exist (ADR-0008). Every other story assumes it has happened.
 
 **ST-0001** — As a platform administrator, I create a tenant, so that an organisation can have its own independent workspace. *(skeleton)*
 - The tenant is created with its first tenant administrator: a person invited by email, or one already registered on the platform.
@@ -28,6 +29,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0065** — As a platform administrator, I block a tenant, so that nobody but platform administrators can reach it.
 - A blocked tenant may have no users at all.
+
+**ST-0071** — As a platform administrator, I lift a tenant's block, so that an organisation blocked by mistake or for a settled reason can work again.
+- Its memberships, groups and links apply as they stood; nothing is rebuilt by hand. The change is typed history, like the block.
 
 **ST-0002** — As a platform administrator, I grant platform administration to another user, so that I am not the only person who can operate the platform.
 - The last platform administrator cannot be blocked or lose the role; the command line and the database are the recovery path.
@@ -41,11 +45,14 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - If I administer several tenants the person belongs to, I am asked which of them to block them in. I never see or touch tenants I do not administer; a platform administrator is notified when the person stays active elsewhere.
 - I cannot block a tenant's last active administrator. If that is me, I can block myself only when I am also its last active user.
 
+**ST-0072** — As a tenant administrator, I unblock a person's membership in my tenant, so that someone who returns regains access through the groups they were in.
+- Their group memberships apply as they stood. A self-blocked account (ST-0066) stays blocked: only a platform administrator lifts that.
+
 **ST-0066** — As any user, I block my own account, so that nobody can use it while I cannot.
-- It blocks every membership I hold; only a platform administrator can lift it. There is no deleting an account (backlog B-022).
+- It blocks every membership I hold; only a platform administrator can lift it, and not through the interface in this release — the database is the recovery path (DL-0254, backlog B-033). There is no deleting an account (backlog B-022).
 
 **ST-0005** — As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to — so that people see and do exactly what their job requires (ADR-0007).
-- Rights: a viewing ladder (view canonical, view accepted, view pending, edit, create and edit), history rights (view previous canonical versions, view all history), acts (accept, freeze and unfreeze, make canonical, reserve for editing), and part rights (create or delete appendices; upload, replace or delete attachments).
+- Rights: a viewing ladder (view canonical, view accepted, view pending, edit, create and edit), history rights (view previous canonical versions, view all history), acts (accept, which includes the pending view; freeze and unfreeze; make canonical, which includes the accepted view it approves; reserve for editing), and part rights (create or delete appendices; upload, replace or delete attachments).
 - A person holds the union of the rights of their groups linked to a document; nothing is granted to a person directly.
 - I cannot change a document's links while someone is editing it; I see who it is and ask them to finish, or force the release as a last resort (ST-0030); for a reserved document, I end the reservation with a reason (ST-0070).
 - *Synthetic example:* a finance policy linked to *Accountants* (view canonical), *Finance reviewers* (accept) and *Executives* (make canonical).
@@ -88,8 +95,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0010** — As a tenant administrator, I change a document's type, so that it is filed correctly as its purpose becomes clear.
 
-**ST-0011** — As a platform administrator, I maintain the list of document types, so that every tenant classifies documents the same way.
-- Policy, controls, technical instruction, job description, notes.
+**ST-0011** — As a tenant administrator, I maintain my organisation's list of document types, so that documents are classified the way we work (DL-0235).
+- A new tenant starts with one type, *document*. I add, rename and retire types; a type still assigned to a document can be retired, never deleted.
+- *Synthetic example:* policy, controls, technical instruction.
 
 **ST-0012** — As a tenant administrator, I create, rename and delete folders and move documents between them, so that a growing set stays navigable.
 - Folders nest without limit and are presentation only; moving a document changes nothing about the document itself or who may read it (ASR-15).
@@ -136,17 +144,18 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - I reserve from an editing session I already have; while someone else holds the document there is nothing to reserve, so reservations are never contested (DL-0218, DL-0219).
 - While it is reserved it is not released for inactivity; my draft waits between sittings, and I finish it once, producing one version (DL-0213).
 - I may cancel the reservation, which makes it an ordinary hold again.
-- I cannot reserve a frozen document (DL-0223). I may hold several reservations; each document is on its own (DL-0227).
+- I cannot reserve a frozen document (DL-0223). I may hold several reservations; each document is on its own, and my user menu lists them with their start dates (DL-0227, DL-0241).
 - While it is reserved, as while any hold lasts, nobody can freeze it or change its groups — and nobody else can review it; that is agreed with me outside the platform, or an administrator ends my reservation (DL-0223, DL-0224).
 
 **ST-0070** — As an editor whose reservation an administrator ended, I learn who ended it, when and why, and keep my work, so that weeks of editing are never lost.
 - The notification and the notice on the document carry the administrator's reason (DL-0225).
 - If nobody committed since, I take the document back and may reserve it again; otherwise my draft opens read-only as changes against the current text, and I can switch the comparison to any version I may see.
 
-**ST-0019** — As an editor, I write and format text with headings, lists, bold, underline, italics, callouts and tables, so that a policy reads as a policy. *(skeleton)*
+**ST-0019** — As an editor, I write and format text with headings, lists, bold, underline, italics, quotes, callouts and tables, so that a policy reads as a policy. *(skeleton)*
 - Nothing outside that set is available, and anything pasted that falls outside it is refused at the moment of pasting, never silently dropped. The refusal names the offending lines and offers a conversion, shown before it is applied, and links to a help page listing what is allowed (DL-0171).
 - Tables are plain: one row per line, inline content only, **no merged cells**. A table needing merged cells is restructured — the constraint is stated to the business users rather than discovered by them.
 - Inside a table the **row** is what a change is attributed to, not the sentence (DL-0100).
+- A table stands at the top level of the document only — never inside a list, a quote or a callout; one placed there is refused with a message (DL-0239).
 
 **ST-0020** — As an editor, I never need a Save button, because my work is captured as I type. *(skeleton)*
 - Closing the browser, or losing it, loses nothing.
@@ -174,9 +183,10 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Every change to an attachment is part of my draft and is reviewed with my text (DL-0168).
 
 **ST-0021** — As an editor, I undo changes I have just made, so that a wrong turn costs seconds.
+- *Undo* and *redo* are buttons in every editor's toolbar as well as the usual keys, because people arriving from Word look for them (DL-0241).
 
 **ST-0022** — As an editor, I discard my edits, so that work I have decided against does not reach the document.
-- Offered on the send-for-review screen beside *continue editing* and *send for review*, and confirmed before it acts.
+- Offered in the edit tab whenever I hold the document, and on the send-for-review screen beside *continue editing* (DL-0237). Confirmed before it acts, in a box that says the whole draft will be thrown away.
 - It discards everything in the draft: text, and any attachment or appendix added, replaced, reordered or deleted. A file I deleted and then discarded is still there.
 
 **ST-0023** — As an editor, I see a clause number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
@@ -199,6 +209,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - PNG, JPEG and GIF are accepted; HEIC is refused outright rather than converted (DL-0074).
 - Images above the size limit are refused with the limit stated.
 - All metadata is removed on upload — no location, no device.
+- Pasting or dropping an image is an upload like any other: an image already on the clipboard — a screenshot, a copied image, an image inside copied text — is stored and always placed as a paragraph of its own (DL-0232).
+- An image typed inside a sentence in the source view is refused with its line named: an image always stands on its own line (DL-0253).
+- An image that exists only as a web address is left out of the paste, the rest of the pasted text goes in, and a one-line notice says the image was not pasted and to save it and paste the file (DL-0232).
 
 **ST-0029** — As an editor, I press *finish editing*, see what my changes introduce, and either continue editing or commit. *(skeleton)*
 - The commit carries a summary I may edit before sending. It is for whoever reviews the run, and shows with the version in pending edits (DL-0197) — or, for a version I accepted in the same act, in its history entry (DL-0222).
@@ -223,7 +236,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - As an editor I see my own draft the same way, as *my edits*.
 - Both views show the whole document with the changes marked in place (DL-0195).
 
-**ST-0032** — As any reader of a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not.
+**ST-0032** — As a holder of a history right on a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not.
 - Each entry shows the version, the event — edit, acceptance, return, freeze, canonisation — and who acted (DL-0197).
 - Each version opens as a historical page in a new window: the reading view and export, never editing, and *compare with* any other version, the latest included (DL-0195).
 
@@ -253,9 +266,10 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0053** — As a tenant administrator, I switch on a check that a document cannot be made canonical by anyone who accepted any of its runs since the previous canonical edition, so that my organisation can show an auditor a second pair of eyes.
 - Off by default. The approver must have accepted **none** of the runs since the previous canonical edition — not merely not the last one (DL-0115).
 
-**ST-0037** — As a reviewer or a document editor, I undo one author's contribution, so that work that should not have entered can be removed.
-- I choose per sentence, and I am shown which sentences somebody else has since built on, and asked which wording should survive.
-- The removal is a new version, attributed to me. Nothing disappears from the history (ASR-02).
+**ST-0037** — As a reviewer, I undo one pending version, or everything one author contributed since the last acceptance, so that work that should not have entered can be removed without retyping it (DL-0243).
+- I start it from the History tab: *undo this edit* on a version after the last acceptance, or *undo all of this author's edits* for an author of the run.
+- The reversal is computed automatically and goes into my draft — the one I have open, or a new one that takes the document. It becomes my version when I finish editing, and each author whose text I removed receives a correction notice (ADR-0001). Nothing disappears from the history (ASR-02).
+- A sentence a later version changed is not reverted: it is left as it is and listed in my draft for me to edit by hand. Choosing sentence by sentence, or word by word, is ordinary editing.
 
 ---
 
@@ -300,7 +314,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Paragraphs read as paragraphs in every format, Markdown included; the document's frontmatter is never exported.
 - DOCX and PDF carry the page number in the footer, and in the header the title, the version number and the stance exported.
 
-**ST-0046** — As a designer, I edit the stylesheet the exports are rendered with, so that documents look the way the organisation expects.
+**ST-0046** — As a tenant administrator, I edit the stylesheet the exports are rendered with, so that documents look the way the organisation expects.
 - One stylesheet per organisation, selected per document.
 
 ---
