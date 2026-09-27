@@ -7,7 +7,8 @@ status: accepted
 date: 2026-09-25
 supersedes:
   - ADR-0003 (in part — hold expiry)
-superseded_by: []
+superseded_by:
+  - ADR-0009 (in part — reserved holds, who sees their holder, who can end someone else's session, the send-for-review screen for a holder of accept)
 ---
 
 # ADR-0006: The editing surface — many editors over one draft, one hold, released on inactivity

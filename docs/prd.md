@@ -50,7 +50,7 @@ Named by the action performed, never by corporate title (DL-0017). A person hold
 | Role | Stance | Scope |
 |---|---|---|
 | reader | reads | canonical documents |
-| editor | edits, commits | whole document |
+| editor | edits, commits; with *reserve for editing*, keeps a document for weeks | whole document |
 | reviewer | accepts changes; may correct before accepting, including their own | whole document |
 | decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
 | approver | makes a frozen document canonical | document |
@@ -73,19 +73,21 @@ One editing sequence per document. No branches, no forks, no merges, and therefo
 2. Edits are **captured continuously** — there is no Save control. The draft persists so a closed laptop loses nothing; it is not yet a version and nobody else can see it.
 3. **Undo** works within the editing session.
 4. At any point the editor may **call companion actions** — individually, not all of them — to answer *"what do my changes introduce so far?"*. Results are cached against the content, so asking twice about unchanged text costs nothing.
-5. **There is no Save button.** In its place is *send for review*. Pressing it shows the companion analyses for the current content and three choices: **continue editing**, **send for review**, or **discard my edits**, which asks for confirmation and throws the whole draft away.
+5. **There is no Save button.** In its place is *finish editing*. Pressing it shows the companion analyses for the current content and its choices: **continue editing**, **send for review** — or, for a holder of *accept*, **accept as N.M** and **create version N.M-X** — and **discard my edits**, which asks for confirmation and throws the whole draft away.
 6. **Send for review commits** (DL-0054). The analyses are written into the same commit as the content, so no identifier has to be resolved after the fact — they are part of the tree, and they are what the reviewer reads as the change's description.
 7. Versions accumulate, attributed, until a reviewer accepts a run of them.
 
 Going back is only ever forward: an unwanted change is undone by a new version that reverts it, computed per sentence from authorship, never by erasing history.
 
-A **hold is released after a period without activity**, once its holder has been asked whether they are still working, and can be released by the tenant administrator; the interrupted draft is preserved, not discarded (ADR-0006). Everyone sees that a document is held; only the tenant administrator sees by whom. Holds cover the whole document — there is no smaller unit (DL-0091).
+An ordinary **hold is released after a period without activity**, once its holder has been asked whether they are still working, and can be released by the tenant administrator; the interrupted draft is preserved, not discarded (ADR-0006). Everyone sees that a document is held; for an ordinary hold only the tenant administrator sees by whom. Holds cover the whole document — there is no smaller unit (DL-0091).
+
+**A holder may reserve the document for editing** to mature it over days or weeks (ADR-0009): the reservation is the same hold without the inactivity release, taken by a member of a group holding *reserve for editing*, and ended by finishing, discarding, cancelling, or an administrator breaking the glass with a stated reason. As for any hold, the document cannot be frozen or re-linked meanwhile, and a reservation also keeps others from reviewing it; readers see that it is reserved and since when, and holders of *edit* or *accept* on it, and administrators, see by whom. When to end it is agreed between people, outside the platform. A holder who also holds *accept* finishes in one act — *accept as N.M* — or leaves the version pending — *create version N.M-X*; for a document accepted at 2.3, *accept as 2.4* and *create version 2.3-1* (DL-0222).
 
 ## Rights and administration
 
 Three application roles (DL-0079). A **platform administrator** does everything a tenant administrator can, in every tenant, and creates tenants, blocks them and grants platform administration. A **tenant administrator** invites users by email, blocks them in tenants they administer, manages groups and links them to documents, manages folders, archives and restores documents, and assigns side-document types and companion actions (ADR-0007). A **user** does what the rights of their groups allow — creating documents included, through *create and edit*. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
 
-**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept, freeze and unfreeze, make canonical; and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
+**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept, freeze and unfreeze, make canonical, reserve for editing; and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
 
 **There are no section-scoped roles and no code owners** (DL-0091). A right is held over a document or not at all.
 

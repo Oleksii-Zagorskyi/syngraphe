@@ -190,3 +190,20 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 **Why it is parked.** In 0.1 opening a notification marks it read (DL-0204).
 
 **What has to be true before it is taken up.** An administrator has lost track of an event they had opened but not dealt with.
+
+## B-030 — A name for a version
+
+**Idea.** Raised while designing reservations (ADR-0009). Beside a version's number, a short name its users give it to mark a milestone — for example, a synthetic *draft for the board*, next to *2.4* — shown wherever the number is shown and searchable in the history.
+
+**Why it is parked.** In 0.1 a version is identified by its number alone (DL-0183, DL-0198); a name raises who may set and change it, whether an edition's name is fixed once canonical, and how it appears in exports.
+
+**What has to be true before it is taken up.** People are observed referring to versions by something other than their number.
+
+## B-031 — Attempts and failure of model jobs
+
+**Idea.** Decide, for the model steps that run as queued jobs from release 0.2, how many attempts each gets, when they happen, and what happens when the last one fails — who is told, and what the person waiting for the result can do.
+
+**Why it is parked.** No model job exists before 0.2, and the answer depends on how the jobs behave against a real provider — its failures, its limits, its cost per repeat. Settling it now would plan a known unknown.
+
+**What has to be true before it is taken up.** The 0.2 agent runs are being designed (DL-0120).
+

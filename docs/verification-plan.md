@@ -11,7 +11,7 @@ date: 2026-09-23
 
 Every claim the design rests on that has not yet been checked against running software — how it is tested, the number that decides it, and what changes if it fails. **This file is where those claims live.** The technical design points here rather than restating them, and an entry changes status here and nowhere else.
 
-A failure consequence marked *proposed* is a planning proposal rather than a decision already recorded elsewhere, and is settled when the entry resolves. An entry is **open** until its test has run, then **proven**, **disproven** or **open with a reason**. A disproven entry is a finished result, not a failure of the work: the design changes before anything is estimated against it.
+A failure consequence marked *proposed* is a planning proposal rather than a decision already recorded elsewhere, and is settled when the entry resolves. An entry is **open** until its test has run, then **proven**, **disproven** or **open with a reason**; an entry settled before its test runs is **accepted as a risk** or **deferred**, with the decision that did so. A disproven entry is a finished result, not a failure of the work: the design changes before anything is estimated against it.
 
 ## How the spikes run
 
@@ -173,6 +173,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **If it fails** *(proposed during planning; no earlier document states it)*. Migrations run per tenant in the background behind a version check, and a deploy stops waiting for all of them — a change to the deploy procedure, not to the tenancy model.
 
+**Status.** Accepted as a risk before the design review — resolved in Epic 2 by the test above (DL-0211).
+
 ### V-13 — A sandboxed job can be given read access to two differently permissioned repositories
 
 **Claim.** An agent run can mount exactly the repositories in its review scope read-only, where those repositories carry different access rows, and reach nothing else — the control that keeps confidential guidance out of the editor-facing run.
@@ -182,3 +184,5 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 **Pass condition.** Both mounted repositories readable; **zero** successful reads outside them, **zero** writes, **zero** connections to any other host.
 
 **If it fails.** The two-run containment (`threat-model.md` T-01, T-02) cannot rest on the mount table, and stage 2's design reopens before any agent is built.
+
+**Status.** Deferred to release 0.2, where agent runs arrive; it shapes no story in 0.1 (DL-0211).

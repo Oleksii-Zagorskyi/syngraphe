@@ -45,9 +45,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - It blocks every membership I hold; only a platform administrator can lift it. There is no deleting an account (backlog B-022).
 
 **ST-0005** — As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to — so that people see and do exactly what their job requires (ADR-0007).
-- Rights: a viewing ladder (view canonical, view accepted, view pending, edit, create and edit), history rights (view previous canonical versions, view all history), acts (accept, freeze and unfreeze, make canonical), and part rights (create or delete appendices; upload, replace or delete attachments).
+- Rights: a viewing ladder (view canonical, view accepted, view pending, edit, create and edit), history rights (view previous canonical versions, view all history), acts (accept, freeze and unfreeze, make canonical, reserve for editing), and part rights (create or delete appendices; upload, replace or delete attachments).
 - A person holds the union of the rights of their groups linked to a document; nothing is granted to a person directly.
-- I cannot change a document's links while someone is editing it; I see who it is and ask them to finish, or force the release as a last resort (ST-0030).
+- I cannot change a document's links while someone is editing it; I see who it is and ask them to finish, or force the release as a last resort (ST-0030); for a reserved document, I end the reservation with a reason (ST-0070).
 - *Synthetic example:* a finance policy linked to *Accountants* (view canonical), *Finance reviewers* (accept) and *Executives* (make canonical).
 
 **ST-0006** — As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links — so that I can answer who could see a document at any past date and who granted that.
@@ -128,8 +128,20 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - While I hold it, nobody else can open its edit tab. Holds are over the whole document.
 
 **ST-0018** — As any user of a document, I see that it is being edited, in the document list and on the document, so that I know to wait.
-- I see the fact, not the person; only a tenant administrator sees who holds it (ADR-0006).
+- I see the fact, not the person; for an ordinary hold only a tenant administrator sees who holds it (ADR-0006).
+- A reserved document reads *reserved for editing, since* its date; if I hold *edit* or *accept* on it I also see who reserved it, so I know whom to ask (DL-0226).
 - The content of the edits is never visible until a version is committed.
+
+**ST-0069** — As an editor holding *reserve for editing*, I reserve a document I am editing, so that I can mature the next iteration over days or weeks and let peers see it only when it is ready.
+- I reserve from an editing session I already have; while someone else holds the document there is nothing to reserve, so reservations are never contested (DL-0218, DL-0219).
+- While it is reserved it is not released for inactivity; my draft waits between sittings, and I finish it once, producing one version (DL-0213).
+- I may cancel the reservation, which makes it an ordinary hold again.
+- I cannot reserve a frozen document (DL-0223). I may hold several reservations; each document is on its own (DL-0227).
+- While it is reserved, as while any hold lasts, nobody can freeze it or change its groups — and nobody else can review it; that is agreed with me outside the platform, or an administrator ends my reservation (DL-0223, DL-0224).
+
+**ST-0070** — As an editor whose reservation an administrator ended, I learn who ended it, when and why, and keep my work, so that weeks of editing are never lost.
+- The notification and the notice on the document carry the administrator's reason (DL-0225).
+- If nobody committed since, I take the document back and may reserve it again; otherwise my draft opens read-only as changes against the current text, and I can switch the comparison to any version I may see.
 
 **ST-0019** — As an editor, I write and format text with headings, lists, bold, underline, italics, callouts and tables, so that a policy reads as a policy. *(skeleton)*
 - Nothing outside that set is available, and anything pasted that falls outside it is refused at the moment of pasting, never silently dropped. The refusal names the offending lines and offers a conversion, shown before it is applied, and links to a help page listing what is allowed (DL-0171).
@@ -188,13 +200,17 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Images above the size limit are refused with the limit stated.
 - All metadata is removed on upload — no location, no device.
 
-**ST-0029** — As an editor, I press *send for review*, see what my changes introduce, and either continue editing or commit. *(skeleton)*
-- The commit carries a summary I may edit before sending. It is for whoever reviews the run, and shows only with the version in pending edits (DL-0197).
+**ST-0029** — As an editor, I press *finish editing*, see what my changes introduce, and either continue editing or commit. *(skeleton)*
+- The commit carries a summary I may edit before sending. It is for whoever reviews the run, and shows with the version in pending edits (DL-0197) — or, for a version I accepted in the same act, in its history entry (DL-0222).
 - In stage 1 the analyses shown are the mechanical ones; the agent's arrive in stage 2 on the same screen.
+- If I also hold *accept*, the screen offers *accept as N.M* — my version and the acceptance of the whole run, other editors' versions included, in one act — and *create version N.M-X*, which leaves it pending; each shows the number that results, such as *accept as 2.4* and *create version 2.3-1* on a document accepted at 2.3 (DL-0222).
+- Finishing ends a reservation (DL-0220).
 
 **ST-0030** — As a tenant administrator, I release a document held by someone who has gone quiet, so that work is not blocked by an absence.
-- I see who holds it; nobody else does.
-- A hold is also released on its own after a period without activity — 30 minutes unless I set another for my organisation — once its holder has been asked whether they are still working and has not answered.
+- I see who holds it; for a reserved document, so do holders of *edit* or *accept* on it (DL-0226).
+- I can also end a reservation, giving a reason; its holder is notified with who, when and why, and the act is audited (DL-0225, ST-0070).
+- A hold is also released on its own after a period without activity — 30 minutes unless I set another for my organisation — once its holder has been asked whether they are still working and has not answered. A reserved hold is not (ADR-0009).
+- I am notified when a reservation starts, and I can list every reservation with its holder and start date (DL-0226, DL-0227).
 - The interrupted draft is preserved, never discarded. If nobody has committed since, its holder takes it back and continues; otherwise it opens read-only as changes against the current text.
 
 ---
@@ -226,7 +242,8 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0036** — As a reviewer, I accept the run of versions since the last acceptance, making the current text the accepted baseline. *(skeleton)*
 - The acceptance is recorded in the document itself, so it survives export and needs no second system to be believed.
 - Acceptance covers the whole document. Accepting only part of a run is a backlog refinement.
-- I may accept work I wrote myself; the record, not a rule, is what makes that accountable (DL-0092).
+- I may accept work I wrote myself; the record, not a rule, is what makes that accountable (DL-0092). Finishing my own session, I can do both in one act (ST-0029).
+- I cannot accept, return or correct while the document is reserved; the screen says it is reserved and by whom (DL-0224).
 - Every author whose text I changed receives a **correction notice** — their text, the accepted text, and that I changed it (DL-0102).
 
 **ST-0052** — As a reviewer, I return a run without accepting it, giving a reason, so that I can decline work that needs rework instead of holding it or unpicking it sentence by sentence.
@@ -245,7 +262,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Editions and approval
 
 **ST-0038** — As a holder of the freeze right, I freeze a document, so that it stays as accepted while something outside it is resolved — an approval, a discussion with whoever approves, work in another document. *(skeleton)*
-- I can freeze it only when nobody is editing it; otherwise I ask the person editing, outside the platform, to finish, or wait for the inactivity release.
+- I can freeze it only when nobody is editing it; otherwise I ask the person editing, outside the platform, to finish, or wait for the inactivity release. A reserved document has no inactivity release: I ask its holder, or an administrator ends the reservation (DL-0223).
 - I may say what it waits for. Editors cannot open an editor while it is frozen; people holding *accept* and *edit* can, and accept their fixes as the next number, *1.4* (DL-0189).
 
 **ST-0039** — As a holder of the make-canonical right, I make a frozen document canonical, so that its latest accepted version becomes the next edition — *2.0*. *(skeleton)*

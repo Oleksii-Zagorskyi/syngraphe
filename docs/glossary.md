@@ -104,9 +104,21 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
 
-**discard my edits** · відкинути мої правки · *proposed* — the third button on the send-for-review screen: throws away the whole draft, text and file operations alike, after the user confirms. The document is left as it was.
+**discard my edits** · відкинути мої правки · *proposed* — a button on the send-for-review screen: throws away the whole draft, text and file operations alike, after the user confirms. The document is left as it was.
 
-**send for review** · відправити на розгляд · *fixed* — the button that commits. There is no Save.
+**finish editing** · завершити редагування · *proposed* — the control that closes an editing session and opens the send-for-review screen, for every holder (DL-0222).
+
+**send for review** · відправити на розгляд · *fixed* — the button on the send-for-review screen that commits, for a holder of *edit* alone. There is no Save.
+
+**create version N.M-X** · створити версію N.M-X · *proposed* — for a holder of *accept* as well: commits the draft as a version that waits in pending edits. The button carries the number the version gets — *create version 2.3-1* (DL-0222).
+
+**accept as N.M** · погодити як N.M · *proposed* — for a holder of *accept* as well: commits the draft and accepts the whole run since the last acceptance in one act. The button carries the accepted number that results — *accept as 2.4* (DL-0222).
+
+**reserve for editing** · зарезервувати для редагування · *proposed* — keep the document one holds for days or weeks: the hold is no longer released for inactivity. Taken from an open editing session, by a member of a group holding the right of the same name (ADR-0009).
+
+**reserved for editing** · зарезервовано для редагування · *proposed* — what others see on a reserved document, with the date it began; holders of *edit* or *accept* on it, and administrators, also see by whom.
+
+**cancel the reservation** · скасувати резервування · *proposed* — return a reserved hold to an ordinary one, released again after inactivity.
 
 **accept edits** · погодити правки · *fixed* — make the current text the accepted baseline.
 
@@ -154,7 +166,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **organisation** · організація · *proposed* — what a user sees. The internal word is *tenant*, and it never appears in the interface.
 
-**access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical; create or delete appendices; upload, replace or delete attachments. Held over a whole document.
+**access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical, reserve for editing; create or delete appendices; upload, replace or delete attachments. Held over a whole document.
 
 **group** · група · *proposed* — a set of people in one organisation holding a set of access rights, linked to the documents those rights apply to. The only way a person holds a right on a document.
 
@@ -202,7 +214,9 @@ English only. If one of these reaches the interface, that is a defect.
 
 **audit event** — a recorded action with its actor, object and time.
 
-**hold** — the exclusive claim an editor has while editing.
+**hold** — the exclusive claim an editor has while editing. A reserved hold is not released for inactivity (ADR-0009).
+
+**long hold** — the design name for a reserved hold, used in the decisions that led to it (DL-0212 to DL-0217).
 
 **normal form** — one sentence per line, whitelisted constructs, applied before every commit.
 

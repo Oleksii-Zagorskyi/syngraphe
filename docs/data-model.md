@@ -236,7 +236,7 @@ erDiagram
     GROUP_RIGHT {
         uuid id PK
         uuid group FK
-        string right "view_canonical | view_accepted | view_pending | edit | create_and_edit | view_previous_canonical | view_all_history | accept | freeze | make_canonical | create_appendix | delete_appendix | upload_attachment | replace_attachment | delete_attachment"
+        string right "view_canonical | view_accepted | view_pending | edit | create_and_edit | view_previous_canonical | view_all_history | accept | freeze | make_canonical | reserve_for_editing | create_appendix | delete_appendix | upload_attachment | replace_attachment | delete_attachment"
     }
     GROUP_MEMBER {
         uuid id PK
@@ -351,9 +351,11 @@ erDiagram
         uuid document FK
         uuid user FK
         datetime acquired_at
-        datetime last_activity_at "released after the tenant's inactivity timeout (ADR-0006)"
+        datetime last_activity_at "released after the tenant's inactivity timeout, unless reserved (ADR-0006)"
+        datetime reserved_at "set while reserved for editing; exempt from the inactivity release (ADR-0009)"
         datetime released_at
         uuid released_by FK "set when forced"
+        string release_reason "required when an administrator ends a reservation (DL-0225)"
     }
     DRAFT {
         uuid id PK
@@ -397,11 +399,13 @@ erDiagram
 
 **A freeze is a state of the document, an edition is a canonical version** (DL-0189). A `FREEZE` row with no `ended_at` means the document is frozen: only holders of both *accept* and *edit* may open an editor. It ends by *make canonical*, which writes an `EDITION` for the latest accepted version, or by *unfreeze*. The three stances fall out of these tables without a state column anywhere: canonical is the latest `EDITION`; accepted is the latest `ACCEPTANCE`; pending is every `VERSION` after it.
 
+**A reservation is a mark on `HOLD`, not a table** (ADR-0009, DL-0221). `reserved_at` set means the hold is exempt from the inactivity release; cancelling clears it and sets `last_activity_at` to that moment, so the inactivity clock starts afresh. It is set only by a holder whose group linked to the document holds both `reserve_for_editing` and `edit`, and never while a `FREEZE` is open. As for any open hold, freezing, `DOCUMENT_GROUP` changes and correction are refused; while it is set, acceptance and return by anyone else are refused as well — the holder's own *accept as N.M* ends the reservation in the same act. Starting, cancelling and ending a reservation each write an `AUDIT_EVENT`, so the record keeps every reservation after `reserved_at` is cleared (DL-0221). An administrator ending it also records `released_by` and `release_reason`, puts the draft's state in that event, and notifies the holder (`reservation_ended_by_admin`); starting one notifies the tenant administrator (`reservation_started`).
+
 **`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or after the inactivity timeout — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered.
 
-**`DRAFT_FILE` holds uploads until they are committed** (DL-0175). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by *send for review*. It is the first copy of that content, not a second one.
+**`DRAFT_FILE` holds uploads until they are committed** (DL-0175). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by the commit that finishes the session. It is the first copy of that content, not a second one.
 
-**`OPEN_EDITOR` is what makes several editors safe** (DL-0167). A capture is accepted only while its range of the draft still hashes to `base_hash`; an editor with no heartbeat past the timeout is closed; *send for review* is refused while any row is open.
+**`OPEN_EDITOR` is what makes several editors safe** (DL-0167). A capture is accepted only while its range of the draft still hashes to `base_hash`; an editor with no heartbeat past the timeout is closed; finishing is refused while any row is open.
 
 ## Content index, entities, images
 
@@ -468,7 +472,7 @@ erDiagram
         uuid user FK
         uuid document FK
         string category "document | administrative (DL-0204)"
-        string event "version_committed | accepted | frozen | unfrozen | made_canonical | hold_expiring | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin | email_failed"
+        string event "version_committed | accepted | frozen | unfrozen | made_canonical | hold_expiring | reservation_started | reservation_ended_by_admin | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin | email_failed"
         uuid version FK
         datetime created_at
         datetime read_at
