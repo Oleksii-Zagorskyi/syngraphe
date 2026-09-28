@@ -1,0 +1,36 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Hosts" %} · Syngraphē{% endblock %}
+{% block section %}
+<h1>{% translate "Hosts" %}</h1>
+{% if refusal %}<p class="err" role="alert">{{ refusal }}</p>{% endif %}
+<table>
+  <thead><tr><th>{% translate "Host" %}</th><th>{% translate "Belongs to" %}</th><th>{% translate "Default" %}</th><th></th></tr></thead>
+  <tbody>
+    {% for item in rows %}
+    <tr>
+      <td>{{ item.row.host }}</td>
+      <td>{% if item.belongs_to %}{{ item.belongs_to.name }}{% else %}{% translate "Platform" %}{% endif %}</td>
+      <td>{% if item.row.is_default %}(•){% else %}
+        <form method="post" class="inline">{% csrf_token %}<input type="hidden" name="action" value="default"><input type="hidden" name="id" value="{{ item.row.id }}"><button class="btn" type="submit" aria-label="{% translate 'Make default' %} — {{ item.row.host }}">( )</button></form>
+      {% endif %}</td>
+      <td>{% if not item.row.is_default %}
+        <form method="post" class="inline">{% csrf_token %}<input type="hidden" name="action" value="remove"><input type="hidden" name="id" value="{{ item.row.id }}"><button class="icon" type="submit" aria-label="{% translate 'Remove' %} — {{ item.row.host }}">✕</button></form>
+      {% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<form method="post" class="toolbar">{% csrf_token %}
+  <input type="hidden" name="action" value="add">
+  <label class="visually-hidden" for="{{ form.host.id_for_label }}">{{ form.host.label }}</label>
+  {{ form.host }}
+  <label class="visually-hidden" for="belongs_to">{% translate "Belongs to" %}</label>
+  <select id="belongs_to" name="belongs_to">
+    <option value="platform">{% translate "Platform" %}</option>
+    {% for organisation in organisations %}<option value="{{ organisation.number }}">{{ organisation.name }}</option>{% endfor %}
+  </select>
+  <button class="btn primary" type="submit">{% translate "+ Add a host" %}</button>
+</form>
+<p class="note">{% translate "Every change is audited. A removed host stops answering within thirty seconds." %}</p>
+{% endblock %}

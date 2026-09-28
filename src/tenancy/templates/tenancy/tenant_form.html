@@ -1,0 +1,20 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Create an organisation" %} · Syngraphē{% endblock %}
+{% block section %}
+<section class="dlg">
+  <h1>{% translate "Create an organisation" %}</h1>
+  <form method="post" action="{% url 'tenant_new' %}" novalidate>
+    {% csrf_token %}
+    <p class="note"><label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label></p>
+    <p>{{ form.name }}</p>
+    {% for error in form.name.errors %}<p class="err">{{ error }}</p>{% endfor %}
+    <p class="note"><label for="{{ form.first_administrator.id_for_label }}">{{ form.first_administrator.label }}</label></p>
+    <p>{{ form.first_administrator }}</p>
+    {% for error in form.first_administrator.errors %}<p class="err">{{ error }}</p>{% endfor %}
+    <p class="note">{% translate "A registered person becomes its administrator at once. An organisation is never created without an administrator." %}</p>
+    <button class="btn primary" type="submit">{% translate "Create" %}</button>
+    <a class="btn" href="{% url 'tenants' %}">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

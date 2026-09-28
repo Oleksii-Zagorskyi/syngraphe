@@ -9,6 +9,7 @@
 <script src="{% static 'htmx.min.js' %}" defer></script>
 </head>
 <body>
+{% block header %}
 <header class="shell">
   <div class="wrap">
     <a class="logo" href="/">Syngraphē</a>
@@ -32,6 +33,7 @@
     {% endif %}
   </div>
 </header>
+{% endblock %}
 <main class="wrap">
 {% block content %}{% endblock %}
 </main>

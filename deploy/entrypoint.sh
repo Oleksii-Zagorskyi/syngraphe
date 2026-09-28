@@ -1,5 +1,6 @@
 #!/bin/sh
-# Check the repository root, bring every schema up to date, then run the service's command.
+# Check the repository root, bring every schema up to date, collect the static files, then run
+# the service's command.
 set -eu
 
 if [ ! -w /srv/repos ]; then
@@ -9,5 +10,6 @@ fi
 
 python manage.py migrate_schemas
 python manage.py seed_languages
+python manage.py collectstatic --noinput --verbosity 0
 
 exec "$@"

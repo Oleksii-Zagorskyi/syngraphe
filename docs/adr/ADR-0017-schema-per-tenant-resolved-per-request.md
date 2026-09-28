@@ -6,7 +6,8 @@ aliases:
 status: accepted
 date: 2026-09-28
 supersedes: []
-superseded_by: []
+superseded_by:
+  - DL-0290 (in part — creating a tenant migrates its schema inside a request)
 ---
 
 # ADR-0017: Schema per tenant, resolved per request by the platform's own layer

@@ -115,7 +115,22 @@ def test_secrets_stay_out_of_the_repr() -> None:
     assert "test-only-not-a-password" not in text
 
 
-def test_empty_trusted_proxies_trusts_nothing() -> None:
-    loaded = config.load(dict(COMPLETE, TRUSTED_PROXIES=""))
+def test_none_trusts_no_proxy() -> None:
+    loaded = config.load(dict(COMPLETE, TRUSTED_PROXIES="none"))
 
     assert loaded.trusted_proxies == ()
+
+
+@pytest.mark.parametrize("value", ["", "???"])
+def test_trusted_proxies_must_be_decided(value: str) -> None:
+    with pytest.raises(config.ConfigurationError) as refused:
+        config.load(dict(COMPLETE, TRUSTED_PROXIES=value))
+
+    assert "TRUSTED_PROXIES" in str(refused.value)
+
+
+def test_a_network_of_every_address_is_refused() -> None:
+    with pytest.raises(config.ConfigurationError) as refused:
+        config.load(dict(COMPLETE, TRUSTED_PROXIES="0.0.0.0/0"))
+
+    assert "TRUSTED_PROXIES" in str(refused.value)

@@ -29,7 +29,7 @@ before inventing a new location.
 | `prompts/` | **Canonical** prompt and heuristic text, one directory per heuristic. Arrives with 0.2 |
 | `evals/` | Labelled cases and results for the prompts. Pairs with `prompts/`, one directory per heuristic |
 | `deploy/` | Dockerfile, entrypoint, Gunicorn configuration and Compose overrides |
-| `scripts/` | Operational scripts. Idempotent, resumable, sanity-checked before any destructive step |
+| `scripts/` | Operational and documentation scripts. Idempotent, resumable, sanity-checked before any destructive step |
 | `.github/workflows/` | CI |
 | `compose.yaml` | At the root, so `docker compose up` runs from a checkout with `.env` filled |
 
@@ -68,7 +68,8 @@ refuses to start while one remains, naming every missing key at once.
 # prepare a fresh clone; again whenever the lockfile changes
 uv sync --locked
 
-# run the stack: web, worker, PostgreSQL, Redis; the shared schema migrates on start
+# run the stack: web, worker, PostgreSQL, Redis; every schema migrates on start
+mkdir -p .repos
 docker compose up
 
 # the developer's shape: source bind-mounted, the development server, the

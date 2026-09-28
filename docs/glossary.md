@@ -164,9 +164,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **block / lift the block** · заблокувати / розблокувати · *proposed* — end access, and restore it as it stood, at one of three levels: a tenant administrator blocks a person's membership in their organisation and lifts that block (ST-0004, ST-0072); a platform administrator blocks a whole organisation and lifts that block (ST-0065, ST-0071); a person blocks their own account (ST-0066), a block nothing in release 0.1 lifts (DL-0254). *Unblock* is not a second name for it.
 
-**blocked** · заблоковано · *proposed* — the state of a blocked membership, account or tenant.
+**blocked** · заблоковано · *proposed* — the state of a blocked membership, account or tenant; of an organisation, *заблокована*.
 
-**migrating** · налаштовується · *proposed* — the state of a new tenant whose schema is not yet fully migrated: no request reaches it until the migration completes and it becomes active (DL-0280).
+**being set up** · налаштовується · *proposed* — what the interface shows for a new organisation whose schema is not yet fully migrated, the state `migrating`: no request reaches it until the migration completes and it becomes active (DL-0280, DL-0287).
 
 ---
 
@@ -192,6 +192,16 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 ## Access and organisation
 
 **organisation** · організація · *proposed* — what a user sees. The internal word is *tenant*, and it never appears in the interface.
+
+**sign in / sign out** · увійти / вийти · *proposed* — the page is *вхід*.
+
+**host** · хост · *proposed* — a name, with an optional port, the platform answers on: the platform's own, or an organisation's domain (ADR-0008).
+
+**default** (host) · основний · *proposed* — the one host of a set that links and mail use.
+
+**platform** · платформа · *proposed* — the installation as a whole, above every organisation; what a platform administrator administers.
+
+**active** · активна · *proposed* — the state of an organisation people can use; with *blocked* (заблокована) and *being set up* (налаштовується), the three an organisation shows.
 
 **access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical, reserve for editing; create or delete appendices; upload, replace or delete attachments. Held over a whole document. Some include others: each viewing right the ones below it; *accept*, *freeze* and *reserve for editing* include *edit* (ADR-0016); *make canonical* includes *view accepted* (DL-0234).
 

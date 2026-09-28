@@ -33,7 +33,9 @@ def make_tenant() -> Callable[..., Any]:
 
 @pytest.fixture
 def run_request() -> Callable[..., tuple[HttpResponse, dict[str, Any]]]:
-    """Run one request through `TenancyMiddleware` alone and record what the view would see."""
+    """Run one request through the trusted-proxy step and `TenancyMiddleware`, in the settings'
+    order, and record what the view would see."""
+    from syngraphe.proxy import TrustedProxyMiddleware
     from tenancy.middleware import TenancyMiddleware
 
     def run(
@@ -74,7 +76,23 @@ def run_request() -> Callable[..., tuple[HttpResponse, dict[str, Any]]]:
                 seen["search_path"] = cursor.fetchone()[0]
             return HttpResponse("ok")
 
-        response = TenancyMiddleware(view)(request)
+        response = TrustedProxyMiddleware(TenancyMiddleware(view))(request)
         return response, seen
 
     return run
+
+
+@pytest.fixture
+def platform_admin() -> Callable[..., tuple[Any, Any]]:
+    """A client signed in as a platform administrator on the platform host."""
+    from django.test import Client
+
+    def make(email: str = "p.admin@example.test") -> tuple[Any, Any]:
+        from identity.models import User
+
+        user = User.objects.create_user(email, "Tr4vel-Plan-Ok", is_platform_admin=True)
+        client = Client(headers={"host": "127.0.0.1"})
+        client.force_login(user)
+        return client, user
+
+    return make

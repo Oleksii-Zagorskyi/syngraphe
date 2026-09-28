@@ -17,6 +17,7 @@ from django.http import (
 )
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.cache import add_never_cache_headers
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
@@ -70,7 +71,10 @@ def not_found(request: HttpRequest, exception: Exception | None = None) -> HttpR
     The one answer for an address that does not exist and an object the reader may not open;
     every view returns it for what may not be seen, and Django's 404 handler is this function.
     """
-    return render(request, "shell/nothing_to_show.html", status=404)
+    response = render(request, "shell/nothing_to_show.html", status=404)
+    # Every refusal carries the same headers, whether or not its view is itself never cached.
+    add_never_cache_headers(response)
+    return response
 
 
 def _is_platform_admin(request: HttpRequest) -> bool:
@@ -88,12 +92,8 @@ def landing(request: HttpRequest) -> HttpResponse:
     return render(request, "shell/landing.html")
 
 
-@login_required
-def administration(request: HttpRequest) -> HttpResponse:
-    """The two-pane frame: *Platform* for platform administrators, *Organisation* for
-    administrators of the chosen organisation; anyone else gets the not-found answer."""
-    if not _is_administrator(request):
-        return not_found(request)
+def frame(request: HttpRequest) -> dict[str, Any]:
+    """What the administration frame needs around any section: its panes and the selector."""
     context: dict[str, Any] = {
         "platform_pane": _is_platform_admin(request),
         # On a tenant's own domain the host names the organisation; there is nothing to choose.
@@ -104,7 +104,16 @@ def administration(request: HttpRequest) -> HttpResponse:
         context["organisations"] = Tenant.objects.filter(state=TenantState.ACTIVE).order_by(
             "number"
         )
-    return render(request, "shell/administration.html", context)
+    return context
+
+
+@login_required
+def administration(request: HttpRequest) -> HttpResponse:
+    """The two-pane frame: *Platform* for platform administrators, *Organisation* for
+    administrators of the chosen organisation; anyone else gets the not-found answer."""
+    if not _is_administrator(request):
+        return not_found(request)
+    return render(request, "shell/administration.html", frame(request))
 
 
 @login_required

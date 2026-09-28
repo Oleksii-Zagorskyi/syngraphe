@@ -11,10 +11,10 @@ date: 2026-09-23
 # Runbook
 
 
-> **Status.** Written before the system it operates. Every procedure here is
-> the intended one; none has been executed against a running deployment, and a
-> restore that nobody has rehearsed is a hypothesis. The rehearsal is a task in
-> its own right and is not done.
+> **Status.** § Deploy, § First run and § Create an organisation name commands that run. § Backup and
+> § Restore were written before the system they operate: every procedure there is
+> the intended one, none has been executed against a running deployment, and the
+> rehearsal of a restore is a task of its own.
 
 How to deploy the platform, back it up, and **restore it when something has gone wrong**. A backup nobody has restored is a hypothesis, so the restore procedure is the part of this file that matters most, and it is written to be followed under pressure.
 
@@ -38,13 +38,42 @@ Every step below says **where it runs** — the host shell, or inside a named co
 **Development host.** On the host, as the deploying user, in the repository checkout:
 
 ```bash
-cp .env.example .env     # fill in every ??? — the app reports every missing key at once
-docker compose up -d
+cp .env.example .env         # fill in every ??? — the application reports every missing key at once
+mkdir -p .repos              # or the directory GIT_REPO_ROOT_HOST names
+docker compose up -d --build # web migrates every schema and seeds the language lists before it answers
+docker compose ps --format '{{.Service}} {{.State}}'    # web, worker, db, redis — each running
+curl -s http://127.0.0.1:8000/health/                    # {"database": "ok", "redis": "ok"}
 ```
 
-Then migrate every schema ⟨command: fixed when the stack is stood up⟩, and confirm the health endpoint answers and a platform administrator can sign in **on the host**, not only locally.
+The health check uses the port `WEB_PORT` names, `8000` by default. **Behind the host's reverse proxy**, set in `.env`:
 
-**Production** is a deployment decided when the platform is ready to leave development (DL-0117). Its procedure is written with the deployment architecture at first deploy; until then this section is the development host's.
+- `WEB_PORT` — the loopback port the proxy forwards to;
+- `TRUSTED_PROXIES` — `none` on an installation reached directly; behind a proxy, where the proxy's connections arrive from as `web` sees them. Through Compose's published port that is the gateway of the project's network, not the loopback: `docker network inspect <project>_default --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'`. The client's address, the scheme and the host are then read from the last entry of the proxy's `X-Forwarded-For`, `X-Forwarded-Proto` and `X-Forwarded-Host`: the proxy must **append** the client's address to `X-Forwarded-For` and **overwrite** the other two, never pass a client's own values through. Set to `none` behind a proxy, every client would share one address for sign-in throttling and the host check would see the upstream address instead of the installation's name;
+- `SITE_HTTPS=true` when the proxy terminates TLS, so the session and CSRF cookies are sent over HTTPS only; `false` for an installation reached over plain HTTP, such as a check through a tunnel to `127.0.0.1`, where secure-only cookies would never be sent and nobody could sign in.
+
+The containers restart with the host's Docker unless stopped by hand. **After an update:** `git pull`, then `docker compose up -d --build`; the migrations run as `web` starts. A migration that failed for one organisation is completed with `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being the organisation's number; nothing else is needed.
+
+**Production** runs behind the operator's reverse proxy (DL-0281); its procedure arrives with the production Compose override, and until then this section is the development host's.
+
+## First run
+
+Once, on a fresh installation, to create the first platform administrator (DL-0231):
+
+```bash
+docker compose exec web python manage.py setup_token --host <the installation's host name>
+```
+
+The command prints a token, valid once for sixty minutes, and makes that host the default platform host; the running `web` accepts the host within thirty seconds. Open `/setup/` on the installation's host name, enter the token, then the administrator's email address and a password. The administrator is signed in and lands in Administration.
+
+- **The token expired or was lost:** run the command again. A new token replaces the old one.
+- **Afterwards** the page answers *Nothing to show here*, and the command refuses with `A platform administrator already exists.`
+
+## Create an organisation
+
+In Administration › Platform › Organisations, *Create an organisation*: its name, and the email address of a registered person who becomes its first administrator. The organisation gets the next number, and its schema is created and migrated in the same act; it is listed *active*.
+
+- **A migration that failed** leaves the organisation listed *being set up*, reachable by nobody, with the failure in the audit log. Once the fault is fixed: `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being its number; it becomes active.
+- **Its own domain**, if it has one: Administration › Platform › Hosts, *Add a host*, belonging to the organisation. Its first domain is its default. A removed host stops answering within thirty seconds.
 
 ## Backup
 

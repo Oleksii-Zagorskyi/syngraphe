@@ -1,0 +1,34 @@
+{% extends "shell/frame.html" %}
+{% load i18n %}
+{% block title %}{% translate "Set up the platform" %}{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="word">Syngraphē</div>
+  <form method="post" action="{% url 'setup' %}" novalidate>
+    {% csrf_token %}
+    {% if step == 1 %}
+    <h1>{% translate "Set up the platform" %}</h1>
+    <p class="note">{% translate "The first step creates the first platform administrator." %}</p>
+    <label for="{{ form.token.id_for_label }}">{{ form.token.label }}</label>
+    {{ form.token }}
+    <div class="note">{% blocktranslate trimmed %}Printed by the install command <code>setup_token</code>; it works once, for sixty minutes.{% endblocktranslate %}</div>
+    <div class="go"><button class="btn primary" type="submit">{% translate "Continue" %}</button></div>
+    {% else %}
+    <h1>{% translate "The first platform administrator" %}</h1>
+    <p class="note">{% translate "This person administers the platform: its organisations, hosts and administrators." %}</p>
+    {% for error in form.non_field_errors %}<div class="err">{{ error }}</div>{% endfor %}
+    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+    {{ form.email }}
+    {% for error in form.email.errors %}<div class="err">{{ error }}</div>{% endfor %}
+    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+    {{ form.password }}
+    <div class="note">{% translate "At least 10 characters, with an uppercase letter (A–Z), a lowercase letter (a–z), a digit (0–9) and a special character; only characters of a standard US keyboard." %}</div>
+    {% for error in form.password.errors %}<div class="err">{{ error }}</div>{% endfor %}
+    <label for="{{ form.password_again.id_for_label }}">{{ form.password_again.label }}</label>
+    {{ form.password_again }}
+    {% for error in form.password_again.errors %}<div class="err">{{ error }}</div>{% endfor %}
+    <div class="go"><button class="btn primary" type="submit">{% translate "Create the administrator" %}</button></div>
+    {% endif %}
+  </form>
+</section>
+{% endblock %}

@@ -7,7 +7,11 @@
     {% if platform_pane %}
     <section class="pane platform">
       <h2>{% translate "Platform" %}</h2>
-      <ul class="sections">{% block platform_sections %}{% endblock %}</ul>
+      <ul class="sections">{% block platform_sections %}
+        <li><a href="/administration/platform/hosts/">{% translate "Hosts" %}</a></li>
+        <li><a href="/administration/platform/tenants/">{% translate "Organisations" %}</a></li>
+        <li><a href="/administration/platform/administrators/">{% translate "Platform administrators" %}</a></li>
+      {% endblock %}</ul>
       {% if selector %}
       <form method="post" action="/administration/organisation/" class="selector">{% csrf_token %}
         <label for="organisation">{% translate "Organisation" %}</label>

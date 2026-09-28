@@ -74,12 +74,12 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 
 Sign in, accept an invitation, reset a password: small forms without navigation, each answering identically whether or not an address is known (ASR-17). On a tenant's own domain, signing in lands in that tenant.
 
-**The first-run page** creates the first platform administrator. It accepts only the one-time token the install command prints, then the administrator's email address and password; the token is single-use and expires, and once a platform administrator exists the page answers as an address that does not exist (DL-0231, T-19).
+**The first-run page** creates the first platform administrator. It accepts only the one-time token the install command `setup_token` prints, then the administrator's email address and password; the token is single-use and expires, and once a platform administrator exists the page answers as an address that does not exist (DL-0231, T-19).
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| the three forms | **0.1** — not yet drawn | ST-0008, ST-0054, ST-0055 | Epic 2; invitation and reset Epic 8 |
-| the first-run page | **0.1** — not yet drawn | ST-0057 | Epic 2 |
+| the three forms | **0.1** | ST-0008, ST-0054, ST-0055 | Epic 2; invitation and reset Epic 8 |
+| the first-run page | **0.1** | ST-0057 | Epic 2 |
 
 ## Document list
 
@@ -306,9 +306,9 @@ One area with two parts in a left pane: **Platform**, for platform administrator
 | Section | URL | Holds | Release | Stories | Built by |
 |---|---|---|---|---|---|
 | hosts | `/administration/platform/hosts/` | the platform's hosts and each tenant's, host with optional port, one default per set; every change audited (ADR-0008) | **0.1** | — | Epic 2 |
-| tenants | `…/platform/tenants/` | the organisations with their state and administrators; *block* | **0.1** | ST-0065 | Epic 2 |
-| tenants — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** — not yet drawn | ST-0001, ST-0071 | Epic 2 |
-| platform administrators | `…/platform/administrators/` | grant — not yet drawn; the last one cannot be removed or blocked | **0.1** | ST-0002 | Epic 2 |
+| organisations | `…/platform/tenants/` | the organisations with their state and administrators; *block* | **0.1** | ST-0065 | Epic 2 |
+| organisations — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** | ST-0001, ST-0071 | Epic 2 |
+| platform administrators | `…/platform/administrators/` | grant; the last one cannot be removed or blocked | **0.1** | ST-0002 | Epic 2 |
 | mail and outbox | `…/platform/mail/` | the platform's sender, the password write-only, *Send a test email*; the outbox with each email's status and attempts (DL-0202, DL-0203) | **0.1** | ST-0048, ST-0049 | Epic 14 |
 | audit log | `…/platform/audit/` | what people, the system and agents did | **0.1** | ST-0050 | Epic 12 |
 | heuristics | `…/platform/heuristics/` | the catalogue | **0.2** — drawn as a placeholder | — | — |

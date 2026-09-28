@@ -72,7 +72,7 @@ enters a document and what does not, and the record shows which of them did
 which.
 
 The heuristics are prompt text under version control with their own evaluation
-cases, in ``prompts/`` and ``evals/``. Neither directory
+cases, in `prompts/` and `evals/`. Neither directory
 exists yet: they arrive with 0.2.
 
 ## The design record
@@ -112,7 +112,7 @@ Docker with Compose, and `uv` for the check.
 
 ```bash
 cp .env.example .env         # fill every ???; the application refuses to start while one remains
-mkdir -p .repos              # the document repositories, written by the application's own user
+mkdir -p .repos              # the document repositories, written by the application's user, uid 1000
 docker compose up            # web, worker, PostgreSQL and Redis; the schema migrates on start
 curl http://127.0.0.1:8000/health/
 ```

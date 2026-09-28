@@ -1,0 +1,17 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Organisations" %} · Syngraphē{% endblock %}
+{% block section %}
+<h1>{% translate "Organisations" %}</h1>
+<table>
+  <thead><tr><th>#</th><th>{% translate "Organisation" %}</th><th>{% translate "State" %}</th><th>{% translate "Administrators" %}</th></tr></thead>
+  <tbody>
+    {% for row in rows %}
+    <tr><td>{{ row.tenant.number }}</td><td>{{ row.tenant.name }}</td><td>{{ row.state_label }}</td><td>{{ row.administrators }}</td></tr>
+    {% empty %}
+    <tr><td colspan="4" class="muted">{% translate "No organisations yet." %}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p><a class="btn primary" href="{% url 'tenant_new' %}">{% translate "+ Create an organisation" %}</a></p>
+{% endblock %}

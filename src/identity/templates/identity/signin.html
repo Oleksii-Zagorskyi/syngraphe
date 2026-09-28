@@ -1,0 +1,18 @@
+{% extends "shell/frame.html" %}
+{% load i18n %}
+{% block title %}{% translate "Sign in" context "page title" %}{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="word">Syngraphē</div>
+  <h1>{% translate "Sign in" context "page title" %}</h1>
+  {% if failed %}<div class="err" role="alert">{% translate "The email address or password is incorrect." %}</div>{% endif %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+    {{ form.email }}
+    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+    {{ form.password }}
+    <div class="go"><button class="btn primary" type="submit">{% translate "Sign in" %}</button></div>
+  </form>
+</section>
+{% endblock %}

@@ -92,18 +92,26 @@ class _Reader:
             return 0
 
     def networks(self, key: str) -> tuple[IPNetwork, ...]:
-        """A comma-separated list of addresses or CIDR networks.
+        """A comma-separated list of addresses or CIDR networks, or `none`.
 
-        A bare address is a one-host network.
+        A bare address is a one-host network. The key has no default: the operator writes the
+        proxy or `none`, so trusting nothing is a decision, never an omission (DL-0292).
         """
-        value = self.string(key, "")
+        value = self.string(key)
+        if value.lower() == "none":
+            return ()
         networks: list[IPNetwork] = []
         for item in filter(None, (part.strip() for part in value.split(","))):
             try:
-                networks.append(ipaddress.ip_network(item, strict=False))
+                network = ipaddress.ip_network(item, strict=False)
             except ValueError:
+                network = None
+            # A network of every address trusts any client to name itself.
+            if network is None or network.prefixlen == 0:
                 if key not in self.malformed:
                     self.malformed.append(key)
+                continue
+            networks.append(network)
         return tuple(networks)
 
     def url_path(self, key: str) -> str:

@@ -1,0 +1,12 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Platform administrators" %} · Syngraphē{% endblock %}
+{% block section %}
+<h1>{% translate "Platform administrators" %}</h1>
+<table>
+  <thead><tr><th>{% translate "Person" %}</th></tr></thead>
+  <tbody>
+    {% for person in administrators %}<tr><td>{{ person.display_name|default:person.email }}</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

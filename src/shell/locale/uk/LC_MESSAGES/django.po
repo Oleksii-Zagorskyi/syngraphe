@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syngraphē\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-28 17:08+0000\n"
+"POT-Creation-Date: 2026-09-28 19:29+0000\n"
 "PO-Revision-Date: 2026-09-28 17:08+0000\n"
 "Last-Translator: Oleksii Zagorskyi\n"
 "Language-Team: uk\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: access/forms.py:10
+#: access/forms.py:10 tenancy/forms.py:14
 msgid "Name"
 msgstr "Назва"
 
@@ -94,6 +94,7 @@ msgid "Members"
 msgstr "Учасники"
 
 #: access/templates/access/group_members.html:11
+#: tenancy/templates/tenancy/hosts.html:18
 msgid "Remove"
 msgstr "Вилучити"
 
@@ -106,7 +107,7 @@ msgid "Add"
 msgstr "Додати"
 
 #: access/templates/access/groups.html:3 access/templates/access/groups.html:6
-#: shell/templates/shell/administration.html:26
+#: shell/templates/shell/administration.html:30
 msgid "Groups"
 msgstr "Групи"
 
@@ -115,6 +116,7 @@ msgid "New group"
 msgstr "Нова група"
 
 #: access/templates/access/groups.html:11
+#: tenancy/templates/tenancy/tenant_form.html:16
 msgid "Create"
 msgstr "Створити"
 
@@ -138,35 +140,282 @@ msgstr "учасники…"
 msgid "No groups yet."
 msgstr "Груп ще немає."
 
-#: tenancy/middleware.py:34
+#: identity/forms.py:16
+msgid "Setup token"
+msgstr "Токен налаштування"
+
+#: identity/forms.py:27 identity/forms.py:70
+msgid "Email address"
+msgstr "Адреса електронної пошти"
+
+#: identity/forms.py:29 identity/forms.py:86 tenancy/forms.py:20
+msgid "Enter a valid email address."
+msgstr "Введіть правильну адресу електронної пошти."
+
+#: identity/forms.py:33 identity/forms.py:75
+msgid "Password"
+msgstr "Пароль"
+
+#: identity/forms.py:38
+msgid "Password again"
+msgstr "Повторіть пароль"
+
+#: identity/forms.py:48
+msgid "This address already belongs to an account."
+msgstr "Обліковий запис із цією адресою вже існує."
+
+#: identity/forms.py:64
+msgid "The two passwords differ."
+msgstr "Паролі не збігаються."
+
+#: identity/passwords.py:23
+msgid "A password may contain only characters of a standard US keyboard."
+msgstr ""
+"Пароль може містити лише символи стандартної англійської (US) розкладки "
+"клавіатури."
+
+#: identity/passwords.py:35
+msgid ""
+"This password must contain an uppercase letter, a lowercase letter, a digit "
+"and a special character."
+msgstr ""
+"Пароль має містити велику літеру, малу літеру, цифру та спеціальний символ."
+
+#: identity/passwords.py:43
+msgid ""
+"An uppercase letter (A–Z), a lowercase letter (a–z), a digit (0–9) and a "
+"special character; only characters of a standard US keyboard."
+msgstr ""
+"Велика літера (A–Z), мала літера (a–z), цифра (0–9) та спеціальний символ; "
+"лише символи стандартної англійської (US) розкладки клавіатури."
+
+#: identity/passwords.py:60
+msgid "The password is too similar to the email address."
+msgstr "Пароль надто схожий на адресу електронної пошти."
+
+#: identity/templates/identity/setup.html:3
+#: identity/templates/identity/setup.html:10
+msgid "Set up the platform"
+msgstr "Налаштування платформи"
+
+#: identity/templates/identity/setup.html:11
+msgid "The first step creates the first platform administrator."
+msgstr "Перший крок створює першого адміністратора платформи."
+
+#: identity/templates/identity/setup.html:14
+msgid ""
+"Printed by the install command <code>setup_token</code>; it works once, for "
+"sixty minutes."
+msgstr ""
+"Його виводить команда встановлення <code>setup_token</code>; його можна "
+"використати один раз протягом шістдесяти хвилин."
+
+#: identity/templates/identity/setup.html:15
+msgid "Continue"
+msgstr "Продовжити"
+
+#: identity/templates/identity/setup.html:17
+msgid "The first platform administrator"
+msgstr "Перший адміністратор платформи"
+
+#: identity/templates/identity/setup.html:18
+msgid ""
+"This person administers the platform: its organisations, hosts and "
+"administrators."
+msgstr ""
+"Ця особа керує платформою: її організаціями, хостами та адміністраторами."
+
+#: identity/templates/identity/setup.html:25
+msgid ""
+"At least 10 characters, with an uppercase letter (A–Z), a lowercase letter "
+"(a–z), a digit (0–9) and a special character; only characters of a standard "
+"US keyboard."
+msgstr ""
+"Щонайменше 10 символів, серед них велика літера (A–Z), мала літера (a–z), "
+"цифра (0–9) та спеціальний символ; лише символи стандартної англійської (US) "
+"розкладки клавіатури."
+
+#: identity/templates/identity/setup.html:30
+msgid "Create the administrator"
+msgstr "Створити адміністратора"
+
+#: identity/templates/identity/signin.html:3
+#: identity/templates/identity/signin.html:7
+msgctxt "page title"
+msgid "Sign in"
+msgstr "Вхід"
+
+#: identity/templates/identity/signin.html:8
+msgid "The email address or password is incorrect."
+msgstr "Адреса електронної пошти або пароль неправильні."
+
+#: identity/templates/identity/signin.html:15
+msgid "Sign in"
+msgstr "Увійти"
+
+#: tenancy/forms.py:16
+msgid "First administrator — email address"
+msgstr "Перший адміністратор — адреса електронної пошти"
+
+#: tenancy/forms.py:19
+msgid "An organisation is never created without an administrator."
+msgstr "Організацію не створюють без адміністратора."
+
+#: tenancy/forms.py:31
+msgid "No registered person has this address."
+msgstr "Жодна зареєстрована особа не має цієї адреси."
+
+#: tenancy/forms.py:37 tenancy/templates/tenancy/hosts.html:8
+msgid "Host"
+msgstr "Хост"
+
+#: tenancy/middleware.py:32
 msgid "Unknown address."
 msgstr "Невідома адреса."
 
-#: shell/templates/shell/administration.html:3
-#: shell/templates/shell/base.html:20
-msgid "Administration"
-msgstr "Адміністрування"
+#: tenancy/services.py:44 tenancy/views.py:126
+msgid "Not a host name."
+msgstr "Це не ім’я хоста."
 
+#: tenancy/services.py:142
+msgid "That host is already in use."
+msgstr "Цей хост уже використовується."
+
+#: tenancy/services.py:185
+msgid "The platform keeps at least one host."
+msgstr "У платформи має лишитися щонайменше один хост."
+
+#: tenancy/services.py:187
+msgid "Make another host the default first."
+msgstr "Спершу зробіть основним інший хост."
+
+#: tenancy/services.py:198
+msgid "That host is no longer there."
+msgstr "Цього хоста вже немає."
+
+#: tenancy/templates/tenancy/administrators.html:3
+#: tenancy/templates/tenancy/administrators.html:5
+#: shell/templates/shell/administration.html:13
+msgid "Platform administrators"
+msgstr "Адміністратори платформи"
+
+#: tenancy/templates/tenancy/administrators.html:7
+msgid "Person"
+msgstr "Особа"
+
+#: tenancy/templates/tenancy/hosts.html:3
+#: tenancy/templates/tenancy/hosts.html:5
+#: shell/templates/shell/administration.html:11
+msgid "Hosts"
+msgstr "Хости"
+
+#: tenancy/templates/tenancy/hosts.html:8
+#: tenancy/templates/tenancy/hosts.html:28
+msgid "Belongs to"
+msgstr "Кому належить"
+
+#: tenancy/templates/tenancy/hosts.html:8
+msgid "Default"
+msgstr "Основний"
+
+#: tenancy/templates/tenancy/hosts.html:13
+#: tenancy/templates/tenancy/hosts.html:30
 #: shell/templates/shell/administration.html:9
 msgid "Platform"
 msgstr "Платформа"
 
-#: shell/templates/shell/administration.html:13
-#: shell/templates/shell/administration.html:24
-#: shell/templates/shell/administration.html:30
+#: tenancy/templates/tenancy/hosts.html:15
+msgid "Make default"
+msgstr "Зробити основним"
+
+#: tenancy/templates/tenancy/hosts.html:33
+msgid "+ Add a host"
+msgstr "+ Додати хост"
+
+#: tenancy/templates/tenancy/hosts.html:35
+msgid ""
+"Every change is audited. A removed host stops answering within thirty "
+"seconds."
+msgstr ""
+"Кожна зміна записується до журналу аудиту. Вилучений хост перестає "
+"відповідати протягом тридцяти секунд."
+
+#: tenancy/templates/tenancy/tenant_form.html:3
+#: tenancy/templates/tenancy/tenant_form.html:6
+msgid "Create an organisation"
+msgstr "Створити організацію"
+
+#: tenancy/templates/tenancy/tenant_form.html:15
+msgid ""
+"A registered person becomes its administrator at once. An organisation is "
+"never created without an administrator."
+msgstr ""
+"Зареєстрована особа одразу стає її адміністратором. Організацію не створюють "
+"без адміністратора."
+
+#: tenancy/templates/tenancy/tenant_form.html:17
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: tenancy/templates/tenancy/tenants.html:3
+#: tenancy/templates/tenancy/tenants.html:5
+#: shell/templates/shell/administration.html:12
+msgid "Organisations"
+msgstr "Організації"
+
+#: tenancy/templates/tenancy/tenants.html:7
+#: shell/templates/shell/administration.html:17
+#: shell/templates/shell/administration.html:28
+#: shell/templates/shell/administration.html:34
 msgid "Organisation"
 msgstr "Організація"
 
-#: shell/templates/shell/administration.html:17
+#: tenancy/templates/tenancy/tenants.html:7
+msgid "State"
+msgstr "Стан"
+
+#: tenancy/templates/tenancy/tenants.html:7
+msgid "Administrators"
+msgstr "Адміністратори"
+
+#: tenancy/templates/tenancy/tenants.html:12
+msgid "No organisations yet."
+msgstr "Організацій ще немає."
+
+#: tenancy/templates/tenancy/tenants.html:16
+msgid "+ Create an organisation"
+msgstr "+ Створити організацію"
+
+#: tenancy/views.py:25
+msgctxt "organisation state"
+msgid "active"
+msgstr "активна"
+
+#: tenancy/views.py:26
+msgctxt "organisation state"
+msgid "blocked"
+msgstr "заблокована"
+
+#: tenancy/views.py:27
+msgctxt "organisation state"
+msgid "being set up"
+msgstr "налаштовується"
+
+#: shell/templates/shell/administration.html:3
+#: shell/templates/shell/base.html:21
+msgid "Administration"
+msgstr "Адміністрування"
+
+#: shell/templates/shell/administration.html:21
 msgid "Choose"
 msgstr "Обрати"
 
-#: shell/templates/shell/administration.html:31
+#: shell/templates/shell/administration.html:35
 #: shell/templates/shell/landing.html:6
 msgid "No organisation is chosen."
 msgstr "Організацію не обрано."
 
-#: shell/templates/shell/base.html:30
+#: shell/templates/shell/base.html:31
 msgid "Sign out"
 msgstr "Вийти"
 

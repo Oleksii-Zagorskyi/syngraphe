@@ -220,7 +220,7 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 
 **If it fails** *(proposed during planning; no earlier document states it)*. Migrations run per tenant in the background behind a version check, and a deploy stops waiting for all of them — a change to the deploy procedure, not to the tenancy model.
 
-**Status.** Accepted as a risk before the design review — resolved in Epic 2 by the test above (DL-0211).
+**Status.** **Proven.** `migrate_schemas` over fresh schemas, `django.contrib.auth` standing for a tenant app — twelve migrations, three tables — and the shared-only apps recorded without running: one schema 0.10 s, ten 1.07 s, twenty 2.22 s — ten well inside sixty seconds, t10 ≤ 1.2 · 10 · t1 and t20 ≤ 1.2 · 2 · t10. Measured on a workstation against PostgreSQL 16 in Docker. The suite keeps the budget and the twenty-against-ten ratio on every run (DL-0288).
 
 ### V-13 — A sandboxed job can be given read access to two differently permissioned repositories
 

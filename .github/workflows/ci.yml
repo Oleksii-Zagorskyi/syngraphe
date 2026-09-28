@@ -50,7 +50,7 @@ jobs:
       DJANGO_DEBUG: 'false'
       DJANGO_ADMIN_PATH: operator/
       SITE_HTTPS: 'false'
-      TRUSTED_PROXIES: ''
+      TRUSTED_PROXIES: none
       GIT_REPO_ROOT: /tmp/repos
       DISPLAY_TIMEZONE: UTC
       DEFAULT_LANGUAGE: uk

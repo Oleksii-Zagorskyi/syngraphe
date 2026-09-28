@@ -20,7 +20,7 @@ _TEST_DEFAULTS = {
     "DJANGO_DEBUG": "false",
     "DJANGO_ADMIN_PATH": "operator/",
     "SITE_HTTPS": "false",
-    "TRUSTED_PROXIES": "",
+    "TRUSTED_PROXIES": "none",
     "DISPLAY_TIMEZONE": "UTC",
     "DEFAULT_LANGUAGE": "uk",
     "GIT_REPO_ROOT": str(Path(tempfile.gettempdir()) / "syngraphe-test-repos"),
@@ -29,6 +29,15 @@ for _key, _value in _TEST_DEFAULTS.items():
     os.environ.setdefault(_key, _value)
 
 pytest_plugins = ("celery.contrib.pytest",)
+
+
+@pytest.fixture(autouse=True)
+def unhashed_static_files(settings: Any) -> None:
+    """Static names as written: the suite renders pages without collecting the files first."""
+    settings.STORAGES = {
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
 
 
 @pytest.fixture(autouse=True)

@@ -9,13 +9,11 @@ follows, and is `public` again when the response has left.
 
 from __future__ import annotations
 
-import ipaddress
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
-from django.conf import settings
 from django.db import connection
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.utils.translation import gettext_lazy as _
@@ -86,23 +84,9 @@ def match_host(host: str, hosts: dict[str, HostEntry]) -> HostEntry | None:
     return None
 
 
-def _from_trusted_proxy(request: HttpRequest) -> bool:
-    try:
-        peer = ipaddress.ip_address(request.META.get("REMOTE_ADDR", ""))
-    except ValueError:
-        return False
-    return any(peer in network for network in settings.TRUSTED_PROXIES)
-
-
 def request_host(request: HttpRequest) -> str:
-    """The host the request was made for.
-
-    From a trusted proxy the forwarded host is the last one in the header — the proxy's own,
-    whatever a client put before it; the proxy is expected to set the header, not append to it.
-    """
-    forwarded = str(request.META.get("HTTP_X_FORWARDED_HOST", ""))
-    if forwarded and _from_trusted_proxy(request):
-        return forwarded.rsplit(",", 1)[-1].strip()
+    """The host the request was made for; a trusted proxy's forwarded host is already in place
+    (`syngraphe.proxy`)."""
     return str(request.META.get("HTTP_HOST", ""))
 
 

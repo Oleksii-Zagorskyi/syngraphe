@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from celery.schedules import crontab
+
 from syngraphe import config
 
 _CONFIG = config.load()
@@ -36,13 +38,16 @@ TENANT_APPS = [
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
 MIDDLEWARE = [
+    "syngraphe.proxy.TrustedProxyMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "syngraphe.logs.RequestContextMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "tenancy.middleware.TenancyMiddleware",
+    "identity.middleware.FrameworkAdminMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
@@ -93,9 +98,17 @@ CELERY_RESULT_BACKEND = _CONFIG.redis_url
 CELERY_TASK_TRACK_STARTED = True
 # The worker's lines go through the JSON handler below, not Celery's own root setup.
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+# At a fixed hour, so a recreated worker does not push the next run a day further out.
+CELERY_BEAT_SCHEDULE = {
+    "sweep-sign-in-attempts": {
+        "task": "identity.sweep_sign_in_attempts",
+        "schedule": crontab(hour=3, minute=0),
+    },
+}
 
 GIT_REPO_ROOT = _CONFIG.git_repo_root
 TRUSTED_PROXIES = _CONFIG.trusted_proxies
+DJANGO_ADMIN_PATH = _CONFIG.admin_path
 DISPLAY_TIMEZONE = _CONFIG.display_timezone
 
 # Sessions last twelve hours from sign-in, not sliding; the cookie flags follow SITE_HTTPS.
@@ -113,11 +126,16 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
     "django.contrib.auth.hashers.ScryptPasswordHasher",
 ]
+# DL-0284: ten characters from a US keyboard, four kinds of character, and the common-password
+# and similarity checks.
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "identity.passwords.AddressSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 10},
+    },
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": "identity.passwords.KeyboardCompositionValidator"},
 ]
 
 LANGUAGE_CODE = _CONFIG.default_language
@@ -129,6 +147,12 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR.parent / "staticfiles"
+# The application serves its own static files, hashed and compressed, from what `web` collects as
+# it starts (DL-0285).
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
 
 # One JSON object per line to stdout — level, logger, message, request id and tenant number where
 # known; never a document's text or a person's address.

@@ -8,7 +8,7 @@ import uuid
 from typing import Any, ClassVar
 
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.db import models, transaction
+from django.db import connection, models, transaction
 from django.utils import timezone
 
 from identity.managers import UserManager, fold_email
@@ -216,11 +216,13 @@ class Invitation(Provenanced):
 
 
 class SignInAttempt(models.Model):
-    """Throttling state per submitted address and per client address; no reference to a user."""
+    """Throttling state per client and per pair of address typed and client (DL-0289); no
+    reference to a user, and the address typed only inside the pair's hash."""
 
     class KeyKind(models.TextChoices):
-        EMAIL = "email", "email"
         ADDRESS = "address", "address"
+        PAIR = "pair", "pair"
+        DEVICE = "device", "device"
 
     key = models.CharField(primary_key=True, max_length=254)
     key_kind = models.CharField(max_length=7, choices=KeyKind.choices)
@@ -278,9 +280,19 @@ def _lines(text: str) -> list[str]:
 class SetupToken(models.Model):
     """The first-run token's hash and expiry: deleted when used, ignored once expired (DL-0231)."""
 
+    # An arbitrary constant naming the first run among PostgreSQL's advisory locks.
+    FIRST_RUN_LOCK = 0x5E7_0001
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     token_hash = models.CharField(max_length=128, unique=True)
     expires_at = models.DateTimeField()
 
     def __str__(self) -> str:
         return f"setup token until {self.expires_at:%Y-%m-%d %H:%M} UTC"
+
+    @classmethod
+    def lock_first_run(cls) -> None:
+        """Serialise every write of the first run until the transaction ends: two commands, two
+        submissions, or one of each, never interleave (T-19)."""
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)", [cls.FIRST_RUN_LOCK])

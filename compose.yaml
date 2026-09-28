@@ -1,5 +1,5 @@
-# The development shape: `web` on the loopback behind the host's own reverse proxy, the database on
-# a named volume.
+# The base stack: `web` on the loopback behind the host's own reverse proxy, the database on a
+# named volume.
 
 x-logging: &logging
   driver: json-file

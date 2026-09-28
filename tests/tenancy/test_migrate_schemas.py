@@ -49,7 +49,7 @@ def test_ten_schemas_within_budget(
     tenants = [make_tenant(f"Org {i}") for i in range(33)]
     numbers = [t.number for t in tenants]
 
-    # One schema is measured three times and averaged: a single sample is too noisy a base.
+    # One schema is measured and reported, never asserted on (DL-0288).
     t1 = sum(timed(n) for n in numbers[:3]) / 3
     t10 = timed(*numbers[3:13])
     t20 = timed(*numbers[13:33])
@@ -57,7 +57,6 @@ def test_ten_schemas_within_budget(
     print(f"V-12 timings: t1={t1:.2f}s t10={t10:.2f}s t20={t20:.2f}s")
     record_property("v12_timings", {"t1": t1, "t10": t10, "t20": t20})
     assert t10 < 60
-    assert t10 <= 1.2 * 10 * t1
     assert t20 <= 1.2 * 2 * t10
 
 

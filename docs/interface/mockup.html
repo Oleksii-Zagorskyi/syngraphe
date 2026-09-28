@@ -193,6 +193,14 @@ details.um>summary{list-style:none;cursor:pointer}
 .notice{border-left:3px solid var(--accent);padding:4px 8px;margin:4px 0 4px 12px;font-size:12px}
 
 .dlg{max-width:520px}
+.card{max-width:400px;margin:12vh auto 0;background:var(--panel);padding:24px 28px;border:1px solid var(--line)}
+.card .word{font-weight:600;letter-spacing:.02em;margin-bottom:18px}
+.card h1{font-size:18px;margin:0 0 6px}
+.card label{display:block;margin:14px 0 4px}
+.card input{width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:3px}
+.card input.mono{font-family:ui-monospace,monospace}
+.card .err{color:#a33;font-size:12px;margin-top:3px}
+.card .go{margin-top:18px;display:flex;justify-content:flex-end}
 .dlg textarea,.dlg input[type=text],.dlg select{font:inherit}
 .chips span{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 8px;margin:2px;font-size:12px;background:#fff}
 .chips span b{font-weight:400;color:var(--muted);margin-left:4px;cursor:pointer}
@@ -203,7 +211,7 @@ details.um>summary{list-style:none;cursor:pointer}
 .answer{border:1px solid var(--line);background:#fafafa;padding:8px 10px;margin:8px 0}
 .why2{font-size:11px;color:var(--muted)}
 </style></head><body>
-<div class="mock"><strong>Interface mockup</strong><span>· synthetic example content ·</span><button data-go="list" data-url="/folder/7/" class="on">Document list</button><button data-go="search" data-url="/search/?q=leave" class="">Search results</button><button data-go="inedit" data-url="/in-edit/" class="">In edit</button><button data-go="inrev" data-url="/in-review/" class="">In review</button><button data-go="doc" data-url="/document/12/" class="">Document</button><button data-go="hist" data-url="/document/12/version/2.0/" class="">Historical version</button><button data-go="cmp" data-url="/document/12/compare/?from=2.0&to=2.3-1" class="">Compare</button><button data-go="cmpa" data-url="/document/12/compare/appendix/?from=2.0:2&to=2.3-1:2" class="">Compare appendices</button><button data-go="adm" data-url="/administration/tenant/groups/" class="">Administration</button><button data-go="app" data-url="/document/12/appendix/2/" class="">Appendix</button><button data-go="notif" data-url="/notifications/" class="">Notifications</button><button data-go="none" data-url="/document/99/" class="">Nothing to show</button><button onclick="openX()">Export dialog</button><span class="url" id="url">/folder/7/</span></div>
+<div class="mock"><strong>Interface mockup</strong><span>· synthetic example content ·</span><button data-go="list" data-url="/folder/7/" class="on">Document list</button><button data-go="search" data-url="/search/?q=leave" class="">Search results</button><button data-go="inedit" data-url="/in-edit/" class="">In edit</button><button data-go="inrev" data-url="/in-review/" class="">In review</button><button data-go="doc" data-url="/document/12/" class="">Document</button><button data-go="hist" data-url="/document/12/version/2.0/" class="">Historical version</button><button data-go="cmp" data-url="/document/12/compare/?from=2.0&to=2.3-1" class="">Compare</button><button data-go="cmpa" data-url="/document/12/compare/appendix/?from=2.0:2&to=2.3-1:2" class="">Compare appendices</button><button data-go="adm" data-url="/administration/tenant/groups/" class="">Administration</button><button data-go="app" data-url="/document/12/appendix/2/" class="">Appendix</button><button data-go="notif" data-url="/notifications/" class="">Notifications</button><button data-go="none" data-url="/document/99/" class="">Nothing to show</button><button data-go="setup" data-url="/setup/" class="">First run</button><button data-go="signin" data-url="/signin/" class="">Sign-in pages</button><button onclick="openX()">Export dialog</button><span class="url" id="url">/folder/7/</span></div>
 <div class="opt"><b>Draw for</b>
 <label>Viewing as <select id="role">
 <option value="reader">Reader — All staff: view canonical</option>
@@ -671,28 +679,29 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="node " data-adm="t-sender">Sending address</div>
 <div class="node " data-adm="t-archive">Archive</div>
 <div class="node " data-adm="t-styles">Styles</div>
-<div class="node " data-adm="t-history">Access history</div><div class="node" style="border:1px dashed var(--muted);color:var(--muted);padding-left:4px">Actions and side-document types — 0.2 placeholder</div><p class="note" style="margin-top:12px">A tenant administrator sees only the ORGANISATION part, for their own tenant.</p></aside>
+<div class="node " data-adm="t-history">Access history</div><div class="node" style="border:1px dashed var(--muted);color:var(--muted);padding-left:4px">Actions and side-document types — 0.2 placeholder</div><p class="note" style="margin-top:12px">An organisation administrator sees only the ORGANISATION part, for their own organisation.</p></aside>
 <div class="grip" data-grip="ad" data-var="--l" data-side="l"></div>
 <div class="content">
 <div class="admsec" id="p-hosts" data-url="/administration/platform/hosts/" style="display:none">
 <div class="title" style="margin-bottom:8px">Hosts</div>
 <table>
 <tr><th>Host</th><th>Belongs to</th><th>Default</th><th></th></tr>
-<tr><td>127.0.0.1:8000</td><td>platform</td><td>(•)</td><td>✎ ✕</td></tr>
-<tr><td>platform.example</td><td>platform</td><td>( )</td><td>✎ ✕</td></tr>
-<tr><td>docs.example-org.example</td><td>Example Org</td><td>(•)</td><td>✎ ✕</td></tr></table><p><button class="btn">+ Add a host</button> <span class="note">Every change is audited.</span></p></div>
+<tr><td>127.0.0.1:8000</td><td>Platform</td><td>(•)</td><td>✎ ✕</td></tr>
+<tr><td>platform.example</td><td>Platform</td><td>( )</td><td>✎ ✕</td></tr>
+<tr><td>docs.example-org.example</td><td>Example Org</td><td>(•)</td><td>✎ ✕</td></tr></table><p><button class="btn">+ Add a host</button> <span class="note">Every change is audited. A removed host stops answering within thirty seconds.</span></p></div>
 <div class="admsec" id="p-tenants" data-url="/administration/platform/tenants/" style="display:none">
 <div class="title" style="margin-bottom:8px">Organisations</div>
 <table>
 <tr><th>#</th><th>Organisation</th><th>State</th><th>Administrators</th><th></th></tr>
-<tr><td>1</td><td>Example Org</td><td>active</td><td>2</td><td>block</td></tr>
-<tr><td>2</td><td>Sandbox</td><td>active</td><td>1</td><td>block</td></tr></table><p><button class="btn">+ Create a tenant with its first administrator</button></p></div>
+<tr><td>1</td><td>Example Org</td><td>active</td><td>2</td><td><button class="btn" data-open="apptD">appoint an administrator…</button> block</td></tr>
+<tr><td>2</td><td>Sandbox</td><td>blocked</td><td>1</td><td><button class="btn" data-open="liftD">lift the block…</button></td></tr>
+<tr><td>3</td><td>Example Branch</td><td>being set up</td><td>1</td><td></td></tr></table><p><button class="btn primary" data-open="orgD">+ Create an organisation</button></p></div>
 <div class="admsec" id="p-admins" data-url="/administration/platform/administrators/" style="display:none">
 <div class="title" style="margin-bottom:8px">Platform administrators</div>
 <table>
 <tr><th>Person</th><th>Since</th><th></th></tr>
 <tr><td>Admin A</td><td>3 Mar</td><td>remove</td></tr>
-<tr><td>Admin B</td><td>1 Sep</td><td>remove</td></tr></table><p class="note">The last platform administrator cannot be removed or blocked.</p></div>
+<tr><td>Admin B</td><td>1 Sep</td><td>remove</td></tr></table><p><button class="btn primary" data-open="grantD">+ Grant platform administration</button></p><p class="note">The last platform administrator cannot be removed or blocked.</p></div>
 <div class="admsec" id="p-types" data-url="/administration/tenant/document-types/" style="display:none">
 <div class="title" style="margin-bottom:8px">Document types</div>
 <p class="note">This organisation’s own list. A new organisation starts with one type, <em>document</em>. A type still assigned to a document can be retired, never deleted.</p>
@@ -722,11 +731,11 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="title" style="margin-bottom:8px">Users</div>
 <table>
 <tr><th>Person</th><th>Email</th><th>Groups</th><th>State</th><th></th></tr>
-<tr><td>Admin A <span class="note">tenant administrator</span></td><td>admin.a@…</td><td>—</td><td>active</td><td><span class="act"><button class="btn" disabled>block</button><span class="why">The last active administrator — appoint another first</span></span></td></tr>
+<tr><td>Admin A <span class="note">organisation administrator</span></td><td>admin.a@…</td><td>—</td><td>active</td><td><span class="act"><button class="btn" disabled>block</button><span class="why">The last active administrator — appoint another first</span></span></td></tr>
 <tr><td>Author A</td><td>a.author@…</td><td>HR editors</td><td>active</td><td><button class="btn" data-open="blockD">block…</button></td></tr>
 <tr><td>Reviewer R</td><td>r.reviewer@…</td><td>HR reviewers</td><td>active</td><td><button class="btn" data-open="blockD">block…</button></td></tr>
 <tr><td>Person P</td><td>p.person@…</td><td>All staff</td><td>blocked here, 20 Sep</td><td><button class="btn">lift the block</button></td></tr>
-<tr><td>Person Q</td><td>q.person@…</td><td>All staff</td><td>blocked their own account</td><td><span class="why2">only a platform administrator can lift it</span></td></tr></table>
+<tr><td>Person Q</td><td>q.person@…</td><td>All staff</td><td>blocked their own account</td><td></td></tr></table>
 <p><button class="btn primary" data-open="invD">+ Invite by email</button></p></div>
 <div class="admsec" id="t-groups" data-url="/administration/tenant/groups/" style="">
 <div class="title" style="margin-bottom:8px">Groups</div>
@@ -839,12 +848,108 @@ footer { font-size: 9pt; }</textarea>
 <nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="empty">
-<div class="title">Nothing to show here</div><p>The link may be incomplete or out of date. Check it, or ask whoever sent it.</p><button class="btn" data-go="list">Back to documents</button></div></section>
+<div class="title">Nothing to show here.</div><p>The link may be incomplete or out of date. Check it, or ask whoever sent it.</p><button class="btn" data-go="list">Back to the documents</button></div></section>
+<section class="page" id="setup">
+<div class="opt"><b>First run</b><label><input type="radio" name="sst" value="1" checked> the token</label><label><input type="radio" name="sst" value="2"> the administrator</label><label>refused <select id="sErr"><option value="">nothing</option><option value="mail">an invalid address</option><option value="taken">an address already in use</option><option value="short">a short password</option><option value="kinds">a password missing a kind of character</option><option value="latin">a password with a character not on a US keyboard</option><option value="common">a common password</option><option value="alike">a password like the address</option><option value="differ">two different passwords</option></select></label><span>· a wrong, used or expired token, or an administrator already present: <a href="#" data-go="none" style="color:#ffd">Nothing to show here</a></span></div>
+<div class="card" id="sStep1">
+<div class="word">Syngraphē</div>
+<h1>Set up the platform</h1>
+<p class="note">The first step creates the first platform administrator.</p>
+<label for="sTok">Setup token</label>
+<input id="sTok" class="mono" type="text" autocomplete="off" spellcheck="false">
+<div class="note">Printed by the install command <code>setup_token</code>; it works once, for sixty minutes.</div>
+<div class="go"><button class="btn primary" id="sNext">Continue</button></div>
+</div>
+<div class="card hid" id="sStep2">
+<div class="word">Syngraphē</div>
+<h1>The first platform administrator</h1>
+<p class="note">This person administers the platform: its organisations, hosts and administrators.</p>
+<label for="sMail">Email address</label>
+<input id="sMail" type="email" autocomplete="username" value="admin@example.test">
+<div class="err hid" data-e="mail">Enter a valid email address.</div><div class="err hid" data-e="taken">This address already belongs to an account.</div>
+<label for="sPw">Password</label>
+<input id="sPw" type="password" autocomplete="new-password">
+<div class="note">At least 10 characters, with an uppercase letter (A–Z), a lowercase letter (a–z), a digit (0–9) and a special character; only characters of a standard US keyboard.</div><div class="err hid" data-e="short">This password is too short. It must contain at least 10 characters.</div><div class="err hid" data-e="kinds">This password must contain an uppercase letter, a lowercase letter, a digit and a special character.</div><div class="err hid" data-e="latin">A password may contain only characters of a standard US keyboard.</div><div class="err hid" data-e="common">This password is too common.</div><div class="err hid" data-e="alike">The password is too similar to the email address.</div>
+<label for="sPw2">Password again</label>
+<input id="sPw2" type="password" autocomplete="new-password">
+<div class="err hid" data-e="differ">The two passwords differ.</div>
+<div class="go"><button class="btn primary">Create the administrator</button></div>
+</div>
+</section>
+<section class="page" id="signin">
+<div class="opt"><b>Sign-in pages</b><label><input type="radio" name="sfm" value="in" checked> sign in</label><label><input type="radio" name="sfm" value="inv"> accept an invitation — a new person</label><label><input type="radio" name="sfm" value="inv2"> accept an invitation — already registered</label><label><input type="radio" name="sfm" value="rq"> forgot the password</label><label><input type="radio" name="sfm" value="rqd"> — after sending</label><label><input type="radio" name="sfm" value="np"> set a new password</label><label><input type="checkbox" id="fErr"> a refused entry</label><span>· a used or expired link: <a href="#" data-go="none" style="color:#ffd">Nothing to show here</a></span></div>
+<div class="card" data-fm="in">
+<div class="word">Syngraphē</div>
+<h1>Sign in</h1>
+<div class="err hid fE" style="margin:10px 0 0">The email address or password is incorrect.</div>
+<label>Email address</label><input type="email" autocomplete="username">
+<label>Password</label><input type="password" autocomplete="current-password">
+<div class="go" style="justify-content:space-between;align-items:center"><a href="#" class="note" data-fmgo="rq">Forgot your password?</a><button class="btn primary">Sign in</button></div>
+</div>
+<div class="card hid" data-fm="inv">
+<div class="word">Syngraphē</div>
+<h1>Join Example Org</h1>
+<p class="note">Set a password for <strong>a.person@example.test</strong>. You sign in with this address from now on.</p>
+<label>Password</label><input type="password" autocomplete="new-password">
+<div class="note">At least 10 characters, with an uppercase letter (A–Z), a lowercase letter (a–z), a digit (0–9) and a special character; only characters of a standard US keyboard.</div><div class="err hid fE">This password is too short. It must contain at least 10 characters.</div>
+<label>Password again</label><input type="password" autocomplete="new-password">
+<div class="go"><button class="btn primary">Set the password and join</button></div>
+</div>
+<div class="card hid" data-fm="inv2">
+<div class="word">Syngraphē</div>
+<h1>Join Example Org</h1>
+<p class="note">Sign in as <strong>a.person@example.test</strong> to accept the invitation.</p>
+<div class="err hid fE" style="margin:10px 0 0">The password is incorrect.</div>
+<label>Password</label><input type="password" autocomplete="current-password">
+<div class="go" style="justify-content:space-between;align-items:center"><a href="#" class="note" data-fmgo="rq">Forgot your password?</a><button class="btn primary">Sign in and join</button></div>
+</div>
+<div class="card hid" data-fm="rq">
+<div class="word">Syngraphē</div>
+<h1>Forgot your password?</h1>
+<p class="note">Enter your email address and we will send a link to set a new password.</p>
+<label>Email address</label><input type="email" autocomplete="username">
+<div class="go" style="justify-content:space-between;align-items:center"><a href="#" class="note" data-fmgo="in">Back to sign in</a><button class="btn primary">Send the link</button></div>
+</div>
+<div class="card hid" data-fm="rqd">
+<div class="word">Syngraphē</div>
+<h1>Check your email</h1>
+<p class="note">If an account uses this address, a link to set a new password is on its way. It works once, for a limited time.</p>
+<div class="go" style="justify-content:flex-start"><a href="#" class="note" data-fmgo="in">Back to sign in</a></div>
+</div>
+<div class="card hid" data-fm="np">
+<div class="word">Syngraphē</div>
+<h1>Set a new password</h1>
+<p class="note">For <strong>a.person@example.test</strong>.</p>
+<label>Password</label><input type="password" autocomplete="new-password">
+<div class="note">At least 10 characters, with an uppercase letter (A–Z), a lowercase letter (a–z), a digit (0–9) and a special character; only characters of a standard US keyboard.</div><div class="err hid fE">This password is too short. It must contain at least 10 characters.</div>
+<label>Password again</label><input type="password" autocomplete="new-password">
+<div class="go"><button class="btn primary">Set the password</button></div>
+</div>
+<p class="note" style="max-width:400px;margin:10px auto">Each form answers alike whether or not the address is known. A refused password shows the same messages as the first-run page.</p>
+</section>
+
+
 <div class="overlay" id="accD"><div class="dialog" style="max-width:460px"><strong>Accept the run as 2.4?</strong><p>Everything since 2.3 becomes the accepted text:</p><ul style="margin:0 0 8px 18px;font-size:13px"><li>2.3-1 · Author A — “Contractors included; notice shortened”</li></ul><p class="note">Recorded in the document with your name and today’s date. No reviewer’s version in this run replaced another author’s text, so no correction notice is sent.</p><button class="btn primary" id="accYes">Accept as 2.4</button> <button class="btn" id="accNo">Cancel</button></div></div><div class="overlay" id="retD"><div class="dialog" style="max-width:460px"><strong>Return 2.3-1 without accepting</strong><p class="note">The run stays pending. Author A is notified with your reason, and the return is recorded in the document.</p><textarea id="retTxt" style="width:100%;min-height:70px;font:inherit" placeholder="What needs rework — required"></textarea><p><button class="btn primary" id="retYes" disabled>Return</button> <button class="btn" id="retNo">Cancel</button></p></div></div><div class="overlay" id="invD"><div class="dialog dlg"><strong>Invite by email</strong>
 <p><input type="text" style="width:100%" placeholder="name@organisation.example"></p>
 <p class="note">Groups to add them to <span class="chips"><span>All staff<b>✕</b></span></span> <select><option>+ group</option><option>HR editors</option></select></p>
 <p class="note">Whether or not the address is already known to the platform, they receive an email and appear here; nothing on this page tells the two apart.</p>
 <button class="btn primary" data-close>Send the invitation</button> <button class="btn" data-close>Cancel</button></div></div>
+<div class="overlay" id="orgD"><div class="dialog dlg"><strong>Create an organisation</strong>
+<p class="note" style="margin-bottom:2px">Name</p><p style="margin-top:0"><input type="text" style="width:100%" value="Example Branch"></p>
+<p class="note" style="margin-bottom:2px">First administrator — email address</p><p style="margin-top:0"><input type="text" style="width:100%" placeholder="name@organisation.example"></p>
+<p class="note">A registered person becomes its administrator at once; any other address is sent an invitation. An organisation is never created without an administrator.</p>
+<button class="btn primary" data-close>Create</button> <button class="btn" data-close>Cancel</button></div></div>
+<div class="overlay" id="liftD"><div class="dialog dlg"><strong>Lift the block on Sandbox</strong>
+<p class="note">Its memberships, groups and document links apply again as they stood when it was blocked. Recorded in its history.</p>
+<button class="btn primary" data-close>Lift the block</button> <button class="btn" data-close>Cancel</button></div></div>
+<div class="overlay" id="apptD"><div class="dialog dlg"><strong>Appoint an administrator of Example Org</strong>
+<p><input type="text" style="width:100%" placeholder="name@organisation.example"></p>
+<p class="note">A member becomes an administrator at once; a person registered elsewhere joins as one; any other address is sent an invitation.</p>
+<button class="btn primary" data-close>Appoint</button> <button class="btn" data-close>Cancel</button></div></div>
+<div class="overlay" id="grantD"><div class="dialog dlg"><strong>Grant platform administration</strong>
+<p><input type="text" style="width:100%" placeholder="Email address of a registered person"></p>
+<p class="note">They can then do everything a platform administrator can: organisations, hosts and platform administrators, in every organisation.</p>
+<button class="btn primary" data-close>Grant</button> <button class="btn" data-close>Cancel</button></div></div>
 <div class="overlay" id="blockD"><div class="dialog dlg"><strong>Block Author A</strong>
 <p class="note">You administer two organisations Author A belongs to. Block them in:</p>
 <label><input type="checkbox" checked> Example Org</label><br><label><input type="checkbox"> Sandbox</label>
@@ -1187,4 +1292,13 @@ document.getElementById('none').classList.add('on');
 document.getElementById('url').textContent='/document/12/';
 },true);
 apply();
+
+document.querySelectorAll('[name=sst]').forEach(r=>r.addEventListener('change',()=>{const two=r.value==='2';document.getElementById('sStep1').classList.toggle('hid',two);document.getElementById('sStep2').classList.toggle('hid',!two)}));
+document.getElementById('sNext').addEventListener('click',()=>{document.querySelector('[name=sst][value="2"]').click()});
+document.getElementById('sErr').addEventListener('change',e=>{document.querySelectorAll('#sStep2 [data-e]').forEach(x=>x.classList.toggle('hid',x.dataset.e!==e.target.value));if(e.target.value)document.querySelector('[name=sst][value="2"]').click()});
+
+const fmShow=v=>{document.querySelectorAll('[data-fm]').forEach(c=>c.classList.toggle('hid',c.dataset.fm!==v));const r=document.querySelector('[name=sfm][value="'+v+'"]');if(r)r.checked=true};
+document.querySelectorAll('[name=sfm]').forEach(r=>r.addEventListener('change',()=>fmShow(r.value)));
+document.querySelectorAll('[data-fmgo]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();fmShow(a.dataset.fmgo)}));
+document.getElementById('fErr').addEventListener('change',e=>document.querySelectorAll('.fE').forEach(x=>x.classList.toggle('hid',!e.target.checked)));
 </script></body></html>

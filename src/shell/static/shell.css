@@ -192,3 +192,13 @@ details.um>summary{list-style:none;cursor:pointer}
 .grid td.right.inert button{opacity:.35;text-decoration:line-through}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .grid td.right:not(.held):not(.faint) button{color:var(--line)}
+
+/* The navigation-free frame of the first-run and sign-in pages. */
+.card{max-width:400px;margin:12vh auto 0;background:var(--panel);padding:24px 28px;border:1px solid var(--line)}
+.card .word{font-weight:600;letter-spacing:.02em;margin-bottom:18px}
+.card h1{font-size:18px;margin:0 0 6px}
+.card label{display:block;margin:14px 0 4px}
+.card input{width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:3px}
+.card input.mono{font-family:ui-monospace,monospace}
+.card .err{color:#a33;font-size:12px;margin-top:3px}
+.card .go{margin-top:18px;display:flex;justify-content:flex-end}
