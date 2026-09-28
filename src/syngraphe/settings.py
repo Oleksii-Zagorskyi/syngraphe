@@ -25,6 +25,9 @@ SHARED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_htmx",
+    "identity",
+    "tenancy",
+    "audit",
     "shell",
 ]
 TENANT_APPS: list[str] = []
@@ -37,6 +40,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "tenancy.middleware.TenancyMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
@@ -74,6 +78,10 @@ DATABASES = {
     }
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# The tenant-query guard (ADR-0017): a tenant-schema model is never queried with no tenant set.
+DATABASE_ROUTERS = ["tenancy.routers.TenantGuardRouter"]
+
+AUTH_USER_MODEL = "identity.User"
 
 REDIS_URL = _CONFIG.redis_url
 CELERY_BROKER_URL = _CONFIG.celery_broker_url

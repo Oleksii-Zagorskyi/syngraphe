@@ -29,6 +29,15 @@ for _key, _value in _TEST_DEFAULTS.items():
 
 pytest_plugins = ("celery.contrib.pytest",)
 
+
+@pytest.fixture(autouse=True)
+def fresh_host_cache() -> None:
+    """Each test sees the hosts it creates: the thirty-second cache never carries across tests."""
+    from tenancy.middleware import invalidate_host_cache
+
+    invalidate_host_cache()
+
+
 # A queue of this run alone, so a worker container sharing the broker never takes the test's task.
 TEST_QUEUE = f"test-{uuid.uuid4().hex}"
 

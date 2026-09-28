@@ -1,0 +1,43 @@
+{
+  "code": "en",
+  "label": "English",
+  "never_final": [
+    "mr",
+    "mrs",
+    "ms",
+    "dr",
+    "prof",
+    "art",
+    "para",
+    "no",
+    "e.g",
+    "i.e",
+    "cf",
+    "vs",
+    "st",
+    "fig",
+    "vol",
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "sept",
+    "oct",
+    "nov",
+    "dec"
+  ],
+  "may_be_final": [
+    "etc",
+    "yrs",
+    "yr",
+    "pcs",
+    "approx",
+    "incl",
+    "excl",
+    "al"
+  ]
+}

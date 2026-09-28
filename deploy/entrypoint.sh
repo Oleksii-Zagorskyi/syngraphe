@@ -1,5 +1,5 @@
 #!/bin/sh
-# Check the repository root, bring the shared schema up to date, then run the service's command.
+# Check the repository root, bring every schema up to date, then run the service's command.
 set -eu
 
 if [ ! -w /srv/repos ]; then
@@ -7,6 +7,7 @@ if [ ! -w /srv/repos ]; then
     exit 1
 fi
 
-python manage.py migrate --noinput
+python manage.py migrate_schemas
+python manage.py seed_languages
 
 exec "$@"
