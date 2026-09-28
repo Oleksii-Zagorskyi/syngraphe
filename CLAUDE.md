@@ -66,11 +66,19 @@ application code exists yet; the first implementation epic stands the stack up.
 Until then only the linter has anything to read.
 
 ```bash
+# prepare a fresh clone; again whenever a lockfile or the editor's code changes
+uv sync --locked && npm ci && npm run build && uv run playwright install chromium
+
 docker compose up            # run the stack
-pytest -q                    # tests
-ruff check . && ruff format --check .
-mypy src
+
+# the check; needs PostgreSQL and Redis, the stack's db and redis
+uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
+
+The first line installs the Python dependencies from `uv.lock`, builds the
+editor's bundle with esbuild and installs the Chromium the browser tests drive.
+It and the check are the two lines `docs/test-strategy.md § What CI runs` names,
+run the same way by a developer and by CI.
 
 Run the suite after each story. A failing test is fixed before the next story
 starts, not after.

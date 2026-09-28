@@ -221,9 +221,9 @@ One hundred pages is two and a half times the longest document the platform is e
 - **Environment**: Production, on one host with no failover (DL-0086)
 - **Artifact**: The platform as a whole
 - **Response**: The request is served
-- **Response measure**: **99.5% of each month**, announced maintenance excluded — about three and a half hours of unplanned downtime a month
+- **Response measure**: **99.5% of each month**, announced maintenance and the recovery of a disaster excluded — about three and a half hours of unplanned downtime a month
 
-One host without failover cannot honestly promise more; a higher figure is a decision to pay for a second host, and would be recorded as one.
+One host without failover cannot honestly promise more; a higher figure is a decision to pay for a second host, and would be recorded as one. The measure counts ordinary unplanned downtime, the failures the running installation recovers from without a restore. A disaster — the loss of the host, its disks or its data, restored from the off-host copies — is counted apart and held to ASR-25 instead, since one restore within ASR-25's four hours would by itself spend this entry's month (DL-0279).
 
 ## ASR-25 — Recovery objectives *(scenario)*
 
@@ -232,6 +232,6 @@ One host without failover cannot honestly promise more; a higher figure is a dec
 - **Environment**: Production, following [`runbook.md § Restore`](runbook.md)
 - **Artifact**: The database's continuous archive and the repositories' off-host copy
 - **Response**: The platform is running again from the off-host copies, reconciled
-- **Response measure**: **Recovery point** — at most **5 minutes** of database changes lost, the write-ahead log being shipped off-host continuously; at most **15 minutes** of repository changes. **Recovery time** — **≤ 4 hours** to a running platform on a fresh host
+- **Response measure**: **Recovery point** — for a failure of the database alone, the repositories intact on the host, at most **5 minutes** of database changes lost, the write-ahead log being shipped off-host continuously; for a restore of the whole host, at most **15 minutes** of changes to either store, the database being restored to the time the last complete set of repository bundles began and never past it (DL-0276). **Recovery time** — **≤ 4 hours** to a running platform on a fresh host
 
-Mandating continuous archiving with point-in-time recovery was already a recovery-point decision; this entry states the point it was taken for. The database's figure is the tighter one because holds, access rows and drafts exist nowhere else. *Forbids:* a backup arrangement that cannot meet these figures without a rehearsed restore proving it does.
+Mandating continuous archiving with point-in-time recovery was already a recovery-point decision; this entry states the point it was taken for. The database's figure is the tighter one because holds, access rows and drafts exist nowhere else. It gives way when the whole host is lost: a database restored past its repositories would name commits no copy holds, and those versions, with the drafts they used up, would be gone from both stores (DL-0276). A restore under this entry is counted apart from ASR-24's monthly measure: it answers to these figures, not to the availability percentage (DL-0279). *Forbids:* a backup arrangement that cannot meet these figures without a rehearsed restore proving it does.

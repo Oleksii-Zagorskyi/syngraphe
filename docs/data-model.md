@@ -19,7 +19,7 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
-- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203).
+- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203), so those two tables exist in both: the mail app is on both the shared and the tenant list, and a query reaches the tenant's rows when a tenant is set and the platform's only with the shared schema alone (ADR-0017).
 - **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
 
 **`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
@@ -88,7 +88,7 @@ erDiagram
         string name
         string schema_name UK
         int number UK "platform-wide, in creation order, never reused; names the tenant's directory (ADR-0008)"
-        string state "active | blocked; blocked closes it to all but platform administrators"
+        string state "migrating | active | blocked; migrating until its schema is fully migrated, resolvable by no request (ADR-0017); blocked closes it to all but platform administrators"
         bool require_distinct_approver "off by default (DL-0101, DL-0115)"
         int attachment_max_bytes "5 MB by default, tenant administrator sets it (DL-0166)"
         int hold_inactivity_minutes "30 by default, tenant administrator sets it (ADR-0006)"
@@ -117,7 +117,7 @@ erDiagram
     ACCOUNT_BLOCK_HISTORY {
         uuid id PK
         uuid user FK
-        string action "self_blocked | unblocked"
+        string action "self_blocked | block_lifted"
         datetime at
         uuid by FK
     }
@@ -125,10 +125,10 @@ erDiagram
     TENANT_STATE_HISTORY {
         uuid id PK
         uuid tenant FK
-        string before "active | blocked"
+        string before "migrating | active | blocked"
         string after
         datetime at
-        uuid by FK
+        uuid by FK "null when migrate_schemas activates a migrating tenant (DL-0280)"
     }
     USER ||--o{ USER_PREFERENCE : keeps
     USER_PREFERENCE {
@@ -170,7 +170,9 @@ erDiagram
 
 **`USER.is_tombstoned` is what erasure sets** (DL-0108): display name and email cleared, identifier kept, a *former user* label rendered in their place. Every reference from `created_by`, `ACCESS_CHANGE`, `ACCEPTANCE` and `EDITION` stays valid, so ASR-18 keeps its answers.
 
-**Blocking has three levels** (ADR-0007). A tenant administrator sets `MEMBERSHIP.state` in organisations they administer; a person sets `USER.self_blocked`; a platform administrator sets `TENANT.state`. An active tenant keeps at least one active tenant administrator — the last one may block themselves only as the tenant's last active user — and the last platform administrator can be neither blocked nor demoted. Every block and unblock is typed history — `MEMBERSHIP_HISTORY`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY` — so who could reach what on a past date stays answerable. A platform administrator is notified when a person ends up blocked in some tenants and active in others, and when a tenant is left without an active administrator.
+**Blocking has three levels** (ADR-0007). A tenant administrator sets `MEMBERSHIP.state` in organisations they administer; a person sets `USER.self_blocked`; a platform administrator sets `TENANT.state`. An active tenant keeps at least one active tenant administrator — the last one may block themselves only as the tenant's last active user — and the last platform administrator can be neither blocked nor demoted. Every block and every lifting of one is typed history — `MEMBERSHIP_HISTORY`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY` — so who could reach what on a past date stays answerable. A platform administrator is notified when a person ends up blocked in some tenants and active in others, and when a tenant is left without an active administrator.
+
+**A tenant is `migrating` until its schema is complete** (ADR-0017). Its row is written before its schema is created and migrated; no request resolves it in that state; it becomes `active` only when its migrations have all run — in the act that creates it, or later, when `migrate_schemas` completes a schema a crash or a failed migration left half-made.
 
 **`MEMBERSHIP.granted_at` is what a tenant administrator sees; `USER.created_at` is not** (ASR-17). Adding a user who already exists elsewhere on the platform must look identical to adding a new one — same screens, same wording, same timestamps. A tenant administrator's block sets `MEMBERSHIP.state`, never anything on `USER`; a person's own block is `USER.self_blocked` (below).
 

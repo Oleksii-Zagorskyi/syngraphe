@@ -5,50 +5,77 @@ aliases:
   - Syngraphē test strategy
 status: draft
 date: 2026-09-23
+last-updated: 2026-09-28
 ---
 
 # Test strategy
 
-One shape of test for every epic, so twelve epics do not produce twelve. It says which levels exist, what CI runs, and what *tests done* means for a story.
+One shape of test for every epic, so no epic invents its own. It says which levels exist, the command that runs each, what CI runs, where the fixtures come from, and what *tests done* means for a story. A plan for a piece of work cites this document instead of repeating it.
 
-> [!note] Target state — in force from Epic 2, Story 1
-> This is the plan the code is tested against, written before the code. It takes effect with Epic 2's first story, which adds the first code and the package definition CI installs.
+> [!note] Target state — in force from the first story that adds code
+> This is the plan the code is tested against, written before the code. It takes effect with the story that adds the package definition CI installs.
 
 ## What CI runs
 
-The command a developer runs locally is the command CI runs — never a variant reconstructed per session:
+The commands a developer runs locally are the commands CI runs — never a variant reconstructed per session. The first prepares a fresh clone, and runs again whenever a lockfile or the editor's code changes: it installs the Python dependencies from `uv.lock` (DL-0270), builds the editor's bundle with esbuild, and installs the Chromium the browser tests drive (DL-0274). The second is the check:
 
 ```bash
-ruff check . && ruff format --check . && mypy src && pytest -q
+uv sync --locked && npm ci && npm run build && uv run playwright install chromium
+uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
 
-CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs it on every push and pull request, on Python 3.12, with PostgreSQL and Redis as real services. A red build is fixed before the next story starts.
+The check needs PostgreSQL and Redis running — the compose stack's `db` and `redis` on a developer's machine, services in CI. The browser and conformance levels start the application themselves, as a live server inside the test run, so nothing else has to be started first.
+
+CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs both on every push and pull request, on Python 3.12. A red build is fixed before the next story starts.
 
 ## Levels
 
-**Fast tests — no database, no repository.** The pure logic: the normalizer and its sentence splitter, the whitelist parser, the canonical table row, permission decisions computed from given rows, render rules such as clause numbering. They run as a group in about a second, so they can run constantly while working.
+Each level is a pytest marker, so it can run alone while working and CI runs them all. A test carries exactly one level marker.
 
-**Integration tests — a real PostgreSQL and real bare repositories.** Anything that crosses the two stores runs against both for real: tenant schemas created and migrated, repositories initialised in a temporary directory, commits made through the git service layer. Neither store is mocked, because the write protocol between them is the thing most likely to be wrong and a mock would agree with whatever the code assumes. Celery tasks are tested by calling them as functions against their rows; the broker is outside the test, since every task has a row behind it.
+| Level | Marker | Runs against | Command |
+|---|---|---|---|
+| Fast | `fast` | nothing — pure functions | `pytest -m fast` |
+| Integration | `integration` | a real PostgreSQL and real bare repositories | `pytest -m integration` |
+| Crash | `crash` | the same, with the process stopped between two steps | `pytest -m crash` |
+| Invariant | `invariant` | whichever store the requirement binds | `pytest -m invariant` |
+| Conformance | `conformance` | the server-side parser and the renderer's output; and the editor, through the browser | `pytest -m conformance` |
+| Browser | `browser` | the running application in Chromium | `pytest -m browser` |
+
+**Fast tests — no database, no repository.** The pure logic: the normalizer and its sentence splitter, the whitelist parser and validator, the canonical table row, permission decisions computed from given rows, render rules such as clause numbering. They run as a group in about a second, so they can run constantly while working.
+
+**Integration tests — a real PostgreSQL and real bare repositories.** Anything that crosses the two stores runs against both for real: tenant schemas created and migrated, repositories initialised in a temporary directory, commits made through the git service layer. Neither store is mocked, because the write protocol between them is the thing most likely to be wrong and a mock would agree with whatever the code assumes. Celery tasks are tested by calling them as functions against their rows; the broker is outside the test, since every task has a row behind it. An export test reads the produced file back — the PDF's text and outline, the DOCX's styles and runs — and asserts on what it finds, never on the renderer having returned.
 
 **Crash tests — the process dies between two steps.** Every multi-step write the design names is tested by stopping it at each step and proving the reconciler repairs the result: a row without its repository, a commit without its row, a draft whose hold was forced. These are integration tests with a deliberate interruption, and they exist because the design's safety depends on repair rather than on nothing failing.
 
-**Invariant tests — one or more per ASR that can be broken by code.** Tenant isolation holds when a query forgets its filter (ASR-01); history is never rewritten (ASR-02); a stored line is never re-normalised (ASR-20); stored content never executes and the renderer never fetches (ASR-19); no notification carries document text. Each is named for the invariant, so a failure reads as the requirement it breaks.
+**Invariant tests — one or more per ASR that can be broken by code.** Tenant isolation holds when a query forgets its filter (ASR-01); history is never rewritten (ASR-02); a stored line is never re-normalised (ASR-20); stored content never executes and the renderer never fetches (ASR-19); a link grants no access (ASR-16); no notification carries document text. Each is named for the invariant, so a failure reads as the requirement it breaks.
 
-**The conformance suite — one case list, two enforcement points.** Every whitelist case marked accept or reject, run against the server-side parser in CI and against the editor in the browser tests; a divergence fails both (`verification-plan.md` V-04).
+**The conformance suite — one case list, two enforcement points.** Every whitelist case marked accept or reject, run against the server-side parser in CI and against the editor in the browser; a divergence fails both ([`verification-plan.md`](verification-plan.md) V-04). Its third subject is the server-side renderer: for every accept case the suite fixes the renderer's exact output, because the renderer's rules exist on the server alone and have no twin to be compared with ([`ADR-0013`](adr/ADR-0013-one-parse-for-every-render-target.md)). The case list is data.
 
-**Browser tests — the editor and the review surface.** End-to-end flows through a real browser: take, edit, send for review, accept, freeze. The tool is chosen in Epic 4, where the editor exists to test. Browser tests are complemented, not replaced, by QA sessions — a person or a separate session using the running application and writing a log the developer works through.
+**Browser tests — the editor and the review surface.** End-to-end flows through Chromium driven by Playwright, headless in CI and headed on a developer's machine: take, edit, paste, send for review, accept, freeze. They are the scripted sweep; they run beside, and never replace, a QA session — a person, or a separate session, using the running application in a real browser and writing a log the developer works through. A demonstration of a finished slice (DL-0122) is a QA session.
 
-**Performance** is not measured by the test suite. The numbers in `asr.md` are verified by measurement against the running system, and the design's unproven speed claims live in [`verification-plan.md`](verification-plan.md).
+**Performance** is not measured by the test suite. The numbers in [`asr.md`](asr.md) are verified by measurement against the running system, and the design's unproven speed claims live in the verification plan.
 
 ## What is not tested
 
-The framework itself, third-party library behaviour, and exact markup. Test the use of a library, not the library; and markup belongs to browser tests and QA, where a cosmetic change does not fail a unit test.
+The framework itself, third-party library behaviour, and the exact markup of page templates. Test the use of a library, not the library; and a page's markup belongs to browser tests and QA, where a cosmetic change does not fail a unit test. The renderer's output is not page markup: the conformance suite fixes it.
 
-## Test material
+## Fixtures
 
-**Invented, always** — the data boundary in `CLAUDE.md` has no exception for tests. Realistic Ukrainian prose is written for the purpose; the synthetic policy sample from Epic 1 DD-3 may become the normalizer's fixture. Test data is fixed, never random or time-dependent, and datetimes are UTC.
+All in `tests/fixtures/`, all invented, all generated or written for the purpose — the data boundary in [`CLAUDE.md`](../CLAUDE.md) has no exception for tests.
 
-Tests live in `tests/` at the repository root, one file per functional area, named for the area; test functions are named for the behaviour, so a failure says what broke.
+| Fixture | Holds | Used by |
+|---|---|---|
+| `corpus/` | two synthetic document histories, Ukrainian and English — a policy of about forty pages, two hundred single-edit commits by three authors, twenty tags — and the record of who wrote every sentence and what happened to it; the generator that made them sits beside them | attribution, per-author undo, blame, repack |
+| `splitter/` | the two corpora enriched with the hard cases — clause references, abbreviations, initials, amounts, quotations, lists, callouts, spans — every intended sentence boundary marked, and the counts per case; the six planted bad breaks as negative cases | the normalizer's splitter and its parse-preservation check |
+| `whitelist/` | the conformance case list: every construct accepted, every refusal with its stable code and line, every re-spelling with its stored form | the parser, the validator, the editor |
+| `render/` | the conformance sample carrying every whitelist construct in invented Ukrainian, and the negative sample with a remote image | the reading view, PDF and DOCX |
+| `documents/` | small invented documents for flows: a two-section policy, one with an appendix and an attachment, one in each language | integration and browser tests |
+
+Fixed, never random or time-dependent; datetimes are UTC. A generated fixture — `corpus/`, `splitter/` — is regenerated by its script, never edited by hand.
+
+## Layout
+
+Tests live in `tests/` at the repository root, one directory per functional area, named for the app it tests, and one file per topic — `tests/documents/test_create.py`, `tests/editing/test_splitter.py` — so a test can be named, as `tests/{area}/test_{topic}.py::test_{behaviour}`, before the code it tests exists. Test functions are named for the behaviour, so a failure says what broke. Shared fixtures — a migrated tenant schema, a temporary repository root, a signed-in client per role — are in `tests/conftest.py`.
 
 ## Tests done, for a story
 

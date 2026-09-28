@@ -84,9 +84,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent.
 
-**version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3-2` for pending work on top of acceptance 1.3, counting content versions only (DL-0267). Derived, never typed.
+**version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3-2` for pending work on top of acceptance 1.3, counting content versions only (DL-0267); `0.0-1` for pending work before the first acceptance, where `0.0` names no version and is never shown alone (DL-0272). Derived, never typed.
 
-**edition** · редакція · *proposed* — a canonical version, numbered `N.0`. Never changes once made. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
+**edition** · редакція · *proposed* — a canonical version, numbered `N.0` from `1.0`. Never changes once made. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
 
 **version** · правка · *proposed* — one committed change-set, the thing that appears in *мої правки*. Deliberately the same word as the stance names, because it is the same object seen from a different angle.
 
@@ -162,6 +162,12 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **source view** · вихідний текст · *proposed* — the editor showing and accepting Markdown instead of formatted text. An editor, not an import.
 
+**block / lift the block** · заблокувати / розблокувати · *proposed* — end access, and restore it as it stood, at one of three levels: a tenant administrator blocks a person's membership in their organisation and lifts that block (ST-0004, ST-0072); a platform administrator blocks a whole organisation and lifts that block (ST-0065, ST-0071); a person blocks their own account (ST-0066), a block nothing in release 0.1 lifts (DL-0254). *Unblock* is not a second name for it.
+
+**blocked** · заблоковано · *proposed* — the state of a blocked membership, account or tenant.
+
+**migrating** · налаштовується · *proposed* — the state of a new tenant whose schema is not yet fully migrated: no request reaches it until the migration completes and it becomes active (DL-0280).
+
 ---
 
 ## Who does it
@@ -194,6 +200,12 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 **access history** · історія доступу · *proposed* — who held what, when, granted by whom. Answerable for a past date.
 
 **notification** · сповіщення · *proposed*
+
+---
+
+## The product and its releases
+
+**release** · реліз · *fixed* — a numbered delivery of the platform: 0.1, then 0.2.
 
 ---
 

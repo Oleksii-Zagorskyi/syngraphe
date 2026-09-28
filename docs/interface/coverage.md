@@ -24,7 +24,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0002 | As a platform administrator, I grant platform administration to another user | Administration — platform administrators | not yet drawn |
 | ST-0003 | As a tenant administrator, I add a user to my tenant by email address | Administration — users | drawn |
 | ST-0004 | As a tenant administrator, I block a user | Notifications — both tabs; Administration — users | drawn |
-| ST-0072 | As a tenant administrator, I unblock a person's membership in my tenant | Administration — users | drawn |
+| ST-0072 | As a tenant administrator, I lift the block on a person's membership in my tenant | Administration — users | drawn |
 | ST-0066 | As any user, I block my own account | Shell — user menu; Administration — users | drawn |
 | ST-0005 | As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to | Document page — Groups; Administration — groups; Administration — document links | drawn |
 | ST-0006 | As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links | Administration — access history | drawn |

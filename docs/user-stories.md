@@ -45,7 +45,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - I cannot block a tenant's last active administrator. If that is me, I can block myself only when I am also its last active user.
 - The block ends every hold and reservation the person has on our documents; their drafts are preserved, and each release is recorded with the block as its cause (DL-0256).
 
-**ST-0072** — As a tenant administrator, I unblock a person's membership in my tenant, so that someone who returns regains access through the groups they were in.
+**ST-0072** — As a tenant administrator, I lift the block on a person's membership in my tenant, so that someone who returns regains access through the groups they were in.
 - Their group memberships apply as they stood. A self-blocked account (ST-0066) stays blocked: only a platform administrator lifts that.
 
 **ST-0066** — As any user, I block my own account, so that nobody can use it while I cannot.

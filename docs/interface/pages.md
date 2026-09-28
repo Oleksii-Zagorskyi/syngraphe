@@ -62,13 +62,13 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | *All documents* | **0.1** | — | ST-0013 | Epic 3 |
-| *In edit* — documents the user may edit that have versions after their latest canonical edition | **0.1** — shown to holders of *edit* on any document, disabled when empty, no count (DL-0197) | *edit* | ST-0013 | Epic 9 |
-| *In review* — documents with pending edits the user may accept, returned runs included | **0.1** — likewise | *accept* | ST-0014 | Epic 9 |
-| *Help* | **0.1** | — | ST-0019 | Epic 7 |
-| *Administration* | **0.1** | tenant or platform administrator | — | Epic 8 |
-| notifications — unread count, opening the notifications page | **0.1** | — | ST-0047 | Epic 8 |
-| tenant switcher — only with several memberships; on a tenant's own domain, switching moves to the other tenant's domain (ADR-0008) | **0.1** | — | ST-0007 | Epic 2 |
-| user menu — *My reservations*, each document with its start date, drawn only for a holder of *reserve for editing* (DL-0241); *block my account…*, confirmed; *sign out* | **0.1** | — | ST-0066, ST-0069 | Epic 2; self-block Epic 8; reservations to be assigned |
+| *In edit* — documents the user may edit that have versions after their latest canonical edition | **0.1** — shown to holders of *edit* on any document, disabled when empty, no count (DL-0197) | *edit* | ST-0013 | Epics 14, 10 |
+| *In review* — documents with pending edits the user may accept, returned runs included | **0.1** — likewise | *accept* | ST-0014 | Epics 14, 10 |
+| *Help* | **0.1** | — | ST-0019 | Epic 4 |
+| *Administration* | **0.1** | tenant or platform administrator | — | Epic 2 |
+| notifications — unread count, opening the notifications page | **0.1** | — | ST-0047 | Epic 14 |
+| tenant switcher — only with several memberships; on a tenant's own domain, switching moves to the other tenant's domain (ADR-0008) | **0.1** | — | ST-0007 | Epic 8; the tenant's name Epic 2 |
+| user menu — *My reservations*, each document with its start date, drawn only for a holder of *reserve for editing* (DL-0241); *block my account…*, confirmed; *sign out* | **0.1** | — | ST-0066, ST-0069 | Epic 2; self-block Epic 8; reservations Epic 9 |
 
 ## Sign-in pages
 
@@ -106,7 +106,7 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 | *create* | **0.1** | *create and edit* | ST-0009 | Epic 3 |
 | `#` — the document's number (ADR-0008) | **0.1** | — | ST-0013 | Epic 3 |
 | title — takes the free width; opens the reading view | **0.1** | — | ST-0013 | Epics 3, 4 |
-| state tags after the title — *held* (DL-0262), the fact and never the person except to a tenant administrator (ADR-0006); *reserved for editing, since* its date, with who to holders of *edit* or *accept* and to administrators (DL-0226); *frozen*; *awaiting review* and *returned* to those who may see pending edits (DL-0233); *no reviewer assigned* to those, and to administrators | **0.1** | — | ST-0014, ST-0018, ST-0051, ST-0052 | Epics 3, 4, 9 |
+| state tags after the title — *held* (DL-0262), the fact and never the person except to a tenant administrator (ADR-0006); *reserved for editing, since* its date, with who to holders of *edit* or *accept* and to administrators (DL-0226); *frozen*; *awaiting review* and *returned* to those who may see pending edits (DL-0233); *no reviewer assigned* to those, and to administrators | **0.1** | — | ST-0014, ST-0018, ST-0051, ST-0052 | Epics 5, 6, 9, 15 |
 | sorting — by `#` or title, ascending or descending; title A to Z by default | **0.1** | — | ST-0013 | Epic 10 |
 | *Canonical* — the canonical number, linking to that version | **0.1** | — | ST-0013 | Epic 6 |
 | *Latest* — the latest version the user may see beyond canonical, else empty; links where the title does (DL-0208, DL-0209). **Drawn only for someone who may see beyond canonical text on at least one document** (DL-0233) | **0.1** | — | ST-0013, ST-0014 | Epic 6 |
@@ -121,7 +121,7 @@ The document list's shape, each a page of its own reached from the menu: matchin
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| grouped list, filtered tree | **0.1** | ST-0013, ST-0014 | Epic 9 |
+| grouped list, filtered tree | **0.1** | ST-0013, ST-0014 | Epics 14, 10 |
 
 ## Search results
 
@@ -153,18 +153,18 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
-| **bands** across the top — *reserved for editing* since its date, with who to holders of *edit* or *accept* and administrators, and what waits until it ends; *reserved for editing by you*, to its holder; *frozen* with its reason, and the name of who froze it to holders of a history right and administrators (DL-0236); *your reservation was ended*, to its holder, with who, when and why, and *take the document back* when nothing was committed since (DL-0225) | **0.1** | — | ST-0018, ST-0038, ST-0069, ST-0070 | to be assigned |
-| breadcrumb, `#12`, title, the **latest version the reader may see** — never a version beyond their rights (DL-0209) | **0.1** | — | ST-0042 | Epic 4 |
-| state tags, as in the list; *archived* to administrators only — to everyone else an archived document does not exist | **0.1** | — | ST-0014, ST-0015, ST-0018, ST-0051, ST-0052 | Epics 4, 6 |
+| **bands** across the top — *reserved for editing* since its date, with who to holders of *edit* or *accept* and administrators, and what waits until it ends; *reserved for editing by you*, to its holder; *frozen* with its reason, and the name of who froze it to holders of a history right and administrators (DL-0236); *your reservation was ended*, to its holder, with who, when and why, and *take the document back* when nothing was committed since (DL-0225) | **0.1** | — | ST-0018, ST-0038, ST-0069, ST-0070 | Epics 9, 6 |
+| breadcrumb, `#12`, title, the **latest version the reader may see** — never a version beyond their rights (DL-0209) | **0.1** | — | ST-0042 | Epics 3, 6 |
+| state tags, as in the list; *archived* to administrators only — to everyone else an archived document does not exist | **0.1** | — | ST-0014, ST-0015, ST-0018, ST-0051, ST-0052 | Epics 5, 6, 9, 10, 15 |
 | *Export*, *Copy* | **0.1** | any viewing right; *create and edit* | ST-0045, ST-0067 | Epics 7, 10 |
 | *Freeze* / *Unfreeze* — disabled with its reason while anyone holds or has reserved the document (DL-0223) | **0.1** | *freeze* | ST-0038, ST-0040 | Epic 6 |
 | *Make canonical* — disabled with its reason until the document is frozen, and while changes are unaccepted; to someone who may not see pending edits the reason names no pending number | **0.1** | *make canonical* | ST-0039, ST-0053 | Epic 6 |
 | *Groups* — locked, with who holds the document, while it is held or reserved | **0.1** | tenant administrator | ST-0005 | Epic 8 |
-| *Archive* / *Restore*; *More ▾* holds *force release* for an ordinary hold and *end the reservation…* for a reserved one, a reason required (DL-0225) | **0.1** | tenant administrator | ST-0015, ST-0016, ST-0030 | Epics 8, 9 |
+| *Archive* / *Restore*; *More ▾* holds *force release* for an ordinary hold and *end the reservation…* for a reserved one, a reason required (DL-0225) | **0.1** | tenant administrator | ST-0015, ST-0016, ST-0030 | Epics 10, 9 |
 | outline — every heading level, ▸ ▾, no appendices; collapsible and resizable | **0.1** | — | ST-0024 | Epic 7 |
 | right panel — the icon row; collapsible and resizable; widths kept per user (DL-0194, DL-0195) | **0.1**; comments **later** (B-013), drawn as a placeholder; the agents' views **0.2**, likewise | — | — | Epics 3, 4, 7 |
-| parts — appendices in their order, *add*, rename, reorder, delete; attachments with download, *add*, replace, rename, reorder, delete — the changing controls only while holding the document; a file above the organisation's limit refused with the limit | **0.1** | any viewing right for the list and downloads; *edit* and the part rights for the changing controls (ADR-0007) | ST-0061, ST-0062 | Epics 3, 4 |
-| generated views — role directory, see also | **0.1** — their content not yet drawn; contradictions, ambiguities, blind spots **0.2** | — | ST-0027, ST-0044 | Epics 11, 10 |
+| parts — appendices in their order, *add*, rename, reorder, delete; attachments with download, *add*, replace, rename, reorder, delete — the changing controls only while holding the document; a file above the organisation's limit refused with the limit | **0.1** | any viewing right for the list and downloads; *edit* and the part rights for the changing controls (ADR-0007) | ST-0061, ST-0062 | Epic 13 |
+| generated views — role directory, see also | **0.1** — their content not yet drawn; contradictions, ambiguities, blind spots **0.2** | — | ST-0027, ST-0044 | Epic 11 |
 
 ### The tabs
 
@@ -183,17 +183,17 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| *edit* beside each `#` section, several open at once; *edit whole document* only when none is open — disabled with its reason otherwise | **0.1** | ST-0059 | Epic 4 |
-| a section editor opened in place, the rest rendered around it; toolbar exactly the whitelist — *quote* among it (DL-0238) — *undo* and *redo* (DL-0241), *mark* for entities; *rich / markdown* | **0.1** | ST-0019, ST-0021, ST-0026, ST-0060 | Epic 4; *mark* Epic 11 |
+| *edit* beside each `#` section, several open at once; *edit whole document* only when none is open — disabled with its reason otherwise | **0.1** | ST-0059 | Epic 9 |
+| a section editor opened in place, the rest rendered around it; toolbar exactly the whitelist — *quote* among it (DL-0238) — *undo* and *redo* (DL-0241), *mark* for entities; *rich / markdown* | **0.1** | ST-0019, ST-0021, ST-0026, ST-0060 | Epics 4, 9; *mark* Epic 11 |
 | paste refusal — the lines named, the converted text previewed, *paste converted*, a link to help; image refusal — the format or the size. A pasted or dropped image becomes an upload and a paragraph of its own; an image that is only a web address is left out of the paste, with a one-line notice to save it and paste the file, which blocks nothing (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 4 |
 | capture indicator — no Save control | **0.1** | ST-0020 | Epic 4 |
-| a stopped editor — read-only, its unsaved text as changes against the draft | **0.1** | ST-0059 | Epic 4 |
-| inactivity prompt — *are you still working?*; never for a reserved hold (DL-0221) | **0.1** | ST-0017, ST-0030 | Epic 4 |
+| a stopped editor — read-only, its unsaved text as changes against the draft | **0.1** | ST-0059 | Epic 9 |
+| inactivity prompt — *are you still working?*; never for a reserved hold (DL-0221) | **0.1** | ST-0017, ST-0030 | Epic 9 |
 | *Finish editing* — opens the send-for-review screen; disabled with its reason while an editor is open | **0.1** | ST-0029 | Epic 4 |
-| *Reserve for editing*, to a holder with the right — disabled with its reason while frozen (DL-0252); then *Cancel the reservation* (DL-0218, DL-0219, DL-0223) | **0.1** | ST-0069 | to be assigned |
-| *Discard my edits* whenever the user holds the document, confirmed in a box saying the whole draft is thrown away and a reservation ends with it (DL-0237) | **0.1** | ST-0022 | Epic 4 |
-| to a reviewer correcting a pending run: that their changes become their own version; after an undo, what reverted and what is left for them (ADR-0015) | **0.1** | ST-0035, ST-0037 | to be assigned |
-| the holder's draft after an administrator ended their reservation and someone committed since — read-only, as changes against the current text or any version they choose (DL-0225) | **0.1** | ST-0070 | to be assigned |
+| *Reserve for editing*, to a holder with the right — disabled with its reason while frozen (DL-0252); then *Cancel the reservation* (DL-0218, DL-0219, DL-0223) | **0.1** | ST-0069 | Epic 9 |
+| *Discard my edits* whenever the user holds the document, confirmed in a box saying the whole draft is thrown away and a reservation ends with it (DL-0237) | **0.1** | ST-0022 | Epic 9 |
+| to a reviewer correcting a pending run: that their changes become their own version; after an undo, what reverted and what is left for them (ADR-0015) | **0.1** | ST-0035, ST-0037 | Epics 5, 15 |
+| the holder's draft after an administrator ended their reservation and someone committed since — read-only, as changes against the current text or any version they choose (DL-0225) | **0.1** | ST-0070 | Epic 9 |
 | the tab while someone else holds or has reserved the document, or it is frozen and the user lacks *accept* | **0.1** — says so, offers nothing | ST-0017, ST-0038 | Epic 4 |
 
 ## Appendix page
@@ -202,7 +202,7 @@ The document page's frame for one appendix. The title reads **#12 Annual leave�
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| the page | **0.1** | ST-0023, ST-0061 | Epics 3, 4 |
+| the page | **0.1** | ST-0023, ST-0061 | Epic 13 |
 
 ## Historical page
 
@@ -210,7 +210,7 @@ One version, opened in a new window: a **banner** across the top — *Historical
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
-| the page | **0.1** | the version's viewing right | ST-0032, ST-0041 | Epic 6 |
+| the page | **0.1** | the version's viewing right | ST-0032, ST-0041 | Epic 15 |
 
 ## Compare
 
@@ -218,7 +218,7 @@ A **banner** across the top in the historical page's style — *Comparing 2.0 wi
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
-| version comparison, appendix comparison, attachment list | **0.1** | the viewing right for both versions | ST-0033, ST-0041 | Epic 6 |
+| version comparison, appendix comparison, attachment list | **0.1** | the viewing right for both versions | ST-0033, ST-0041 | Epic 15 |
 | comparing two documents — the document picker, and the start from the document list | **0.1** — not yet drawn | a viewing right on each | ST-0064 | Epic 10 |
 
 ## Send-for-review screen
@@ -263,7 +263,7 @@ Within the edit tab, opened by *finish editing* for every holder (DL-0222): the 
 | what will be delivered — one file or one zip | **0.1** | ST-0045 | Epic 7 |
 | *Export* — disabled while nothing is chosen; a message when a chosen part is not in the chosen version, or nothing is left to export (DL-0208) | **0.1** | ST-0045 | Epic 7 |
 | *?* beside each section's heading — a box of help above the dialog, closed by a click anywhere else; no help text in the layout (DL-0233) | **0.1** | ST-0045 | Epic 7 |
-| file names | **0.1** — to be decided | ST-0045 | Epic 7 |
+| file names — `<title>_—_<version>_—_<stance>.<ext>`, the stance in the interface's language; a marked export ends in a suffix naming the marks, in the same language, `<stance>-<marks>.<ext>`, and a clean one has none; several files a zip of the same name (DL-0275) | **0.1** | ST-0045 | Epic 7 |
 
 ## Create or copy a document
 
@@ -280,7 +280,7 @@ Two tabs (DL-0204). **Document** — each entry linking to the document at the v
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| both tabs | **0.1** | ST-0004, ST-0030, ST-0035, ST-0036, ST-0047, ST-0048, ST-0051, ST-0052, ST-0070 | Epic 8 |
+| both tabs | **0.1** | ST-0004, ST-0030, ST-0035, ST-0036, ST-0047, ST-0048, ST-0051, ST-0052, ST-0070 | Epic 14 |
 | levels a person chooses; a read-and-act workflow | **later** — B-028, B-029 | — | — |
 
 ## Help
@@ -289,7 +289,7 @@ Pages rendered from Markdown files shipped with the application (DL-0195): how a
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| the pages and the allowed-Markdown list | **0.1** — not yet drawn; the guide's full content B-016 | ST-0019, ST-0060 | Epics 4, 7 |
+| the pages and the allowed-Markdown list | **0.1** — not yet drawn; the guide's full content B-016 | ST-0019, ST-0060 | Epic 4 |
 
 ## Nothing to show here
 
@@ -309,19 +309,19 @@ One area with two parts in a left pane: **Platform**, for platform administrator
 | tenants | `…/platform/tenants/` | the organisations with their state and administrators; *block* | **0.1** | ST-0065 | Epic 2 |
 | tenants — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** — not yet drawn | ST-0001, ST-0071 | Epic 2 |
 | platform administrators | `…/platform/administrators/` | grant — not yet drawn; the last one cannot be removed or blocked | **0.1** | ST-0002 | Epic 2 |
-| mail and outbox | `…/platform/mail/` | the platform's sender, the password write-only, *Send a test email*; the outbox with each email's status and attempts (DL-0202, DL-0203) | **0.1** | ST-0048, ST-0049 | Epic 8 |
+| mail and outbox | `…/platform/mail/` | the platform's sender, the password write-only, *Send a test email*; the outbox with each email's status and attempts (DL-0202, DL-0203) | **0.1** | ST-0048, ST-0049 | Epic 14 |
 | audit log | `…/platform/audit/` | what people, the system and agents did | **0.1** | ST-0050 | Epic 12 |
 | heuristics | `…/platform/heuristics/` | the catalogue | **0.2** — drawn as a placeholder | — | — |
-| users | `/administration/tenant/users/` | *invite by email*, with groups to join, answering alike for a known and an unknown address (ASR-17); *block…*, asking which of the organisations one administers; the last active administrator's *block* disabled with its reason; *unblock* a membership; a self-blocked account shown as blocked, with no *unblock* — lifting it is not in 0.1 (DL-0254, B-033) | **0.1** | ST-0003, ST-0004, ST-0066, ST-0072 | Epic 8 |
-| groups | `…/tenant/groups/` | a grid of each group's rights — the viewing ladder, history, *accept*, *freeze*, *make canonical*, *reserve for editing*, the part rights; a right included by another shown as a faint tick — *edit* and the views under *accept*, *freeze* and *reserve for editing* (ADR-0016), *view accepted* under *make canonical* (DL-0234); *members…* per group | **0.1** | ST-0005 | Epic 8 |
-| document links | `…/tenant/document-links/` | which groups reach which document, as removable chips and *link a group*; locked while held or reserved, with who, and *force the release* or *end the reservation…*; author-only documents with who created them; an archived document's links, which take effect on restore | **0.1** | ST-0005, ST-0015, ST-0030, ST-0051 | Epic 8 |
-| reservations | `…/tenant/reservations/` | every reservation in the organisation: document, holder, since when; *end the reservation…*, a reason required and sent to the holder (DL-0225, DL-0227) | **0.1** | ST-0030 | to be assigned |
+| users | `/administration/tenant/users/` | *invite by email*, with groups to join, answering alike for a known and an unknown address (ASR-17); *block…*, asking which of the organisations one administers; the last active administrator's *block* disabled with its reason; *lift the block* on a membership; a self-blocked account shown as blocked, with no *lift the block* — lifting it is not in 0.1 (DL-0254, B-033) | **0.1** | ST-0003, ST-0004, ST-0066, ST-0072 | Epic 8 |
+| groups | `…/tenant/groups/` | a grid of each group's rights — the viewing ladder, history, *accept*, *freeze*, *make canonical*, *reserve for editing*, the part rights; a right included by another shown as a faint tick — *edit* and the views under *accept*, *freeze* and *reserve for editing* (ADR-0016), *view accepted* under *make canonical* (DL-0234); *members…* per group | **0.1** | ST-0005 | Epics 2, 8 |
+| document links | `…/tenant/document-links/` | which groups reach which document, as removable chips and *link a group*; locked while held or reserved, with who, and *force the release* or *end the reservation…*; author-only documents with who created them; an archived document's links, which take effect on restore | **0.1** | ST-0005, ST-0015, ST-0030, ST-0051 | Epics 3, 8 |
+| reservations | `…/tenant/reservations/` | every reservation in the organisation: document, holder, since when; *end the reservation…*, a reason required and sent to the holder (DL-0225, DL-0227) | **0.1** | ST-0030 | Epic 9 |
 | folders | `…/tenant/folders/` | the tree with each folder's documents; new, rename; *delete* disabled with its reason when a folder holds anything; *move documents…* — which, and where to | **0.1** | ST-0012 | Epic 10 |
 | document types | `…/tenant/document-types/` | this organisation's own list, seeded with *document*; add, rename, retire; delete only a type no document uses (DL-0235) | **0.1** | ST-0011 | Epic 10 |
-| template | `…/tenant/template/` | the headings and starting text new documents start from; the title page switch and *title page layout…* — which details, in which order | **0.1** | ST-0058 | Epic 3; title page Epic 7 |
-| settings | `…/tenant/settings/` | attachment size cap, inactivity timeout, the distinct-approver check | **0.1** | ST-0030, ST-0053, ST-0062 | Epic 8 |
-| sending address | `…/tenant/sending-address/` | the tenant's own sender or none; the password write-only; *Send a test email* — to the address itself, with the step results; the DNS note | **0.1** | ST-0068 | Epic 8 |
+| template | `…/tenant/template/` | the headings and starting text new documents start from; the title page switch and *title page layout…* — which details, in which order | **0.1** | ST-0058 | Epic 16 |
+| settings | `…/tenant/settings/` | attachment size cap, inactivity timeout, the distinct-approver check | **0.1** | ST-0030, ST-0053, ST-0062 | Epic 12 |
+| sending address | `…/tenant/sending-address/` | the tenant's own sender or none; the password write-only; *Send a test email* — to the address itself, with the step results; the DNS note | **0.1** | ST-0068 | Epic 14 |
 | archive | `…/tenant/archive/` | archived documents: restore, export | **0.1** | ST-0015, ST-0016 | Epic 10 |
-| styles | `…/tenant/styles/` | the organisation's export stylesheet and which documents use it, *apply*, *export a sample PDF* (DL-0230) | **0.1** | ST-0046 | Epic 7 |
+| styles | `…/tenant/styles/` | the organisation's export stylesheet and which documents use it, *apply*, *export a sample PDF* (DL-0230) | **0.1** | ST-0046 | Epic 16 |
 | access history | `…/tenant/access-history/` | a document and a date: which groups could read it then, each with its members that day; the changes to access that led there | **0.1** | ST-0006 | Epic 12 |
 | actions and side-document types | `…/tenant/actions/` | which are attached to which documents | **0.2** — drawn as a placeholder | — | — |

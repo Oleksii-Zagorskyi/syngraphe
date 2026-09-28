@@ -47,7 +47,8 @@ A second consequence worth stating: a development host that holds real tenant do
 - Browser ↔ platform.
 - Platform ↔ PostgreSQL and the git repositories, which are behind it and reachable no other way.
 - Platform ↔ agent job, which runs with a subset of the platform's reach.
-- Platform ↔ **the model API**, which is outside the system entirely and is the one boundary content crosses to a party we do not control.
+- Platform ↔ **the model API**, which is outside the system entirely and is the one boundary content crosses readable to a party we do not control.
+- Platform ↔ **the off-host backup store**, which receives every tenant's content, encrypted before it leaves the host (T-20).
 - Tenant ↔ tenant, enforced by schema separation.
 
 ---
@@ -161,6 +162,10 @@ The same person may also leave documents **held or reserved**, so that nobody el
 ### T-19 — Claiming the platform before its operator
 
 **Who:** anyone who reaches a fresh installation. **How:** the first platform administrator is created through a first-run page (ST-0057); whoever completes it first holds every tenant. **Answered by:** the page accepts only a one-time token printed by the install command, single-use and expiring, and once a platform administrator exists it answers as an address that does not exist (DL-0231). Reaching the page is not enough; the token proves access to the server. **Residual:** the token appears in the install command's output, so a shared terminal log or a CI transcript can leak it until it is used or expires.
+
+### T-20 — The backup store is read
+
+**Who:** whoever reaches the off-host backup store — its provider, or an outsider holding its credentials. **How:** the store holds every repository and the whole database, every organisation's together, off the host and often at a third party (ADR-0018). Read there, it bypasses the access table, tenant separation (ASR-01) and every other control in this file. **Answered by:** DL-0277 — both backups are encrypted before they leave the host, pgBackRest's encryption for the database archive and base backups and `rclone crypt` for the repository bundles, under keys that are per-installation values in `.env`, held by the platform operator and never written to the store. The store's own protection is not relied on. **Residual:** the operator holds the keys and can read every backup, as the insider with database access can read the database; and losing the keys loses the backups, so the runbook tells the operator to keep a copy away from the platform. The store is a copy for losing the host, not T-07's off-site replication: the operator writes to it and could alter it, so it detects nothing an operator does.
 
 ## What this found
 

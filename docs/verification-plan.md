@@ -188,13 +188,13 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 
 **Claim.** For *undo this edit* on any version of the pending run, every line that version changed is classified as reverting cleanly, or as changed again by a later version of the run and left for the reviewer (ADR-0015) — the per-author walk of V-11 restricted to one commit.
 
-**Test.** In the tests of the story that builds undo in Epic 4: on the V-05 corpus, revert each of a run's versions in turn; compare every line's classification with the generator's record, and apply the clean reversal to a draft.
+**Test.** In the tests of the story that builds undo in Epic 15: on the V-05 corpus, revert each of a run's versions in turn; compare every line's classification with the generator's record, and apply the clean reversal to a draft.
 
 **Pass condition.** **Every** line of the version classified, **none** misclassified against the generator's record, and the draft after the reversal equal to the text before that version on every clean line.
 
 **If it fails** *(proposed during planning; no earlier document states it)*. *Undo this edit* is withdrawn and the per-author undo, which V-11 proved, remains; ST-0037 loses its first form.
 
-**Status.** Accepted as a risk before the design review — resolved in Epic 4 by the test above (DL-0247).
+**Status.** Accepted as a risk before the design review — resolved in Epic 15 by the test above (DL-0247, DL-0278).
 
 ### V-15 — The normalizer keeps unchanged text's stored lines on every text path
 
