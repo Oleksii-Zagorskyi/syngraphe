@@ -1,0 +1,27 @@
+{% load i18n %}
+<section class="members" id="members">
+  <h2>{% translate "Members" %} · {{ group.name }}</h2>
+  <ul>
+    {% for member in members %}
+    <li>
+      <span>{{ member.membership.user.email }}</span>{% if member.membership.user.display_name %} <span class="muted">{{ member.membership.user.display_name }}</span>{% endif %}
+      <form method="post" action="{{ groups_url }}{{ group.id }}/members/" hx-post="{{ groups_url }}{{ group.id }}/members/" hx-target="#members" hx-swap="outerHTML" class="inline">{% csrf_token %}
+        <input type="hidden" name="membership" value="{{ member.membership_id }}">
+        <input type="hidden" name="action" value="remove">
+        <button class="btn" type="submit">{% translate "Remove" %}</button>
+      </form>
+    </li>
+    {% empty %}
+    <li class="muted">{% translate "No members yet." %}</li>
+    {% endfor %}
+  </ul>
+  {% if candidates %}
+  <form method="post" action="{{ groups_url }}{{ group.id }}/members/" hx-post="{{ groups_url }}{{ group.id }}/members/" hx-target="#members" hx-swap="outerHTML" class="toolbar">{% csrf_token %}
+    <input type="hidden" name="action" value="add">
+    <select name="membership">
+      {% for candidate in candidates %}<option value="{{ candidate.id }}">{{ candidate.user.email }}</option>{% endfor %}
+    </select>
+    <button class="btn" type="submit">{% translate "Add" %}</button>
+  </form>
+  {% endif %}
+</section>

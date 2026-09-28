@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from django.db import connection
 from django.test import Client
 
 # The values a host-side run cannot take from `.env`: they describe the test process, not an
@@ -73,3 +74,13 @@ def repo_root(tmp_path: Path, settings: Any) -> Iterator[Path]:
     root.mkdir()
     settings.GIT_REPO_ROOT = root
     yield root
+
+
+@pytest.fixture
+def drop_tenant_schemas() -> Iterator[None]:
+    """Drop every `tenant_N` schema the test created, since a schema outlives a rolled-back row."""
+    yield
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT nspname FROM pg_namespace WHERE nspname LIKE 'tenant\\_%'")
+        for (name,) in cursor.fetchall():
+            cursor.execute(f'DROP SCHEMA "{name}" CASCADE')

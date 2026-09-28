@@ -1,0 +1,43 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Groups" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="groups">
+  <h1>{% translate "Groups" %}</h1>
+  <form method="post" action="{{ groups_url }}" class="toolbar">{% csrf_token %}
+    {{ form.name.errors }}
+    <label class="visually-hidden" for="name">{% translate "New group" %}</label>
+    <input type="text" id="name" name="name" maxlength="100" required placeholder="{% translate 'New group' %}" value="{{ form.name.value|default:'' }}">
+    <button class="btn primary" type="submit">{% translate "Create" %}</button>
+  </form>
+  <table class="grid">
+    <thead>
+      <tr>
+        <th>{% translate "group" %}</th>
+        {% for column in columns %}<th class="rotated" data-right="{{ column.right }}"><span>{{ column.label }}</span></th>{% endfor %}
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <th scope="row">{{ row.group.name }}</th>
+        {% for cell in row.cells %}
+        <td data-group="{{ row.group.id }}" data-right="{{ cell.right }}" class="right{% if cell.state %} {{ cell.state }}{% endif %}">
+          <form method="post" action="{{ groups_url }}{{ row.group.id }}/rights/" hx-post="{{ groups_url }}{{ row.group.id }}/rights/" hx-target="#groups" hx-select="#groups" hx-swap="outerHTML">{% csrf_token %}
+            <input type="hidden" name="right" value="{{ cell.right }}">
+            <input type="hidden" name="action" value="{% if cell.held %}revoke{% else %}grant{% endif %}">
+            <button class="icon" type="submit" aria-pressed="{% if cell.held %}true{% else %}false{% endif %}" aria-label="{{ cell.label }} — {{ row.group.name }}"{% if cell.state == "faint" %} title="{% translate 'included' %}"{% elif cell.state == "inert" %} title="{% translate 'needs edit' %}"{% endif %}>{% if cell.state %}✓{% endif %}</button>
+          </form>
+        </td>
+        {% endfor %}
+        <td><a href="{{ groups_url }}{{ row.group.id }}/members/" hx-get="{{ groups_url }}{{ row.group.id }}/members/" hx-target="#dialog" hx-swap="innerHTML">{% translate "members…" %}</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="{{ columns|length|add:2 }}" class="muted">{% translate "No groups yet." %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div id="dialog">{% if dialog %}{% include "access/group_members.html" with group=dialog.group members=dialog.members candidates=dialog.candidates %}{% endif %}</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% load i18n static %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Syngraphē{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'shell.css' %}">
+<meta name="htmx-config" content='{"allowEval": false, "historyCacheSize": 0}'>
+<script src="{% static 'htmx.min.js' %}" defer></script>
+</head>
+<body>
+<header class="shell">
+  <div class="wrap">
+    <a class="logo" href="/">Syngraphē</a>
+    <nav class="menu">
+      {% block nav_documents %}{% endblock %}
+      {% block nav_in_edit %}{% endblock %}
+      {% block nav_in_review %}{% endblock %}
+      {% block nav_help %}{% endblock %}
+      {% if is_administrator %}<a href="/administration/">{% translate "Administration" %}</a>{% endif %}
+    </nav>
+    <div class="spacer"></div>
+    {% block notifications %}{% endblock %}
+    {% if current_tenant %}<span class="organisation">{{ current_tenant.name }}</span>{% endif %}
+    {% block switcher %}{% endblock %}
+    {% if user.is_authenticated %}
+    <div class="user">
+      <span class="muted">{{ user.email }}</span>
+      {% block user_menu %}{% endblock %}
+      <form method="post" action="/signout/" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Sign out" %}</button></form>
+    </div>
+    {% endif %}
+  </div>
+</header>
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

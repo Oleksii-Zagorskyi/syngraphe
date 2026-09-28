@@ -1,0 +1,38 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Administration" %} · Syngraphē{% endblock %}
+{% block content %}
+<div class="split">
+  <aside class="tree">
+    {% if platform_pane %}
+    <section class="pane platform">
+      <h2>{% translate "Platform" %}</h2>
+      <ul class="sections">{% block platform_sections %}{% endblock %}</ul>
+      {% if selector %}
+      <form method="post" action="/administration/organisation/" class="selector">{% csrf_token %}
+        <label for="organisation">{% translate "Organisation" %}</label>
+        <select id="organisation" name="organisation">
+          {% for organisation in organisations %}<option value="{{ organisation.number }}"{% if current_tenant and organisation.number == current_tenant.number %} selected{% endif %}>{{ organisation.name }}</option>{% endfor %}
+        </select>
+        <button class="btn" type="submit">{% translate "Choose" %}</button>
+      </form>
+      {% endif %}
+    </section>
+    {% endif %}
+    {% if current_tenant %}
+    <section class="pane organisation">
+      <h2>{% translate "Organisation" %}</h2>
+      <p class="muted">{{ current_tenant.name }}</p>
+      <ul class="sections">{% block organisation_sections %}<li><a href="/administration/tenant/groups/">{% translate "Groups" %}</a></li>{% endblock %}</ul>
+    </section>
+    {% elif platform_pane %}
+    <section class="pane organisation">
+      <h2>{% translate "Organisation" %}</h2>
+      <p class="muted">{% translate "No organisation is chosen." %}</p>
+    </section>
+    {% endif %}
+  </aside>
+  <div class="grip"></div>
+  <section class="content">{% block section %}{% endblock %}</section>
+</div>
+{% endblock %}

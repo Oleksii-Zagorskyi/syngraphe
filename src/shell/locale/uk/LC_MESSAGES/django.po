@@ -1,0 +1,186 @@
+# Syngraphē — the Ukrainian interface catalogue.
+# Copyright 2026 Oleksii Zagorskyi
+# This file is distributed under the same licence as the platform.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Syngraphē\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-28 17:08+0000\n"
+"PO-Revision-Date: 2026-09-28 17:08+0000\n"
+"Last-Translator: Oleksii Zagorskyi\n"
+"Language-Team: uk\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: access/forms.py:10
+msgid "Name"
+msgstr "Назва"
+
+#: access/forms.py:17
+msgid "A group with this name exists."
+msgstr "Група з такою назвою вже є."
+
+#: access/rights.py:58
+msgid "view canonical"
+msgstr "перегляд канонічної версії"
+
+#: access/rights.py:59
+msgid "view accepted"
+msgstr "перегляд погоджених правок"
+
+#: access/rights.py:60
+msgid "view pending"
+msgstr "перегляд неприйнятих правок"
+
+#: access/rights.py:61
+msgid "edit"
+msgstr "редагування"
+
+#: access/rights.py:62
+msgid "create and edit"
+msgstr "створення та редагування"
+
+#: access/rights.py:63
+msgid "view previous canonical versions"
+msgstr "перегляд попередніх редакцій"
+
+#: access/rights.py:64
+msgid "view all history"
+msgstr "перегляд усієї історії"
+
+#: access/rights.py:65
+msgid "accept"
+msgstr "погодження"
+
+#: access/rights.py:66
+msgid "freeze"
+msgstr "заморожування"
+
+#: access/rights.py:67
+msgid "make canonical"
+msgstr "затвердження"
+
+#: access/rights.py:68
+msgid "reserve for editing"
+msgstr "резервування для редагування"
+
+#: access/rights.py:69
+msgid "create appendix"
+msgstr "створення додатка"
+
+#: access/rights.py:70
+msgid "delete appendix"
+msgstr "видалення додатка"
+
+#: access/rights.py:71
+msgid "upload attachment"
+msgstr "додавання вкладеного файлу"
+
+#: access/rights.py:72
+msgid "replace attachment"
+msgstr "заміна вкладеного файлу"
+
+#: access/rights.py:73
+msgid "delete attachment"
+msgstr "видалення вкладеного файлу"
+
+#: access/templates/access/group_members.html:3
+msgid "Members"
+msgstr "Учасники"
+
+#: access/templates/access/group_members.html:11
+msgid "Remove"
+msgstr "Вилучити"
+
+#: access/templates/access/group_members.html:15
+msgid "No members yet."
+msgstr "Учасників ще немає."
+
+#: access/templates/access/group_members.html:24
+msgid "Add"
+msgstr "Додати"
+
+#: access/templates/access/groups.html:3 access/templates/access/groups.html:6
+#: shell/templates/shell/administration.html:26
+msgid "Groups"
+msgstr "Групи"
+
+#: access/templates/access/groups.html:9 access/templates/access/groups.html:10
+msgid "New group"
+msgstr "Нова група"
+
+#: access/templates/access/groups.html:11
+msgid "Create"
+msgstr "Створити"
+
+#: access/templates/access/groups.html:16
+msgid "group"
+msgstr "група"
+
+#: access/templates/access/groups.html:30
+msgid "included"
+msgstr "включено"
+
+#: access/templates/access/groups.html:30
+msgid "needs edit"
+msgstr "потребує права редагування"
+
+#: access/templates/access/groups.html:34
+msgid "members…"
+msgstr "учасники…"
+
+#: access/templates/access/groups.html:37
+msgid "No groups yet."
+msgstr "Груп ще немає."
+
+#: tenancy/middleware.py:34
+msgid "Unknown address."
+msgstr "Невідома адреса."
+
+#: shell/templates/shell/administration.html:3
+#: shell/templates/shell/base.html:20
+msgid "Administration"
+msgstr "Адміністрування"
+
+#: shell/templates/shell/administration.html:9
+msgid "Platform"
+msgstr "Платформа"
+
+#: shell/templates/shell/administration.html:13
+#: shell/templates/shell/administration.html:24
+#: shell/templates/shell/administration.html:30
+msgid "Organisation"
+msgstr "Організація"
+
+#: shell/templates/shell/administration.html:17
+msgid "Choose"
+msgstr "Обрати"
+
+#: shell/templates/shell/administration.html:31
+#: shell/templates/shell/landing.html:6
+msgid "No organisation is chosen."
+msgstr "Організацію не обрано."
+
+#: shell/templates/shell/base.html:30
+msgid "Sign out"
+msgstr "Вийти"
+
+#: shell/templates/shell/nothing_to_show.html:5
+msgid "Nothing to show here."
+msgstr "Тут нічого немає."
+
+#: shell/templates/shell/nothing_to_show.html:6
+msgid ""
+"The link may be incomplete or out of date. Check it, or ask whoever sent it."
+msgstr ""
+"Посилання може бути неповним або застарілим. Перевірте його або запитайте "
+"того, хто його надіслав."
+
+#: shell/templates/shell/nothing_to_show.html:7
+msgid "Back to the documents"
+msgstr "До документів"

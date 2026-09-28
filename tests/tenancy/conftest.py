@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Callable, Iterator
+from collections.abc import Callable
 from typing import Any
 
 import pytest
@@ -57,8 +57,11 @@ def run_request() -> Callable[..., tuple[HttpResponse, dict[str, Any]]]:
         if session_tenant is not None:
             request.session["tenant_number"] = session_tenant
         if signed_in:
+            # A platform administrator, so a session's choice of tenant counts for them.
             request.user = User.objects.create_user(
-                f"person-{uuid.uuid4().hex[:8]}@example.test", "test-only-not-a-password"
+                f"person-{uuid.uuid4().hex[:8]}@example.test",
+                "test-only-not-a-password",
+                is_platform_admin=True,
             )
         else:
             request.user = AnonymousUser()
@@ -75,13 +78,3 @@ def run_request() -> Callable[..., tuple[HttpResponse, dict[str, Any]]]:
         return response, seen
 
     return run
-
-
-@pytest.fixture
-def drop_tenant_schemas() -> Iterator[None]:
-    """Drop every `tenant_N` schema the test created, since a schema outlives a rolled-back row."""
-    yield
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT nspname FROM pg_namespace WHERE nspname LIKE 'tenant\\_%'")
-        for (name,) in cursor.fetchall():
-            cursor.execute(f'DROP SCHEMA "{name}" CASCADE')

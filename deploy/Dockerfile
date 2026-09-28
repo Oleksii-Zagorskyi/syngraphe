@@ -23,6 +23,8 @@ COPY --chown=app:app pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev
 
 COPY --chown=app:app src ./src
+# The catalogue is compiled here as well as committed, so an edited .po never ships stale.
+RUN msgfmt --check --statistics -o src/shell/locale/uk/LC_MESSAGES/django.mo src/shell/locale/uk/LC_MESSAGES/django.po
 COPY --chown=app:app --chmod=755 deploy/entrypoint.sh deploy/gunicorn.conf.py ./
 
 WORKDIR /app/src

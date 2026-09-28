@@ -13,11 +13,12 @@ import ipaddress
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from django.conf import settings
 from django.db import connection
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
+from django.utils.translation import gettext_lazy as _
 
 from syngraphe.logs import tenant_number_var
 from tenancy.models import PlatformHost, Tenant, TenantDomain, TenantState
@@ -30,7 +31,7 @@ HOST_CACHE_SECONDS = 30
 EXEMPT_PATHS = ("/health/",)
 SESSION_TENANT_KEY = "tenant_number"
 # One line for every refusal, so an unknown host and a migrating tenant's domain read the same.
-REFUSAL = "Unknown host."
+REFUSAL = _("Unknown address.")
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,7 @@ class TenantRequest(HttpRequest):
 
     tenant: Tenant | None
     membership: Membership | None
+    tenant_from_domain: bool
 
 
 _cache: tuple[float, dict[str, HostEntry]] | None = None
@@ -107,20 +109,37 @@ def request_host(request: HttpRequest) -> str:
 def resolve_tenant(request: HttpRequest, entry: HostEntry) -> Tenant | None:
     """The tenant a known host names, or a signed-in person's session's on a platform host.
 
-    Never one that is `migrating`.
+    Never one that is `migrating`. A session's choice counts only while the person may still
+    reach that organisation — as a platform administrator or an active member; otherwise the
+    key is dropped.
     """
-    number: int
     if entry.tenant_number is not None:
-        number = entry.tenant_number
-    else:
-        user = getattr(request, "user", None)
-        if user is None or not user.is_authenticated:
-            return None
-        chosen = request.session.get(SESSION_TENANT_KEY)
-        if not isinstance(chosen, int):
-            return None
-        number = chosen
-    return Tenant.objects.exclude(state=TenantState.MIGRATING).filter(number=number).first()
+        return (
+            Tenant.objects.exclude(state=TenantState.MIGRATING)
+            .filter(number=entry.tenant_number)
+            .first()
+        )
+    user = getattr(request, "user", None)
+    if user is None or not user.is_authenticated:
+        return None
+    chosen = request.session.get(SESSION_TENANT_KEY)
+    if not isinstance(chosen, int):
+        return None
+    tenant = Tenant.objects.exclude(state=TenantState.MIGRATING).filter(number=chosen).first()
+    if tenant is not None and not _may_reach(user, tenant):
+        request.session.pop(SESSION_TENANT_KEY, None)
+        return None
+    return tenant
+
+
+def _may_reach(user: Any, tenant: Tenant) -> bool:
+    from identity.models import Membership, MembershipState
+
+    if user.is_platform_admin:
+        return True
+    return Membership.objects.filter(
+        tenant=tenant, user=user, state=MembershipState.ACTIVE
+    ).exists()
 
 
 def active_membership(request: HttpRequest, tenant: Tenant | None) -> Membership | None:
@@ -156,15 +175,16 @@ class TenancyMiddleware:
 
         entry = match_host(request_host(request), known_hosts())
         if entry is None or entry.tenant_state == TenantState.MIGRATING:
-            return HttpResponseBadRequest(REFUSAL, content_type="text/plain")
+            return HttpResponseBadRequest(str(REFUSAL), content_type="text/plain; charset=utf-8")
 
         tenant = resolve_tenant(request, entry)
         if entry.tenant_number is not None and tenant is None:
             # The domain's tenant is gone or no longer resolvable; a tenant host never falls
             # through to the platform.
-            return HttpResponseBadRequest(REFUSAL, content_type="text/plain")
+            return HttpResponseBadRequest(str(REFUSAL), content_type="text/plain; charset=utf-8")
         typed = cast(TenantRequest, request)
         typed.tenant = tenant
+        typed.tenant_from_domain = entry.tenant_number is not None
         typed.membership = active_membership(request, tenant)
         number = None if tenant is None else tenant.number
         set_search_path(connection, number)

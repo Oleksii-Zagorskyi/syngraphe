@@ -1,0 +1,9 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block content %}
+<section class="content empty">
+  <p>{% translate "Nothing to show here." %}</p>
+  <p class="muted">{% translate "The link may be incomplete or out of date. Check it, or ask whoever sent it." %}</p>
+  <p><a href="/">{% translate "Back to the documents" %}</a></p>
+</section>
+{% endblock %}

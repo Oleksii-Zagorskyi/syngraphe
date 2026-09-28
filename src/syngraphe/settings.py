@@ -30,7 +30,9 @@ SHARED_APPS = [
     "audit",
     "shell",
 ]
-TENANT_APPS: list[str] = []
+TENANT_APPS = [
+    "access",
+]
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
 MIDDLEWARE = [
@@ -56,8 +58,10 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "shell.context_processors.shell",
             ],
         },
     },
@@ -95,6 +99,7 @@ TRUSTED_PROXIES = _CONFIG.trusted_proxies
 DISPLAY_TIMEZONE = _CONFIG.display_timezone
 
 # Sessions last twelve hours from sign-in, not sliding; the cookie flags follow SITE_HTTPS.
+LOGIN_URL = "/signin/"
 SESSION_COOKIE_AGE = 12 * 3600
 SESSION_SAVE_EVERY_REQUEST = False
 SESSION_COOKIE_HTTPONLY = True
@@ -116,6 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = _CONFIG.default_language
+# One catalogue for every app; message ids are English and the catalogue carries Ukrainian.
+LOCALE_PATHS = [BASE_DIR / "shell" / "locale"]
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True

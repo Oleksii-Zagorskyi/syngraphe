@@ -21,7 +21,7 @@ REPRESENTATIVE_TENANT_APP = "django.contrib.auth"
 
 @pytest.fixture
 def auth_as_tenant_app(settings: Any) -> None:
-    settings.TENANT_APPS = [REPRESENTATIVE_TENANT_APP]
+    settings.TENANT_APPS = [*settings.TENANT_APPS, REPRESENTATIVE_TENANT_APP]
     settings.SHARED_APPS = [a for a in settings.SHARED_APPS if a != REPRESENTATIVE_TENANT_APP]
 
 
@@ -78,6 +78,10 @@ def test_tenant_schema_holds_tenant_tables_only(
             "auth_group",
             "auth_group_permissions",
             "auth_permission",
+            "access_accessgroup",
+            "access_groupright",
+            "access_groupmember",
+            "access_accesschange",
         }
         assert migrations_recorded_in(tenant.schema_name) == every_migration
 
@@ -86,7 +90,7 @@ def test_app_on_both_lists_is_migrated_not_faked(settings: Any) -> None:
     from tenancy.management.commands.migrate_schemas import plan_for_tenant_schema
 
     settings.SHARED_APPS = [*settings.SHARED_APPS, "django.contrib.auth"]
-    settings.TENANT_APPS = ["django.contrib.auth"]
+    settings.TENANT_APPS = [*settings.TENANT_APPS, "django.contrib.auth"]
 
     migrated, faked = plan_for_tenant_schema()
 

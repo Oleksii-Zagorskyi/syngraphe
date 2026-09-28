@@ -1,0 +1,8 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% if current_tenant %}{{ current_tenant.name }} · {% endif %}Syngraphē{% endblock %}
+{% block content %}
+<section class="content">
+  {% if current_tenant %}<h1>{{ current_tenant.name }}</h1>{% else %}<p class="muted">{% translate "No organisation is chosen." %}</p>{% endif %}
+</section>
+{% endblock %}

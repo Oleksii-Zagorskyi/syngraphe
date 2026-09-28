@@ -33,6 +33,7 @@ def test_every_model_carries_provenance_or_its_own_columns() -> None:
     from syngraphe.provenance import Provenanced
 
     own_columns = {
+        "access.AccessChange",
         "audit.AuditEvent",
         "identity.MembershipHistory",
         "identity.AccountBlockHistory",
