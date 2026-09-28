@@ -1,0 +1,83 @@
+# The development shape: `web` on the loopback behind the host's own reverse proxy, the database on
+# a named volume.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-app: &app
+  build:
+    context: .
+    dockerfile: deploy/Dockerfile
+  image: syngraphe:local
+  env_file: .env
+  environment:
+    # The stack's own wiring: the service names, whatever `.env` holds for a process on the host.
+    POSTGRES_HOST: db
+    REDIS_URL: redis://redis:6379/0
+    CELERY_BROKER_URL: redis://redis:6379/1
+    GIT_REPO_ROOT: /srv/repos
+  volumes:
+    - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos
+  restart: unless-stopped
+  logging: *logging
+
+services:
+  web:
+    <<: *app
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+  worker:
+    <<: *app
+    # Beat runs inside the worker; its schedule file is state it rebuilds, kept out of the source tree.
+    entrypoint: ["celery", "-A", "syngraphe", "worker", "-B", "--schedule=/tmp/celerybeat-schedule", "--loglevel=info"]
+    depends_on:
+      web:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    # A data directory initialised with a placeholder password outlives the fix in `.env`;
+    # refuse to start until the three values are supplied.
+    entrypoint: ["sh", "-c", "for v in \"$$POSTGRES_DB\" \"$$POSTGRES_USER\" \"$$POSTGRES_PASSWORD\"; do [ -n \"$$v\" ] && [ \"$$v\" != '???' ] || { echo 'db: POSTGRES_DB, POSTGRES_USER and POSTGRES_PASSWORD must be set in .env' >&2; exit 1; }; done; exec docker-entrypoint.sh postgres"]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    logging: *logging
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  pgdata:

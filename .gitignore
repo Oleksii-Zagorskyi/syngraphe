@@ -17,6 +17,11 @@ workspace/
 !.env.example
 *-local-notes.md
 
+# Document repositories of a local stack, and the editor's build inputs
+.repos/
+node_modules/
+.uv-cache/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -30,8 +35,9 @@ __pycache__/
 venv/
 ENV/
 
-# Django
+# Django and Celery
 local_settings.py
+celerybeat-schedule*
 db.sqlite3
 db.sqlite3-journal
 media/

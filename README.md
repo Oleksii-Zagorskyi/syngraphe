@@ -22,10 +22,8 @@ I am building it for a company I co-own, to replace exactly that arrangement.
 > **Status: in development.** Release 0.1 is the editing, review and approval
 > cycle. The AI half — a companion that runs analyses for the editor as
 > they work, and a reviewer that checks a document, or a whole corpus, against
-> a configurable set of heuristics — is release 0.2,
-> deliberately built on top of a working system rather than designed
-> speculatively beside one. What is here today is the design record and the
-> foundation; the code arrives epic by epic.
+> a configurable set of heuristics — is release 0.2. What is here today is the design record and the
+> platform's foundation; the rest of the release follows.
 
 ## What it does
 
@@ -75,25 +73,23 @@ which.
 
 The heuristics are prompt text under version control with their own evaluation
 cases, in ``prompts/`` and ``evals/``. Neither directory
-exists yet: they arrive with 0.2, built on a system that already works rather
-than designed speculatively beside one.
+exists yet: they arrive with 0.2.
 
 ## The design record
 
 The part of this repository I would read first.
 
-`docs/design-record/` holds the reasoning as it actually happened, not a summary
-written afterwards: a decision log of every choice with its alternatives and its
-consequences, including the ones that were reversed and why; an architecture
-review by a session with no authoring context, and a second pass over the
-repairs; and the analyses that settled the storage model and the edit model.
+`docs/design-record/` holds the reasoning: a decision log of every choice with
+its alternatives and its consequences, including the ones that were reversed and
+why; independent architecture reviews, each followed by a pass over the repairs;
+and the analyses that settled the storage model and the edit model.
 
 Worth opening on their own:
 
 | Document | What it is |
 |---|---|
 | [ADR-0003 — linear edit history](docs/adr/ADR-0003-linear-edit-history.md) | Why branching was dropped, and where divergence re-enters anyway |
-| [Technical design](docs/technical-design.md) | The write protocol between git and PostgreSQL, and the ten claims it has not yet proved |
+| [Technical design](docs/technical-design.md) | The write protocol between git and PostgreSQL, and the claims it has not yet proved |
 | [Threat model](docs/threat-model.md) | Written before implementation, and it changed the design |
 | [Architecturally significant requirements](docs/asr.md) | The constraints whose violation is a rebuild rather than a bug |
 
@@ -112,16 +108,22 @@ list of words this product does not use, and what to use instead.
 
 ## Running it
 
-**Not yet.** There is no application code in this repository — the first
-implementation epic stands the stack up, and until then a clone gives you the
-design record and nothing to execute. `.env.example` lists every value an
-operator will have to supply; the container composition and the dependency
-manifest arrive with the code, because the spikes in
-[the verification plan](docs/verification-plan.md) are what choose the libraries
-they would pin.
+Docker with Compose, and `uv` for the check.
 
-When there is something to run, it will be one command and it will be here.
-Layout and conventions are in [`CLAUDE.md`](CLAUDE.md).
+```bash
+cp .env.example .env         # fill every ???; the application refuses to start while one remains
+mkdir -p .repos              # the document repositories, written by the application's own user
+docker compose up            # web, worker, PostgreSQL and Redis; the schema migrates on start
+curl http://127.0.0.1:8000/health/
+```
+
+The developer's shape — the source bind-mounted, the development server, the
+database and Redis reachable from the host — is
+`docker compose -f compose.yaml -f deploy/compose.dev.yaml up`. With it running,
+`uv sync --locked` prepares the clone and
+`uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q`
+is the check, the same line CI runs. Layout and conventions are in
+[`CLAUDE.md`](CLAUDE.md).
 
 ## Licence
 
@@ -133,5 +135,4 @@ repository.
 
 I designed this and directed coding agents to build it, under a written
 methodology I keep privately. Every change is one I reviewed and approved. The
-design record in `docs/` is the account of that process, and it is the honest
-one — including the decisions I got wrong and reversed.
+design record in `docs/` is the account of that process.

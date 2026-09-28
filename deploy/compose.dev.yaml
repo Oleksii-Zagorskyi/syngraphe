@@ -1,0 +1,24 @@
+# The developer's override, for a workstation only: it turns debug on and publishes the database
+# and Redis on the loopback without authentication, so it never runs on a host with a reverse
+# proxy in front.
+# docker compose -f compose.yaml -f deploy/compose.dev.yaml up
+
+services:
+  web:
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    environment:
+      DJANGO_DEBUG: "true"
+    volumes:
+      - ./src:/app/src
+
+  worker:
+    volumes:
+      - ./src:/app/src
+
+  db:
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"

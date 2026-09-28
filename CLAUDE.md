@@ -28,10 +28,10 @@ before inventing a new location.
 | `docs/interface/` | Page wireframes and interface vocabulary. Each region marked with the release it belongs to |
 | `prompts/` | **Canonical** prompt and heuristic text, one directory per heuristic. Arrives with 0.2 |
 | `evals/` | Labelled cases and results for the prompts. Pairs with `prompts/`, one directory per heuristic |
-| `deploy/` | Dockerfile, reverse-proxy configuration, production overrides |
+| `deploy/` | Dockerfile, entrypoint, Gunicorn configuration and Compose overrides |
 | `scripts/` | Operational scripts. Idempotent, resumable, sanity-checked before any destructive step |
 | `.github/workflows/` | CI |
-| `compose.yaml` | At the root, deliberately — `docker compose up` must work on a fresh clone |
+| `compose.yaml` | At the root, so `docker compose up` runs from a checkout with `.env` filled |
 
 **Do not create empty directories or placeholder files.** A directory appears
 when its first real file does.
@@ -61,27 +61,30 @@ and never a second authorisation surface.
 
 ## Commands
 
-**These are the commands the repository will have, not the ones it has.** No
-application code exists yet; the first implementation epic stands the stack up.
-Until then only the linter has anything to read.
+Copy `.env.example` to `.env` and fill every `???` first; the application
+refuses to start while one remains, naming every missing key at once.
 
 ```bash
-# prepare a fresh clone; again whenever a lockfile or the editor's code changes
-uv sync --locked && npm ci && npm run build && uv run playwright install chromium
+# prepare a fresh clone; again whenever the lockfile changes
+uv sync --locked
 
-docker compose up            # run the stack
+# run the stack: web, worker, PostgreSQL, Redis; the shared schema migrates on start
+docker compose up
 
-# the check; needs PostgreSQL and Redis, the stack's db and redis
+# the developer's shape: source bind-mounted, the development server, the
+# database and Redis reachable from the host
+docker compose -f compose.yaml -f deploy/compose.dev.yaml up
+
+# the check; needs PostgreSQL and Redis, published by the developer override
 uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
 
-The first line installs the Python dependencies from `uv.lock`, builds the
-editor's bundle with esbuild and installs the Chromium the browser tests drive.
-It and the check are the two lines `docs/test-strategy.md § What CI runs` names,
-run the same way by a developer and by CI.
+The first line installs the Python dependencies from `uv.lock`. The check is
+the line CI runs, the one `docs/test-strategy.md § What CI runs` names, run
+the same way by a developer and by CI.
 
-Run the suite after each story. A failing test is fixed before the next story
-starts, not after.
+Run the suite after every unit of work. A failing test is fixed before the
+next one starts, not after.
 
 ## Conventions
 
@@ -165,10 +168,10 @@ This is permanent: history cannot be unpublished.
 ## Stop and ask
 
 - A task contradicts an ADR, the data model, or the decision log.
-- A design choice arises that the epic's decisions do not cover.
+- A design choice arises that the recorded decisions do not cover.
 - A test fails in a way that needs the specification changed rather than the code.
 - You are about to create a directory or a file class the layout above does not name.
 
 Do not stop for implementation details the specification already bounds —
 variable names, helper structure, which of two equivalent idioms. Make the call
-and note it in the completion note.
+and note it when you report the work.

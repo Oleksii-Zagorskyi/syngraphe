@@ -1,0 +1,66 @@
+[project]
+name = "syngraphe"
+version = "0.1.0"
+description = "A platform for the documents an organisation has to stand behind."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = "==3.12.*"
+dependencies = [
+    "django>=5.2,<6",
+    "psycopg[binary]>=3.2",
+    "celery[redis]>=5.5",
+    "redis>=5.2",
+    "argon2-cffi>=23.1",
+    "gunicorn>=23",
+    "django-htmx>=1.21",
+    "python-json-logger>=3.2",
+    "python-dotenv>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "ruff>=0.9",
+    "mypy>=1.14",
+    "django-stubs[compatible-mypy]>=5.1",
+    "celery-types>=0.22",
+]
+
+[tool.uv]
+# The project is run from `src/`, never installed as a distribution.
+package = false
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ"]
+
+[tool.mypy]
+strict = true
+mypy_path = "src"
+plugins = ["mypy_django_plugin.main"]
+
+[[tool.mypy.overrides]]
+module = ["*.migrations.*"]
+ignore_errors = true
+
+[tool.django-stubs]
+django_settings_module = "syngraphe.settings"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "syngraphe.settings"
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "fast: pure functions, no database and no repository",
+    "integration: a real PostgreSQL and real bare repositories",
+    "crash: an integration test with the process stopped between two steps",
+    "invariant: one or more per ASR that code can break",
+    "conformance: the parser, the renderer's output and the editor against one case list",
+    "browser: the running application in Chromium",
+]
