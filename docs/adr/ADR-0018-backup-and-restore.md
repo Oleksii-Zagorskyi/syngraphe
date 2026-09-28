@@ -6,7 +6,8 @@ aliases:
 status: accepted
 date: 2026-09-28
 supersedes: []
-superseded_by: []
+superseded_by:
+  - ADR-0019 (in part — the complete set, the interval, the lock's scope, how the run learns of a base backup, the restore target, retention, archiving during a store outage, and who can delete from the store)
 ---
 
 # ADR-0018: Backup and restore — the database continuously, the repositories as bundles, into one backup store

@@ -12,7 +12,7 @@
     <p class="note"><label for="{{ form.first_administrator.id_for_label }}">{{ form.first_administrator.label }}</label></p>
     <p>{{ form.first_administrator }}</p>
     {% for error in form.first_administrator.errors %}<p class="err">{{ error }}</p>{% endfor %}
-    <p class="note">{% translate "A registered person becomes its administrator at once. An organisation is never created without an administrator." %}</p>
+    <p class="note">{% translate "The first administrator is a person already registered; enter your own address to administer it yourself. An organisation is never created without an administrator." %}</p>
     <button class="btn primary" type="submit">{% translate "Create" %}</button>
     <a class="btn" href="{% url 'tenants' %}">{% translate "Cancel" %}</a>
   </form>
