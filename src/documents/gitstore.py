@@ -35,6 +35,7 @@ COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$")
 CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
 SHA = re.compile(r"^[0-9a-f]{40}$")
 EDITION = re.compile(r"^[0-9]+\.[0-9]+$")
+TRAILER_NAME = re.compile(r"^[A-Z][A-Za-z-]{0,39}$")
 
 
 class Kind(StrEnum):
@@ -179,9 +180,17 @@ def _write_tree(
     return builder.write()
 
 
-def message_with_kind(message: str, kind: Kind) -> str:
-    """The message, its first line the summary, with the `Kind:` trailer as its last line."""
-    return f"{_checked_message(message)}\n\nKind: {kind.value}\n"
+def message_with_kind(message: str, kind: Kind, trailers: Mapping[str, str] | None = None) -> str:
+    """The message, its first line the summary, and one paragraph of trailers: `trailers` in
+    order, then `Kind:` last."""
+    lines = []
+    for name, value in (trailers or {}).items():
+        # Every character `kind_of`'s split breaks a line on, not the newline alone.
+        one_line = len(value.splitlines()) == 1
+        if name == "Kind" or not TRAILER_NAME.match(name) or CONTROL.search(value) or not one_line:
+            raise ValueError(f"not a trailer: {name!r}")
+        lines.append(f"{name}: {value}\n")
+    return f"{_checked_message(message)}\n\n{''.join(lines)}Kind: {kind.value}\n"
 
 
 def kind_of(message: str) -> Kind | None:
@@ -205,6 +214,7 @@ def commit(
     author: pygit2.Signature,
     message: str,
     kind: Kind,
+    trailers: Mapping[str, str] | None = None,
 ) -> str:
     """Commit `tree_changes` — a path to its new bytes, or `None` to remove it — on top of `main`,
     and move `main` to it. Author and committer are both `author`. Returns the commit's sha.
@@ -221,7 +231,9 @@ def commit(
     if base is not None and tree == base.id:
         raise ValueError("a commit that changes nothing")
     parents = [parent.id] if parent is not None else []
-    oid = repo.create_commit(MAIN, author, author, message_with_kind(message, kind), tree, parents)
+    oid = repo.create_commit(
+        MAIN, author, author, message_with_kind(message, kind, trailers), tree, parents
+    )
     return str(oid)
 
 
@@ -260,6 +272,12 @@ def tag(
 def commit_at(repo: pygit2.Repository, sha: str) -> pygit2.Commit:
     """The commit `sha`."""
     return repo[_oid(sha)].peel(pygit2.Commit)
+
+
+def head(repo: pygit2.Repository) -> str | None:
+    """The sha `main` points at, or `None` before the first commit."""
+    ref = repo.references.get(MAIN)
+    return None if ref is None else str(ref.peel(pygit2.Commit).id)
 
 
 def history(repo: pygit2.Repository) -> Iterator[pygit2.Commit]:

@@ -70,8 +70,9 @@ kind (`docs/runbook.md § Backup`). Set
 and CSRF cookies are never sent, and nobody can sign in.
 
 ```bash
-# prepare a fresh clone; again whenever the lockfile changes
-uv sync --locked
+# prepare a fresh clone; again whenever a lockfile changes: the Python
+# dependencies, the editor's bundle, the browser the browser tests drive
+uv sync --locked && npm ci && npm run build && uv run playwright install chromium
 
 # run the stack: web, worker, PostgreSQL, Redis and the backup; every schema
 # migrates on start
@@ -79,7 +80,9 @@ mkdir -p .repos
 docker compose up
 
 # the developer's shape: source bind-mounted, the development server, the
-# database and Redis reachable from the host
+# database and Redis reachable from the host; it serves the bundle built on
+# the host, so run `npm run build` after changing src/editing/js/ or the
+# whitelist specification
 docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 
 # the check; needs PostgreSQL and Redis, published by the developer override,
@@ -87,9 +90,11 @@ docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
 
-The first line installs the Python dependencies from `uv.lock`. The check is
-the line CI runs, the one `docs/test-strategy.md § What CI runs` names, run
-the same way by a developer and by CI.
+The first line installs the Python dependencies from `uv.lock` and the
+editor's from `package-lock.json`, builds the editor's bundle and installs the
+Chromium the browser tests drive; it needs Node 22. The check is the line CI
+runs, the one `docs/test-strategy.md § What CI runs` names, run the same way by
+a developer and by CI.
 
 Run the suite after every unit of work. A failing test is fixed before the
 next one starts, not after.

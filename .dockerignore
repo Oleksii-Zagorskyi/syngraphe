@@ -2,6 +2,9 @@
 *
 !pyproject.toml
 !uv.lock
+!package.json
+!package-lock.json
+!esbuild.config.mjs
 !src/
 !deploy/entrypoint.sh
 !deploy/gunicorn.conf.py
@@ -12,3 +15,6 @@
 !deploy/db-entrypoint.sh
 !deploy/backup-entrypoint.sh
 src/**/__pycache__/
+# The editor's bundle is built in the image, never copied from a checkout.
+src/editing/static/editing/editor.*
+src/editing/static/editing/spec.json

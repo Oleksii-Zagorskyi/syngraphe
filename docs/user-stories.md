@@ -133,7 +133,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Editing
 
 **ST-0017** — As an editor, I open an editor on a document and hold it, so that I can change it without anyone else changing it underneath me. *(skeleton)*
-- Opening any editor takes the hold when nobody holds the document; there is no separate button for it (ADR-0006).
+- Opening any editor takes the hold when nobody holds the document; there is no separate button for it (ADR-0006), except on a tab reached from another site, which shows *Start editing* (DL-0325).
 - While I hold it, nobody else can open its edit tab. Holds are over the whole document.
 
 **ST-0018** — As any user of a document, I see that it is *held* · *зайнятий* — someone is editing it — in the document list and on the document, so that I know to wait (DL-0262).

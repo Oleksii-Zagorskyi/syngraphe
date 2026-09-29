@@ -1,0 +1,23 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Help" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content help">
+  <nav class="help-pages">
+    <h1>{% translate "Help" %}</h1>
+    <ul>{% for slug, name in pages.items %}<li>{% if slug == current %}<strong>{{ name }}</strong>{% else %}<a href="/help/{{ slug }}/">{{ name }}</a>{% endif %}</li>{% endfor %}</ul>
+  </nav>
+  <article>
+    {% if body %}{{ body }}{% endif %}
+    {% if accepted %}
+    <h2>{{ title }}</h2>
+    <p>{% translate "Text is written in Markdown, in the formatted view or the source view. These constructs are accepted; anything else is refused when it is pasted, with its line named and, where one exists, a conversion offered." %}</p>
+    <table class="help-table"><thead><tr><th>{% translate "Construct" %}</th><th>{% translate "How it is written" %}</th></tr></thead>
+    <tbody>{% for name, written in accepted %}<tr><td>{{ name }}</td><td><code>{{ written }}</code></td></tr>{% endfor %}</tbody></table>
+    <h2>{% translate "Not accepted, and what the conversion does" %}</h2>
+    <table class="help-table"><thead><tr><th>{% translate "Construct" %}</th><th>{% translate "Converted to" %}</th></tr></thead>
+    <tbody>{% for name, converted in refused %}<tr><td>{{ name }}</td><td>{{ converted }}</td></tr>{% endfor %}</tbody></table>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

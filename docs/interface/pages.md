@@ -154,6 +154,7 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | **bands** across the top — *reserved for editing* since its date, with who to holders of *edit* or *accept* and administrators, and what waits until it ends; *reserved for editing by you*, to its holder; *frozen* with its reason, and the name of who froze it to holders of a history right and administrators (DL-0236); *your reservation was ended*, to its holder, with who, when and why, and *take the document back* when nothing was committed since (DL-0225) | **0.1** | — | ST-0018, ST-0038, ST-0069, ST-0070 | Epics 9, 6 |
+| the notice after *send for review* — *Sent for review — the version waits as 2.3-2*, to the one who sent it (DL-0322) | **0.1** | — | ST-0029 | Epic 4 |
 | breadcrumb, `#12`, title, the **latest version the reader may see** — never a version beyond their rights (DL-0209) | **0.1** | — | ST-0042 | Epics 3, 6 |
 | state tags, as in the list; *archived* to administrators only — to everyone else an archived document does not exist | **0.1** | — | ST-0014, ST-0015, ST-0018, ST-0051, ST-0052 | Epics 5, 6, 9, 10, 15 |
 | *Export*, *Copy* | **0.1** | any viewing right; *create and edit* | ST-0045, ST-0067 | Epics 7, 10 |
@@ -185,8 +186,10 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 |---|---|---|---|
 | *edit* beside each `#` section, several open at once; *edit whole document* only when none is open — disabled with its reason otherwise | **0.1** | ST-0059 | Epic 9 |
 | a section editor opened in place, the rest rendered around it; toolbar exactly the whitelist — *quote* among it (DL-0238) — *undo* and *redo* (DL-0241), *mark* for entities; *rich / markdown* | **0.1** | ST-0019, ST-0021, ST-0026, ST-0060 | Epics 4, 9; *mark* Epic 11 |
-| paste refusal — the lines named, the converted text previewed, *paste converted*, a link to help; image refusal — the format or the size. A pasted or dropped image becomes an upload and a paragraph of its own; an image that is only a web address is left out of the paste, with a one-line notice to save it and paste the file, which blocks nothing (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 4 |
+| paste refusal — the lines named, the converted text previewed, *paste converted*, a link to help; an image left out of a paste with a one-line notice (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 4 |
+| image refusal — the format or the size. A pasted or dropped image becomes an upload and a paragraph of its own; an image that is only a web address is left out of the paste, with a one-line notice to save it and paste the file, which blocks nothing (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 11 |
 | capture indicator — no Save control | **0.1** | ST-0020 | Epic 4 |
+| *Start editing* — when the tab was reached from another site, so a link elsewhere never takes the hold; opened from the application or typed in, the tab takes it as it opens (DL-0319, DL-0325) | **0.1** | ST-0017 | Epic 4 |
 | a stopped editor — read-only, its unsaved text as changes against the draft | **0.1** | ST-0059 | Epic 9 |
 | inactivity prompt — *are you still working?*; never for a reserved hold (DL-0221) | **0.1** | ST-0017, ST-0030 | Epic 9 |
 | *Finish editing* — opens the send-for-review screen; disabled with its reason while an editor is open | **0.1** | ST-0029 | Epic 4 |
@@ -232,7 +235,7 @@ Within the edit tab, opened by *finish editing* for every holder (DL-0222): the 
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| the screen | **0.1**; change summary drafted by the companion **0.2** | ST-0022, ST-0029, ST-0035 | Epic 4 |
+| the screen | **0.1**; change summary drafted by the companion **0.2** | ST-0022, ST-0029, ST-0035 | Epic 4; the choices of a holder of *accept* Epic 5; *discard my edits* Epic 9 |
 
 ## Export
 
@@ -289,7 +292,7 @@ Pages rendered from Markdown files shipped with the application (DL-0195): how a
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| the pages and the allowed-Markdown list | **0.1** — not yet drawn; the guide's full content B-016 | ST-0019, ST-0060 | Epic 4 |
+| the pages and the allowed-Markdown list — what is accepted and how it is written, and what is refused with the conversion each gets, built from the specification: its limits, entities and callout types, and every refusal with its conversion | **0.1**; the guide's full content B-016 | ST-0019, ST-0060 | Epic 4 |
 
 ## Nothing to show here
 

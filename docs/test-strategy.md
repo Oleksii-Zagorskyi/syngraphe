@@ -17,10 +17,10 @@ One shape of test for every epic, so no epic invents its own. It says which leve
 
 ## What CI runs
 
-The commands a developer runs locally are the commands CI runs — never a variant reconstructed per session. The first prepares a fresh clone, and runs again whenever the lockfile changes: it installs the Python dependencies from `uv.lock` (DL-0270). Once the editor's code exists it also builds the editor's bundle with esbuild and installs the Chromium the browser tests drive (DL-0274) — `npm ci && npm run build && uv run playwright install chromium`, appended to it. The second is the check:
+The commands a developer runs locally are the commands CI runs — never a variant reconstructed per session. The first prepares a fresh clone, and runs again whenever a lockfile changes: it installs the Python dependencies from `uv.lock` (DL-0270) and the editor's from `package-lock.json`, builds the editor's bundle with esbuild, and installs the Chromium the browser tests drive (DL-0274). The second is the check:
 
 ```bash
-uv sync --locked
+uv sync --locked && npm ci && npm run build && uv run playwright install chromium
 uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
 

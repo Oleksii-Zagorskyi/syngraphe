@@ -3,9 +3,10 @@
 {% block title %}#{{ document.number }} {{ document.title }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document">
+  {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
   <nav class="breadcrumb"><a href="/folder/1/">{{ current_tenant.name }}</a> /</nav>
   <h1><span class="id">#{{ document.number }}</span> {{ document.title }}</h1>
-  <nav class="tabs"><a href="/document/{{ document.number }}/info/" aria-current="page">{% translate "Info" %}</a></nav>
-  {% include "documents/info.html" %}
+  <nav class="tabs">{% if can_edit %}<a href="/document/{{ document.number }}/edit/"{% if tab == "edit" %} aria-current="page"{% endif %}>{% translate "Edit" %}</a>{% endif %}{% if holding %}<a href="/document/{{ document.number }}/my-edits/"{% if tab == "my-edits" %} aria-current="page"{% endif %}>{% translate "My edits" %}</a>{% endif %}<a href="/document/{{ document.number }}/info/"{% if tab == "info" %} aria-current="page"{% endif %}>{% translate "Info" %}</a></nav>
+  {% block tab %}{% include "documents/info.html" %}{% endblock %}
 </section>
 {% endblock %}

@@ -67,17 +67,32 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install
-        run: uv sync --locked
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
 
+      # The setup line of CLAUDE.md § Commands, as a developer runs it.
+      - name: Install
+        run: uv sync --locked && npm ci && npm run build && uv run playwright install chromium
+
+      # The system libraries Chromium needs, which the runner image lacks.
+      - name: Browser system libraries
+        run: uv run playwright install-deps chromium
+
+      # Each check runs whatever an earlier one reported, so one run shows every failure.
       - name: Lint
+        if: ${{ !cancelled() }}
         run: uv run ruff check .
 
       - name: Format
+        if: ${{ !cancelled() }}
         run: uv run ruff format --check .
 
       - name: Types
+        if: ${{ !cancelled() }}
         run: uv run mypy src
 
       - name: Tests
+        if: ${{ !cancelled() }}
         run: uv run pytest -q

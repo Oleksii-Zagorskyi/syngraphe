@@ -13,8 +13,9 @@ from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 
 from access.models import DocumentGroup
-from access.rights import can_create, readable
+from access.rights import Right, can_create, readable, rights_on
 from documents.forms import CreateForm
+from documents.holds import held_by
 from documents.models import ROOT_FOLDER, Document, DocumentState, PartIndex, PartKind, Version
 from documents.services import CreationStopped, create_document
 from identity.models import User
@@ -116,7 +117,7 @@ ABSENT = uuid.UUID(int=0)
 @never_cache
 @login_required
 def page(request: HttpRequest, number: int) -> HttpResponse:
-    """The document page: its header and, until the other tabs exist, *Info* (DL-0208)."""
+    """The document page's *Info* tab, under the header every tab shares (DL-0208)."""
     tenant = getattr(request, "tenant", None)
     if tenant is None or request.method != "GET" or not _member(request):
         return not_found(request)
@@ -150,5 +151,8 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         "administrator": administrator,
         "creator": shown,
         "linked": linked,
+        "can_edit": Right.EDIT in rights_on(request.user, document),
+        "holding": held_by(document, request.user),
+        "tab": "info",
     }
     return render(request, "documents/page.html", context)

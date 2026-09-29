@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syngraphē\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 02:03+0000\n"
+"POT-Creation-Date: 2026-09-29 10:05+0000\n"
 "PO-Revision-Date: 2026-09-28 17:08+0000\n"
 "Last-Translator: Oleksii Zagorskyi\n"
 "Language-Team: uk\n"
@@ -114,7 +114,9 @@ msgstr "лише для автора"
 msgid ""
 "Created by %(name)s, %(date)s — only they can reach it until a group is "
 "linked."
-msgstr "Створено %(date)s, автор — %(name)s; лише автор має доступ, доки не пов’язано групу."
+msgstr ""
+"Створено %(date)s, автор — %(name)s; лише автор має доступ, доки не "
+"пов’язано групу."
 
 #: access/templates/access/document_links.html:19
 msgid "Archived — its links take effect on restore."
@@ -222,13 +224,17 @@ msgstr "Створити документ"
 msgid ""
 "Document #%(number)s was not finished. It will appear in the list once the "
 "platform completes it, so do not create it again."
-msgstr "Документ №%(number)s не завершено. Він з’явиться у списку, щойно платформа його завершить, тож не створюйте його вдруге."
+msgstr ""
+"Документ №%(number)s не завершено. Він з’явиться у списку, щойно платформа "
+"його завершить, тож не створюйте його вдруге."
 
 #: documents/templates/documents/create.html:16
 msgid ""
 "The document starts from your organisation's template. Only you can reach it "
 "until an administrator links groups to it."
-msgstr "Документ створюється за шаблоном вашої організації. Лише ви маєте до нього доступ, доки адміністратор не пов’яже з ним групи."
+msgstr ""
+"Документ створюється за шаблоном вашої організації. Лише ви маєте до нього "
+"доступ, доки адміністратор не пов’яже з ним групи."
 
 #: documents/templates/documents/create.html:18
 #: tenancy/templates/tenancy/tenant_form.html:17
@@ -264,9 +270,541 @@ msgstr "додатки"
 msgid "attachments"
 msgstr "вкладені файли"
 
-#: documents/templates/documents/page.html:8
+#: documents/templates/documents/page.html:9
+msgid "Edit"
+msgstr "Редагування"
+
+#: documents/templates/documents/page.html:9
+msgid "My edits"
+msgstr "Мої правки"
+
+#: documents/templates/documents/page.html:9
 msgid "Info"
 msgstr "Відомості"
+
+#: editing/messages.py:12
+msgid "a heading below depth four"
+msgstr "заголовок нижче четвертого рівня"
+
+#: editing/messages.py:13
+msgid "a heading inside a list, quote or callout"
+msgstr "заголовок усередині списку, цитати чи врізки"
+
+#: editing/messages.py:14
+msgid "a code block"
+msgstr "блок коду"
+
+#: editing/messages.py:15
+msgid "inline code"
+msgstr "код у тексті"
+
+#: editing/messages.py:16
+msgid "HTML"
+msgstr "HTML"
+
+#: editing/messages.py:17
+msgid "a horizontal rule"
+msgstr "горизонтальна лінія"
+
+#: editing/messages.py:18
+msgid "a line break inside a paragraph"
+msgstr "розрив рядка всередині пункту"
+
+#: editing/messages.py:19
+msgid "a footnote"
+msgstr "виноска"
+
+#: editing/messages.py:20
+msgid "a link defined elsewhere in the text"
+msgstr "посилання, визначене в іншому місці тексту"
+
+#: editing/messages.py:21
+msgid "a task list"
+msgstr "список завдань"
+
+#: editing/messages.py:22
+msgid "a list deeper than three levels"
+msgstr "список, глибший за три рівні"
+
+#: editing/messages.py:23
+msgid "a list item that does not begin with text"
+msgstr "пункт списку, що не починається з тексту"
+
+#: editing/messages.py:24
+msgid "a table inside a list, quote or callout"
+msgstr "таблиця всередині списку, цитати чи врізки"
+
+#: editing/messages.py:25
+msgid "a quote or callout inside a list, quote or callout"
+msgstr "цитата чи врізка всередині списку, цитати чи врізки"
+
+#: editing/messages.py:26
+msgid "an unknown callout type"
+msgstr "невідомий тип врізки"
+
+#: editing/messages.py:27
+msgid "a table row wider than its header"
+msgstr "рядок таблиці, ширший за рядок заголовків"
+
+#: editing/messages.py:28
+msgid "an image from outside the document"
+msgstr "зображення ззовні документа"
+
+#: editing/messages.py:29
+msgid "an image beside other content"
+msgstr "зображення поряд з іншим вмістом"
+
+#: editing/messages.py:30
+msgid "a title on a link or an image"
+msgstr "підказка до посилання чи зображення"
+
+#: editing/messages.py:31
+msgid "a link of a kind not allowed"
+msgstr "посилання недозволеного виду"
+
+#: editing/messages.py:32
+msgid "a link with no text"
+msgstr "посилання без тексту"
+
+#: editing/messages.py:33 editing/messages.py:34
+msgid "an unknown entity"
+msgstr "невідома позначка"
+
+#: editing/messages.py:35
+msgid "an identifier on an entity that takes none"
+msgstr "ідентифікатор на позначці, яка його не приймає"
+
+#: editing/messages.py:36
+msgid "an empty entity"
+msgstr "порожня позначка"
+
+#: editing/messages.py:37
+msgid "an entity inside an entity"
+msgstr "позначка всередині позначки"
+
+#: editing/messages.py:38
+msgid "a construct outside the allowed Markdown"
+msgstr "конструкція поза дозволеним Markdown"
+
+#: editing/messages.py:39
+msgid "an invisible control character"
+msgstr "невидимий керівний символ"
+
+#: editing/messages.py:40
+msgid "a text longer than the platform accepts"
+msgstr "текст, довший, ніж приймає платформа"
+
+#: editing/messages.py:41
+msgid "a merged table cell"
+msgstr "об’єднана клітинка таблиці"
+
+#: editing/messages.py:45
+msgid "Paragraph"
+msgstr "Звичайний текст"
+
+#: editing/messages.py:46
+msgid "Heading 1"
+msgstr "Заголовок 1"
+
+#: editing/messages.py:47
+msgid "Heading 2"
+msgstr "Заголовок 2"
+
+#: editing/messages.py:48
+msgid "Heading 3"
+msgstr "Заголовок 3"
+
+#: editing/messages.py:49
+msgid "Heading 4"
+msgstr "Заголовок 4"
+
+#: editing/messages.py:50
+msgid "Bulleted list"
+msgstr "Маркований список"
+
+#: editing/messages.py:51
+msgid "Numbered list"
+msgstr "Нумерований список"
+
+#: editing/messages.py:52
+msgid "Bold"
+msgstr "Жирний"
+
+#: editing/messages.py:53
+msgid "Italic"
+msgstr "Курсив"
+
+#: editing/messages.py:54 editing/views/help.py:47
+msgid "Underline"
+msgstr "Підкреслення"
+
+#: editing/messages.py:55
+msgid "Quote"
+msgstr "Цитата"
+
+#: editing/messages.py:56
+msgid "Note callout"
+msgstr "Врізка: примітка"
+
+#: editing/messages.py:57
+msgid "Warning callout"
+msgstr "Врізка: застереження"
+
+#: editing/messages.py:58
+msgid "Example callout"
+msgstr "Врізка: приклад"
+
+#: editing/messages.py:59
+msgid "Table"
+msgstr "Таблиця"
+
+#: editing/messages.py:60
+msgid "Add a row"
+msgstr "Додати рядок"
+
+#: editing/messages.py:61
+msgid "Link"
+msgstr "Посилання"
+
+#: editing/messages.py:62
+msgid "Link address"
+msgstr "Адреса посилання"
+
+#: editing/messages.py:63
+msgid "Undo"
+msgstr "Скасувати"
+
+#: editing/messages.py:64
+msgid "Redo"
+msgstr "Повторити"
+
+#: editing/messages.py:65
+msgid "Source view"
+msgstr "Вихідний текст"
+
+#: editing/messages.py:66
+msgid "Rich text"
+msgstr "Форматований текст"
+
+#: editing/messages.py:67
+msgid "Paste converted"
+msgstr "Вставити перетворене"
+
+#: editing/messages.py:68 editing/templates/editing/finish.html:5
+msgid "Finish editing"
+msgstr "Завершити редагування"
+
+#: editing/messages.py:69
+msgid "Start editing"
+msgstr "Почати редагування"
+
+#: editing/messages.py:73
+#, python-format
+msgid "Not pasted: it holds %(constructs)s."
+msgstr "Не вставлено — у тексті є: %(constructs)s."
+
+#: editing/messages.py:74 editing/messages.py:126
+#: editing/templates/editing/finish_waits.html:6
+msgid "What the editor accepts"
+msgstr "Що приймає редактор"
+
+#: editing/messages.py:75
+msgid "Images were left out of the paste."
+msgstr "Зображення до вставки не ввійшли."
+
+#: editing/messages.py:76
+msgid "A link of this kind is not allowed."
+msgstr "Посилання такого виду не дозволені."
+
+#: editing/messages.py:77 editing/views/finish.py:155
+msgid "The document is busy. Try again in a moment."
+msgstr "Документ зараз обробляється. Спробуйте ще раз за мить."
+
+#: editing/messages.py:78
+#, python-format
+msgid "Not accepted — %(lines)s."
+msgstr "Не прийнято — %(lines)s."
+
+#: editing/messages.py:79
+msgid "Capturing…"
+msgstr "Записується…"
+
+#: editing/messages.py:80
+msgid "Captured"
+msgstr "Записано"
+
+#: editing/messages.py:81
+msgid "Not captured — retrying"
+msgstr "Не записано — пробуємо знову"
+
+#: editing/messages.py:83
+msgid ""
+"Signed out — sign in again in another tab; your text stays here while this "
+"tab is open."
+msgstr ""
+"Сеанс завершено — увійдіть знову в іншій вкладці; поки ця вкладка відкрита, "
+"текст лишається тут."
+
+#: editing/messages.py:85
+msgid "This editor stopped: the draft changed elsewhere."
+msgstr "Редактор зупинено: чернетку змінено в іншому місці."
+
+#: editing/messages.py:86
+msgid "Not captured — the text is over the size allowed; shorten it to go on."
+msgstr "Не записано — текст більший за дозволений розмір; скоротіть його, щоб продовжити."
+
+#: editing/messages.py:87 editing/views/finish.py:61
+msgid "Finishing waits until the other tabs editing this document are closed."
+msgstr ""
+"Завершити можна, коли закриються інші вкладки, де редагується цей документ."
+
+#: editing/messages.py:88
+#, python-format
+msgid "line %(line)s: %(construct)s"
+msgstr "рядок %(line)s: %(construct)s"
+
+#: editing/messages.py:94
+msgid "cells beyond the header row dropped"
+msgstr "клітинки понад рядок заголовків відкинуто"
+
+#: editing/messages.py:95
+msgid "the identifier dropped"
+msgstr "ідентифікатор відкинуто"
+
+#: editing/messages.py:96
+msgid "the title dropped"
+msgstr "підказку відкинуто"
+
+#: editing/messages.py:97
+msgid "left out, with a notice"
+msgstr "пропущено з повідомленням"
+
+#: editing/messages.py:98
+msgid "its text in brackets where it was referred to"
+msgstr "її текст у дужках там, де на неї посилалися"
+
+#: editing/messages.py:99
+msgid "a heading of the deepest level allowed"
+msgstr "заголовок найглибшого дозволеного рівня"
+
+#: editing/messages.py:100
+msgid "the image moved to a line of its own"
+msgstr "зображення перенесено в окремий рядок"
+
+#: editing/messages.py:101
+msgid "a link written where it is used"
+msgstr "посилання, записане там, де його вжито"
+
+#: editing/messages.py:102
+msgid "moved after the block that held it"
+msgstr "перенесено за блок, у якому було"
+
+#: editing/messages.py:103
+msgid "lifted to the deepest level allowed"
+msgstr "піднято до найглибшого дозволеного рівня"
+
+#: editing/messages.py:104
+msgid "not converted"
+msgstr "не перетворюється"
+
+#: editing/messages.py:105
+msgid "a plain list"
+msgstr "звичайний список"
+
+#: editing/messages.py:106
+msgid "a plain quote"
+msgstr "звичайна цитата"
+
+#: editing/messages.py:107
+msgid "removed"
+msgstr "вилучено"
+
+#: editing/messages.py:108
+msgid "a space"
+msgstr "пробіл"
+
+#: editing/messages.py:109
+msgid "its text, the tags removed"
+msgstr "текст без тегів"
+
+#: editing/messages.py:110
+msgid "its text, the link removed"
+msgstr "його текст без посилання"
+
+#: editing/messages.py:111
+msgid "its text"
+msgstr "текст без розмітки"
+
+#: editing/messages.py:116
+msgid "Entity: role"
+msgstr "Позначка: роль"
+
+#: editing/messages.py:117
+msgid "Entity: action"
+msgstr "Позначка: дія"
+
+#: editing/messages.py:118
+msgid "Entity: term"
+msgstr "Позначка: термін"
+
+#: editing/messages.py:123
+msgid "How a document moves"
+msgstr "Як рухається документ"
+
+#: editing/messages.py:124
+msgid "Versions and their numbers"
+msgstr "Версії та їхні номери"
+
+#: editing/messages.py:125
+msgid "Editing"
+msgstr "Редагування"
+
+#: editing/messages.py:127
+msgid "Exporting"
+msgstr "Експорт"
+
+#: editing/summary.py:50
+msgid "the opening text"
+msgstr "вступний текст"
+
+#: editing/summary.py:55 editing/summary.py:58
+#, python-format
+msgid "Sections touched: %(sections)s"
+msgstr "Змінено розділи: %(sections)s"
+
+#: editing/summary.py:65
+msgid "Write a summary of the change."
+msgstr "Напишіть підсумок змін."
+
+#: editing/summary.py:69
+msgid "The summary is one line."
+msgstr "Підсумок має бути одним рядком."
+
+#: editing/summary.py:71
+#, python-format
+msgid "The summary is at most %(count)s characters."
+msgstr "Підсумок — не більше %(count)s символів."
+
+#: editing/summary.py:73
+msgid "Begin the summary with something other than a word and a colon."
+msgstr "Підсумок не може починатися зі слова з двокрапкою."
+
+#: editing/templates/editing/finish.html:6
+msgid ""
+"Your changes, marked in the text. The summary is for the reviewer and is "
+"kept with the version; it starts from the sections you changed."
+msgstr "Ваші зміни, позначені в тексті. Підсумок — для погоджувача; він лишається разом із версією, а його чернетку складено з розділів, які ви змінили."
+
+#: editing/templates/editing/finish.html:10
+msgid "Change summary"
+msgstr "Підсумок змін"
+
+#: editing/templates/editing/finish.html:13
+msgid "Send for review"
+msgstr "Відправити на розгляд"
+
+#: editing/templates/editing/finish.html:14
+#, python-format
+msgid "the version waits as %(number)s"
+msgstr "версія отримає номер %(number)s"
+
+#: editing/templates/editing/finish.html:16
+#: editing/templates/editing/finish_waits.html:7
+msgid "Continue editing"
+msgstr "Продовжити редагування"
+
+#: editing/templates/editing/held_by_other.html:4
+msgid "This document is held: someone is editing it."
+msgstr "Документ зайнятий: його редагують."
+
+#: editing/templates/editing/help.html:3 editing/templates/editing/help.html:7
+#: shell/templates/shell/base.html:20
+msgid "Help"
+msgstr "Довідка"
+
+#: editing/templates/editing/help.html:14
+msgid ""
+"Text is written in Markdown, in the formatted view or the source view. These "
+"constructs are accepted; anything else is refused when it is pasted, with "
+"its line named and, where one exists, a conversion offered."
+msgstr ""
+"Текст пишуть у Markdown — у форматованому чи вихідному тексті. Редактор "
+"приймає ці конструкції; усе інше відхиляється під час вставлення із "
+"зазначенням рядка і, де це можливо, із запропонованим перетворенням."
+
+#: editing/templates/editing/help.html:15
+#: editing/templates/editing/help.html:18
+msgid "Construct"
+msgstr "Конструкція"
+
+#: editing/templates/editing/help.html:15
+msgid "How it is written"
+msgstr "Як записується"
+
+#: editing/templates/editing/help.html:17
+msgid "Not accepted, and what the conversion does"
+msgstr "Що не приймається і на що перетворюється"
+
+#: editing/templates/editing/help.html:18
+msgid "Converted to"
+msgstr "Перетворюється на"
+
+#: editing/views/finish.py:79
+msgid ""
+"The draft holds text the editor does not accept; correct it in the editor."
+msgstr ""
+"Чернетка містить текст, якого редактор не приймає; виправте його в редакторі."
+
+#: editing/views/finish.py:146
+msgid "Nothing changed: there is no version to send."
+msgstr "Нічого не змінено: немає версії, яку можна відправити."
+
+#: editing/views/finish.py:162
+#, python-format
+msgid "Sent for review — the version waits as %(number)s."
+msgstr "Відправлено на розгляд — версія %(number)s очікує на розгляд."
+
+#: editing/views/help.py:39
+#, python-format
+msgid "Headings, down to level %(depth)s"
+msgstr "Заголовки, до рівня %(depth)s"
+
+#: editing/views/help.py:41
+msgid "Paragraphs"
+msgstr "Пункти"
+
+#: editing/views/help.py:41
+msgid "separated by an empty line"
+msgstr "розділені порожнім рядком"
+
+#: editing/views/help.py:42
+#, python-format
+msgid "Lists, down to %(depth)s levels"
+msgstr "Списки, до %(depth)s рівнів"
+
+#: editing/views/help.py:43
+msgid "Bold, italic"
+msgstr "Жирний, курсив"
+
+#: editing/views/help.py:53
+msgid "Quotes"
+msgstr "Цитати"
+
+#: editing/views/help.py:56
+msgid "Tables, not inside another block"
+msgstr "Таблиці, не всередині іншого блоку"
+
+#: editing/views/help.py:56
+msgid "Tables"
+msgstr "Таблиці"
+
+#: editing/views/help.py:58
+msgid "Images of the document, on a line of their own"
+msgstr "Зображення документа, кожне в окремому рядку"
+
+#: editing/views/help.py:59
+msgid "Links: to the web, to a mailbox, or to a path in the document"
+msgstr "Посилання: на вебсторінку, на поштову скриньку або на шлях у документі"
 
 #: identity/forms.py:16
 msgid "Setup token"
@@ -562,3 +1100,41 @@ msgstr ""
 #: shell/templates/shell/nothing_to_show.html:7
 msgid "Back to the documents"
 msgstr "До документів"
+
+#~ msgid "an unknown marking"
+#~ msgstr "невідома позначка"
+
+#~ msgid "a marking inside a marking"
+#~ msgstr "позначка всередині позначки"
+
+#~ msgid "Markdown"
+#~ msgstr "Вихідний текст"
+
+#~ msgid "A role marking"
+#~ msgstr "Позначка ролі"
+
+#~ msgid "An action marking"
+#~ msgstr "Позначка дії"
+
+#~ msgid "A term marking"
+#~ msgstr "Позначка терміна"
+
+#, python-format
+#~ msgid "Callouts: %(types)s"
+#~ msgstr "Врізки: %(types)s"
+
+#~ msgid "Links"
+#~ msgstr "Посилання"
+
+#~ msgid "role"
+#~ msgstr "роль"
+
+#~ msgid "term"
+#~ msgstr "термін"
+
+#, python-format
+#~ msgid "Marking: %(kind)s"
+#~ msgstr "Позначка: %(kind)s"
+
+#~ msgid "Apply"
+#~ msgstr "Застосувати"

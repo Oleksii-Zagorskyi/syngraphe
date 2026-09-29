@@ -1,12 +1,13 @@
 """The reconciler: the second path from git to the rows (DL-0111).
 
 Git is the commit point and the rows are its cache. Report mode lists what disagrees and writes
-nothing. Repair derives what git implies, finishes stopped creations and recreates a row for a
-repository without one, fail closed; a row is deleted only on `prune_rows`, and only a version row
-whose commit its existing repository no longer holds (ADR-0018, DL-0276). A repository is trusted
-only where its passport names the tenant and the number it sits at. Every repair runs under the
-document's lock and is audited with numbers, never a title. One document's fault is reported and
-the run goes on.
+nothing. Repair derives what git implies, finishes stopped creations, finishes a *send for review*
+that stopped after its commit (DL-0318), asks again for the head's missing authorship (DL-0266)
+and recreates a row for a repository without one, fail closed; a row is deleted only on
+`prune_rows`, and only a version row whose commit its existing repository no longer holds
+(ADR-0018, DL-0276). A repository is trusted only where its passport names the tenant and the
+number it sits at. Every repair runs under the document's lock and is audited with numbers, never
+a title. One document's fault is reported and the run goes on.
 """
 
 from __future__ import annotations
@@ -77,6 +78,8 @@ PASSPORT_ENTRY_WITHOUT_ROW = "passport_entry_without_row"
 IDENTITY_MISMATCH = "identity_mismatch"
 SEQUENCE_BEHIND = "sequence_behind"
 LOCKED = "locked"
+AUTHORSHIP_MISSING = "authorship_missing"
+FINISH_STOPPED = "finish_stopped"
 UNREADABLE = "unreadable"
 
 
@@ -178,6 +181,8 @@ class _Run:
         if commits:
             self.frontmatter(document, repo, commits[-1])
             self.passport(document, repo, commits[-1])
+            self.finishes(document, commits)
+            self.authorship(document, str(commits[-1].id))
 
     def creating(self, document: Document) -> None:
         if document.created_at > timezone.now() - CREATING_GRACE:
@@ -256,6 +261,103 @@ class _Run:
                 services.derive_version(document, commit, author)
                 _audit(self.tenant, COMMIT_WITHOUT_ROW, document, None, {"commit": sha})
             self.found(COMMIT_WITHOUT_ROW, document.number, sha, repaired=True)
+
+    def finishes(self, document: Document, commits: list[pygit2.Commit]) -> None:
+        """A finish that stopped after its commit (DL-0318). An open hold whose draft's base is
+        behind an `edit` commit of its holder is released as finished and its draft deleted —
+        only when the holder is a member, the commit has its row, and the draft holds nothing
+        the commit does not; otherwise it is reported, and the holder's next *send for review*
+        resumes it. A finished hold whose draft is still there has the draft deleted."""
+        from editing import holds as editing
+        from editing.models import Draft, Hold, ReleaseKind
+
+        order = {str(commit.id): n for n, commit in enumerate(commits)}
+        for hold in Hold.objects.filter(document=document, draft__isnull=False):
+            draft = Draft.objects.get(hold=hold)
+            edit, reason = "", ""
+            if hold.released_at is not None:
+                if hold.release_kind != ReleaseKind.FINISHED:
+                    continue
+            else:
+                base = order.get(draft.base_commit)
+                if base is None:
+                    continue
+                edits = [
+                    commit
+                    for commit in commits[base + 1 :]
+                    if gitstore.kind_of(commit.message) is gitstore.Kind.EDIT
+                    and commit.author.name == str(hold.user_id)
+                ]
+                if not edits:
+                    continue
+                edit = str(edits[-1].id)
+                reason = self.unfinishable(document, edits[-1], draft)
+            if self.repair and not reason:
+                with transaction.atomic():
+                    Document.objects.select_for_update().get(pk=document.pk)
+                    if hold.released_at is None:
+                        editing.release(hold, ReleaseKind.FINISHED)
+                    draft.delete()
+                    _audit(self.tenant, FINISH_STOPPED, document, None, {"number": document.number})
+            detail = f"{edit} ({reason})" if reason else edit
+            self.found(FINISH_STOPPED, document.number, detail, repaired=self.repair and not reason)
+
+    def unfinishable(self, document: Document, commit: pygit2.Commit, draft: Any) -> str:
+        """Why a stopped finish is left for its holder: an empty string when it may be finished."""
+        from editing.markdown.validator import validate
+        from editing.normalizer import Lists, normalize
+
+        if self.author(commit) is None:
+            return "its holder is not of this tenant"
+        if not Version.objects.filter(document=document, commit_sha=str(commit.id)).exists():
+            return "its commit has no row"
+        body = draft.content["document.md"]
+        _, committed = bundle.parse(
+            gitstore.read(
+                gitstore.open_repository(self.tenant.number, document.number),
+                "document.md",
+                str(commit.id),
+            ).decode("utf-8")
+        )
+        if validate(body):
+            return "the draft holds later text"
+        lists = Lists.of(document.language)
+        if normalize(committed.encode(), body, lists).decode("utf-8") != committed:
+            return "the draft holds later text"
+        return ""
+
+    def authorship(self, document: Document, head: str) -> None:
+        """The head version, of any kind, without rows while its text has a non-blank line: the
+        worker is asked for it again (DL-0266, DL-0326). A version not derived yet waits for its
+        row; a blank text has no rows by design and is never asked for."""
+        from editing.models import LineAuthorship
+        from editing.tasks import queue_authorship
+
+        version = Version.objects.filter(document=document, commit_sha=head).first()
+        if version is None:
+            return
+        if LineAuthorship.objects.filter(version=version, expires_at__isnull=True).exists():
+            return
+        if not self.has_lines(document, head):
+            return
+        if self.repair:
+            queue_authorship(self.tenant.number, document.number, head)
+        self.found(AUTHORSHIP_MISSING, document.number, head, repaired=self.repair)
+
+    def has_lines(self, document: Document, head: str) -> bool:
+        """Whether `document.md`'s body or an appendix it lists has a non-blank line at `head` —
+        the lines the worker writes rows for."""
+        repo = gitstore.open_repository(self.tenant.number, document.number)
+        frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", head).decode("utf-8"))
+        texts = [body]
+        for item in frontmatter.appendices:
+            try:
+                texts.append(
+                    gitstore.read(repo, f"appendices/{int(item['number'])}.md", head).decode()
+                )
+            except KeyError:
+                continue
+        return any(line.strip() for text in texts for line in text.splitlines())
 
     def versions_without_commit(self, document: Document, present: set[str]) -> bool:
         """Report, or prune, the version rows whose commit is gone; `True` while any remain."""

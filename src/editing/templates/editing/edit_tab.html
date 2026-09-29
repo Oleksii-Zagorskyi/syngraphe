@@ -1,0 +1,10 @@
+{% extends "documents/page.html" %}
+{% load static %}
+{% block tab %}
+{% csrf_token %}
+{{ words|json_script:"editor-words" }}
+<link rel="stylesheet" href="{% static 'editing/editor.css' %}">
+<script src="{% static 'editing/editor.js' %}" defer></script>
+<div class="edit-tab" id="editor" data-take="/document/{{ document.number }}/edit/take/" data-load="/document/{{ document.number }}/edit/load/" data-capture="/document/{{ document.number }}/edit/capture/" data-heartbeat="/document/{{ document.number }}/edit/heartbeat/" data-close="/document/{{ document.number }}/edit/close/" data-finish="/document/{{ document.number }}/edit/finish/" data-help="/help/markdown/" data-take-on-mount="{{ take_on_mount|yesno:'true,false' }}"></div>
+<p class="editor-status" role="status"></p>
+{% endblock %}

@@ -15,7 +15,7 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **Git holds content. PostgreSQL holds everything else, and never a second copy of content.** The only content-derived rows are navigation and search indexes and the per-line authorship cache (`LINE_AUTHORSHIP`), all rebuildable from git at any time by replaying the repository. If a table would make git the second source of truth for a document's text, it is wrong.
 
-**Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on every table except those that are themselves the record of one act — the histories and `AUDIT_EVENT`, which carry their own timestamp and actor — and two that are state without provenance: `SIGN_IN_ATTEMPT`, a counter no person writes, and `SETUP_TOKEN`, written by the install command.
+**Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on every table except those that are themselves the record of one act — the histories and `AUDIT_EVENT`, which carry their own timestamp and actor — two that are state without provenance: `SIGN_IN_ATTEMPT`, a counter no person writes, and `SETUP_TOKEN`, written by the install command; the editing tables `HOLD`, `DRAFT`, `DRAFT_FILE` and `OPEN_EDITOR`, whose own columns say who and when; and `LINE_AUTHORSHIP`, a cache the worker derives from git, whose provenance is the commit it names.
 
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
@@ -195,8 +195,7 @@ erDiagram
     ACCESS_GROUP ||--o{ GROUP_RIGHT : holds
     ACCESS_GROUP ||--o{ ACCESS_CHANGE : records
     DOCUMENT ||--o{ VERSION : has
-    DOCUMENT ||--o{ HOLD : locked_by
-    DOCUMENT ||--o{ DRAFT : being_edited_as
+    DOCUMENT ||--o{ HOLD : held_by
     DOCUMENT ||--o{ HEADING_INDEX : indexed_by
     DOCUMENT ||--o{ PART_INDEX : lists
     DOCUMENT ||--o{ IMAGE : embeds
@@ -303,7 +302,7 @@ erDiagram
     VERSION ||--o| EDITION : made_canonical_as
     DOCUMENT ||--o{ FREEZE : frozen_by
     DOCUMENT ||--o{ HOLD : held_by
-    DOCUMENT ||--o{ DRAFT : drafted_in
+    HOLD ||--o| DRAFT : drafted_in
     VERSION ||--o{ LINE_AUTHORSHIP : attributed_in
     VERSION {
         uuid id PK
@@ -377,7 +376,7 @@ erDiagram
         datetime last_activity_at "released after the tenant's inactivity timeout, unless reserved (ADR-0006)"
         datetime reserved_at "set while reserved for editing; exempt from the inactivity release (ADR-0009)"
         datetime released_at
-        uuid released_by FK "set when forced; the blocking administrator when blocked; null for a self-block"
+        uuid released_by FK "the administrator who forced it; the blocking administrator when blocked; null for a finish, a discard, an inactivity release, a self-block, or a release forced from the operator's command"
         string release_kind "finished | discarded | inactivity | forced | blocked — blocked when the holder's membership, account or tenant is blocked (DL-0256)"
         string release_reason "required when an administrator ends a reservation (DL-0225)"
     }
@@ -393,6 +392,7 @@ erDiagram
     DRAFT {
         uuid id PK
         uuid hold FK
+        string base_commit "the head's commit when the hold was taken (DL-0318)"
         json content "per-file working text: body, appendices, frontmatter"
         datetime updated_at
     }
@@ -432,7 +432,7 @@ erDiagram
 
 **`TENANT.require_distinct_approver`** enforces the one optional segregation check: when set, `EDITION.approved_by` may not be the reviewer of **any** `ACCEPTANCE` between the previous canonical edition and this one (DL-0101, DL-0115). Not merely the last — accept a substantive run yourself, have a colleague accept a following run that changes a comma, and *last* stops meaning anything.
 
-**Version numbers are derived, never typed** (DL-0183). Each acceptance is numbered `N.M`: N is the count of canonical editions before it, M counts acceptances since the last one and restarts at 1 — so 0.1, 0.2 before the first canonical edition. Making a frozen document canonical turns its latest accepted version into `N+1.0`; unfreezing changes no number. Numbers are written into the passport with the acceptance and the approval, so the repository carries them; these columns are caches. Unfreezing changes no number.
+**Version numbers are derived, never typed** (DL-0183). Each acceptance is numbered `N.M`: N is the count of canonical editions before it, M counts acceptances since the last one and restarts at 1 — so 0.1, 0.2 before the first canonical edition. Making a frozen document canonical turns its latest accepted version into `N+1.0`; unfreezing changes no number. Numbers are written into the passport with the acceptance and the approval, so the repository carries them; these columns are caches.
 
 **A freeze is a state of the document, an edition is a canonical version** (DL-0189). A `FREEZE` row with no `ended_at` means the document is frozen: only holders of *accept* may open an editor (ADR-0016). It ends by *make canonical*, which writes a passport commit — `VERSION.kind` `approval`, tagged — and an `EDITION` for the latest accepted version (DL-0260), or by *unfreeze*. The three stances fall out of these tables without a state column anywhere: canonical is the latest `EDITION`; accepted is the latest `ACCEPTANCE`; pending is every content version — `edit`, `reviewer_edit` — after it (DL-0267).
 
@@ -440,7 +440,7 @@ erDiagram
 
 **A block ends the hold** (DL-0256). Blocking a membership, an account or a tenant releases every hold and reservation of the person it closes documents to, with `release_kind` `blocked`, an `AUDIT_EVENT` naming the block and the draft's state, and the draft preserved as after a forced release.
 
-**`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or after the inactivity timeout — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered.
+**`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or after the inactivity timeout — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered. `base_commit` is the head the draft started from: a released draft is taken back only while `base_commit` is still the head, and a finish that committed and then stopped is recognised by an `edit` commit of the holder's after it (DL-0318).
 
 **`DRAFT_FILE` holds uploads until they are committed** (DL-0175). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by the commit that finishes the session. It is the first copy of that content, not a second one.
 
@@ -570,4 +570,4 @@ Not built now; the tables above must leave room for them without a migration tha
 - **No cross-tenant table of any kind** (ASR-17).
 - **No document text in any notification or notice row** (DL-0113) — references only, rendered from git under current rights.
 - **No normalizer version on the document** — it is recorded per commit (DL-0112).
-- **No authorship on `VERSION` or computed at read** — `LINE_AUTHORSHIP` is a derived cache written by the worker after each commit and kept for the head and the latest accepted version, older versions computed on demand with an expiry (DL-0266); the pending run's own lines are attributed from its diffs at render, a version without its rows renders without an author and queues the job, and the reconciler re-queues any version missing them (DL-0135, ADR-0011).
+- **No authorship on `VERSION` or computed at read** — `LINE_AUTHORSHIP` is a derived cache written by the worker after each commit and kept for the head and the latest accepted version, older versions computed on demand with an expiry (DL-0266); the pending run's own lines are attributed from its diffs at render, a version without its rows renders without an author and queues the job, and the reconciler re-queues the head's when the head has none (DL-0135, DL-0326, ADR-0011).

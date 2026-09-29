@@ -1,0 +1,1943 @@
+[
+  {
+    "id": "accept-heading-1",
+    "kind": "accept",
+    "input": "# Загальні положення\n",
+    "stored": "# Загальні положення\n",
+    "note": "A first-level heading is stored as written."
+  },
+  {
+    "id": "accept-heading-2",
+    "kind": "accept",
+    "input": "## Сфера застосування\n",
+    "stored": "## Сфера застосування\n",
+    "note": "A second-level heading is stored as written."
+  },
+  {
+    "id": "accept-heading-3",
+    "kind": "accept",
+    "input": "### Відповідальні особи\n",
+    "stored": "### Відповідальні особи\n",
+    "note": "A third-level heading is stored as written."
+  },
+  {
+    "id": "accept-heading-4",
+    "kind": "accept",
+    "input": "#### Порядок звітування\n",
+    "stored": "#### Порядок звітування\n",
+    "note": "A fourth-level heading, the deepest allowed, is stored as written."
+  },
+  {
+    "id": "accept-heading-then-paragraph",
+    "kind": "accept",
+    "input": "# Мета\n\nЦей порядок визначає правила погодження документів.\n",
+    "stored": "# Мета\n\nЦей порядок визначає правила погодження документів.\n",
+    "note": "A heading and a paragraph are separated by one blank line."
+  },
+  {
+    "id": "accept-heading-with-entity",
+    "kind": "accept",
+    "input": "## Строк [погодження]{.term #strok-pohodzhennia}\n",
+    "stored": "## Строк [погодження]{.term #strok-pohodzhennia}\n",
+    "note": "A heading may carry an entity span."
+  },
+  {
+    "id": "accept-headings-all-depths",
+    "kind": "accept",
+    "input": "# Розділ\n\n## Підрозділ\n\n### Пункт\n\n#### Підпункт\n",
+    "stored": "# Розділ\n\n## Підрозділ\n\n### Пункт\n\n#### Підпункт\n",
+    "note": "Headings of every allowed depth stand one after another."
+  },
+  {
+    "id": "accept-paragraph-one-sentence",
+    "kind": "accept",
+    "input": "Порядок набирає чинності з дня затвердження.\n",
+    "stored": "Порядок набирає чинності з дня затвердження.\n",
+    "note": "A one-sentence paragraph is one line."
+  },
+  {
+    "id": "accept-paragraph-several-sentences",
+    "kind": "accept",
+    "input": "Кожен працівник ознайомлюється з порядком.\nОзнайомлення підтверджується підписом.\nКопія зберігається у відділі кадрів.\n",
+    "stored": "Кожен працівник ознайомлюється з порядком.\nОзнайомлення підтверджується підписом.\nКопія зберігається у відділі кадрів.\n",
+    "note": "A paragraph of several sentences keeps one sentence per line."
+  },
+  {
+    "id": "accept-two-paragraphs",
+    "kind": "accept",
+    "input": "Перший абзац описує мету.\n\nДругий абзац описує строки.\nВін має два речення.\n",
+    "stored": "Перший абзац описує мету.\n\nДругий абзац описує строки.\nВін має два речення.\n",
+    "note": "Two paragraphs are separated by exactly one blank line."
+  },
+  {
+    "id": "accept-bullet-list",
+    "kind": "accept",
+    "input": "- перший пункт\n- другий пункт\n- третій пункт\n",
+    "stored": "- перший пункт\n- другий пункт\n- третій пункт\n",
+    "note": "A tight bullet list uses the dash marker."
+  },
+  {
+    "id": "accept-ordered-list",
+    "kind": "accept",
+    "input": "1. подати заяву\n2. отримати погодження\n3. передати до архіву\n",
+    "stored": "1. подати заяву\n2. отримати погодження\n3. передати до архіву\n",
+    "note": "A tight ordered list uses the N. marker."
+  },
+  {
+    "id": "accept-bullet-nested-three",
+    "kind": "accept",
+    "input": "- рівень один\n  - рівень два\n    - рівень три\n",
+    "stored": "- рівень один\n  - рівень два\n    - рівень три\n",
+    "note": "A bullet list nests to three levels, indented by the marker width."
+  },
+  {
+    "id": "accept-ordered-nested-three",
+    "kind": "accept",
+    "input": "1. рівень один\n   1. рівень два\n      1. рівень три\n",
+    "stored": "1. рівень один\n   1. рівень два\n      1. рівень три\n",
+    "note": "An ordered list nests to three levels, indented by three spaces per level."
+  },
+  {
+    "id": "accept-mixed-ordered-bullet-ordered",
+    "kind": "accept",
+    "input": "1. етап\n   - крок\n     1. дія\n     2. перевірка\n   - наступний крок\n2. другий етап\n",
+    "stored": "1. етап\n   - крок\n     1. дія\n     2. перевірка\n   - наступний крок\n2. другий етап\n",
+    "note": "Mixed nesting indents each level by its own parent's marker width."
+  },
+  {
+    "id": "accept-mixed-bullet-ordered",
+    "kind": "accept",
+    "input": "- розділ\n  1. перша вимога\n  2. друга вимога\n- інший розділ\n",
+    "stored": "- розділ\n  1. перша вимога\n  2. друга вимога\n- інший розділ\n",
+    "note": "An ordered list nested in a bullet list is indented by two spaces."
+  },
+  {
+    "id": "accept-list-item-two-sentences",
+    "kind": "accept",
+    "input": "- Заява подається письмово.\n  Строк розгляду становить десять днів.\n- Відповідь надсилається поштою.\n",
+    "stored": "- Заява подається письмово.\n  Строк розгляду становить десять днів.\n- Відповідь надсилається поштою.\n",
+    "note": "A list item's second sentence is indented by the marker width."
+  },
+  {
+    "id": "accept-ordered-from-five",
+    "kind": "accept",
+    "input": "5. п'ятий пункт\n6. шостий пункт\n",
+    "stored": "5. п'ятий пункт\n6. шостий пункт\n",
+    "note": "An ordered list keeps a start other than one."
+  },
+  {
+    "id": "accept-ordered-two-digit-marker",
+    "kind": "accept",
+    "input": "9. Дев'ятий пункт.\n   Друге речення пункту.\n10. Десятий пункт.\n    Друге речення пункту.\n    - вкладений пункт\n",
+    "stored": "9. Дев'ятий пункт.\n   Друге речення пункту.\n10. Десятий пункт.\n    Друге речення пункту.\n    - вкладений пункт\n",
+    "note": "Each item's continuation and nested blocks are indented by that item's own marker width."
+  },
+  {
+    "id": "accept-list-after-paragraph",
+    "kind": "accept",
+    "input": "Порядок дій такий.\n\n- перевірити документ\n- погодити документ\n",
+    "stored": "Порядок дій такий.\n\n- перевірити документ\n- погодити документ\n",
+    "note": "A list after a paragraph is separated by one blank line."
+  },
+  {
+    "id": "accept-list-from-zero",
+    "kind": "accept",
+    "input": "0. нульовий крок\n1. перший крок\n",
+    "stored": "0. нульовий крок\n1. перший крок\n",
+    "note": "An ordered list starting at zero keeps its start."
+  },
+  {
+    "id": "accept-italic",
+    "kind": "accept",
+    "input": "Документ має *рекомендаційний* характер.\n",
+    "stored": "Документ має *рекомендаційний* характер.\n",
+    "note": "Italic is stored with single asterisks."
+  },
+  {
+    "id": "accept-bold",
+    "kind": "accept",
+    "input": "Документ є **обов'язковим** для всіх працівників.\n",
+    "stored": "Документ є **обов'язковим** для всіх працівників.\n",
+    "note": "Bold is stored with double asterisks."
+  },
+  {
+    "id": "accept-italic-inside-bold",
+    "kind": "accept",
+    "input": "Це **обов'язкова і *невідкладна* вимога**.\n",
+    "stored": "Це **обов'язкова і *невідкладна* вимога**.\n",
+    "note": "Italic nests inside bold."
+  },
+  {
+    "id": "accept-underline",
+    "kind": "accept",
+    "input": "Слово [підкреслено]{.underline} в тексті.\n",
+    "stored": "Слово [підкреслено]{.underline} в тексті.\n",
+    "note": "Underline is an attributed span without an identifier."
+  },
+  {
+    "id": "accept-underline-with-bold",
+    "kind": "accept",
+    "input": "Увага: [**строк не продовжується**]{.underline}.\n",
+    "stored": "Увага: [**строк не продовжується**]{.underline}.\n",
+    "note": "Bold nests inside underline, underline outermost."
+  },
+  {
+    "id": "accept-role-with-id",
+    "kind": "accept",
+    "input": "Документ погоджує [керівник відділу]{.role #kerivnyk-viddilu}.\n",
+    "stored": "Документ погоджує [керівник відділу]{.role #kerivnyk-viddilu}.\n",
+    "note": "A role span with an identifier."
+  },
+  {
+    "id": "accept-role-without-id",
+    "kind": "accept",
+    "input": "Документ підписує [відповідальна особа]{.role}.\n",
+    "stored": "Документ підписує [відповідальна особа]{.role}.\n",
+    "note": "A role span without an identifier."
+  },
+  {
+    "id": "accept-action-with-id",
+    "kind": "accept",
+    "input": "Керівник [зобов'язаний погодити]{.action #pohodyty} документ.\n",
+    "stored": "Керівник [зобов'язаний погодити]{.action #pohodyty} документ.\n",
+    "note": "An action span with an identifier."
+  },
+  {
+    "id": "accept-action-without-id",
+    "kind": "accept",
+    "input": "Працівник [повідомляє]{.action} свого керівника.\n",
+    "stored": "Працівник [повідомляє]{.action} свого керівника.\n",
+    "note": "An action span without an identifier."
+  },
+  {
+    "id": "accept-term-with-id",
+    "kind": "accept",
+    "input": "Розгляд триває [десять робочих днів]{.term #strok-rozghliadu}.\n",
+    "stored": "Розгляд триває [десять робочих днів]{.term #strok-rozghliadu}.\n",
+    "note": "A term span with an identifier."
+  },
+  {
+    "id": "accept-term-without-id",
+    "kind": "accept",
+    "input": "Звіт подається [щокварталу]{.term}.\n",
+    "stored": "Звіт подається [щокварталу]{.term}.\n",
+    "note": "A term span without an identifier."
+  },
+  {
+    "id": "accept-entity-bold-inside",
+    "kind": "accept",
+    "input": "Строк становить [**п'ять днів**]{.term #strok}.\n",
+    "stored": "Строк становить [**п'ять днів**]{.term #strok}.\n",
+    "note": "Bold nests inside an entity span, the entity outermost."
+  },
+  {
+    "id": "accept-entity-italic-inside",
+    "kind": "accept",
+    "input": "Секретар [*реєструє*]{.action} звернення.\n",
+    "stored": "Секретар [*реєструє*]{.action} звернення.\n",
+    "note": "Italic nests inside an entity span."
+  },
+  {
+    "id": "accept-entity-underline-inside",
+    "kind": "accept",
+    "input": "Керівник [[підписує]{.underline}]{.action #pidpysuie} наказ.\n",
+    "stored": "Керівник [[підписує]{.underline}]{.action #pidpysuie} наказ.\n",
+    "note": "Underline nests inside an entity span."
+  },
+  {
+    "id": "accept-entity-partial-bold",
+    "kind": "accept",
+    "input": "Відповідь надходить [протягом **десяти днів**]{.term #vidpovid}.\n",
+    "stored": "Відповідь надходить [протягом **десяти днів**]{.term #vidpovid}.\n",
+    "note": "Bold may cover part of an entity span's text."
+  },
+  {
+    "id": "accept-link-inside-entity",
+    "kind": "accept",
+    "input": "Діє [[регламент погодження](appendices/rehlament.md)]{.term #rehlament}.\n",
+    "stored": "Діє [[регламент погодження](appendices/rehlament.md)]{.term #rehlament}.\n",
+    "note": "A link inside an entity span is the stored nesting."
+  },
+  {
+    "id": "accept-several-entities",
+    "kind": "accept",
+    "input": "[Керівник відділу]{.role #kerivnyk} [погоджує]{.action} план [до п'ятниці]{.term}.\n",
+    "stored": "[Керівник відділу]{.role #kerivnyk} [погоджує]{.action} план [до п'ятниці]{.term}.\n",
+    "note": "Several entity spans stand in one sentence."
+  },
+  {
+    "id": "accept-quote-paragraph",
+    "kind": "accept",
+    "input": "> Документ не підлягає розголошенню.\n",
+    "stored": "> Документ не підлягає розголошенню.\n",
+    "note": "A plain quote holding one paragraph."
+  },
+  {
+    "id": "accept-quote-two-sentences",
+    "kind": "accept",
+    "input": "> Перше речення цитати.\n> Друге речення цитати.\n",
+    "stored": "> Перше речення цитати.\n> Друге речення цитати.\n",
+    "note": "A quote keeps one sentence per line."
+  },
+  {
+    "id": "accept-quote-paragraph-and-list",
+    "kind": "accept",
+    "input": "> Цитата містить перелік.\n>\n> - перша умова\n> - друга умова\n",
+    "stored": "> Цитата містить перелік.\n>\n> - перша умова\n> - друга умова\n",
+    "note": "A plain quote holds a paragraph and a list, separated by a bare quote line."
+  },
+  {
+    "id": "accept-quote-two-paragraphs",
+    "kind": "accept",
+    "input": "> Перший абзац цитати.\n>\n> Другий абзац цитати.\n",
+    "stored": "> Перший абзац цитати.\n>\n> Другий абзац цитати.\n",
+    "note": "A plain quote holds two paragraphs."
+  },
+  {
+    "id": "accept-callout-note",
+    "kind": "accept",
+    "input": "> [!note]\n> Примітка до розділу.\n",
+    "stored": "> [!note]\n> Примітка до розділу.\n",
+    "note": "A note callout with one paragraph."
+  },
+  {
+    "id": "accept-callout-warning",
+    "kind": "accept",
+    "input": "> [!warning]\n> Порушення строку тягне відповідальність.\n",
+    "stored": "> [!warning]\n> Порушення строку тягне відповідальність.\n",
+    "note": "A warning callout with one paragraph."
+  },
+  {
+    "id": "accept-callout-example",
+    "kind": "accept",
+    "input": "> [!example]\n> Заява подається до п'ятнадцятого числа.\n",
+    "stored": "> [!example]\n> Заява подається до п'ятнадцятого числа.\n",
+    "note": "An example callout with one paragraph."
+  },
+  {
+    "id": "accept-callout-note-list",
+    "kind": "accept",
+    "input": "> [!note]\n> - перша примітка\n> - друга примітка\n",
+    "stored": "> [!note]\n> - перша примітка\n> - друга примітка\n",
+    "note": "A callout may hold only a list."
+  },
+  {
+    "id": "accept-callout-warning-paragraph-and-list",
+    "kind": "accept",
+    "input": "> [!warning]\n> Перевірте такі умови.\n>\n> 1. наявність підпису\n> 2. дату реєстрації\n",
+    "stored": "> [!warning]\n> Перевірте такі умови.\n>\n> 1. наявність підпису\n> 2. дату реєстрації\n",
+    "note": "A callout holds a paragraph and an ordered list."
+  },
+  {
+    "id": "accept-callout-example-two-paragraphs",
+    "kind": "accept",
+    "input": "> [!example]\n> Перший абзац прикладу.\n> Друге речення.\n>\n> Другий абзац прикладу.\n",
+    "stored": "> [!example]\n> Перший абзац прикладу.\n> Друге речення.\n>\n> Другий абзац прикладу.\n",
+    "note": "A callout holds two paragraphs, each a sentence per line."
+  },
+  {
+    "id": "accept-callout-with-marks",
+    "kind": "accept",
+    "input": "> [!note]\n> [Секретар]{.role #sekretar} **обов'язково** [реєструє]{.action} звернення.\n",
+    "stored": "> [!note]\n> [Секретар]{.role #sekretar} **обов'язково** [реєструє]{.action} звернення.\n",
+    "note": "Marks and entity spans inside a callout."
+  },
+  {
+    "id": "accept-callout-nested-list",
+    "kind": "accept",
+    "input": "> [!note]\n> - розділ\n>   - пункт\n>     - підпункт\n",
+    "stored": "> [!note]\n> - розділ\n>   - пункт\n>     - підпункт\n",
+    "note": "A list nested to three levels inside a callout."
+  },
+  {
+    "id": "accept-table-basic",
+    "kind": "accept",
+    "input": "| Посада | Строк |\n| --- | --- |\n| бухгалтер | 5 днів |\n| юрист | 3 дні |\n",
+    "stored": "| Посада | Строк |\n| --- | --- |\n| бухгалтер | 5 днів |\n| юрист | 3 дні |\n",
+    "note": "A pipe table with edge pipes and one space inside each cell edge."
+  },
+  {
+    "id": "accept-table-alignment",
+    "kind": "accept",
+    "input": "| Ліворуч | Центр | Праворуч | Типово |\n| :--- | :---: | ---: | --- |\n| а | б | в | г |\n",
+    "stored": "| Ліворуч | Центр | Праворуч | Типово |\n| :--- | :---: | ---: | --- |\n| а | б | в | г |\n",
+    "note": "Each delimiter-row alignment keeps only its colons."
+  },
+  {
+    "id": "accept-table-marks",
+    "kind": "accept",
+    "input": "| Вимога | Статус |\n| --- | --- |\n| **обов'язкова** | *чинна* |\n",
+    "stored": "| Вимога | Статус |\n| --- | --- |\n| **обов'язкова** | *чинна* |\n",
+    "note": "Table cells carry emphasis."
+  },
+  {
+    "id": "accept-table-link",
+    "kind": "accept",
+    "input": "| Документ | Посилання |\n| --- | --- |\n| правила | [відкрити](https://example.org/pravyla) |\n",
+    "stored": "| Документ | Посилання |\n| --- | --- |\n| правила | [відкрити](https://example.org/pravyla) |\n",
+    "note": "A table cell carries a link."
+  },
+  {
+    "id": "accept-table-escaped-pipe",
+    "kind": "accept",
+    "input": "| Вираз | Значення |\n| --- | --- |\n| а \\| б | одне з двох |\n",
+    "stored": "| Вираз | Значення |\n| --- | --- |\n| а \\| б | одне з двох |\n",
+    "note": "A literal pipe in a cell is stored escaped."
+  },
+  {
+    "id": "accept-table-empty-cell",
+    "kind": "accept",
+    "input": "| Посада | Примітка |\n| --- | --- |\n| бухгалтер |  |\n",
+    "stored": "| Посада | Примітка |\n| --- | --- |\n| бухгалтер |  |\n",
+    "note": "An empty cell is written as two spaces between pipes."
+  },
+  {
+    "id": "accept-table-entity",
+    "kind": "accept",
+    "input": "| Хто | Що робить |\n| --- | --- |\n| [директор]{.role #dyrektor} | [затверджує]{.action} |\n",
+    "stored": "| Хто | Що робить |\n| --- | --- |\n| [директор]{.role #dyrektor} | [затверджує]{.action} |\n",
+    "note": "Table cells carry entity spans."
+  },
+  {
+    "id": "accept-table-after-paragraph",
+    "kind": "accept",
+    "input": "Строки наведено нижче.\n\n| Етап | Строк |\n| --- | --- |\n| подання | 1 день |\n",
+    "stored": "Строки наведено нижче.\n\n| Етап | Строк |\n| --- | --- |\n| подання | 1 день |\n",
+    "note": "A table after a paragraph is separated by one blank line."
+  },
+  {
+    "id": "accept-image-alone",
+    "kind": "accept",
+    "input": "![Схема погодження](images/skhema-pohodzhennia.png)\n",
+    "stored": "![Схема погодження](images/skhema-pohodzhennia.png)\n",
+    "note": "An image alone in its paragraph."
+  },
+  {
+    "id": "accept-image-list-item",
+    "kind": "accept",
+    "input": "- ![Схема](images/skhema.png)\n- другий пункт\n",
+    "stored": "- ![Схема](images/skhema.png)\n- другий пункт\n",
+    "note": "An image alone in a list item is accepted."
+  },
+  {
+    "id": "accept-image-between-paragraphs",
+    "kind": "accept",
+    "input": "Схема наведена нижче.\n\n![Схема](images/skhema_v2.png)\n\nПояснення до схеми.\n",
+    "stored": "Схема наведена нижче.\n\n![Схема](images/skhema_v2.png)\n\nПояснення до схеми.\n",
+    "note": "An image paragraph between two text paragraphs."
+  },
+  {
+    "id": "accept-image-callout",
+    "kind": "accept",
+    "input": "> [!example]\n> ![Зразок заяви](images/zrazok-zaiavy.png)\n",
+    "stored": "> [!example]\n> ![Зразок заяви](images/zrazok-zaiavy.png)\n",
+    "note": "An image alone in a callout."
+  },
+  {
+    "id": "accept-link-https",
+    "kind": "accept",
+    "input": "Див. [правила](https://example.org/pravyla).\n",
+    "stored": "Див. [правила](https://example.org/pravyla).\n",
+    "note": "An https link."
+  },
+  {
+    "id": "accept-link-http",
+    "kind": "accept",
+    "input": "Див. [архів](http://example.org/arkhiv).\n",
+    "stored": "Див. [архів](http://example.org/arkhiv).\n",
+    "note": "An http link."
+  },
+  {
+    "id": "accept-link-mailto",
+    "kind": "accept",
+    "input": "Пишіть на [скриньку відділу](mailto:viddil@example.org).\n",
+    "stored": "Пишіть на [скриньку відділу](mailto:viddil@example.org).\n",
+    "note": "A mailto link."
+  },
+  {
+    "id": "accept-link-relative",
+    "kind": "accept",
+    "input": "Див. [додаток 1](appendices/dodatok-1.md).\n",
+    "stored": "Див. [додаток 1](appendices/dodatok-1.md).\n",
+    "note": "A scheme-less repository-relative link."
+  },
+  {
+    "id": "accept-link-bold-inside",
+    "kind": "accept",
+    "input": "Прочитайте [**правила**](https://example.org/pravyla).\n",
+    "stored": "Прочитайте [**правила**](https://example.org/pravyla).\n",
+    "note": "Bold nests inside a link."
+  },
+  {
+    "id": "accept-link-underline-inside",
+    "kind": "accept",
+    "input": "Прочитайте [[правила]{.underline}](https://example.org/pravyla).\n",
+    "stored": "Прочитайте [[правила]{.underline}](https://example.org/pravyla).\n",
+    "note": "Underline nests inside a link, the link outermost."
+  },
+  {
+    "id": "accept-literal-less-than",
+    "kind": "accept",
+    "input": "Строк \\< 10 днів.\n",
+    "stored": "Строк \\< 10 днів.\n",
+    "note": "A literal less-than sign is stored escaped."
+  },
+  {
+    "id": "accept-literal-star",
+    "kind": "accept",
+    "input": "Позначка \\* означає обов'язкове поле.\n",
+    "stored": "Позначка \\* означає обов'язкове поле.\n",
+    "note": "A literal asterisk is stored escaped."
+  },
+  {
+    "id": "accept-literal-underscore",
+    "kind": "accept",
+    "input": "Поле \\_ заповнюється вручну.\n",
+    "stored": "Поле \\_ заповнюється вручну.\n",
+    "note": "A literal underscore is stored escaped."
+  },
+  {
+    "id": "accept-literal-span-syntax",
+    "kind": "accept",
+    "input": "Розмітка \\[строк\\]{.term} лишається текстом.\n",
+    "stored": "Розмітка \\[строк\\]{.term} лишається текстом.\n",
+    "note": "Escaped brackets keep span syntax as text."
+  },
+  {
+    "id": "accept-literal-leading-hash",
+    "kind": "accept",
+    "input": "\\# 5 — номер кімнати.\n",
+    "stored": "\\# 5 — номер кімнати.\n",
+    "note": "A leading hash and space is stored escaped so it is not a heading."
+  },
+  {
+    "id": "accept-literal-leading-number",
+    "kind": "accept",
+    "input": "2026\\. рік став першим роком дії.\n",
+    "stored": "2026\\. рік став першим роком дії.\n",
+    "note": "A leading number and full stop is stored escaped so it is not a list."
+  },
+  {
+    "id": "accept-literal-leading-paren-number",
+    "kind": "accept",
+    "input": "1\\) перший варіант; 2) другий варіант.\n",
+    "stored": "1\\) перший варіант; 2) другий варіант.\n",
+    "note": "A leading number and parenthesis is stored escaped so it is not a list."
+  },
+  {
+    "id": "accept-literal-leading-equals",
+    "kind": "accept",
+    "input": "\\=СУМ(A1:A3) — приклад формули.\n",
+    "stored": "\\=СУМ(A1:A3) — приклад формули.\n",
+    "note": "A leading equals sign is always stored escaped."
+  },
+  {
+    "id": "accept-literal-leading-dash",
+    "kind": "accept",
+    "input": "\\-5 градусів — нижня межа.\n",
+    "stored": "\\-5 градусів — нижня межа.\n",
+    "note": "A leading hyphen is stored escaped as prosemirror-markdown does."
+  },
+  {
+    "id": "accept-literal-ampersand",
+    "kind": "accept",
+    "input": "Звіти & плани.\n",
+    "stored": "Звіти & плани.\n",
+    "note": "An ampersand that begins no entity is stored bare."
+  },
+  {
+    "id": "accept-literal-entity-like",
+    "kind": "accept",
+    "input": "Код \\&nbsp; не є пробілом.\n",
+    "stored": "Код \\&nbsp; не є пробілом.\n",
+    "note": "An ampersand that would begin an entity is stored escaped."
+  },
+  {
+    "id": "accept-literal-backslash",
+    "kind": "accept",
+    "input": "Шлях C:\\\\дані\\\\звіти.\n",
+    "stored": "Шлях C:\\\\дані\\\\звіти.\n",
+    "note": "A literal backslash is stored doubled."
+  },
+  {
+    "id": "accept-math-stays-text",
+    "kind": "accept",
+    "input": "Формула $x + y$ лишається текстом.\n",
+    "stored": "Формула $x + y$ лишається текстом.\n",
+    "note": "Dollar-delimited math is plain text, not refused."
+  },
+  {
+    "id": "accept-strikethrough-escaped",
+    "kind": "accept",
+    "input": "Текст \\~\\~закреслено\\~\\~ не закреслюється.\n",
+    "stored": "Текст \\~\\~закреслено\\~\\~ не закреслюється.\n",
+    "note": "Tildes are plain text, stored escaped."
+  },
+  {
+    "id": "accept-definition-list-stays-text",
+    "kind": "accept",
+    "input": "Термін\n: визначення терміна.\n",
+    "stored": "Термін\n: визначення терміна.\n",
+    "note": "A definition-list spelling is plain text over two lines."
+  },
+  {
+    "id": "accept-sentence-line-dash",
+    "kind": "accept",
+    "input": "Температура знизилась.\n\\-5 градусів — нижня межа.\n",
+    "stored": "Температура знизилась.\n\\-5 градусів — нижня межа.\n",
+    "note": "A sentence line starting with a hyphen is escaped as at a block start."
+  },
+  {
+    "id": "accept-sentence-line-number",
+    "kind": "accept",
+    "input": "Строк минає.\n2027\\. рік буде перехідним.\n",
+    "stored": "Строк минає.\n2027\\. рік буде перехідним.\n",
+    "note": "A sentence line starting with a number and full stop is escaped as at a block start."
+  },
+  {
+    "id": "accept-sentence-line-paren-number",
+    "kind": "accept",
+    "input": "Варіантів два.\n1\\) залишити; 2) змінити.\n",
+    "stored": "Варіантів два.\n1\\) залишити; 2) змінити.\n",
+    "note": "A sentence line starting with a number and parenthesis is escaped."
+  },
+  {
+    "id": "accept-sentence-line-equals",
+    "kind": "accept",
+    "input": "Формула проста.\n\\=СУМ(A1:A3) повертає суму.\n",
+    "stored": "Формула проста.\n\\=СУМ(A1:A3) повертає суму.\n",
+    "note": "A sentence line starting with an equals sign is escaped."
+  },
+  {
+    "id": "refuse-html-block",
+    "kind": "refuse",
+    "input": "<div>\nТекст у блоці.\n</div>\n",
+    "refusals": [
+      {
+        "code": "html",
+        "line": 1
+      }
+    ],
+    "note": "A raw HTML block is refused."
+  },
+  {
+    "id": "refuse-html-inline",
+    "kind": "refuse",
+    "input": "Текст<br>далі.\n",
+    "refusals": [
+      {
+        "code": "html",
+        "line": 1
+      }
+    ],
+    "note": "An inline HTML tag is refused."
+  },
+  {
+    "id": "refuse-script",
+    "kind": "refuse",
+    "input": "<script>alert(1)</script>\n",
+    "refusals": [
+      {
+        "code": "html",
+        "line": 1
+      }
+    ],
+    "note": "A script element is refused as HTML."
+  },
+  {
+    "id": "refuse-heading-5",
+    "kind": "refuse",
+    "input": "##### Розділ\n",
+    "refusals": [
+      {
+        "code": "heading-depth",
+        "line": 1
+      }
+    ],
+    "note": "A fifth-level heading is refused."
+  },
+  {
+    "id": "refuse-heading-6",
+    "kind": "refuse",
+    "input": "Вступ.\n\n###### Розділ\n",
+    "refusals": [
+      {
+        "code": "heading-depth",
+        "line": 3
+      }
+    ],
+    "note": "A sixth-level heading is refused on its own line."
+  },
+  {
+    "id": "refuse-code-fenced",
+    "kind": "refuse",
+    "input": "```\nкод\n```\n",
+    "refusals": [
+      {
+        "code": "code",
+        "line": 1
+      }
+    ],
+    "note": "A fenced code block is refused."
+  },
+  {
+    "id": "refuse-code-indented",
+    "kind": "refuse",
+    "input": "Абзац.\n\n    код\n",
+    "refusals": [
+      {
+        "code": "code",
+        "line": 3
+      }
+    ],
+    "note": "An indented code block is refused."
+  },
+  {
+    "id": "refuse-inline-code",
+    "kind": "refuse",
+    "input": "Виконайте `команду` зараз.\n",
+    "refusals": [
+      {
+        "code": "inline-code",
+        "line": 1
+      }
+    ],
+    "note": "Inline code is refused."
+  },
+  {
+    "id": "refuse-hr",
+    "kind": "refuse",
+    "input": "Перший абзац.\n\n---\n\nДругий абзац.\n",
+    "refusals": [
+      {
+        "code": "hr",
+        "line": 3
+      }
+    ],
+    "note": "A horizontal rule is refused."
+  },
+  {
+    "id": "refuse-hard-break-spaces",
+    "kind": "refuse",
+    "input": "Перше речення.  \nДруге речення.\n",
+    "refusals": [
+      {
+        "code": "hard-break",
+        "line": 1
+      }
+    ],
+    "note": "Two trailing spaces make a hard break, refused at the paragraph's first line."
+  },
+  {
+    "id": "refuse-hard-break-backslash",
+    "kind": "refuse",
+    "input": "Перше речення.\\\nДруге речення.\n",
+    "refusals": [
+      {
+        "code": "hard-break",
+        "line": 1
+      }
+    ],
+    "note": "A trailing backslash makes a hard break, refused."
+  },
+  {
+    "id": "refuse-footnote",
+    "kind": "refuse",
+    "input": "Текст із приміткою[^1] далі.\n",
+    "refusals": [
+      {
+        "code": "footnote",
+        "line": 1
+      }
+    ],
+    "note": "A footnote reference is refused."
+  },
+  {
+    "id": "refuse-task-list-open",
+    "kind": "refuse",
+    "input": "- [ ] перевірити підпис\n",
+    "refusals": [
+      {
+        "code": "task-list",
+        "line": 1
+      }
+    ],
+    "note": "An open task-list item is refused."
+  },
+  {
+    "id": "refuse-task-list-done",
+    "kind": "refuse",
+    "input": "- звичайний пункт\n- [x] перевірено\n",
+    "refusals": [
+      {
+        "code": "task-list",
+        "line": 2
+      }
+    ],
+    "note": "A checked task-list item is refused on its line."
+  },
+  {
+    "id": "refuse-list-depth-four",
+    "kind": "refuse",
+    "input": "- один\n  - два\n    - три\n      - чотири\n",
+    "refusals": [
+      {
+        "code": "list-depth",
+        "line": 4
+      }
+    ],
+    "note": "A list four levels deep is refused at the fourth level."
+  },
+  {
+    "id": "refuse-table-in-list",
+    "kind": "refuse",
+    "input": "- пункт\n\n  | а | б |\n  | --- | --- |\n  | в | г |\n",
+    "refusals": [
+      {
+        "code": "table-nested",
+        "line": 3
+      }
+    ],
+    "note": "A table inside a list item is refused."
+  },
+  {
+    "id": "refuse-table-in-quote",
+    "kind": "refuse",
+    "input": "> Цитата.\n>\n> | а | б |\n> | --- | --- |\n> | в | г |\n",
+    "refusals": [
+      {
+        "code": "table-nested",
+        "line": 3
+      }
+    ],
+    "note": "A table inside a plain quote is refused."
+  },
+  {
+    "id": "refuse-table-in-callout",
+    "kind": "refuse",
+    "input": "> [!note]\n> Примітка.\n>\n> | а | б |\n> | --- | --- |\n> | в | г |\n",
+    "refusals": [
+      {
+        "code": "table-nested",
+        "line": 4
+      }
+    ],
+    "note": "A table inside a callout is refused."
+  },
+  {
+    "id": "refuse-nested-quote",
+    "kind": "refuse",
+    "input": "> Цитата.\n>\n> > Вкладена цитата.\n",
+    "refusals": [
+      {
+        "code": "nested-quote",
+        "line": 3
+      }
+    ],
+    "note": "A quote inside a quote is refused."
+  },
+  {
+    "id": "refuse-callout-in-quote",
+    "kind": "refuse",
+    "input": "> Цитата.\n>\n> > [!warning]\n> > Увага.\n",
+    "refusals": [
+      {
+        "code": "nested-quote",
+        "line": 3
+      }
+    ],
+    "note": "A callout inside a quote is refused."
+  },
+  {
+    "id": "refuse-quote-in-callout",
+    "kind": "refuse",
+    "input": "> [!note]\n> Примітка.\n>\n> > Вкладена цитата.\n",
+    "refusals": [
+      {
+        "code": "nested-quote",
+        "line": 4
+      }
+    ],
+    "note": "A quote inside a callout is refused."
+  },
+  {
+    "id": "refuse-quote-in-list",
+    "kind": "refuse",
+    "input": "- > цитата\n",
+    "refusals": [
+      {
+        "code": "nested-quote",
+        "line": 1
+      }
+    ],
+    "note": "A quote inside a list item is refused."
+  },
+  {
+    "id": "refuse-callout-in-ordered-list",
+    "kind": "refuse",
+    "input": "1. Перший пункт.\n   > [!note]\n   > Примітка до пункту.\n2. Другий пункт.\n",
+    "refusals": [
+      {
+        "code": "nested-quote",
+        "line": 2
+      }
+    ],
+    "note": "A callout inside an ordered list item is refused at the callout's line."
+  },
+  {
+    "id": "refuse-callout-type-unknown",
+    "kind": "refuse",
+    "input": "> [!tip]\n> Порада.\n",
+    "refusals": [
+      {
+        "code": "callout-type",
+        "line": 1
+      }
+    ],
+    "note": "An unknown callout type is refused."
+  },
+  {
+    "id": "refuse-heading-in-list",
+    "kind": "refuse",
+    "input": "- # Заголовок\n",
+    "refusals": [
+      {
+        "code": "heading-nested",
+        "line": 1
+      }
+    ],
+    "note": "A heading inside a list item is refused."
+  },
+  {
+    "id": "refuse-heading-in-quote",
+    "kind": "refuse",
+    "input": "> ## Заголовок\n",
+    "refusals": [
+      {
+        "code": "heading-nested",
+        "line": 1
+      }
+    ],
+    "note": "A heading inside a quote is refused."
+  },
+  {
+    "id": "refuse-heading-in-callout",
+    "kind": "refuse",
+    "input": "> [!note]\n> ### Заголовок\n",
+    "refusals": [
+      {
+        "code": "heading-nested",
+        "line": 2
+      }
+    ],
+    "note": "A heading inside a callout is refused on its line."
+  },
+  {
+    "id": "refuse-table-row-wide",
+    "kind": "refuse",
+    "input": "| а | б |\n| --- | --- |\n| в | г | д |\n",
+    "refusals": [
+      {
+        "code": "table-row-cells",
+        "line": 3
+      }
+    ],
+    "note": "A row wider than its header is refused at the row's line."
+  },
+  {
+    "id": "refuse-image-remote",
+    "kind": "refuse",
+    "input": "![Схема](https://example.org/skhema.png)\n",
+    "refusals": [
+      {
+        "code": "image-src",
+        "line": 1
+      }
+    ],
+    "note": "A remote image is refused."
+  },
+  {
+    "id": "refuse-link-title",
+    "kind": "refuse",
+    "input": "Див. [правила](https://example.org/pravyla \"Правила\").\n",
+    "refusals": [
+      {
+        "code": "title",
+        "line": 1
+      }
+    ],
+    "note": "A title on a link is refused."
+  },
+  {
+    "id": "refuse-image-title",
+    "kind": "refuse",
+    "input": "![Схема](images/skhema.png \"Схема\")\n",
+    "refusals": [
+      {
+        "code": "title",
+        "line": 1
+      }
+    ],
+    "note": "A title on an image is refused."
+  },
+  {
+    "id": "refuse-link-javascript",
+    "kind": "refuse",
+    "input": "[Натисніть](javascript:alert(1))\n",
+    "refusals": [
+      {
+        "code": "link-scheme",
+        "line": 1
+      }
+    ],
+    "note": "A javascript link is refused."
+  },
+  {
+    "id": "refuse-image-after-sentence",
+    "kind": "refuse",
+    "input": "Дивіться схему ![Схема](images/skhema.png)\n",
+    "refusals": [
+      {
+        "code": "image-inline",
+        "line": 1
+      }
+    ],
+    "note": "An image after a sentence in the same paragraph is refused."
+  },
+  {
+    "id": "refuse-image-beside-image",
+    "kind": "refuse",
+    "input": "![Перша](images/persha.png) ![Друга](images/druha.png)\n",
+    "refusals": [
+      {
+        "code": "image-inline",
+        "line": 1
+      }
+    ],
+    "note": "Two images in one paragraph are refused once, at the paragraph's line."
+  },
+  {
+    "id": "refuse-span-type-unknown",
+    "kind": "refuse",
+    "input": "Документ готує [відділ]{.department}.\n",
+    "refusals": [
+      {
+        "code": "span-type",
+        "line": 1
+      }
+    ],
+    "note": "An unknown span type is refused."
+  },
+  {
+    "id": "refuse-span-attrs-order",
+    "kind": "refuse",
+    "input": "Строк [п'ять днів]{#strok .term}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "An identifier before the type is not canonical and is refused."
+  },
+  {
+    "id": "refuse-span-attrs-two-types",
+    "kind": "refuse",
+    "input": "Строк [п'ять днів]{.term .role}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "Two classes on one span are refused."
+  },
+  {
+    "id": "refuse-span-attrs-key-value",
+    "kind": "refuse",
+    "input": "Строк [п'ять днів]{.term data=5}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "A key-value attribute is refused."
+  },
+  {
+    "id": "refuse-span-id-underline",
+    "kind": "refuse",
+    "input": "Слово [важливе]{.underline #vazhlyve}.\n",
+    "refusals": [
+      {
+        "code": "span-id",
+        "line": 1
+      }
+    ],
+    "note": "An identifier on underline is refused."
+  },
+  {
+    "id": "refuse-span-empty",
+    "kind": "refuse",
+    "input": "Порожня []{.term} позначка.\n",
+    "refusals": [
+      {
+        "code": "span-empty",
+        "line": 1
+      }
+    ],
+    "note": "An empty span is refused."
+  },
+  {
+    "id": "refuse-span-nested",
+    "kind": "refuse",
+    "input": "Посада [[директор]{.role}]{.term}.\n",
+    "refusals": [
+      {
+        "code": "span-nested",
+        "line": 1
+      }
+    ],
+    "note": "An entity inside an entity is refused."
+  },
+  {
+    "id": "refuse-link-reference",
+    "kind": "refuse",
+    "input": "Див. [правила][1].\n\n[1]: https://example.org/pravyla\n",
+    "refusals": [
+      {
+        "code": "link-reference",
+        "line": 3
+      }
+    ],
+    "note": "A link reference definition is refused at its line."
+  },
+  {
+    "id": "refuse-several-code-and-heading",
+    "kind": "refuse",
+    "input": "# Розділ\n\n```\nкод\n```\n\n##### Підрозділ\n",
+    "refusals": [
+      {
+        "code": "code",
+        "line": 3
+      },
+      {
+        "code": "heading-depth",
+        "line": 7
+      }
+    ],
+    "note": "Every refusal is reported, each at its own line."
+  },
+  {
+    "id": "refuse-several-html-link-row",
+    "kind": "refuse",
+    "input": "<div>Блок</div>\n\nДив. [сайт](javascript:void(0)).\n\n| а | б |\n| --- | --- |\n| в | г | д |\n",
+    "refusals": [
+      {
+        "code": "html",
+        "line": 1
+      },
+      {
+        "code": "link-scheme",
+        "line": 3
+      },
+      {
+        "code": "table-row-cells",
+        "line": 7
+      }
+    ],
+    "note": "Three refusals of three kinds on three lines."
+  },
+  {
+    "id": "refuse-several-in-list",
+    "kind": "refuse",
+    "input": "- пункт із `кодом`\n- пункт\n  - [ ] завдання\n",
+    "refusals": [
+      {
+        "code": "inline-code",
+        "line": 1
+      },
+      {
+        "code": "task-list",
+        "line": 3
+      }
+    ],
+    "note": "Refusals inside a list are reported at each item's line."
+  },
+  {
+    "id": "respell-star-bullet",
+    "kind": "respell",
+    "input": "* перший пункт\n* другий пункт\n",
+    "stored": "- перший пункт\n- другий пункт\n",
+    "note": "Star bullets are written as dashes."
+  },
+  {
+    "id": "respell-paren-ordered",
+    "kind": "respell",
+    "input": "1) перший пункт\n2) другий пункт\n",
+    "stored": "1. перший пункт\n2. другий пункт\n",
+    "note": "Parenthesis markers are written as N. markers."
+  },
+  {
+    "id": "respell-nested-indent-four",
+    "kind": "respell",
+    "input": "- рівень один\n    - рівень два\n",
+    "stored": "- рівень один\n  - рівень два\n",
+    "note": "A four-space nested indent is written as the parent's marker width."
+  },
+  {
+    "id": "respell-underscore-emphasis",
+    "kind": "respell",
+    "input": "_курсив_ і __жирний__\n",
+    "stored": "*курсив* і **жирний**\n",
+    "note": "Underscore emphasis is written with asterisks."
+  },
+  {
+    "id": "respell-bold-around-entity",
+    "kind": "respell",
+    "input": "**[строк]{.term}**\n",
+    "stored": "[**строк**]{.term}\n",
+    "note": "An entity span is written outermost when marks nest."
+  },
+  {
+    "id": "respell-link-around-entity",
+    "kind": "respell",
+    "input": "[[директор]{.role}](https://example.org/dyrektor)\n",
+    "stored": "[[директор](https://example.org/dyrektor)]{.role}\n",
+    "note": "A link wrapping an entity is written inside the entity."
+  },
+  {
+    "id": "respell-table-edge-pipes",
+    "kind": "respell",
+    "input": "Посада | Строк\n--- | ---\nдиректор | 5 днів\n",
+    "stored": "| Посада | Строк |\n| --- | --- |\n| директор | 5 днів |\n",
+    "note": "A table without edge pipes is written with them."
+  },
+  {
+    "id": "respell-closing-hashes",
+    "kind": "respell",
+    "input": "## Сфера дії ##\n",
+    "stored": "## Сфера дії\n",
+    "note": "Closing hashes are dropped from a heading."
+  },
+  {
+    "id": "respell-setext",
+    "kind": "respell",
+    "input": "Загальні положення\n==================\n",
+    "stored": "# Загальні положення\n",
+    "note": "A setext heading is written as an ATX heading."
+  },
+  {
+    "id": "respell-callout-marker-line",
+    "kind": "respell",
+    "input": "> [!note] Текст примітки.\n",
+    "stored": "> [!note]\n> Текст примітки.\n",
+    "note": "Text on a callout's marker line moves to its first paragraph."
+  },
+  {
+    "id": "edge-cyrillic-around-italic",
+    "kind": "accept",
+    "input": "слово*курсив*слово\n",
+    "stored": "слово*курсив*слово\n",
+    "note": "Intraword asterisk emphasis between Cyrillic letters is italic."
+  },
+  {
+    "id": "edge-cyrillic-around-bold",
+    "kind": "accept",
+    "input": "**жир**ний шрифт\n",
+    "stored": "**жир**ний шрифт\n",
+    "note": "Bold closing directly before a Cyrillic letter."
+  },
+  {
+    "id": "edge-cyrillic-around-span",
+    "kind": "accept",
+    "input": "текст[строк]{.term}текст\n",
+    "stored": "текст[строк]{.term}текст\n",
+    "note": "An entity span with Cyrillic letters touching both sides."
+  },
+  {
+    "id": "edge-cyrillic-around-link",
+    "kind": "accept",
+    "input": "див.[тут](https://example.org)далі\n",
+    "stored": "див.[тут](https://example.org)далі\n",
+    "note": "A link with Cyrillic text touching both sides."
+  },
+  {
+    "id": "edge-cyrillic-underscore-escaped",
+    "kind": "accept",
+    "input": "змінна\\_назва\n",
+    "stored": "змінна\\_назва\n",
+    "note": "An underscore between Cyrillic letters is escaped: only ASCII word characters exempt it."
+  },
+  {
+    "id": "edge-ascii-underscore-intraword",
+    "kind": "accept",
+    "input": "Поле max_value лишається.\n",
+    "stored": "Поле max_value лишається.\n",
+    "note": "An underscore between ASCII word characters is not escaped."
+  },
+  {
+    "id": "edge-span-id-cyrillic",
+    "kind": "refuse",
+    "input": "Посада [директор]{.role #директор}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "An identifier with Cyrillic letters is not canonical."
+  },
+  {
+    "id": "edge-span-type-cyrillic",
+    "kind": "refuse",
+    "input": "Строк [п'ять днів]{.строк}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "A type with Cyrillic letters is not canonical."
+  },
+  {
+    "id": "edge-span-type-capital",
+    "kind": "refuse",
+    "input": "Строк [п'ять днів]{.Term}.\n",
+    "refusals": [
+      {
+        "code": "span-type",
+        "line": 1
+      }
+    ],
+    "note": "Span types are case-sensitive; Term is unknown."
+  },
+  {
+    "id": "edge-attrs-tab",
+    "kind": "respell",
+    "input": "Строк [п'ять днів]{.term\t#strok}.\n",
+    "stored": "Строк [п'ять днів]{.term #strok}.\n",
+    "note": "A tab between type and identifier is accepted and written as one space."
+  },
+  {
+    "id": "edge-attrs-trailing-spaces",
+    "kind": "respell",
+    "input": "Строк [п'ять днів]{.term #strok  }.\n",
+    "stored": "Строк [п'ять днів]{.term #strok}.\n",
+    "note": "Trailing spaces inside an attribute block are dropped."
+  },
+  {
+    "id": "edge-link-around-entity-with-id",
+    "kind": "respell",
+    "input": "[[Керівник відділу]{.role #kerivnyk}](https://example.org/roli)\n",
+    "stored": "[[Керівник відділу](https://example.org/roli)]{.role #kerivnyk}\n",
+    "note": "A span inside a link label is parsed, not read as literal brackets, and moved outermost."
+  },
+  {
+    "id": "edge-list-from-zero-nested",
+    "kind": "accept",
+    "input": "0. нульовий крок\n   - уточнення\n1. перший крок\n",
+    "stored": "0. нульовий крок\n   - уточнення\n1. перший крок\n",
+    "note": "A zero start survives with a nested list."
+  },
+  {
+    "id": "edge-scheme-javascript-uppercase",
+    "kind": "refuse",
+    "input": "[Натисніть](JAVASCRIPT:alert(1))\n",
+    "refusals": [
+      {
+        "code": "link-scheme",
+        "line": 1
+      }
+    ],
+    "note": "Schemes compare case-insensitively, so an uppercase javascript link is refused."
+  },
+  {
+    "id": "edge-scheme-https-uppercase",
+    "kind": "accept",
+    "input": "Див. [сайт](HTTPS://example.org/pravyla).\n",
+    "stored": "Див. [сайт](HTTPS://example.org/pravyla).\n",
+    "note": "Schemes compare case-insensitively, so uppercase HTTPS is allowed."
+  },
+  {
+    "id": "edge-relative-path-colon-later",
+    "kind": "refuse",
+    "input": "Див. [розділ](docs/polozhennia.md#chastyna:2).\n",
+    "refusals": [
+      {
+        "code": "link-scheme",
+        "line": 1
+      }
+    ],
+    "note": "Any colon in a destination not starting with an allowed scheme fails the pattern."
+  },
+  {
+    "id": "edge-callout-lowercase",
+    "kind": "accept",
+    "input": "> [!warning]\n> Увага, строк скорочено.\n",
+    "stored": "> [!warning]\n> Увага, строк скорочено.\n",
+    "note": "A lowercase callout type is stored as written."
+  },
+  {
+    "id": "edge-callout-uppercase",
+    "kind": "respell",
+    "input": "> [!NOTE]\n> Примітка.\n",
+    "stored": "> [!note]\n> Примітка.\n",
+    "note": "The callout type is case-insensitive and written in lowercase."
+  },
+  {
+    "id": "edge-callout-type-cyrillic",
+    "kind": "refuse",
+    "input": "> [!примітка]\n> Текст.\n",
+    "refusals": [
+      {
+        "code": "callout-type",
+        "line": 1
+      }
+    ],
+    "note": "A callout marker with a Cyrillic type is an unknown callout type."
+  },
+  {
+    "id": "edge-table-row-narrow",
+    "kind": "respell",
+    "input": "| а | б |\n| --- | --- |\n| в |\n",
+    "stored": "| а | б |\n| --- | --- |\n| в |  |\n",
+    "note": "A row narrower than its header is accepted and padded with an empty cell."
+  },
+  {
+    "id": "edge-entity-containing-link",
+    "kind": "accept",
+    "input": "Документ [погоджує [комісія](appendices/komisiia.md) письмово]{.action #pohodzhuie}.\n",
+    "stored": "Документ [погоджує [комісія](appendices/komisiia.md) письмово]{.action #pohodzhuie}.\n",
+    "note": "An entity span holding text around a link."
+  },
+  {
+    "id": "edge-table-empty-cells",
+    "kind": "accept",
+    "input": "| Етап | Строк | Примітка |\n| --- | --- | --- |\n|  | 2 дні |  |\n",
+    "stored": "| Етап | Строк | Примітка |\n| --- | --- | --- |\n|  | 2 дні |  |\n",
+    "note": "Empty first and last cells keep the one-spelling row."
+  },
+  {
+    "id": "edge-literal-amp-entity",
+    "kind": "accept",
+    "input": "Запис \\&amp; лишається текстом.\n",
+    "stored": "Запис \\&amp; лишається текстом.\n",
+    "note": "An escaped entity name stays literal text."
+  },
+  {
+    "id": "edge-amp-cyrillic-name",
+    "kind": "accept",
+    "input": "Запис &аб; не є сутністю.\n",
+    "stored": "Запис &аб; не є сутністю.\n",
+    "note": "An ampersand before Cyrillic letters and a semicolon is not entity-like."
+  },
+  {
+    "id": "edge-heading-4-cyrillic",
+    "kind": "accept",
+    "input": "#### Ґанок, їжак і єнот\n",
+    "stored": "#### Ґанок, їжак і єнот\n",
+    "note": "A fourth-level heading of letters specific to Ukrainian."
+  },
+  {
+    "id": "edge-line-after-blank-lines",
+    "kind": "refuse",
+    "input": "# Розділ\n\nАбзац.\n\n\nЩе абзац із <br> тегом.\n",
+    "refusals": [
+      {
+        "code": "html",
+        "line": 6
+      }
+    ],
+    "note": "Line numbers count blank lines, doubled ones included."
+  },
+  {
+    "id": "edge-line-inside-list",
+    "kind": "refuse",
+    "input": "Вступ.\n\n- перший пункт\n- другий із `кодом`\n",
+    "refusals": [
+      {
+        "code": "inline-code",
+        "line": 4
+      }
+    ],
+    "note": "An inline refusal in a list item is reported at the item's line."
+  },
+  {
+    "id": "edge-line-second-sentence",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге речення з `кодом`.\n",
+    "refusals": [
+      {
+        "code": "inline-code",
+        "line": 1
+      }
+    ],
+    "note": "An inline refusal is reported at the paragraph's first line, not the sentence's."
+  },
+  {
+    "id": "edge-image-after-sentence-next-line",
+    "kind": "refuse",
+    "input": "Схема нижче.\n![Схема](images/skhema.png)\n",
+    "refusals": [
+      {
+        "code": "image-inline",
+        "line": 1
+      }
+    ],
+    "note": "An image on the line after a sentence, with no blank line, shares its paragraph and is refused."
+  },
+  {
+    "id": "edge-image-src-cyrillic",
+    "kind": "refuse",
+    "input": "![Схема](images/схема.png)\n",
+    "refusals": [
+      {
+        "code": "image-src",
+        "line": 1
+      }
+    ],
+    "note": "An image file name with Cyrillic letters fails the pattern."
+  },
+  {
+    "id": "edge-image-src-uppercase-dir",
+    "kind": "refuse",
+    "input": "![Схема](IMAGES/skhema.png)\n",
+    "refusals": [
+      {
+        "code": "image-src",
+        "line": 1
+      }
+    ],
+    "note": "The image path pattern is case-sensitive."
+  },
+  {
+    "id": "edge-image-src-subfolder",
+    "kind": "refuse",
+    "input": "![Схема](images/a/skhema.png)\n",
+    "refusals": [
+      {
+        "code": "image-src",
+        "line": 1
+      }
+    ],
+    "note": "An image in a subfolder of images fails the pattern."
+  },
+  {
+    "id": "edge-image-empty-alt",
+    "kind": "accept",
+    "input": "![](images/skhema.png)\n",
+    "stored": "![](images/skhema.png)\n",
+    "note": "An image with empty alternative text is accepted."
+  },
+  {
+    "id": "edge-sentence-line-hash",
+    "kind": "accept",
+    "input": "Кімнату змінено.\n\\# 5 — новий номер.\n",
+    "stored": "Кімнату змінено.\n\\# 5 — новий номер.\n",
+    "note": "A sentence line starting with a hash and space is escaped."
+  },
+  {
+    "id": "edge-sentence-line-gt",
+    "kind": "accept",
+    "input": "Умова така.\n\\> 5 років стажу дає право на відпустку.\n",
+    "stored": "Умова така.\n\\> 5 років стажу дає право на відпустку.\n",
+    "note": "A sentence line starting with a greater-than sign is escaped."
+  },
+  {
+    "id": "edge-sentence-line-plus",
+    "kind": "accept",
+    "input": "Умова проста.\n\\+ 2 дні до строку.\n",
+    "stored": "Умова проста.\n\\+ 2 дні до строку.\n",
+    "note": "A sentence line starting with a plus and space is escaped."
+  },
+  {
+    "id": "edge-sentence-line-bare-number",
+    "kind": "accept",
+    "input": "Рік набрання чинності такий.\n2027\\.\n",
+    "stored": "Рік набрання чинності такий.\n2027\\.\n",
+    "note": "A bare number and full stop ending the text is escaped."
+  },
+  {
+    "id": "edge-sentence-line-equals-run",
+    "kind": "accept",
+    "input": "Підсумок.\n\\===\n",
+    "stored": "Підсумок.\n\\===\n",
+    "note": "A line of equals signs is escaped so it is not a setext underline."
+  },
+  {
+    "id": "edge-sentence-line-dash-run",
+    "kind": "accept",
+    "input": "Підсумок.\n\\---\n",
+    "stored": "Підсумок.\n\\---\n",
+    "note": "A line of hyphens is escaped so it is not a setext underline."
+  },
+  {
+    "id": "edge-footnote-with-definition",
+    "kind": "refuse",
+    "input": "Текст[^1].\n\n[^1]: Примітка.\n",
+    "refusals": [
+      {
+        "code": "footnote",
+        "line": 1
+      },
+      {
+        "code": "link-reference",
+        "line": 3
+      }
+    ],
+    "note": "A footnote whose definition parses as a link reference is refused twice."
+  },
+  {
+    "id": "edge-hard-break-in-list-item",
+    "kind": "refuse",
+    "input": "- перший\n- другий  \n  рядок\n",
+    "refusals": [
+      {
+        "code": "hard-break",
+        "line": 2
+      }
+    ],
+    "note": "A hard break in a list item is reported at that item's line."
+  },
+  {
+    "id": "edge-trailing-nbsp",
+    "kind": "respell",
+    "input": "Текст \n",
+    "stored": "Текст\n",
+    "note": "A no-break space at a paragraph's edge is trimmed alike on both sides."
+  },
+  {
+    "id": "edge-heading-nbsp",
+    "kind": "respell",
+    "input": "#  Заголовок \n",
+    "stored": "# Заголовок\n",
+    "note": "No-break spaces at a heading's edges are trimmed."
+  },
+  {
+    "id": "refuse-control-in-link",
+    "kind": "refuse",
+    "input": "[x](u)\n",
+    "refusals": [
+      {
+        "code": "control-character",
+        "line": 1
+      }
+    ],
+    "note": "A C1 control character is refused wherever it stands."
+  },
+  {
+    "id": "edge-backslash-before-two-spaces",
+    "kind": "respell",
+    "input": "a\\  \nb\n",
+    "stored": "a\\\\\nb\n",
+    "note": "A literal backslash before trailing spaces is text, not a hard break."
+  },
+  {
+    "id": "refuse-definition-then-callout-marker",
+    "kind": "refuse",
+    "input": "> [a]: https://x.test\n> [!tip] x\n",
+    "refusals": [
+      {
+        "code": "callout-type",
+        "line": 1
+      },
+      {
+        "code": "link-reference",
+        "line": 1
+      }
+    ],
+    "note": "A definition inside a quote is refused, and the callout marker after it names an unknown type."
+  },
+  {
+    "id": "edge-boundary-before-link",
+    "kind": "accept",
+    "input": "Увага!\n[посилання](https://x.test)\n",
+    "stored": "Увага!\n[посилання](https://x.test)\n",
+    "note": "A boundary after an exclamation mark survives before a link."
+  },
+  {
+    "id": "edge-boundary-before-span",
+    "kind": "accept",
+    "input": "Увага!\n[слово]{.term}\n",
+    "stored": "Увага!\n[слово]{.term}\n",
+    "note": "A boundary after an exclamation mark survives before a span."
+  },
+  {
+    "id": "respell-span-leading-spaces",
+    "kind": "respell",
+    "input": "[    x]{.term}\n",
+    "stored": "[x]{.term}\n",
+    "note": "Spaces at a line's start inside a span are dropped, never written as an indent."
+  },
+  {
+    "id": "respell-span-tabs",
+    "kind": "respell",
+    "input": "[\tx\t]{.term}\n",
+    "stored": "[x]{.term}\n",
+    "note": "Tabs at a span's edges are dropped."
+  },
+  {
+    "id": "respell-tab-reference",
+    "kind": "respell",
+    "input": "&#9;x\n",
+    "stored": "x\n",
+    "note": "A tab written as a character reference at a line's start is dropped."
+  },
+  {
+    "id": "respell-item-span-spaces",
+    "kind": "respell",
+    "input": "- [    x]{.term}\n",
+    "stored": "- [x]{.term}\n",
+    "note": "Leading spaces inside a list item's span never make code."
+  },
+  {
+    "id": "respell-space-reference-dashes",
+    "kind": "respell",
+    "input": "&#32;---\n",
+    "stored": "\\---\n",
+    "note": "Dashes after a space reference stay text, escaped."
+  },
+  {
+    "id": "respell-space-reference-equals",
+    "kind": "respell",
+    "input": "a\n&#32;===\n",
+    "stored": "a\n\\===\n",
+    "note": "Equals signs on a sentence line stay text and never make a heading."
+  },
+  {
+    "id": "respell-pipes-and-delimiter",
+    "kind": "respell",
+    "input": "a \\| b\n\\:--- \\| ---\n",
+    "stored": "a \\| b\n:--- \\| ---\n",
+    "note": "Escaped pipes in prose never make a table."
+  },
+  {
+    "id": "edge-escaped-plus-tab",
+    "kind": "accept",
+    "input": "\\+\tb\n",
+    "stored": "\\+\tb\n",
+    "note": "An escaped plus before a tab stays text."
+  },
+  {
+    "id": "respell-newline-reference",
+    "kind": "respell",
+    "input": "a&#10;# b\n",
+    "stored": "a # b\n",
+    "note": "A line feed written as a reference becomes a space."
+  },
+  {
+    "id": "respell-carriage-return-reference",
+    "kind": "respell",
+    "input": "a&#13;b\n",
+    "stored": "a b\n",
+    "note": "A carriage return written as a reference becomes a space."
+  },
+  {
+    "id": "respell-adjacent-bullet-lists",
+    "kind": "respell",
+    "input": "- a\n+ b\n",
+    "stored": "- a\n- b\n",
+    "note": "Two bullet lists in a row are stored as one."
+  },
+  {
+    "id": "respell-adjacent-ordered-lists",
+    "kind": "respell",
+    "input": "1. a\n2) b\n",
+    "stored": "1. a\n2. b\n",
+    "note": "Two ordered lists in a row are stored as one."
+  },
+  {
+    "id": "respell-setext-two-lines",
+    "kind": "respell",
+    "input": "Перший\nдругий\n===\n",
+    "stored": "# Перший другий\n",
+    "note": "A heading's lines join into one."
+  },
+  {
+    "id": "respell-heading-trailing-hash",
+    "kind": "respell",
+    "input": "# Розділ &#35;\n",
+    "stored": "# Розділ \\#\n",
+    "note": "A heading ending in # keeps it, escaped."
+  },
+  {
+    "id": "edge-adjacent-escaped-pipes",
+    "kind": "respell",
+    "input": "| a\\|\\|b | c |\n| - | - |\n",
+    "stored": "| a\\|\\|b | c |\n| --- | --- |\n",
+    "note": "Two escaped pipes in a cell stay escaped."
+  },
+  {
+    "id": "respell-span-leading-space",
+    "kind": "respell",
+    "input": "[ x]{.term} далі.\n",
+    "stored": "[x]{.term} далі.\n",
+    "note": "A leading space inside a span is dropped."
+  },
+  {
+    "id": "refuse-wide-row-escaped-backslash",
+    "kind": "refuse",
+    "input": "| a \\\\| b | c |\n| - | - |\n| 1 | 2 | 3 |\n",
+    "refusals": [
+      {
+        "code": "table-row-cells",
+        "line": 3
+      }
+    ],
+    "note": "Cells are counted as the table parser splits them."
+  },
+  {
+    "id": "refuse-wide-row-carriage-returns",
+    "kind": "refuse",
+    "input": "| a | b |\r| - | - |\r| 1 | 2 | 3 |\n",
+    "refusals": [
+      {
+        "code": "table-row-cells",
+        "line": 3
+      }
+    ],
+    "note": "Lines ended by a carriage return are counted as lines."
+  },
+  {
+    "id": "refuse-code-in-image-description",
+    "kind": "refuse",
+    "input": "![`x`](images/a.png)\n",
+    "refusals": [
+      {
+        "code": "inline-code",
+        "line": 1
+      }
+    ],
+    "note": "Inline code in an image's description is refused."
+  },
+  {
+    "id": "refuse-html-in-image-description",
+    "kind": "refuse",
+    "input": "![<b>x</b>](images/a.png)\n",
+    "refusals": [
+      {
+        "code": "html",
+        "line": 1
+      }
+    ],
+    "note": "HTML in an image's description is refused."
+  },
+  {
+    "id": "respell-image-description-two-lines",
+    "kind": "respell",
+    "input": "![a\nb](images/a.png)\n",
+    "stored": "![a b](images/a.png)\n",
+    "note": "A line break in an image's description is a space."
+  },
+  {
+    "id": "refuse-empty-link",
+    "kind": "refuse",
+    "input": "a [](https://x.test) b\n",
+    "refusals": [
+      {
+        "code": "link-empty",
+        "line": 1
+      }
+    ],
+    "note": "A link with no text is refused."
+  },
+  {
+    "id": "refuse-definition-not-paragraph-text",
+    "kind": "refuse",
+    "input": "[a]: http://x\n\ntext\n[b]: y\n",
+    "refusals": [
+      {
+        "code": "link-reference",
+        "line": 1
+      }
+    ],
+    "note": "Only the lines that define a reference are named."
+  },
+  {
+    "id": "refuse-protocol-relative-link",
+    "kind": "refuse",
+    "input": "[x](//evil.example/p)\n",
+    "refusals": [
+      {
+        "code": "link-scheme",
+        "line": 1
+      }
+    ],
+    "note": "A link to another host without a scheme is refused."
+  },
+  {
+    "id": "refuse-nul",
+    "kind": "refuse",
+    "input": "Текст\u0000\n",
+    "refusals": [
+      {
+        "code": "control-character",
+        "line": 1
+      }
+    ],
+    "note": "A NUL character is refused."
+  },
+  {
+    "id": "refuse-byte-order-mark",
+    "kind": "refuse",
+    "input": "Текст﻿далі\n",
+    "refusals": [
+      {
+        "code": "control-character",
+        "line": 1
+      }
+    ],
+    "note": "A byte-order mark inside text is refused."
+  },
+  {
+    "id": "respell-plus-after-boundary",
+    "kind": "respell",
+    "input": "Речення.\n+ далі\n",
+    "stored": "Речення.\n\n- далі\n",
+    "note": "A plus and a space after a sentence start a list, as CommonMark reads them."
+  },
+  {
+    "id": "respell-equals-after-boundary",
+    "kind": "respell",
+    "input": "Речення.\n= далі\n",
+    "stored": "Речення.\n\\= далі\n",
+    "note": "An equals sign starting a sentence line is escaped."
+  },
+  {
+    "id": "refuse-empty-list-item",
+    "kind": "refuse",
+    "input": "- перший\n-\n- третій\n",
+    "refusals": [
+      {
+        "code": "list-item-empty",
+        "line": 2
+      }
+    ],
+    "note": "An empty list item is refused."
+  },
+  {
+    "id": "refuse-item-starting-with-list",
+    "kind": "refuse",
+    "input": "- - вкладений\n",
+    "refusals": [
+      {
+        "code": "list-item-empty",
+        "line": 1
+      }
+    ],
+    "note": "A list item that begins with another list is refused."
+  },
+  {
+    "id": "refuse-callout-item-starting-with-list",
+    "kind": "refuse",
+    "input": "> [!note]\n> 1. 2. Слово тут.\n",
+    "refusals": [
+      {
+        "code": "list-item-empty",
+        "line": 2
+      }
+    ],
+    "note": "An ordered item that begins with another list is refused inside a callout too."
+  }
+]

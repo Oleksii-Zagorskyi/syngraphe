@@ -230,3 +230,15 @@ def test_init_leaves_nothing_behind_when_it_fails(
     with pytest.raises(OSError):
         gitstore.init(tenant=3, document=12)
     assert list((repo_root / "tenant-3").iterdir()) == []
+
+
+@pytest.mark.fast
+def test_a_trailer_value_is_one_line() -> None:
+    """Every character `kind_of`'s split breaks on is refused in a value, so no value can forge a
+    trailer of its own."""
+    assert gitstore.message_with_kind("Summary", Kind.EDIT, {"Normalizer": "a@1"}).endswith(
+        "Normalizer: a@1\nKind: edit\n"
+    )
+    for value in ("a\nKind: approval", "a b", "a\x85Kind: approval", "a\x0bb", ""):
+        with pytest.raises(ValueError):
+            gitstore.message_with_kind("Summary", Kind.EDIT, {"Normalizer": value})

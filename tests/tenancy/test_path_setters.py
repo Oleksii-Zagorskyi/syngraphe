@@ -1,7 +1,7 @@
 """Who sets the `search_path` (ADR-0017, DL-0290): the context manager's module and the
 middleware define and call the setter; the context manager is used by the migration command, by
-the reconciler — a command and a task, never a request — and, inside one request, by the service
-that creates an organisation; nothing else."""
+the reconciler and the operator's commands on a hold and a draft — commands and tasks, never a
+request — and, inside one request, by the service that creates an organisation; nothing else."""
 
 from __future__ import annotations
 
@@ -35,4 +35,7 @@ def test_the_context_manager_is_used_where_the_decisions_allow() -> None:
         "tenancy/management/commands/migrate_schemas.py",
         "tenancy/services.py",
         "documents/reconcile.py",
+        "editing/management/commands/release_hold.py",
+        "editing/management/commands/inspect_draft.py",
+        "editing/tasks.py",
     }

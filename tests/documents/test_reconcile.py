@@ -80,7 +80,21 @@ def created(migrated_tenant: Any, member_of: Any, repo_root: Path) -> Any:
             DocumentType.objects.get(code="document"),
             Folder.objects.get(number=1),
         )
+        _authored(migrated_tenant.number, document)
     return document, user
+
+
+def _authored(tenant: int, document: Any) -> None:
+    """The head's authorship written, as the worker writes it after a commit (DL-0326)."""
+    from documents import gitstore
+    from editing import authorship
+
+    repo = gitstore.open_repository(tenant, document.number)
+    head = gitstore.head(repo)
+    assert head is not None
+    authorship.compute(
+        document, head, repository_path=gitstore.repository_path(tenant, document.number)
+    )
 
 
 def test_healthy_is_silent(migrated_tenant: Any, created: Any) -> None:
@@ -147,6 +161,10 @@ def test_orphan_recreated_fail_closed(migrated_tenant: Any, created: Any) -> Non
     assert events[0].after["number"] == document.number
     assert events[0].after["document_type"] == "document"
     assert events[0].after["folder"] == 1
+    # The recreated head's authorship went with its version row; the next run asks for it again.
+    assert [f.kind for f in reconcile.run(tenant=migrated_tenant.number)] == ["authorship_missing"]
+    with schema_context(migrated_tenant.number):
+        _authored(migrated_tenant.number, Document.objects.get(number=document.number))
     assert reconcile.run(tenant=migrated_tenant.number) == []
 
 
@@ -238,7 +256,10 @@ def test_commits_without_rows_are_replayed(migrated_tenant: Any, created: Any) -
     with schema_context(migrated_tenant.number):
         version = Version.objects.get(commit_sha=sha)
     assert (version.kind, version.author_id, version.summary) == ("edit", user.id, "Edited")
-    assert reconcile.run(tenant=migrated_tenant.number) == []
+    # The replayed edit's per-line authorship is asked of the worker; nothing else is left.
+    assert [(f.kind, f.detail) for f in reconcile.run(tenant=migrated_tenant.number)] == [
+        ("authorship_missing", sha)
+    ]
 
 
 def test_passport_entries_are_reported(migrated_tenant: Any, created: Any) -> None:
@@ -589,5 +610,63 @@ def test_a_restored_repository_is_replayed_by_the_reconciler(
     # Initialised from an empty template, as the platform initialises one.
     assert not (path / "hooks").exists() or not any((path / "hooks").iterdir())
     assert [(f.kind, f.detail) for f in report] == [("commit_without_row", edit)]
-    assert [(f.kind, f.repaired) for f in repaired] == [("commit_without_row", True)]
+    assert [(f.kind, f.repaired) for f in repaired] == [
+        ("commit_without_row", True),
+        ("authorship_missing", True),
+    ]
+    # Until the worker has written the edit's authorship, that is all that is left.
+    assert [f.kind for f in reconcile.run(tenant=migrated_tenant.number)] == ["authorship_missing"]
+
+
+def test_a_head_of_any_kind_without_rows_is_asked_for(
+    migrated_tenant: Any, member_of: Any, repo_root: Path, queued_authorship: list[Any]
+) -> None:
+    """A created document's head, without rows, is reported and queued; one whose body is blank
+    has no rows by design and is never asked for (DL-0326)."""
+    from documents import bundle, gitstore, reconcile, services
+    from documents.identity import identity_for
+    from documents.locks import document_lock
+    from documents.models import DocumentType, Folder
+    from identity.models import Language
+
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
+    _, user, _ = member_of("an.author@example.test")
+    with schema_context(migrated_tenant.number):
+        document = services.create_document(
+            user,
+            "Синтетичний приклад",
+            "uk",
+            DocumentType.objects.get(code="document"),
+            Folder.objects.get(number=1),
+        )
+    head = _head(migrated_tenant.number, document)
+
+    repaired = reconcile.run(tenant=migrated_tenant.number, repair=True)
+
+    assert [(f.kind, f.detail, f.repaired) for f in repaired] == [
+        ("authorship_missing", head, True)
+    ]
+    assert (migrated_tenant.number, document.number, head) in queued_authorship
+
+    with schema_context(migrated_tenant.number):
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        frontmatter, _ = bundle.parse(gitstore.read(repo, "document.md", head).decode())
+        with document_lock(migrated_tenant.number, document.number):
+            blank = gitstore.commit(
+                repo,
+                {"document.md": bundle.render(frontmatter, "\n\n").encode()},
+                identity_for(user),
+                "Emptied",
+                gitstore.Kind.EDIT,
+            )
+        services.derive_version(document, gitstore.commit_at(repo, blank), user)
     assert reconcile.run(tenant=migrated_tenant.number) == []
+
+
+def _head(tenant: int, document: Any) -> str:
+    from documents import gitstore
+
+    with schema_context(tenant):
+        head = gitstore.head(gitstore.open_repository(tenant, document.number))
+    assert head is not None
+    return head

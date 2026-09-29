@@ -54,6 +54,10 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **entity** · позначка · *proposed* — a marked piece of text: a **role** (роль), an **action** (дія) or a **term** (термін). Set apart by its formatting wherever text is rendered; its syntax shows only in the source view and the Markdown export.
 
+**callout** · врізка · *proposed* — a set-off block of one of the allowed types: a **note** (примітка), a **warning** (застереження) or an **example** (приклад). Written as a quote whose first line names its type.
+
+**footnote** · виноска · *proposed* — a note referred to from the text and printed apart from it. Not accepted in a document; the source view's conversion puts its text in brackets where it was referred to.
+
 **role directory** · довідник ролей · *proposed* — the list of roles a document declares, with their rights, obligations and the paragraphs each comes from. Derived by parsing the marks.
 
 **outline** · зміст · *proposed* — the navigable list of a document's sections and subsections.
@@ -108,7 +112,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 ## What a user does
 
-**take for editing** · взяти на редагування · *proposed* — what opening an editor does when nobody holds the document: it takes the hold. There is no button of that name (ADR-0006).
+**take for editing** · взяти на редагування · *proposed* — what opening an editor does when nobody holds the document: it takes the hold. There is no button of that name (ADR-0006), except on a tab reached from another site, which shows *Start editing* (DL-0325).
 
 **continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
 

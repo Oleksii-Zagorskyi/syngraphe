@@ -1,0 +1,50 @@
+"""The help pages: shipped Markdown in the interface's language, and the page of what the editor
+accepts, built from the specification and listing its every construct (DL-0171, DL-0195)."""
+
+from __future__ import annotations
+
+from typing import Any
+
+import pytest
+
+pytestmark = [pytest.mark.integration, pytest.mark.django_db]
+
+
+def test_allowed_markdown_generated_from_spec(member_of: Any, settings: Any) -> None:
+    from editing.markdown import load_spec
+    from editing.messages import CONSTRUCTS
+
+    settings.LANGUAGE_CODE = "en"
+    client, _, _ = member_of("a.reader@example.test")
+    page = client.get("/help/markdown/")
+    body = page.content.decode()
+    assert page.status_code == 200
+    spec = load_spec()
+    for code in spec.refusals:
+        assert str(CONSTRUCTS[code]) in body, code
+    for kind in spec.callout_types:
+        assert kind in body
+    assert f"down to level {spec.heading_max_depth}" in body
+    assert f"down to {spec.list_max_depth} levels" in body
+    assert "<script" not in body.split("<main")[1]
+    # Nothing else: the refusals table has one row per refusal and conversion, no more.
+    from editing.views.help import refused
+
+    refusals_table = body.split('<table class="help-table">')[2].split("</table>")[0]
+    assert refusals_table.count("<tr>") - 1 == len(refused(spec))
+
+
+def test_the_shipped_pages_render_in_the_interface_language(member_of: Any, settings: Any) -> None:
+    client, _, _ = member_of("a.reader@example.test")
+    settings.LANGUAGE_CODE = "uk"
+    assert "<h1>Редагування</h1>" in client.get("/help/editing/").content.decode()
+    index = client.get("/help/").content.decode()
+    assert 'href="/help/markdown/"' in index
+    assert client.get("/help/nothing-here/").status_code == 404
+
+
+def test_every_paste_refusal_links_to_the_page() -> None:
+    from pathlib import Path
+
+    template = Path(__file__).resolve().parents[2] / "src" / "editing" / "templates"
+    assert 'data-help="/help/markdown/"' in (template / "editing" / "edit_tab.html").read_text()

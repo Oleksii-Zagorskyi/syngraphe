@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 
 from documents import views
 
@@ -7,4 +7,5 @@ urlpatterns = [
     path("folder/<int:number>/", views.folder, name="folder"),
     path("document/<int:number>/", views.page, name="document"),
     path("document/<int:number>/info/", views.page, name="document_info"),
+    path("", include("editing.urls")),
 ]

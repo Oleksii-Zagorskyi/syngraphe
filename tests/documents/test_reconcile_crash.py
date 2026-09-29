@@ -55,7 +55,9 @@ def test_each_crash_state_repaired(
     assert [(f.kind, f.document) for f in report] == [(EXPECTED[step], document.number)]
     assert [f.kind for f in repaired] == [EXPECTED[step]]
     assert all(f.repaired for f in repaired)
-    assert after == []
+    # The finished creation's head waits for the worker's authorship, which the next pass asks
+    # for (DL-0326); nothing else is left.
+    assert [f.kind for f in after] == ["authorship_missing"]
     with schema_context(migrated_tenant.number):
         document.refresh_from_db()
         versions = list(Version.objects.filter(document=document))

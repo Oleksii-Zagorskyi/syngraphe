@@ -131,6 +131,7 @@ del{background:var(--del)}
 .dialog fieldset{border:0;padding:0;margin:0 0 10px}
 .dialog legend{font-weight:600;margin-bottom:4px}
 
+.helpt th,.helpt td{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .help{display:none;background:#f7f7f7;border:1px solid var(--line);padding:8px;font-size:12px;margin:6px 0}
 .help.on{display:block}
 .ind{margin-left:22px}
@@ -211,7 +212,7 @@ details.um>summary{list-style:none;cursor:pointer}
 .answer{border:1px solid var(--line);background:#fafafa;padding:8px 10px;margin:8px 0}
 .why2{font-size:11px;color:var(--muted)}
 </style></head><body>
-<div class="mock"><strong>Interface mockup</strong><span>· synthetic example content ·</span><button data-go="list" data-url="/folder/7/" class="on">Document list</button><button data-go="search" data-url="/search/?q=leave" class="">Search results</button><button data-go="inedit" data-url="/in-edit/" class="">In edit</button><button data-go="inrev" data-url="/in-review/" class="">In review</button><button data-go="doc" data-url="/document/12/" class="">Document</button><button data-go="hist" data-url="/document/12/version/2.0/" class="">Historical version</button><button data-go="cmp" data-url="/document/12/compare/?from=2.0&to=2.3-1" class="">Compare</button><button data-go="cmpa" data-url="/document/12/compare/appendix/?from=2.0:2&to=2.3-1:2" class="">Compare appendices</button><button data-go="adm" data-url="/administration/tenant/groups/" class="">Administration</button><button data-go="app" data-url="/document/12/appendix/2/" class="">Appendix</button><button data-go="notif" data-url="/notifications/" class="">Notifications</button><button data-go="none" data-url="/document/99/" class="">Nothing to show</button><button data-go="setup" data-url="/setup/" class="">First run</button><button data-go="signin" data-url="/signin/" class="">Sign-in pages</button><button onclick="openX()">Export dialog</button><span class="url" id="url">/folder/7/</span></div>
+<div class="mock"><strong>Interface mockup</strong><span>· synthetic example content ·</span><button data-go="list" data-url="/folder/7/" class="on">Document list</button><button data-go="search" data-url="/search/?q=leave" class="">Search results</button><button data-go="inedit" data-url="/in-edit/" class="">In edit</button><button data-go="inrev" data-url="/in-review/" class="">In review</button><button data-go="doc" data-url="/document/12/" class="">Document</button><button data-go="hist" data-url="/document/12/version/2.0/" class="">Historical version</button><button data-go="cmp" data-url="/document/12/compare/?from=2.0&to=2.3-1" class="">Compare</button><button data-go="cmpa" data-url="/document/12/compare/appendix/?from=2.0:2&to=2.3-1:2" class="">Compare appendices</button><button data-go="adm" data-url="/administration/tenant/groups/" class="">Administration</button><button data-go="app" data-url="/document/12/appendix/2/" class="">Appendix</button><button data-go="notif" data-url="/notifications/" class="">Notifications</button><button data-go="none" data-url="/document/99/" class="">Nothing to show</button><button data-go="setup" data-url="/setup/" class="">First run</button><button data-go="signin" data-url="/signin/" class="">Sign-in pages</button><button data-go="help" data-url="/help/markdown/" class="">Help</button><button onclick="openX()">Export dialog</button><span class="url" id="url">/folder/7/</span></div>
 <div class="opt"><b>Draw for</b>
 <label>Viewing as <select id="role">
 <option value="reader">Reader — All staff: view canonical</option>
@@ -238,7 +239,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="wrap">
 <div class="split" id="sl">
@@ -261,7 +262,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="wrap">
 <div class="split" id="ss">
@@ -289,7 +290,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="on" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="on" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="wrap">
 <div class="split" id="se">
@@ -310,7 +311,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="on" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="on" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="wrap">
 <div class="split" id="sr">
@@ -331,8 +332,9 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header><div class="band" data-st="fz"><strong>Frozen</strong> — “awaiting board discussion”<span data-need="hall|hcan|tadmin"> · by Reviewer R, 20 Sep</span>. Editing waits until it is unfrozen.</div><div class="band res" data-st="h-reserved"><strong>Reserved for editing</strong> since 12 Sep<span data-need="ed|acc|tadmin"> by Author A</span>. Accepting, returning, freezing and changing groups wait until the reservation ends.</div><div class="band res" data-st="h-mineres" data-need="ed"><strong>Reserved for editing by you</strong> since 20 Sep. It is not released for inactivity; finishing, discarding or cancelling ends it.</div><div class="band end" data-st="h-ended" data-need="ed"><strong>Your reservation was ended</strong> by Admin A on 26 Sep: “The board needs #12 frozen for Thursday; Author A is on leave.” <span data-st="h-ended0">Nobody has changed it since. <button class="btn primary" id="takeBack">Take the document back</button></span><span data-st="h-ended1">2.3-2 was made since, so your draft is kept read-only in the Edit tab.</span></div>
+<div class="box note" id="sentNotice" style="display:none;margin:8px 16px">Sent for review — the version waits as <strong class="nCreate"></strong>.</div>
 <div class="dochead">
 <div class="wrap">
 <div class="crumb">Policies / Human resources /</div>
@@ -381,7 +383,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="note">Editor: ProseMirror (ADR-0010) — drawn schematically</div><div class="refuse" data-x="xPaste"><strong>Paste refused.</strong> Line 2 uses a text colour and line 4 a merged table cell; neither is allowed. Converted, line 2 loses its colour and line 4 becomes two rows:<div class="box" style="margin:6px 0;font-size:12px">Leave may be split into parts of at least five days.<br><table style="width:auto"><tr><td>Up to 5 days</td><td>line manager</td></tr><tr><td>Over 5 days</td><td>head of department</td></tr></table></div><button class="btn">Paste converted</button> <button class="btn">Cancel</button> · <a href="#">What is allowed ↗</a></div><div class="note" data-x="xPaste" style="margin:4px 0">One image was not pasted: it is only a web address. Save the image and paste the file.</div><div class="refuse" data-x="xUp"><strong>Image refused.</strong> photo.heic — HEIC is not accepted; use PNG, JPEG or GIF. Images above 10 MB are refused too.</div><div style="text-align:right"><button class="btn" id="ed2close">Close</button></div></div>
 <div class="sec">3 Requesting leave <button class="btn">edit</button></div>
 <div class="clause"><span class="cn">3.1-1</span><span>Requests are made at least five working days in advance.</span></div><div class="stopped" data-x="xStop"><strong>This editor stopped</strong> — the same text was changed in another tab of yours. Read-only; what it had not saved is shown as changes against your draft, to carry over by hand:<div class="clause"><span class="cn">3.1-1</span><span>Requests are made at least five working days in advance<ins>, or three for sick leave</ins>.</span></div></div>
-</div><div id="finish" class="hid"><div class="fin"><div class="title" style="font-size:16px">Finish editing — #12</div><div class="box note" data-st="h-mineres">Finishing ends your reservation.</div><p class="note">Your changes are in <em>My edits</em>. Change summary — for the reviewer, and kept with the version. Drafted from the sections you changed; edit it before you choose.</p><textarea data-not="acc">Contractors engaged for more than three months included in 2-1; notice for annual leave shortened to five working days (3.1-1).</textarea><textarea data-need="acc" data-st="r-none">Contractors engaged for more than three months included in 2-1; notice for annual leave shortened to five working days (3.1-1).</textarea><textarea data-need="acc" data-st="r-pending r-returned r-noreviewer">Correction of 2.3-1: 3.1-1 keeps “ten working days” for annual leave.</textarea><p class="note">Part operations in this draft: 📎 Leave request template.xlsx replaced.</p><div data-not="acc"><div class="choice"><button class="btn primary">Send for review</button><span class="note">your version waits as <strong class="nCreate"></strong> in pending edits</span></div></div><div data-need="acc"><div class="choice"><button class="btn primary">Accept as <span class="nAcc"></span></button><span class="note">makes your version and accepts the whole run since 2.3, both attributed to you</span></div><div class="box note" data-st="r-pending r-returned r-noreviewer">Accepting as <span class="nAcc"></span> also accepts <strong>2.3-1 by Author A</strong>. Author A receives a correction notice for 3.1-1, where you changed their text.</div><div class="choice"><button class="btn">Create version <span class="nCreate"></span></button><span class="note">your version waits in pending edits</span></div></div><div class="choice"><button class="btn" id="finBack">Continue editing</button><button class="btn" id="discBtn2"><span class="dw">Discard my edits</span></button></div></div></div></div>
+</div><div id="finish" class="hid"><div class="fin"><div class="title" style="font-size:16px">Finish editing — #12</div><div class="box note" data-st="h-mineres">Finishing ends your reservation.</div><p class="note">Your changes are in <em>My edits</em>. Change summary — for the reviewer, and kept with the version. Drafted from the sections you changed; edit it before you choose.</p><textarea data-not="acc">Contractors engaged for more than three months included in 2-1; notice for annual leave shortened to five working days (3.1-1).</textarea><textarea data-need="acc" data-st="r-none">Contractors engaged for more than three months included in 2-1; notice for annual leave shortened to five working days (3.1-1).</textarea><textarea data-need="acc" data-st="r-pending r-returned r-noreviewer">Correction of 2.3-1: 3.1-1 keeps “ten working days” for annual leave.</textarea><p class="note">Part operations in this draft: 📎 Leave request template.xlsx replaced.</p><div data-not="acc"><div class="choice"><button class="btn primary" id="sendBtn">Send for review</button><span class="note">your version waits as <strong class="nCreate"></strong> in pending edits</span></div></div><div data-need="acc"><div class="choice"><button class="btn primary">Accept as <span class="nAcc"></span></button><span class="note">makes your version and accepts the whole run since 2.3, both attributed to you</span></div><div class="box note" data-st="r-pending r-returned r-noreviewer">Accepting as <span class="nAcc"></span> also accepts <strong>2.3-1 by Author A</strong>. Author A receives a correction notice for 3.1-1, where you changed their text.</div><div class="choice"><button class="btn">Create version <span class="nCreate"></span></button><span class="note">your version waits in pending edits</span></div></div><div class="choice"><button class="btn" id="finBack">Continue editing</button><button class="btn" id="discBtn2"><span class="dw">Discard my edits</span></button></div></div></div></div>
 <div class="tp" id="doc-2" style="display:none"><p class="note">Your draft against the current text, not yet sent — the whole document, your changes marked.</p>
 <div class="sec">1 Purpose</div>
 <div class="clause"><span class="cn">1-1</span><span>This policy sets how employees request, approve and record time off.</span></div>
@@ -447,7 +449,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="dochead">
 <div class="wrap">
@@ -488,7 +490,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="banner"><strong>Comparing</strong> <a href="#" data-go="hist" class="vF"></a> with <a href="#" data-go="hist" class="vT"></a> — read only. <a href="#" data-go="doc">Go to the current document</a></div><header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="dochead">
 <div class="wrap">
@@ -540,7 +542,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="banner"><strong>Comparing appendices</strong> of <a href="#" data-go="hist" class="vF"></a> with <a href="#" data-go="hist" class="vT"></a> — read only. <a href="#" data-go="doc">Go to the current document</a></div><header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="dochead">
 <div class="wrap">
@@ -556,7 +558,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="on">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="dochead">
 <div class="wrap">
@@ -656,7 +658,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="on" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="on" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="wrap">
 <div class="split" id="ad">
@@ -827,7 +829,7 @@ footer { font-size: 9pt; }</textarea>
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="wrap" style="padding:12px 16px;background:var(--panel)">
 <div class="title">Notifications</div>
@@ -841,11 +843,51 @@ footer { font-size: 9pt; }</textarea>
 <div class="item unread" data-need="tadmin">#12 reserved for editing by Author A <span class="note">12 Sep</span></div><div class="item unread" data-need="tadmin">Email to a.author@… failed after 3 attempts <span class="note">today</span> <button class="icon" title="mark read">✓</button></div>
 <div class="item unread" data-need="tadmin">#40 created by Author B — no groups linked yet <span class="note">today</span> <button class="icon">✓</button></div>
 <div class="item" data-need="padmin">Person P blocked in one organisation, still active in another <span class="note">2 days ago</span></div><div class="item" data-not="tadmin">You were added to <em>HR editors</em> <span class="note">3 Mar</span></div></div></div></section>
+<section class="page" id="help">
+<header class="shell">
+<div class="wrap">
+<div class="logo">organisation logo</div>
+<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="on">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
+<div class="wrap" style="padding:12px 16px;display:flex;gap:24px">
+<nav class="helpnav" style="min-width:220px"><div class="title">Help</div>
+<div class="item"><a href="#">How a document moves</a></div>
+<div class="item"><a href="#">Versions and their numbers</a></div>
+<div class="item"><a href="#">Editing</a></div>
+<div class="item"><strong>What the editor accepts</strong></div>
+<div class="item"><a href="#">Exporting</a></div></nav>
+<div style="flex:1">
+<div class="title">What the editor accepts</div>
+<p class="note">Text is written in Markdown, in the editor's rich view or its source view. These constructs are accepted; anything else is refused when it is pasted, with its line named and, where one exists, a conversion offered.</p>
+<table class="helpt"><tr><th>Construct</th><th>How it is written</th></tr>
+<tr><td>Headings, four levels</td><td><code># Heading</code> to <code>#### Heading</code></td></tr>
+<tr><td>Paragraphs</td><td>separated by an empty line</td></tr>
+<tr><td>Lists, three levels deep</td><td><code>- item</code>, <code>1. item</code></td></tr>
+<tr><td>Bold, italic</td><td><code>**bold**</code>, <code>*italic*</code></td></tr>
+<tr><td>Underline</td><td><code>[text]{.underline}</code></td></tr>
+<tr><td>Entities — role, action, term</td><td><code>[text]{.role #id}</code>, <code>.action</code>, <code>.term</code></td></tr>
+<tr><td>Quotes</td><td><code>&gt; text</code></td></tr>
+<tr><td>Callouts — note, warning, example</td><td><code>&gt; [!note]</code> on a line of its own</td></tr>
+<tr><td>Tables, not inside another block</td><td><code>| a | b |</code></td></tr>
+<tr><td>Images of the document, on a line of their own</td><td><code>![description](images/name.png)</code></td></tr>
+<tr><td>Links</td><td><code>[text](https://…)</code>, <code>mailto:</code>, a path in the document</td></tr></table>
+<div class="title" style="margin-top:12px">Not accepted, and what the conversion does</div>
+<table class="helpt"><tr><th>Construct</th><th>Converted to</th></tr>
+<tr><td>a heading below depth four</td><td>a heading of depth four</td></tr>
+<tr><td>a code block, inline code</td><td>its text</td></tr>
+<tr><td>HTML</td><td>its text, the tags removed</td></tr>
+<tr><td>a horizontal rule</td><td>removed</td></tr>
+<tr><td>a footnote</td><td>its text in brackets where it was referred to</td></tr>
+<tr><td>a table inside a list, quote or callout</td><td>the table after the block that held it</td></tr>
+<tr><td>an image from outside the document</td><td>left out, with a notice</td></tr>
+<tr><td>…</td><td>every other construct, one fixed way each</td></tr></table>
+<p class="note">The limits, the entities, the callout types and every refusal with its conversion are read from the platform's specification of the allowed Markdown, the one the editor and the server read.</p>
+</div></div></section>
 <section class="page" id="none">
 <header class="shell">
 <div class="wrap">
 <div class="logo">organisation logo</div>
-<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#"  class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
+<nav class="menu"><a href="#" data-go="list" class="">All documents</a><a href="#" data-go="inedit" class="" data-need="ed">In edit</a><a href="#" data-go="inrev" class="" data-need="acc">In review</a><a href="#" data-go="help" class="">Help</a><a href="#" data-go="adm" class="" data-need="tadmin">Administration</a></nav>
 <div class="spacer"></div><a href="#" data-go="notif">Notifications <span class="cnt">3</span></a><span>Example Org ▾</span><details class="more um"><summary>Me ▾</summary><div class="dd"><div data-need="res"><strong>My reservations</strong></div><div data-need="res" data-st="h-mineres"><a href="#" data-go="doc">#12 Annual leave, sick leave…</a> <span class="note">since 20 Sep</span></div><div data-need="res"><a href="#">#22 Segregation of duties…</a> <span class="note">since 5 Sep</span></div><div data-need="res" style="border-bottom:1px solid var(--line)"></div><div><a href="#">Block my account…</a></div><div><a href="#">Sign out</a></div></div></details></div></header>
 <div class="empty">
 <div class="title">Nothing to show here.</div><p>The link may be incomplete or out of date. Check it, or ask whoever sent it.</p><button class="btn" data-go="list">Back to the documents</button></div></section>
@@ -1260,6 +1302,7 @@ $('ed2close').addEventListener('click',()=>{$('ed2').classList.add('hid');edStat
 $('ed2open').addEventListener('click',()=>{$('ed2').classList.remove('hid');edState()});
 $('finBtn').addEventListener('click',()=>{$('finish').classList.remove('hid');document.querySelector('#doc-1 > [data-st="editok"]').classList.add('hidx');document.querySelector('#doc-1 > [data-st="editok"]').style.display='none'});
 $('finBack').addEventListener('click',()=>{$('finish').classList.add('hid');document.querySelector('#doc-1 > [data-st="editok"]').style.display=''});
+$('sendBtn').addEventListener('click',()=>{$('finish').classList.add('hid');document.querySelector('#doc-1 > [data-st="editok"]').style.display='';$('sentNotice').style.display='';window.scrollTo(0,0)});
 $('resBtn').addEventListener('click',()=>setHold('mineres'));
 $('resCancel').addEventListener('click',()=>setHold('mine'));
 $('takeBack').addEventListener('click',()=>setHold('mine'));

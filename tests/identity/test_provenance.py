@@ -40,6 +40,11 @@ def test_every_model_carries_provenance_or_its_own_columns() -> None:
         "identity.SignInAttempt",
         "identity.SetupToken",
         "tenancy.TenantStateHistory",
+        "editing.Hold",
+        "editing.Draft",
+        "editing.DraftFile",
+        "editing.OpenEditor",
+        "editing.LineAuthorship",
     }
     for model in apps.get_models():
         if model._meta.app_label in ("admin", "auth", "contenttypes", "sessions"):

@@ -89,6 +89,11 @@ def test_tenant_schema_holds_tenant_tables_only(
             "documents_version",
             "documents_headingindex",
             "documents_partindex",
+            "editing_hold",
+            "editing_draft",
+            "editing_draftfile",
+            "editing_openeditor",
+            "editing_lineauthorship",
         }
         assert migrations_recorded_in(tenant.schema_name) == every_migration
 

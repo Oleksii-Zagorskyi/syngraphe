@@ -1,0 +1,50 @@
+[
+  {
+    "id": "break-link-destination",
+    "kind": "break",
+    "block": "Форму заяви наведено в [додатку 3](https://example.org/forms/annex.¦3.pdf), її заповнює заявник.",
+    "note": "A line break inside a link destination ends the link."
+  },
+  {
+    "id": "break-attribute-block",
+    "kind": "break",
+    "block": "Рішення погоджує [фінансовий директор]{.role¦ #cfo} протягом п’яти робочих днів.",
+    "note": "A line break inside an attribute block leaves the span unparsed; the role is a synthetic example."
+  },
+  {
+    "id": "break-image",
+    "kind": "break",
+    "block": "![Схема погодження.¦ Етап перший](images/scheme-approval.png)",
+    "note": "A line break inside an image's text changes its alternative text."
+  },
+  {
+    "id": "break-before-ordered-marker",
+    "kind": "break",
+    "block": "Порядок складається з трьох етапів.¦ 1. Подання заяви відбувається письмово.",
+    "note": "A line starting `1. ` opens an ordered list."
+  },
+  {
+    "id": "break-before-heading-marker",
+    "kind": "break",
+    "block": "Розгляд звернення завершено.¦ # Наступний крок визначає комісія.",
+    "note": "A line starting `# ` opens a heading."
+  },
+  {
+    "id": "break-before-bullet-marker",
+    "kind": "break",
+    "block": "Перелік документів додано нижче.¦ - копія наказу про призначення.",
+    "note": "A line starting `- ` opens a bullet list."
+  },
+  {
+    "id": "control-inside-bold",
+    "kind": "control",
+    "block": "**Комісія збирається щомісяця.¦ Засідання веде її голова.** Протокол підписують усі присутні.",
+    "note": "A boundary inside bold text is content, not syntax: the parse is unchanged."
+  },
+  {
+    "id": "control-inside-span-text",
+    "kind": "control",
+    "block": "Строк розгляду визначено окремо: [десять робочих днів.¦ Його може продовжити комісія.]{.term #timeout}",
+    "note": "A boundary inside a span's text is content, not syntax: the parse is unchanged."
+  }
+]

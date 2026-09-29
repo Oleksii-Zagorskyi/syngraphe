@@ -20,6 +20,10 @@ workspace/
 # Document repositories of a local stack, and the editor's build inputs
 .repos/
 node_modules/
+# The editor's bundle, built by `npm run build`
+src/editing/static/editing/editor.js
+src/editing/static/editing/editor.css
+src/editing/static/editing/spec.json
 .uv-cache/
 
 # Python

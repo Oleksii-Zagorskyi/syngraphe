@@ -35,6 +35,7 @@ SHARED_APPS = [
 TENANT_APPS = [
     "documents",
     "access",
+    "editing",
 ]
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
@@ -123,6 +124,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "documents.repack_nightly",
         "schedule": crontab(hour=1, minute=35),
     },
+    "close-silent-editors": {
+        "task": "editing.close_silent_editors",
+        "schedule": crontab(minute="*"),
+    },
 }
 
 GIT_REPO_ROOT = _CONFIG.git_repo_root
@@ -132,6 +137,8 @@ BACKUP_WAL_ALERT = _CONFIG.backup_wal_alert
 TRUSTED_PROXIES = _CONFIG.trusted_proxies
 DJANGO_ADMIN_PATH = _CONFIG.admin_path
 DISPLAY_TIMEZONE = _CONFIG.display_timezone
+# The editor's conformance page, for the browser tests only; off unless set.
+EDITING_CONFORMANCE_PAGE = _CONFIG.editing_conformance_page
 
 # Sessions last twelve hours from sign-in, not sliding; the cookie flags follow SITE_HTTPS.
 LOGIN_URL = "/signin/"

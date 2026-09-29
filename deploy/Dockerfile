@@ -1,3 +1,11 @@
+# The editor's bundle, built from the lockfile; only its output reaches the application image.
+FROM node:22-bookworm-slim AS editor
+WORKDIR /build
+COPY package.json package-lock.json esbuild.config.mjs ./
+RUN npm ci --no-audit --no-fund
+COPY src/editing ./src/editing
+RUN npm run build
+
 FROM python:3.12-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -39,6 +47,7 @@ COPY --chown=app:app pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev
 
 COPY --chown=app:app src ./src
+COPY --from=editor --chown=app:app /build/src/editing/static/editing/ ./src/editing/static/editing/
 # The catalogue is compiled here as well as committed, so an edited .po never ships stale.
 RUN msgfmt --check --statistics -o src/shell/locale/uk/LC_MESSAGES/django.mo src/shell/locale/uk/LC_MESSAGES/django.po
 COPY --chown=app:app deploy/entrypoint.sh deploy/gunicorn.conf.py ./

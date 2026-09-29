@@ -108,7 +108,7 @@ list of words this product does not use, and what to use instead.
 
 ## Running it
 
-Docker with Compose, `uv` and GNU gettext for the check, and an off-host backup store — an SFTP
+Docker with Compose; `uv`, Node 22 and GNU gettext for the check; and an off-host backup store — an SFTP
 server or an S3 bucket — which the database and the backup need before they
 start; there is no local kind ([the runbook](docs/runbook.md#backup)).
 
@@ -123,8 +123,10 @@ curl http://127.0.0.1:8000/health/
 
 The developer's shape — the source bind-mounted, the development server, the
 database and Redis reachable from the host — is
-`docker compose -f compose.yaml -f deploy/compose.dev.yaml up`. With it running,
-`uv sync --locked` prepares the clone and
+`docker compose -f compose.yaml -f deploy/compose.dev.yaml up`, which serves the
+editor's bundle built on the host. With it running,
+`uv sync --locked && npm ci && npm run build && uv run playwright install chromium`
+prepares the clone and
 `uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q`
 is the check, the same line CI runs. Layout and conventions are in
 [`CLAUDE.md`](CLAUDE.md).

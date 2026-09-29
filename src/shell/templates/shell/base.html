@@ -17,7 +17,7 @@
       {% block nav_documents %}{% if current_tenant and membership or current_tenant and is_platform_admin %}<a href="/folder/1/">{% translate "All documents" %}</a>{% endif %}{% endblock %}
       {% block nav_in_edit %}{% endblock %}
       {% block nav_in_review %}{% endblock %}
-      {% block nav_help %}{% endblock %}
+      {% block nav_help %}{% if user.is_authenticated %}<a href="/help/">{% translate "Help" %}</a>{% endif %}{% endblock %}
       {% if is_administrator %}<a href="/administration/">{% translate "Administration" %}</a>{% endif %}
     </nav>
     <div class="spacer"></div>

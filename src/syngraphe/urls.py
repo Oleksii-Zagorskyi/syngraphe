@@ -9,6 +9,9 @@ from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from django.views.decorators.common import no_append_slash
 
+from editing.views import conformance
+from editing.views import help as help_pages
+
 
 def _never_append_slash(patterns: list[Any]) -> list[Any]:
     """Mark every view under these patterns so the framework never redirects a bare path to it:
@@ -29,6 +32,9 @@ urlpatterns = [
     path("", include("documents.urls")),
     path("", include("identity.urls")),
     path("", include("tenancy.urls")),
+    path("editing/conformance/", conformance.page, name="editing_conformance"),
+    path("help/", help_pages.index, name="help"),
+    path("help/<slug:slug>/", help_pages.page, name="help_page"),
     # Confined by identity.middleware.FrameworkAdminMiddleware; never at the default path (DL-0210).
     path(settings.DJANGO_ADMIN_PATH, (_admin_patterns, _admin_app, _admin_namespace)),
 ]

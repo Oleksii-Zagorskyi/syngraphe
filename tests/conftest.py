@@ -1,5 +1,5 @@
 """Shared fixtures: the database, a client on the platform host, the Celery worker, a migrated
-tenant and its members."""
+tenant and its members, and the live server the browser tests run against."""
 
 from __future__ import annotations
 
@@ -29,6 +29,10 @@ _TEST_DEFAULTS = {
 }
 for _key, _value in _TEST_DEFAULTS.items():
     os.environ.setdefault(_key, _value)
+# Playwright's synchronous API keeps an event loop running in the test thread from its first use
+# on, and Django refuses the ORM beside a running loop; the suite has no asynchronous code for that
+# guard to protect.
+os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
 pytest_plugins = ("celery.contrib.pytest",)
 
@@ -40,6 +44,17 @@ def unhashed_static_files(settings: Any) -> None:
         **settings.STORAGES,
         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
     }
+
+
+@pytest.fixture(autouse=True)
+def queued_authorship(monkeypatch: pytest.MonkeyPatch) -> list[tuple[int, int, str]]:
+    """The authorship jobs a test asks the worker for, recorded rather than sent: the broker the
+    suite reaches is a development stack's, whose worker must not take them."""
+    queued: list[tuple[int, int, str]] = []
+    monkeypatch.setattr(
+        "editing.tasks.queue_authorship", lambda *job: queued.append(job), raising=True
+    )
+    return queued
 
 
 @pytest.fixture(autouse=True)
@@ -201,3 +216,54 @@ def make_document(migrated_tenant: Any) -> Callable[..., Any]:
             )
 
     return make
+
+
+BUNDLE = (
+    Path(__file__).resolve().parents[1] / "src" / "editing" / "static" / "editing" / "editor.js"
+)
+# The seeded rows as the test database was created with them, by connection alias.
+_SEEDED: dict[str, str] = {}
+
+
+@pytest.fixture(scope="session")
+def django_db_setup(django_db_setup: None) -> Iterator[None]:
+    """pytest-django's test database, and a copy of the rows its migrations seed, kept for the
+    browser tests (`browser_server`)."""
+    from django.db import connections
+
+    for connection_ in connections.all(initialized_only=True):
+        contents = getattr(connection_, "_test_serialized_contents", None)
+        if contents is not None:
+            _SEEDED[connection_.alias] = contents
+    yield
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    """Every browser test runs against committed rows, which a live server needs, with the rows the
+    migrations seed restored after it; and the browser tests run last. Playwright's synchronous API
+    leaves an event loop running in the test thread, and Django's connections are local to it, so
+    every later test would meet a connection without the seeded rows to restore."""
+    browser = []
+    for item in items:
+        if "browser_server" in getattr(item, "fixturenames", ()):
+            item.add_marker(pytest.mark.django_db(transaction=True, serialized_rollback=True))
+            browser.append(item)
+    items[:] = [item for item in items if item not in browser] + browser
+
+
+@pytest.fixture
+def browser_server(live_server: Any, settings: Any) -> str:
+    """The live application for a browser test, with its conformance page on; its address."""
+    from django.db import connections
+
+    if not BUNDLE.exists():
+        pytest.fail("the editor's bundle is not built: npm ci && npm run build")
+    for alias, contents in _SEEDED.items():
+        connection_ = connections[alias]
+        if not hasattr(connection_, "_test_serialized_contents"):
+            # A connection made after Playwright's loop started: nothing was restored on it.
+            connection_._test_serialized_contents = contents  # type: ignore[attr-defined]
+            connection_.creation.deserialize_db_from_string(contents)
+    settings.EDITING_CONFORMANCE_PAGE = True
+    return str(live_server.url)

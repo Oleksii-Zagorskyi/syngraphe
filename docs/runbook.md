@@ -134,8 +134,36 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `sequence_behind` | the next document number would repeat one a repository directory already has, with a row or without | moves the number past it | — |
 | `locked` | the document's writer lock stayed held for thirty seconds | tried again next run | — |
 | `unreadable` | a repository or file the reconciler could not read; the log — the worker's, or the command's own output — names the error | reports it | — |
+| `finish_stopped` | a *send for review* stopped after its commit: the holder's hold is still open with a draft whose base is behind an `edit` commit of theirs, or a finished hold still has its draft | releases the hold as finished and deletes the draft that commit consumed; the version row is `commit_without_row`'s. Left as found, and reported with its reason, while the holder is no longer a member, the commit has no version row yet, or the draft holds text typed after the stop — the holder's next *send for review* then finishes it | — |
+| `authorship_missing` | the newest version has no per-line authorship though its text has lines — the worker has not run yet, or its job was lost or failed | asks the worker for it again; a finding that returns on every run means the job fails, and the worker's log says why | — |
 
 A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Nothing re-enqueues tasks from rows yet either; the broker holds none that matter. ⟨fixed when tasks with rows are implemented⟩
+
+## Editing
+
+A person edits a document while they hold it; what they type is kept as a draft in the database, captured as they type, until they finish and a version is committed. The draft is theirs: an operator reads it but never edits or deletes it.
+
+### A hold that will not release
+
+A hold ends when its holder finishes. One that stays open — the holder has left, the document is needed — is released from the shell, with a reason that names neither the document nor a person:
+
+```bash
+docker compose exec web python manage.py release_hold --tenant N --document M --reason "…"
+```
+
+It marks the hold *forced*, **keeps the draft**, and records the release, with its reason, in the audit log. It waits for the document's writer lock, so it never releases a hold in the middle of a commit. **Never delete a hold or a draft row** — the draft is the holder's text. ⟨the administrator's *force release* in the interface, and the holder's own *discard my edits*: fixed when holds are managed in the interface⟩
+
+A holder who cannot finish because *an editor is still open* first closes their other tabs on the document: an open tab keeps its editor open, however long. An editor whose page went away without closing it — a closed laptop, a crashed browser — is closed by the worker within about four minutes: silent for three, found by the check that runs every minute. If the wait lasts longer, the worker is not running.
+
+### A draft that fails to load
+
+Print the draft's content, as JSON, with its hold's details — the open hold's, or, when none is open, the latest hold's; the read is recorded in the audit log:
+
+```bash
+docker compose exec web python manage.py inspect_draft --tenant N --document M
+```
+
+A draft whose text the editor does not accept is never lost: the editor opens it in the source view, as Markdown, with each refused line named, and the holder corrects it there. An operator does not repair a draft by hand. When the editor says *busy*, the document's writer lock is held by another write — a commit or a backup bundle — and the holder tries again. Any other failure is in `web`'s log.
 
 ## Restore
 

@@ -1,0 +1,18 @@
+{% extends "documents/page.html" %}
+{% load i18n %}
+{% block tab %}
+<div class="finish">
+  <h2>{% translate "Finish editing" %}</h2>
+  <p class="muted">{% translate "Your changes, marked in the text. The summary is for the reviewer and is kept with the version; it starts from the sections you changed." %}</p>
+  <div class="changes">{{ changes }}</div>
+  <form method="post" action="/document/{{ document.number }}/edit/send/">
+    {% csrf_token %}
+    <label for="summary">{% translate "Change summary" %}</label>
+    <input type="text" id="summary" name="summary" value="{{ summary }}" maxlength="{{ summary_max }}" required>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <p class="choice"><button class="btn primary" type="submit" data-command="send">{% translate "Send for review" %}</button>
+    <span class="muted">{% blocktranslate with number=number %}the version waits as {{ number }}{% endblocktranslate %}</span></p>
+  </form>
+  <p><a class="btn" href="/document/{{ document.number }}/edit/" data-command="continue">{% translate "Continue editing" %}</a></p>
+</div>
+{% endblock %}
