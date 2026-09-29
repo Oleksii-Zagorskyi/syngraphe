@@ -1,0 +1,5 @@
+#!/bin/sh
+# The nginx variable holding the header the estate's proxy puts the client's address in:
+# `CF-Connecting-IP` becomes `$http_cf_connecting_ip`. Sourced by the image's entrypoint before
+# the templates are rendered, which is why it must be executable.
+export FRONT_CLIENT_IP_VAR="\$http_$(printf '%s' "$FRONT_CLIENT_IP_HEADER" | tr 'A-Z-' 'a-z_')"

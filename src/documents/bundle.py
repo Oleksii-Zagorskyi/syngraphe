@@ -36,18 +36,18 @@ def valid_title(title: str) -> bool:
     )
 
 
-class _UniqueKeyLoader(yaml.SafeLoader):
+class UniqueKeyLoader(yaml.SafeLoader):
     """The safe loader, refusing a mapping that names one key twice."""
 
 
-def _mapping(loader: _UniqueKeyLoader, node: yaml.MappingNode) -> dict[Any, Any]:
+def _mapping(loader: UniqueKeyLoader, node: yaml.MappingNode) -> dict[Any, Any]:
     keys = [loader.construct_object(key) for key, _ in node.value]
     if len(keys) != len(set(keys)):
         raise yaml.constructor.ConstructorError(None, None, "a key is repeated", node.start_mark)
     return loader.construct_mapping(node)
 
 
-_UniqueKeyLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _mapping)
+UniqueKeyLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _mapping)
 
 
 @dataclass
@@ -139,7 +139,7 @@ def parse(text: str) -> tuple[Frontmatter, str]:
     source = text[len(DELIMITER) : end + 1]
     body = text[end + 1 + len(DELIMITER) :].removeprefix("\n")
     try:
-        data = yaml.load(source, Loader=_UniqueKeyLoader)
+        data = yaml.load(source, Loader=UniqueKeyLoader)
     except yaml.YAMLError as error:
         raise ValueError("the frontmatter is not YAML") from error
     if not isinstance(data, dict) or set(data) - set(KEYS):

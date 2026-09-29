@@ -78,7 +78,8 @@ def test_catalogue_covers_epic_3_pages(
         (admin, f"/document/{linked.number}/info/"),
         (author, "/folder/1/"),
         (author, "/document/new/"),
-        (author, f"/document/{linked.number}/"),
+        # The document has no repository to render: its header is read on the Info tab.
+        (author, f"/document/{linked.number}/info/"),
     ]
 
     for client, path in pages:

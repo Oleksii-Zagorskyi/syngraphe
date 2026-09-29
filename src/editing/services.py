@@ -183,7 +183,12 @@ def _fault(step: int, fault_at: int | None) -> None:
 
 
 def _derive(document: Document, repo: pygit2.Repository, sha: str, user: User) -> None:
-    """The version row of `sha` and its caches, audited as committed."""
+    derive_committed(document, repo, sha, user)
+
+
+def derive_committed(document: Document, repo: pygit2.Repository, sha: str, user: User) -> None:
+    """The version row of `sha` and its caches, audited as committed: the editor's commit and the
+    loader's share it, so both leave the same record."""
     with transaction.atomic():
         services.derive_version(document, gitstore.commit_at(repo, sha), user)
         record(

@@ -1,0 +1,7 @@
+title: "Порядок ведення реєстру заявок (синтетичний приклад)"
+language: "uk"
+attachments:
+  - file: "form.csv"
+    title: "Форма запису реєстру"
+  - file: "order.txt"
+    title: "Наказ про ведення реєстру"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syngraphē\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 16:15+0000\n"
+"POT-Creation-Date: 2026-09-29 20:07+0000\n"
 "PO-Revision-Date: 2026-09-28 17:08+0000\n"
 "Last-Translator: Oleksii Zagorskyi\n"
 "Language-Team: uk\n"
@@ -214,6 +214,14 @@ msgstr "Тека"
 msgid "A title is one line of text."
 msgstr "Назва — це один рядок тексту."
 
+#: documents/templates/documents/attachments.html:2
+msgid "Attachments"
+msgstr "Вкладені файли"
+
+#: documents/templates/documents/attachments.html:3
+msgid "No attachments"
+msgstr "Вкладених файлів немає"
+
 #: documents/templates/documents/create.html:3
 #: documents/templates/documents/create.html:6
 msgid "Create a document"
@@ -270,6 +278,10 @@ msgstr "додатки"
 #: documents/templates/documents/list.html:22
 msgid "attachments"
 msgstr "вкладені файли"
+
+#: documents/templates/documents/page.html:9
+msgid "View"
+msgstr "Перегляд"
 
 #: documents/templates/documents/page.html:9
 msgid "Edit"
@@ -432,7 +444,7 @@ msgstr "Жирний"
 msgid "Italic"
 msgstr "Курсив"
 
-#: editing/messages.py:52 editing/views/help.py:48
+#: editing/messages.py:52 editing/views/help.py:49
 msgid "Underline"
 msgstr "Підкреслення"
 
@@ -760,6 +772,10 @@ msgstr "Документ зайнятий: його редагують."
 msgid "Help"
 msgstr "Довідка"
 
+#: editing/templates/editing/help.html:10
+msgid "Work in progress"
+msgstr "в роботі"
+
 #: editing/templates/editing/help.html:14
 msgid ""
 "Text is written in Markdown, in the formatted view or the source view. These "
@@ -820,49 +836,49 @@ msgstr ""
 msgid "Sent for review — the version waits as %(number)s."
 msgstr "Відправлено на розгляд — версія %(number)s очікує на розгляд."
 
-#: editing/views/help.py:40
+#: editing/views/help.py:41
 #, python-format
 msgid "Headings, down to level %(depth)s"
 msgstr "Заголовки, до рівня %(depth)s"
 
-#: editing/views/help.py:42
+#: editing/views/help.py:43
 msgid "Paragraphs"
 msgstr "Пункти"
 
-#: editing/views/help.py:42
+#: editing/views/help.py:43
 msgid "separated by an empty line"
 msgstr "розділені порожнім рядком"
 
-#: editing/views/help.py:43
+#: editing/views/help.py:44
 #, python-format
 msgid "Lists, down to %(depth)s levels"
 msgstr "Списки, до %(depth)s рівнів"
 
-#: editing/views/help.py:44
+#: editing/views/help.py:45
 msgid "Bold, italic"
 msgstr "Жирний, курсив"
 
-#: editing/views/help.py:54
+#: editing/views/help.py:55
 msgid "Quotes"
 msgstr "Цитати"
 
-#: editing/views/help.py:57
+#: editing/views/help.py:58
 msgid "Tables, not inside another block"
 msgstr "Таблиці, не всередині іншого блоку"
 
-#: editing/views/help.py:57
+#: editing/views/help.py:58
 msgid "Tables"
 msgstr "Таблиці"
 
-#: editing/views/help.py:61
+#: editing/views/help.py:62
 msgid "Images of the document, on a line of their own"
 msgstr "Зображення документа, кожне в окремому рядку"
 
-#: editing/views/help.py:63
+#: editing/views/help.py:64
 msgid "Images of the document"
 msgstr "Зображення документа"
 
-#: editing/views/help.py:67
+#: editing/views/help.py:68
 msgid "Links"
 msgstr "Посилання"
 
@@ -979,6 +995,16 @@ msgstr "Адреса електронної пошти або пароль не�
 msgid "Sign in"
 msgstr "Увійти"
 
+#: rendering/templates/rendering/view.html:2
+#, python-format
+msgid "Accepted version %(number)s"
+msgstr "Погоджена версія %(number)s"
+
+#: rendering/templates/rendering/view.html:2
+#, python-format
+msgid "Version %(number)s"
+msgstr "Версія %(number)s"
+
 #: review/state.py:36
 msgid "awaiting review"
 msgstr "очікує на розгляд"
@@ -1018,12 +1044,16 @@ msgstr "Автори змін:"
 #, python-format
 msgid ""
 "You removed this in %(version)s; %(changer)s restored it in %(changing)s."
-msgstr "Ви видалили це у версії %(version)s; відновлено у версії %(changing)s, автор зміни — %(changer)s."
+msgstr ""
+"Ви видалили це у версії %(version)s; відновлено у версії %(changing)s, автор "
+"зміни — %(changer)s."
 
 #: review/templates/review/notice.html:12
 #, python-format
 msgid "You wrote this in %(version)s; %(changer)s changed it in %(changing)s."
-msgstr "Ви написали це у версії %(version)s; змінено у версії %(changing)s, автор зміни — %(changer)s."
+msgstr ""
+"Ви написали це у версії %(version)s; змінено у версії %(changing)s, автор "
+"зміни — %(changer)s."
 
 #: review/templates/review/notice.html:16
 msgid "Open the document"
@@ -1032,7 +1062,9 @@ msgstr "Відкрити документ"
 #: review/templates/review/notice.html:18
 msgid ""
 "The text is not shown: you may no longer read this document's accepted text."
-msgstr "Текст не показано: ви більше не маєте права читати погоджений текст цього документа."
+msgstr ""
+"Текст не показано: ви більше не маєте права читати погоджений текст цього "
+"документа."
 
 #: review/templates/review/pending.html:6
 msgid "Correct"

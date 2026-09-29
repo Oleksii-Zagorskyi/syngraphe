@@ -47,7 +47,43 @@ curl -s http://127.0.0.1:8000/health/    # {"database": "ok", "redis": "ok", "ba
 
 `db` is built on `postgres:16`, which carries ICU: the document list orders titles by the `uk-x-icu` collation, and a PostgreSQL built without ICU fails that page. The containers restart with the host's Docker unless stopped by hand. **After an update:** `git pull`, then `docker compose up -d --build`; the migrations run as `web` starts. A migration that failed for one organisation is completed with `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being the organisation's number; nothing else is needed.
 
-**Production** runs behind the operator's reverse proxy (DL-0281); its procedure arrives with the production Compose override, and until then this section is the development host's.
+**Production** runs behind the operator's reverse proxy (DL-0281) with the production override, `deploy/compose.prod.yaml`, read over the base file: `docker compose -f compose.yaml -f deploy/compose.prod.yaml …` for every command, written `$C` below. It adds `front`, an nginx that terminates the installation's own TLS on the one port the host allows and forwards to `web`, which then publishes no port; it puts the repositories, the database, the archive's spool and the backup state under one data directory as bind mounts; and it pins the stack's network, so `TRUSTED_PROXIES` names it. Its keys are the block *Compose only — the production override* of `.env.example` — fill every `???` there first: the override refuses a key that is unset, but not one still reading `???`: `RELEASE_TAG`, `FRONT_PORT`, `FRONT_CERT_FILE`, `FRONT_KEY_FILE`, `FRONT_SERVER_NAME`, `FRONT_CLIENT_IP_HEADER` (the header the operator's proxy carries the client's address in; the front passes it to the application as `X-Forwarded-For`), `DATA_DIR` and `STACK_SUBNET`. The override sets `web`'s `TRUSTED_PROXIES` to `STACK_SUBNET`, so the front's headers are believed; `COMPOSE_PROJECT_NAME` is set, so one project spans every release's checkout. **`FRONT_PORT` must be reachable from the operator's proxy alone**: the front passes on the client's address as that proxy reports it, and a client reaching the port directly could report its own.
+
+- **The data directory's owners.** On a host whose Docker maps container users to other host users, create `repos/`, `backup-state/`, `pgdata/` and `pgspool/` through a one-off container, so they belong to the mapped users of `app` (1000) and `postgres` (999): `docker run --rm -v "$DATA_DIR:/d" alpine sh -c 'mkdir -p /d/pgdata /d/pgspool /d/repos /d/backup-state && chown -R 999:999 /d/pgdata /d/pgspool && chown -R 1000:1000 /d/repos /d/backup-state'`; then `chmod 700 "$DATA_DIR"`, so no other account on the host reads the repositories, and `ls -ld "$DATA_DIR"` shows `drwx------`.
+- **The preview's delivery** (DL-0345): the host runs a tagged commit only — an annotated tag on a commit whose CI run is green — delivered as `git archive` of that tag, extracted into a checkout of its own beside the previous one, with `.env` carried across, and built there: `$C build`, then `$C up -d`. The images are tagged with `RELEASE_TAG`. **Before every deploy after the first**, a full base backup (§ Backup), its completion read in `pgbackrest info`. **Rollback:** `$C up -d` from the previous checkout; the database migrates forward only, so a tag whose migrations ran is rolled back by a restore. Delivery by pulling from the repository replaces the archive before the launch.
+- `front` resolves `web` through Docker's resolver on every request, so recreating `web` needs nothing of `front`.
+
+### Adding a member by command
+
+Before invitations exist (DL-0343), an operator adds a person to one organisation as an ordinary member:
+
+```bash
+$C exec web python manage.py create_member --tenant N --email ADDRESS --name "Display name"
+```
+
+A new person gets a generated password, **printed once** — run the command in the operator's own terminal and hand the password over by hand; it is shown nowhere again, and the person cannot change it until the reset exists. A person already registered gets the membership only, and their password is never changed; an existing active member is reported and nothing is written. Then add the membership to its groups on the group's page.
+
+### Loading a document
+
+A document prepared outside the platform enters it by command (DL-0341, DL-0348), one folder per document:
+
+```
+<folder>/
+  document.yaml      title, language, attachments: [{file, title}]
+  document.md        the body only, Markdown inside the whitelist, no frontmatter
+  <file> …           each attachment document.yaml names, beside it
+```
+
+```bash
+$C run --rm --no-deps -v /path/to/folders:/srv/load:ro web \
+  python manage.py load_document --tenant N --as ADDRESS --group GROUP_ID /srv/load/<each> …
+```
+
+`GROUP_ID` is the group's id, from the address of its rights page. The member must belong to that group, and the group must hold *create and edit* and *accept*. The loader links each document to that group alone: for readers, link it to their group — one holding *view accepted* — on the document-links page. Each folder becomes a document linked to the group, its text and attachments committed as one version and accepted as `0.1`; the command prints `document M · version 0.1 · attachments: K`. Every check — the folder against its description, the whitelist, image references (images are not loaded), each file against the organisation's attachment limit, the member's rights, and once those pass the size of the normalised text — runs before anything is written, and every reason found is reported at once. The first folder refused stops the run; those loaded before it stand, and running the same command again skips them (`document M already loaded — skipped`). A load that stops after the document exists names the step: `reconcile --tenant N --document M` and the interface continue it, and nothing is deleted. Remove the folders from the host afterwards.
+
+### Help as work in progress
+
+`HELP_WORK_IN_PROGRESS=true` in `.env` makes every help page show its heading and *Work in progress* alone, until the pages' text is agreed (DL-0344); `$C up -d web` applies it.
 
 ## First run
 
@@ -73,7 +109,7 @@ In Administration › Platform › Organisations, *Create an organisation*: its 
 
 **The database is never restored past the repositories.** History is append-only and no commit spans two documents, so each repository copied *after* the database's recovery point contains at least what the database knew about it. The reverse can leave a row pointing at a commit no copy holds — a version gone from both stores.
 
-**The store.** `.env` names it: `BACKUP_TARGET` — `sftp` or `s3` — and the keys that kind needs, with a path of the installation's own (`BACKUP_SFTP_PATH` or `BACKUP_S3_PATH`), under which the database's archive goes to `database/` and the bundles to `bundles/`. For `sftp`: `BACKUP_KEY_FILE`, the host path of the SSH private key, readable by the application's user (uid 1000) — `db` and `backup` copy it for their own user as they start; and `BACKUP_SFTP_KNOWN_HOSTS`, the store's host key as one `known_hosts` line, which both tools pin. `BACKUP_EXTRA_HOST` gives the containers an address for a store whose name they cannot resolve. For `s3`, set `BACKUP_KEY_FILE=/dev/null`. A production store keeps whatever the host deletes for thirty days, by its own control (DL-0298).
+**The store.** `.env` names it: `BACKUP_TARGET` — `sftp` or `s3` — and the keys that kind needs, with a path of the installation's own (`BACKUP_SFTP_PATH` or `BACKUP_S3_PATH`), under which the database's archive goes to `database/` and the bundles to `bundles/`. For `sftp`: `BACKUP_KEY_FILE`, the host path of the SSH private key, readable by the application's user (uid 1000) — `db` and `backup` copy it for their own user as they start; and `BACKUP_SFTP_KNOWN_HOSTS`, the store's host key as one `known_hosts` line, which both tools pin. `BACKUP_EXTRA_HOST` gives the containers an address for a store whose name they cannot resolve. For `s3`, set `BACKUP_KEY_FILE=/dev/null`. A production store keeps whatever the host deletes for thirty days, by its own control (DL-0298); until such a store exists, a preview may run against an interim store without that guarantee, its material reloadable from its source (DL-0346).
 
 1. **Database — continuously.** pgBackRest ships each completed segment of the write-ahead log off-host, asynchronously, and a segment that has not filled is closed within five minutes; a full base backup is taken nightly at 02:00 UTC, and two are kept with their archive. If the store cannot be reached, the log waits on the host up to `BACKUP_WAL_QUEUE_MAX`; past it, segments are dropped rather than let the disk fill, and the archive has a gap until the next full base backup (see *The store is unreachable*). This is what makes point-in-time recovery possible, and it is not optional: holds, access rows and above all **drafts** live only in the database.
 

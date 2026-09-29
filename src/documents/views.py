@@ -10,10 +10,13 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.functions import Collate
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.utils.cache import patch_cache_control
+from django.utils.http import content_disposition_header
 from django.views.decorators.cache import never_cache
 
 from access.models import DocumentGroup
 from access.rights import Right, can_create, readable, rights_on
+from audit.record import record
 from documents.forms import CreateForm
 from documents.holds import held_by
 from documents.models import ROOT_FOLDER, Document, DocumentState, PartIndex, PartKind, Version
@@ -121,13 +124,12 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
 ABSENT = uuid.UUID(int=0)
 
 
-@never_cache
-@login_required
-def page(request: HttpRequest, number: int) -> HttpResponse:
-    """The document page's *Info* tab, under the header every tab shares (DL-0208)."""
+def _readable_document(request: HttpRequest, number: int) -> Document | None:
+    """The document page's gates, in their order: an organisation, `GET`, a member, the document
+    active and readable. `None` wherever the answer is *nothing to show*."""
     tenant = getattr(request, "tenant", None)
     if tenant is None or request.method != "GET" or not _member(request):
-        return not_found(request)
+        return None
     document = (
         Document.objects.filter(number=number, state=DocumentState.ACTIVE)
         .select_related("document_type", "folder", "language", "created_by")
@@ -135,16 +137,41 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     )
     allowed = readable(request.user, [document.pk if document is not None else ABSENT])
     if document is None or document.pk not in allowed:
+        return None
+    return document
+
+
+@never_cache
+@login_required
+def page(request: HttpRequest, number: int, tab: str = "view") -> HttpResponse:
+    """The document page: the *View* tab by default, *Info* at its own address, under the header
+    every tab shares (DL-0208)."""
+    document = _readable_document(request, number)
+    if document is None:
         return not_found(request)
+    context: dict[str, Any] = {
+        "document": document,
+        "can_edit": Right.EDIT in rights_on(request.user, document),
+        "holding": held_by(document, request.user),
+        "tab": tab,
+    }
+    if tab == "view":
+        from rendering.views import view_context
+
+        shown = view_context(request, document)
+        if shown is None:
+            return not_found(request)
+        context |= shown
+        return render(request, "documents/page.html", context)
     membership = getattr(request, "membership", None)
     administrator = bool(getattr(request.user, "acts_as_platform_admin", False)) or bool(
         membership and membership.is_tenant_admin
     )
     creator = document.created_by
     # A reader learns who created the document by name; an address only an administrator sees.
-    shown = ""
+    shown_name = ""
     if creator is not None:
-        shown = creator.display_name or (creator.email if administrator else "")
+        shown_name = creator.display_name or (creator.email if administrator else "")
     linked = (
         sorted(
             link.group.name
@@ -153,13 +180,46 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         if administrator
         else []
     )
-    context = {
-        "document": document,
-        "administrator": administrator,
-        "creator": shown,
-        "linked": linked,
-        "can_edit": Right.EDIT in rights_on(request.user, document),
-        "holding": held_by(document, request.user),
-        "tab": "info",
-    }
+    context |= {"administrator": administrator, "creator": shown_name, "linked": linked}
     return render(request, "documents/page.html", context)
+
+
+@never_cache
+@login_required
+def attachment(request: HttpRequest, number: int, part: int) -> HttpResponse:
+    """One attachment of the version the reader may see, as a download under its original name,
+    never opened by the platform (DL-0342, T-15). Whatever may not be served costs what a missing
+    document costs."""
+    from documents.parts import read_attachment
+    from rendering.views import UNREADABLE
+    from review.visible import shown
+
+    document = _readable_document(request, number)
+    if document is None:
+        return not_found(request)
+    tenant = request.tenant  # type: ignore[attr-defined]
+    try:
+        visible = shown(request.user, document)
+        if visible is None:
+            return not_found(request)
+        version = visible.version
+        found, data = read_attachment(tenant.number, document, version, part)
+    except UNREADABLE:
+        # An unlisted number or a hash mismatch (logged by the parts service), or a repository
+        # that disagrees with its rows: each costs what a missing document costs.
+        return not_found(request)
+    response = HttpResponse(data, content_type="application/octet-stream")
+    response["Content-Disposition"] = content_disposition_header(
+        as_attachment=True, filename=found.file_name
+    )
+    response["X-Content-Type-Options"] = "nosniff"
+    patch_cache_control(response, private=True)
+    record(
+        actor=cast(User, request.user),
+        action="attachment.downloaded",
+        obj=document,
+        before=None,
+        after={"number": document.number, "attachment": part, "commit": version.commit_sha},
+        tenant=tenant,
+    )
+    return response

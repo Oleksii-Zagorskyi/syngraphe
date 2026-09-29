@@ -60,6 +60,7 @@ class Config:
     backup_lock_timeout: float
     backup_wal_alert: int
     editing_conformance_page: bool
+    help_work_in_progress: bool
 
 
 class _Reader:
@@ -190,6 +191,7 @@ def load(environ: Mapping[str, str] | None = None) -> Config:
         backup_lock_timeout=reader.seconds("BACKUP_LOCK_TIMEOUT", "30"),
         backup_wal_alert=reader.size("BACKUP_WAL_ALERT", "2GiB"),
         editing_conformance_page=reader.boolean("EDITING_CONFORMANCE_PAGE", "false"),
+        help_work_in_progress=reader.boolean("HELP_WORK_IN_PROGRESS", "false"),
     )
     if reader.missing or reader.malformed:
         raise ConfigurationError(reader.missing, reader.malformed)

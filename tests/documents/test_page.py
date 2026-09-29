@@ -40,16 +40,15 @@ def test_header_and_info(
             created_at=datetime(2026, 9, 28, 22, 30, tzinfo=UTC)
         )
 
-    page = client.get(f"/document/{document.number}/")
+    # The View tab, at the document's own address, is `tests/rendering/test_view.py`'s: this
+    # document has no repository to render.
     info = client.get(f"/document/{document.number}/info/")
 
-    for response in (page, info):
-        body = response.content.decode()
-        assert response.status_code == 200
-        assert f'<a href="/folder/1/">{migrated_tenant.name}</a> /' in body
-        assert f"#{document.number}" in body
-        assert "Синтетичний приклад" in body
     body = info.content.decode()
+    assert info.status_code == 200
+    assert f'<a href="/folder/1/">{migrated_tenant.name}</a> /' in body
+    assert f"#{document.number}" in body
+    assert "Синтетичний приклад" in body
     assert "<dd>Українська</dd>" in body
     assert "<dd>Документ</dd>" in body
     assert f"<dd>{migrated_tenant.name}</dd>" in body

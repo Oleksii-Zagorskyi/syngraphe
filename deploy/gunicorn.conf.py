@@ -1,7 +1,10 @@
 """Gunicorn's settings: the bind address, the workers, and every log line as JSON on stdout."""
 
 bind = "0.0.0.0:8000"
+# Threaded workers: an idle browser connection holds a thread, not the worker (DL-0347).
+worker_class = "gthread"
 workers = 2
+threads = 4
 accesslog = "-"
 errorlog = "-"
 # Gunicorn trusts no forwarded header itself: the application's TRUSTED_PROXIES is the one list

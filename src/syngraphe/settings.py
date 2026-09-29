@@ -38,6 +38,7 @@ TENANT_APPS = [
     "editing",
     "review",
     "notifications",
+    "rendering",
 ]
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
@@ -141,6 +142,9 @@ DJANGO_ADMIN_PATH = _CONFIG.admin_path
 DISPLAY_TIMEZONE = _CONFIG.display_timezone
 # The editor's conformance page, for the browser tests only; off unless set.
 EDITING_CONFORMANCE_PAGE = _CONFIG.editing_conformance_page
+
+# Every help page reads *work in progress* until its text is agreed (DL-0344).
+HELP_WORK_IN_PROGRESS = _CONFIG.help_work_in_progress
 
 # Sessions last twelve hours from sign-in, not sliding; the cookie flags follow SITE_HTTPS.
 LOGIN_URL = "/signin/"

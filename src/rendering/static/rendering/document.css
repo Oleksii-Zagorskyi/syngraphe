@@ -1,0 +1,17 @@
+/* The reading view: the document's text as a reader reads it. */
+.document-text { max-width: 46rem; line-height: 1.6; }
+.document-text .num { color: #6b7280; font-size: 0.85em; font-variant-numeric: tabular-nums; margin-right: 0.35em; user-select: none; }
+.document-text h1, .document-text h2, .document-text h3, .document-text h4 { line-height: 1.3; }
+.document-text .entity { background: #eef2f7; border-radius: 2px; padding: 0 0.1em; }
+.document-text .underline { text-decoration: underline; }
+.document-text .callout { border-left: 3px solid #9ca3af; background: #f9fafb; margin: 1em 0; padding: 0.25em 1em; }
+.document-text .callout-warning { border-left-color: #d97706; }
+.document-text blockquote { border-left: 3px solid #e5e7eb; margin: 1em 0; padding-left: 1em; color: #374151; }
+.document-text table { border-collapse: collapse; margin: 1em 0; }
+.document-text th, .document-text td { border: 1px solid #d1d5db; padding: 0.3em 0.6em; vertical-align: top; }
+.version { color: #4b5563; margin: 0.25em 0 1em; }
+.attachments { margin: 0 0 1.5em; }
+.attachments h2 { font-size: 1rem; margin: 0 0 0.35em; }
+.attachments ul { list-style: none; margin: 0; padding: 0; }
+.attachments li { margin: 0.2em 0; }
+.attachments .file-name, .attachments .size { color: #6b7280; font-size: 0.9em; margin-left: 0.5em; }

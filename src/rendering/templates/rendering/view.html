@@ -1,0 +1,6 @@
+{% load i18n static %}<link rel="stylesheet" href="{% static 'rendering/document.css' %}">
+{% if version_number %}<p class="version">{% if version_accepted %}{% blocktranslate with number=version_number %}Accepted version {{ number }}{% endblocktranslate %}{% else %}{% blocktranslate with number=version_number %}Version {{ number }}{% endblocktranslate %}{% endif %}</p>{% endif %}
+{% include "documents/attachments.html" %}
+<article class="document-text">
+{{ text }}
+</article>

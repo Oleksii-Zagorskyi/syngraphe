@@ -1,0 +1,56 @@
+# Production: `front` terminates the internal TLS and forwards to `web`, which publishes no port;
+# the data lives under one directory as bind mounts (DL-0281). Read as
+# `docker compose -f compose.yaml -f deploy/compose.prod.yaml`; every value comes from `.env`.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  front:
+    image: nginx:1.27-alpine
+    ports:
+      - "${FRONT_PORT:?name the front's host port in .env}:8443"
+    environment:
+      FRONT_SERVER_NAME: ${FRONT_SERVER_NAME:-_}
+      FRONT_CLIENT_IP_HEADER: ${FRONT_CLIENT_IP_HEADER:?name the header carrying the client's address in .env}
+    volumes:
+      - ./deploy/front/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./deploy/front/client-ip.envsh:/docker-entrypoint.d/15-client-ip.envsh:ro
+      - ${FRONT_CERT_FILE:?name the front's certificate in .env}:/etc/nginx/tls/server.crt:ro
+      - ${FRONT_KEY_FILE:?name the front's key in .env}:/etc/nginx/tls/server.key:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *logging
+  web:
+    image: syngraphe:${RELEASE_TAG:?name the release tag in .env}
+    ports: !reset []
+    environment:
+      # The front is on the stack's network, so its headers are the ones believed (DL-0292).
+      TRUSTED_PROXIES: ${STACK_SUBNET}
+    volumes:
+      - ${DATA_DIR:?name the data directory in .env}/repos:/srv/repos
+      - ${DATA_DIR}/backup-state:/srv/backup-state:ro
+  worker:
+    image: syngraphe:${RELEASE_TAG}
+    volumes:
+      - ${DATA_DIR}/repos:/srv/repos
+      - ${DATA_DIR}/backup-state:/srv/backup-state
+  db:
+    image: syngraphe-db:${RELEASE_TAG}
+    volumes:
+      - ${DATA_DIR}/pgdata:/var/lib/postgresql/data
+      - ${DATA_DIR}/pgspool:/var/spool/pgbackrest
+  backup:
+    image: syngraphe-db:${RELEASE_TAG}
+    volumes:
+      - ${DATA_DIR}/pgdata:/var/lib/postgresql/data:ro
+      - ${DATA_DIR}/backup-state:/srv/backup-state
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${STACK_SUBNET:?name the stack's network in .env}

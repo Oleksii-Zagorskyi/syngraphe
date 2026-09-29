@@ -25,6 +25,11 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The tenant is created with its first tenant administrator: a person invited by email, or one already registered on the platform.
 - An active tenant always has at least one active tenant administrator.
 
+**ST-0073** — As the operator of an installation, I add a person to a tenant from the command line, so that people can sign in before invitations exist.
+- The command creates the person if the email address is new and gives them an active membership in the named tenant; it never makes a tenant administrator.
+- It generates a password that meets DL-0284 and prints it once; a password is never a command argument, so it never reaches a shell's history. The person receives it from the operator by hand.
+- Groups and document links are made on the tenant's own pages, as for anyone else.
+
 **ST-0065** — As a platform administrator, I block a tenant, so that nobody but platform administrators can reach it.
 - A blocked tenant may have no users at all.
 - The block ends every hold and reservation in the tenant; drafts are preserved (DL-0256).
@@ -129,6 +134,11 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Its group links apply as they stand; nothing is rebuilt by hand (DL-0084).
 
 ---
+
+**ST-0074** — As the operator of an installation, I load a hand-prepared document with its attachments from a folder as its first accepted version, so that documents written outside the platform can be read in it (DL-0080, DL-0348).
+- The document is created as any other, then its text and every attachment are committed together as one version by a named member, who accepts it as `0.1` through the same act the interface performs — refused unless that member holds *create and edit* and *accept* through a group.
+- A folder whose document is already loaded is skipped, so the same command can be run again after a refusal.
+- The text passes the whitelist and the normalizer the editor's commit passes; a refused construct, or an attachment over the tenant's size limit, is named, and nothing is written for that document.
 
 ## Editing
 
@@ -320,6 +330,10 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - One stylesheet per organisation, selected per document.
 
 ---
+
+**ST-0075** — As a reader, I download a file attached to the version of a document I may read, so that the forms that belong with a policy reach me with it.
+- Only the attachments listed in the version my rights show me are offered; any other number answers as an address that does not exist.
+- The file is served under its original name and never opened by the platform; every download is recorded.
 
 ## Notifications and audit
 

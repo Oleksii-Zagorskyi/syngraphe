@@ -495,7 +495,7 @@ erDiagram
 
 **Appendices and attachments are numbered per document from 1** in creation order (ADR-0008); the number names the file, appears in the part's URL, and never changes when parts are reordered.
 
-**`PART_INDEX` is the same kind of cache** over the frontmatter's lists of appendices and attachments (DL-0174), so a document page can list its parts without reading git. Git is the authority; the rows are rebuilt per version.
+**`PART_INDEX` is the same kind of cache** over the frontmatter's lists of appendices and attachments (DL-0174), so a document page can list its parts without reading git. Git is the authority; the rows are rebuilt per version. An attachment's file is stored at `attachments/<n>`, `n` its number from 1, without an extension; its original name, hash and size live in the frontmatter entry (DL-0342).
 
 **There is no paragraph table, and that is deliberate.** Clause numbers are rendered labels derived from depth (DL-0065), and anything that must point at a passage — a finding, and later a comment — anchors with W3C text-quote selectors (DL-0027). Storing paragraph identifiers would put structure in two places and make every edit a reconciliation.
 

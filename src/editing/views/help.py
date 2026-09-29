@@ -8,6 +8,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -98,6 +99,8 @@ def index(request: HttpRequest) -> HttpResponse:
     """The list of help pages."""
     if request.method != "GET":
         return not_found(request)
+    if settings.HELP_WORK_IN_PROGRESS:
+        return _work_in_progress(request)
     return render(request, "editing/help.html", {"pages": HELP_PAGES, "current": None})
 
 
@@ -106,6 +109,8 @@ def page(request: HttpRequest, slug: str) -> HttpResponse:
     """One help page: shipped Markdown, or the page of what the editor accepts."""
     if request.method != "GET" or slug not in HELP_PAGES:
         return not_found(request)
+    if settings.HELP_WORK_IN_PROGRESS:
+        return _work_in_progress(request)
     context: dict[str, object] = {"pages": HELP_PAGES, "current": slug}
     if slug == "markdown":
         spec = load_spec()
@@ -116,3 +121,8 @@ def page(request: HttpRequest, slug: str) -> HttpResponse:
             return not_found(request)
         context["body"] = mark_safe(RENDERER.render(text))  # noqa: S308 — raw HTML is off
     return render(request, "editing/help.html", context)
+
+
+def _work_in_progress(request: HttpRequest) -> HttpResponse:
+    """The heading and one message in place of every page, until the pages are agreed (DL-0344)."""
+    return render(request, "editing/help.html", {"pages": {}, "current": None, "wip": True})

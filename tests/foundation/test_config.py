@@ -134,3 +134,11 @@ def test_a_network_of_every_address_is_refused() -> None:
         config.load(dict(COMPLETE, TRUSTED_PROXIES="0.0.0.0/0"))
 
     assert "TRUSTED_PROXIES" in str(refused.value)
+
+
+def test_help_work_in_progress_malformed() -> None:
+    assert config.load(COMPLETE).help_work_in_progress is False
+    assert config.load(dict(COMPLETE, HELP_WORK_IN_PROGRESS="true")).help_work_in_progress is True
+    with pytest.raises(config.ConfigurationError) as caught:
+        config.load(dict(COMPLETE, HELP_WORK_IN_PROGRESS="maybe"))
+    assert caught.value.malformed == ["HELP_WORK_IN_PROGRESS"]

@@ -26,6 +26,7 @@ x-app: &app
     DEFAULT_LANGUAGE: ${DEFAULT_LANGUAGE:-}
     BACKUP_WAL_ALERT: ${BACKUP_WAL_ALERT:-2GiB}
     BACKUP_LOCK_TIMEOUT: ${BACKUP_LOCK_TIMEOUT:-30}
+    HELP_WORK_IN_PROGRESS: ${HELP_WORK_IN_PROGRESS:-false}
     # The stack's own wiring: the service names, whatever `.env` holds for a process on the host.
     POSTGRES_HOST: db
     POSTGRES_PORT: "5432"

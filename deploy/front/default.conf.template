@@ -1,0 +1,50 @@
+# The production front (DL-0281, DL-0347): TLS with the installation's certificate, requests
+# buffered here so an idle client never holds a worker, and the client's address, the host and
+# the scheme forwarded in the headers `TRUSTED_PROXIES` lets the application believe.
+# Rendered by the image's entrypoint; `${…}` names are the container's environment.
+
+# Docker's resolver, asked per request, so a recreated `web` is found at its new address.
+resolver 127.0.0.11 valid=10s ipv6=off;
+
+# The client's address as the estate's proxy reported it, not the gateway every connection
+# arrives from.
+log_format front '${FRONT_CLIENT_IP_VAR} "$request" $status $body_bytes_sent $request_time';
+access_log /var/log/nginx/access.log front;
+
+server {
+    listen 8443 ssl;
+    http2 on;
+    server_name ${FRONT_SERVER_NAME};
+
+    ssl_certificate /etc/nginx/tls/server.crt;
+    ssl_certificate_key /etc/nginx/tls/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_session_tickets off;
+    server_tokens off;
+
+    client_max_body_size 8m;
+    proxy_request_buffering on;
+    proxy_buffering on;
+
+    # The front's own answers carry the application's headers; the application's answers carry
+    # its own, once.
+    proxy_hide_header X-Content-Type-Options;
+    proxy_hide_header X-Frame-Options;
+    proxy_hide_header Referrer-Policy;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy same-origin always;
+
+    location / {
+        set $upstream http://web:8000;
+        proxy_pass $upstream;
+        # `$http_host` keeps the port a client typed, which the CSRF origin check compares.
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Host $http_host;
+        # The front listens on TLS alone.
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For ${FRONT_CLIENT_IP_VAR};
+        proxy_read_timeout 60s;
+    }
+}

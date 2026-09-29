@@ -37,5 +37,6 @@ def test_the_context_manager_is_used_where_the_decisions_allow() -> None:
         "documents/reconcile.py",
         "editing/management/commands/release_hold.py",
         "editing/management/commands/inspect_draft.py",
+        "documents/management/commands/load_document.py",
         "editing/tasks.py",
     }
