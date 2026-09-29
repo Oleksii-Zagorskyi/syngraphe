@@ -37,19 +37,33 @@ def load(request: HttpRequest, number: int) -> HttpResponse:
     if document is None or request.method != "POST":
         return not_found(request)
     try:
-        # Under the writer lock, so no editor opens on a draft a commit is consuming.
+        # Under the writer lock, so no editor opens on a draft a commit is consuming; the body's
+        # verdict, which costs seconds at the ceiling, is reached after the lock is released.
         with document_lock(holds.tenant_number(), document.number, timeout=LOAD_LOCK_SECONDS):
-            return _open(request, document)
+            opened = _open(request, document)
     except LockTimeout:
         return JsonResponse({"busy": True}, status=503)
+    if opened is None:
+        return not_found(request)
+    editor, body = opened
+    refusals = validate(body)
+    verdict = (
+        {"state": "refused", "refusals": [{"code": r.code, "line": r.line} for r in refusals]}
+        if refusals
+        else {"state": "ok"}
+    )
+    return JsonResponse(
+        {"body": body, "verdict": verdict, "editor": str(editor.pk), "base_hash": editor.base_hash}
+    )
 
 
-def _open(request: HttpRequest, document: Document) -> HttpResponse:
+def _open(request: HttpRequest, document: Document) -> tuple[OpenEditor, str] | None:
+    """A new open editor on the holder's draft, and the body it saw; `None` for anyone else."""
     hold = holds.open_hold(document)
     if hold is None or hold.user_id != request.user.pk:
-        return not_found(request)
+        return None
     draft = hold.draft
-    body = draft.content[holds.BODY]
+    body: str = draft.content[holds.BODY]
     # The holder's tabs each open an editor; past a few, the oldest are closed — a capture from
     # one would be refused as stale anyway once another has captured.
     open_ids = list(
@@ -68,12 +82,4 @@ def _open(request: HttpRequest, document: Document) -> HttpResponse:
         base_hash=range_hash(body),
         last_seen_at=timezone.now(),
     )
-    refusals = validate(body)
-    verdict = (
-        {"state": "refused", "refusals": [{"code": r.code, "line": r.line} for r in refusals]}
-        if refusals
-        else {"state": "ok"}
-    )
-    return JsonResponse(
-        {"body": body, "verdict": verdict, "editor": str(editor.pk), "base_hash": editor.base_hash}
-    )
+    return editor, body

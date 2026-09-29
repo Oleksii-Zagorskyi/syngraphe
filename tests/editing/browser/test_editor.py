@@ -127,6 +127,8 @@ def test_a_tab_from_elsewhere_waits_for_start_editing(
     page.wait_for_function("() => document.getElementById('editor').editor !== undefined")
     with schema_context(migrated_tenant.number):
         assert Hold.objects.filter(document=document, released_at__isnull=True).count() == 1
-    # Nothing of the page's may reach the server while the test's rows are removed.
+    # Nothing of the page's may reach the server while the test's rows are removed: the editor
+    # captures and closes itself first, so the closing page has nothing left to send.
+    page.evaluate("document.getElementById('editor').editor.capture.finish()")
     page.unroute_all(behavior="wait")
     page.close()

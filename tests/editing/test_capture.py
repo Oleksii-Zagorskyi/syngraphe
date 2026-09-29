@@ -115,9 +115,6 @@ def test_silent_editor_closed(
     broken = 999
 
     class Tenants:
-        def filter(self, **_: Any) -> Any:
-            return self
-
         def values_list(self, *_: Any, **__: Any) -> list[int]:
             return [broken, migrated_tenant.number]
 
@@ -128,7 +125,7 @@ def test_silent_editor_closed(
             raise DatabaseError("no such schema")
         return real(number)
 
-    monkeypatch.setattr("tenancy.models.Tenant.objects", Tenants())
+    monkeypatch.setattr("tenancy.models.visited_by_background_work", Tenants)
     monkeypatch.setattr(tasks, "schema_context", failing)
 
     assert tasks.close_silent_editors() == 1
@@ -280,3 +277,29 @@ def test_a_capture_over_the_size_is_refused(
         body=body,
     )
     assert response.status_code == 413
+
+
+def test_a_stale_capture_from_a_closing_page_closes_its_editor(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """Refused as stale, the closing page's capture still closes its editor, so the holder's
+    other tab can finish without waiting for the silent-editor sweep."""
+    from editing.models import OpenEditor
+
+    client, document, first = opened(member_of, new_document)
+    second = client.post(f"/document/{document.number}/edit/load/").json()
+    assert send(client, document, second, "Друга вкладка.\n").status_code == 200
+
+    stale = post(
+        client,
+        document,
+        "capture",
+        editor=first["editor"],
+        base_hash=first["base_hash"],
+        body="Перша вкладка.\n",
+        close=True,
+    )
+
+    assert stale.status_code == 409 and stale.json() == {"stale": True}
+    with schema_context(migrated_tenant.number):
+        assert OpenEditor.objects.get(pk=first["editor"]).closed_at is not None

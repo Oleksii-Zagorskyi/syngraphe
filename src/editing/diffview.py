@@ -24,6 +24,7 @@ from html import escape
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
+from editing.markdown import load_spec
 from editing.markdown.rules import attr_span
 
 BLOCK_PREFIX = re.compile(r"^((?:[ \t]*>[ \t]?)*[ \t]*(?:[-+*][ \t]+|[0-9]+[.)][ \t]+)?)")
@@ -152,7 +153,7 @@ def _content(line: str) -> tuple[str, str]:
     """A line's block kind and its inline text."""
     heading = HEADING.match(line)
     if heading:
-        return f"h{min(len(heading.group(1)), 4)}", heading.group(2)
+        return f"h{min(len(heading.group(1)), load_spec().heading_max_depth)}", heading.group(2)
     if line.lstrip().startswith("|"):
         return "row", " · ".join(cell.strip() for cell in line.strip().strip("|").split("|"))
     prefix = BLOCK_PREFIX.match(line)

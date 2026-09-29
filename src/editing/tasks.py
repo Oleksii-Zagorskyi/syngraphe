@@ -45,17 +45,18 @@ def queue_authorship(tenant_number: int, document_number: int, commit_sha: str) 
 
 @shared_task(name="editing.close_silent_editors")
 def close_silent_editors() -> int:
-    """Close every open editor whose heartbeat stopped, in every active organisation: a tab closed
-    without closing its editor. Returns how many were closed."""
+    """Close every open editor whose heartbeat stopped — a tab closed without closing its editor —
+    in every organisation background work visits (`visited_by_background_work`). Returns how many
+    were closed."""
     from django.utils import timezone
 
     from editing.models import OpenEditor
     from editing.views.capture import SILENT_AFTER
-    from tenancy.models import Tenant, TenantState
+    from tenancy.models import visited_by_background_work
 
     closed = 0
     cutoff = timezone.now() - SILENT_AFTER
-    for number in Tenant.objects.filter(state=TenantState.ACTIVE).values_list("number", flat=True):
+    for number in visited_by_background_work().values_list("number", flat=True):
         # One organisation's failure leaves the others' editors to be closed all the same.
         try:
             with schema_context(number):

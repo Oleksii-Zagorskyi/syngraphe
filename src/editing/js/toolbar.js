@@ -85,7 +85,9 @@ export function toolbar(view, schema, words, report) {
     ["undo", undo],
     ["redo", redo],
   ];
-  for (const [name, command] of blocks) bar.append(button(labels[name], name, run(command)));
+  const label = (name) =>
+    name.startsWith("heading") ? labels.heading.replace("%(level)s", name.slice("heading".length)) : labels[name];
+  for (const [name, command] of blocks) bar.append(button(label(name), name, run(command)));
 
   // A link: its address typed into the toolbar, never asked for in a dialog.
   const address = document.createElement("input");

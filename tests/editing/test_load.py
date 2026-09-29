@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from typing import Any
 
 import pytest
@@ -82,3 +83,77 @@ def test_every_editing_post_needs_the_csrf_token(
     with schema_context(migrated_tenant.number):
         assert Draft.objects.get(hold__document=document).content == before
         assert not OpenEditor.objects.exists()
+
+
+def test_load_waits_for_a_commit_then_answers_busy(
+    migrated_tenant: Any, member_of: Any, new_document: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """No editor opens on a draft a commit is consuming: `load` waits on the writer lock, then
+    answers `503`, as the capture route does."""
+    import threading
+
+    from documents.locks import document_lock
+    from editing.models import OpenEditor
+    from editing.views import draft
+
+    monkeypatch.setattr(draft, "LOAD_LOCK_SECONDS", 0.2)
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    held, done = threading.Event(), threading.Event()
+
+    def commit() -> None:
+        with document_lock(migrated_tenant.number, document.number):
+            held.set()
+            done.wait(10)
+
+    committing = threading.Thread(target=commit)
+    committing.start()
+    held.wait(10)
+    try:
+        response = client.post(f"/document/{document.number}/edit/load/")
+    finally:
+        done.set()
+        committing.join()
+
+    assert response.status_code == 503 and response.json() == {"busy": True}
+    with schema_context(migrated_tenant.number):
+        assert not OpenEditor.objects.exists()
+
+
+def test_another_tenants_editing_is_not_found(
+    migrated_tenant: Any, member_of: Any, new_document: Any, make_tenant_schema: Any
+) -> None:
+    """A member of another organisation, naming this one's document and editor, meets the same
+    not-found on every editing route — the schema it reads holds none of them."""
+    from django.test import Client
+
+    from identity.models import Membership, User
+
+    holder, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    holder.post(f"/document/{document.number}/edit/take/")
+    loaded = holder.post(f"/document/{document.number}/edit/load/").json()
+    elsewhere = make_tenant_schema("Інша організація (синтетичний приклад)")
+    outsider = User.objects.create_user("an.outsider@example.test", "test-only-not-a-password")
+    Membership.objects.create(tenant=elsewhere, user=outsider, actor_kind="system")
+    client = Client(headers={"host": "127.0.0.1"})
+    client.force_login(outsider)
+    session = client.session
+    session["tenant_number"] = elsewhere.number
+    session.save()
+    base = f"/document/{document.number}"
+    payload = {"editor": loaded["editor"], "base_hash": loaded["base_hash"], "body": "Чуже.\n"}
+
+    for path in (f"{base}/edit/", f"{base}/edit/finish/", f"{base}/my-edits/"):
+        assert client.get(path).status_code == 404, path
+    for route in ("take", "load", "capture", "heartbeat", "close", "send"):
+        response = client.post(
+            f"{base}/edit/{route}/", data=json.dumps(payload), content_type="application/json"
+        )
+        assert response.status_code == 404, route
+    with schema_context(migrated_tenant.number):
+        from editing.models import Draft, OpenEditor
+
+        assert "Чуже" not in Draft.objects.get(hold__document=document).content["document.md"]
+        assert OpenEditor.objects.get(pk=loaded["editor"]).closed_at is None

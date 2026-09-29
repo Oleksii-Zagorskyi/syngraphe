@@ -42,7 +42,7 @@ from documents.models import (
 )
 from identity.models import Language, Membership, User
 from syngraphe.provenance import ActorKind
-from tenancy.models import Tenant, TenantState
+from tenancy.models import Tenant, visited_by_background_work
 from tenancy.schemas import schema_context
 
 if TYPE_CHECKING:
@@ -305,7 +305,7 @@ class _Run:
     def unfinishable(self, document: Document, commit: pygit2.Commit, draft: Any) -> str:
         """Why a stopped finish is left for its holder: an empty string when it may be finished."""
         from editing.markdown.validator import validate
-        from editing.normalizer import Lists, normalize
+        from editing.normalizer import Lists, NormalizerDefect, normalize
 
         if self.author(commit) is None:
             return "its holder is not of this tenant"
@@ -322,7 +322,11 @@ class _Run:
         if validate(body):
             return "the draft holds later text"
         lists = Lists.of(document.language)
-        if normalize(committed.encode(), body, lists).decode("utf-8") != committed:
+        try:
+            again = normalize(committed.encode(), body, lists).decode("utf-8")
+        except NormalizerDefect:
+            return "the draft does not normalise"
+        if again != committed:
             return "the draft holds later text"
         return ""
 
@@ -520,7 +524,7 @@ class _Run:
 
 
 def _tenants(number: int | None) -> Iterator[Tenant]:
-    tenants = Tenant.objects.exclude(state=TenantState.MIGRATING).order_by("number")
+    tenants = visited_by_background_work()
     if number is not None:
         tenants = tenants.filter(number=number)
     yield from tenants
@@ -528,7 +532,7 @@ def _tenants(number: int | None) -> Iterator[Tenant]:
 
 def tenant_exists(number: int) -> bool:
     """Whether the reconciler would visit tenant `number`."""
-    return Tenant.objects.exclude(state=TenantState.MIGRATING).filter(number=number).exists()
+    return visited_by_background_work().filter(number=number).exists()
 
 
 def run(

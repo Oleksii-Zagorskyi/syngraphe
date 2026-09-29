@@ -166,3 +166,19 @@ def test_the_repair_leaves_a_holder_no_longer_a_member(
         hold.refresh_from_db()
         assert hold.released_at is None
         assert Draft.objects.filter(hold=hold).exists()
+
+
+def test_the_screen_numbers_the_version_after_a_stopped_one(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """Inside the stopped-finish window, before the reconciler derives the stopped commit's row:
+    with nothing typed since, the screen shows the stopped version's number; with more typed, the
+    one after it."""
+    from editing import services
+
+    _, _, hold = stopped_at_the_commit(migrated_tenant, member_of, new_document)
+    with schema_context(migrated_tenant.number):
+        assert services.finish(hold).number == "0.0-1"
+    add_to_draft(migrated_tenant, hold, "\nПізніше речення.\n")
+    with schema_context(migrated_tenant.number):
+        assert services.finish(hold).number == "0.0-2"

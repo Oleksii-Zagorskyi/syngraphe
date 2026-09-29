@@ -21,9 +21,10 @@ def content_versions(document: Document) -> int:
     return Version.objects.filter(document=document, kind__in=CONTENT).count()
 
 
-def pending(document: Document) -> str:
-    """The number the next content version will carry."""
-    return f"{accepted(document)}-{content_versions(document) + 1}"
+def pending(document: Document, *, ahead: int = 0) -> str:
+    """The number the next content version will carry — or, with `ahead`, the one that many
+    versions after it: a commit already made whose row is not derived yet."""
+    return f"{accepted(document)}-{content_versions(document) + 1 + ahead}"
 
 
 def latest(document: Document) -> str:

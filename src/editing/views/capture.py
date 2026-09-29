@@ -35,14 +35,14 @@ CAPTURE_LOCK_SECONDS = 5
 
 
 def _payload(request: HttpRequest) -> dict[str, Any]:
-    """The request's fields: a JSON body, or a form — what a page sends as it closes."""
-    if request.content_type == "application/json":
-        try:
-            data = json.loads(request.body or b"{}")
-        except (ValueError, RecursionError):
-            return {}
-        return data if isinstance(data, dict) else {}
-    return {key: request.POST.get(key) for key in request.POST}
+    """The request's JSON fields; nothing for any other body, which no editor sends."""
+    if request.content_type != "application/json":
+        return {}
+    try:
+        data = json.loads(request.body or b"{}")
+    except (ValueError, RecursionError):
+        return {}
+    return data if isinstance(data, dict) else {}
 
 
 def _own_editor(request: HttpRequest, number: int) -> tuple[Hold, OpenEditor] | None:
@@ -70,7 +70,11 @@ def capture(request: HttpRequest, number: int) -> HttpResponse:
     """Take the editor's text when the draft's range still hashes to the editor's base, closing the
     editor too when the body says `close`: `200` with the new hash; `409` *stale* when the draft
     changed elsewhere, *closed* when the editor or the hold was; `413` over the size allowed;
-    `503` while the document is being committed."""
+    `503` while the document is being committed.
+
+    The right to edit is decided when the hold is taken, under the document's locks, and again
+    when the draft is committed; a capture writes only the holder's own draft under the hold, so
+    it checks the hold under the lock, not the right."""
     found = _own_editor(request, number)
     if found is None:
         return not_found(request)
@@ -111,6 +115,11 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
         # repeats — is accepted as it stands, whatever base the editor sent.
         if current != new:
             if current != base or locked.base_hash != base:
+                # A closing page's stale capture still closes its editor, so the holder's other
+                # tab is not kept from finishing until the silent-editor sweep.
+                if close:
+                    locked.closed_at = now
+                    locked.save(update_fields=["closed_at"])
                 return JsonResponse({"stale": True}, status=409)
             draft.content = {**draft.content, holds.BODY: body}
             draft.save(update_fields=["content", "updated_at"])

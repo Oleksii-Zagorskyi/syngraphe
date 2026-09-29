@@ -13,7 +13,8 @@ version and the submission, run at commit. Its stages, named and never numbered,
 A stored line the edit did not touch comes out byte-identical (ASR-20); a line whose bytes differ
 from the stored line it carries — a list item renumbered — is touched (DL-0324). The output is
 checked before it is returned: accepted by the validator, and written back unchanged by the
-serialiser; anything else is a defect, raised rather than stored. Every path — the rich
+serialiser; anything else is a defect, raised rather than stored — except a stored form over the
+size ceiling, refused as the draft being too large (`TooLarge`). Every path — the rich
 editor, the source view, an outside paste — is treated alike: each submitted paragraph's lines are
 joined before anything is compared, and the editor's line breaks only make an untouched paragraph
 arrive equal to its stored lines.
@@ -25,13 +26,22 @@ import re
 from dataclasses import dataclass
 
 from editing.markdown.serializer import escape_line_start, serialize
-from editing.markdown.validator import validate
+from editing.markdown.validator import Refusal, validate
 from editing.normalizer import invariant, reuse, splitter, typography
 from editing.normalizer.canonical import Paragraph, canonicalise, layout
 from editing.normalizer.splitter import Lists
 from editing.normalizer.version import RULESET, trailer
 
-__all__ = ["RULESET", "Lists", "NormalizerDefect", "Normalised", "normalize", "run", "trailer"]
+__all__ = [
+    "RULESET",
+    "Lists",
+    "NormalizerDefect",
+    "Normalised",
+    "TooLarge",
+    "normalize",
+    "run",
+    "trailer",
+]
 
 HEADING = re.compile(r"^(#{1,6}[ ])(.*)$")
 
@@ -40,9 +50,17 @@ class NormalizerDefect(Exception):
     """The normalizer produced a text the validator refuses or the serialiser rewrites."""
 
 
+class TooLarge(NormalizerDefect):
+    """The stored form would exceed the size the platform accepts (DL-0329): typography can add
+    a few bytes to a draft that stood just under the ceiling. Not a defect of the normalizer — the
+    draft is refused as too large, as the editor refuses it."""
+
+
 @dataclass(frozen=True)
 class Normalised:
-    """The stored form, and the numbers of its lines, from 0, that the edit touched."""
+    """The stored form, and the numbers of its lines, from 0, that the edit touched. The commit
+    path stores the text alone; `touched` is what the tests of ASR-20 assert on — that every line
+    outside it is byte-identical to the stored line it carries."""
 
     text: str
     touched: frozenset[int]
@@ -56,7 +74,7 @@ def normalize(previous: bytes, submitted: str, lists: Lists) -> bytes:
 
 
 def run(previous: bytes, submitted: str, lists: Lists) -> Normalised:
-    """`normalize`, with the lines it touched."""
+    """`normalize`, with the lines it touched, for the tests of ASR-20."""
     if submitted == previous.decode("utf-8"):
         return Normalised(submitted, frozenset())
     store = reuse.Store(layout(previous.decode("utf-8")))
@@ -84,6 +102,8 @@ def run(previous: bytes, submitted: str, lists: Lists) -> Normalised:
         number += 1
     text = "\n".join(out)
     refusals = validate(text)
+    if refusals == [Refusal(1, "too-large")]:
+        raise TooLarge(len(text.encode("utf-8")))
     if refusals or serialize(text) != text:
         found = ", ".join(f"{r.code} at line {r.line}" for r in refusals) or "not a fixed point"
         raise NormalizerDefect(found)

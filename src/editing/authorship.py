@@ -25,7 +25,6 @@ import logging
 import os
 import re
 import subprocess
-import uuid
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, replace
@@ -35,7 +34,7 @@ from django.db import connection, transaction
 
 from documents import bundle
 from documents.housekeeping import GIT_ENV
-from documents.models import Document, Version
+from documents.models import Document, Version, VersionKind
 from editing.models import LineAuthorship
 from tenancy.schemas import current_tenant
 
@@ -62,6 +61,10 @@ def _environment() -> dict[str, str]:
 
 class AuthorshipError(RuntimeError):
     """git failed, or answered something the worker cannot read."""
+
+
+# The kinds of version whose text a reader reads: a passport commit changes no text.
+CONTENT_KINDS = (VersionKind.CREATED, VersionKind.EDIT, VersionKind.REVIEWER_EDIT)
 
 
 class VersionMissing(LookupError):
@@ -126,12 +129,12 @@ def compute(
     commit_sha: str,
     *,
     repository_path: Path,
-    keep: Iterable[uuid.UUID] = (),
 ) -> ComputeResult:
     """Write the rows of the version at `commit_sha` of `document`, whose bare repository is at
     `repository_path`, in the tenant's schema the connection is set to; then delete the rows of
-    every version of the document other than the repository's head and `keep` — versions the
-    caller keeps, such as the latest accepted; rows with an expiry are left to it.
+    every version of the document other than the repository's head and its latest accepted
+    version (DL-0266) — both found here, so no two callers can keep different sets; rows with an
+    expiry are left to it.
 
     Idempotent: computing again writes the same rows. Raises `VersionMissing` naming every commit
     the rows would point at that has no version row, and writes nothing.
@@ -202,7 +205,10 @@ def compute(
         for path, kept in attributed.items()
         for n, line in sorted(kept.items())
     ]
-    kept_versions = {version.pk, *keep}
+    kept_versions = {version.pk}
+    accepted = latest_accepted(document)
+    if accepted is not None:
+        kept_versions.add(accepted.pk)
     with transaction.atomic():
         # One writer per document, and the head read under it: a job for an older commit that
         # finishes after the head's never deletes the head's rows.
@@ -295,6 +301,25 @@ def _cached(base: str, document: Document) -> dict[str, dict[int, _Line | None]]
     ).values_list("file", "line", "introduced_by__commit_sha", "ambiguous_move"):
         cached[path][line] = _Line(introduced_by, ambiguous, fresh=False)
     return cached
+
+
+def latest_accepted(document: Document) -> Version | None:
+    """The content version the document's latest acceptance accepted: the newest version of a
+    content kind committed before it; `None` before any acceptance."""
+    acceptance = (
+        Version.objects.filter(document=document, kind=VersionKind.ACCEPTANCE)
+        .order_by("-committed_at")
+        .first()
+    )
+    if acceptance is None:
+        return None
+    return (
+        Version.objects.filter(
+            document=document, kind__in=CONTENT_KINDS, committed_at__lte=acceptance.committed_at
+        )
+        .order_by("-committed_at")
+        .first()
+    )
 
 
 def _head(repository: Path) -> str | None:

@@ -52,6 +52,12 @@ class Tenant(Mutable):
         super().save(*args, **kwargs)
 
 
+def visited_by_background_work() -> models.QuerySet[Tenant]:
+    """The tenants the worker's periodic tasks and the reconciler visit, in number order: every one
+    but a tenant still `migrating`, whose schema is not ready to be read."""
+    return Tenant.objects.exclude(state=TenantState.MIGRATING).order_by("number")
+
+
 class TenantDomain(Provenanced):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tenant = models.ForeignKey(Tenant, on_delete=models.PROTECT, related_name="domains")

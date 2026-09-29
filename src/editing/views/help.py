@@ -5,6 +5,7 @@ its conversion taken from the whitelist specification, so the page cannot fall b
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from django.contrib.auth.decorators import login_required
@@ -55,10 +56,31 @@ def accepted(spec: Spec) -> list[tuple[str, str]]:
         rows.append((str(LABELS.get(kind, kind)), f"> [!{kind}]"))
     tables = _("Tables, not inside another block") if spec.tables_top_level_only else _("Tables")
     rows.append((tables, "| … | … |"))
-    rows.append((_("Images of the document, on a line of their own"), "![…](images/…)"))
-    rows.append((_("Links: to the web, to a mailbox, or to a path in the document"),
-                 "[…](https://…), […](mailto:…), […](…)"))  # fmt: skip
+    folder = _literal_prefix(spec.image_src.pattern)
+    images = (
+        _("Images of the document, on a line of their own")
+        if spec.image_alone
+        else _("Images of the document")
+    )
+    rows.append((images, f"![…]({folder}…)"))
+    links = [f"[…]({shown})" for sample, shown in LINK_KINDS if spec.link_schemes.match(sample)]
+    rows.append((_("Links"), ", ".join(links)))
     return rows
+
+
+# One address of each kind a link may take, as it is tested and as the page shows it.
+LINK_KINDS = (
+    ("https://example.org", "https://…"),
+    ("http://example.org", "http://…"),
+    ("mailto:someone@example.org", "mailto:…"),
+    ("section/part", "…"),
+)
+
+
+def _literal_prefix(pattern: str) -> str:
+    """The fixed text a pattern's matches begin with — the image folder of `imageSrc`."""
+    match = re.match(r"\^((?:[\w./-]|\\.)*)", pattern)
+    return re.sub(r"\\(.)", r"\1", match.group(1)) if match else ""
 
 
 def refused(spec: Spec) -> list[tuple[str, str]]:

@@ -43,10 +43,8 @@ CONSTRUCTS = {
 
 LABELS = {
     "paragraph": _("Paragraph"),
-    "heading1": _("Heading 1"),
-    "heading2": _("Heading 2"),
-    "heading3": _("Heading 3"),
-    "heading4": _("Heading 4"),
+    # One label for every level the specification allows; the toolbar fills in the level.
+    "heading": _("Heading %(level)s"),
     "bullet_list": _("Bulleted list"),
     "ordered_list": _("Numbered list"),
     "strong": _("Bold"),

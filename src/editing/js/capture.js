@@ -72,9 +72,12 @@ export function capturing({ element, editor, words, disable }) {
     return true;
   }
 
+  // The editor can no longer capture: it is closed on the server first, so it keeps no other tab
+  // from finishing, then disabled here.
   function stop() {
     stopped = true;
     clearTimeout(timer);
+    post(urls.close, { editor: editor.draft.editor }).catch(() => null);
     show("stale");
     disable();
   }

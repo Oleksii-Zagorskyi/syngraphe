@@ -28,7 +28,7 @@ from editing import holds, numbering, summary, tasks
 from editing.diffview import render_changes
 from editing.markdown.validator import Refusal, validate
 from editing.models import Draft, Hold, OpenEditor, ReleaseKind
-from editing.normalizer import RULESET, Lists, normalize, trailer
+from editing.normalizer import RULESET, Lists, TooLarge, normalize, trailer
 from tenancy.models import Tenant
 
 if TYPE_CHECKING:
@@ -96,6 +96,15 @@ def _accepted(draft: Draft) -> str:
     return body
 
 
+def _normalised(head_body: str, body: str, lists: Lists) -> bytes:
+    """`body` normalised against the head; `DraftRefused` as too large when its stored form would
+    pass the size the platform accepts (DL-0329)."""
+    try:
+        return normalize(head_body.encode(), body, lists)
+    except TooLarge as error:
+        raise DraftRefused([Refusal(1, "too-large")]) from error
+
+
 def _stopped(repo: pygit2.Repository, head: str, draft: Draft, user: User) -> str | None:
     """The head's sha when it is the holder's own `edit` committed from this draft by a finish
     that stopped before it released the hold; else `None`."""
@@ -114,7 +123,7 @@ def my_edits(hold: Hold) -> tuple[str, str]:
     _, head_body = _head_body(holds.tenant_number(), document)
     draft = Draft.objects.get(hold=hold)
     _accepted(draft)
-    normalised = normalize(head_body.encode(), draft.content[holds.BODY], _lists(document))
+    normalised = _normalised(head_body, draft.content[holds.BODY], _lists(document))
     changes = render_changes(head_body.encode(), normalised)
     return head_body, changes
 
@@ -125,15 +134,32 @@ def finish(hold: Hold) -> Finishing:
     if OpenEditor.objects.filter(draft__hold=hold, closed_at__isnull=True).exists():
         raise EditorsOpen(hold.pk)
     document = Document.objects.select_related("language").get(pk=hold.document_id)
-    _, head_body = _head_body(holds.tenant_number(), document)
+    tenant_number = holds.tenant_number()
+    head, head_body = _head_body(tenant_number, document)
     draft = Draft.objects.get(hold=hold)
     _accepted(draft)
-    normalised = normalize(head_body.encode(), draft.content[holds.BODY], _lists(document))
+    normalised = _normalised(head_body, draft.content[holds.BODY], _lists(document))
     return Finishing(
         changes=render_changes(head_body.encode(), normalised),
         summary=summary.drafted(head_body, normalised.decode("utf-8")),
-        number=numbering.pending(document),
+        number=_number(
+            document, tenant_number, head, draft, normalised.decode("utf-8") == head_body
+        ),
     )
+
+
+def _number(document: Document, tenant_number: int, head: str, draft: Draft, same: bool) -> str:
+    """The number *send for review* will give: after a finish that stopped past its commit, the
+    stopped version's own when nothing was typed since, else the one after it — counted whether
+    or not its row has been derived yet."""
+    repo = gitstore.open_repository(tenant_number, document.number)
+    stopped = _stopped(repo, head, draft, draft.hold.user)
+    if stopped is None:
+        return numbering.pending(document)
+    derived = Version.objects.filter(document=document, commit_sha=stopped).exists()
+    if same:
+        return numbering.latest(document) if derived else numbering.pending(document)
+    return numbering.pending(document) if derived else numbering.pending(document, ahead=1)
 
 
 def _fault(step: int, fault_at: int | None) -> None:
@@ -183,7 +209,7 @@ def commit_draft(hold: Hold, user: User, message: str, *, fault_at: int | None =
             head, head_body = _head_body(tenant_number, document)
             stopped = _stopped(repo, head, draft, user)
             lists = _lists(document)
-            normalised = normalize(head_body.encode(), body, lists).decode("utf-8")
+            normalised = _normalised(head_body, body, lists).decode("utf-8")
             if normalised == head_body and stopped is None:
                 raise NothingChanged(document.number)
             text = (

@@ -3,7 +3,7 @@ chooses. Titles and people are synthetic examples."""
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any
 
@@ -19,12 +19,21 @@ def conformance_body() -> str:
     return CONFORMANCE.read_text(encoding="utf-8")
 
 
+# The editor captured and closed on every page, awaited, so that no request of a page's is still
+# in flight — a heartbeat, the close a closing page sends — while the test's rows are flushed.
+FINISH_EDITORS = """async () => {
+  const editor = document.getElementById('editor')?.editor;
+  if (editor && editor.capture) await editor.capture.finish().catch(() => null);
+}"""
+
+
 @pytest.fixture
 def editing(
     browser_server: str, page: Any, migrated_tenant: Any, member_of: Any, new_document: Any
-) -> Callable[[str | None], Any]:
+) -> Iterator[Callable[[str | None], Any]]:
     """Open the edit tab of a new document as its author, the draft's body set to `body` when
-    given; returns the document once the editor is mounted."""
+    given; returns the document once the editor is mounted. On teardown, before the page and
+    the server go, every page's editor is finished and the page closed."""
 
     def open_tab(body: str | None = None) -> Any:
         from editing.models import Draft
@@ -43,7 +52,15 @@ def editing(
         page.wait_for_function("() => document.getElementById('editor').editor !== undefined")
         return document
 
-    return open_tab
+    yield open_tab
+    for open_page in list(page.context.pages):
+        if open_page.is_closed():
+            continue
+        try:
+            open_page.unroute_all(behavior="ignoreErrors")
+            open_page.evaluate(FINISH_EDITORS)
+        finally:
+            open_page.close()
 
 
 @pytest.fixture

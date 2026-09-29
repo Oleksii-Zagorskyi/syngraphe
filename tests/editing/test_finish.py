@@ -316,3 +316,28 @@ def test_the_drafted_summary_fits_its_limit(
     drafted = summary.drafted(old, new)
     assert len(drafted) <= summary.SUMMARY_MAX
     assert summary.problem(drafted) is None and drafted.endswith("…")
+
+
+def test_a_draft_typography_carries_over_the_ceiling_is_refused_as_too_large(
+    migrated_tenant: Any, member_of: Any, new_document: Any, settings: Any
+) -> None:
+    """A draft just under the size ceiling whose straight quotes become «…» — two bytes each —
+    is refused as too large, never answered with an error (DL-0329)."""
+    from editing.markdown import load_spec
+
+    settings.LANGUAGE_CODE = "en"
+    ceiling = load_spec().max_bytes
+    client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
+    paragraph = 'Він сказав "так" і пішов далі.\n\n'
+    body = BODY + "\n"
+    while len((body + paragraph).encode("utf-8")) <= ceiling:
+        body += paragraph
+    assert len(body.encode("utf-8")) <= ceiling
+    set_draft(migrated_tenant, document, body)
+
+    for response in (
+        client.get(f"/document/{document.number}/edit/finish/"),
+        client.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"}),
+    ):
+        assert response.status_code == 409
+        assert "a text longer than the platform accepts" in response.content.decode()

@@ -143,6 +143,22 @@ def make_versions(document: Any, commits: list[dict[str, Any]], users: dict[int,
     )
 
 
+def accept(document: Any, version: Any, by: Any) -> Any:
+    """An acceptance of `version`: a passport commit's row, just after it."""
+    from documents.models import Version, VersionKind
+
+    return Version.objects.create(
+        document=document,
+        commit_sha="a" * 40,
+        author=by,
+        summary="Погоджено",
+        kind=VersionKind.ACCEPTANCE,
+        committed_at=version.committed_at + timedelta(minutes=1),
+        created_by=by,
+        actor_kind="user",
+    )
+
+
 def expected_introductions(corpus: dict[str, Any]) -> dict[int, str]:
     """Every non-blank body line at the last commit and the commit that introduced it, from the
     record: a sentence by the commit that created it, a heading by the base commit of its
@@ -318,8 +334,9 @@ def test_rows_kept_for_head_and_accepted_only(
     with schema_context(migrated_tenant.number):
         versions = make_versions(document, corpus["commits"], users)
         older, accepted, head = versions[49], versions[99], versions[100]
+        accept(document, accepted, users[1])
+        authorship.compute(document, accepted.commit_sha, repository_path=repo)
         authorship.compute(document, older.commit_sha, repository_path=repo)
-        authorship.compute(document, accepted.commit_sha, repository_path=repo, keep=[older.pk])
         older_rows = LineAuthorship.objects.filter(version=older).count()
         assert older_rows and LineAuthorship.objects.filter(version=accepted).exists()
         # A row computed on demand for a historical page, kept until it expires (DL-0266): not
@@ -332,9 +349,7 @@ def test_rows_kept_for_head_and_accepted_only(
             expires_at=datetime.now(UTC) + timedelta(hours=1),
         )
 
-        result = authorship.compute(
-            document, head.commit_sha, repository_path=repo, keep=[accepted.pk]
-        )
+        result = authorship.compute(document, head.commit_sha, repository_path=repo)
 
         kept = LineAuthorship.objects.filter(expires_at__isnull=True)
         assert set(kept.values_list("version", flat=True)) == {head.pk, accepted.pk}
@@ -446,7 +461,7 @@ def test_an_incomplete_cache_is_computed_cold(
         for version in versions:
             authorship.compute(document, version.commit_sha, repository_path=repo)
         expected = rows_of(versions[2])
-        authorship.compute(document, shas[1], repository_path=repo, keep=[versions[2].pk])
+        authorship.compute(document, shas[1], repository_path=repo)
         LineAuthorship.objects.filter(version=versions[1], line=min(rows_of(versions[1]))).delete()
         LineAuthorship.objects.filter(version=versions[2]).delete()
 
