@@ -16,6 +16,7 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import pygit2
 from django.db import transaction
 
 from access.rights import Right, rights_on
@@ -32,8 +33,6 @@ from editing.normalizer import RULESET, Lists, TooLarge, normalize, trailer
 from tenancy.models import Tenant
 
 if TYPE_CHECKING:
-    import pygit2
-
     from identity.models import User
 
 logger = logging.getLogger(__name__)
@@ -105,15 +104,31 @@ def _normalised(head_body: str, body: str, lists: Lists) -> bytes:
         raise DraftRefused([Refusal(1, "too-large")]) from error
 
 
+CONTENT_KINDS = (gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT)
+
+
 def _stopped(repo: pygit2.Repository, head: str, draft: Draft, user: User) -> str | None:
-    """The head's sha when it is the holder's own `edit` committed from this draft by a finish
-    that stopped before it released the hold; else `None`."""
+    """The sha of the holder's own content version — either kind (DL-0335) — committed from this
+    draft by a finish that stopped before it released the hold, with nothing but acceptances
+    after it; else `None`. A head that does not descend from the draft's base — moved by a
+    restore — never has one, as the reconciler reads it."""
     if head == draft.base_commit:
         return None
-    commit = gitstore.commit_at(repo, head)
-    if gitstore.kind_of(commit.message) is not gitstore.Kind.EDIT:
+    try:
+        if not repo.descendant_of(head, draft.base_commit):
+            return None
+    except (KeyError, ValueError, pygit2.GitError):
         return None
-    return head if commit.author.name == str(user.pk) else None
+    walker = repo.walk(head, pygit2.enums.SortMode.TOPOLOGICAL)
+    walker.hide(draft.base_commit)
+    for commit in walker:
+        kind = gitstore.kind_of(commit.message)
+        if kind is gitstore.Kind.ACCEPTANCE:
+            continue
+        if kind in CONTENT_KINDS and commit.author.name == str(user.pk):
+            return str(commit.id)
+        return None
+    return None
 
 
 def my_edits(hold: Hold) -> tuple[str, str]:
@@ -182,7 +197,8 @@ def _derive(document: Document, repo: pygit2.Repository, sha: str, user: User) -
 
 
 def commit_draft(hold: Hold, user: User, message: str, *, fault_at: int | None = None) -> Version:
-    """Commit the draft of `hold` as one version of kind `edit`, under the document's lock. A
+    """Commit the draft of `hold` as one version, under the document's lock: of kind
+    `reviewer_edit` when the holder holds *accept* at that moment, `edit` otherwise (ADR-0014). A
     finish that stopped after its commit is resumed first: its row derived, then whatever the
     holder typed since committed as the next version, or nothing when they typed nothing."""
     problem = summary.problem(message)
@@ -191,65 +207,91 @@ def commit_draft(hold: Hold, user: User, message: str, *, fault_at: int | None =
     tenant_number = holds.tenant_number()
     document = Document.objects.select_related("language").get(pk=hold.document_id)
     with document_lock(tenant_number, document.number, timeout=holds.LOCK_WAIT_SECONDS):
-        repo = gitstore.open_repository(tenant_number, document.number)
-        with transaction.atomic():
-            locked_document = Document.objects.select_for_update().get(pk=document.pk)
-            # The right and the state are decided here, under the locks, as taking the hold does.
-            if locked_document.state != DocumentState.ACTIVE or Right.EDIT not in rights_on(
-                user, locked_document
-            ):
-                raise holds.NotEditable(document.number)
-            locked = Hold.objects.select_for_update().get(pk=hold.pk)
-            if locked.released_at is not None or locked.user_id != user.pk:
-                raise holds.NotEditable(document.number)
-            if OpenEditor.objects.filter(draft__hold=locked, closed_at__isnull=True).exists():
-                raise EditorsOpen(locked.pk)
-            draft = Draft.objects.get(hold=locked)
-            body = _accepted(draft)
-            head, head_body = _head_body(tenant_number, document)
-            stopped = _stopped(repo, head, draft, user)
-            lists = _lists(document)
-            normalised = _normalised(head_body, body, lists).decode("utf-8")
-            if normalised == head_body and stopped is None:
-                raise NothingChanged(document.number)
-            text = (
-                None
-                if normalised == head_body
-                else holds.join(draft.content[holds.FRONTMATTER], normalised)
-            )
-        if (
-            stopped is not None
-            and not Version.objects.filter(document=document, commit_sha=stopped).exists()
-        ):
-            _derive(document, repo, stopped, user)
-        if text is None:
-            sha = head
-        else:
-            # (1) The commit point.
-            sha = gitstore.commit(
-                repo,
-                {holds.BODY: text.encode("utf-8")},
-                identity_for(user),
-                message.strip(),
-                gitstore.Kind.EDIT,
-                trailers={"Normalizer": trailer(RULESET, lists).removeprefix("Normalizer: ")},
-            )
-            _fault(1, fault_at)
-            # (2) The version row and its caches, audited.
-            _derive(document, repo, sha, user)
-        _fault(2, fault_at)
-        # (3) The hold released as finished.
-        with transaction.atomic():
-            Document.objects.select_for_update().get(pk=document.pk)
-            holds.release(hold, ReleaseKind.FINISHED, actor=user)
-        _fault(3, fault_at)
-        # (4) The draft consumed.
-        Draft.objects.filter(hold=hold).delete()
-        _fault(4, fault_at)
-    # (5) The authorship, asked of the worker once the rows are committed. The version stands
-    # whatever the broker says: the reconciler asks again for a head without its rows.
+        version = commit_draft_locked(hold, user, message, fault_at=fault_at)
+    ask_authorship(tenant_number, document, version.commit_sha)
+    return version
+
+
+def ask_authorship(tenant_number: int, document: Document, sha: str) -> None:
+    """The authorship asked of the worker once the rows are committed. The version stands
+    whatever the broker says: the reconciler asks again for a head without its rows."""
     try:
         tasks.queue_authorship(tenant_number, document.number, sha)
     except Exception:  # noqa: BLE001 — any failure to publish is the reconciler's to repair
         logger.warning("authorship not queued", extra={"document": document.number})
+
+
+def commit_draft_locked(
+    hold: Hold, user: User, message: str, *, fault_at: int | None = None
+) -> Version:
+    """`commit_draft`'s body, for a caller that holds the document's writer lock; the caller asks
+    for the authorship afterwards (`ask_authorship`)."""
+    problem = summary.problem(message)
+    if problem is not None:
+        raise InvalidSummary(problem)
+    from review.services import settle_head
+
+    tenant_number = holds.tenant_number()
+    document = Document.objects.select_related("language").get(pk=hold.document_id)
+    # An acceptance a stop left at the head is settled before anything is written on it.
+    settle_head(document)
+    repo = gitstore.open_repository(tenant_number, document.number)
+    with transaction.atomic():
+        locked_document = Document.objects.select_for_update().get(pk=document.pk)
+        # The right and the state are decided here, under the locks, as taking the hold does.
+        rights = rights_on(user, locked_document)
+        if locked_document.state != DocumentState.ACTIVE or Right.EDIT not in rights:
+            raise holds.NotEditable(document.number)
+        kind = gitstore.Kind.REVIEWER_EDIT if Right.ACCEPT in rights else gitstore.Kind.EDIT
+        locked = Hold.objects.select_for_update().get(pk=hold.pk)
+        if locked.released_at is not None or locked.user_id != user.pk:
+            raise holds.NotEditable(document.number)
+        if OpenEditor.objects.filter(draft__hold=locked, closed_at__isnull=True).exists():
+            raise EditorsOpen(locked.pk)
+        draft = Draft.objects.get(hold=locked)
+        body = _accepted(draft)
+        head, head_body = _head_body(tenant_number, document)
+        stopped = _stopped(repo, head, draft, user)
+        lists = _lists(document)
+        normalised = _normalised(head_body, body, lists).decode("utf-8")
+        if normalised == head_body and stopped is None:
+            raise NothingChanged(document.number)
+        text = (
+            None
+            if normalised == head_body
+            else holds.join(draft.content[holds.FRONTMATTER], normalised)
+        )
+    if (
+        stopped is not None
+        and not Version.objects.filter(document=document, commit_sha=stopped).exists()
+    ):
+        _derive(document, repo, stopped, user)
+    if text is None:
+        # Nothing typed since the stop: the version is the stopped commit, whatever an acceptance
+        # has written above it since.
+        assert stopped is not None
+        sha = stopped
+    else:
+        # (1) The commit point.
+        sha = gitstore.commit(
+            repo,
+            {holds.BODY: text.encode("utf-8")},
+            identity_for(user),
+            message.strip(),
+            kind,
+            trailers={"Normalizer": trailer(RULESET, lists).removeprefix("Normalizer: ")},
+        )
+        _fault(1, fault_at)
+        # (2) The version row and its caches, audited.
+        _derive(document, repo, sha, user)
+    _fault(2, fault_at)
+    # (3) The hold released as finished.
+    with transaction.atomic():
+        Document.objects.select_for_update().get(pk=document.pk)
+        holds.release(hold, ReleaseKind.FINISHED, actor=user)
+    _fault(3, fault_at)
+    # (4) The draft consumed.
+    Draft.objects.filter(hold=hold).delete()
+    _fault(4, fault_at)
+    # (5), by the caller once the lock is released: the authorship asked of the worker.
     return Version.objects.get(document=document, commit_sha=sha)

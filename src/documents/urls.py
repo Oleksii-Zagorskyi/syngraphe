@@ -8,4 +8,5 @@ urlpatterns = [
     path("document/<int:number>/", views.page, name="document"),
     path("document/<int:number>/info/", views.page, name="document_info"),
     path("", include("editing.urls")),
+    path("", include("review.urls")),
 ]

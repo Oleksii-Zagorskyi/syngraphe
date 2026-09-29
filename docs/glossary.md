@@ -92,7 +92,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **edition** · редакція · *proposed* — a canonical version, numbered `N.0` from `1.0`. Never changes once made. *Редакція документа is the standard Ukrainian for a version of a normative document, which is exactly what this is.*
 
-**version** · правка · *proposed* — one committed change-set, the thing that appears in *мої правки*. Deliberately the same word as the stance names, because it is the same object seen from a different angle.
+**version** · правка · *proposed* — one committed change-set, the thing that appears in *мої правки*. Deliberately the same word as the stance names, because it is the same object seen from a different angle. Where a screen names one version by its number, as the send-for-review screen does beside *create version N.M-X*, it reads *версія* (DL-0336).
 
 **draft** · чернетка · *proposed* — typed but not yet committed. Held by the platform, visible to nobody else.
 
@@ -134,11 +134,23 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **cancel the reservation** · скасувати резервування · *proposed* — return a reserved hold to an ordinary one, released again after inactivity.
 
-**accept edits** · погодити правки · *fixed* — make the current text the accepted baseline.
+**accept the run** · погодити правки · *fixed* — make the current text the accepted baseline: every version of the run accepted in one act; the control's name (DL-0338).
+
+**run** · правки після останнього погодження · *proposed* — every version committed since the last acceptance, which one acceptance decides on (DL-0090, DL-0338).
+
+**anonymous editor** · анонімний редактор · *fixed* — how a page names a person who has no display name (DL-0339).
+
+**show author** · показувати авторів · *proposed* — the toggle that names beside each line who wrote it (DL-0040).
+
+**formatting only** · лише форматування · *proposed* — the mark of a change that altered a sentence's look, not its words or what it points at (DL-0331).
+
+**former user** · колишній користувач · *proposed* — how a page names an erased person (DL-0108).
+
+**correct** · виправити · *proposed* — a reviewer's act on pending edits: take the document and change what they will not accept as it stands; the changes become the reviewer's own version (ADR-0014).
 
 **return without accepting** · повернути без погодження · *proposed* — a reviewer's act: the run stays pending and its authors are notified with the reviewer's reason; recorded in the passport like an acceptance (DL-0114).
 
-**correction notice** · сповіщення про виправлення · *proposed* — generated at acceptance for each author whose lines of the run a reviewer's version replaced or removed; one per author, listing every such line (ADR-0014). Never authored, never optional.
+**correction notice** · сповіщення про виправлення · *proposed* — generated at acceptance for each author whose lines of the run a reviewer's version — or the acceptor's own — replaced or removed, or whose removal it undid; one per author, listing every such line (ADR-0014). Never authored, never optional.
 
 **freeze** · заморозити · *proposed* — lock a document nobody is editing against editors while something outside it is resolved; holders of *accept* may still edit (ADR-0016). Ends by *make canonical* or *unfreeze*.
 

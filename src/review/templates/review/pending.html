@@ -1,0 +1,25 @@
+{% extends "documents/page.html" %}
+{% load i18n %}
+{% block tab %}
+<div class="pending">
+  {% if acts %}
+  <p class="acts">{% if acts.correct %}<button class="btn" type="button" disabled data-command="correct">{% translate "Correct" %}</button> <span class="muted">{{ acts.correct }}</span>{% else %}<a class="btn" href="/document/{{ document.number }}/edit/" data-command="correct">{% translate "Correct" %}</a>{% endif %}
+  {% if acts.accept %}<button class="btn primary" type="button" disabled>{% translate "Accept the run" %}</button> <span class="muted">{{ acts.accept }}</span>{% else %}<a class="btn primary" href="/document/{{ document.number }}/pending/accept/" data-command="accept">{% translate "Accept the run" %}</a>{% endif %}</p>
+  {% endif %}
+  <form method="post" action="/preferences/show-author/" class="show-author">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <input type="hidden" name="show_author" value="{% if show_author %}off{% else %}on{% endif %}">
+    <a class="help" href="/help/review/">?</a>
+    <button class="btn" type="submit" aria-pressed="{% if show_author %}true{% else %}false{% endif %}">{% translate "Show author" %}</button>
+  </form>
+  {% if run %}
+  <ol class="run">
+    {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}, {{ version.at|date:"j M Y, H:i" }}</span></li>{% endfor %}
+  </ol>
+  {% else %}
+  <p class="nothing-pending">{% translate "Nothing awaits review." %}</p>
+  {% endif %}
+  <div class="changes">{{ changes }}</div>
+</div>
+{% endblock %}

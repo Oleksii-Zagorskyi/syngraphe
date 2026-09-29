@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syngraphē\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 12:46+0000\n"
+"POT-Creation-Date: 2026-09-29 16:15+0000\n"
 "PO-Revision-Date: 2026-09-28 17:08+0000\n"
 "Last-Translator: Oleksii Zagorskyi\n"
 "Language-Team: uk\n"
@@ -237,6 +237,7 @@ msgstr ""
 "доступ, доки адміністратор не пов’яже з ним групи."
 
 #: documents/templates/documents/create.html:18
+#: review/templates/review/accept_confirm.html:15
 #: tenancy/templates/tenancy/tenant_form.html:17
 msgid "Cancel"
 msgstr "Скасувати"
@@ -279,8 +280,16 @@ msgid "My edits"
 msgstr "Мої правки"
 
 #: documents/templates/documents/page.html:9
+msgid "Pending edits"
+msgstr "Всі неприйняті правки"
+
+#: documents/templates/documents/page.html:9
 msgid "Info"
 msgstr "Відомості"
+
+#: editing/diffview.py:331
+msgid "formatting only"
+msgstr "лише форматування"
 
 #: editing/messages.py:12
 msgid "a heading below depth four"
@@ -492,7 +501,7 @@ msgstr "Почати редагування"
 msgid "Not pasted: it holds %(constructs)s."
 msgstr "Не вставлено — у тексті є: %(constructs)s."
 
-#: editing/messages.py:72 editing/messages.py:124
+#: editing/messages.py:72 editing/messages.py:125
 #: editing/templates/editing/finish_waits.html:6
 msgid "What the editor accepts"
 msgstr "Що приймає редактор"
@@ -505,7 +514,7 @@ msgstr "Зображення до вставки не ввійшли."
 msgid "A link of this kind is not allowed."
 msgstr "Посилання такого виду не дозволені."
 
-#: editing/messages.py:75 editing/views/finish.py:155
+#: editing/messages.py:75 editing/views/finish.py:231 review/views/accept.py:97
 msgid "The document is busy. Try again in a moment."
 msgstr "Документ зараз обробляється. Спробуйте ще раз за мить."
 
@@ -544,7 +553,7 @@ msgstr ""
 "Не записано — текст більший за дозволений розмір; скоротіть його, щоб "
 "продовжити."
 
-#: editing/messages.py:85 editing/views/finish.py:61
+#: editing/messages.py:85 editing/views/finish.py:94
 msgid "Finishing waits until the other tabs editing this document are closed."
 msgstr ""
 "Завершити можна, коли закриються інші вкладки, де редагується цей документ."
@@ -647,10 +656,14 @@ msgid "Versions and their numbers"
 msgstr "Версії та їхні номери"
 
 #: editing/messages.py:123
+msgid "Reviewing and accepting"
+msgstr "Розгляд і погодження"
+
+#: editing/messages.py:124
 msgid "Editing"
 msgstr "Редагування"
 
-#: editing/messages.py:125
+#: editing/messages.py:126
 msgid "Exporting"
 msgstr "Експорт"
 
@@ -680,6 +693,13 @@ msgstr "Підсумок — не більше %(count)s символів."
 msgid "Begin the summary with something other than a word and a colon."
 msgstr "Підсумок не може починатися зі слова з двокрапкою."
 
+#: editing/templates/editing/edit_tab.html:4
+msgid ""
+"You are correcting pending edits: your changes become a version of your own."
+msgstr ""
+"Ви виправляєте неприйняті правки: ваші зміни стануть окремою правкою від "
+"вашого імені."
+
 #: editing/templates/editing/finish.html:6
 msgid ""
 "Your changes, marked in the text. The summary is for the reviewer and is "
@@ -692,21 +712,46 @@ msgstr ""
 msgid "Change summary"
 msgstr "Підсумок змін"
 
-#: editing/templates/editing/finish.html:13
+#: editing/templates/editing/finish.html:15
+msgid "Accepting also accepts the versions waiting before yours:"
+msgstr "Погодження охопить і версії, що чекають перед вашою:"
+
+#: editing/templates/editing/finish.html:23
+#: review/templates/review/accept_confirm.html:14
+#, python-format
+msgid "Accept as %(number)s"
+msgstr "Погодити як %(number)s"
+
+#: editing/templates/editing/finish.html:24
+msgid ""
+"the version is made and the whole run since the last acceptance is accepted"
+msgstr ""
+"версію буде створено, а всі правки від останнього погодження — погоджено"
+
+#: editing/templates/editing/finish.html:25
+#, python-format
+msgid "Create version %(number)s"
+msgstr "Створити версію %(number)s"
+
+#: editing/templates/editing/finish.html:26
+msgid "the version waits in pending edits"
+msgstr "версія очікуватиме серед неприйнятих правок"
+
+#: editing/templates/editing/finish.html:28
 msgid "Send for review"
 msgstr "Відправити на розгляд"
 
-#: editing/templates/editing/finish.html:14
+#: editing/templates/editing/finish.html:29
 #, python-format
 msgid "the version waits as %(number)s"
 msgstr "версія отримає номер %(number)s"
 
-#: editing/templates/editing/finish.html:16
+#: editing/templates/editing/finish.html:32
 #: editing/templates/editing/finish_waits.html:7
 msgid "Continue editing"
 msgstr "Продовжити редагування"
 
-#: editing/templates/editing/held_by_other.html:4
+#: editing/templates/editing/held_by_other.html:4 review/views/pending.py:109
 msgid "This document is held: someone is editing it."
 msgstr "Документ зайнятий: його редагують."
 
@@ -742,17 +787,35 @@ msgstr "Що не приймається і на що перетворюєтьс
 msgid "Converted to"
 msgstr "Перетворюється на"
 
-#: editing/views/finish.py:79
+#: editing/views/finish.py:112
 msgid ""
 "The draft holds text the editor does not accept; correct it in the editor."
 msgstr ""
 "Чернетка містить текст, якого редактор не приймає; виправте його в редакторі."
 
-#: editing/views/finish.py:146
+#: editing/views/finish.py:188 editing/views/finish.py:207
+#: editing/views/finish.py:243 review/views/accept.py:105
+#, python-format
+msgid "Accepted as %(number)s."
+msgstr "Погоджено як %(number)s."
+
+#: editing/views/finish.py:194 editing/views/finish.py:246
+#, python-format
+msgid "Version created — it waits as %(number)s."
+msgstr "Версію %(number)s створено — вона очікує на розгляд."
+
+#: editing/views/finish.py:220
 msgid "Nothing changed: there is no version to send."
 msgstr "Нічого не змінено: немає версії, яку можна відправити."
 
-#: editing/views/finish.py:162
+#: editing/views/finish.py:234 review/views/accept.py:102
+msgid ""
+"The document's record is incomplete; it cannot be changed until it is "
+"repaired."
+msgstr ""
+"Запис документа неповний: змінити документ можна буде, коли його відновлять."
+
+#: editing/views/finish.py:248
 #, python-format
 msgid "Sent for review — the version waits as %(number)s."
 msgstr "Відправлено на розгляд — версія %(number)s очікує на розгляд."
@@ -915,6 +978,98 @@ msgstr "Адреса електронної пошти або пароль не�
 #: identity/templates/identity/signin.html:15
 msgid "Sign in"
 msgstr "Увійти"
+
+#: review/state.py:36
+msgid "awaiting review"
+msgstr "очікує на розгляд"
+
+#: review/state.py:37
+msgid "no reviewer assigned"
+msgstr "погоджувача не призначено"
+
+#: review/templates/review/accept_confirm.html:5
+#: review/templates/review/pending.html:7
+msgid "Accept the run"
+msgstr "Погодити правки"
+
+#: review/templates/review/accept_confirm.html:7
+#, python-format
+msgid "The versions below will be accepted as %(number)s."
+msgstr "Наведені нижче правки буде погоджено як %(number)s."
+
+#: review/templates/review/notice.html:3 review/templates/review/notice.html:6
+msgid "Correction notice"
+msgstr "Сповіщення про виправлення"
+
+#: review/templates/review/notice.html:7
+#, python-format
+msgid ""
+"In #%(number)s, accepted as %(accepted)s, a reviewer changed lines you wrote "
+"or removed: %(count)s."
+msgstr ""
+"У документі #%(number)s, погодженому як %(accepted)s, змінено рядки, які ви "
+"написали або видалили: %(count)s."
+
+#: review/templates/review/notice.html:8
+msgid "Changed by:"
+msgstr "Автори змін:"
+
+#: review/templates/review/notice.html:12
+#, python-format
+msgid ""
+"You removed this in %(version)s; %(changer)s restored it in %(changing)s."
+msgstr "Ви видалили це у версії %(version)s; відновлено у версії %(changing)s, автор зміни — %(changer)s."
+
+#: review/templates/review/notice.html:12
+#, python-format
+msgid "You wrote this in %(version)s; %(changer)s changed it in %(changing)s."
+msgstr "Ви написали це у версії %(version)s; змінено у версії %(changing)s, автор зміни — %(changer)s."
+
+#: review/templates/review/notice.html:16
+msgid "Open the document"
+msgstr "Відкрити документ"
+
+#: review/templates/review/notice.html:18
+msgid ""
+"The text is not shown: you may no longer read this document's accepted text."
+msgstr "Текст не показано: ви більше не маєте права читати погоджений текст цього документа."
+
+#: review/templates/review/pending.html:6
+msgid "Correct"
+msgstr "Виправити"
+
+#: review/templates/review/pending.html:14
+msgid "Show author"
+msgstr "Показувати авторів"
+
+#: review/templates/review/pending.html:21 review/views/accept.py:45
+msgid "Nothing awaits review."
+msgstr "Неприйнятих правок немає."
+
+#: review/views/accept.py:39
+#, python-format
+msgid "Reserved for editing by %(name)s since %(date)s."
+msgstr "Зарезервовано для редагування з %(date)s: %(name)s."
+
+#: review/views/accept.py:44
+msgid "No reviewer is assigned to this document."
+msgstr "Погоджувача для цього документа не призначено."
+
+#: review/views/accept.py:46
+msgid "You may not accept this document."
+msgstr "Ви не маєте права погоджувати цей документ."
+
+#: review/views/accept.py:47
+msgid "The run changed while you were confirming — check it again."
+msgstr "Поки ви підтверджували, з'явилися нові правки — перегляньте їх ще раз."
+
+#: review/views/pending.py:48
+msgid "former user"
+msgstr "колишній користувач"
+
+#: review/views/pending.py:51
+msgid "anonymous editor"
+msgstr "анонімний редактор"
 
 #: tenancy/forms.py:16
 msgid "First administrator — email address"

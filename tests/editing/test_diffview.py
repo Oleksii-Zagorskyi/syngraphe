@@ -1,11 +1,12 @@
 """Changes shown word by word inside the rendered text (DL-0170): only the changed sentences are
-compared word by word, a change of formatting alone has its own marker. Invented text."""
+compared word by word, a change of formatting alone has its own marker. People are synthetic
+examples; the texts are invented."""
 
 from __future__ import annotations
 
 import pytest
 
-from editing.diffview import render_changes
+from editing.diffview import Change, classify, render_changes
 
 pytestmark = pytest.mark.fast
 
@@ -25,7 +26,8 @@ def test_word_level_marks_inside_rendered_text() -> None:
     assert "<del>десять</del>" in html
     assert "<ins>не пізніше ніж </ins>за" in html
     assert "<ins>п&#x27;ять</ins>" in html
-    assert '<span class="format-changed">Відповідь надсилають <em>поштою</em>.</span>' in html
+    assert '<span class="format-changed" tabindex="0"' in html
+    assert 'Відповідь надсилають <em>поштою</em>.<span class="format-old">' in html
     assert "Копію зберігають у справі." in html and "<h1>Строки</h1>" in html
 
 
@@ -98,3 +100,87 @@ def test_edits_far_apart_in_a_long_text_are_shown_word_by_word() -> None:
     assert "<del>0</del><ins>нуль</ins>" in html
     assert "<del>2999</del><ins>останнє</ins>" in html
     assert html.count("<del>") == 2
+
+
+def test_sense_and_style() -> None:
+    """A change of formatting marks or typography alone is style; a changed word is sense."""
+    assert classify("Строк — **десять** днів.", "Строк — десять днів.") is Change.STYLE
+    assert classify('Він сказав "так".', "Він сказав «так».") is Change.STYLE
+    assert classify("- Строк - десять днів.", "- Строк — десять днів.") is Change.STYLE
+    assert classify("Строк — десять днів.", "Строк — п'ять днів.") is Change.SENSE
+    assert classify("Строк — десять днів.", "Строк — десять робочих днів.") is Change.SENSE
+    # What a sentence points at is its sense too.
+    assert classify("[Договір](https://a.test/1).", "[Договір](https://a.test/2).") is Change.SENSE
+    assert classify("![Схема](images/a.png)", "![Схема](images/b.png)") is Change.SENSE
+    assert classify("![Схема](images/a.png)", "![План](images/a.png)") is Change.SENSE
+    assert classify("[Особа]{.role #r1} звітує.", "[Особа]{.role #r2} звітує.") is Change.SENSE
+    assert classify("[Особа]{.role} звітує.", "[Особа]{.term} звітує.") is Change.SENSE
+    assert classify("[Особа]{.underline} звітує.", "Особа звітує.") is Change.STYLE
+
+
+def test_a_sense_change_keeps_its_formatting() -> None:
+    """The new wording as it reads, the inserted words marked inside their formatting, the removed
+    ones struck in plain text (DL-0331)."""
+    old = "Заяву подають **керівнику** за десять днів.\n"
+    new = "Заяву подають **керівнику відділу** за [п'ять](https://example.test/) днів.\n"
+    html = render_changes(old.encode(), new.encode())
+    assert "<strong>керівнику <ins>відділу</ins></strong>" in html
+    assert '<del>десять</del><a href="https://example.test/"><ins>п&#x27;ять</ins></a>' in html
+
+
+def test_each_line_carries_its_author() -> None:
+    old = "Перше речення.\nДруге речення.\n"
+    new = "Перше речення.\nДруге змінене речення.\nТретє речення.\n"
+    html = render_changes(old.encode(), new.encode(), authors={0: "Автор А", 2: "Автор Б"})
+    assert '<span class="by" data-author="Автор А" title="Автор А">Перше речення.</span>' in html
+    assert (
+        '<span class="by" data-author="Автор Б" title="Автор Б"><ins>Третє речення.</ins>' in html
+    )
+    # A line the mapping does not name carries no author.
+    assert html.count('class="by"') == 2
+
+
+def test_an_image_inserted_or_removed_shows() -> None:
+    html = render_changes("Текст.\n".encode(), "Текст.\n\n![Схема](images/a.png)\n".encode())
+    assert '<ins><img src="images/a.png" alt="Схема"' in html
+    html = render_changes("Текст.\n\n![Схема](images/a.png)\n".encode(), "Текст.\n".encode())
+    assert '<del><img src="images/a.png" alt="Схема"' in html
+    html = render_changes(
+        "Див. ![схему](images/a.png) нижче.\n".encode(),
+        "Див. ![схему](images/b.png) нижче.\n".encode(),
+    )
+    assert '<ins><img src="images/b.png"' in html and '<del><img src="images/a.png"' in html
+
+
+def test_unrelated_sentences_are_not_diffed_word_by_word() -> None:
+    old = "Заяву подають письмово.\n"
+    new = "Строк розгляду становить п'ять днів.\n"
+    html = render_changes(old.encode(), new.encode())
+    assert "<del>Заяву подають письмово.</del>" in html
+    assert "<ins>Строк розгляду становить п'ять днів.</ins>" in html
+
+
+@pytest.mark.parametrize(
+    "line",
+    [":-" + " " * 399_990 + "x", "|" + " " * 399_990 + "x", "> " + " " * 399_990 + "[!x"],
+)
+def test_a_line_that_fails_a_pattern_costs_its_length(line: str) -> None:
+    """The line patterns never backtrack over a long run of spaces (a line at the size ceiling)."""
+    import time
+
+    started = time.monotonic()
+    render_changes(b"a\n", (line + "\n").encode())
+    assert time.monotonic() - started < 2.0
+
+
+def test_sentences_alike_by_their_words() -> None:
+    """Half their words in common or more: one sentence rewritten; less: one removed, one
+    inserted. Spaces are not words."""
+    one_word = render_changes("Заяву подають письмово до п'ятниці.\n".encode(),
+                              "Строк розгляду становить десять днів.\n".encode())  # fmt: skip
+    assert "<del>" in one_word and "<ins>Строк розгляду становить десять днів.</ins>" in one_word
+    most = render_changes(
+        "Заяву подають письмово до п'ятниці.\n".encode(),
+        "Заяву подають письмово до четверга.\n".encode(),
+    )
+    assert "<del>п&#x27;ятниці.</del><ins>четверга.</ins>" in most

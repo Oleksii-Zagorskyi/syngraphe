@@ -120,6 +120,7 @@ SPAN_NAMES = {
 HELP_PAGES = {
     "moves": _("How a document moves"),
     "versions": _("Versions and their numbers"),
+    "review": _("Reviewing and accepting"),
     "editing": _("Editing"),
     "markdown": _("What the editor accepts"),
     "exporting": _("Exporting"),

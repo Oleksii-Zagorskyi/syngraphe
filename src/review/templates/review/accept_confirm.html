@@ -1,0 +1,18 @@
+{% extends "documents/page.html" %}
+{% load i18n %}
+{% block tab %}
+<div class="accept-confirm">
+  <h2>{% translate "Accept the run" %}</h2>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <p>{% blocktranslate with number=number %}The versions below will be accepted as {{ number }}.{% endblocktranslate %}</p>
+  <ol class="run">
+    {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}</span></li>{% endfor %}
+  </ol>
+  <form method="post" action="/document/{{ document.number }}/pending/accept/">
+    {% csrf_token %}
+    <input type="hidden" name="confirmed" value="{{ confirmed }}">
+    <p class="choice"><button class="btn primary" type="submit" data-command="accept">{% blocktranslate with number=number %}Accept as {{ number }}{% endblocktranslate %}</button>
+    <a class="btn" href="/document/{{ document.number }}/pending/">{% translate "Cancel" %}</a></p>
+  </form>
+</div>
+{% endblock %}

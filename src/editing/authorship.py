@@ -26,7 +26,7 @@ import os
 import re
 import subprocess
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -97,6 +97,36 @@ class _Line:
     ambiguous: bool = False
     # Attributed inside the range blamed, rather than carried over from the cached rows.
     fresh: bool = True
+    # The line's number in `commit`, where blame gave it.
+    orig: int | None = None
+
+
+@dataclass(frozen=True)
+class BlamedLine:
+    """One line of a file at a commit: its text, the commit that wrote it — the base itself for a
+    line the base already held — its number in that commit, and whether the move rule found the
+    text more than once."""
+
+    text: bytes
+    commit: str
+    orig_line: int | None
+    ambiguous: bool
+
+
+class _Boundary(Mapping[int, "_Line | None"]):
+    """Every line the base held, attributed to the base: what a blame bounded by it reports."""
+
+    def __init__(self, base: str) -> None:
+        self.base = base
+
+    def __getitem__(self, orig: int) -> _Line:
+        return _Line(self.base, fresh=False, orig=orig)
+
+    def __iter__(self) -> Iterator[int]:
+        return iter(())
+
+    def __len__(self) -> int:
+        return 0
 
 
 # A file's lines at one commit, by line number; `None` where the cache holds no row for a line.
@@ -303,23 +333,41 @@ def _cached(base: str, document: Document) -> dict[str, dict[int, _Line | None]]
     return cached
 
 
+def blame_at(
+    repository_path: Path, commit: str, *, base: str | None, path: str = DOCUMENT_FILE
+) -> list[BlamedLine]:
+    """`path` at `commit`, every line with the commit that wrote it, blamed back to `base` with the
+    move rule applied: a line `base` already held carries `base`; with no base the blame is cold.
+    Frontmatter lines are included; the caller reads what it needs."""
+    for sha in (commit, base):
+        if sha is not None and not SHA.fullmatch(sha):
+            raise ValueError(f"not a commit id: {sha!r}")
+    before: _Lines = _Boundary(base) if base is not None else {}
+    texts, lines, _ = _file(repository_path, path, commit, base, before)
+    blamed = []
+    for n, text in enumerate(texts, 1):
+        line = lines[n]
+        if line is None:
+            raise AuthorshipError(f"{path} at {commit}: line {n} unattributed")
+        blamed.append(BlamedLine(text, line.commit, line.orig, line.ambiguous))
+    return blamed
+
+
 def latest_accepted(document: Document) -> Version | None:
-    """The content version the document's latest acceptance accepted: the newest version of a
-    content kind committed before it; `None` before any acceptance."""
-    acceptance = (
-        Version.objects.filter(document=document, kind=VersionKind.ACCEPTANCE)
-        .order_by("-committed_at")
-        .first()
-    )
+    """The content version the document's latest acceptance accepted, as its passport section
+    records it; `None` before any acceptance."""
+    from review.services import accepted_content_version, latest_acceptance
+
+    acceptance = latest_acceptance(document)
     if acceptance is None:
         return None
-    return (
-        Version.objects.filter(
-            document=document, kind__in=CONTENT_KINDS, committed_at__lte=acceptance.committed_at
-        )
-        .order_by("-committed_at")
-        .first()
-    )
+    try:
+        return accepted_content_version(acceptance)
+    except (LookupError, ValueError, Version.DoesNotExist):
+        # A row the passport does not bear out is the reconciler's to report; the rows of the
+        # head are computed all the same.
+        logger.warning("the latest acceptance does not read", extra={"document": document.number})
+        return None
 
 
 def _head(repository: Path) -> str | None:
@@ -391,7 +439,7 @@ def _blame(
     lines: dict[int, _Line | None] = {}
     for commit, orig, text in _porcelain(out):
         texts.append(text)
-        lines[len(texts)] = before.get(orig) if commit == base else _Line(commit)
+        lines[len(texts)] = before.get(orig) if commit == base else _Line(commit, orig=orig)
     return texts, lines
 
 
@@ -414,6 +462,27 @@ def _porcelain(out: bytes) -> list[tuple[str, int, bytes]]:
     if group is not None:
         raise AuthorshipError("blame: a header with no line")
     return result
+
+
+Change = _Change
+
+
+def changes(repository_path: Path, path: str, base: str | None, target: str) -> list[Change]:
+    """The `-U0` hunks of `path` in every commit after `base` up to `target` that changes it,
+    oldest first along the first parent; from the root when `base` is `None`."""
+    for sha in (target, base):
+        if sha is not None and not SHA.fullmatch(sha):
+            raise ValueError(f"not a commit id: {sha!r}")
+    return _changes(repository_path, path, base, target)
+
+
+def file_at(repository_path: Path, commit: str, path: str = DOCUMENT_FILE) -> list[bytes]:
+    """`path` at `commit` as its lines, without their line ends."""
+    if not SHA.fullmatch(commit):
+        raise ValueError(f"not a commit id: {commit!r}")
+    data = _git(repository_path, "show", f"{commit}:{path}")
+    lines = data.split(b"\n")
+    return lines[:-1] if data.endswith(b"\n") else lines
 
 
 def _changes(repository: Path, path: str, base: str | None, target: str) -> list[_Change]:

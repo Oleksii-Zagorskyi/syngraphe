@@ -1,13 +1,15 @@
 """The reconciler: the second path from git to the rows (DL-0111).
 
 Git is the commit point and the rows are its cache. Report mode lists what disagrees and writes
-nothing. Repair derives what git implies, finishes stopped creations, finishes a *send for review*
-that stopped after its commit (DL-0318), asks again for the head's missing authorship (DL-0266)
-and recreates a row for a repository without one, fail closed; a row is deleted only on
-`prune_rows`, and only a version row whose commit its existing repository no longer holds
-(ADR-0018, DL-0276). A repository is trusted only where its passport names the tenant and the
-number it sits at. Every repair runs under the document's lock and is audited with numbers, never
-a title. One document's fault is reported and the run goes on.
+nothing. Repair derives what git implies — an acceptance's rows from its passport section, never
+from a trailer alone — computes the correction notices of an acceptance that has none
+(ADR-0014), finishes stopped creations, finishes a *send for review* that stopped after its
+commit (DL-0318, DL-0335), asks again for the authorship missing from the head or the latest
+accepted version (DL-0266, DL-0326) and recreates a row for a repository without one, fail
+closed; a row is deleted only on `prune_rows`, and only a version row whose commit its existing
+repository no longer holds (ADR-0018, DL-0276). A repository is trusted only where its passport
+names the tenant and the number it sits at. Every repair runs under the document's lock and is
+audited with numbers, never a title. One document's fault is reported and the run goes on.
 """
 
 from __future__ import annotations
@@ -63,6 +65,7 @@ DEFAULT_TYPE = "document"
 # Kinds a commit's trailer alone may turn into a row; a passport's kinds are never derived from a
 # trailer.
 REPLAYED = {gitstore.Kind.CREATED, gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT}
+CONTENT_KINDS = (gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT)
 
 # The kinds of finding.
 CREATING_WITHOUT_REPOSITORY = "creating_without_repository"
@@ -80,6 +83,8 @@ SEQUENCE_BEHIND = "sequence_behind"
 LOCKED = "locked"
 AUTHORSHIP_MISSING = "authorship_missing"
 FINISH_STOPPED = "finish_stopped"
+ACCEPTANCE_DIFFERS = "acceptance_differs"
+NOTICES_MISSING = "notices_missing"
 UNREADABLE = "unreadable"
 
 
@@ -93,6 +98,34 @@ class Finding:
     document: int
     detail: str = ""
     repaired: bool = False
+
+
+def _derived_from(version: Version) -> dict[str, int]:
+    """Delete the rows derived from `version` that would keep it from being pruned — its
+    acceptances, the correction notices naming it or theirs, their notifications — and count
+    them, for the audit."""
+    from django.db.models import Q
+
+    from notifications.models import Notification
+    from review.models import Acceptance, CorrectionNotice
+
+    acceptances = Acceptance.objects.filter(Q(version=version) | Q(accepted_from=version))
+    notices = CorrectionNotice.objects.filter(
+        Q(acceptance__in=acceptances)
+        | Q(lines__changing_version=version)
+        | Q(lines__author_version=version)
+    ).distinct()
+    notifications, _ = Notification.objects.filter(
+        Q(correction_notice__in=notices) | Q(version=version)
+    ).delete()
+    notice_count = notices.count()
+    CorrectionNotice.objects.filter(pk__in=list(notices.values_list("pk", flat=True))).delete()
+    acceptance_count, _ = acceptances.delete()
+    return {
+        "acceptances": acceptance_count,
+        "correction_notices": notice_count,
+        "notifications": notifications,
+    }
 
 
 def _audit(tenant: Tenant, kind: str, document: Document | None, before: Any, after: Any) -> None:
@@ -181,6 +214,7 @@ class _Run:
         if commits:
             self.frontmatter(document, repo, commits[-1])
             self.passport(document, repo, commits[-1])
+            self.notices(document)
             self.finishes(document, commits)
             self.authorship(document, str(commits[-1].id))
 
@@ -245,26 +279,87 @@ class _Run:
                 continue
             author = self.author(commit)
             kind = gitstore.kind_of(commit.message)
+            derivable = kind in REPLAYED or (
+                kind is gitstore.Kind.ACCEPTANCE and author is not None
+            )
             if (
                 not self.repair
                 or not replay
                 or stopped
                 or n < newest
                 or author is None
-                or kind not in REPLAYED
+                or not derivable
             ):
                 reason = "" if author is not None else " (author not of this tenant)"
                 self.found(COMMIT_WITHOUT_ROW, document.number, sha + reason)
                 stopped = stopped or n > newest
                 continue
-            with transaction.atomic():
-                services.derive_version(document, commit, author)
-                _audit(self.tenant, COMMIT_WITHOUT_ROW, document, None, {"commit": sha})
+            if kind is gitstore.Kind.ACCEPTANCE:
+                if not self.acceptance(document, commit, author):
+                    self.found(
+                        COMMIT_WITHOUT_ROW,
+                        document.number,
+                        sha + " (its passport section does not read)",
+                    )
+                    stopped = True
+                    continue
+            else:
+                with transaction.atomic():
+                    services.derive_version(document, commit, author)
+                    _audit(self.tenant, COMMIT_WITHOUT_ROW, document, None, {"commit": sha})
             self.found(COMMIT_WITHOUT_ROW, document.number, sha, repaired=True)
 
+    def acceptance(self, document: Document, commit: pygit2.Commit, author: User) -> bool:
+        """The rows of an acceptance's passport commit, derived by the rule `accept` itself is
+        settled by (`review.services.derivable`); whether they were."""
+        from review import services as review
+
+        repo = gitstore.open_repository(self.tenant.number, document.number)
+        sha = str(commit.id)
+        found = review.derivable(document, repo, sha)
+        if isinstance(found, str) or found.reviewer.pk != author.pk:
+            return False
+        with transaction.atomic():
+            review.derive_acceptance(document, sha, found)
+            _audit(self.tenant, COMMIT_WITHOUT_ROW, document, None, {"commit": sha})
+        return True
+
+    def notices(self, document: Document) -> None:
+        """An acceptance whose correction notices were never computed has them computed, so a stop
+        after its rows never loses the disclosure ADR-0001 requires."""
+        from review import notices
+        from review.models import Acceptance
+
+        for acceptance in Acceptance.objects.filter(
+            version__document=document, notices_computed_at__isnull=True
+        ).select_related("version__document"):
+            if self.repair:
+                try:
+                    notices.compute(acceptance)
+                except Exception as error:  # noqa: BLE001 — one acceptance's failure is reported
+                    logger.exception(
+                        "correction notices not computed",
+                        extra={"tenant": self.tenant.number, "document": document.number},
+                    )
+                    self.found(
+                        NOTICES_MISSING,
+                        document.number,
+                        f"{acceptance.number} ({type(error).__name__})",
+                    )
+                    continue
+                _audit(
+                    self.tenant,
+                    NOTICES_MISSING,
+                    document,
+                    None,
+                    {"number": document.number, "accepted": acceptance.number},
+                )
+            self.found(NOTICES_MISSING, document.number, acceptance.number, repaired=self.repair)
+
     def finishes(self, document: Document, commits: list[pygit2.Commit]) -> None:
-        """A finish that stopped after its commit (DL-0318). An open hold whose draft's base is
-        behind an `edit` commit of its holder is released as finished and its draft deleted —
+        """A finish that stopped after its commit (DL-0318, DL-0335). An open hold whose draft's
+        base is behind a content commit of its holder, `edit` or `reviewer_edit`, is released as
+        finished and its draft deleted —
         only when the holder is a member, the commit has its row, and the draft holds nothing
         the commit does not; otherwise it is reported, and the holder's next *send for review*
         resumes it. A finished hold whose draft is still there has the draft deleted."""
@@ -285,7 +380,7 @@ class _Run:
                 edits = [
                     commit
                     for commit in commits[base + 1 :]
-                    if gitstore.kind_of(commit.message) is gitstore.Kind.EDIT
+                    if gitstore.kind_of(commit.message) in CONTENT_KINDS
                     and commit.author.name == str(hold.user_id)
                 ]
                 if not edits:
@@ -331,22 +426,30 @@ class _Run:
         return ""
 
     def authorship(self, document: Document, head: str) -> None:
-        """The head version, of any kind, without rows while its text has a non-blank line: the
-        worker is asked for it again (DL-0266, DL-0326). A version not derived yet waits for its
-        row; a blank text has no rows by design and is never asked for."""
+        """The two kept versions — the head, of any kind, and the latest accepted — without rows
+        while their text has a non-blank line: the worker is asked for them again (DL-0266,
+        DL-0326). A version not derived yet waits for its row; a blank text has no rows by design
+        and is never asked for."""
+        from editing.authorship import latest_accepted
         from editing.models import LineAuthorship
         from editing.tasks import queue_authorship
 
-        version = Version.objects.filter(document=document, commit_sha=head).first()
-        if version is None:
-            return
-        if LineAuthorship.objects.filter(version=version, expires_at__isnull=True).exists():
-            return
-        if not self.has_lines(document, head):
-            return
-        if self.repair:
-            queue_authorship(self.tenant.number, document.number, head)
-        self.found(AUTHORSHIP_MISSING, document.number, head, repaired=self.repair)
+        kept = [Version.objects.filter(document=document, commit_sha=head).first()]
+        accepted = latest_accepted(document)
+        if accepted is not None and accepted.commit_sha != head:
+            kept.append(accepted)
+        for version in kept:
+            if version is None:
+                continue
+            if LineAuthorship.objects.filter(version=version, expires_at__isnull=True).exists():
+                continue
+            if not self.has_lines(document, version.commit_sha):
+                continue
+            if self.repair:
+                queue_authorship(self.tenant.number, document.number, version.commit_sha)
+            self.found(
+                AUTHORSHIP_MISSING, document.number, version.commit_sha, repaired=self.repair
+            )
 
     def has_lines(self, document: Document, head: str) -> bool:
         """Whether `document.md`'s body or an appendix it lists has a non-blank line at `head` —
@@ -364,14 +467,24 @@ class _Run:
         return any(line.strip() for text in texts for line in text.splitlines())
 
     def versions_without_commit(self, document: Document, present: set[str]) -> bool:
-        """Report, or prune, the version rows whose commit is gone; `True` while any remain."""
+        """Report, or prune, the version rows whose commit is gone; `True` while any remain. A
+        pruned version takes with it the rows derived from it — an acceptance it records or
+        started from, a correction notice one of whose lines names it, and their notifications —
+        since each is a cache of a commit that no longer exists."""
         missing = list(Version.objects.filter(document=document).exclude(commit_sha__in=present))
         for version in missing:
             sha = version.commit_sha
             if self.prune_rows:
                 with transaction.atomic():
+                    derived = _derived_from(version)
                     version.delete()
-                    _audit(self.tenant, ROW_WITHOUT_COMMIT, document, {"commit": sha}, None)
+                    _audit(
+                        self.tenant,
+                        ROW_WITHOUT_COMMIT,
+                        document,
+                        {"commit": sha, **derived},
+                        None,
+                    )
                 self.found(ROW_WITHOUT_COMMIT, document.number, sha, repaired=True)
             else:
                 self.found(ROW_WITHOUT_COMMIT, document.number, sha)
@@ -407,12 +520,82 @@ class _Run:
         self.found(FRONTMATTER_DIFFERS, document.number, ", ".join(changed), repaired=True)
 
     def passport(self, document: Document, repo: pygit2.Repository, head: Any) -> None:
-        # No row records a passport entry, so each one is reported by its kind alone.
+        """Every acceptance row against the section its own commit appended, field by field, the
+        passport believed — a disagreeing row rewritten from its section on repair; every section
+        no row records, and every acceptance commit's version without its acceptance, reported.
+        Returns and approvals have no row of their own to compare."""
+        from review import services as review
+        from review.models import Acceptance
+
         text = gitstore.read(repo, "passport.md", str(head.id)).decode("utf-8")
-        for match in PASSPORT_ENTRY.finditer(text):
-            entry = PASSPORT_KIND.match(match.group("entry"))
-            detail = entry.group("kind") if entry else "an entry the passport cannot name"
-            self.found(PASSPORT_ENTRY_WITHOUT_ROW, document.number, detail)
+        try:
+            entries = bundle.passport_entries(text)
+        except ValueError:
+            # A passport that does not read: each heading reported by its kind alone.
+            for match in PASSPORT_ENTRY.finditer(text):
+                named = PASSPORT_KIND.match(match.group("entry"))
+                detail = named.group("kind") if named else "an entry the passport cannot name"
+                self.found(PASSPORT_ENTRY_WITHOUT_ROW, document.number, detail)
+            return
+        recorded: set[int] = set()
+        for row in Acceptance.objects.filter(version__document=document).select_related("version"):
+            if row.version.kind != "acceptance":
+                self.found(
+                    ACCEPTANCE_DIFFERS, document.number, f"{row.number} (not a passport commit)"
+                )
+                continue
+            found = review.derivable(document, repo, row.version.commit_sha)
+            if isinstance(found, str):
+                self.found(ACCEPTANCE_DIFFERS, document.number, f"{row.number} ({found})")
+                continue
+            recorded.add(len(review.passport_at(repo, row.version.commit_sha)) - 1)
+            expected = {
+                "number": found.entry.number,
+                "reviewer_id": found.reviewer.pk,
+                "at": found.entry.at,
+                "accepted_from_id": found.accepted_from.pk,
+            }
+            differs = [name for name, value in expected.items() if getattr(row, name) != value]
+            if not differs:
+                continue
+            detail = (
+                f"acceptance {found.entry.number} "
+                f"(the row reads {row.number}: {', '.join(differs)})"
+            )
+            if self.repair:
+                with transaction.atomic():
+                    Acceptance.objects.filter(pk=row.pk).update(**expected)
+                    _audit(
+                        self.tenant,
+                        ACCEPTANCE_DIFFERS,
+                        document,
+                        {"number": document.number, "accepted": row.number},
+                        {"number": document.number, "accepted": found.entry.number},
+                    )
+            self.found(ACCEPTANCE_DIFFERS, document.number, detail, repaired=self.repair)
+        for version in Version.objects.filter(
+            document=document, kind="acceptance", acceptance__isnull=True
+        ):
+            found = review.derivable(document, repo, version.commit_sha)
+            repaired = False
+            if self.repair and not isinstance(found, str):
+                with transaction.atomic():
+                    review.derive_acceptance(document, version.commit_sha, found)
+                    _audit(
+                        self.tenant,
+                        COMMIT_WITHOUT_ROW,
+                        document,
+                        None,
+                        {"commit": version.commit_sha},
+                    )
+                recorded.add(len(review.passport_at(repo, version.commit_sha)) - 1)
+                repaired = True
+            self.found(COMMIT_WITHOUT_ROW, document.number, version.commit_sha, repaired=repaired)
+        for position, entry in enumerate(entries):
+            # Returns and approvals are reported against their rows once those exist.
+            if entry.kind == "acceptance" and position not in recorded:
+                detail = entry.kind + (f" {entry.number}" if entry.kind == "acceptance" else "")
+                self.found(PASSPORT_ENTRY_WITHOUT_ROW, document.number, detail)
 
     # --- a repository without a row -------------------------------------------------------
 

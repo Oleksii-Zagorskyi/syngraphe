@@ -235,3 +235,10 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** B-033 is taken up, or a platform administrator's account is lost with no other administrator to lift its block — tombstoned, or blocked outside the platform (the last one's own block is refused, DL-0315).
 
+## B-036 — Choosing whether to appear by name
+
+**Idea.** A person chooses whether pages show their name beside their changes — *show author*, a correction notice, a run's versions — or show them as an *anonymous editor*; the choice is a switch in their profile, and a display name becomes a required field of at least one character.
+
+**Why it is parked.** Until the switch exists, a person without a display name already reads as *anonymous editor* to everyone (DL-0339); nothing requires the name yet.
+
+**What has to be true before it is taken up.** The user profile is designed; the organisations using the platform say whether an anonymous author is acceptable in their records, since the audit trail keeps the identifier either way (DL-0108).

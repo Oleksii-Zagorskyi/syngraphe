@@ -67,7 +67,8 @@ def test_opening_the_tab_takes_the_hold(
     assert tabs is not None
     assert tabs.group(0) == (
         f'<nav class="tabs"><a href="/document/{document.number}/edit/" aria-current="page">'
-        f'Edit</a><a href="/document/{document.number}/info/">Info</a></nav>'
+        f'Edit</a><a href="/document/{document.number}/pending/">Pending edits</a>'
+        f'<a href="/document/{document.number}/info/">Info</a></nav>'
     )
     info = client.get(f"/document/{document.number}/info/").content.decode()
     assert f'<a href="/document/{document.number}/info/" aria-current="page">Info</a>' in info

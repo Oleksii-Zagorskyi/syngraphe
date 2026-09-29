@@ -1,0 +1,21 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Correction notice" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content notice-page" data-lines="{{ count }}">
+  <h1>{% translate "Correction notice" %}</h1>
+  <p>{% blocktranslate with number=document.number accepted=acceptance.number %}In #{{ number }}, accepted as {{ accepted }}, a reviewer changed lines you wrote or removed: {{ count }}.{% endblocktranslate %}</p>
+  <p class="muted">{% translate "Changed by:" %} {{ changers|join:", " }}</p>
+  {% if readable %}
+  {% for entry in entries %}
+  <div class="correction" data-kind="{{ entry.kind }}">
+    <p class="muted">{% if entry.kind == "restored" %}{% blocktranslate with version=entry.author_version changer=entry.changer changing=entry.changing %}You removed this in {{ version }}; {{ changer }} restored it in {{ changing }}.{% endblocktranslate %}{% else %}{% blocktranslate with version=entry.author_version changer=entry.changer changing=entry.changing %}You wrote this in {{ version }}; {{ changer }} changed it in {{ changing }}.{% endblocktranslate %}{% endif %}</p>
+    <div class="changes">{{ entry.changes }}</div>
+  </div>
+  {% endfor %}
+  <p><a class="btn" href="/document/{{ document.number }}/">{% translate "Open the document" %}</a></p>
+  {% else %}
+  <p class="muted">{% translate "The text is not shown: you may no longer read this document's accepted text." %}</p>
+  {% endif %}
+</section>
+{% endblock %}

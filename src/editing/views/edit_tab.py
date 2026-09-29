@@ -33,6 +33,21 @@ def editable(request: HttpRequest, number: int) -> Document | None:
     return document
 
 
+def correcting(request: HttpRequest, document: Document) -> bool:
+    """Whether the person holds *accept* on a document with pending edits: their changes become a
+    version of their own (ADR-0014)."""
+    from review.services import run
+
+    rights = rights_on_many(request.user, [document.pk]).get(document.pk, frozenset())
+    if Right.ACCEPT not in rights:
+        return False
+    try:
+        return bool(run(document))
+    except LookupError:
+        # A head that no longer follows the accepted version: nothing to call pending here.
+        return False
+
+
 @never_cache
 @login_required
 def page(request: HttpRequest, number: int) -> HttpResponse:
@@ -48,6 +63,7 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     own = request.headers.get("Sec-Fetch-Site") in ("same-origin", "none")
     holding = hold is not None and hold.user_id == request.user.pk
     context = {
+        "correcting": correcting(request, document),
         "document": document,
         "can_edit": True,
         "holding": holding,

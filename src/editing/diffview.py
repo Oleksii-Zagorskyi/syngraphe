@@ -2,11 +2,15 @@
 changes in place. The line diff finds the changed sentences — a sentence is a stored line — and
 only those are compared word by word; a change to formatting alone carries its own marker.
 
-The caller passes normalised text: *my edits* the draft normalised against the head, a comparison
-two committed versions. The rendering is a plain one — a block per paragraph, heading, list item,
-quote or table row — and is the one every diff of the product shows. A changed sentence is shown
-as its words, without its formatting; a change to a line that holds no words, a callout's type or
-a table's alignment, is shown as that line, marked as a change of formatting.
+The caller passes normalised text: *my edits* the draft normalised against the head, *pending
+edits* the head against the last accepted text, a comparison two committed versions. The rendering
+is a plain one — a block per paragraph, heading, list item, quote or table row — and is the one
+every diff of the product shows. A changed sentence is classified (`classify`): one whose words are
+unchanged is a change of *style*, shown formatted and collapsed, its earlier form opened on click;
+any other is a change of *sense*, shown with its new formatting, the inserted words marked inside it
+and the removed words struck where they stood (DL-0331). A change to a line that holds no words, a
+callout's type or a table's alignment, is shown as that line, marked as a change of formatting.
+Given the authors of the new text's lines, each line carries its author (DL-0040).
 
 The comparison is bounded: the lines, and the words of a changed line, are aligned on what occurs
 once on each side (patience sorting), which is near-linear; only a stretch with no such anchor is
@@ -18,9 +22,12 @@ from __future__ import annotations
 
 import re
 from bisect import bisect_left
+from collections.abc import Mapping
 from difflib import SequenceMatcher
+from enum import StrEnum
 from html import escape
 
+from django.utils.translation import gettext
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
@@ -29,11 +36,30 @@ from editing.markdown.rules import attr_span
 
 BLOCK_PREFIX = re.compile(r"^((?:[ \t]*>[ \t]?)*[ \t]*(?:[-+*][ \t]+|[0-9]+[.)][ \t]+)?)")
 HEADING = re.compile(r"^(#{1,6})[ \t]+(.*)$")
-CALLOUT_MARKER = re.compile(r"^[ \t]*>[ \t]*\[![^\]]+\][ \t]*$")
-DELIMITER_ROW = re.compile(r"^\|?[ \t]*:?-+:?[ \t]*(\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$")
+# Possessive throughout, so a line that fails to match costs its length, never its square.
+CALLOUT_MARKER = re.compile(r"^[ \t]*+>[ \t]*+\[![^\]]++\][ \t]*+$")
+DELIMITER_ROW = re.compile(
+    r"^\|?+[ \t]*+:?+-++:?+[ \t]*+(?:\|[ \t]*+:?+-++:?+[ \t]*+)*+\|?+[ \t]*+$"
+)
 WORD = re.compile(r"\S+|\s+")
 # The most element comparisons an alignment may cost: `SequenceMatcher` is quadratic at worst.
 ALIGN_MOST = 250_000
+# Typographic characters folded to their plain forms, so a change of typography alone reads as a
+# change of style.
+TYPOGRAPHY = str.maketrans(
+    {"«": '"', "»": '"', "“": '"', "”": '"', "„": '"', "—": "-", "–": "-", "…": "..."}
+)
+# Below this share of words in common, two sentences at one place are shown as one removed and
+# one inserted, never as one rewritten.
+SAME_SENTENCE = 0.5
+SPACING = re.compile(r"\s+")
+
+
+class Change(StrEnum):
+    """What a changed sentence changed: its words, or only how they look."""
+
+    SENSE = "sense"
+    STYLE = "style"
 
 
 Opcode = tuple[str, int, int, int, int]
@@ -188,53 +214,169 @@ def _plain(text: str) -> str:
     return "".join(out)
 
 
-def _words(old: str, new: str) -> str:
-    """`new` against `old`, word by word: inserted words marked, deleted words struck."""
-    a, b = WORD.findall(old), WORD.findall(new)
-    out: list[str] = []
+def _folded(text: str) -> str:
+    """The words of an inline text as a comparison of sense sees them: markup removed, the
+    normalizer's typography folded back, runs of space made one."""
+    folded = _plain(text).translate(TYPOGRAPHY)
+    return SPACING.sub(" ", folded).strip()
+
+
+def _references(text: str) -> list[tuple[str, ...]]:
+    """What an inline text points at, beside its words: each link's target, each image's file and
+    description, each entity span's kind and identifier."""
+    found: list[tuple[str, ...]] = []
+    for token in RENDERER.parseInline(text):
+        for child in token.children or []:
+            if child.type == "link_open":
+                found.append(("link", str(child.attrs.get("href", ""))))
+            elif child.type == "image":
+                found.append(("image", str(child.attrs.get("src", "")), child.content))
+            elif child.type == "entity_open":
+                meta = child.meta or {}
+                found.append(("entity", str(meta.get("kind")), str(meta.get("id"))))
+    return found
+
+
+def classify(old_sentence: str, new_sentence: str) -> Change:
+    """*Style* when the two sentences say the same words and point at the same things — differing
+    only in emphasis, underline or typography; *sense* otherwise, a changed link target, image or
+    entity included. Both are accepted with the run (ASR-04)."""
+    _, old_text = _content(old_sentence)
+    _, new_text = _content(new_sentence)
+    same = _folded(old_text) == _folded(new_text)
+    return Change.STYLE if same and _references(old_text) == _references(new_text) else Change.SENSE
+
+
+def _images(text: str) -> list[Token]:
+    return [
+        child
+        for token in RENDERER.parseInline(text)
+        for child in token.children or []
+        if child.type == "image"
+    ]
+
+
+def _marked(new_text: str, old_text: str) -> str:
+    """`new_text` rendered with its formatting, its words compared with `old_text`'s: inserted
+    words marked inside the formatting they carry, removed words struck in plain text before the
+    word that follows them; an image the old text lacks marked inserted, one it had struck."""
+    old_plain = _plain(old_text)
+    old_images = {str(image.attrs.get("src", "")) for image in _images(old_text)}
+    new_images = {str(image.attrs.get("src", "")) for image in _images(new_text)}
+    tokens = RENDERER.parseInline(new_text)
+    children = tokens[0].children or [] if tokens else []
+    new_plain = _plain(new_text)
+    a, b = WORD.findall(old_plain), WORD.findall(new_plain)
+    starts = [0]
+    for word in b:
+        starts.append(starts[-1] + len(word))
+    inserted = [False] * len(new_plain)
+    removed: dict[int, list[str]] = {}
     for tag, i1, i2, j1, j2 in opcodes(a, b):
-        if tag == "equal":
-            out.append(escape("".join(a[i1:i2])))
-            continue
-        if i2 > i1:
-            out.append(f"<del>{escape(''.join(a[i1:i2]))}</del>")
-        if j2 > j1:
-            out.append(f"<ins>{escape(''.join(b[j1:j2]))}</ins>")
-    return "".join(out)
+        if tag in ("replace", "delete"):
+            removed.setdefault(starts[j1], []).append("".join(a[i1:i2]))
+        if tag in ("replace", "insert"):
+            for k in range(starts[j1], starts[j2]):
+                inserted[k] = True
+    out: list[str] = []
+    at = 0
+
+    def removed_at(position: int) -> None:
+        for words in removed.pop(position, []):
+            out.append(f"<del>{escape(words)}</del>")
+
+    def words(text: str) -> None:
+        # `text` is the next stretch of `new_plain`: split where the marks change.
+        nonlocal at
+        i = 0
+        while i < len(text):
+            removed_at(at + i)
+            j = i + 1
+            while j < len(text) and inserted[at + j] == inserted[at + i] and at + j not in removed:
+                j += 1
+            piece = escape(text[i:j])
+            out.append(f"<ins>{piece}</ins>" if inserted[at + i] else piece)
+            i = j
+        at += len(text)
+
+    for child in children:
+        if child.type == "text":
+            words(child.content)
+        elif child.type == "code_inline":
+            out.append("<code>")
+            words(child.content)
+            out.append("</code>")
+        elif child.type in ("softbreak", "hardbreak"):
+            words(" ")
+        else:
+            # Removed words stand before any formatting that opens where they were.
+            if child.nesting >= 0:
+                removed_at(at)
+            html = str(RENDERER.renderer.renderInline([child], RENDERER.options, {}))  # type: ignore[attr-defined]
+            added = child.type == "image" and str(child.attrs.get("src", "")) not in old_images
+            out.append(f"<ins>{html}</ins>" if added else html)
+    removed_at(len(new_plain))
+    for image in _images(old_text):
+        if str(image.attrs.get("src", "")) not in new_images:
+            html = str(RENDERER.renderer.renderInline([image], RENDERER.options, {}))  # type: ignore[attr-defined]
+            out.append(f"<del>{html}</del>")
+    return "".join(out).strip()
 
 
 def _changed(old_line: str, new_line: str) -> str:
     _, old_text = _content(old_line)
     _, new_text = _content(new_line)
-    old_plain, new_plain = _plain(old_text), _plain(new_text)
-    if old_plain == new_plain:
-        return f'<span class="format-changed">{_inline(new_text)}</span>'
-    return _words(old_plain, new_plain)
+    if classify(old_line, new_line) is Change.STYLE:
+        # Collapsed: the sentence as it now reads; its earlier form shown when opened.
+        label = escape(gettext("formatting only"))
+        return (
+            f'<span class="format-changed" tabindex="0" data-label="{label}">'
+            f'{_inline(new_text)}<span class="format-old">{_inline(old_text)}</span></span>'
+        )
+    return _marked(new_text, old_text)
 
 
-def render_changes(old: bytes, new: bytes) -> str:
-    """The whole of `new` as HTML, its differences from `old` marked in place."""
+def _alike(old_line: str, new_line: str) -> bool:
+    """Whether two sentences at one place share enough words to be shown as one rewritten; the
+    measure is a multiset's, linear in the words."""
+    a = _plain(_content(old_line)[1]).split()
+    b = _plain(_content(new_line)[1]).split()
+    return SequenceMatcher(None, a, b, autojunk=False).quick_ratio() >= SAME_SENTENCE
+
+
+def render_changes(old: bytes, new: bytes, *, authors: Mapping[int, str] | None = None) -> str:
+    """The whole of `new` as HTML, its differences from `old` marked in place. `authors` names the
+    author of a line of `new` by its index from 0; a line it names carries that author, a line it
+    does not — or a removed one — none."""
     old_lines = old.decode("utf-8").split("\n")
     new_lines = new.decode("utf-8").split("\n")
     rendered: list[tuple[str, str]] = []  # (block kind, the line's HTML)
 
-    def keep(line: str) -> None:
+    def by(j: int, html: str) -> str:
+        author = authors.get(j) if authors else None
+        if not author:
+            return html
+        name = escape(author)
+        return f'<span class="by" data-author="{name}" title="{name}">{html}</span>'
+
+    def keep(line: str, j: int) -> None:
         if _structural(line):
             rendered.append(("p", ""))
             return
         kind, text = _content(line)
-        rendered.append((kind, _inline(text)))
+        rendered.append((kind, by(j, _inline(text))))
 
-    def whole(line: str, mark: str) -> None:
+    def whole(line: str, mark: str, j: int | None = None) -> None:
         if _structural(line):
             return
         kind, text = _content(line)
-        rendered.append((kind, f"<{mark}>{escape(_plain(text))}</{mark}>"))
+        html = f"<{mark}>{_inline(text)}</{mark}>"
+        rendered.append((kind, html if j is None else by(j, html)))
 
     for tag, i1, i2, j1, j2 in opcodes(old_lines, new_lines):
         if tag == "equal":
-            for line in new_lines[j1:j2]:
-                keep(line)
+            for j in range(j1, j2):
+                keep(new_lines[j], j)
         elif tag == "replace":
             pairs = min(i2 - i1, j2 - j1)
             for k in range(pairs):
@@ -247,20 +389,27 @@ def render_changes(old: bytes, new: bytes) -> str:
                     continue
                 if _structural(old_line) or _structural(new_line):
                     whole(old_line, "del")
-                    keep(new_line) if _structural(new_line) else whole(new_line, "ins")
+                    if _structural(new_line):
+                        keep(new_line, j1 + k)
+                    else:
+                        whole(new_line, "ins", j1 + k)
                     continue
-                kind, _ = _content(new_line)
-                rendered.append((kind, _changed(old_line, new_line)))
+                if not _alike(old_line, new_line):
+                    whole(old_line, "del")
+                    whole(new_line, "ins", j1 + k)
+                    continue
+                kind, _text = _content(new_line)
+                rendered.append((kind, by(j1 + k, _changed(old_line, new_line))))
             for line in old_lines[i1 + pairs : i2]:
                 whole(line, "del")
-            for line in new_lines[j1 + pairs : j2]:
-                whole(line, "ins")
+            for j in range(j1 + pairs, j2):
+                whole(new_lines[j], "ins", j)
         elif tag == "delete":
             for line in old_lines[i1:i2]:
                 whole(line, "del")
         else:
-            for line in new_lines[j1:j2]:
-                whole(line, "ins")
+            for j in range(j1, j2):
+                whole(new_lines[j], "ins", j)
     return _blocks(rendered)
 
 

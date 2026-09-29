@@ -144,10 +144,13 @@ def make_versions(document: Any, commits: list[dict[str, Any]], users: dict[int,
 
 
 def accept(document: Any, version: Any, by: Any) -> Any:
-    """An acceptance of `version`: a passport commit's row, just after it."""
+    """An acceptance of `version`: a passport commit's row, just after it, and its `ACCEPTANCE`.
+    The corpus's repository has no passport, so a test reading the accepted version through it
+    stubs `review.services.accepted_sha`."""
     from documents.models import Version, VersionKind
+    from review.models import Acceptance
 
-    return Version.objects.create(
+    passport = Version.objects.create(
         document=document,
         commit_sha="a" * 40,
         author=by,
@@ -157,6 +160,10 @@ def accept(document: Any, version: Any, by: Any) -> Any:
         created_by=by,
         actor_kind="user",
     )
+    Acceptance.objects.create(
+        version=passport, accepted_from=version, number="0.1", reviewer=by, at=version.committed_at
+    )
+    return passport
 
 
 def expected_introductions(corpus: dict[str, Any]) -> dict[int, str]:
@@ -323,7 +330,11 @@ def test_bounded_blame_reuses_cache(
 
 
 def test_rows_kept_for_head_and_accepted_only(
-    corpus: dict[str, Any], migrated_tenant: Any, member_of: Any, make_document: Any
+    corpus: dict[str, Any],
+    migrated_tenant: Any,
+    member_of: Any,
+    make_document: Any,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from editing import authorship
     from editing.models import LineAuthorship
@@ -335,6 +346,7 @@ def test_rows_kept_for_head_and_accepted_only(
         versions = make_versions(document, corpus["commits"], users)
         older, accepted, head = versions[49], versions[99], versions[100]
         accept(document, accepted, users[1])
+        monkeypatch.setattr("review.services.accepted_sha", lambda *_: accepted.commit_sha)
         authorship.compute(document, accepted.commit_sha, repository_path=repo)
         authorship.compute(document, older.commit_sha, repository_path=repo)
         older_rows = LineAuthorship.objects.filter(version=older).count()
@@ -554,3 +566,30 @@ def test_git_variables_of_the_process_never_reach_the_blame(
             repository_path=gitstore.repository_path(migrated_tenant.number, document.number),
         )
     assert result.rows > 0
+
+
+def test_blame_at_is_bounded_by_the_base_and_follows_moves(tmp_path: Path) -> None:
+    """The file at a commit, each line with the commit that wrote it after the base, the base's
+    own lines carrying the base, a moved line keeping where it came from (ADR-0011)."""
+    from editing.authorship import blame_at
+
+    base_text = "# Розділ\n\nПерше речення.\nДруге речення.\n"
+    added = base_text + "Третє речення.\n"
+    moved = "# Розділ\n\nДруге речення.\nПерше речення.\nТретє речення.\n"
+    base, adding, moving = import_history(
+        tmp_path / "doc.git", [(1, 1, base_text), (2, 2, added), (3, 3, moved)]
+    )
+    lines = blame_at(tmp_path / "doc.git", moving, base=base)
+    by_text = {line.text: line for line in lines}
+    assert [line.text for line in lines] == moved.encode().split(b"\n")[:-1]
+    assert by_text["Третє речення.".encode()].commit == adding
+    assert {
+        by_text["Перше речення.".encode()].commit,
+        by_text["Друге речення.".encode()].commit,
+    } == {base}
+    assert by_text["Перше речення.".encode()].orig_line == 3
+    # Without a base the blame is cold, down to the first commit.
+    assert {line.commit for line in blame_at(tmp_path / "doc.git", moving, base=None)} == {
+        base,
+        adding,
+    }

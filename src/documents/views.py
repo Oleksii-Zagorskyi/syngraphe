@@ -98,11 +98,18 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
     allowed = readable(request.user, [d.pk for d in documents])
     shown = [d for d in documents if d.pk in allowed]
     parts = _parts(shown)
+    # The review state after the title, to those it concerns (DL-0233).
+    from review.state import LABELS, tags
+
+    shown_tags = tags(request.user, shown)
+    labels = {pk: LABELS[tag] for pk, tag in shown_tags.items() if tag is not None}
     rows = [
         {
             "document": document,
             "appendices": PartKind.APPENDIX in parts.get(document.pk, set()),
             "attachments": PartKind.ATTACHMENT in parts.get(document.pk, set()),
+            "state": shown_tags.get(document.pk),
+            "state_label": labels.get(document.pk, ""),
         }
         for document in shown
     ]

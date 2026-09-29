@@ -1,5 +1,7 @@
 """Finishing an editing session (DL-0222, DL-0261): the screen with *my edits*, the summary and the
-number the version will carry; *send for review*, which commits it; and the *My edits* tab."""
+number the version will carry; the choices — *send for review* for a holder of *edit* alone,
+*accept as N.M* and *create version N.M-X* for a holder of *accept* (ADR-0016) — each of which
+commits it; and the *My edits* tab."""
 
 from __future__ import annotations
 
@@ -13,6 +15,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
+from access.rights import Right, rights_on
 from documents.locks import LockTimeout
 from documents.models import Document
 from editing import holds, numbering, services, summary
@@ -20,6 +23,7 @@ from editing.messages import for_the_editor as messages_for_the_editor
 from editing.models import Hold, ReleaseKind
 from editing.views.edit_tab import editable
 from identity.models import User
+from review.services import RecordIncomplete
 from shell.views import not_found
 
 
@@ -38,16 +42,45 @@ def _context(document: Document, tab: str, **more: Any) -> dict[str, Any]:
     return {"document": document, "can_edit": True, "holding": True, "tab": tab, **more}
 
 
+def _run(document: Document) -> list[dict[str, str]]:
+    """The versions *accept as* accepts besides the holder's own, named as the confirmation names
+    them (DL-0333)."""
+    from review.services import run
+    from review.views.pending import person
+
+    accepted = numbering.accepted(document)
+    return [
+        {"number": f"{accepted}-{n}", "summary": v.summary, "author": person(v.author)}
+        for n, v in enumerate(run(document), 1)
+    ]
+
+
+def _reviewer(request: HttpRequest, document: Document) -> bool:
+    return Right.ACCEPT in rights_on(request.user, document)
+
+
+# What each holder may choose on the screen: the holder of *accept* never *sends*, the holder of
+# *edit* alone never accepts (DL-0222).
+CHOICES = {True: ("accept", "create"), False: ("send",)}
+
+
 def _screen(
     request: HttpRequest, document: Document, finishing: services.Finishing, **more: Any
 ) -> HttpResponse:
     status = more.pop("status", 200)
+    reviewer = _reviewer(request, document)
+    from documents import gitstore
+
     context = _context(
         document,
         "edit",
+        head=gitstore.head(gitstore.open_repository(holds.tenant_number(), document.number)),
         changes=mark_safe(finishing.changes),  # noqa: S308 — built from escaped text alone
         summary=more.pop("summary", finishing.summary),
         number=finishing.number,
+        accept_number=numbering.next_accepted(document) if reviewer else "",
+        run=_run(document) if reviewer else [],
+        reviewer=reviewer,
         summary_max=summary.SUMMARY_MAX,
         **more,
     )
@@ -122,17 +155,58 @@ def _just_sent(request: HttpRequest, number: int) -> HttpResponse | None:
 @never_cache
 @login_required
 def send(request: HttpRequest, number: int) -> HttpResponse:
-    """*Send for review*: the version committed, the holder taken to the document page with the
-    number it waits as (DL-0322)."""
+    """The screen's choice: *send for review* or *create version* commits the version, *accept
+    as* commits it and accepts the run in one act; the holder is taken to the document page with
+    the number the version waits as, or the acceptance gave (DL-0322, DL-0332)."""
     if request.method != "POST":
         return not_found(request)
     found = _holders(request, number)
     if found is None:
         return _just_sent(request, number) or not_found(request)
     document, hold = found
+    choice = request.POST.get("choice", "send")
+    if choice not in CHOICES[_reviewer(request, document)]:
+        return not_found(request)
     message = request.POST.get("summary", "")
+    user = cast(User, request.user)
     try:
-        services.commit_draft(hold, cast(User, request.user), message)
+        if choice == "accept":
+            from review.services import AcceptRefused, accept_as
+            from review.views.accept import reason
+
+            try:
+                acceptance = accept_as(
+                    hold, user, message, confirmed=request.POST.get("head") or None
+                )
+            except AcceptRefused as refused:
+                accepted = (
+                    _accepted_as(document, refused.committed)
+                    if refused.committed is not None
+                    else None
+                )
+                if accepted is not None:
+                    messages.success(request, _("Accepted as %(number)s.") % {"number": accepted})
+                    return HttpResponseRedirect(f"/document/{document.number}/")
+                if refused.committed is not None:
+                    # The version stands and waits; the acceptance did not happen.
+                    messages.success(
+                        request,
+                        _("Version created — it waits as %(number)s.")
+                        % {"number": numbering.latest(document)},
+                    )
+                    messages.error(request, reason(document, user, refused.reason))
+                    return HttpResponseRedirect(f"/document/{document.number}/")
+                return _screen_or_wait(
+                    request,
+                    document,
+                    hold,
+                    summary=message,
+                    error=reason(document, user, refused.reason),
+                    status=409,
+                )
+            messages.success(request, _("Accepted as %(number)s.") % {"number": acceptance.number})
+            return HttpResponseRedirect(f"/document/{document.number}/")
+        version = services.commit_draft(hold, user, message)
     except services.InvalidSummary as refused:
         return _screen_or_wait(
             request, document, hold, summary=message, error=str(refused), status=400
@@ -150,19 +224,41 @@ def send(request: HttpRequest, number: int) -> HttpResponse:
         return _waiting(request, document)
     except services.DraftRefused as refused:
         return _refused(request, document, refused)
-    except LockTimeout:
+    except (LockTimeout, RecordIncomplete) as stopped:
         context = _context(
-            document, "edit", reason=_("The document is busy. Try again in a moment.")
+            document,
+            "edit",
+            reason=_("The document is busy. Try again in a moment.")
+            if isinstance(stopped, LockTimeout)
+            else _(
+                "The document's record is incomplete; it cannot be changed until it is repaired."
+            ),
         )
         return render(request, "editing/finish_waits.html", context, status=503)
     except holds.NotEditable:
         return _just_sent(request, number) or not_found(request)
-    messages.success(
-        request,
-        _("Sent for review — the version waits as %(number)s.")
-        % {"number": numbering.latest(document)},
+    accepted = _accepted_as(document, version)
+    if accepted is not None:
+        # A finish resumed after someone accepted the version it had committed.
+        messages.success(request, _("Accepted as %(number)s.") % {"number": accepted})
+        return HttpResponseRedirect(f"/document/{document.number}/")
+    notice = (
+        _("Version created — it waits as %(number)s.")
+        if choice == "create"
+        else _("Sent for review — the version waits as %(number)s.")
     )
+    messages.success(request, notice % {"number": numbering.latest(document)})
     return HttpResponseRedirect(f"/document/{document.number}/")
+
+
+def _accepted_as(document: Document, version: Any) -> str | None:
+    """The number of the acceptance that already covers `version`, or `None` while it waits."""
+    from review.services import latest_acceptance, run
+
+    acceptance = latest_acceptance(document)
+    if acceptance is None or any(v.pk == version.pk for v in run(document)):
+        return None
+    return acceptance.number
 
 
 @never_cache

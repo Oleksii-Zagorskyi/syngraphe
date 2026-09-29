@@ -45,6 +45,10 @@ def test_every_model_carries_provenance_or_its_own_columns() -> None:
         "editing.DraftFile",
         "editing.OpenEditor",
         "editing.LineAuthorship",
+        "review.Acceptance",
+        "review.CorrectionNotice",
+        "review.CorrectionLine",
+        "notifications.Notification",
     }
     for model in apps.get_models():
         if model._meta.app_label in ("admin", "auth", "contenttypes", "sessions"):

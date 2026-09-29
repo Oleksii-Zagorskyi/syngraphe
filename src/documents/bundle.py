@@ -1,5 +1,5 @@
 """The text files of a document's bundle (ADR-0005): `document.md`'s frontmatter and body, the
-passport's header, and the tree a new document starts with.
+passport's header and its sections, and the tree a new document starts with.
 
 The frontmatter is YAML read with `safe_load` and written here, its keys in a fixed order and every
 string quoted, so that what the platform writes reads back to the same bytes (DL-0309).
@@ -11,6 +11,7 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 
 import yaml
@@ -166,6 +167,139 @@ def parse(text: str) -> tuple[Frontmatter, str]:
 def passport_header(tenant: int, document: int) -> str:
     """The passport as a new document has it: numbers only, never a name (DL-0088)."""
     return f"{DELIMITER}document: {document}\ntenant: {tenant}\n{DELIMITER}"
+
+
+# One section per passport commit (ADR-0005): `## <kind>[ <number>]`, a blank line, then its
+# fields one per line, `name: value`, identifiers only (DL-0088).
+PASSPORT_KINDS = ("acceptance", "return", "approval")
+PASSPORT_FIELDS = {
+    "acceptance": {"at", "by", "version"},
+    "return": {"at", "by", "version", "reason"},
+    "approval": {"at", "by", "version", "edition"},
+}
+PASSPORT_SECTION = re.compile(r"## (?P<kind>[a-z]+)(?: (?P<number>[0-9]{1,10}\.[0-9]{1,10}))?")
+PASSPORT_FIELD = re.compile(r"(?P<name>[a-z]+): (?P<value>\S(?:.*\S)?)")
+PASSPORT_NUMBER = re.compile(r"[0-9]{1,10}\.[0-9]{1,10}")
+PASSPORT_SHA = re.compile(r"[0-9a-f]{40}")
+PASSPORT_AT_SHAPE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
+PASSPORT_AT = "%Y-%m-%dT%H:%M:%SZ"
+# Everything a line-oriented reader may take for a line's end, and every other control character.
+PASSPORT_BREAK = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029\u202a-\u202e\u2066-\u2069]")
+# A person is named by their identifier alone (DL-0088).
+PASSPORT_BY = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+
+
+@dataclass(frozen=True)
+class PassportEntry:
+    """One decision the passport records: its kind, the number it gave, when (UTC, to the
+    second), who by — a user's identifier — and the content commit it decides on."""
+
+    kind: str
+    number: str | None
+    at: datetime
+    by: str
+    version: str
+    reason: str | None = None
+    edition: str | None = None
+
+    def section(self) -> str:
+        head = f"## {self.kind}" + (f" {self.number}" if self.number else "")
+        fields = [
+            ("at", self.at.astimezone(UTC).strftime(PASSPORT_AT)),
+            ("by", self.by),
+            ("version", self.version),
+            ("reason", self.reason),
+            ("edition", self.edition),
+        ]
+        lines = [f"{name}: {value}" for name, value in fields if value is not None]
+        return head + "\n\n" + "\n".join(lines) + "\n"
+
+
+def _checked_entry(entry: PassportEntry) -> PassportEntry:
+    if entry.kind not in PASSPORT_KINDS or not PASSPORT_SHA.fullmatch(entry.version):
+        raise ValueError("not a passport entry")
+    if entry.at.tzinfo is None or entry.at.microsecond:
+        raise ValueError("a passport's time carries its zone and counts whole seconds")
+    if {"reason": entry.reason, "edition": entry.edition}.keys() & PASSPORT_FIELDS[entry.kind] != {
+        name for name, value in (("reason", entry.reason), ("edition", entry.edition)) if value
+    }:
+        raise ValueError("a passport entry carries the fields of its kind")
+    for number in (entry.number, entry.edition):
+        if number is not None and not PASSPORT_NUMBER.fullmatch(number):
+            raise ValueError("a passport number is N.M")
+    if not PASSPORT_BY.fullmatch(entry.by):
+        raise ValueError("a passport names a person by their identifier")
+    for value in (entry.by, entry.reason):
+        if value is not None and (
+            PASSPORT_BREAK.search(value) or not PASSPORT_FIELD.fullmatch(f"by: {value}")
+        ):
+            raise ValueError("a passport field is one line of text, without edge spaces")
+    return entry
+
+
+def append_passport(text: str, entry: PassportEntry) -> str:
+    """The passport with `entry` appended as its last section: append-only, every earlier byte
+    kept (ADR-0005). The section is read back before it is returned, so the passport never holds
+    one its reader refuses."""
+    if not text.startswith(DELIMITER):
+        raise ValueError("passport.md starts with its frontmatter")
+    try:
+        section = _checked_entry(entry).section()
+    except OverflowError as error:
+        raise ValueError("a passport's time out of range") from error
+    if passport_entries(DELIMITER + DELIMITER + "\n" + section) != [entry]:
+        raise ValueError("a passport section that does not read back")
+    body = text if text.endswith("\n") else text + "\n"
+    return body + "\n" + section
+
+
+def passport_entries(text: str) -> list[PassportEntry]:
+    """Every section of the passport, in order; `ValueError` for anything it cannot read: text
+    between the header and the first section, an unknown field, a field twice or missing."""
+    entries: list[PassportEntry] = []
+    header, *chunks = re.split(r"(?m)^(?=## )", text)
+    if not header.startswith(DELIMITER) or header[len(DELIMITER) :].find(DELIMITER) < 0:
+        raise ValueError("passport.md starts with its frontmatter")
+    closing = header.index(DELIMITER, len(DELIMITER)) + len(DELIMITER)
+    if header[closing:].strip("\n"):
+        raise ValueError("text between the passport's header and its first section")
+    for chunk in chunks:
+        head, *rest = chunk.strip("\n").split("\n")
+        match = PASSPORT_SECTION.fullmatch(head)
+        if match is None or match.group("kind") not in PASSPORT_KINDS:
+            raise ValueError("a passport section of no known kind")
+        kind = match.group("kind")
+        fields: dict[str, str] = {}
+        for line in rest:
+            if not line:
+                continue
+            found = PASSPORT_FIELD.fullmatch(line)
+            if (
+                found is None
+                or found.group("name") in fields
+                or found.group("name") not in PASSPORT_FIELDS[kind]
+            ):
+                raise ValueError("a passport field that does not read")
+            fields[found.group("name")] = found.group("value")
+        if set(fields) != PASSPORT_FIELDS[kind]:
+            raise ValueError("a passport section lacks a field")
+        if not PASSPORT_AT_SHAPE.fullmatch(fields["at"]):
+            raise ValueError("a passport time that does not read")
+        try:
+            at = datetime.strptime(fields["at"], PASSPORT_AT).replace(tzinfo=UTC)
+            entry = PassportEntry(
+                kind=match.group("kind"),
+                number=match.group("number"),
+                at=at,
+                by=fields["by"],
+                version=fields["version"],
+                reason=fields.get("reason"),
+                edition=fields.get("edition"),
+            )
+        except ValueError as error:
+            raise ValueError("a passport time that does not read") from error
+        entries.append(_checked_entry(entry))
+    return entries
 
 
 def initial_tree(

@@ -15,7 +15,7 @@
       {% for row in rows %}
       <tr class="document" data-number="{{ row.document.number }}">
         <td class="id">#{{ row.document.number }}</td>
-        <td><a href="/document/{{ row.document.number }}/">{{ row.document.title }}</a></td>
+        <td><a href="/document/{{ row.document.number }}/">{{ row.document.title }}</a>{% if row.state %}<span class="tag" data-state="{{ row.state }}">{{ row.state_label }}</span>{% endif %}</td>
         <td>{{ row.document.document_type.label }}</td>
         <td class="parts">
           <span class="part appendices{% if not row.appendices %} absent{% endif %}" title="{% translate 'appendices' %}">▤</span>
