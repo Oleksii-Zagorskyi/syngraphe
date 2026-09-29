@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.password_validation import validate_password
 
 from syngraphe.provenance import ActorKind
 
@@ -31,6 +32,11 @@ class UserManager(BaseUserManager["User"]):
         return user
 
     def create_superuser(self, email: str, password: str | None = None, **fields: Any) -> User:
-        """An operator account for the framework's own administration interface (DL-0210)."""
+        """An operator account for the framework's own administration interface (DL-0210).
+
+        The one path that sets a password without a form, so the platform's rule (DL-0284) is
+        applied here; `createsuperuser` shows the refusal and stores nothing.
+        """
         fields.setdefault("is_superuser", True)
+        validate_password(password or "", self.model(email=fold_email(email)))
         return self.create_user(email, password, **fields)

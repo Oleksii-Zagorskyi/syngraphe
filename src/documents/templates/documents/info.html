@@ -1,0 +1,10 @@
+{% load i18n tz %}
+<dl class="kv">
+  <dt>{% translate "Number" %}</dt><dd>#{{ document.number }}</dd>
+  <dt>{% translate "Title" %}</dt><dd>{{ document.title }}</dd>
+  <dt>{% translate "Language" %}</dt><dd>{{ document.language.label }}</dd>
+  <dt>{% translate "Type" %}</dt><dd>{{ document.document_type.label }}</dd>
+  <dt>{% translate "Folder" %}</dt><dd>{% if document.folder.parent_id %}{{ document.folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</dd>
+  {% if administrator %}<dt>{% translate "Linked groups" %}</dt><dd>{% if document.author_only %}<span class="tag author-only">{% translate "author-only" %}</span>{% else %}{{ linked|join:" · " }}{% endif %}</dd>{% endif %}
+  <dt>{% translate "Created" %}</dt><dd>{% timezone display_timezone %}{% if creator %}{% blocktranslate with date=document.created_at|date:"j E Y" name=creator %}{{ date }}, by {{ name }}{% endblocktranslate %}{% else %}{{ document.created_at|date:"j E Y" }}{% endif %}{% endtimezone %}</dd>
+</dl>

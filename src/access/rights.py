@@ -7,8 +7,17 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from enum import StrEnum
+from typing import TYPE_CHECKING, Any
 
+from django.db import connection
 from django.utils.translation import gettext_lazy as _
+
+from tenancy.schemas import current_tenant
+
+if TYPE_CHECKING:
+    from documents.models import Document
+    from identity.models import Membership, User
+    from tenancy.models import Tenant
 
 
 class Right(StrEnum):
@@ -87,3 +96,129 @@ def implied(rights: Iterable[Right]) -> frozenset[Right]:
     if Right.EDIT not in result:
         result.difference_update(PARTS)
     return frozenset(result)
+
+
+# The author's own reach while nobody else is linked (ADR-0007).
+AUTHOR_ONLY = frozenset({Right.EDIT, Right.VIEW_PENDING, Right.VIEW_ACCEPTED, Right.VIEW_CANONICAL})
+# An administrator reads every document of the organisation and holds no other right on it;
+# administration's own acts are not rights (ADR-0007).
+ADMINISTRATOR = frozenset(
+    {
+        Right.VIEW_CANONICAL,
+        Right.VIEW_ACCEPTED,
+        Right.VIEW_PENDING,
+        Right.VIEW_PREVIOUS_CANONICAL,
+        Right.VIEW_ALL_HISTORY,
+    }
+)
+
+
+def _person(user: Any) -> User | None:
+    """The signed-in person as the database now holds them; `None` for anyone who holds no right:
+    signed out, blocked by themselves, or a former user (DL-0308)."""
+    from identity.models import User
+
+    if not getattr(user, "is_authenticated", False):
+        return None
+    return User.objects.filter(pk=user.pk, self_blocked=False, is_tombstoned=False).first()
+
+
+def _active_membership(user: User, tenant_number: int) -> Membership | None:
+    from identity.models import Membership
+
+    return Membership.objects.active().filter(user=user, tenant__number=tenant_number).first()
+
+
+def rights_on(user: Any, document: Document) -> frozenset[Right]:
+    """Every right `user` holds on `document`, in the tenant the connection is set to.
+
+    The union of: each linked group's implied rights, taken group by group; the author's own reach
+    while the document is author-only; the administrators' reading. A document being created
+    reaches nobody; an archived one only administrators. The document's state is read again in
+    the current schema, so a stale or foreign instance grants nothing it no longer does. Views and
+    controls decide from this function alone.
+    """
+    return rights_on_many(user, [document.pk])[document.pk]
+
+
+def rights_on_many(user: Any, document_ids: Iterable[Any]) -> dict[Any, frozenset[Right]]:
+    """`rights_on` for several documents at once, in a fixed number of queries."""
+    from access.models import DocumentGroup, GroupRight
+    from documents.models import Document, DocumentState
+
+    ids = list(document_ids)
+    result: dict[Any, frozenset[Right]] = {pk: frozenset() for pk in ids}
+    tenant_number = current_tenant(connection)
+    person = _person(user)
+    if tenant_number is None or person is None:
+        return result
+    membership = _active_membership(person, tenant_number)
+    administrator = person.acts_as_platform_admin or bool(
+        membership is not None and membership.is_tenant_admin
+    )
+    rows = Document.objects.filter(pk__in=ids).values("id", "state", "author_only", "created_by_id")
+    links = list(
+        DocumentGroup.objects.filter(
+            document_id__in=ids, group__members__membership=membership
+        ).values_list("document_id", "group_id")
+    )
+    granted: dict[Any, set[Right]] = {}
+    for group_id, right in GroupRight.objects.filter(
+        group_id__in={link[1] for link in links}
+    ).values_list("group_id", "right"):
+        granted.setdefault(group_id, set()).add(Right(right))
+    groups_of: dict[Any, list[Any]] = {}
+    for document_id, group_id in links:
+        groups_of.setdefault(document_id, []).append(group_id)
+    for row in rows:
+        if row["state"] == DocumentState.CREATING:
+            continue
+        rights: set[Right] = set(ADMINISTRATOR) if administrator else set()
+        if membership is not None and row["state"] == DocumentState.ACTIVE:
+            # Per group: a part right stands only where the same group can edit (ADR-0007).
+            for group_id in groups_of.get(row["id"], []):
+                rights |= implied(granted.get(group_id, set()))
+            if row["author_only"] and row["created_by_id"] == person.pk:
+                rights |= AUTHOR_ONLY
+        result[row["id"]] = frozenset(rights)
+    return result
+
+
+# Every step of the ladder above canonical text lets a person read a document as it now stands.
+BEYOND_CANONICAL = frozenset(LADDER[1:])
+
+
+def readable(user: Any, document_ids: Iterable[Any]) -> set[Any]:
+    """The documents `user` may open at all: a viewing right beyond canonical text, or canonical
+    text where an edition exists (DL-0209). A history right alone opens nothing (ADR-0007)."""
+    from documents.models import Version, VersionKind
+
+    rights = rights_on_many(user, document_ids)
+    with_edition = set(
+        Version.objects.filter(document_id__in=list(rights), kind=VersionKind.APPROVAL).values_list(
+            "document_id", flat=True
+        )
+    )
+    return {
+        pk
+        for pk, held in rights.items()
+        if held & BEYOND_CANONICAL or (Right.VIEW_CANONICAL in held and pk in with_edition)
+    }
+
+
+def can_create(user: Any, tenant: Tenant) -> bool:
+    """Whether `user` may create and copy documents in `tenant`: `create_and_edit` held through
+    any of their groups, linked to nothing (ADR-0007)."""
+    from access.models import GroupRight
+
+    person = _person(user)
+    if person is None or current_tenant(connection) != tenant.number:
+        return False
+    membership = _active_membership(person, tenant.number)
+    if membership is None:
+        return False
+    rights = GroupRight.objects.filter(group__members__membership=membership).values_list(
+        "right", flat=True
+    )
+    # `create_and_edit` is never implied by another right, so the stored rows answer alone.
+    return Right.CREATE_AND_EDIT in {Right(r) for r in rights}

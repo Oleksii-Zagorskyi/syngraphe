@@ -91,6 +91,16 @@ def test_tenants_listed(platform_admin: Any, make_tenant: Any) -> None:
     rows = {row["tenant"].number: row for row in response.context["rows"]}
     assert response.status_code == 200
     assert rows[one.number]["administrators"] == 1 and rows[one.number]["tenant"].state == "active"
+    # A blocked organisation still shows who would administer it once the block is lifted.
+    blocked = make_tenant("Blocked Org", state="blocked")
+    Membership.objects.create(
+        tenant=blocked,
+        user=registered("b.admin@example.test"),
+        is_tenant_admin=True,
+        actor_kind="system",
+    )
+    again = {row["tenant"].number: row for row in client.get(TENANTS).context["rows"]}
+    assert again[blocked.number]["administrators"] == 1
     assert (
         rows[two.number]["administrators"] == 0 and rows[two.number]["tenant"].state == "migrating"
     )

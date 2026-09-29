@@ -20,12 +20,16 @@ __all__ = [
     "Language",
     "Membership",
     "MembershipHistory",
+    "MembershipManager",
+    "MembershipQuerySet",
     "MembershipState",
     "SetupToken",
     "SignInAttempt",
     "User",
     "UserPreference",
+    "active_membership_q",
     "fold_email",
+    "member_in_good_standing_q",
 ]
 
 
@@ -53,6 +57,12 @@ class User(AbstractBaseUser, Provenanced):
 
     def __str__(self) -> str:
         return f"user {self.id}"
+
+    @property
+    def acts_as_platform_admin(self) -> bool:
+        """The platform administrator's role, which a blocked or tombstoned account does not
+        exercise (DL-0308)."""
+        return self.is_platform_admin and not self.self_blocked and not self.is_tombstoned
 
     @property
     def is_staff(self) -> bool:
@@ -83,6 +93,42 @@ class MembershipState(models.TextChoices):
     BLOCKED = "blocked", "blocked"
 
 
+def member_in_good_standing_q(prefix: str = "") -> models.Q:
+    """A membership that counts on its own terms: active, and the person neither self-blocked nor
+    tombstoned — whatever the organisation's state. `prefix` addresses it from another model,
+    `memberships__` from a tenant, so a count and a query read the same rule."""
+    return models.Q(
+        **{
+            f"{prefix}state": MembershipState.ACTIVE,
+            f"{prefix}user__self_blocked": False,
+            f"{prefix}user__is_tombstoned": False,
+        }
+    )
+
+
+def active_membership_q(prefix: str = "") -> models.Q:
+    """The one definition of an active member — one that reaches its organisation: in good
+    standing, and the organisation itself active."""
+    from tenancy.models import TenantState
+
+    return member_in_good_standing_q(prefix) & models.Q(
+        **{f"{prefix}tenant__state": TenantState.ACTIVE}
+    )
+
+
+class MembershipQuerySet(models.QuerySet["Membership"]):
+    def active(self) -> MembershipQuerySet:
+        return self.filter(active_membership_q())
+
+
+class MembershipManager(models.Manager["Membership"]):
+    def get_queryset(self) -> MembershipQuerySet:
+        return MembershipQuerySet(self.model, using=self._db)
+
+    def active(self) -> MembershipQuerySet:
+        return self.get_queryset().active()
+
+
 class Membership(Mutable):
     """A person's place in one organisation; `granted_at` is what a tenant administrator sees."""
 
@@ -99,6 +145,8 @@ class Membership(Mutable):
     granted_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.PROTECT, related_name="+"
     )
+
+    objects: ClassVar[MembershipManager] = MembershipManager()
 
     class Meta(Mutable.Meta):
         abstract = False

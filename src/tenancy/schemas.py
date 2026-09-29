@@ -1,7 +1,9 @@
 """The one place the connection's `search_path` is set outside a request (ADR-0017).
 
-`schema_context` is the setter for tasks, commands and tests; `TenancyMiddleware` is the setter in
-a request. Nothing else calls `set_search_path`. Schemas are named by the tenant's number, never by
+`schema_context` is the setter for tasks, commands and tests — and, inside a request, for the
+one service that creates an organisation and migrates its schema there (DL-0290);
+`TenancyMiddleware` is the setter for everything else in a request. Nothing else calls
+`set_search_path`. Schemas are named by the tenant's number, never by
 the organisation (ADR-0008).
 """
 

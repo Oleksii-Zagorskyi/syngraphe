@@ -33,6 +33,7 @@ SHARED_APPS = [
     "shell",
 ]
 TENANT_APPS = [
+    "documents",
     "access",
 ]
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -104,9 +105,30 @@ CELERY_BEAT_SCHEDULE = {
         "task": "identity.sweep_sign_in_attempts",
         "schedule": crontab(hour=3, minute=0),
     },
+    "reconcile-hourly": {
+        "task": "documents.reconcile_hourly",
+        "schedule": crontab(minute=20),
+    },
+    "backup-repositories": {
+        "task": "documents.backup_repositories",
+        "schedule": crontab(minute="*/10"),
+    },
+    "backup-watch": {
+        "task": "documents.backup_watch",
+        "schedule": crontab(minute="*"),
+    },
+    # Before the 02:00 base backup, so the full bundles it starts are written from packed
+    # repositories (DL-0313).
+    "repack-nightly": {
+        "task": "documents.repack_nightly",
+        "schedule": crontab(hour=1, minute=35),
+    },
 }
 
 GIT_REPO_ROOT = _CONFIG.git_repo_root
+BACKUP_STATE_DIR = _CONFIG.backup_state_dir
+BACKUP_LOCK_TIMEOUT = _CONFIG.backup_lock_timeout
+BACKUP_WAL_ALERT = _CONFIG.backup_wal_alert
 TRUSTED_PROXIES = _CONFIG.trusted_proxies
 DJANGO_ADMIN_PATH = _CONFIG.admin_path
 DISPLAY_TIMEZONE = _CONFIG.display_timezone

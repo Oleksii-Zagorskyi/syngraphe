@@ -13,7 +13,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 
 **Derived by `scripts/derive_coverage.py`** from the *Stories* column of each region table in `pages.md` and its *not yet drawn* marks, and from the stories of [`user-stories.md`](../user-stories.md) in their order — a withdrawn story and one outside release 0.1 left out; run it whenever either file changes. A region is named by its section — `› The tabs` or `› The edit tab` for those subsections — then the region cell up to its first ` — ` or `; `, emphasis removed, cut at 58 characters; a region named as its section is the section alone. A story's title stops before its *so that* or at its sentence's end. A story is **drawn** when every region carrying it is drawn, **partly drawn** when some are, **not yet drawn** when none are. A region for a later release carries no 0.1 story (DL-0228).
 
-**70 stories:** 61 drawn · 6 partly drawn · 3 not yet drawn. Every story has at least one region.
+**70 stories:** 62 drawn · 5 partly drawn · 3 not yet drawn. Every story has at least one region.
 
 | # | Story | Where | Drawn |
 |---|---|---|---|
@@ -32,7 +32,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0008 | As a user, I sign in with an email address and a password | Sign-in pages — the three forms | drawn |
 | ST-0054 | As an invited person, I accept an invitation and set a password | Sign-in pages — the three forms | drawn |
 | ST-0055 | As a user, I reset a forgotten password | Sign-in pages — the three forms | drawn |
-| ST-0009 | As a user holding *create and edit*, I create a document by giving it a title, a language, a type and a folder | Document list — create; Create or copy a document — create | partly drawn |
+| ST-0009 | As a user holding *create and edit*, I create a document by giving it a title, a language, a type and a folder | Document list — create; Create or copy a document — create | drawn |
 | ST-0058 | As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page | Administration — template | drawn |
 | ST-0051 | As a tenant administrator, I am notified when a document is created or copied | Document list — state tags after the title; Document page — state tags, as in the list; Notifications — both tabs; Administration — document links | drawn |
 | ST-0010 | As a tenant administrator, I change a document's type | Document page › The tabs — Info | drawn |

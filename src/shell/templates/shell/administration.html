@@ -27,7 +27,7 @@
     <section class="pane organisation">
       <h2>{% translate "Organisation" %}</h2>
       <p class="muted">{{ current_tenant.name }}</p>
-      <ul class="sections">{% block organisation_sections %}<li><a href="/administration/tenant/groups/">{% translate "Groups" %}</a></li>{% endblock %}</ul>
+      <ul class="sections">{% block organisation_sections %}<li><a href="/administration/tenant/groups/">{% translate "Groups" %}</a></li><li><a href="/administration/tenant/document-links/">{% translate "Document links" %}</a></li>{% endblock %}</ul>
     </section>
     {% elif platform_pane %}
     <section class="pane organisation">

@@ -1,10 +1,11 @@
 """Sign-in throttling: a growing delay, never a lock (DL-0116, DL-0289, T-14).
 
 Failures are counted twice — by the client, and by the pair of the email address typed and the
-client — and the next attempt waits 1, 2, 4 … 60 seconds after the last failure. An attempt made
-while either delay runs is refused and counted as a failure. A success resets the pair only, so
-signing into one's own account does not clear the client's count, and nobody's failures delay the
-owner of an address signing in from another client.
+client — or, when the browser carries a device cookie issued at an earlier sign-in with this
+address, by that device alone (DL-0293). The next attempt waits 1, 2, 4 … 60 seconds after the last
+failure. An attempt made while either delay runs is refused and counted as a failure. A success
+resets the pair only, so signing into one's own account does not clear the client's count, and
+nobody's failures delay the owner of an address signing in from another client.
 """
 
 from __future__ import annotations

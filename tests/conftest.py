@@ -1,15 +1,17 @@
-"""Shared fixtures: the database, a client on the platform host, the Celery worker."""
+"""Shared fixtures: the database, a client on the platform host, the Celery worker, a migrated
+tenant and its members."""
 
 from __future__ import annotations
 
 import os
 import tempfile
 import uuid
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any
 
 import pytest
+from django.core.management import call_command
 from django.db import connection
 from django.test import Client
 
@@ -93,3 +95,109 @@ def drop_tenant_schemas() -> Iterator[None]:
         cursor.execute("SELECT nspname FROM pg_namespace WHERE nspname LIKE 'tenant\\_%'")
         for (name,) in cursor.fetchall():
             cursor.execute(f'DROP SCHEMA "{name}" CASCADE')
+
+
+@pytest.fixture
+def migrated_tenant(drop_tenant_schemas: None) -> Any:
+    """An active tenant whose schema holds every tenant table.
+
+    `drop_tenant_schemas` is requested first so it tears down last: the tenant schema's rows
+    reference `identity_membership`, which the flush after the test truncates.
+    """
+    from tenancy.models import Tenant
+
+    tenant = Tenant.objects.create(name="Example Org", actor_kind="system")
+    call_command("migrate_schemas", f"--tenant={tenant.number}", verbosity=0)
+    tenant.refresh_from_db()
+    return tenant
+
+
+@pytest.fixture
+def make_tenant_schema(drop_tenant_schemas: None) -> Callable[[str], Any]:
+    """Another active tenant with its schema migrated."""
+    from tenancy.models import Tenant
+
+    def make(name: str) -> Any:
+        tenant = Tenant.objects.create(name=name, actor_kind="system")
+        call_command("migrate_schemas", f"--tenant={tenant.number}", verbosity=0)
+        tenant.refresh_from_db()
+        return tenant
+
+    return make
+
+
+@pytest.fixture
+def member_of(migrated_tenant: Any) -> Callable[..., tuple[Client, Any, Any]]:
+    """A client signed in as a member of the migrated tenant, the tenant chosen in the session."""
+
+    def make(
+        email: str, *, is_tenant_admin: bool = False, is_platform_admin: bool = False
+    ) -> tuple[Client, Any, Any]:
+        from identity.models import Membership, User
+
+        user = User.objects.create_user(
+            email, "test-only-not-a-password", is_platform_admin=is_platform_admin
+        )
+        membership = Membership.objects.create(
+            tenant=migrated_tenant, user=user, is_tenant_admin=is_tenant_admin, actor_kind="system"
+        )
+        client = Client(headers={"host": "127.0.0.1"})
+        client.force_login(user)
+        session = client.session
+        session["tenant_number"] = migrated_tenant.number
+        session.save()
+        return client, user, membership
+
+    return make
+
+
+@pytest.fixture
+def signed_in_without_tenant() -> Callable[..., Client]:
+    """A client signed in with no organisation chosen in its session."""
+
+    def make(email: str, *, is_platform_admin: bool = False) -> Client:
+        from identity.models import User
+
+        user = User.objects.create_user(
+            email, "test-only-not-a-password", is_platform_admin=is_platform_admin
+        )
+        client = Client(headers={"host": "127.0.0.1"})
+        client.force_login(user)
+        return client
+
+    return make
+
+
+@pytest.fixture
+def make_document(migrated_tenant: Any) -> Callable[..., Any]:
+    """A document row in the migrated tenant's root folder, with no repository behind it."""
+
+    def make(
+        *,
+        title: str = "Документ",
+        created_by: Any = None,
+        author_only: bool = True,
+        state: str = "active",
+        language: str = "uk",
+    ) -> Any:
+        from documents.models import Document, DocumentType, Folder, next_document_number
+        from identity.models import Language
+        from tenancy.schemas import schema_context
+
+        Language.objects.get_or_create(
+            code=language, defaults={"label": language, "actor_kind": "system"}
+        )
+        with schema_context(migrated_tenant.number):
+            return Document.objects.create(
+                number=next_document_number(),
+                title=title,
+                language_id=language,
+                document_type=DocumentType.objects.get(code="document"),
+                folder=Folder.objects.get(number=1),
+                created_by=created_by,
+                actor_kind="system" if created_by is None else "user",
+                author_only=author_only,
+                state=state,
+            )
+
+    return make

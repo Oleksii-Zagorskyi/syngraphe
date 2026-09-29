@@ -251,7 +251,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="node l1"><span class="tw"> </span>Guidelines</div></aside>
 <div class="grip" data-grip="sl" data-var="--l" data-side="l"></div>
 <div class="content">
-<div class="toolbar"><input placeholder="Search titles of documents and appendices" value=""><button class="btn primary" data-need="cr">+ Create document</button><button class="btn" data-need="tadmin">Folders ▾</button></div>
+<div class="toolbar"><input placeholder="Search titles of documents and appendices" value=""><button class="btn primary" data-need="cr" data-open="createD">+ Create document</button><button class="btn" data-need="tadmin">Folders ▾</button></div>
 <table class="sortable"><thead>
 <tr><th><a href="#" class="sort" data-k="n">#</a></th><th><a href="#" class="sort" data-k="t">Title ▲</a></th><th class="r">Type</th><th class="r">Canonical</th><th class="r">Latest</th><th class="r">Parts</th><th class="r"></th></tr></thead><tbody class="grp">
 <tr data-st="arch0" data-n="12" data-t="Annual leave, sick leave and parental leave: how employees request, approve and record time off"><td class="id">#12</td><td><a href="#" data-go="doc" data-tab="0">Annual leave, sick leave and parental leave: how employees request, approve and record time off</a><span class="tag" data-st="h-edited">held<span data-need="tadmin"> by Author A</span></span><span class="tag" data-st="h-mine1">you are editing</span><span class="tag" data-st="h-mineres">reserved for editing by you, since 20 Sep</span><span class="tag" data-st="h-reserved">reserved for editing, since 12 Sep<span data-need="ed|acc|tadmin"> by Author A</span></span><span class="tag st" data-st="fz">frozen</span><span class="tag rvA" data-st="r-pending" data-need="vp">awaiting review</span><span class="tag rvA" data-st="r-returned" data-need="vp">returned</span><span class="tag" data-st="r-noreviewer" data-need="vp|tadmin">no reviewer assigned</span></td><td class="r">policy</td><td class="r"><a href="#" data-go="hist" title="open canonical 2.0">2.0</a></td><td class="r"><a href="#" data-go="doc" data-tab="0"><span class="ver"></span></a></td><td class="r"><span class="pi " title="appendices">▤</span><span class="pi " title="attachments">📎</span></td><td class="r"><a href="#" class="icon" data-go="doc" data-tab="1" title="edit" data-need="ed">✎</a></td></tr>
@@ -274,7 +274,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="node l1" data-need="va"><span class="tw"> </span>Procedures</div></aside>
 <div class="grip" data-grip="ss" data-var="--l" data-side="l"></div>
 <div class="content">
-<div class="toolbar"><input value="leave"><button class="btn primary" data-need="cr">+ Create document</button></div><p class="note">Searched in titles of documents and of their appendices — not in text.</p>
+<div class="toolbar"><input value="leave"><button class="btn primary" data-need="cr" data-open="createD">+ Create document</button></div><p class="note">Searched in titles of documents and of their appendices — not in text.</p>
 <table class="sortable"><thead>
 <tr><th><a href="#" class="sort" data-k="n">#</a></th><th><a href="#" class="sort" data-k="t">Title ▲</a></th><th class="r">Type</th><th class="r">Canonical</th><th class="r">Latest</th><th class="r">Parts</th><th class="r"></th></tr></thead><tbody class="grp">
 <tr class="grouphd"><td colspan="7">Policies / Finance</td></tr>
@@ -704,9 +704,9 @@ details.um>summary{list-style:none;cursor:pointer}
 <tr><td>Admin B</td><td>1 Sep</td><td>remove</td></tr></table><p><button class="btn primary" data-open="grantD">+ Grant platform administration</button></p><p class="note">The last platform administrator cannot be removed or blocked.</p></div>
 <div class="admsec" id="p-types" data-url="/administration/tenant/document-types/" style="display:none">
 <div class="title" style="margin-bottom:8px">Document types</div>
-<p class="note">This organisation’s own list. A new organisation starts with one type, <em>document</em>. A type still assigned to a document can be retired, never deleted.</p>
+<p class="note">This organisation’s own list. A new organisation starts with one type, labelled <em>Документ</em> as the organisation stores it. A type still assigned to a document can be retired, never deleted.</p>
 <table><tr><th>Type</th><th>Documents</th><th></th></tr>
-<tr><td>document</td><td>3</td><td class="note">rename · retire</td></tr>
+<tr><td>Документ</td><td>3</td><td class="note">rename · retire</td></tr>
 <tr><td>policy <span class="note">synthetic example</span></td><td>7</td><td class="note">rename · retire</td></tr>
 <tr><td>controls <span class="note">synthetic example</span></td><td>2</td><td class="note">rename · retire</td></tr>
 <tr><td>procedure <span class="note">synthetic example</span></td><td>0</td><td class="note">rename · delete</td></tr></table>
@@ -934,6 +934,13 @@ footer { font-size: 9pt; }</textarea>
 <p class="note">Groups to add them to <span class="chips"><span>All staff<b>✕</b></span></span> <select><option>+ group</option><option>HR editors</option></select></p>
 <p class="note">Whether or not the address is already known to the platform, they receive an email and appear here; nothing on this page tells the two apart.</p>
 <button class="btn primary" data-close>Send the invitation</button> <button class="btn" data-close>Cancel</button></div></div>
+<div class="overlay" id="createD"><div class="dialog dlg"><strong>Create a document</strong>
+<p class="note" style="margin-bottom:2px">Title</p><p style="margin-top:0"><input type="text" style="width:100%"></p>
+<p class="note" style="margin-bottom:2px">Language</p><p style="margin-top:0"><select><option>Ukrainian</option><option>English</option></select></p>
+<p class="note" style="margin-bottom:2px">Type</p><p style="margin-top:0"><select><option>Документ</option><option>policy</option><option>procedure</option></select></p>
+<p class="note" style="margin-bottom:2px">Folder</p><p style="margin-top:0"><select><option>Example Org</option><option>Policies / Human resources</option><option>Procedures</option></select></p>
+<p class="note">The document starts from your organisation's template. Only you can reach it until an administrator links groups to it.</p>
+<button class="btn primary" data-close>Create</button> <button class="btn" data-close>Cancel</button></div></div>
 <div class="overlay" id="orgD"><div class="dialog dlg"><strong>Create an organisation</strong>
 <p class="note" style="margin-bottom:2px">Name</p><p style="margin-top:0"><input type="text" style="width:100%" value="Example Branch"></p>
 <p class="note" style="margin-bottom:2px">First administrator — email address</p><p style="margin-top:0"><input type="text" style="width:100%" placeholder="name@organisation.example"></p>

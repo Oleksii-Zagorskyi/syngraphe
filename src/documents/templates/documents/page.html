@@ -1,0 +1,11 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}#{{ document.number }} {{ document.title }} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content document">
+  <nav class="breadcrumb"><a href="/folder/1/">{{ current_tenant.name }}</a> /</nav>
+  <h1><span class="id">#{{ document.number }}</span> {{ document.title }}</h1>
+  <nav class="tabs"><a href="/document/{{ document.number }}/info/" aria-current="page">{% translate "Info" %}</a></nav>
+  {% include "documents/info.html" %}
+</section>
+{% endblock %}

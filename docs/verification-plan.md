@@ -129,9 +129,9 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **Pass condition.** **Zero** reachable objects missing afterwards, and every tagged version readable.
 
-**If it fails** *(proposed during planning; no earlier document states it)*. Housekeeping runs repack without prune, and repository size is watched instead. Running it under the document's writer lock is a constraint on Epic 3, which builds the lock, and is not tested here.
+**If it fails** *(proposed during planning; no earlier document states it)*. Housekeeping runs repack without prune, and repository size is watched instead.
 
-**Status.** Proven — 2026-09-27. On both corpora, with a dangling blob and a dangling commit planted and the unreferenced side commits of the other spikes left behind as real debris: 629 objects reachable before `repack -a -d` and `prune --expire=now`, 629 after, none missing, every unreachable object gone, `fsck --strict` clean, and `document.md` at each of the 20 tags read back byte-identical through pygit2 and through GitPython; 0.4 s.
+**Status.** Proven — 2026-09-27. On both corpora, with a dangling blob and a dangling commit planted and the unreferenced side commits of the other spikes left behind as real debris: 629 objects reachable before `repack -a -d` and `prune --expire=now`, 629 after, none missing, every unreachable object gone, `fsck --strict` clean, and `document.md` at each of the 20 tags read back byte-identical through pygit2 and through GitPython; 0.4 s. In the product the repack and prune run nightly, each repository under its writer lock, and `tests/documents/test_housekeeping.py` repeats the check on every run of the suite: a dangling blob and commit planted, every reachable object present afterwards, the debris gone, `fsck --strict` clean.
 
 ## Text and rendering
 
@@ -233,3 +233,16 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 **If it fails.** The two-run containment (`threat-model.md` T-01, T-02) cannot rest on the mount table, and stage 2's design reopens before any agent is built.
 
 **Status.** Deferred to release 0.2, where agent runs arrive; it shapes no story in 0.1 (DL-0211).
+
+### V-16 — A bundle run fits five minutes
+
+**Claim.** A run of bundles, the nightly run of full bundles included, completes in under five minutes at the platform's sizes, so the ten-minute interval keeps ASR-25's fifteen minutes (DL-0296, ADR-0019).
+
+**Test.** Time the nightly run of full bundles against the backup store: once on the development stack, again at the first production deploy.
+
+**Pass condition.** Under five minutes.
+
+**If it fails.** ADR-0019's review trigger: the interval or the run is revisited.
+
+**Status.** Open with a reason: to be measured again at the first production deploy. Measured 2026-09-29 on a development workstation against an SFTP store on the local network, 102 documents, 100 of them of about forty pages and 203 commits each: 336 s over repositories never repacked (834 MB of loose objects), 107 s after a repack (23 MB), the repack itself 112 s. The trigger was met and answered by repacking nightly before the base backup (DL-0313).
+

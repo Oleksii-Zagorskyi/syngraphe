@@ -186,4 +186,6 @@ Two changes, both cheap now:
 - **Administrators read everything in their scope** (T-16). Accepted while the platform serves one organisation; EP-0001 before it serves independent ones.
 - **Whoever holds the host can read every backup** (T-20). The keys are on the host, as the operator's are; encryption protects the store from its provider, not from the host.
 - **The development backup store can be emptied from the host** (T-20). It holds invented content only.
+- **Whoever can write under the repository root can run code as the application.** Git's checks that a repository belongs to the user opening it are off for the application's own repositories, since a shared folder can misreport their owner; writing there already means holding every document.
+- **`/health/` tells anyone how recently the backup archived and how much log waits** (DL-0295). It says whether a repository is failing and never which; the timing is what the external check needs.
 - **Attachment contents are not inspected** (T-15). A file is served only as a download and never rendered; judging what is inside it is left to the reader's own machine.

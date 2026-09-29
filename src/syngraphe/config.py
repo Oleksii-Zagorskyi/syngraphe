@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ipaddress
 import os
+import re
 import zoneinfo
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -55,6 +56,9 @@ class Config:
     trusted_proxies: tuple[IPNetwork, ...]
     display_timezone: str
     default_language: str
+    backup_state_dir: Path
+    backup_lock_timeout: float
+    backup_wal_alert: int
 
 
 class _Reader:
@@ -130,6 +134,27 @@ class _Reader:
                 self.malformed.append(key)
         return value
 
+    def size(self, key: str, default: str) -> int:
+        """A size in bytes, written plainly or with a suffix counted in powers of 1024, as
+        pgBackRest counts them: `2GiB` and `2GB` are the same size."""
+        value = self.string(key, default)
+        match = re.fullmatch(r"([0-9]+)\s*(?:([KMGT])i?B)?", value)
+        if match is None:
+            self.malformed.append(key)
+            return 0
+        power = "KMGT".index(match.group(2)) + 1 if match.group(2) else 0
+        return int(match.group(1)) * int(1024**power)
+
+    def seconds(self, key: str, default: str) -> float:
+        value = self.string(key, default)
+        try:
+            seconds = float(value)
+        except ValueError:
+            seconds = -1
+        if seconds <= 0:
+            self.malformed.append(key)
+        return seconds
+
     def directory(self, key: str) -> Path:
         """A path; a relative one is taken from the repository root, not the working directory."""
         return REPOSITORY_ROOT / self.string(key)
@@ -160,6 +185,9 @@ def load(environ: Mapping[str, str] | None = None) -> Config:
         trusted_proxies=reader.networks("TRUSTED_PROXIES"),
         display_timezone=reader.timezone("DISPLAY_TIMEZONE"),
         default_language=reader.string("DEFAULT_LANGUAGE"),
+        backup_state_dir=Path(reader.string("BACKUP_STATE_DIR", "/srv/backup-state")),
+        backup_lock_timeout=reader.seconds("BACKUP_LOCK_TIMEOUT", "30"),
+        backup_wal_alert=reader.size("BACKUP_WAL_ALERT", "2GiB"),
     )
     if reader.missing or reader.malformed:
         raise ConfigurationError(reader.missing, reader.malformed)

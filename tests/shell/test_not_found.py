@@ -6,6 +6,7 @@ import re
 from typing import Any
 
 import pytest
+from django.test import Client
 
 pytestmark = [pytest.mark.invariant, pytest.mark.django_db]
 
@@ -21,7 +22,8 @@ def body_of(response: Any) -> bytes:
 
 def test_one_answer_for_missing_and_forbidden(signed_in: Any, tenant: Any) -> None:
     client, _ = signed_in("a.member@example.test", tenant=tenant)
-    client.get("/")  # the first response of a session sets the CSRF cookie; neither below may
+    # The first response of a session sets the CSRF cookie; neither below may.
+    client.get("/no-such-page/")
 
     missing = client.get("/no-such-page/")
     forbidden = client.get("/administration/")
@@ -35,3 +37,15 @@ def test_one_answer_for_missing_and_forbidden(signed_in: Any, tenant: Any) -> No
     body = missing.content.decode()
     assert "Nothing to show here" in body or "нічого" in body
     assert "administration" not in body.lower().replace("/administration/", "")
+
+
+def test_bare_administration_paths_are_not_redirected(signed_in: Any, tenant: Any) -> None:
+    """A path without its trailing slash answers as an unknown address, never with a redirect
+    that would tell anyone the slashed page exists (ADR-0008)."""
+    client, _ = signed_in("p.admin@example.test", tenant=tenant, is_platform_admin=True)
+    anonymous = Client(headers={"host": "127.0.0.1"})
+
+    bare = ("/administration", "/administration/platform/hosts", "/administration/tenant/groups")
+    for path in bare:
+        assert client.get(path).status_code == 404, path
+        assert anonymous.get(path).status_code == 404, path

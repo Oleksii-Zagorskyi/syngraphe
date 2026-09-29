@@ -1,0 +1,50 @@
+{% extends "shell/administration.html" %}
+{% load i18n tz %}
+{% block title %}{% translate "Document links" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="document-links">
+  <h1>{% translate "Document links" %}</h1>
+  <table class="links">
+    <thead>
+      <tr><th>#</th><th>{% translate "Document" %}</th><th>{% translate "Linked groups" %}</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr{% if row.archived %} class="archived"{% endif %}>
+        <td>{{ row.document.number }}</td>
+        <td>
+          {{ row.document.title }}
+          {% if row.document.author_only %}<span class="tag author-only">{% translate "author-only" %}</span>
+          {% timezone display_timezone %}<div class="muted">{% blocktranslate with name=row.creator date=row.document.created_at|date:"j E" %}Created by {{ name }}, {{ date }} — only they can reach it until a group is linked.{% endblocktranslate %}</div>{% endtimezone %}{% endif %}
+          {% if row.archived %}<div class="muted">{% translate "Archived — its links take effect on restore." %}</div>{% endif %}
+          {% if row.held %}<div class="muted">{% translate "Locked while the document is held." %}</div>{% endif %}
+        </td>
+        <td>
+          <div class="chips">
+            {% for group in row.linked %}
+            <form method="post" action="{{ links_url }}{{ row.document.number }}/" class="chip">{% csrf_token %}
+              <input type="hidden" name="group" value="{{ group.id }}">
+              <input type="hidden" name="action" value="unlink">
+              <span>{{ group.name }}</span>{% if not row.held %}<button class="icon" type="submit" aria-label="{% blocktranslate with group=group.name %}Unlink {{ group }}{% endblocktranslate %}">✕</button>{% endif %}
+            </form>
+            {% endfor %}
+            {% if not row.held and row.candidates %}
+            <form method="post" action="{{ links_url }}{{ row.document.number }}/" class="link-a-group">{% csrf_token %}
+              <input type="hidden" name="action" value="link">
+              <label class="visually-hidden" for="link-{{ row.document.number }}">{% translate "Link a group" %}</label>
+              <select id="link-{{ row.document.number }}" name="group">
+                {% for group in row.candidates %}<option value="{{ group.id }}">{{ group.name }}</option>{% endfor %}
+              </select>
+              <button class="btn" type="submit">{% translate "Link a group" %}</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3" class="muted">{% translate "No documents yet." %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

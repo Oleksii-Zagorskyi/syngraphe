@@ -14,4 +14,10 @@ urlpatterns = [
         views.group_members,
         name="group_members",
     ),
+    path("administration/tenant/document-links/", views.document_links, name="document_links"),
+    path(
+        "administration/tenant/document-links/<int:number>/",
+        views.document_link,
+        name="document_link",
+    ),
 ]

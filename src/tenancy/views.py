@@ -4,6 +4,7 @@ ADR-0008). Every page answers not-found to anyone but a platform administrator."
 from __future__ import annotations
 
 import uuid
+from collections import Counter
 from typing import Any, cast
 
 from django.contrib.auth.decorators import login_required
@@ -14,7 +15,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from identity.models import MembershipState, User
+from identity.models import User, member_in_good_standing_q
 from shell.views import frame, not_found
 from tenancy import services
 from tenancy.forms import HostForm, TenantForm
@@ -35,7 +36,7 @@ class Tampered(Exception):
 def _platform_admin(request: HttpRequest) -> bool:
     """A platform administrator on a platform host: the platform's pages are never served on an
     organisation's domain, where a request already belongs to that organisation (DL-0290)."""
-    return bool(getattr(request.user, "is_platform_admin", False)) and not getattr(
+    return bool(getattr(request.user, "acts_as_platform_admin", False)) and not getattr(
         request, "tenant_from_domain", True
     )
 
@@ -55,12 +56,10 @@ def tenants(request: HttpRequest) -> HttpResponse:
     listed = Tenant.objects.annotate(
         administrators=Count(
             "memberships",
-            filter=Q(
-                memberships__is_tenant_admin=True,
-                memberships__state=MembershipState.ACTIVE,
-                memberships__user__self_blocked=False,
-                memberships__user__is_tombstoned=False,
-            ),
+            # Counted whatever the organisation's state: an operator deciding whether to lift a
+            # block sees who would administer it.
+            filter=Q(memberships__is_tenant_admin=True)
+            & member_in_good_standing_q("memberships__"),
         )
     ).order_by("number")
     rows = [
@@ -103,12 +102,27 @@ def hosts(request: HttpRequest) -> HttpResponse:
             form = HostForm(request.POST)
         else:
             return HttpResponseRedirect(reverse("hosts"))
+    platform_hosts = list(PlatformHost.objects.order_by("host"))
+    domains = list(TenantDomain.objects.select_related("tenant").order_by("tenant__number", "host"))
+    domains_of = Counter(domain.tenant_id for domain in domains)
+    # *Remove* is offered exactly where `services.remove_host` allows it: never the platform's
+    # last host, never a default among siblings; an organisation's sole domain may go.
     rows = [
-        {"row": row, "belongs_to": None, "kind": "platform"}
-        for row in PlatformHost.objects.order_by("host")
+        {
+            "row": row,
+            "belongs_to": None,
+            "kind": "platform",
+            "removable": not row.is_default and len(platform_hosts) > 1,
+        }
+        for row in platform_hosts
     ] + [
-        {"row": row, "belongs_to": row.tenant, "kind": "domain"}
-        for row in TenantDomain.objects.select_related("tenant").order_by("tenant__number", "host")
+        {
+            "row": row,
+            "belongs_to": row.tenant,
+            "kind": "domain",
+            "removable": not row.is_default or domains_of[row.tenant_id] == 1,
+        }
+        for row in domains
     ]
     organisations = Tenant.objects.exclude(state=TenantState.MIGRATING).order_by("number")
     return _page(

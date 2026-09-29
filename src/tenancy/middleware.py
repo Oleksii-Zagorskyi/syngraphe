@@ -26,6 +26,8 @@ if TYPE_CHECKING:
     from identity.models import Membership
 
 HOST_CACHE_SECONDS = 30
+# The health probe answers before the tables exist. Static files are the other exception, served
+# by WhiteNoise above this middleware: an asset carries nothing that belongs to a tenant.
 EXEMPT_PATHS = ("/health/",)
 SESSION_TENANT_KEY = "tenant_number"
 # One line for every refusal, so an unknown host and a migrating tenant's domain read the same.
@@ -117,31 +119,25 @@ def resolve_tenant(request: HttpRequest, entry: HostEntry) -> Tenant | None:
 
 
 def _may_reach(user: Any, tenant: Tenant) -> bool:
-    from identity.models import Membership, MembershipState
+    from identity.models import Membership
 
-    if user.is_platform_admin:
+    if getattr(user, "acts_as_platform_admin", False):
         return True
-    return Membership.objects.filter(
-        tenant=tenant, user=user, state=MembershipState.ACTIVE
-    ).exists()
+    return Membership.objects.active().filter(tenant=tenant, user=user).exists()
 
 
 def active_membership(request: HttpRequest, tenant: Tenant | None) -> Membership | None:
     """The signed-in person's active membership in the resolved tenant, or `None`.
 
     `None` also for a tenant that is not active and for a person who blocked their own account:
-    each closes every membership it covers.
+    each closes every membership it covers (`identity.models.active_membership_q`).
     """
-    from identity.models import Membership, MembershipState
+    from identity.models import Membership
 
     user = getattr(request, "user", None)
-    if tenant is None or tenant.state != TenantState.ACTIVE:
+    if tenant is None or user is None or not user.is_authenticated:
         return None
-    if user is None or not user.is_authenticated or user.self_blocked:
-        return None
-    membership = Membership.objects.filter(
-        tenant=tenant, user=user, state=MembershipState.ACTIVE
-    ).first()
+    membership = Membership.objects.active().filter(tenant=tenant, user=user).first()
     if membership is not None:
         membership.user = user
     return membership

@@ -14,7 +14,7 @@
       <td>{% if item.row.is_default %}(•){% else %}
         <form method="post" class="inline">{% csrf_token %}<input type="hidden" name="action" value="default"><input type="hidden" name="id" value="{{ item.row.id }}"><button class="btn" type="submit" aria-label="{% translate 'Make default' %} — {{ item.row.host }}">( )</button></form>
       {% endif %}</td>
-      <td>{% if not item.row.is_default %}
+      <td>{% if item.removable %}
         <form method="post" class="inline">{% csrf_token %}<input type="hidden" name="action" value="remove"><input type="hidden" name="id" value="{{ item.row.id }}"><button class="icon" type="submit" aria-label="{% translate 'Remove' %} — {{ item.row.host }}">✕</button></form>
       {% endif %}</td>
     </tr>

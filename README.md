@@ -108,12 +108,16 @@ list of words this product does not use, and what to use instead.
 
 ## Running it
 
-Docker with Compose, and `uv` for the check.
+Docker with Compose, `uv` for the check, and an off-host backup store — an SFTP
+server or an S3 bucket — which the database and the backup need before they
+start; there is no local kind ([the runbook](docs/runbook.md#backup)).
 
 ```bash
-cp .env.example .env         # fill every ???; the application refuses to start while one remains
+cp .env.example .env         # fill every ??? (the store's for its kind only); nothing starts while one remains
+                             # set SITE_HTTPS=false unless a TLS proxy is in front: over plain
+                             # HTTP the cookies are never sent and nobody can sign in
 mkdir -p .repos              # the document repositories, written by the application's user, uid 1000
-docker compose up            # web, worker, PostgreSQL and Redis; the schema migrates on start
+docker compose up            # web, worker, PostgreSQL, Redis and the backup; the schema migrates on start
 curl http://127.0.0.1:8000/health/
 ```
 

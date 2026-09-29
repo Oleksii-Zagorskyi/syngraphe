@@ -4,7 +4,12 @@ bind = "0.0.0.0:8000"
 workers = 2
 accesslog = "-"
 errorlog = "-"
-# The client, the request line, the status and the size; no referer and no user agent.
+# Gunicorn trusts no forwarded header itself: the application's TRUSTED_PROXIES is the one list
+# that decides which peer's headers are believed (DL-0292).
+forwarded_allow_ips = ""
+# The peer, the request line, the status and the size; no referer and no user agent. The peer is
+# the proxy behind a proxy: the client address, resolved per request by the application, is in
+# the application's own log lines, never taken from a header Gunicorn cannot judge.
 access_log_format = '%(h)s "%(r)s" %(s)s %(b)s'
 
 logconfig_dict = {

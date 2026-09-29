@@ -1,4 +1,5 @@
-"""`GET /health/` names what answers and what does not, and nothing else."""
+"""`GET /health/` names what answers and what does not, and the backup's state, and nothing
+else."""
 
 from __future__ import annotations
 
@@ -14,8 +15,10 @@ pytestmark = pytest.mark.integration
 def test_health_ok(client: Client) -> None:
     response = client.get("/health/")
 
+    body = response.json()
     assert response.status_code == 200
-    assert response.json() == {"database": "ok", "redis": "ok"}
+    assert set(body) == {"database", "redis", "backup"}
+    assert (body["database"], body["redis"]) == ("ok", "ok")
 
 
 @pytest.mark.django_db
@@ -24,5 +27,6 @@ def test_health_names_the_failing_service(client: Client, settings: Any) -> None
 
     response = client.get("/health/")
 
+    body = response.json()
     assert response.status_code == 503
-    assert response.json() == {"database": "ok", "redis": "unreachable"}
+    assert (body["database"], body["redis"]) == ("ok", "unreachable")

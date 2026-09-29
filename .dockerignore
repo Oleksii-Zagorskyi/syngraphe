@@ -5,4 +5,10 @@
 !src/
 !deploy/entrypoint.sh
 !deploy/gunicorn.conf.py
+!deploy/pgbackrest.conf
+!deploy/backup-cron
+!deploy/backup-env.sh
+!deploy/backup-state.sh
+!deploy/db-entrypoint.sh
+!deploy/backup-entrypoint.sh
 src/**/__pycache__/

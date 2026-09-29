@@ -139,6 +139,76 @@ class GroupMember(Provenanced):
         return f"{self.group_id}: {self.membership_id}"
 
 
+class DocumentHeld(Exception):
+    """A document's links change only while nobody holds it (ADR-0007)."""
+
+
+class DocumentGroup(Provenanced):
+    """A group linked to a document: its members hold the group's rights on it (ADR-0007)."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.ForeignKey(
+        "documents.Document", on_delete=models.PROTECT, related_name="links"
+    )
+    group = models.ForeignKey(AccessGroup, on_delete=models.PROTECT, related_name="links")
+
+    class Meta(Provenanced.Meta):
+        abstract = False
+        constraints = [
+            *Provenanced.Meta.constraints,
+            models.UniqueConstraint(
+                fields=["document", "group"], name="one_row_per_document_group"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.document_id}: {self.group_id}"
+
+    @classmethod
+    def link(cls, document: Any, group: AccessGroup, *, by: Any) -> None:
+        """Link `group` to `document`; the first link ends the document's author-only reach."""
+        cls._change(document, group, by=by, adding=True)
+
+    @classmethod
+    def unlink(cls, document: Any, group: AccessGroup, *, by: Any) -> None:
+        cls._change(document, group, by=by, adding=False)
+
+    @classmethod
+    def _change(cls, document: Any, group: AccessGroup, *, by: Any, adding: bool) -> None:
+        from documents import holds
+        from documents.models import Document, DocumentState
+
+        with transaction.atomic():
+            # The row lock orders this change against any other change to the same document.
+            locked = Document.objects.select_for_update().get(pk=document.pk)
+            if locked.state == DocumentState.CREATING:
+                raise ValueError("a document being created has no links yet")
+            if holds.is_held(locked):
+                raise DocumentHeld(f"document {locked.number} is held")
+            if adding:
+                _, changed = cls.objects.get_or_create(
+                    document=locked, group=group, defaults=_provenance(by)
+                )
+            else:
+                deleted, _ = cls.objects.filter(document=locked, group=group).delete()
+                changed = bool(deleted)
+            document.author_only = locked.author_only
+            if not changed:
+                return
+            AccessChange.objects.create(
+                kind=AccessChange.Kind.LINK,
+                group=group,
+                document=locked,
+                action=AccessChange.Action.ADDED if adding else AccessChange.Action.REMOVED,
+                **_actor(by),
+            )
+            if adding and locked.author_only:
+                locked.author_only = False
+                locked.updated_by = by
+                locked.save(update_fields=["author_only", "updated_by", "updated_at"])
+                document.author_only = False
+
+
 class AccessChange(models.Model):
     """The append-only history of every change to access: who could reach what, on any date."""
 
@@ -156,6 +226,9 @@ class AccessChange(models.Model):
     group = models.ForeignKey(AccessGroup, on_delete=models.PROTECT, related_name="changes")
     membership = models.ForeignKey(
         "identity.Membership", null=True, blank=True, on_delete=models.PROTECT, related_name="+"
+    )
+    document = models.ForeignKey(
+        "documents.Document", null=True, blank=True, on_delete=models.PROTECT, related_name="+"
     )
     right = models.CharField(max_length=32, blank=True)
     action = models.CharField(max_length=7, choices=Action.choices)

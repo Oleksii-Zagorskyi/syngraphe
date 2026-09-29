@@ -61,14 +61,20 @@ and never a second authorisation surface.
 
 ## Commands
 
-Copy `.env.example` to `.env` and fill every `???` first; the application
-refuses to start while one remains, naming every missing key at once.
+Copy `.env.example` to `.env` and fill every `???` first — the backup store's
+only for the kind `BACKUP_TARGET` names; the application refuses to start while
+one remains, naming every missing key at once. The stack needs an off-host
+backup store, `sftp` or `s3`, before `db` and `backup` start: there is no local
+kind (`docs/runbook.md § Backup`). Set
+`SITE_HTTPS=false` unless a TLS proxy is in front: over plain HTTP the session
+and CSRF cookies are never sent, and nobody can sign in.
 
 ```bash
 # prepare a fresh clone; again whenever the lockfile changes
 uv sync --locked
 
-# run the stack: web, worker, PostgreSQL, Redis; every schema migrates on start
+# run the stack: web, worker, PostgreSQL, Redis and the backup; every schema
+# migrates on start
 mkdir -p .repos
 docker compose up
 

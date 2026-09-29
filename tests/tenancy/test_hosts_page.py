@@ -146,3 +146,18 @@ def test_no_domain_for_an_organisation_being_set_up(platform_admin: Any, make_te
 
     assert response.status_code == 404
     assert not TenantDomain.objects.exists()
+
+
+def test_remove_offered_where_the_service_allows_it(platform_admin: Any, make_tenant: Any) -> None:
+    """A sole domain is removable, so its row offers *Remove*; a default among siblings is not."""
+    from tenancy.models import PlatformHost
+
+    make_tenant("Example Org", domain="docs.example.test")
+    PlatformHost.objects.create(host="platform.example.test", is_default=False, actor_kind="system")
+    client, _ = platform_admin()
+
+    body = client.get(HOSTS).content.decode()
+
+    assert f"{gettext('Remove')} — docs.example.test" in body
+    assert f"{gettext('Remove')} — platform.example.test" in body
+    assert f"{gettext('Remove')} — 127.0.0.1" not in body

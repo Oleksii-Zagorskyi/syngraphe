@@ -1,4 +1,4 @@
-"""The shell's views: the health endpoint, the landing page, the administration frame, and the one
+"""The shell's views: the health endpoint, the root address, the administration frame, and the one
 answer for what may not be seen."""
 
 from __future__ import annotations
@@ -53,16 +53,19 @@ def _redis_answers() -> bool:
 @never_cache
 @require_GET
 def health(request: HttpRequest) -> JsonResponse:
-    """`200` when the database and Redis answer, `503` naming the one that does not.
+    """`200` when the database and Redis answer, `503` naming the one that does not; and the
+    backup's state, which never changes the status (DL-0295).
 
     Never a version or a host.
     """
+    from documents.backup_watch import health_entry
+
     checks = {
         "database": "ok" if _database_answers() else "unreachable",
         "redis": "ok" if _redis_answers() else "unreachable",
     }
     status = 200 if all(value == "ok" for value in checks.values()) else 503
-    return JsonResponse(checks, status=status)
+    return JsonResponse({**checks, "backup": health_entry()}, status=status)
 
 
 def not_found(request: HttpRequest, exception: Exception | None = None) -> HttpResponse:
@@ -78,7 +81,7 @@ def not_found(request: HttpRequest, exception: Exception | None = None) -> HttpR
 
 
 def _is_platform_admin(request: HttpRequest) -> bool:
-    return bool(getattr(getattr(request, "user", None), "is_platform_admin", False))
+    return bool(getattr(getattr(request, "user", None), "acts_as_platform_admin", False))
 
 
 def _is_administrator(request: HttpRequest) -> bool:
@@ -87,9 +90,15 @@ def _is_administrator(request: HttpRequest) -> bool:
 
 
 @login_required
-def landing(request: HttpRequest) -> HttpResponse:
-    """The shell with the organisation's name and nothing else."""
-    return render(request, "shell/landing.html")
+def root(request: HttpRequest) -> HttpResponse:
+    """`/`: the organisation's documents; with no organisation chosen, the administration for a
+    platform administrator and the not-found answer for anyone else."""
+    member = getattr(request, "membership", None) is not None or _is_platform_admin(request)
+    if getattr(request, "tenant", None) is not None and member:
+        return HttpResponseRedirect("/folder/1/")
+    if _is_platform_admin(request):
+        return HttpResponseRedirect(reverse("administration"))
+    return not_found(request)
 
 
 def frame(request: HttpRequest) -> dict[str, Any]:
@@ -97,8 +106,10 @@ def frame(request: HttpRequest) -> dict[str, Any]:
     context: dict[str, Any] = {
         "platform_pane": _is_platform_admin(request),
         # On a tenant's own domain the host names the organisation; there is nothing to choose.
+        # A request the middleware did not mark is taken for an organisation's own domain, as
+        # every other consumer takes it.
         "selector": _is_platform_admin(request)
-        and not getattr(request, "tenant_from_domain", False),
+        and not getattr(request, "tenant_from_domain", True),
     }
     if context["selector"]:
         context["organisations"] = Tenant.objects.filter(state=TenantState.ACTIVE).order_by(
@@ -126,7 +137,7 @@ def choose_organisation(request: HttpRequest) -> HttpResponse:
     if (
         request.method != "POST"
         or not _is_platform_admin(request)
-        or getattr(request, "tenant_from_domain", False)
+        or getattr(request, "tenant_from_domain", True)
     ):
         return not_found(request)
     try:

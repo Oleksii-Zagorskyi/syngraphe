@@ -1,0 +1,21 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Create a document" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="dialog" id="create-document">
+  <h1>{% translate "Create a document" %}</h1>
+  {% if stopped %}<p class="error" role="alert">{% blocktranslate with number=stopped %}Document #{{ number }} was not finished. It will appear in the list once the platform completes it, so do not create it again.{% endblocktranslate %}</p>{% endif %}
+  <form method="post" action="/document/new/">{% csrf_token %}
+    {% for field in form %}
+    <p>
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    </p>
+    {% endfor %}
+    <p class="note">{% translate "The document starts from your organisation's template. Only you can reach it until an administrator links groups to it." %}</p>
+    <button class="btn primary" type="submit">{% translate "Create" %}</button>
+    <a class="btn" href="/">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

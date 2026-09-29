@@ -81,6 +81,14 @@ def test_tenant_schema_holds_tenant_tables_only(
             "access_groupright",
             "access_groupmember",
             "access_accesschange",
+            "access_documentgroup",
+            "documents_documenttype",
+            "documents_folder",
+            "documents_documenttemplate",
+            "documents_document",
+            "documents_version",
+            "documents_headingindex",
+            "documents_partindex",
         }
         assert migrations_recorded_in(tenant.schema_name) == every_migration
 

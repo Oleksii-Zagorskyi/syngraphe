@@ -271,7 +271,7 @@ Title, language, type, folder (the root allowed). A **copy** adds the source ver
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
-| create | **0.1** — not yet drawn | *create and edit* | ST-0009 | Epic 3 |
+| create | **0.1** | *create and edit* | ST-0009 | Epic 3 |
 | copy | **0.1** — not yet drawn | *create and edit*, and the source version's viewing right | ST-0067 | Epic 10 |
 
 ## Notifications
@@ -306,9 +306,9 @@ One area with two parts in a left pane: **Platform**, for platform administrator
 | Section | URL | Holds | Release | Stories | Built by |
 |---|---|---|---|---|---|
 | hosts | `/administration/platform/hosts/` | the platform's hosts and each tenant's, host with optional port, one default per set; every change audited (ADR-0008) | **0.1** | — | Epic 2 |
-| organisations | `…/platform/tenants/` | the organisations with their state and administrators; *block* | **0.1** | ST-0065 | Epic 2 |
-| organisations — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** | ST-0001, ST-0071 | Epic 2 |
-| platform administrators | `…/platform/administrators/` | grant; the last one cannot be removed or blocked | **0.1** | ST-0002 | Epic 2 |
+| organisations | `…/platform/tenants/` | the organisations with their state and administrators; *block* | **0.1** | ST-0065 | the list Epic 2; *block* Epic 8 |
+| organisations — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** | ST-0001, ST-0071 | create Epic 2 — a registered person only, the invitation of an unregistered address with Epic 8; lift a block and appoint Epic 8 |
+| platform administrators | `…/platform/administrators/` | grant; the last one cannot be removed or blocked | **0.1** | ST-0002 | the list Epic 2; grant Epic 8 |
 | mail and outbox | `…/platform/mail/` | the platform's sender, the password write-only, *Send a test email*; the outbox with each email's status and attempts (DL-0202, DL-0203) | **0.1** | ST-0048, ST-0049 | Epic 14 |
 | audit log | `…/platform/audit/` | what people, the system and agents did | **0.1** | ST-0050 | Epic 12 |
 | heuristics | `…/platform/heuristics/` | the catalogue | **0.2** — drawn as a placeholder | — | — |

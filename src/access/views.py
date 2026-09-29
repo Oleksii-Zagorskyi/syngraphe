@@ -1,4 +1,4 @@
-"""Administration › groups: the grid of rights, and the members of one group."""
+"""Administration › groups and document links."""
 
 from __future__ import annotations
 
@@ -9,17 +9,19 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
 
-from access.forms import GroupForm, MemberForm, RightForm
-from access.models import AccessGroup
+from access.forms import GroupForm, LinkForm, MemberForm, RightForm
+from access.models import AccessGroup, DocumentGroup, DocumentHeld
 from access.rights import GRID, LABELS, Right, implied
-from identity.models import Membership, MembershipState, User
-from shell.views import not_found
+from documents import holds
+from documents.models import Document, DocumentState
+from identity.models import Membership, User, member_in_good_standing_q
+from shell.views import frame, not_found
 from syngraphe.provenance import ActorKind
 from tenancy.middleware import TenantRequest
 
 GROUPS_URL = "/administration/tenant/groups/"
+LINKS_URL = "/administration/tenant/document-links/"
 # A new group starts with these two rights (ADR-0007).
 STARTING_RIGHTS = (Right.UPLOAD_ATTACHMENT, Right.REPLACE_ATTACHMENT)
 
@@ -29,7 +31,7 @@ def administers(request: HttpRequest) -> bool:
     if getattr(request, "tenant", None) is None:
         return False
     membership = getattr(request, "membership", None)
-    return bool(getattr(request.user, "is_platform_admin", False)) or bool(
+    return bool(getattr(request.user, "acts_as_platform_admin", False)) or bool(
         membership and membership.is_tenant_admin
     )
 
@@ -69,6 +71,7 @@ def _grid(request: HttpRequest, **extra: Any) -> dict[str, Any]:
             )
         rows.append({"group": group, "cells": cells})
     return {
+        **frame(request),
         "columns": [{"right": r.value, "label": LABELS[r]} for r in GRID],
         "rows": rows,
         "form": GroupForm(),
@@ -78,9 +81,8 @@ def _grid(request: HttpRequest, **extra: Any) -> dict[str, Any]:
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
 def groups(request: HttpRequest) -> HttpResponse:
-    if not administers(request):
+    if request.method not in ("GET", "POST") or not administers(request):
         return not_found(request)
     if request.method == "POST":
         form = GroupForm(request.POST)
@@ -99,10 +101,9 @@ def groups(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-@require_http_methods(["POST"])
 def group_rights(request: HttpRequest, group_id: uuid.UUID) -> HttpResponse:
     """Grant or revoke one right; answers with the grid, which htmx swaps in place."""
-    if not administers(request):
+    if request.method != "POST" or not administers(request):
         return not_found(request)
     group = AccessGroup.objects.filter(pk=group_id).first()
     form = RightForm(request.POST)
@@ -121,7 +122,7 @@ def _members_context(request: HttpRequest, group: AccessGroup) -> dict[str, Any]
     members = group.members.select_related("membership__user").order_by("membership__user__email")
     in_group = {m.membership_id for m in members}
     candidates = (
-        Membership.objects.filter(tenant=tenant, state=MembershipState.ACTIVE)
+        Membership.objects.filter(member_in_good_standing_q(), tenant=tenant)
         .exclude(pk__in=in_group)
         .select_related("user")
         .order_by("user__email")
@@ -138,10 +139,9 @@ def _members_response(request: HttpRequest, group: AccessGroup) -> HttpResponse:
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
 def group_members(request: HttpRequest, group_id: uuid.UUID) -> HttpResponse:
     """The members of one group; a POST adds or removes one and answers with the list."""
-    if not administers(request):
+    if request.method not in ("GET", "POST") or not administers(request):
         return not_found(request)
     group = AccessGroup.objects.filter(pk=group_id).first()
     if group is None:
@@ -155,7 +155,7 @@ def group_members(request: HttpRequest, group_id: uuid.UUID) -> HttpResponse:
         candidates = Membership.objects.filter(pk=form.cleaned_data["membership"], tenant=tenant)
         if not removing:
             # Only an active member joins a group; a blocked one may still be taken out.
-            candidates = candidates.filter(state=MembershipState.ACTIVE)
+            candidates = candidates.filter(member_in_good_standing_q())
         membership = candidates.first()
         if membership is None:
             return not_found(request)
@@ -164,3 +164,66 @@ def group_members(request: HttpRequest, group_id: uuid.UUID) -> HttpResponse:
         else:
             group.add_member(membership, by=_actor(request))
     return _members_response(request, group)
+
+
+def _links_context(request: HttpRequest) -> dict[str, Any]:
+    documents = (
+        Document.objects.filter(state__in=[DocumentState.ACTIVE, DocumentState.ARCHIVED])
+        .select_related("created_by")
+        .prefetch_related("links__group")
+        .order_by("number")
+    )
+    groups = list(AccessGroup.objects.order_by("name"))
+    rows = []
+    for document in documents:
+        linked = sorted((link.group for link in document.links.all()), key=lambda g: g.name)
+        linked_ids = {g.id for g in linked}
+        creator = document.created_by
+        rows.append(
+            {
+                "document": document,
+                "linked": linked,
+                "candidates": [g for g in groups if g.id not in linked_ids],
+                "held": holds.is_held(document),
+                "archived": document.state == DocumentState.ARCHIVED,
+                "creator": (creator.display_name or creator.email) if creator else "",
+            }
+        )
+    return {
+        **frame(request),
+        "rows": rows,
+        "links_url": LINKS_URL,
+    }
+
+
+@login_required
+def document_links(request: HttpRequest) -> HttpResponse:
+    """Administration › document links: which groups reach which document."""
+    if not administers(request) or request.method != "GET":
+        return not_found(request)
+    return render(request, "access/document_links.html", _links_context(request))
+
+
+@login_required
+def document_link(request: HttpRequest, number: int) -> HttpResponse:
+    """Link a group to a document or unlink it; answers with the page."""
+    if not administers(request) or request.method != "POST":
+        return not_found(request)
+    document = Document.objects.filter(
+        number=number, state__in=[DocumentState.ACTIVE, DocumentState.ARCHIVED]
+    ).first()
+    form = LinkForm(request.POST)
+    if document is None or not form.is_valid():
+        return not_found(request)
+    group = AccessGroup.objects.filter(pk=form.cleaned_data["group"]).first()
+    if group is None:
+        return not_found(request)
+    try:
+        if form.cleaned_data["action"] == "link":
+            DocumentGroup.link(document, group, by=_actor(request))
+        else:
+            DocumentGroup.unlink(document, group, by=_actor(request))
+    except DocumentHeld:
+        context = _links_context(request)
+        return render(request, "access/document_links.html", context, status=409)
+    return HttpResponseRedirect(LINKS_URL)

@@ -1,5 +1,5 @@
 # The base stack: `web` on the loopback behind the host's own reverse proxy, the database on a
-# named volume.
+# named volume, its archive and the repositories' bundles copied to the backup store `.env` names.
 
 x-logging: &logging
   driver: json-file
@@ -12,17 +12,57 @@ x-app: &app
     context: .
     dockerfile: deploy/Dockerfile
   image: syngraphe:local
-  env_file: .env
-  environment:
+  environment: &app-environment
+    # What the application reads of `.env`, and nothing else of it.
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+    DJANGO_DEBUG: ${DJANGO_DEBUG:-false}
+    DJANGO_ADMIN_PATH: ${DJANGO_ADMIN_PATH:-}
+    SITE_HTTPS: ${SITE_HTTPS:-true}
+    TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+    POSTGRES_DB: ${POSTGRES_DB:-}
+    POSTGRES_USER: ${POSTGRES_USER:-}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    DISPLAY_TIMEZONE: ${DISPLAY_TIMEZONE:-}
+    DEFAULT_LANGUAGE: ${DEFAULT_LANGUAGE:-}
+    BACKUP_WAL_ALERT: ${BACKUP_WAL_ALERT:-2GiB}
+    BACKUP_LOCK_TIMEOUT: ${BACKUP_LOCK_TIMEOUT:-30}
     # The stack's own wiring: the service names, whatever `.env` holds for a process on the host.
     POSTGRES_HOST: db
+    POSTGRES_PORT: "5432"
     REDIS_URL: redis://redis:6379/0
     CELERY_BROKER_URL: redis://redis:6379/1
     GIT_REPO_ROOT: /srv/repos
   volumes:
     - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos
+    - backup-state:/srv/backup-state:ro
   restart: unless-stopped
   logging: *logging
+
+# What `db` and `backup` need of `.env`, and nothing else of it.
+x-backup-environment: &backup-environment
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  BACKUP_TARGET: ${BACKUP_TARGET:-}
+  BACKUP_SFTP_HOST: ${BACKUP_SFTP_HOST:-}
+  BACKUP_SFTP_PORT: ${BACKUP_SFTP_PORT:-22}
+  BACKUP_SFTP_USER: ${BACKUP_SFTP_USER:-}
+  BACKUP_SFTP_PATH: ${BACKUP_SFTP_PATH:-}
+  BACKUP_SFTP_KNOWN_HOSTS: ${BACKUP_SFTP_KNOWN_HOSTS:-}
+  BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+  BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+  BACKUP_S3_REGION: ${BACKUP_S3_REGION:-}
+  BACKUP_S3_PATH: ${BACKUP_S3_PATH:-}
+  BACKUP_S3_ACCESS_KEY: ${BACKUP_S3_ACCESS_KEY:-}
+  BACKUP_S3_SECRET_KEY: ${BACKUP_S3_SECRET_KEY:-}
+  BACKUP_DB_CIPHER_PASS: ${BACKUP_DB_CIPHER_PASS:-}
+  BACKUP_WAL_QUEUE_MAX: ${BACKUP_WAL_QUEUE_MAX:-10GiB}
+
+x-db-image: &db-image
+  build:
+    context: .
+    dockerfile: deploy/Dockerfile.db
+  image: syngraphe-db:local
 
 services:
   web:
@@ -45,26 +85,81 @@ services:
     <<: *app
     # Beat runs inside the worker; its schedule file is state it rebuilds, kept out of the source tree.
     entrypoint: ["celery", "-A", "syngraphe", "worker", "-B", "--schedule=/tmp/celerybeat-schedule", "--loglevel=info"]
+    environment:
+      <<: *app-environment
+      # The bundles' store and their key: the worker's alone. The database archive's key is not here.
+      BACKUP_TARGET: ${BACKUP_TARGET:-}
+      BACKUP_SFTP_HOST: ${BACKUP_SFTP_HOST:-}
+      BACKUP_SFTP_PORT: ${BACKUP_SFTP_PORT:-22}
+      BACKUP_SFTP_USER: ${BACKUP_SFTP_USER:-}
+      BACKUP_SFTP_PATH: ${BACKUP_SFTP_PATH:-}
+      BACKUP_SFTP_KNOWN_HOSTS: ${BACKUP_SFTP_KNOWN_HOSTS:-}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION:-}
+      BACKUP_S3_PATH: ${BACKUP_S3_PATH:-}
+      BACKUP_S3_ACCESS_KEY: ${BACKUP_S3_ACCESS_KEY:-}
+      BACKUP_S3_SECRET_KEY: ${BACKUP_S3_SECRET_KEY:-}
+      BACKUP_BUNDLE_CRYPT_PASSWORD: ${BACKUP_BUNDLE_CRYPT_PASSWORD:-}
+    volumes:
+      - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos
+      - backup-state:/srv/backup-state
+      - ${BACKUP_KEY_FILE:?name the backup store's private key in .env}:/run/backup/key:ro
+    extra_hosts:
+      - ${BACKUP_EXTRA_HOST:-backup-store.invalid:127.0.0.1}
     depends_on:
       web:
         condition: service_healthy
+      backup:
+        condition: service_started
 
   db:
-    image: postgres:16
-    # A data directory initialised with a placeholder password outlives the fix in `.env`;
-    # refuse to start until the three values are supplied.
-    entrypoint: ["sh", "-c", "for v in \"$$POSTGRES_DB\" \"$$POSTGRES_USER\" \"$$POSTGRES_PASSWORD\"; do [ -n \"$$v\" ] && [ \"$$v\" != '???' ] || { echo 'db: POSTGRES_DB, POSTGRES_USER and POSTGRES_PASSWORD must be set in .env' >&2; exit 1; }; done; exec docker-entrypoint.sh postgres"]
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    <<: *db-image
+    # The log is archived by pgBackRest, asynchronously; a quiet segment is closed within five
+    # minutes. The entrypoint refuses to start with an unset credential.
+    entrypoint: ["db-entrypoint.sh"]
+    command:
+      - postgres
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=pgbackrest --stanza=syngraphe archive-push %p
+      - -c
+      - archive_timeout=300
+    environment: *backup-environment
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - pgsocket:/var/run/postgresql
+      - pgspool:/var/spool/pgbackrest
+      - ${BACKUP_KEY_FILE:?name the backup store's private key in .env}:/run/backup/key.src:ro
+    extra_hosts:
+      - ${BACKUP_EXTRA_HOST:-backup-store.invalid:127.0.0.1}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
+    logging: *logging
+
+  backup:
+    <<: *db-image
+    # The nightly base backup and the state the worker reads; it reaches the database through the
+    # shared socket and reads its data directory without writing to it.
+    entrypoint: ["backup-entrypoint.sh"]
+    environment:
+      <<: *backup-environment
+      BACKUP_STATE_DIR: /srv/backup-state
+    volumes:
+      - pgdata:/var/lib/postgresql/data:ro
+      - pgsocket:/var/run/postgresql
+      - backup-state:/srv/backup-state
+      - ${BACKUP_KEY_FILE:?name the backup store's private key in .env}:/run/backup/key.src:ro
+    extra_hosts:
+      - ${BACKUP_EXTRA_HOST:-backup-store.invalid:127.0.0.1}
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
     logging: *logging
 
@@ -81,3 +176,6 @@ services:
 
 volumes:
   pgdata:
+  pgsocket:
+  pgspool:
+  backup-state:

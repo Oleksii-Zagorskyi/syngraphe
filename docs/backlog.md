@@ -226,3 +226,12 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 ## B-034 — Editing a language's abbreviation lists in the platform administration
 
 The sentence splitter's two abbreviation lists per language (ADR-0012) are rows in `LANGUAGE`, seeded from the repository. In release 0.1 a list is changed in the repository and re-seeded, or as a hotfix on the row with the same divergence rule as a prompt (`technical-design.md § Prompts are source`); no page in the platform administration edits them. The page is designed when a list edit is first needed on a running installation — the trigger is the first wrong boundary reported from a real document that a list edit corrects. Constraint: an edit applies only to text edited afterwards; a stored line is never re-normalised (DL-0112).
+
+## B-035 — Restoring platform administration when no other administrator can lift a block
+
+**Idea.** A platform administrator who blocked their own account holds no right until another platform administrator lifts the block (DL-0308). Where no other platform administrator exists, a token generated from the command line — the same shape as the first run's (DL-0231) — restores the role to that account.
+
+**Why it is parked.** Release 0.1 has no control for lifting a block a person puts on their own account (B-033); until then the database is the recovery path.
+
+**What has to be true before it is taken up.** B-033 is taken up, or a platform administrator's account is lost with no other administrator to lift its block — tombstoned, or blocked outside the platform (the last one's own block is refused, DL-0315).
+

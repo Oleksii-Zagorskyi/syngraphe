@@ -122,3 +122,44 @@ def test_membership_changes_only_with_their_history() -> None:
         ("is_tenant_admin", "False", "True", admin, "user"),
         ("state", "active", "blocked", None, "system"),
     ]
+
+
+def test_operator_account_needs_a_password_of_the_platforms_rule() -> None:
+    """`createsuperuser --noinput` is a path that sets a password; DL-0284 holds there too."""
+    from django.core.exceptions import ValidationError
+
+    from identity.models import User
+
+    with pytest.raises(ValidationError):
+        User.objects.create_superuser("an.operator@example.test", "weak")
+    assert not User.objects.filter(email="an.operator@example.test").exists()
+    User.objects.create_superuser("an.operator@example.test", "Tr4vel-Plan-Ok")
+
+
+def test_active_memberships_are_one_query() -> None:
+    """One definition of an active member: the membership active, the organisation active, the
+    person neither self-blocked nor tombstoned — read by every consumer."""
+    from identity.models import Membership, MembershipState, User
+    from tenancy.models import Tenant
+
+    active = Tenant.objects.create(name="Example Org", state="active", actor_kind="system")
+    blocked = Tenant.objects.create(name="Blocked Org", state="blocked", actor_kind="system")
+    fine = User.objects.create_user("fine@example.test", "test-only-not-a-password")
+    self_blocked = User.objects.create_user(
+        "self.blocked@example.test", "test-only-not-a-password", self_blocked=True
+    )
+    gone = User.objects.create_user(
+        "gone@example.test", "test-only-not-a-password", is_tombstoned=True
+    )
+    kept = Membership.objects.create(tenant=active, user=fine, actor_kind="system")
+    Membership.objects.create(tenant=blocked, user=fine, actor_kind="system")
+    Membership.objects.create(tenant=active, user=self_blocked, actor_kind="system")
+    Membership.objects.create(tenant=active, user=gone, actor_kind="system")
+    Membership.objects.create(
+        tenant=active,
+        user=User.objects.create_user("left@example.test", "test-only-not-a-password"),
+        state=MembershipState.BLOCKED,
+        actor_kind="system",
+    )
+
+    assert list(Membership.objects.active()) == [kept]

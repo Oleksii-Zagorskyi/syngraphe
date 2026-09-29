@@ -28,3 +28,8 @@ class MemberForm(forms.Form):
     action = forms.ChoiceField(
         choices=[("add", "add"), ("remove", "remove")], required=False, initial="add"
     )
+
+
+class LinkForm(forms.Form):
+    group = forms.UUIDField()
+    action = forms.ChoiceField(choices=[("link", "link"), ("unlink", "unlink")])

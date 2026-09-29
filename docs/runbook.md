@@ -10,48 +10,42 @@ date: 2026-09-23
 
 # Runbook
 
+How to deploy the platform, back it up, and **restore it when something has gone wrong**.
 
-> **Status.** § Deploy, § First run and § Create an organisation name commands that run. § Backup and
-> § Restore were written before the system they operate: every procedure there is
-> the intended one, none has been executed against a running deployment, and the
-> rehearsal of a restore is a task of its own.
-
-How to deploy the platform, back it up, and **restore it when something has gone wrong**. A backup nobody has restored is a hypothesis, so the restore procedure is the part of this file that matters most, and it is written to be followed under pressure.
-
-> [!warning] Provisional — the procedure is fixed, the commands are not
-> The order of steps and what each must achieve follow from the write protocol in [`technical-design.md`](technical-design.md) and do not change. The **tools** are [ADR-0018](adr/ADR-0018-backup-and-restore.md)'s — pgBackRest for the database's continuous archive, a `git bundle` taken under each repository's writer lock, one encrypted off-host backup store the operator names. Only the **commands** wait for backup to be implemented: every step that needs one says **⟨command: fixed when backup is implemented⟩** until then. The backup work extends this file; it does not start another one.
+The order of the restore's steps, and what each must achieve, follow from the write protocol in [`technical-design.md`](technical-design.md). The tools are [ADR-0018](adr/ADR-0018-backup-and-restore.md)'s and [ADR-0019](adr/ADR-0019-backup-when-something-fails.md)'s: pgBackRest for the database's continuous archive, a `git bundle` of each repository written under its writer lock, one encrypted off-host backup store the operator names.
 
 ## What exists and where
 
 | Thing | Where | In the backup set |
 |---|---|---|
-| **Database** — PostgreSQL, one schema per tenant plus a shared schema | the `db` container, on its data volume | **yes** — a base backup plus the continuous archive of the write-ahead log |
-| **Repositories** — one bare repository per document | the repository root, mounted at `/srv/repos` in `web` and `worker` | **yes** — a bundle every fifteen minutes of each repository that changed, on a full bundle taken nightly |
-| **Broker** — Redis | the `redis` container | **no** — it holds nothing that is not also a row; it starts empty and the reconciler re-enqueues |
+| **Database** — PostgreSQL, one schema per tenant plus a shared schema | the `db` container, on its data volume | **yes** — a nightly base backup plus the continuous archive of the write-ahead log, taken by the `backup` container |
+| **Repositories** — one bare repository per document | the repository root, mounted at `/srv/repos` in `web` and `worker` | **yes** — a bundle every ten minutes of each repository that changed, a full bundle after each base backup |
+| **Backup state** — the newest marker, the base backup's label, the log waiting | the `backup-state` volume: `backup/` written by `backup`, `worker/` by `worker`, read by `web` | **no** — rebuilt by the next run |
+| **Broker** — Redis | the `redis` container | **no** — it holds nothing that is not also a row; it starts empty |
 | **Configuration** — `.env` | the host, beside the compose file | **no** — kept with the host's credentials, never in this repository. It holds the backup keys, without which no backup can be read |
-| **Off-host copy** | ⟨destination: supplied by the operator⟩ | holds two full database backups and their archive, and each repository's bundles back to the older of them — all encrypted |
+| **Off-host copy** | the backup store `.env` names | holds two full database backups and their archive, and each repository's newest two chains of bundles — all encrypted |
 
-Every step below says **where it runs** — the host shell, or inside a named container — and **as whom**.
+Every step below says **where it runs** — the host shell, or inside a named container — and **as whom**. Commands on the host run in the repository checkout, as the deploying user.
 
 ## Deploy
 
 **Development host.** On the host, as the deploying user, in the repository checkout:
 
 ```bash
-cp .env.example .env         # fill in every ??? — the application reports every missing key at once
+cp .env.example .env         # fill in every ???, the store's for its kind only — every missing key is reported at once
 mkdir -p .repos              # or the directory GIT_REPO_ROOT_HOST names
 docker compose up -d --build # web migrates every schema and seeds the language lists before it answers
-docker compose ps --format '{{.Service}} {{.State}}'    # web, worker, db, redis — each running
-curl -s http://127.0.0.1:8000/health/                    # {"database": "ok", "redis": "ok"}
+docker compose ps --format '{{.Service}} {{.State}}'    # web, worker, db, backup, redis — each running
+curl -s http://127.0.0.1:8000/health/    # {"database": "ok", "redis": "ok", "backup": {…}}
 ```
 
-The health check uses the port `WEB_PORT` names, `8000` by default. **Behind the host's reverse proxy**, set in `.env`:
+`.env` names the backup store and its keys before the first start (§ Backup, *The store*): `db` and `backup` refuse to start without the store's settings and the database archive's key, naming every key missing; the bundles' key is checked when the worker's first bundle run starts, and a missing one fails that run. The health check uses the port `WEB_PORT` names, `8000` by default. **Behind the host's reverse proxy**, set in `.env`:
 
 - `WEB_PORT` — the loopback port the proxy forwards to;
 - `TRUSTED_PROXIES` — `none` on an installation reached directly; behind a proxy, where the proxy's connections arrive from as `web` sees them. Through Compose's published port that is the gateway of the project's network, not the loopback: `docker network inspect <project>_default --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'`. The client's address, the scheme and the host are then read from the last entry of the proxy's `X-Forwarded-For`, `X-Forwarded-Proto` and `X-Forwarded-Host`: the proxy must **append** the client's address to `X-Forwarded-For` and **overwrite** the other two, never pass a client's own values through. Set to `none` behind a proxy, every client would share one address for sign-in throttling and the host check would see the upstream address instead of the installation's name;
 - `SITE_HTTPS=true` when the proxy terminates TLS, so the session and CSRF cookies are sent over HTTPS only; `false` for an installation reached over plain HTTP, such as a check through a tunnel to `127.0.0.1`, where secure-only cookies would never be sent and nobody could sign in.
 
-The containers restart with the host's Docker unless stopped by hand. **After an update:** `git pull`, then `docker compose up -d --build`; the migrations run as `web` starts. A migration that failed for one organisation is completed with `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being the organisation's number; nothing else is needed.
+`db` is built on `postgres:16`, which carries ICU: the document list orders titles by the `uk-x-icu` collation, and a PostgreSQL built without ICU fails that page. The containers restart with the host's Docker unless stopped by hand. **After an update:** `git pull`, then `docker compose up -d --build`; the migrations run as `web` starts. A migration that failed for one organisation is completed with `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being the organisation's number; nothing else is needed.
 
 **Production** runs behind the operator's reverse proxy (DL-0281); its procedure arrives with the production Compose override, and until then this section is the development host's.
 
@@ -63,7 +57,7 @@ Once, on a fresh installation, to create the first platform administrator (DL-02
 docker compose exec web python manage.py setup_token --host <the installation's host name>
 ```
 
-The command prints a token, valid once for sixty minutes, and makes that host the default platform host; the running `web` accepts the host within thirty seconds. Open `/setup/` on the installation's host name, enter the token, then the administrator's email address and a password. The administrator is signed in and lands in Administration.
+The command prints a token, valid once for sixty minutes, and makes that host the default platform host; the running `web` accepts the host within thirty seconds. `127.0.0.1` stays in the set — the container's own health check and a tunnel reach it — until a platform administrator removes it on the hosts page. Open `/setup/` on the installation's host name, enter the token, then the administrator's email address and a password. The administrator is signed in and lands in Administration.
 
 - **The token expired or was lost:** run the command again. A new token replaces the old one.
 - **Afterwards** the page answers *Nothing to show here*, and the command refuses with `A platform administrator already exists.`
@@ -77,56 +71,132 @@ In Administration › Platform › Organisations, *Create an organisation*: its 
 
 ## Backup
 
-**Order is the whole point: the database is never restored past the repositories.** History is append-only and no commit spans two documents, so each repository copied *after* the database's recovery point contains at least what the database knew about it. The reverse can leave a row pointing at a commit no copy holds — a version gone from both stores.
+**The database is never restored past the repositories.** History is append-only and no commit spans two documents, so each repository copied *after* the database's recovery point contains at least what the database knew about it. The reverse can leave a row pointing at a commit no copy holds — a version gone from both stores.
 
-1. **Database — continuously.** pgBackRest ships each completed segment of the write-ahead log off-host, and a segment that has not filled is closed within five minutes; a full base backup is taken nightly, and two are kept with their archive. ⟨command: fixed when backup is implemented⟩. This is what makes point-in-time recovery possible, and it is not optional: holds, access rows and above all **drafts** live only in the database.
-2. **Repositories — every fifteen minutes.** Each repository that changed is written as a `git bundle` **while holding its writer lock**, verified, and copied off-host; after each nightly base backup every repository gets a full bundle, which starts its next chain. A bundle that fails verification is not copied, and that run is not recorded as complete. Never a plain copy of a repository that may be mid-write: it can yield a ref pointing at an object the copy missed. ⟨command: fixed when backup is implemented⟩
-3. **Off-host, encrypted.** Both copies leave the host encrypted, under keys kept in `.env` and never in the backup store. **Keep a copy of those keys away from the platform**: without them no backup can be read, and a fresh host needs them in step 3 of case A. *Nothing is ever lost* is true only while this step runs.
-4. **Housekeeping.** A periodic repack runs per repository, under its lock. Pruning removes only unreachable objects, and in an append-only history those are debris from failed writes — it cannot remove a version (ASR-02, `verification-plan.md` V-08).
+**The store.** `.env` names it: `BACKUP_TARGET` — `sftp` or `s3` — and the keys that kind needs, with a path of the installation's own (`BACKUP_SFTP_PATH` or `BACKUP_S3_PATH`), under which the database's archive goes to `database/` and the bundles to `bundles/`. For `sftp`: `BACKUP_KEY_FILE`, the host path of the SSH private key, readable by the application's user (uid 1000) — `db` and `backup` copy it for their own user as they start; and `BACKUP_SFTP_KNOWN_HOSTS`, the store's host key as one `known_hosts` line, which both tools pin. `BACKUP_EXTRA_HOST` gives the containers an address for a store whose name they cannot resolve. For `s3`, set `BACKUP_KEY_FILE=/dev/null`. A production store keeps whatever the host deletes for thirty days, by its own control (DL-0298).
+
+1. **Database — continuously.** pgBackRest ships each completed segment of the write-ahead log off-host, asynchronously, and a segment that has not filled is closed within five minutes; a full base backup is taken nightly at 02:00 UTC, and two are kept with their archive. If the store cannot be reached, the log waits on the host up to `BACKUP_WAL_QUEUE_MAX`; past it, segments are dropped rather than let the disk fill, and the archive has a gap until the next full base backup (see *The store is unreachable*). This is what makes point-in-time recovery possible, and it is not optional: holds, access rows and above all **drafts** live only in the database.
+
+   ```bash
+   docker compose exec -u postgres db pgbackrest --stanza=syngraphe check   # a segment reaches the store
+   docker compose exec -u postgres db pgbackrest --stanza=syngraphe info    # the backups, the archive, cipher: aes-256-cbc
+   ```
+
+2. **Repositories — every ten minutes.** Each repository that changed is written as a `git bundle` **while holding its writer lock**, the lock released as soon as the file is written; the bundle is then verified and copied off-host. Every repository whose newest full bundle is older than the newest base backup gets a full bundle, which starts its next chain, and gets one again on every run until one lands. **Every run writes a marker** in the store, listing any repository whose bundle failed and since when; a marker listing none is *clean*, and is what a full restore aims at. Each repository keeps its newest two chains — a *chain* being a full bundle and the bundles after it — and a marker is kept until it is older than the oldest chain any repository keeps, the newest clean marker always (DL-0316). Never a plain copy of a repository that may be mid-write: it can yield a ref pointing at an object the copy missed. The worker runs this on its own; a run now, from the host:
+
+   ```bash
+   scripts/backup-repositories.sh   # prints the run's marker and any repository that failed
+   ```
+
+3. **Off-host, encrypted.** Both copies leave the host encrypted, the database's archive under `BACKUP_DB_CIPHER_PASS` and the bundles under `BACKUP_BUNDLE_CRYPT_PASSWORD`, keys kept in `.env` and never in the backup store. In production the store keeps whatever the host deletes for thirty days, by its own control, so that whoever takes the host cannot destroy the backups. **Keep a copy of `.env` and of the key file `BACKUP_KEY_FILE` names away from the platform**: without the two encryption keys no backup can be read, and without the store's credentials no backup can be reached; a fresh host needs all of them in step 3 of case A. *Nothing is ever lost* is true only while this step runs.
+
+**Watch it.** `/health/` shows the backup's state: the age of the newest clean marker, whether any repository is failing — which ones only in the worker's log, as *a repository's bundle failed* with its numbers — the last segment archived and the log waiting. It does not change the endpoint's status. Each change of the three conditions — a repository failing, no clean marker newer than fifteen minutes, the waiting log past `BACKUP_WAL_ALERT` — is logged once at error level by the worker. ⟨until the platform sends mail and notifications, an external check on the health entry, set up at the deploy⟩
+
+**The store is unreachable.** The waiting log grows on the host's disk. Bring the store back; confirm `pgbackrest check` passes and a new clean marker appears. If the waiting log reached `BACKUP_WAL_QUEUE_MAX`, the archive has a gap: take a full base backup at once — until it completes, no restore can reach a moment after the gap began:
+
+```bash
+docker compose exec backup su postgres -s /bin/sh -c '. /run/backup/environment; /usr/local/bin/backup-state.sh base'
+```
+
+It takes the full base backup and records it, so the next bundle run starts new chains after it.
 
 How much may be lost, and how long a restore may take, are the recovery objectives in [`asr.md`](asr.md).
 
 **Rehearse.** A restore is rehearsed on a copy — never on the live host — before production opens and after any change to the backup tooling, and the rehearsal is logged with its date and how long it took.
 
+## Housekeeping
+
+Nightly at 01:35 UTC, before the base backup, the worker repacks every repository and prunes what nothing reaches, each under its writer lock. **Pruning cannot remove a version**: it removes only unreachable objects, and in an append-only linear history those are debris from failed writes (ASR-02, [`verification-plan.md`](verification-plan.md) V-08). A repository whose lock stays held is left for the next night and logged. The repack is also what keeps the nightly run of full bundles inside five minutes (DL-0313).
+
+## The reconciler
+
+Git is the commit point and the rows are its cache; the reconciler is the second path from git to the rows. It runs **hourly in repair mode** without deleting anything, and an operator runs it by hand after a restore. Each finding names the organisation's number (*tenant*) and the document's; every repair is recorded in the audit log.
+
+```bash
+docker compose exec web python manage.py reconcile                        # report: changes nothing; exit 1 when anything is found
+docker compose exec web python manage.py reconcile --repair               # repair what git implies; exit 1 while anything is left
+docker compose exec web python manage.py reconcile --repair --prune-rows  # also delete version rows whose commit is gone
+docker compose exec web python manage.py reconcile --tenant N --document M   # one document
+```
+
+Run report mode first and read it before repairing anything; `--prune-rows` only after reading the report, since it is the one deletion. When `web` is stopped, as during a restore, run the same commands with `docker compose run --rm web python manage.py reconcile …`; the output is the command's own.
+
+| Finding | Means | `--repair` | `--prune-rows` |
+|---|---|---|---|
+| `creating_without_repository`, `creating_without_commit`, `creating_without_version`, `creating_unfinished` | a creation stopped at that step (ten minutes or more ago) | finishes it: the document becomes active, reaching its creator alone — nobody while the creator is blocked. Left as found when the creator was never a member of the organisation; a repository at its number that names another document is reported as `identity_mismatch` instead | — |
+| `commit_without_row` | git is ahead of the rows — normal after any restore | derives the version row, for a commit by a member of the organisation, of an ordinary kind, after the newest commit the rows know. It stops at the first commit it cannot derive, and derives nothing while the document has a `row_without_commit`: what follows is reported, never derived past a hole | — |
+| `row_without_commit` | a version row names a commit its repository does not hold — a repository restored from an older bundle | reports it | deletes the row |
+| `orphan_repository` | a repository with no row | recreates the row from `document.md`, in the root folder, type *document*, **with no groups and not author-only** — only administrators reach it until the tenant administrator links groups. Only when its first commit's author is a member of the organisation and its language is known; otherwise reported | — |
+| `frontmatter_differs` | the row's title or language differs from `document.md` | rewrites the row from the file | — |
+| `passport_entry_without_row` | the passport records an acceptance, return or approval no row records yet | reports it; the passport is believed. Until those rows exist every entry is listed on every run, and is expected | — |
+| `repository_missing` | a document's repository is not on disk | reports it; **nothing is pruned** — it may be a missing mount, not a loss | — |
+| `identity_mismatch` | a repository whose passport names another organisation or number, or not the creation its row began | reports it; never trusted | — |
+| `sequence_behind` | the next document number would repeat one a repository directory already has, with a row or without | moves the number past it | — |
+| `locked` | the document's writer lock stayed held for thirty seconds | tried again next run | — |
+| `unreadable` | a repository or file the reconciler could not read; the log — the worker's, or the command's own output — names the error | reports it | — |
+
+A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Nothing re-enqueues tasks from rows yet either; the broker holds none that matter. ⟨fixed when tasks with rows are implemented⟩
+
 ## Restore
+
+> [!warning] Not rehearsed
+> The commands below are the platform's own and each is tested alone; no rehearsal has followed
+> a case end to end. The first rehearsal corrects this section.
 
 ### First, decide which case this is
 
 | What happened | Case |
 |---|---|
-| The host is gone or its disks cannot be trusted | **A — full restore to a fresh host** |
+| The host is gone, its disks cannot be trusted, or the data of both stores is lost | **A — full restore** (a fresh host, or the same one) |
 | The host and its repositories are fine; the database is lost, or holds bad data from a known time | **B — database to a point in time** |
 | One document's repository is damaged; everything else is fine | **C — one repository** |
 
-Write down, before touching anything: **what happened, when it was noticed, and the recovery point you are aiming for** — the last moment known to be good. In case A it can be no later than the start of the last complete bundle run (step 4). Every later step refers to it.
+Write down, before touching anything: **what happened, when it was noticed, and the recovery point you are aiming for** — the last moment known to be good, in UTC as `YYYYMMDDTHHMMSSZ`. In case A it can be no later than the start of the newest clean bundle run, nor than the end of the archive (step 4). Every later step refers to it.
 
-### A — full restore to a fresh host
+### A — full restore
 
-1. **Stop anything still writing.** On the old host, if it is reachable, as the deploying user: stop `web` and `worker`. Nothing may write to either store while you restore.
-2. **Preserve the damaged state.** Copy what is left aside; do not delete it. It is the evidence of what failed and the fallback if the restore goes wrong.
-3. **Prepare the new host.** Install the containers from the repository checkout, and put `.env` in place from where the host's credentials are kept — the backup keys with it. Do not start `web` or `worker`.
-4. **Restore the database — no later than the repositories.** Read from the off-host copy when the last complete bundle run began ⟨command: fixed when backup is implemented⟩; the recovery point is that time, or the last moment known to be good if that is earlier, and **never later**: a database restored past its repositories names commits no copy holds. Inside a fresh `db` container, as the database superuser: restore the base backup before the recovery point from the off-host copy and replay the archived log **up to the recovery point** ⟨command: fixed when backup is implemented⟩. Start `db` alone and confirm it accepts connections.
-5. **Restore the repositories.** On the new host, as the application user: restore each repository from its bundles in the off-host copy — the latest full bundle, then every bundle after it, in order ⟨command: fixed when backup is implemented⟩. A repository may come back ahead of the database; step 6 replays the difference. Ownership is the application user, mode `0750`.
-6. **Run the reconciler in report mode** ⟨command: fixed when the reconciler is implemented⟩ and read its report before repairing anything. Expect:
+1. **Stop anything still writing.** On the old host, if it is reachable: `docker compose stop web worker backup`. Nothing may write to either store while you restore.
+2. **Preserve the damaged state.** Copy what is left aside, the repository root included; do not delete it. It is the evidence of what failed and the fallback if the restore goes wrong.
+3. **Prepare the host.** Install the checkout, put `.env` and the store's key file in place from where the host's credentials are kept, and build: `docker compose build`. Do not start `web` or `worker`. Make an empty repository root, writable by uid 1000: `mkdir -p .repos && sudo chown 1000:1000 .repos` (or the directory `GIT_REPO_ROOT_HOST` names); on a host that held the stack before, move the old root aside first, and remove the old database volume only once step 2 has copied it.
+4. **Restore the database — no later than the repositories.** Run the database restore in dry-run mode:
+
+   ```bash
+   scripts/restore-database.sh --dry-run [--good YYYYMMDDTHHMMSSZ]
+   ```
+
+   It prints the start of the newest clean bundle run, the last good moment you give it, and about when the markers last saw a segment archived — an estimate, never a bound — and which governs: the earlier of the first two (DL-0314), with a warning when the archive may end before it. **Never aim later**: a database restored past its repositories names commits no copy holds. If it reports a newer bundle run that listed failed repositories, you may choose that run instead with `--marker`: you gain the database changes up to it and lose the listed repositories' commits since their last bundle, which step 6 then reports as rows whose commit is missing — decide, and write down which. If `pgbackrest verify` fails, the script stops and prints it; `--despite-verify` goes on once you have read it. Then stop `db` if it runs (`docker compose stop db`) and run the script without `--dry-run`, with the same options; it restores only after you type `restore`. Start `db` alone and confirm it accepts connections (below). If PostgreSQL instead stops with *recovery ended before configured recovery target was reached*, the archive holds no commit after that time: the database was quiet since, the archive has a gap, or the host was lost soon after the last marker. In every case the end of the archive is then no later than the target, so recovering to it passes nothing: stop `db`, which Docker otherwise keeps restarting (`docker compose stop db`), and run the script again with `--end-of-archive`.
+
+   ```bash
+   docker compose up -d db && docker compose exec db pg_isready
+   ```
+
+5. **Restore the repositories.** Each from its newest full bundle and every bundle after it, in order; a repository already on disk is left alone, so the command can be run again:
+
+   ```bash
+   scripts/restore-repositories.sh
+   ```
+
+   A repository may come back ahead of the database; step 6 replays the difference.
+6. **Run the reconciler in report mode** — `docker compose run --rm web python manage.py reconcile`, since `web` is not running (§ The reconciler) — and read its report before repairing anything. Expect:
    - **commits without rows** — git is ahead of the database; the reconciler replays them. Normal after any restore;
-   - **rows whose commit is missing** — not expected here, since the database was restored no later than the repositories. One that appears means a bundle is missing: stop and find it. The reconciler deletes nothing on its own ⟨procedure: fixed when the reconciler is implemented⟩;
-   - **rows in `creating` without a repository** — retried;
-   - **repositories without a row** — reported as orphans and recreated from `document.md`'s frontmatter **with no access rows at all**. The tenant administrator is notified and grants access again. This fails closed on purpose;
-   - **a passport that disagrees with the rows** — reported as an audit event; the passport is believed.
-7. **Run the reconciler in repair mode**, then run it again in report mode and confirm it reports nothing new.
-8. **Start `redis`, then `worker`, then `web`.** Redis starts empty; the reconciler re-enqueues every task that has a row.
-9. **Verify as a user would.** Sign in; open a restored document; confirm its latest version and its last acceptance match its passport; export it.
+   - **rows whose commit is missing** — not expected here, since the database was restored no later than the repositories — unless you chose a newer run with `--marker` at step 4, in which case exactly the listed repositories appear here, as you decided: record them, then delete those rows with `reconcile --tenant N --document M --repair --prune-rows` for each. One that appears otherwise means a bundle is missing: stop and find it;
+   - **creations that stopped** — finished;
+   - **repositories without a row** — recreated with no access at all; the tenant administrator grants access again;
+   - **passport entries without their row** — reported; the passport is believed.
+7. **Run the reconciler in repair mode**, `docker compose run --rm web python manage.py reconcile --repair`, then again in report mode, and confirm it reports nothing new beyond the passport entries. What it leaves are the cases its table says it will not repair — a commit by someone the restored database does not hold as a member, a creation whose creator was never one, a repository that names another document. Record each with its numbers; a commit by a person whose membership the restore lost is derived once the tenant administrator has restored that membership and the reconciler runs again.
+8. **Start the rest:** `docker compose up -d`. The backup resumes on its own; take a full base backup at once (§ Backup, *The store is unreachable*), since the restored database starts a new timeline.
+9. **Verify as a user would.** Sign in; open a restored document; confirm its latest version matches its passport.
 10. **Tell the people who lost work.** Whatever was only in the database after the recovery point is gone — above all **drafts**. List the documents whose holds were open at the recovery point and tell each holder.
 11. **Record it**: what failed, the recovery point, how long each step took, and anything in this procedure that was wrong.
 
 ### B — database to a point in time
 
-Steps 1, 2, 4 and 6 to 11 of case A, on the same host, except that at step 4 the repositories are intact on the host and do not bound the recovery point: it is the last moment known to be good — for a lost database, its latest archived point, at most five minutes back. The repositories stay where they are: they are ahead of the restored database, and step 6 replays the difference. If the bad data was *written through git* — a wrong acceptance, a wrong version — it is not undone by a restore at all: history only moves forward, and the correction is a new commit that reverts it.
+Steps 1, 2, 4 and 6 to 11 of case A, on the same host, with `db` stopped too, except that at step 4 the repositories are intact on the host and do not bound the recovery point: run `scripts/restore-database.sh --database-only`, with `--good` for the last good moment, or without it for a lost database's latest archived point. The repositories stay where they are: they are ahead of the restored database, and step 6 replays the difference. If the bad data was *written through git* — a wrong acceptance, a wrong version — it is not undone by a restore at all: history only moves forward, and the correction is a new commit that reverts it.
 
 ### C — one repository
 
-1. Stop `web` and `worker`, or take that document's writer lock ⟨command: fixed when the git service layer is implemented⟩.
-2. Move the damaged repository aside.
-3. Restore that one repository into place from its bundles in the off-host copy — the latest full bundle, then every bundle after it, in order ⟨command: fixed when backup is implemented⟩.
-4. Run the reconciler for that document, then release the lock or restart the containers.
-5. Commits made to that document after its last bundle are lost, and the database still has version rows for them; the reconciler's handling of those rows is ⟨procedure: fixed when the reconciler is implemented⟩. Tell the authors, and record it.
+1. Stop `web` and `worker`: `docker compose stop web worker`.
+2. Move the damaged repository aside, `.repos/tenant-N/document-M` to a name of its own.
+3. Restore that one repository from its bundles: `scripts/restore-repositories.sh --tenant N --document M`.
+4. Start them again, `docker compose up -d web worker`, and run the reconciler for that document: `docker compose exec web python manage.py reconcile --tenant N --document M`.
+5. Commits made to that document after its last bundle are lost, and the database still has version rows for them: the report lists them as `row_without_commit`. Tell the authors, record it, then delete those rows with `docker compose exec web python manage.py reconcile --tenant N --document M --repair --prune-rows`.

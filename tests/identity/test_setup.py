@@ -295,3 +295,18 @@ def test_organisation_domain_refused_as_platform_host() -> None:
 
     with pytest.raises(CommandError):
         setup_token("--host", "docs.example.test")
+
+
+def test_first_run_session_lasts_twelve_hours(client: Client) -> None:
+    """The first administrator's session follows the sign-in rule: fixed at twelve hours, not
+    sliding (DL-0307)."""
+    through_the_token(client, setup_token())
+    create_administrator(client)
+
+    expiry = client.session.get_expiry_date()
+    remaining = expiry - timezone.now()
+    assert timedelta(hours=11, minutes=59) < remaining <= timedelta(hours=12)
+    session = client.session
+    session["a later write"] = True
+    session.save()
+    assert client.session.get_expiry_date() == expiry

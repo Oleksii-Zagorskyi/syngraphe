@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syngraphē\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-28 21:19+0000\n"
+"POT-Creation-Date: 2026-09-29 02:03+0000\n"
 "PO-Revision-Date: 2026-09-28 17:08+0000\n"
 "Last-Translator: Oleksii Zagorskyi\n"
 "Language-Team: uk\n"
@@ -25,69 +25,118 @@ msgstr "Назва"
 msgid "A group with this name exists."
 msgstr "Група з такою назвою вже є."
 
-#: access/rights.py:58
+#: access/rights.py:67
 msgid "view canonical"
 msgstr "перегляд канонічної версії"
 
-#: access/rights.py:59
+#: access/rights.py:68
 msgid "view accepted"
 msgstr "перегляд погоджених правок"
 
-#: access/rights.py:60
+#: access/rights.py:69
 msgid "view pending"
 msgstr "перегляд неприйнятих правок"
 
-#: access/rights.py:61
+#: access/rights.py:70
 msgid "edit"
 msgstr "редагування"
 
-#: access/rights.py:62
+#: access/rights.py:71
 msgid "create and edit"
 msgstr "створення та редагування"
 
-#: access/rights.py:63
+#: access/rights.py:72
 msgid "view previous canonical versions"
 msgstr "перегляд попередніх редакцій"
 
-#: access/rights.py:64
+#: access/rights.py:73
 msgid "view all history"
 msgstr "перегляд усієї історії"
 
-#: access/rights.py:65
+#: access/rights.py:74
 msgid "accept"
 msgstr "погодження"
 
-#: access/rights.py:66
+#: access/rights.py:75
 msgid "freeze"
 msgstr "заморожування"
 
-#: access/rights.py:67
+#: access/rights.py:76
 msgid "make canonical"
 msgstr "затвердження"
 
-#: access/rights.py:68
+#: access/rights.py:77
 msgid "reserve for editing"
 msgstr "резервування для редагування"
 
-#: access/rights.py:69
+#: access/rights.py:78
 msgid "create appendix"
 msgstr "створення додатка"
 
-#: access/rights.py:70
+#: access/rights.py:79
 msgid "delete appendix"
 msgstr "видалення додатка"
 
-#: access/rights.py:71
+#: access/rights.py:80
 msgid "upload attachment"
 msgstr "додавання вкладеного файлу"
 
-#: access/rights.py:72
+#: access/rights.py:81
 msgid "replace attachment"
 msgstr "заміна вкладеного файлу"
 
-#: access/rights.py:73
+#: access/rights.py:82
 msgid "delete attachment"
 msgstr "видалення вкладеного файлу"
+
+#: access/templates/access/document_links.html:3
+#: access/templates/access/document_links.html:6
+#: shell/templates/shell/administration.html:30
+msgid "Document links"
+msgstr "Зв’язки документів"
+
+#: access/templates/access/document_links.html:9
+msgid "Document"
+msgstr "Документ"
+
+#: access/templates/access/document_links.html:9
+#: documents/templates/documents/info.html:8
+msgid "Linked groups"
+msgstr "Пов’язані групи"
+
+#: access/templates/access/document_links.html:17
+#: documents/templates/documents/info.html:8
+msgid "author-only"
+msgstr "лише для автора"
+
+#: access/templates/access/document_links.html:18
+#, python-format
+msgid ""
+"Created by %(name)s, %(date)s — only they can reach it until a group is "
+"linked."
+msgstr "Створено %(date)s, автор — %(name)s; лише автор має доступ, доки не пов’язано групу."
+
+#: access/templates/access/document_links.html:19
+msgid "Archived — its links take effect on restore."
+msgstr "Заархівований — зв’язки набудуть чинності після відновлення."
+
+#: access/templates/access/document_links.html:20
+msgid "Locked while the document is held."
+msgstr "Заблоковано, поки документ зайнятий."
+
+#: access/templates/access/document_links.html:28
+#, python-format
+msgid "Unlink %(group)s"
+msgstr "Від’єднати групу %(group)s"
+
+#: access/templates/access/document_links.html:34
+#: access/templates/access/document_links.html:38
+msgid "Link a group"
+msgstr "Пов’язати групу"
+
+#: access/templates/access/document_links.html:45
+msgid "No documents yet."
+msgstr "Документів ще немає."
 
 #: access/templates/access/group_members.html:3
 msgid "Members"
@@ -116,6 +165,7 @@ msgid "New group"
 msgstr "Нова група"
 
 #: access/templates/access/groups.html:11
+#: documents/templates/documents/create.html:17
 #: tenancy/templates/tenancy/tenant_form.html:16
 msgid "Create"
 msgstr "Створити"
@@ -139,6 +189,84 @@ msgstr "учасники…"
 #: access/templates/access/groups.html:37
 msgid "No groups yet."
 msgstr "Груп ще немає."
+
+#: documents/forms.py:25 documents/templates/documents/info.html:4
+#: documents/templates/documents/list.html:12
+msgid "Title"
+msgstr "Назва"
+
+#: documents/forms.py:27 documents/templates/documents/info.html:5
+msgid "Language"
+msgstr "Мова"
+
+#: documents/forms.py:30 documents/templates/documents/info.html:6
+#: documents/templates/documents/list.html:12
+msgid "Type"
+msgstr "Тип документа"
+
+#: documents/forms.py:36 documents/templates/documents/info.html:7
+msgid "Folder"
+msgstr "Тека"
+
+#: documents/forms.py:48
+msgid "A title is one line of text."
+msgstr "Назва — це один рядок тексту."
+
+#: documents/templates/documents/create.html:3
+#: documents/templates/documents/create.html:6
+msgid "Create a document"
+msgstr "Створити документ"
+
+#: documents/templates/documents/create.html:7
+#, python-format
+msgid ""
+"Document #%(number)s was not finished. It will appear in the list once the "
+"platform completes it, so do not create it again."
+msgstr "Документ №%(number)s не завершено. Він з’явиться у списку, щойно платформа його завершить, тож не створюйте його вдруге."
+
+#: documents/templates/documents/create.html:16
+msgid ""
+"The document starts from your organisation's template. Only you can reach it "
+"until an administrator links groups to it."
+msgstr "Документ створюється за шаблоном вашої організації. Лише ви маєте до нього доступ, доки адміністратор не пов’яже з ним групи."
+
+#: documents/templates/documents/create.html:18
+#: tenancy/templates/tenancy/tenant_form.html:17
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: documents/templates/documents/info.html:3
+msgid "Number"
+msgstr "Номер"
+
+#: documents/templates/documents/info.html:9
+msgid "Created"
+msgstr "Створено"
+
+#: documents/templates/documents/info.html:9
+#, python-format
+msgid "%(date)s, by %(name)s"
+msgstr "%(date)s, автор — %(name)s"
+
+#: documents/templates/documents/list.html:8
+msgid "Create document"
+msgstr "Створити документ"
+
+#: documents/templates/documents/list.html:12
+msgid "Parts"
+msgstr "Частини"
+
+#: documents/templates/documents/list.html:21
+msgid "appendices"
+msgstr "додатки"
+
+#: documents/templates/documents/list.html:22
+msgid "attachments"
+msgstr "вкладені файли"
+
+#: documents/templates/documents/page.html:8
+msgid "Info"
+msgstr "Відомості"
 
 #: identity/forms.py:16
 msgid "Setup token"
@@ -269,11 +397,11 @@ msgstr "Жодна зареєстрована особа не має цієї а
 msgid "Host"
 msgstr "Хост"
 
-#: tenancy/middleware.py:32
+#: tenancy/middleware.py:34
 msgid "Unknown address."
 msgstr "Невідома адреса."
 
-#: tenancy/services.py:44 tenancy/views.py:126
+#: tenancy/services.py:44 tenancy/views.py:140
 msgid "Not a host name."
 msgstr "Це не ім’я хоста."
 
@@ -355,10 +483,6 @@ msgstr ""
 "організацію самостійно, введіть власну адресу. Організацію не створюють без "
 "адміністратора."
 
-#: tenancy/templates/tenancy/tenant_form.html:17
-msgid "Cancel"
-msgstr "Скасувати"
-
 #: tenancy/templates/tenancy/tenants.html:3
 #: tenancy/templates/tenancy/tenants.html:5
 #: shell/templates/shell/administration.html:12
@@ -388,17 +512,17 @@ msgstr "Організацій ще немає."
 msgid "+ Create an organisation"
 msgstr "+ Створити організацію"
 
-#: tenancy/views.py:25
+#: tenancy/views.py:26
 msgctxt "organisation state"
 msgid "active"
 msgstr "активна"
 
-#: tenancy/views.py:26
+#: tenancy/views.py:27
 msgctxt "organisation state"
 msgid "blocked"
 msgstr "заблокована"
 
-#: tenancy/views.py:27
+#: tenancy/views.py:28
 msgctxt "organisation state"
 msgid "being set up"
 msgstr "налаштовується"
@@ -413,9 +537,12 @@ msgid "Choose"
 msgstr "Обрати"
 
 #: shell/templates/shell/administration.html:35
-#: shell/templates/shell/landing.html:6
 msgid "No organisation is chosen."
 msgstr "Організацію не обрано."
+
+#: shell/templates/shell/base.html:17
+msgid "All documents"
+msgstr "Усі документи"
 
 #: shell/templates/shell/base.html:31
 msgid "Sign out"

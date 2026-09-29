@@ -7,7 +7,6 @@ method — is the uniform not-found answer (ADR-0008).
 
 from __future__ import annotations
 
-from django.contrib.auth import login
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -19,6 +18,7 @@ from django.views.decorators.debug import sensitive_post_parameters, sensitive_v
 from audit.record import record
 from identity.forms import FirstAdministratorForm, SetupTokenForm
 from identity.models import SetupToken, User
+from identity.sessions import start_session
 from identity.tokens import hash_token
 from shell.views import not_found
 
@@ -97,5 +97,5 @@ def setup(request: HttpRequest) -> HttpResponse:
             after={"is_platform_admin": True},
         )
     del request.session[SESSION_KEY]
-    login(request, admin)
+    start_session(request, admin)
     return HttpResponseRedirect(reverse("administration"))

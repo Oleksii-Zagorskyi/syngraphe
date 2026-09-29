@@ -1,0 +1,271 @@
+"""Creating a document: the one write across both stores, in order, with every crash state the
+reconciler repairs (DL-0111, DL-0268, ADR-0007, ADR-0008).
+
+Group names and people are synthetic examples."""
+
+from __future__ import annotations
+
+import re
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from tenancy.schemas import schema_context
+
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.django_db(transaction=True, serialized_rollback=True),
+]
+
+
+@pytest.fixture
+def author(migrated_tenant: Any, member_of: Any) -> Any:
+    """A member of a group holding `create and edit`, signed in; `(client, user)`."""
+    from access.models import AccessGroup
+    from access.rights import Right
+    from identity.models import Language
+
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
+    client, user, membership = member_of("an.author@example.test")
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(name="Authors", actor_kind="system")
+        group.grant(Right.CREATE_AND_EDIT, by=None)
+        group.add_member(membership, by=None)
+    return client, user
+
+
+def _form(migrated_tenant: Any) -> dict[str, str]:
+    from documents.models import DocumentType, Folder
+
+    with schema_context(migrated_tenant.number):
+        document_type = DocumentType.objects.get(code="document")
+        folder = Folder.objects.get(number=1)
+    return {
+        "title": "Синтетичний приклад",
+        "language": "uk",
+        "document_type": str(document_type.id),
+        "folder": str(folder.id),
+    }
+
+
+def test_create_document_end_to_end(migrated_tenant: Any, author: Any, repo_root: Path) -> None:
+    from audit.models import AuditEvent
+    from documents import gitstore
+    from documents.gitstore import Kind
+    from documents.models import Document, Version
+
+    client, user = author
+
+    response = client.post("/document/new/", _form(migrated_tenant))
+
+    with schema_context(migrated_tenant.number):
+        document = Document.objects.get()
+        versions = list(Version.objects.filter(document=document))
+    assert response.status_code == 302
+    assert response["Location"] == f"/document/{document.number}/"
+    assert (document.state, document.author_only, document.created_by_id) == (
+        "active",
+        True,
+        user.id,
+    )
+    repo = gitstore.open_repository(migrated_tenant.number, document.number)
+    assert (
+        Path(repo.path).resolve()
+        == (
+            repo_root / f"tenant-{migrated_tenant.number}" / f"document-{document.number}"
+        ).resolve()
+    )
+    history = list(gitstore.history(repo))
+    assert len(history) == 1
+    assert gitstore.kind_of(history[0].message) is Kind.CREATED
+    assert history[0].author.name == str(user.id)
+    assert [(v.commit_sha, v.kind, v.author_id) for v in versions] == [
+        (str(history[0].id), "created", user.id)
+    ]
+    events = AuditEvent.objects.filter(action="document.created")
+    assert [(e.tenant_id, e.actor_id, e.after["number"]) for e in events] == [
+        (migrated_tenant.id, user.id, document.number)
+    ]
+
+
+def test_created_commit_holds_the_initial_tree(
+    migrated_tenant: Any, author: Any, repo_root: Path
+) -> None:
+    from documents import bundle, gitstore
+    from documents.models import Document, DocumentTemplate
+
+    client, _ = author
+    client.post("/document/new/", _form(migrated_tenant))
+
+    with schema_context(migrated_tenant.number):
+        document = Document.objects.get()
+        outline = DocumentTemplate.objects.get().outline
+    repo = gitstore.open_repository(migrated_tenant.number, document.number)
+    sha = str(next(gitstore.history(repo)).id)
+    frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", sha).decode())
+    assert (frontmatter.title, frontmatter.language, frontmatter.title_page) == (
+        "Синтетичний приклад",
+        "uk",
+        False,
+    )
+    assert (frontmatter.appendices, frontmatter.attachments) == ([], [])
+    assert body == outline
+    assert gitstore.read(repo, "passport.md", sha).decode() == bundle.passport_header(
+        migrated_tenant.number, document.number
+    )
+    assert gitstore.read(repo, "entities.yaml", sha) == b"[]\n"
+
+
+def test_numbers_never_reused(migrated_tenant: Any, author: Any, repo_root: Path) -> None:
+    from documents import services
+    from documents.models import Document, DocumentType, Folder
+
+    _, user = author
+    with schema_context(migrated_tenant.number):
+        kind = DocumentType.objects.get(code="document")
+        root = Folder.objects.get(number=1)
+        first = services.create_document(user, "Перший", "uk", kind, root)
+        second = services.create_document(user, "Другий", "uk", kind, root)
+        with pytest.raises(services.InjectedFault):
+            services.create_document(user, "Третій", "uk", kind, root, fault_at=1)
+        fourth = services.create_document(user, "Четвертий", "uk", kind, root)
+        numbers = list(Document.objects.order_by("number").values_list("number", "state"))
+
+    assert second.number == first.number + 1
+    assert fourth.number == first.number + 3
+    assert numbers == [
+        (first.number, "active"),
+        (first.number + 1, "active"),
+        (first.number + 2, "creating"),
+        (first.number + 3, "active"),
+    ]
+
+
+def test_create_needs_the_right(migrated_tenant: Any, member_of: Any, repo_root: Path) -> None:
+    from documents.models import Document
+
+    client, _, _ = member_of("a.reader@example.test")
+
+    assert client.get("/document/new/").status_code == 404
+    assert client.post("/document/new/", _form(migrated_tenant)).status_code == 404
+    with schema_context(migrated_tenant.number):
+        assert not Document.objects.exists()
+
+
+def test_the_form_refuses_what_it_cannot_take(
+    migrated_tenant: Any, author: Any, repo_root: Path
+) -> None:
+    from documents.models import Document
+
+    client, _ = author
+    form = _form(migrated_tenant)
+
+    from documents.models import DocumentType, Folder
+
+    with schema_context(migrated_tenant.number):
+        retired = DocumentType.objects.create(
+            code="old", label="old", retired_at="2026-01-01T00:00:00Z", actor_kind="system"
+        )
+        other_folder = Folder.objects.create(number=2, name="Sub", actor_kind="system")
+    bads = (
+        {"title": "   "},
+        {"title": "x" * 501},
+        {"title": "a\x7fb"},
+        {"title": "a\nb"},
+        {"language": "xx"},
+        {"document_type": "not-a-uuid"},
+        {"document_type": str(retired.id)},
+        {"folder": str(other_folder.id)},
+    )
+    for bad in bads:
+        response = client.post("/document/new/", {**form, **bad})
+        assert response.status_code == 400, bad
+    with schema_context(migrated_tenant.number):
+        assert not Document.objects.exists()
+
+
+def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) -> None:
+    client, _ = author
+
+    response = client.get("/document/new/")
+
+    assert response.status_code == 200
+    body = response.content.decode()
+    assert 'name="title"' in body
+    assert 'value="uk"' in body
+
+
+def test_crash_states_are_the_documented_ones(
+    migrated_tenant: Any, author: Any, repo_root: Path
+) -> None:
+    from audit.models import AuditEvent
+    from documents import gitstore, services
+    from documents.models import Document, DocumentType, Folder, HeadingIndex, Version
+
+    _, user = author
+    states = {}
+    with schema_context(migrated_tenant.number):
+        kind = DocumentType.objects.get(code="document")
+        root = Folder.objects.get(number=1)
+        for step in (1, 2, 3, 4):
+            with pytest.raises(services.InjectedFault):
+                services.create_document(user, f"Крок {step}", "uk", kind, root, fault_at=step)
+            document = Document.objects.get(title=f"Крок {step}")
+            path = gitstore.repository_path(migrated_tenant.number, document.number)
+            commits = (
+                len(list(gitstore.history(gitstore.open_repository(*_numbers(document)))))
+                if path.exists()
+                else None
+            )
+            states[step] = (
+                document.state,
+                path.exists(),
+                commits,
+                Version.objects.filter(document=document).count(),
+                HeadingIndex.objects.filter(document=document).count(),
+            )
+
+    assert states == {
+        1: ("creating", False, None, 0, 0),
+        2: ("creating", True, 0, 0, 0),
+        3: ("creating", True, 1, 0, 0),
+        4: ("creating", True, 1, 1, 1),
+    }
+    assert not AuditEvent.objects.filter(action="document.created").exists()
+
+
+def test_a_step_that_fails_leaves_a_documented_state(
+    migrated_tenant: Any, author: Any, repo_root: Path, monkeypatch: Any
+) -> None:
+    from documents import caches, services
+    from documents.models import Document, Version
+
+    client, _ = author
+
+    def broken(*args: Any, **kwargs: Any) -> None:
+        raise OSError("the disk is full")
+
+    monkeypatch.setattr(caches, "rebuild", broken)
+    response = client.post("/document/new/", _form(migrated_tenant))
+
+    with schema_context(migrated_tenant.number):
+        document = Document.objects.get()
+        assert document.state == "creating"
+        assert not Version.objects.exists()
+    assert response.status_code == 503
+    body = response.content.decode()
+    alert = re.search(r'role="alert">([^<]*)<', body)
+    assert alert and str(document.number) in alert.group(1)
+    assert 'value="Синтетичний приклад"' in body
+    assert services.CreationStopped
+
+
+def _numbers(document: Any) -> tuple[int, int]:
+    from django.db import connection
+
+    from tenancy.schemas import current_tenant
+
+    tenant = current_tenant(connection)
+    assert tenant is not None
+    return tenant, document.number

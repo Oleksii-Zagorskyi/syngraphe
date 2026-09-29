@@ -26,14 +26,14 @@ _admin_patterns, _admin_app, _admin_namespace = admin.site.urls
 urlpatterns = [
     path("", include("shell.urls")),
     path("", include("access.urls")),
+    path("", include("documents.urls")),
     path("", include("identity.urls")),
     path("", include("tenancy.urls")),
     # Confined by identity.middleware.FrameworkAdminMiddleware; never at the default path (DL-0210).
-    path(
-        settings.DJANGO_ADMIN_PATH,
-        (_never_append_slash(_admin_patterns), _admin_app, _admin_namespace),
-    ),
+    path(settings.DJANGO_ADMIN_PATH, (_admin_patterns, _admin_app, _admin_namespace)),
 ]
 
-# Every address that does not exist answers as an object that may not be seen does (ADR-0008).
+# A bare path is never redirected to its slashed page: the redirect would tell anyone which
+# pages exist, and every address that does not exist answers as one that may not be seen (ADR-0008).
+urlpatterns = _never_append_slash(urlpatterns)
 handler404 = "shell.views.not_found"

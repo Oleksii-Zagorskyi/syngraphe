@@ -140,6 +140,8 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **make canonical** · затвердити · *proposed* — end a freeze by making the latest accepted version the next edition.
 
+**author-only** · лише для автора · *proposed* — a document that has never had a group linked: only its creator reaches it, and administrators see it; the first linked group ends it (ADR-0007).
+
 **copy a document** · копіювати документ · *proposed* — create a new document from a version of one you may read; no history, no attachments, author-only until groups are linked.
 
 **undo a contribution** · скасувати правку · *proposed* — a reviewer's act on the pending run: the reversal of one version (*undo this edit*) or of one author's edits since the last acceptance, applied to the reviewer's draft and committed as their version. Sentences a later version changed are left for editing by hand. Nothing is erased (ADR-0015).

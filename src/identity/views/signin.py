@@ -7,10 +7,8 @@ hash all the same: the framework's backend hashes the password it was given when
 
 from __future__ import annotations
 
-from datetime import timedelta
-
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, logout
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
@@ -20,10 +18,10 @@ from django.views.decorators.debug import sensitive_post_parameters, sensitive_v
 
 from identity import throttle
 from identity.forms import SignInForm
-from identity.models import Membership, MembershipState, User
+from identity.models import Membership, User
+from identity.sessions import start_session
 from shell.views import not_found
 from tenancy.middleware import SESSION_TENANT_KEY
-from tenancy.models import TenantState
 
 
 def _page(request: HttpRequest, form: SignInForm, failed: bool) -> HttpResponse:
@@ -43,9 +41,7 @@ def _sole_tenant(user: User) -> int | None:
     """The number of the tenant of the person's one active membership in an active organisation,
     or none."""
     numbers = list(
-        Membership.objects.filter(
-            user=user, state=MembershipState.ACTIVE, tenant__state=TenantState.ACTIVE
-        ).values_list("tenant__number", flat=True)[:2]
+        Membership.objects.active().filter(user=user).values_list("tenant__number", flat=True)[:2]
     )
     return numbers[0] if len(numbers) == 1 else None
 
@@ -80,9 +76,7 @@ def signin(request: HttpRequest) -> HttpResponse:
         return _page(request, SignInForm(initial={"email": request.POST.get("email", "")}), True)
 
     throttle.succeed(charged)
-    login(request, user)
-    # Fixed at sign-in: a later write to the session does not move the expiry.
-    request.session.set_expiry(timezone.now() + timedelta(seconds=settings.SESSION_COOKIE_AGE))
+    start_session(request, user)
     if not getattr(request, "tenant_from_domain", True):
         tenant_number = _sole_tenant(user)
         if tenant_number is not None:

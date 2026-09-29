@@ -1,0 +1,5 @@
+# The nightly base backup, then the file that tells the worker it exists; the waiting log each
+# minute. In UTC. Root's table: each job runs as postgres, and root writes its lines to the
+# container's log.
+0 2 * * * su postgres -s /bin/sh -c '. /run/backup/environment; /usr/local/bin/backup-state.sh base' >> /proc/1/fd/1 2>&1
+* * * * * su postgres -s /bin/sh -c '. /run/backup/environment; /usr/local/bin/backup-state.sh wal' >> /proc/1/fd/1 2>&1

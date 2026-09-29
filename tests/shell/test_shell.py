@@ -33,7 +33,7 @@ def message_ids(catalogue: str) -> list[str]:
 def test_single_membership_shows_name_no_switcher(signed_in: Any, tenant: Any) -> None:
     client, _ = signed_in("an.admin@example.test", tenant=tenant, is_tenant_admin=True)
 
-    response = client.get("/")
+    response = client.get("/administration/")
     body = response.content.decode()
 
     assert response.status_code == 200
@@ -46,7 +46,8 @@ def test_single_membership_shows_name_no_switcher(signed_in: Any, tenant: Any) -
 def test_administration_hidden_from_members(signed_in: Any, tenant: Any) -> None:
     client, _ = signed_in("a.member@example.test", tenant=tenant)
 
-    body = client.get("/").content.decode()
+    # The shell is on every page, the not-found page included.
+    body = client.get("/no-such-page/").content.decode()
 
     assert tenant.name in body
     assert 'href="/administration/"' not in body
@@ -82,7 +83,7 @@ def test_organisation_selector_writes_the_session(signed_in: Any, tenant: Any) -
 
     assert response.status_code == 302
     assert client.session["tenant_number"] == tenant.number
-    assert tenant.name in client.get("/").content.decode()
+    assert tenant.name in client.get("/administration/").content.decode()
 
 
 def test_selector_is_closed_to_others_like_a_missing_page(signed_in: Any, tenant: Any) -> None:
@@ -100,12 +101,12 @@ def test_selector_is_closed_to_others_like_a_missing_page(signed_in: Any, tenant
 def test_a_demoted_administrator_loses_the_chosen_organisation(signed_in: Any, tenant: Any) -> None:
     client, user = signed_in("an.operator@example.test", is_platform_admin=True)
     client.post("/administration/organisation/", {"organisation": tenant.number})
-    assert tenant.name in client.get("/").content.decode()
+    assert tenant.name in client.get("/administration/").content.decode()
 
     user.is_platform_admin = False
     user.save()
 
-    assert tenant.name not in client.get("/").content.decode()
+    assert tenant.name not in client.get("/no-such-page/").content.decode()
     assert "tenant_number" not in client.session
 
 
@@ -145,3 +146,66 @@ def test_catalogue_covers_the_shell(signed_in: Any, tenant: Any, settings: Any) 
         body = client.get(path).content.decode()
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
+
+
+def test_an_unmarked_request_gets_no_selector(signed_in: Any, tenant: Any) -> None:
+    """A request the tenancy middleware did not mark is treated as an organisation's own domain
+    by every consumer, the frame included: nothing to choose."""
+    from django.test import RequestFactory
+
+    from shell.views import frame
+
+    _, user = signed_in("p.admin@example.test", tenant=tenant, is_platform_admin=True)
+    request = RequestFactory().get("/administration/")
+    request.user = user
+
+    assert frame(request)["selector"] is False
+
+
+def test_health_reports_backup_without_changing_status(
+    client: Any, tmp_path: Path, settings: Any
+) -> None:
+    import json
+    from datetime import UTC, datetime, timedelta
+
+    settings.BACKUP_STATE_DIR = tmp_path
+    clean = (datetime.now(UTC) - timedelta(minutes=40)).strftime("%Y%m%dT%H%M%SZ")
+    (tmp_path / "worker").mkdir()
+    (tmp_path / "backup").mkdir()
+    (tmp_path / "worker" / "run").write_text(
+        json.dumps(
+            {
+                "newest_marker": {
+                    "start": clean,
+                    "failures": [{"tenant": 4, "document": 91, "stage": "copy", "since": clean}],
+                },
+                "newest_clean": clean,
+            }
+        )
+    )
+    (tmp_path / "backup" / "wal").write_text(
+        json.dumps({"waiting_bytes": 123, "last_archived": "20260929T115900Z"})
+    )
+
+    response = client.get("/health/")
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["backup"]["repositories_failing"] is True
+    assert 2390 <= body["backup"]["clean_marker_age_seconds"] <= 2500
+    assert body["backup"]["wal_waiting_bytes"] == 123
+    assert body["backup"]["last_archived"] == "2026-09-29T11:59:00Z"
+    assert "91" not in response.content.decode() and '"4"' not in response.content.decode()
+
+
+def test_health_without_backup_state(client: Any, tmp_path: Path, settings: Any) -> None:
+    settings.BACKUP_STATE_DIR = tmp_path
+
+    body = client.get("/health/").json()
+
+    assert body["backup"] == {
+        "clean_marker_age_seconds": None,
+        "repositories_failing": False,
+        "last_archived": None,
+        "wal_waiting_bytes": None,
+    }

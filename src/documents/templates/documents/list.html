@@ -1,0 +1,29 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{{ current_tenant.name }} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content documents">
+  <div class="toolbar">
+    <h1>{{ current_tenant.name }}</h1>
+    {% if can_create %}<a class="btn primary" href="/document/new/">+ {% translate "Create document" %}</a>{% endif %}
+  </div>
+  <table class="list">
+    <thead>
+      <tr><th>#</th><th>{% translate "Title" %}</th><th>{% translate "Type" %}</th><th>{% translate "Parts" %}</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr class="document" data-number="{{ row.document.number }}">
+        <td class="id">#{{ row.document.number }}</td>
+        <td><a href="/document/{{ row.document.number }}/">{{ row.document.title }}</a></td>
+        <td>{{ row.document.document_type.label }}</td>
+        <td class="parts">
+          <span class="part appendices{% if not row.appendices %} absent{% endif %}" title="{% translate 'appendices' %}">▤</span>
+          <span class="part attachments{% if not row.attachments %} absent{% endif %}" title="{% translate 'attachments' %}">📎</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
