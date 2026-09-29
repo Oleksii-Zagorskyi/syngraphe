@@ -94,13 +94,13 @@ def test_makemessages_adds_no_entry(tmp_path: Path) -> None:
     # In a copy of the source tree, as its own process: the committed catalogue is never touched.
     copy = tmp_path / "src"
     shutil.copytree(SRC, copy, ignore=shutil.ignore_patterns("__pycache__", "staticfiles"))
-    subprocess.run(
+    made = subprocess.run(
         [sys.executable, "manage.py", "makemessages", "-l", "uk", "--verbosity", "0"],
         cwd=copy,
-        check=True,
         capture_output=True,
         env={**os.environ, "PYTHONPATH": str(copy)},
     )
+    assert made.returncode == 0, made.stderr.decode(errors="replace")
     before = entries(CATALOGUE.read_text(encoding="utf-8"))
     after = entries(
         (copy / "shell" / "locale" / "uk" / "LC_MESSAGES" / "django.po").read_text(encoding="utf-8")

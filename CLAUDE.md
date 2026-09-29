@@ -82,7 +82,8 @@ docker compose up
 # database and Redis reachable from the host
 docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 
-# the check; needs PostgreSQL and Redis, published by the developer override
+# the check; needs PostgreSQL and Redis, published by the developer override,
+# and GNU gettext on the path
 uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
 

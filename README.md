@@ -108,7 +108,7 @@ list of words this product does not use, and what to use instead.
 
 ## Running it
 
-Docker with Compose, `uv` for the check, and an off-host backup store — an SFTP
+Docker with Compose, `uv` and GNU gettext for the check, and an off-host backup store — an SFTP
 server or an S3 bucket — which the database and the backup need before they
 start; there is no local kind ([the runbook](docs/runbook.md#backup)).
 
