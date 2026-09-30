@@ -1,0 +1,38 @@
+{% extends "shell/base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "Export" %} — #{{ document.number }} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content export">
+  <h1>{% blocktranslate with number=document.number %}Export — #{{ number }}{% endblocktranslate %}</h1>
+  <p><a href="/document/{{ document.number }}/">{{ document.title }}</a></p>
+  {% if refusal %}<p class="notice refusal" role="alert">{{ refusal }}</p>{% endif %}
+  <form method="post" action="/document/{{ document.number }}/export/" class="export-dialog">
+    {% csrf_token %}
+    <fieldset class="what">
+      <legend>{% translate "What" %} <details class="help"><summary aria-label="{% translate 'What can be exported' %}">?</summary><p>{% translate "The document in the format chosen; attachments, when the document has them, as their own files. With attachments, the export is one zip." %}</p></details></legend>
+      <label><input type="checkbox" name="document" checked> {% translate "Document" %}</label>
+      {% if parts %}<label><input type="checkbox" name="attachments" checked> {% translate "Attachments" %}</label>{% endif %}
+    </fieldset>
+    <fieldset class="format">
+      <legend>{% translate "Format" %} <details class="help"><summary aria-label="{% translate 'The formats' %}">?</summary><p>{% translate "PDF and DOCX carry the clause numbers, the page header and the page numbers. Markdown is the text as the source view shows it, and never carries marked changes." %}</p></details></legend>
+      <label><input type="radio" name="format" value="pdf" checked> PDF</label>
+      <label><input type="radio" name="format" value="docx"> DOCX</label>
+      <label><input type="radio" name="format" value="markdown"> Markdown</label>
+    </fieldset>
+    <fieldset class="view">
+      <legend>{% translate "View" context "export" %} <details class="help"><summary aria-label="{% translate 'The views' %}">?</summary><p>{% translate "Which version to export, among those you may read. Marked changes are measured against the version before it in the chain, named beside each." %}</p></details></legend>
+      {% for offer in offers %}
+      <div class="offer" data-view="{{ offer.view }}">
+        {% if offers|length == 1 %}<input type="hidden" name="view" value="{{ offer.view }}"><span class="single">{% include "rendering/export_offer.html" %}</span>{% else %}<label><input type="radio" name="view" value="{{ offer.view }}"{% if forloop.first %} checked{% endif %}> {% include "rendering/export_offer.html" %}</label>{% endif %}
+        {% if offer.baseline %}<span class="changes" data-changes="{{ offer.view }}">{% translate "Changes" %}:
+          <label><input type="radio" name="changes-{{ offer.view }}" value="marked"{% if offer.marked_by_default %} checked{% endif %}> {% blocktranslate with number=offer.baseline_number %}marked against {{ number }}{% endblocktranslate %}</label>
+          <label><input type="radio" name="changes-{{ offer.view }}" value="clean"{% if not offer.marked_by_default %} checked{% endif %}> {% translate "clean text" %}</label></span>{% endif %}
+      </div>
+      {% endfor %}
+    </fieldset>
+    <p class="delivery" data-delivery="{% if parts %}zip{% else %}file{% endif %}"{% if parts %} data-zip="{% translate 'Delivered as one zip.' %}" data-file="{% translate 'Delivered as one file.' %}"{% endif %}>{% if parts %}{% translate "Delivered as one zip." %}{% else %}{% translate "Delivered as one file." %}{% endif %}</p>
+    <button type="submit">{% translate "Export" %}</button>
+  </form>
+</section>
+<script src="{% static 'rendering/export.js' %}" defer></script>
+{% endblock %}

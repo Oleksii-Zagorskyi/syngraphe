@@ -42,4 +42,5 @@ def test_the_context_manager_is_used_where_the_decisions_allow() -> None:
         "editions/management/commands/make_canonical.py",
         "editions/management/commands/end_freeze.py",
         "editing/tasks.py",
+        "rendering/tasks.py",
     }

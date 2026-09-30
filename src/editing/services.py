@@ -131,15 +131,22 @@ def _stopped(repo: pygit2.Repository, head: str, draft: Draft, user: User) -> st
     return None
 
 
-def my_edits(hold: Hold) -> tuple[str, str]:
-    """The draft normalised against the head, and its changes rendered; `DraftRefused` for a
-    draft the whitelist refuses."""
+def draft_text(hold: Hold) -> tuple[str, str, str]:
+    """The head's sha and body, and the draft normalised against it — the text *my edits* shows
+    and exports; `DraftRefused` for a draft the whitelist refuses."""
     document = Document.objects.select_related("language").get(pk=hold.document_id)
-    _, head_body = _head_body(holds.tenant_number(), document)
+    head, head_body = _head_body(holds.tenant_number(), document)
     draft = Draft.objects.get(hold=hold)
     _accepted(draft)
     normalised = _normalised(head_body, draft.content[holds.BODY], _lists(document))
-    changes = render_changes(head_body.encode(), normalised)
+    return head, head_body, normalised.decode("utf-8")
+
+
+def my_edits(hold: Hold) -> tuple[str, str]:
+    """The draft normalised against the head, and its changes rendered; `DraftRefused` for a
+    draft the whitelist refuses."""
+    _, head_body, normalised = draft_text(hold)
+    changes = render_changes(head_body.encode(), normalised.encode())
     return head_body, changes
 
 

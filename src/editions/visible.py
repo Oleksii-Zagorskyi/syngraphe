@@ -12,6 +12,7 @@ from typing import Any
 
 from access.rights import Right, rights_on_many
 from documents.models import Document, Version, VersionKind
+from editing.numbering import BEFORE_ANY_ACCEPTANCE
 from editions.models import Edition
 from review.models import Acceptance
 from review.services import accepted_content_version, number_key, run
@@ -19,9 +20,9 @@ from review.services import accepted_content_version, number_key, run
 
 @dataclass(frozen=True)
 class Visible:
-    """The version a person reads; its number — empty for the `created` text, since `0.0` is
-    never shown alone (DL-0272); what the text is — `pending`, `accepted` or `canonical`; and the
-    latest edition's number, `None` before the first."""
+    """The version a person reads; its number — `0.0` for the `created` text, the document's first
+    version (DL-0358); what the text is — `pending`, `accepted` or `canonical`; and the latest
+    edition's number, `None` before the first."""
 
     version: Version
     number: str
@@ -94,10 +95,10 @@ def _visible(
     elif acceptance is not None:
         start, number, stance = accepted_content_version(acceptance), acceptance.number, "accepted"
     else:
-        start, number, stance = created[document.pk], "", "accepted"
+        start, number, stance = created[document.pk], BEFORE_ANY_ACCEPTANCE, "accepted"
     pending = run(document, since=start) if Right.VIEW_PENDING in rights else []
     if pending:
-        return Visible(pending[-1], f"{number or '0.0'}-{len(pending)}", "pending", canonical)
+        return Visible(pending[-1], f"{number}-{len(pending)}", "pending", canonical)
     return Visible(start, number, stance, canonical)
 
 

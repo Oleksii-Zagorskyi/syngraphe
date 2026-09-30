@@ -132,9 +132,20 @@ CELERY_BEAT_SCHEDULE = {
         "task": "editing.close_silent_editors",
         "schedule": crontab(minute="*"),
     },
+    "sweep-exports": {
+        "task": "rendering.sweep_exports",
+        "schedule": crontab(minute=40),
+    },
+}
+# Rendering runs on its own worker, on a network with no way out (ADR-0013): the render queue.
+CELERY_TASK_ROUTES = {
+    "rendering.render_export": {"queue": "render"},
+    "rendering.sweep_exports": {"queue": "render"},
 }
 
 GIT_REPO_ROOT = _CONFIG.git_repo_root
+# Where the render worker writes an export and the web process serves it from, for a day.
+EXPORT_ROOT = _CONFIG.export_root
 BACKUP_STATE_DIR = _CONFIG.backup_state_dir
 BACKUP_LOCK_TIMEOUT = _CONFIG.backup_lock_timeout
 BACKUP_WAL_ALERT = _CONFIG.backup_wal_alert

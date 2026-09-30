@@ -1,5 +1,5 @@
 {% extends "shell/base.html" %}
-{% load i18n review editions %}
+{% load i18n static review editions %}
 {% block title %}#{{ document.number }} {{ document.title }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document">
@@ -8,7 +8,20 @@
   <nav class="breadcrumb"><a href="/folder/1/">{{ current_tenant.name }}</a> /</nav>
   <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% state_tag document %}</h1>
   {% edition_controls document %}
+  <p class="document-actions"><a class="button" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a></p>
+  {% if tab == "view" %}
+  <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
+    {% include "rendering/panes_outline.html" %}
+    <div class="centre">
+      <nav class="tabs"><a href="/document/{{ document.number }}/"{% if tab == "view" %} aria-current="page"{% endif %}>{% translate "View" %}</a>{% if can_edit %}<a href="/document/{{ document.number }}/edit/"{% if tab == "edit" %} aria-current="page"{% endif %}>{% translate "Edit" %}</a>{% endif %}{% if holding %}<a href="/document/{{ document.number }}/my-edits/"{% if tab == "my-edits" %} aria-current="page"{% endif %}>{% translate "My edits" %}</a>{% endif %}{% views_pending document as pending %}{% if pending %}<a href="/document/{{ document.number }}/pending/"{% if tab == "pending" %} aria-current="page"{% endif %}>{% translate "Pending edits" %}</a>{% endif %}<a href="/document/{{ document.number }}/info/"{% if tab == "info" %} aria-current="page"{% endif %}>{% translate "Info" %}</a></nav>
+      {% include "rendering/view.html" %}
+    </div>
+    {% include "rendering/panes_panel.html" %}
+  </div>
+  <script src="{% static 'rendering/outline.js' %}" defer></script>
+  {% else %}
   <nav class="tabs"><a href="/document/{{ document.number }}/"{% if tab == "view" %} aria-current="page"{% endif %}>{% translate "View" %}</a>{% if can_edit %}<a href="/document/{{ document.number }}/edit/"{% if tab == "edit" %} aria-current="page"{% endif %}>{% translate "Edit" %}</a>{% endif %}{% if holding %}<a href="/document/{{ document.number }}/my-edits/"{% if tab == "my-edits" %} aria-current="page"{% endif %}>{% translate "My edits" %}</a>{% endif %}{% views_pending document as pending %}{% if pending %}<a href="/document/{{ document.number }}/pending/"{% if tab == "pending" %} aria-current="page"{% endif %}>{% translate "Pending edits" %}</a>{% endif %}<a href="/document/{{ document.number }}/info/"{% if tab == "info" %} aria-current="page"{% endif %}>{% translate "Info" %}</a></nav>
-  {% block tab %}{% if tab == "view" %}{% include "rendering/view.html" %}{% else %}{% include "documents/info.html" %}{% endif %}{% endblock %}
+  {% block tab %}{% include "documents/info.html" %}{% endblock %}
+  {% endif %}
 </section>
 {% endblock %}

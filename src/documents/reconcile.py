@@ -2,14 +2,14 @@
 
 Git is the commit point and the rows are its cache. Report mode lists what disagrees and writes
 nothing. Repair derives what git implies — an acceptance's rows from its passport section, never
-from a trailer alone — computes the correction notices of an acceptance that has none
-(ADR-0014), finishes stopped creations, finishes a *send for review* that stopped after its
-commit (DL-0318, DL-0335), asks again for the authorship missing from the head or the latest
-accepted version (DL-0266, DL-0326) and recreates a row for a repository without one, fail
-closed; a row is deleted only on `prune_rows`, and only a version row whose commit its existing
-repository no longer holds (ADR-0018, DL-0276). A repository is trusted only where its passport
-names the tenant and the number it sits at. Every repair runs under the document's lock and is
-audited with numbers, never a title. One document's fault is reported and the run goes on.
+from a trailer alone — computes the correction notices of an acceptance that has none (ADR-0014),
+finishes stopped creations, finishes a *send for review* that stopped after its commit (DL-0318,
+DL-0335), asks again for the authorship missing from the head or the latest accepted version
+(DL-0266, DL-0326) and recreates a row for a repository without one, fail closed; a row is deleted
+only on `prune_rows`, and only a version row whose commit its existing repository no longer holds
+(ADR-0018, DL-0276). An export left queued is queued again. A repository is trusted only where its
+passport names the tenant and the number it sits at. Every repair runs under the document's lock and
+is audited with numbers, never a title. One document's fault is reported and the run goes on.
 """
 
 from __future__ import annotations
@@ -54,6 +54,12 @@ logger = logging.getLogger(__name__)
 
 # A creation younger than this may still be running, and is left to finish.
 CREATING_GRACE = timedelta(minutes=10)
+# An export queued longer than this lost its place in the queue — the render worker was down, or
+# Redis lost the entry — and is queued again from its row.
+EXPORT_GRACE = timedelta(minutes=10)
+# An export still queued after this was killed with its worker, or queued behind a render that
+# never ends; it is failed with the reason, and its person may ask again.
+EXPORT_ABANDONED = timedelta(hours=1)
 # A writer holding a document's lock longer than this is reported, never waited for.
 LOCK_TIMEOUT_SECONDS = 30.0
 NUMBER_MAX = 2**31 - 1
@@ -93,6 +99,8 @@ EDITION_DIFFERS = "edition_differs"
 # An approval's version whose `EDITION`, tag or freeze's end is missing: finished on repair.
 EDITION_UNFINISHED = "edition_unfinished"
 UNREADABLE = "unreadable"
+EXPORT_STUCK = "export_stuck"
+EXPORT_ABANDONED_KIND = "export_abandoned"
 
 
 @dataclass(frozen=True)
@@ -864,4 +872,40 @@ def _tenant(tenant: Tenant, only: int | None, repair: bool, prune_rows: bool) ->
         if number not in listed:
             one.guarded(number, partial(one.orphan, number))
     one.sequence(numbers)
+    _exports(one, only)
     return one.findings
+
+
+def _exports(one: _Run, only: int | None) -> None:
+    """Every export still queued after its grace: reported, and queued again on repair — failed
+    instead once it has waited an hour. The job runs once whatever the queue holds: it leaves a
+    job that is not queued alone. Each repair is audited with numbers."""
+    # Imported here: exports are an app built on this one.
+    from django.utils.translation import gettext as _
+
+    from rendering.models import ExportJob, ExportState
+    from rendering.tasks import render_export
+
+    now = timezone.now()
+    stuck = ExportJob.objects.filter(state=ExportState.QUEUED, created_at__lt=now - EXPORT_GRACE)
+    if only is not None:
+        stuck = stuck.filter(document__number=only)
+    for job in stuck.select_related("document"):
+        abandoned = job.created_at < now - EXPORT_ABANDONED
+        kind = EXPORT_ABANDONED_KIND if abandoned else EXPORT_STUCK
+        if one.repair:
+            if abandoned:
+                reason = _("The file was not made in time. Export again.")
+                with transaction.atomic():
+                    # A job a render holds is not abandoned: skipped, never waited for.
+                    held = (
+                        ExportJob.objects.select_for_update(skip_locked=True)
+                        .filter(pk=job.pk, state=ExportState.QUEUED)
+                        .update(state=ExportState.FAILED, failure_reason=reason)
+                    )
+                if not held:
+                    continue
+            else:
+                render_export.delay(one.tenant.number, str(job.pk))
+            _audit(one.tenant, kind, job.document, None, {"export": str(job.pk)})
+        one.found(kind, job.document.number, str(job.pk), repaired=one.repair)

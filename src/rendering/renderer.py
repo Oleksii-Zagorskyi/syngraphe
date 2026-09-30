@@ -1,6 +1,7 @@
-"""The reading view's HTML: one markdown-it-py parse of the stored text, rendered with raw HTML
-escaped, spans and callouts as classed elements, a sentence boundary as a space, and each heading
-and paragraph led by its clause number (ADR-0013, DL-0065).
+"""The document's HTML, for the reading view, the diff views and the help pages: one markdown-it-py
+parse of the stored text, rendered with raw HTML escaped, spans and callouts as classed elements, a
+sentence boundary as a space, and each heading and paragraph led by its clause number (ADR-0013,
+DL-0065).
 
 Built apart from the editor's recogniser, which passes raw HTML and every link through so that
 the validator can name them.
@@ -12,8 +13,10 @@ from html import escape
 from typing import Any
 
 from markdown_it import MarkdownIt
+from markdown_it.rules_core import StateCore
 from markdown_it.token import Token
 
+from editing.markdown import load_spec
 from editing.markdown.rules import attr_span, callout, tidy
 from rendering.numbering import labels
 
@@ -34,7 +37,8 @@ def _callout_open(_renderer: Any, tokens: list[Token], i: int, *_: Any) -> str:
 
 
 def _image(renderer: Any, tokens: list[Token], i: int, options: Any, env: Any) -> str:
-    # Images arrive with Epic 11; until then a reader sees the description, and nothing is fetched.
+    # An image reaches a reader as its description until the platform serves image files; nothing
+    # is fetched.
     return escape(renderer.renderInlineAsText(tokens[i].children or [], options, env))
 
 
@@ -43,11 +47,36 @@ def _link_open(renderer: Any, tokens: list[Token], i: int, options: Any, env: An
     return str(renderer.renderToken(tokens, i, options, env))
 
 
+def _whitelisted_links(state: StateCore) -> None:
+    """A link whose scheme the whitelist does not allow reads as its words: the validator refuses
+    it on every way in, and the page holds the rule itself for text that reached the store
+    another way."""
+    schemes = load_spec().link_schemes
+    for token in state.tokens:
+        children = token.children or []
+        refused: list[int] = []
+        depth: list[bool] = []
+        for i, child in enumerate(children):
+            if child.type == "link_open":
+                bad = not schemes.match(str(child.attrs.get("href", "")))
+                depth.append(bad)
+                if bad:
+                    refused.append(i)
+            elif child.type == "link_close" and depth and depth.pop():
+                refused.append(i)
+        if refused:
+            dropped = set(refused)
+            token.children = [c for i, c in enumerate(children) if i not in dropped]
+
+
 def make_renderer() -> MarkdownIt:
     md = MarkdownIt("commonmark", {"html": False}).enable("table")
     md.inline.ruler.before("link", "attr_span", attr_span)
     md.core.ruler.after("block", "callout", callout)
     md.core.ruler.after("text_join", "tidy", tidy)
+    md.core.ruler.after("tidy", "whitelisted_links", _whitelisted_links)
+    if md.options["html"]:
+        raise RuntimeError("raw HTML stays text: every html token is the platform's own")
     md.add_render_rule("entity_open", _span_open)
     md.add_render_rule("underline_open", _span_open)
     md.add_render_rule("entity_close", lambda *_: "</span>")
@@ -63,12 +92,30 @@ def make_renderer() -> MarkdownIt:
 RENDERER = make_renderer()
 
 
-def render(body: str) -> str:
-    """The body's HTML, each labelled block led by `<span class="num">LABEL</span> `."""
+def labelled(body: str) -> list[Token]:
+    """The body's tokens, each labelled block's inline children led by its number: an
+    `html_inline` token marked `meta["num"]` and carrying `meta["label"]`, so a caller splicing the
+    children can pass over it."""
     tokens = RENDERER.parse(body)
     for i, label in labels(tokens).items():
         inline = tokens[i + 1]
         number = Token("html_inline", "", 0)
         number.content = f'<span class="num">{escape(label)}</span> '
+        number.meta = {"num": True, "label": label}
         inline.children = [number, *(inline.children or [])]
+    return tokens
+
+
+def render_tokens(tokens: list[Token]) -> str:
+    """Tokens from `labelled`, as HTML; tokens a caller spliced in render as they are."""
     return str(RENDERER.renderer.render(tokens, RENDERER.options, {}))
+
+
+def render_inline(text: str) -> str:
+    """One line of inline text, rendered by the same rules and unlabelled."""
+    return str(RENDERER.renderInline(text)).strip()
+
+
+def render(body: str) -> str:
+    """The body's HTML, each labelled block led by `<span class="num">LABEL</span> `."""
+    return render_tokens(labelled(body))

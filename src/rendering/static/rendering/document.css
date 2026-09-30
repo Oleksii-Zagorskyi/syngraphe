@@ -1,17 +1,82 @@
-/* The reading view: the document's text as a reader reads it. */
-.document-text { max-width: 46rem; line-height: 1.6; }
-.document-text .num { color: #6b7280; font-size: 0.85em; font-variant-numeric: tabular-nums; margin-right: 0.35em; user-select: none; }
-.document-text h1, .document-text h2, .document-text h3, .document-text h4 { line-height: 1.3; }
-.document-text .entity { background: #eef2f7; border-radius: 2px; padding: 0 0.1em; }
+/* The document as a reader reads it: the reading view and the diff views. Colours follow the
+   interface mockup's palette. */
+.document-text {
+  --doc-ink: #222;
+  --doc-muted: #777;
+  --doc-line: #d4d4d4;
+  --doc-mark: #e6e6e6;
+  --doc-note: #f3f6f9;
+  --doc-warning: #fbf3e4;
+  --doc-example: #f4f4f4;
+  --doc-gutter: 60px;
+  position: relative;
+  max-width: 48rem;
+  padding-left: var(--doc-gutter);
+  color: var(--doc-ink);
+  font: 15px/1.6 system-ui, "DejaVu Sans", sans-serif;
+}
+/* Clause and heading numbers stand in the gutter, outside the text, never selected with it. */
+.document-text .num {
+  position: absolute;
+  left: 0;
+  width: calc(var(--doc-gutter) - 10px);
+  text-align: right;
+  color: var(--doc-muted);
+  font-size: 12px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: inherit;
+  user-select: none;
+}
+.document-text h1, .document-text h2, .document-text h3, .document-text h4 { line-height: 1.3; margin: 1.2em 0 0.5em; }
+.document-text h1 { font-size: 1.5em; }
+.document-text h2 { font-size: 1.25em; }
+.document-text h3 { font-size: 1.1em; }
+.document-text h4 { font-size: 1em; }
+.document-text p, .document-text li { margin: 0.4em 0; }
+/* Marked text carries its own formatting, so an entity is told from ordinary text (DL-0184). */
+.document-text .entity { background: var(--doc-mark); padding: 0 3px; border-radius: 2px; }
 .document-text .underline { text-decoration: underline; }
-.document-text .callout { border-left: 3px solid #9ca3af; background: #f9fafb; margin: 1em 0; padding: 0.25em 1em; }
-.document-text .callout-warning { border-left-color: #d97706; }
-.document-text blockquote { border-left: 3px solid #e5e7eb; margin: 1em 0; padding-left: 1em; color: #374151; }
-.document-text table { border-collapse: collapse; margin: 1em 0; }
-.document-text th, .document-text td { border: 1px solid #d1d5db; padding: 0.3em 0.6em; vertical-align: top; }
-.version { color: #4b5563; margin: 0.25em 0 1em; }
+.document-text blockquote { margin: 0.8em 0; padding-left: 1em; border-left: 3px solid var(--doc-line); }
+.document-text .callout { margin: 0.8em 0; padding: 0.3em 1em; border-left: 3px solid var(--doc-muted); background: var(--doc-note); }
+.document-text .callout-warning { border-left-color: #b7791f; background: var(--doc-warning); }
+.document-text .callout-example { border-left-color: var(--doc-line); background: var(--doc-example); }
+.document-text table { border-collapse: collapse; margin: 0.8em 0; }
+.document-text th, .document-text td { border: 1px solid var(--doc-line); padding: 0.3em 0.6em; vertical-align: top; }
+.document-text th { font-weight: 600; }
+.document-text a { color: inherit; }
+/* The reading view's header line, and the attachments in the right panel. */
+.version { color: #555; margin: 0.25em 0 1em; }
 .attachments { margin: 0 0 1.5em; }
 .attachments h2 { font-size: 1rem; margin: 0 0 0.35em; }
 .attachments ul { list-style: none; margin: 0; padding: 0; }
 .attachments li { margin: 0.2em 0; }
-.attachments .file-name, .attachments .size { color: #6b7280; font-size: 0.9em; margin-left: 0.5em; }
+.attachments .file-name, .attachments .size { color: #777; font-size: 0.9em; margin-left: 0.5em; }
+/* The document page's panes (DL-0195): the outline, the text, the panel; each side pane collapses
+   and its edge drags. */
+.panes { display: grid; grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr) 6px var(--panel-width, 280px); align-items: start; }
+.panes:has(#outline-pane.shut) { --outline-width: 36px; }
+.panes:has(#panel.shut) { --panel-width: 36px; }
+.panes .outline, .panes .panel { position: sticky; top: 0; max-height: 100vh; overflow: auto; min-width: 0; padding: 8px 10px; background: #fff; }
+.panes .shut > :not(.pane-head) { display: none; }
+.panes .shut .pane-head > :not(button) { display: none; }
+.panes .centre { min-width: 0; padding: 0 16px; }
+.panes .edge { align-self: stretch; cursor: col-resize; background: #e6e6e6; touch-action: none; }
+.pane-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; color: #777; font-size: 12px; }
+.outline ul { list-style: none; margin: 0; padding-left: 12px; }
+.outline > ul { padding-left: 0; }
+.outline li { margin: 2px 0; font-size: 13px; }
+.outline li.shut > ul { display: none; }
+.outline .toggle { border: 0; background: none; cursor: pointer; padding: 0 2px; color: #777; }
+.outline a { color: inherit; text-decoration: none; }
+.outline .num { color: #777; margin-right: 4px; font-variant-numeric: tabular-nums; }
+.iconrow { display: flex; gap: 4px; flex-wrap: wrap; }
+.iconrow span { padding: 2px 6px; border: 1px solid #d4d4d4; border-radius: 3px; }
+.iconrow span.on { background: #555; color: #fff; }
+.iconrow span.placeholder { border-style: dashed; opacity: 0.5; }
+/* Changes in the diff views and in a marked export: a change of formatting alone shows the text as
+   it now reads; its earlier form opens on focus in the browser and never prints. */
+.document-text ins { background: #dff0d8; text-decoration: none; }
+.document-text del { background: #f6d6d6; }
+.document-text .format-changed .format-old { display: none; }
+@media screen { .document-text .format-changed:focus .format-old { display: inline; text-decoration: line-through; color: #777; margin-left: 4px; } }

@@ -12,6 +12,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.cache import patch_cache_control
 from django.utils.http import content_disposition_header
+from django.utils.translation import pgettext_lazy
 from django.views.decorators.cache import never_cache
 
 from access.models import DocumentGroup
@@ -157,13 +158,23 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
 
 # Looked up in place of a missing number, so a missing document costs what a forbidden one does.
 ABSENT = uuid.UUID(int=0)
+# The *Info* tab's name for each derived state, by the state's value (`review.state.State`).
+INFO_STATES = {
+    "frozen": pgettext_lazy("document state", "frozen"),
+    "canonical": pgettext_lazy("document state", "canonical"),
+    "accepted": pgettext_lazy("document state", "accepted"),
+    "awaiting_review": pgettext_lazy("document state", "awaiting review"),
+    "no_reviewer_assigned": pgettext_lazy("document state", "no reviewer assigned"),
+}
 
 
-def _readable_document(request: HttpRequest, number: int) -> Document | None:
-    """The document page's gates, in their order: an organisation, `GET`, a member, the document
-    active and readable. `None` wherever the answer is *nothing to show*."""
+def readable_document(
+    request: HttpRequest, number: int, *, methods: tuple[str, ...] = ("GET",)
+) -> Document | None:
+    """The document page's gates, in their order: an organisation, the method, a member, the
+    document active and readable. `None` wherever the answer is *nothing to show*."""
     tenant = getattr(request, "tenant", None)
-    if tenant is None or request.method != "GET" or not _member(request):
+    if tenant is None or request.method not in methods or not _member(request):
         return None
     document = (
         Document.objects.filter(number=number, state=DocumentState.ACTIVE)
@@ -181,7 +192,7 @@ def _readable_document(request: HttpRequest, number: int) -> Document | None:
 def page(request: HttpRequest, number: int, tab: str = "view") -> HttpResponse:
     """The document page: the *View* tab by default, *Info* at its own address, under the header
     every tab shares (DL-0208)."""
-    document = _readable_document(request, number)
+    document = readable_document(request, number)
     if document is None:
         return not_found(request)
     context: dict[str, Any] = {
@@ -216,7 +227,43 @@ def page(request: HttpRequest, number: int, tab: str = "view") -> HttpResponse:
         else []
     )
     context |= {"administrator": administrator, "creator": shown_name, "linked": linked}
+    context |= _state_line(request, document)
     return render(request, "documents/page.html", context)
+
+
+def _state_line(request: HttpRequest, document: Document) -> dict[str, Any]:
+    """The *Info* tab's canonical version and state (DL-0351): the document's one derived state to
+    a holder of *view pending*; to any other reader, what their own version is — *frozen*,
+    *canonical* or *accepted* — so the line never tells them of work beyond it (DL-0209)."""
+    from editions.models import open_freeze
+    from editions.visible import visible
+    from rendering.views import UNREADABLE
+    from review.state import State, states
+
+    try:
+        seen = visible(request.user, document)
+        state = states([document])[document.pk]
+    except UNREADABLE:
+        # A record that cannot be read costs the line, never the page; logged for the operator.
+        logger.exception(
+            "a document's state could not be read", extra={"document": document.number}
+        )
+        return {"canonical_number": None, "state": None, "state_label": ""}
+    rights = rights_on(request.user, document)
+    if Right.VIEW_PENDING not in rights and state not in (State.NEW, State.FROZEN, State.CANONICAL):
+        # What the reader's own version is, never an absence that tells them more lies beyond it.
+        if open_freeze(document) is not None:
+            state = State.FROZEN
+        elif seen is not None and seen.stance == "canonical":
+            state = State.CANONICAL
+        else:
+            state = State.ACCEPTED
+    shown = state in (State.FROZEN, State.CANONICAL, State.ACCEPTED) or Right.VIEW_PENDING in rights
+    return {
+        "canonical_number": seen.canonical if seen is not None else None,
+        "state": state if shown else None,
+        "state_label": INFO_STATES.get(state, "") if shown else "",
+    }
 
 
 @never_cache
@@ -229,7 +276,7 @@ def attachment(request: HttpRequest, number: int, part: int) -> HttpResponse:
     from editions.visible import latest_visible
     from rendering.views import UNREADABLE
 
-    document = _readable_document(request, number)
+    document = readable_document(request, number)
     if document is None:
         return not_found(request)
     tenant = request.tenant  # type: ignore[attr-defined]

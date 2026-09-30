@@ -1,6 +1,8 @@
-"""The View tab (DL-0349, DL-0352): `/document/M/` shows the version the reader may see, rendered
+"""The View tab (DL-0352, DL-0356): `/document/M/` shows the version the reader may see, rendered
 with its clause numbers, under a header naming its number — *Viewing the 0.1 version*, *Viewing
-the 0.1-1 version* — after the page's own gates; `/document/M/info/` stays *Info*.
+the 0.1-1 version* — after the page's own gates; `/document/M/info/` stays *Info*. At an edition,
+each reader reads their own version under its header; the diff views render through the same
+renderer.
 
 The suite renders in `uk`: *View* is *Перегляд*, *Viewing the … version* *Перегляд версії …*.
 People, groups and titles are synthetic examples; every text is invented.
@@ -143,8 +145,8 @@ def test_accepted_reader_sees_the_view_tab(accepted: Any, reader: Any) -> None:
     assert body.index(view) < body.index(tab(body, "Відомості"))
     assert "Перегляд версії 0.1" in body
     text = article(body)
-    assert re.search(r'<h1><span class="num">1</span> Загальні положення</h1>', text)
-    assert re.search(r'<h2><span class="num">1\.1</span> Строки</h2>', text)
+    assert re.search(r'<h1 id="h-1"><span class="num">1</span> Загальні положення</h1>', text)
+    assert re.search(r'<h2 id="h-1\.1"><span class="num">1\.1</span> Строки</h2>', text)
     # One paragraph, its sentences joined by a space; numbered within its section.
     assert re.search(
         r'<p><span class="num">1-1</span> Заяву на погодження подають письмово\. '
@@ -154,15 +156,17 @@ def test_accepted_reader_sees_the_view_tab(accepted: Any, reader: Any) -> None:
     assert re.search(r'<p><span class="num">1\.1-1</span> Копію рішення', text)
 
 
-def test_header_then_attachments_then_text(accepted: Any, reader: Any) -> None:
+def test_header_then_text_then_the_panels_attachments(accepted: Any, reader: Any) -> None:
+    """The attachments stand in the right panel beside the text, not above it (DL-0356)."""
     document = accepted.document
     body = reader(Right.VIEW_ACCEPTED, document).get(f"/document/{document.number}/")
     html = body.content.decode()
 
     header = html.index("Перегляд версії 0.1")
-    attachments = html.index('<section class="attachments">')
     text = html.index('<article class="document-text">')
-    assert header < attachments < text
+    panel = html.index('<aside class="panel"')
+    attachments = html.index('<section class="attachments">')
+    assert header < text < panel < attachments
 
 
 def test_pending_edit_is_not_the_accepted_readers(
@@ -197,7 +201,7 @@ def test_pending_holder_with_nothing_pending_sees_the_accepted_version(
     assert re.search(r"Перегляд версії 0\.1(?![-\d])", body)
 
 
-def test_view_canonical_alone_answers_as_missing(accepted: Any, reader: Any) -> None:
+def test_no_edition_not_found(accepted: Any, reader: Any) -> None:
     document = accepted.document
     client = reader(Right.VIEW_CANONICAL, document)
 
@@ -230,3 +234,131 @@ def test_reader_sees_no_editing_tabs(accepted: Any, reader: Any) -> None:
         body = client.get(path).content.decode()
         for hidden in ("edit/", "pending/", "my-edits/"):
             assert f'href="/document/{document.number}/{hidden}"' not in body, (path, hidden)
+
+
+# --- by rights, at an edition, and the diff views ----------------------------------------------
+
+FIRST = "# Загальні положення\n\nЗаяву на погодження подають письмово.\n"
+SECOND = FIRST + "\nКопію рішення надсилають [заявникові]{.role #zaiavnyk} того ж дня.\n"
+THIRD = SECOND + "\n> [!note]\n> Реєстр заяв веде відповідальний виконавець.\n"
+
+
+def _at_edition(migrated_tenant: Any, edition_cast: Any, commit_version: Any) -> Any:
+    """Edition `1.0` over the first text, `1.1` accepted over the second, `1.1-1` pending."""
+    from editions import services as editions
+    from review import services as review
+
+    people = edition_cast()
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+        editions.freeze(document, people["p"], "Синтетична причина")
+        editions.make_canonical(document, people["p"])
+    commit_version(document, people["a"], SECOND, "edit")
+    with schema_context(migrated_tenant.number):
+        assert review.accept(document, people["r"]).number == "1.1"
+    commit_version(document, people["a"], THIRD, "edit")
+    return people
+
+
+def _readers(member_of: Any, link_group: Any, people: Any) -> dict[str, Any]:
+    clients = {}
+    for name, right in (
+        ("pending", Right.VIEW_PENDING),
+        ("accepted", Right.VIEW_ACCEPTED),
+        ("canonical", Right.VIEW_CANONICAL),
+    ):
+        client, _, membership = member_of(f"{name}.reader.synthetic@example.test")
+        link_group(people.document, [right], [membership], people["a"])
+        clients[name] = client
+    return clients
+
+
+def test_view_by_rights(
+    migrated_tenant: Any, edition_cast: Any, member_of: Any, link_group: Any, commit_version: Any
+) -> None:
+    people = _at_edition(migrated_tenant, edition_cast, commit_version)
+    readers = _readers(member_of, link_group, people)
+    route = f"/document/{people.document.number}/"
+
+    pages = {name: client.get(route).content.decode() for name, client in readers.items()}
+
+    assert "Перегляд версії 1.1-1" in pages["pending"]
+    assert "Перегляд версії 1.1" in pages["accepted"] and "1.1-1" not in pages["accepted"]
+    assert "Перегляд канонічної версії 1.0" in pages["canonical"]
+    for name in ("pending", "accepted"):
+        assert "канонічна версія — 1.0" in pages[name], name
+    pending, accepted, canonical = (article(pages[n]) for n in ("pending", "accepted", "canonical"))
+    assert '<div class="callout callout-note">' in pending
+    assert "Реєстр заяв" not in accepted
+    assert 'data-id="zaiavnyk"' in accepted and "заявникові" not in canonical
+    assert re.search(r'<p><span class="num">1-1</span> Заяву на погодження', canonical)
+
+
+def test_diff_views_use_the_renderer(
+    migrated_tenant: Any, edition_cast: Any, member_of: Any, link_group: Any, commit_version: Any
+) -> None:
+    people = _at_edition(migrated_tenant, edition_cast, commit_version)
+    client = people.clients["r"]
+
+    body = client.get(f"/document/{people.document.number}/pending/").content.decode()
+
+    start = body.find('<div class="changes document-text">')
+    assert start >= 0, "no changes"
+    html = body[start:]
+    assert '<div class="callout callout-note">' in html
+    assert '<span class="num">1-3</span>' in html
+    assert "<ins>Реєстр заяв веде відповідальний виконавець.</ins>" in html
+
+
+def test_info_names_the_canonical_version_and_the_state(
+    migrated_tenant: Any, edition_cast: Any, member_of: Any, link_group: Any, commit_version: Any
+) -> None:
+    """At edition 1.0 with 1.1-1 pending: a holder of *view pending* reads *awaiting review*; a
+    reader of canonical text learns of no pending work; both read the canonical version."""
+    people = _at_edition(migrated_tenant, edition_cast, commit_version)
+    readers = _readers(member_of, link_group, people)
+    route = f"/document/{people.document.number}/info/"
+
+    pending = readers["pending"].get(route).content.decode()
+    canonical = readers["canonical"].get(route).content.decode()
+
+    assert 'data-state="awaiting_review"' in pending
+    assert 'data-state="canonical"' in canonical
+    for body in (pending, canonical):
+        assert '<dd class="canonical">1.0</dd>' in body
+
+
+def test_info_names_canonical_when_nothing_is_beyond_it(
+    migrated_tenant: Any, edition_cast: Any, member_of: Any, link_group: Any, commit_version: Any
+) -> None:
+    from editions import services as editions
+    from review import services as review
+
+    people = edition_cast()
+    commit_version(people.document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.make_canonical(people.document, people["p"])
+    readers = _readers(member_of, link_group, people)
+
+    body = readers["canonical"].get(f"/document/{people.document.number}/info/").content.decode()
+
+    assert 'data-state="canonical"' in body
+
+
+def test_the_state_line_says_nothing_of_work_beyond_the_reader(
+    migrated_tenant: Any, edition_cast: Any, member_of: Any, link_group: Any, commit_version: Any
+) -> None:
+    """At an edition with work pending, a reader of canonical text reads *canonical* — what their
+    own version is — never an absence that tells them more lies beyond it."""
+    people = _at_edition(migrated_tenant, edition_cast, commit_version)
+    readers = _readers(member_of, link_group, people)
+
+    canonical = readers["canonical"].get(f"/document/{people.document.number}/info/")
+    accepted = readers["accepted"].get(f"/document/{people.document.number}/info/")
+
+    assert 'data-state="canonical"' in canonical.content.decode()
+    assert 'data-state="accepted"' in accepted.content.decode()

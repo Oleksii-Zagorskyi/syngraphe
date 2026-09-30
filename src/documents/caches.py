@@ -1,67 +1,71 @@
 """The caches a version's rows carry: its headings and its parts, rebuilt from git at that version
 (`data-model.md § Content index, entities, images`).
 
-Headings are read with a regular expression over the ATX form of the constrained subset, four
-levels deep (`technical-design.md § The constrained Markdown subset`).
+Headings are read through the platform's own parser, as the reader sees them: four levels deep,
+their text as it reads, marks removed (`technical-design.md § The constrained Markdown subset`).
 """
 
 from __future__ import annotations
 
 import logging
-import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+import pygit2
 from django.db import connection, transaction
 
 from documents import bundle, gitstore
-from documents.models import HeadingIndex, PartIndex, PartKind
+from documents.models import HeadingIndex, PartIndex, PartKind, Version
+from editing.markdown.parser import parser
 from syngraphe.provenance import ActorKind
 from tenancy.schemas import current_tenant
 
 if TYPE_CHECKING:
-    from documents.models import Document, Version
+    from markdown_it.token import Token
+
+    from documents.models import Document
 
 logger = logging.getLogger(__name__)
 
-ATX = re.compile(r"^(?P<marks>#{1,4})[ \t]+(?P<text>.*?)(?:[ \t]+#+)?[ \t]*$")
-FENCE = re.compile(r"^(?P<fence>`{3,}|~{3,})")
+DEPTH_MAX = 4
 HEADING_MAX = 1000
 TITLE_MAX = 500
 
 
-def headings(text: str) -> list[tuple[int, str, int]]:
-    """`(depth, heading, line)` for every ATX heading, outside the frontmatter and fenced code.
+def _plain(inline: Token) -> str:
+    """A heading's text as a reader reads it: the words of its marks and spans, no syntax."""
+    words = []
+    for child in inline.children or []:
+        if child.type in ("text", "code_inline"):
+            words.append(child.content)
+        elif child.type in ("softbreak", "hardbreak"):
+            words.append(" ")
+        elif child.type == "image":
+            words.append(child.content)
+    return "".join(words).strip()
 
-    Lines are counted as git counts them, at line feeds only.
+
+def headings(text: str) -> list[tuple[int, str, int]]:
+    """`(depth, heading, line)` for every heading down to level four, outside the frontmatter.
+
+    Lines are counted as git counts them, at line feeds only, from the file's first line.
     """
-    lines = [line.removesuffix("\r") for line in text.removeprefix("\ufeff").split("\n")]
-    start = 0
+    text = text.removeprefix("\ufeff").replace("\r\n", "\n")
+    lines = text.split("\n")
+    offset = 0
     if lines and lines[0] == "---":
         for n, line in enumerate(lines[1:], 1):
             if line == "---":
-                start = n + 1
+                offset = n + 1
                 break
+    tokens = parser().parse("\n".join(lines[offset:]))
     found = []
-    fence = ""
-    for n in range(start, len(lines)):
-        line = lines[n]
-        opening = FENCE.match(line)
-        if fence:
-            if (
-                opening
-                and opening.group("fence")[0] == fence[0]
-                and len(opening.group("fence")) >= len(fence)
-                and not line[len(opening.group("fence")) :].strip()
-            ):
-                fence = ""
+    for i, token in enumerate(tokens):
+        if token.type != "heading_open" or token.map is None:
             continue
-        if opening:
-            fence = opening.group("fence")
-            continue
-        match = ATX.match(line)
-        text_ = match.group("text").strip("#").strip() if match else ""
-        if match and text_:
-            found.append((len(match.group("marks")), match.group("text")[:HEADING_MAX], n + 1))
+        depth = int(token.tag[1:])
+        heading = _plain(tokens[i + 1])
+        if depth <= DEPTH_MAX and heading:
+            found.append((depth, heading[:HEADING_MAX], offset + token.map[0] + 1))
     return found
 
 
@@ -128,3 +132,47 @@ def rebuild(document: Document, version: Version) -> None:
         PartIndex.objects.filter(version=version).delete()
         HeadingIndex.objects.bulk_create(rows)
         PartIndex.objects.bulk_create(part_rows)
+        try:
+            kept = _kept(repo, document, version)
+        except (LookupError, ValueError, pygit2.GitError):
+            # A passport that cannot be read leaves every row: a cache is never worth a failed
+            # derivation.
+            logger.exception("heading rows not pruned", extra={"document": document.number})
+        else:
+            HeadingIndex.objects.filter(document=document).exclude(version__in=kept).delete()
+
+
+def _kept(repo: pygit2.Repository, document: Document, version: Version) -> set[Any]:
+    """The versions whose heading rows stay: the one just rebuilt, the head and its parent, the
+    latest accepted content version as its acceptance's passport section names it, and every
+    edition's. The head's parent covers an acceptance's own commit, rebuilt before its row exists;
+    shas are read from git, since versions committed in one second cannot be ordered by time.
+    The rows of any other version go; nothing reads them."""
+    # Imported here: acceptances and editions are recorded by apps built on this one.
+    from editions.models import Edition
+    from review.models import Acceptance
+    from review.services import accepted_sha
+
+    shas: set[str] = set()
+    head = gitstore.head(repo)
+    if head is not None:
+        # The head's parent too: an acceptance's own commit is rebuilt before its row exists, and
+        # the version it accepted is that commit's parent.
+        shas.add(str(head))
+        shas.update(str(parent.id) for parent in gitstore.commit_at(repo, head).parents[:1])
+    acceptances = Acceptance.objects.filter(version__document=document).select_related("version")
+    latest = max(
+        acceptances, key=lambda a: tuple(int(n) for n in a.number.split(".")), default=None
+    )
+    if latest is not None:
+        # An acceptance made on top of an approval has the approval, not the accepted text, as
+        # its parent: the passport names the version it decided on.
+        shas.add(accepted_sha(latest, document.number))
+    kept: set[Any] = {version.pk}
+    kept.update(
+        Version.objects.filter(document=document, commit_sha__in=shas).values_list("pk", flat=True)
+    )
+    kept.update(
+        Edition.objects.filter(version__document=document).values_list("version", flat=True)
+    )
+    return kept

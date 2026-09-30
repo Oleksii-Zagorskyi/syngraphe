@@ -1,6 +1,7 @@
 """Changes shown word by word inside the rendered text (DL-0170): only the changed sentences are
-compared word by word, a change of formatting alone has its own marker. People are synthetic
-examples; the texts are invented."""
+compared word by word, a change of formatting alone has its own marker. The text is the reading
+view's — the same renderer, its classes and clause numbers — with the marks spliced in. People are
+synthetic examples; the texts are invented."""
 
 from __future__ import annotations
 
@@ -28,7 +29,8 @@ def test_word_level_marks_inside_rendered_text() -> None:
     assert "<ins>п&#x27;ять</ins>" in html
     assert '<span class="format-changed" tabindex="0"' in html
     assert 'Відповідь надсилають <em>поштою</em>.<span class="format-old">' in html
-    assert "Копію зберігають у справі." in html and "<h1>Строки</h1>" in html
+    assert "Копію зберігають у справі." in html
+    assert '<h1><span class="num">1</span> Строки</h1>' in html
 
 
 def test_markup_in_the_text_is_never_markup_in_the_page() -> None:
@@ -38,12 +40,41 @@ def test_markup_in_the_text_is_never_markup_in_the_page() -> None:
     assert "<script>" not in html and "&lt;script&gt;" in html
 
 
-def test_each_list_item_is_its_own_block() -> None:
+def test_lists_read_as_lists() -> None:
     old = "- Перший пункт.\n- Другий пункт.\n  Його друге речення.\n\n1. Один.\n2. Два.\n"
     new = old.replace("Другий пункт.", "Другий змінений пункт.")
     html = render_changes(old.encode(), new.encode())
-    assert '<p class="item">Перший пункт.</p>' in html
-    assert "Його друге речення.</p>" in html and html.count('<p class="item">') == 4
+    assert '<li><span class="num">1</span> Перший пункт.</li>' in html
+    assert "Його друге речення.</li>" in html and html.count("<li>") == 4
+    assert "<ul>" in html and "<ol>" in html
+    assert "Другий <ins>змінений </ins>пункт." in html
+
+
+def test_the_changes_read_like_the_document() -> None:
+    """Callouts, tables, entity spans and clause numbers as the reading view draws them."""
+    old = (
+        "# Порядок\n\n"
+        "Заяву погоджує [Бухгалтер]{.role #r1}.\n\n"
+        "> [!note]\n> Примітка до порядку.\n\n"
+        "| Вид | Строк |\n| --- | --- |\n| Звичайна | три дні |\n"
+    )
+    new = old.replace("три дні", "два дні").replace("до порядку", "до всього порядку")
+    html = render_changes(old.encode(), new.encode())
+    assert '<span class="entity entity-role" data-id="r1">Бухгалтер</span>' in html
+    assert '<div class="callout callout-note">' in html
+    assert "до <ins>всього </ins>порядку" in html
+    assert "<td>Звичайна</td>" in html and "<del>три</del><ins>два</ins> дні" in html
+    assert '<span class="num">1-1</span>' in html and '<span class="num">1-2</span>' in html
+
+
+def test_a_removed_sentence_stands_where_it_was() -> None:
+    """Inside a paragraph that stays, a removed sentence is struck in place; a paragraph removed
+    whole is a block of its own."""
+    old = "# Строки\n\nПерше речення.\nДруге речення.\nТретє речення.\n\nОкремий абзац.\n"
+    new = "# Строки\n\nПерше речення.\nТретє речення.\n"
+    html = render_changes(old.encode(), new.encode())
+    assert "Перше речення. <del>Друге речення.</del> Третє речення.</p>" in html
+    assert "<p><del>Окремий абзац.</del></p>" in html
 
 
 def test_a_change_to_a_line_without_words_is_shown() -> None:
@@ -54,6 +85,7 @@ def test_a_change_to_a_line_without_words_is_shown() -> None:
     table = "| А | Б |\n| --- | --- |\n| 1 | 2 |\n"
     html = render_changes(table.encode(), table.replace("| --- | --- |", "| :-: | --- |").encode())
     assert '<span class="format-changed">| :-: | --- |</span>' in html
+    assert html.index("format-changed") < html.index("<table>")
 
 
 def test_a_diff_costs_a_bounded_amount() -> None:
@@ -125,7 +157,10 @@ def test_a_sense_change_keeps_its_formatting() -> None:
     new = "Заяву подають **керівнику відділу** за [п'ять](https://example.test/) днів.\n"
     html = render_changes(old.encode(), new.encode())
     assert "<strong>керівнику <ins>відділу</ins></strong>" in html
-    assert '<del>десять</del><a href="https://example.test/"><ins>п&#x27;ять</ins></a>' in html
+    assert (
+        '<del>десять</del><a href="https://example.test/" rel="noopener noreferrer">'
+        "<ins>п&#x27;ять</ins></a>" in html
+    )
 
 
 def test_each_line_carries_its_author() -> None:
@@ -141,15 +176,19 @@ def test_each_line_carries_its_author() -> None:
 
 
 def test_an_image_inserted_or_removed_shows() -> None:
+    """While images reach a reader as their descriptions, a change to an image is marked on its
+    description, inserted or struck; nothing is fetched."""
     html = render_changes("Текст.\n".encode(), "Текст.\n\n![Схема](images/a.png)\n".encode())
-    assert '<ins><img src="images/a.png" alt="Схема"' in html
+    assert "<ins>Схема</ins>" in html and "<img" not in html
     html = render_changes("Текст.\n\n![Схема](images/a.png)\n".encode(), "Текст.\n".encode())
-    assert '<del><img src="images/a.png" alt="Схема"' in html
+    assert "<del>Схема</del>" in html and "<img" not in html
     html = render_changes(
         "Див. ![схему](images/a.png) нижче.\n".encode(),
         "Див. ![схему](images/b.png) нижче.\n".encode(),
     )
-    assert '<ins><img src="images/b.png"' in html and '<del><img src="images/a.png"' in html
+    # The words stand and the file changed: the sentence struck and inserted whole.
+    assert "<del>Див. схему нижче.</del><ins>Див. схему нижче.</ins>" in html
+    assert "images/" not in html
 
 
 def test_unrelated_sentences_are_not_diffed_word_by_word() -> None:
@@ -184,3 +223,158 @@ def test_sentences_alike_by_their_words() -> None:
         "Заяву подають письмово до четверга.\n".encode(),
     )
     assert "<del>п&#x27;ятниці.</del><ins>четверга.</ins>" in most
+
+
+# --- where a removal stands, and what a line's text is ---------------
+
+
+def _once(html: str, text: str) -> None:
+    assert html.count(text) == 1, html
+
+
+def test_a_removed_list_item_is_struck_once_as_an_item() -> None:
+    old = "- Перший пункт.\n- Другий пункт.\n- Третій пункт.\n"
+    html = render_changes(old.encode(), old.replace("- Другий пункт.\n", "").encode())
+    _once(html, "Другий пункт.")
+    assert '<li class="removed"><del>Другий пункт.</del></li>' in html
+    loose = "- Перший пункт.\n\n- Другий пункт.\n\n- Третій пункт.\n"
+    html = render_changes(loose.encode(), loose.replace("- Другий пункт.\n\n", "").encode())
+    assert '<li class="removed"><p><del>Другий пункт.</del></p></li>' in html
+
+
+def test_the_last_item_removed_is_its_own_item() -> None:
+    old = "- Перший пункт.\n- Другий пункт.\n"
+    html = render_changes(old.encode(), "- Перший пункт.\n".encode())
+    assert '<li class="removed"><del>Другий пункт.</del></li>' in html
+
+
+def test_table_rows_removed_or_rewritten_stay_rows() -> None:
+    table = "| А | Б |\n| --- | --- |\n| 1 | 2 |\n| 3 | 4 |\n| 5 | 6 |\n"
+    html = render_changes(table.encode(), table.replace("| 3 | 4 |\n", "").encode())
+    assert '<tr class="removed"><td><del>3</del></td><td><del>4</del></td></tr>' in html
+    assert "<p" not in html
+    rows = "| Вид | Строк |\n| --- | --- |\n| Звичайна | три дні |\n"
+    changed = rows.replace("| Звичайна | три дні |", "| Термінова | один день |")
+    html = render_changes(rows.encode(), changed.encode())
+    assert "<p" not in html and "<del>Звичайна</del>" in html and "Термінова" in html
+
+
+def test_cells_removed_from_a_row_are_struck() -> None:
+    old = "| А | Б | В |\n| --- | --- | --- |\n| 1 | 2 | 3 |\n"
+    new = "| А | Б |\n| --- | --- |\n| 1 | 2 |\n"
+    html = render_changes(old.encode(), new.encode())
+    assert "<del>В</del>" in html and "<del>3</del>" in html
+
+
+def test_a_continuation_line_keeps_its_leading_number() -> None:
+    old = "Абзац починається тут.\n2024. Року зміни.\n"
+    new = "Абзац починається тут.\n2024. Року великі зміни.\n"
+    html = render_changes(old.encode(), new.encode())
+    assert "2024. Року <ins>великі </ins>зміни." in html
+
+
+def test_a_callout_title_reads_without_its_marker() -> None:
+    old = "> [!note] Назва примітки тут.\n> Текст примітки.\n"
+    html = render_changes(old.encode(), old.replace("тут.", "там.").encode())
+    assert "[!note]" not in html and "<del>тут.</del><ins>там.</ins>" in html
+
+
+def test_removals_stay_in_their_own_block() -> None:
+    old = "Перше речення.\nДруге речення.\n\nОкремий абзац.\n"
+    html = render_changes(old.encode(), "Перше речення.\n".encode())
+    assert "Перше речення. <del>Друге речення.</del></p>" in html
+    assert "<p><del>Окремий абзац.</del></p>" in html
+    callout = "> [!note]\n> Перший абзац.\n>\n> Другий абзац.\n"
+    html = render_changes(callout.encode(), "> [!note]\n> Перший абзац.\n".encode())
+    assert "<del></del>" not in html
+    assert html.index("<del>Другий абзац.</del>") < html.index("</div>")
+
+
+def test_a_hard_break_keeps_the_lines_apart() -> None:
+    old = "Перше речення.\\\nДруге речення.\nТретє речення.\n"
+    new = old.replace("Третє", "Змінене третє")
+    html = render_changes(old.encode(), new.encode())
+    assert "<ins>Перше" not in html and "Змінене" in html
+
+
+def test_a_mark_across_sentences_is_compared_whole() -> None:
+    old = "**Перше речення.\nДруге речення.**\n"
+    new = old.replace("Друге речення", "Друге змінене речення")
+    html = render_changes(old.encode(), new.encode())
+    assert "**" not in html and "<ins>змінене </ins>" in html
+    assert "<ins><strong>" not in html
+
+
+def test_an_escaped_pipe_is_a_cell_character() -> None:
+    old = "| А | Б |\n| --- | --- |\n| x \\| y | 4 |\n"
+    html = render_changes(old.encode(), old.replace("| 4 |", "| 5 |").encode())
+    assert "format-changed" not in html and "x | y" in html and "\\" not in html
+
+
+def test_a_quote_becoming_a_callout_is_marked() -> None:
+    old = "Абзац.\n\n> Текст цитати.\n"
+    new = "Абзац.\n\n> [!note]\n> Текст цитати.\n"
+    html = render_changes(old.encode(), new.encode())
+    assert "format-changed" in html
+    html = render_changes(new.encode(), old.encode())
+    assert "format-changed" in html
+
+
+def test_a_changed_target_alone_is_shown() -> None:
+    old = "[Особа]{.role #r1} звітує.\n"
+    html = render_changes(old.encode(), old.replace("#r1", "#r2").encode())
+    assert "<del>" in html and "<ins>" in html
+
+
+# --- cost and escaping ------------------------------------------------
+
+
+def test_crafted_alignments_cost_a_bounded_amount() -> None:
+    """Regions with no line met once on each side, each led by a unique line, and one long
+    sentence of the same shape in words: the aligner's cost is budgeted per diff, so neither takes
+    more than a second or two, whatever the shape."""
+    import time
+
+    old = "".join(f"U{k}\n" + "а\nб\n" * 250 for k in range(20))
+    new = "".join(f"U{k}\n" + "б\nа\nа\n" * 166 for k in range(20))
+    words_old = " ".join(f"U{k} " + "а б " * 60 for k in range(400)) + ".\n"
+    words_new = " ".join(f"U{k} " + "б а а " * 40 for k in range(400)) + ".\n"
+    for a, b in ((old, new), (words_old, words_new)):
+        started = time.perf_counter()
+        render_changes(a.encode(), b.encode())
+        assert time.perf_counter() - started < 3.0
+
+
+def test_many_marker_changes_and_removed_blocks_cost_linearly() -> None:
+    import time
+
+    callouts = "".join(f"> [!note]\n> Примітка {k}.\n\n" for k in range(10_000))
+    paragraphs = "".join(f"Абзац номер {k}.\n\n" for k in range(10_000))
+    for a, b in (
+        (callouts, callouts.replace("[!note]", "[!warning]")),
+        (paragraphs + "Кінець.\n", "Кінець.\n"),
+    ):
+        started = time.perf_counter()
+        render_changes(a.encode(), b.encode())
+        assert time.perf_counter() - started < 3.0
+
+
+def test_hostile_values_stay_text_in_a_diff() -> None:
+    import re
+
+    old = (
+        '> [!note"onmouseover="a()]\n> Примітка.\n\n'
+        "[Особа]{.role #a} звітує.\n\n"
+        "| А | Б |\n| --- | --- |\n| 1 | 2 |\n\n"
+        "Рядок \\<script>alert(1)\\</script>.\n"
+    )
+    new = old.replace("| --- | --- |", "| :-: | --- |").replace(
+        "Рядок \\<script>alert(1)\\</script>.\n", ""
+    )
+    new = new.replace("| 1 | 2 |", "| \\<script> | 2 |")
+    html = render_changes(old.encode(), new.encode(), authors={0: 'Ев"іл <b>'})
+    tags = set(re.findall(r"<([a-z0-9]+)\b", html))
+    assert tags <= {"a", "code", "del", "div", "em", "h1", "ins", "p", "span", "strong", "table",
+                    "tbody", "td", "th", "thead", "tr", "ul", "ol", "li"}, tags  # fmt: skip
+    for opening in re.findall(r"<[a-z]+\b[^>]*>", html):
+        assert re.fullmatch(r'<[a-z0-9]+(?: [a-z-]+="[^"<>]*")*>', opening), opening

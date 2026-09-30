@@ -19,8 +19,9 @@ The order of the restore's steps, and what each must achieve, follow from the wr
 | Thing | Where | In the backup set |
 |---|---|---|
 | **Database** — PostgreSQL, one schema per tenant plus a shared schema | the `db` container, on its data volume | **yes** — a nightly base backup plus the continuous archive of the write-ahead log, taken by the `backup` container |
-| **Repositories** — one bare repository per document | the repository root, mounted at `/srv/repos` in `web` and `worker` | **yes** — a bundle every ten minutes of each repository that changed, a full bundle after each base backup |
+| **Repositories** — one bare repository per document | the repository root, mounted at `/srv/repos` in `web` and `worker`, and read-only in `render` | **yes** — a bundle every ten minutes of each repository that changed, a full bundle after each base backup |
 | **Backup state** — the newest marker, the base backup's label, the log waiting | the `backup-state` volume: `backup/` written by `backup`, `worker/` by `worker`, read by `web` | **no** — rebuilt by the next run |
+| **Exports** — the files people export, each kept a day, then swept; the job rows stay | the `exports` volume at `/srv/exports`: written by `render`, served by `web` | **no** — a download, not a record; exported again at will |
 | **Broker** — Redis | the `redis` container | **no** — it holds nothing that is not also a row; it starts empty |
 | **Configuration** — `.env` | the host, beside the compose file | **no** — kept with the host's credentials, never in this repository. It holds the backup keys, without which no backup can be read |
 | **Off-host copy** | the backup store `.env` names | holds two full database backups and their archive, and each repository's newest two chains of bundles — all encrypted |
@@ -35,7 +36,7 @@ Every step below says **where it runs** — the host shell, or inside a named co
 cp .env.example .env         # fill in every ???, the store's for its kind only — every missing key is reported at once
 mkdir -p .repos              # or the directory GIT_REPO_ROOT_HOST names
 docker compose up -d --build # web migrates every schema and seeds the language lists before it answers
-docker compose ps --format '{{.Service}} {{.State}}'    # web, worker, db, backup, redis — each running
+docker compose ps --format '{{.Service}} {{.State}}'    # web, worker, render, db, backup, redis — each running
 curl -s http://127.0.0.1:8000/health/    # {"database": "ok", "redis": "ok", "backup": {…}}
 ```
 
@@ -47,7 +48,7 @@ curl -s http://127.0.0.1:8000/health/    # {"database": "ok", "redis": "ok", "ba
 
 `db` is built on `postgres:16`, which carries ICU: the document list orders titles by the `uk-x-icu` collation, and a PostgreSQL built without ICU fails that page. The containers restart with the host's Docker unless stopped by hand. **After an update:** `git pull`, then `docker compose up -d --build`; the migrations run as `web` starts. A migration that failed for one organisation is completed with `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being the organisation's number; nothing else is needed.
 
-**Production** runs behind the operator's reverse proxy (DL-0281) with the production override, `deploy/compose.prod.yaml`, read over the base file: `docker compose -f compose.yaml -f deploy/compose.prod.yaml …` for every command, written `$C` below. It adds `front`, an nginx that terminates the installation's own TLS on the one port the host allows and forwards to `web`, which then publishes no port; it puts the repositories, the database, the archive's spool and the backup state under one data directory as bind mounts; and it pins the stack's network, so `TRUSTED_PROXIES` names it. Its keys are the block *Compose only — the production override* of `.env.example` — fill every `???` there first: the override refuses a key that is unset, but not one still reading `???`: `RELEASE_TAG`, `FRONT_PORT`, `FRONT_CERT_FILE`, `FRONT_KEY_FILE`, `FRONT_SERVER_NAME`, `FRONT_CLIENT_IP_HEADER` (the header the operator's proxy carries the client's address in; the front passes it to the application as `X-Forwarded-For`), `DATA_DIR` and `STACK_SUBNET`. The override sets `web`'s `TRUSTED_PROXIES` to `STACK_SUBNET`, so the front's headers are believed; `COMPOSE_PROJECT_NAME` is set, so one project spans every release's checkout. **`FRONT_PORT` must be reachable from the operator's proxy alone**: the front passes on the client's address as that proxy reports it, and a client reaching the port directly could report its own.
+**Production** runs behind the operator's reverse proxy (DL-0281) with the production override, `deploy/compose.prod.yaml`, read over the base file: `docker compose -f compose.yaml -f deploy/compose.prod.yaml …` for every command, written `$C` below. It adds `front`, an nginx that terminates the installation's own TLS on the one port the host allows and forwards to `web`, which then publishes no port; it runs `web`, `worker` and `render` on the release's image; it puts the repositories, the database, the archive's spool and the backup state under one data directory as bind mounts — the exports stay on their named volume, a download kept a day; and it pins the stack's network, so `TRUSTED_PROXIES` names it. Its keys are the block *Compose only — the production override* of `.env.example` — fill every `???` there first: the override refuses a key that is unset, but not one still reading `???`: `RELEASE_TAG`, `FRONT_PORT`, `FRONT_CERT_FILE`, `FRONT_KEY_FILE`, `FRONT_SERVER_NAME`, `FRONT_CLIENT_IP_HEADER` (the header the operator's proxy carries the client's address in; the front passes it to the application as `X-Forwarded-For`), `DATA_DIR` and `STACK_SUBNET`. The override sets `web`'s `TRUSTED_PROXIES` to `STACK_SUBNET`, so the front's headers are believed; `COMPOSE_PROJECT_NAME` is set, so one project spans every release's checkout. **`FRONT_PORT` must be reachable from the operator's proxy alone**: the front passes on the client's address as that proxy reports it, and a client reaching the port directly could report its own.
 
 - **The data directory's owners.** On a host whose Docker maps container users to other host users, create `repos/`, `backup-state/`, `pgdata/` and `pgspool/` through a one-off container, so they belong to the mapped users of `app` (1000) and `postgres` (999): `docker run --rm -v "$DATA_DIR:/d" alpine sh -c 'mkdir -p /d/pgdata /d/pgspool /d/repos /d/backup-state && chown -R 999:999 /d/pgdata /d/pgspool && chown -R 1000:1000 /d/repos /d/backup-state'`; then `chmod 700 "$DATA_DIR"`, so no other account on the host reads the repositories, and `ls -ld "$DATA_DIR"` shows `drwx------`.
 - **The preview's delivery** (DL-0345): the host runs a tagged commit only — an annotated tag on a commit whose CI run is green — delivered as `git archive` of that tag, extracted into a checkout of its own beside the previous one, with `.env` carried across, and built there: `$C build`, then `$C up -d`. The images are tagged with `RELEASE_TAG`. **Before every deploy after the first**, a full base backup (§ Backup), its completion read in `pgbackrest info`. **Rollback:** `$C up -d` from the previous checkout; the database migrates forward only, so a tag whose migrations ran is rolled back by a restore. Delivery by pulling from the repository replaces the archive before the launch.
@@ -196,9 +197,10 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `notices_missing` | an acceptance whose correction notices were never computed — a stop after its rows, or a computation that failed | computes them; a failure is reported with its error and tried again next run | — |
 | `edition_unfinished` | an approval's version whose edition row, tag or freeze's end is missing | derives what is missing from the approval's section: the tag with the approver's identity, the edition, the freeze's end — and, where a restore lost the freeze itself, the freeze the section proves (DL-0355) | — |
 | `edition_differs` | an edition row disagrees with its approval's section, or an approval commit is not of the platform's form | reports it; the passport is believed | — |
+| `export_stuck` | an export still queued ten minutes after it was asked for — `render` was down, or the broker lost the entry | queues it again; a job runs once however often it is queued. One that returns on every run means `render` fails it or is down: `docker compose ps render`, `docker compose logs render` | — |
 | `tag_without_section` | a tag names a commit that is not the approval of that number | reports it; **never repaired** — a person decides what the tag was | — |
 
-A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Nothing re-enqueues tasks from rows yet either; the broker holds none that matter. ⟨fixed when tasks with rows are implemented⟩
+A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Exports are the one task queued again from its row; the broker holds no other that matters.
 
 ## Editing
 
@@ -244,9 +246,9 @@ Write down, before touching anything: **what happened, when it was noticed, and 
 
 ### A — full restore
 
-1. **Stop anything still writing.** On the old host, if it is reachable: `docker compose stop web worker backup`. Nothing may write to either store while you restore.
+1. **Stop anything still writing.** On the old host, if it is reachable: `docker compose stop web worker render backup`. Nothing may write to either store while you restore.
 2. **Preserve the damaged state.** Copy what is left aside, the repository root included; do not delete it. It is the evidence of what failed and the fallback if the restore goes wrong.
-3. **Prepare the host.** Install the checkout, put `.env` and the store's key file in place from where the host's credentials are kept, and build: `docker compose build`. Do not start `web` or `worker`. Make an empty repository root, writable by uid 1000: `mkdir -p .repos && sudo chown 1000:1000 .repos` (or the directory `GIT_REPO_ROOT_HOST` names); on a host that held the stack before, move the old root aside first, and remove the old database volume only once step 2 has copied it.
+3. **Prepare the host.** Install the checkout, put `.env` and the store's key file in place from where the host's credentials are kept, and build: `docker compose build`. Do not start `web`, `worker` or `render`. Make an empty repository root, writable by uid 1000: `mkdir -p .repos && sudo chown 1000:1000 .repos` (or the directory `GIT_REPO_ROOT_HOST` names); on a host that held the stack before, move the old root aside first, and remove the old database volume only once step 2 has copied it.
 4. **Restore the database — no later than the repositories.** Run the database restore in dry-run mode:
 
    ```bash
@@ -284,8 +286,8 @@ Steps 1, 2, 4 and 6 to 11 of case A, on the same host, with `db` stopped too, ex
 
 ### C — one repository
 
-1. Stop `web` and `worker`: `docker compose stop web worker`.
+1. Stop `web`, `worker` and `render`: `docker compose stop web worker render`.
 2. Move the damaged repository aside, `.repos/tenant-N/document-M` to a name of its own.
 3. Restore that one repository from its bundles: `scripts/restore-repositories.sh --tenant N --document M`.
-4. Start them again, `docker compose up -d web worker`, and run the reconciler for that document: `docker compose exec web python manage.py reconcile --tenant N --document M`.
+4. Start them again, `docker compose up -d web worker render`, and run the reconciler for that document: `docker compose exec web python manage.py reconcile --tenant N --document M`.
 5. Commits made to that document after its last bundle are lost, and the database still has version rows for them: the report lists them as `row_without_commit`. Tell the authors, record it, then delete those rows with `docker compose exec web python manage.py reconcile --tenant N --document M --repair --prune-rows`.

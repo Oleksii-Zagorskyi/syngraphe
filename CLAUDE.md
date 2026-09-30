@@ -74,7 +74,7 @@ and CSRF cookies are never sent, and nobody can sign in.
 # dependencies, the editor's bundle, the browser the browser tests drive
 uv sync --locked && npm ci && npm run build && uv run playwright install chromium
 
-# run the stack: web, worker, PostgreSQL, Redis and the backup; every schema
+# run the stack: web, worker, render, PostgreSQL, Redis and the backup; every schema
 # migrates on start
 mkdir -p .repos
 docker compose up
@@ -86,7 +86,7 @@ docker compose up
 docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 
 # the check; needs PostgreSQL and Redis, published by the developer override,
-# and GNU gettext on the path
+# GNU gettext on the path, and Pango and HarfBuzz for the PDF exports
 uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
 

@@ -21,8 +21,9 @@ from documents.locks import LockTimeout
 from documents.models import Document
 from editing import numbering
 from identity.models import User
+from identity.naming import person
 from review import services
-from review.views.pending import person, readable_pending
+from review.views.pending import readable_pending
 from shell.views import not_found
 
 

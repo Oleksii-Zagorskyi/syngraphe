@@ -112,7 +112,7 @@ def test_style_change_collapsed(
     accepted_directly(document, reviewer)
     commit_version(document, author_a, FIRST.replace("письмово", "**письмово**"), "edit")
     page = client.get(f"/document/{document.number}/pending/").content.decode()
-    changes = page.split('class="changes"', 1)[1]
+    changes = page.split('class="changes document-text"', 1)[1]
     assert '<span class="format-changed" tabindex="0" data-label="' in changes
     # The sentence as it now reads, its earlier form kept aside, no word marked.
     assert (
@@ -144,7 +144,7 @@ def test_base_without_rows_renders_and_queues_nothing(
     commit_version(document, author_b, SECOND, "edit")
     queued_authorship.clear()
     page = client.get(f"/document/{document.number}/pending/").content.decode()
-    assert "Погоджувач Р" not in page.split('class="changes"', 1)[1]
+    assert "Погоджувач Р" not in page.split('class="changes document-text"', 1)[1]
     assert 'data-author="Автор Б"' in page
     assert 'data-author="Автор А"' not in page
     assert queued_authorship == []
@@ -224,7 +224,7 @@ def test_base_lines_take_the_accepted_versions_rows(
     commit_version(document, author_b, moved, "edit")
     show_author(client)
     changes = client.get(f"/document/{document.number}/pending/").content.decode()
-    changes = changes.split('class="changes"', 1)[1]
+    changes = changes.split('class="changes document-text"', 1)[1]
     assert 'data-author="Погоджувач Р" title="Погоджувач Р">Загальні положення' in changes
     assert 'title="Автор А">Строк розгляду становить десять днів.</span>' in changes
     # Moved within the run: shown where it went, still its writer's.

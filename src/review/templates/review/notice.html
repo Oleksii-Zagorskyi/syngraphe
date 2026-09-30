@@ -10,7 +10,7 @@
   {% for entry in entries %}
   <div class="correction" data-kind="{{ entry.kind }}">
     <p class="muted">{% if entry.kind == "restored" %}{% blocktranslate with version=entry.author_version changer=entry.changer changing=entry.changing %}You removed this in {{ version }}; {{ changer }} restored it in {{ changing }}.{% endblocktranslate %}{% else %}{% blocktranslate with version=entry.author_version changer=entry.changer changing=entry.changing %}You wrote this in {{ version }}; {{ changer }} changed it in {{ changing }}.{% endblocktranslate %}{% endif %}</p>
-    <div class="changes">{{ entry.changes }}</div>
+    <div class="changes document-text">{{ entry.changes }}</div>
   </div>
   {% endfor %}
   <p><a class="btn" href="/document/{{ document.number }}/">{% translate "Open the document" %}</a></p>

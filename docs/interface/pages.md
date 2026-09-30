@@ -162,16 +162,16 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | *Make canonical* — disabled with its reason until the document is frozen, and while changes are unaccepted; to someone who may not see pending edits the reason names no pending number | **0.1** | *make canonical* | ST-0039, ST-0053 | Epic 6 |
 | *Groups* — locked, with who holds the document, while it is held or reserved | **0.1** | tenant administrator | ST-0005 | Epic 8 |
 | *Archive* / *Restore*; *More ▾* holds *force release* for an ordinary hold and *end the reservation…* for a reserved one, a reason required (DL-0225) | **0.1** | tenant administrator | ST-0015, ST-0016, ST-0030 | Epics 10, 9 |
-| outline — every heading level, ▸ ▾, no appendices; collapsible and resizable | **0.1** | — | ST-0024 | Epic 7 |
-| right panel — the icon row; collapsible and resizable; widths kept per user (DL-0194, DL-0195) | **0.1**; comments **later** (B-013), drawn as a placeholder; the agents' views **0.2**, likewise | — | — | Epics 3, 4, 7 |
-| parts — appendices in their order, *add*, rename, reorder, delete; attachments with download, *add*, replace, rename, reorder, delete — the changing controls only while holding the document; a file above the organisation's limit refused with the limit | **0.1** | any viewing right for the list and downloads; *edit* and the part rights for the changing controls (ADR-0007) | ST-0061, ST-0062 | Epic 13; its thinnest form — the attachments with title, file name, size and download, in an *Attachments* section of the *View* tab until the panel exists — Epic 18 (DL-0349) |
+| outline — every heading level, ▸ ▾, no appendices; collapsible and resizable; on the *View* tab (DL-0356) | **0.1** | — | ST-0024 | Epic 7 |
+| right panel — the icon row; collapsible and resizable; widths kept per user (DL-0194, DL-0195) | **0.1** — *parts* alone; comments **later** (B-013) and the agents' views **0.2**, not drawn until built (DL-0228, DL-0356) | — | — | Epics 3, 4, 7 |
+| parts — appendices in their order, *add*, rename, reorder, delete; attachments with download, *add*, replace, rename, reorder, delete — the changing controls only while holding the document; a file above the organisation's limit refused with the limit | **0.1** | any viewing right for the list and downloads; *edit* and the part rights for the changing controls (ADR-0007) | ST-0061, ST-0062 | Epic 13; its thinnest form — the attachments with title, file name, size and download, in the panel's parts tab (DL-0349, DL-0356) — Epics 18, 7 |
 | generated views — role directory, see also | **0.1** — their content not yet drawn; contradictions, ambiguities, blind spots **0.2** | — | ST-0027, ST-0044 | Epic 11 |
 
 ### The tabs
 
 | Tab | URL segment | Shows | Release | Needs | Stories |
 |---|---|---|---|---|---|
-| View | — | the latest version the reader may see, with *Viewing the 2.3-1 version · open canonical 2.0* (DL-0209), or *Viewing canonical 2.0* when the version shown is the latest edition — always, to a reader of canonical text only; *open canonical 2.0* is text until the historical page exists (DL-0352); to such a reader a document with no canonical edition yet does not exist; clause numbers in the gutter; entities in their own formatting. Until the outline and the three-pane layout exist, the view carries clause numbers inline, no outline, and an *Attachments* section above the text (DL-0349); before any acceptance, with nothing pending, it names no version (DL-0352) | **0.1** | any viewing right | ST-0023, ST-0026, ST-0042 |
+| View | — | the latest version the reader may see, with *Viewing the 2.3-1 version · open canonical 2.0* (DL-0209), or *Viewing canonical 2.0* when the version shown is the latest edition — always, to a reader of canonical text only; *open canonical 2.0* is text until the historical page exists (DL-0352); to such a reader a document with no canonical edition yet does not exist; before any acceptance, with nothing pending, *Viewing the 0.0 version*, the document's first (DL-0358); clause numbers in the gutter; entities in their own formatting; the outline and the panel beside it (DL-0356) | **0.1** | any viewing right | ST-0023, ST-0026, ST-0042 |
 | View, mentions | — | a mention of another document as a link where the reader may open it, as plain text where not | **0.1** — not yet drawn | any viewing right | ST-0043 |
 | Edit | `edit/` | below | **0.1** | *edit* — which *accept*, *freeze* and *reserve for editing* include (ADR-0016); while frozen, *accept* | ST-0017, ST-0019 to ST-0022, ST-0028, ST-0035, ST-0059, ST-0060, ST-0069, ST-0070 |
 | My edits | `my-edits/` | the holder's draft: the whole document, the draft's changes marked in place | **0.1** | the holder | ST-0031 |
@@ -266,7 +266,7 @@ Within the edit tab, opened by *finish editing* for every holder (DL-0222): the 
 | what will be delivered — one file or one zip | **0.1** | ST-0045 | Epic 7 |
 | *Export* — disabled while nothing is chosen; a message when a chosen part is not in the chosen version, or nothing is left to export (DL-0208) | **0.1** | ST-0045 | Epic 7 |
 | *?* beside each section's heading — a box of help above the dialog, closed by a click anywhere else; no help text in the layout (DL-0233) | **0.1** | ST-0045 | Epic 7 |
-| file names — `<title>_—_<version>_—_<stance>.<ext>`, the stance in the interface's language; a marked export ends in a suffix naming the marks, in the same language, `<stance>-<marks>.<ext>`, and a clean one has none; several files a zip of the same name (DL-0275) | **0.1** | ST-0045 | Epic 7 |
+| file names — `<title>_—_<version>_—_<stance>.<ext>`, the stance in the interface's language; a marked export ends in `-позначено` (`-marked`), `<stance>-позначено.<ext>`, and a clean one has none (DL-0359); the title cut at eighty characters; several files a zip of the same name (DL-0275) | **0.1** | ST-0045 | Epic 7 |
 
 ## Create or copy a document
 

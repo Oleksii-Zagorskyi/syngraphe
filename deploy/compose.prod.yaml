@@ -39,6 +39,12 @@ services:
     volumes:
       - ${DATA_DIR}/repos:/srv/repos
       - ${DATA_DIR}/backup-state:/srv/backup-state
+  # The release's image and the release's repositories. Its exports stay on the named volume:
+  # a download kept a day is not data the directory of DL-0281 holds or the backup copies.
+  render:
+    image: syngraphe:${RELEASE_TAG}
+    volumes:
+      - ${DATA_DIR}/repos:/srv/repos:ro
   db:
     image: syngraphe-db:${RELEASE_TAG}
     volumes:

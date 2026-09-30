@@ -1,5 +1,6 @@
 # The base stack: `web` on the loopback behind the host's own reverse proxy, the database on a
-# named volume, its archive and the repositories' bundles copied to the backup store `.env` names.
+# named volume, its archive and the repositories' bundles copied to the backup store `.env` names,
+# and `render` making exports on a network with no way out (ADR-0013).
 
 x-logging: &logging
   driver: json-file
@@ -33,6 +34,7 @@ x-app: &app
     REDIS_URL: redis://redis:6379/0
     CELERY_BROKER_URL: redis://redis:6379/1
     GIT_REPO_ROOT: /srv/repos
+    EXPORT_ROOT: /srv/exports
   volumes:
     - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos
     - backup-state:/srv/backup-state:ro
@@ -68,6 +70,11 @@ x-db-image: &db-image
 services:
   web:
     <<: *app
+    volumes:
+      - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos
+      - backup-state:/srv/backup-state:ro
+      # The exports `render` wrote, served as downloads.
+      - exports:/srv/exports:ro
     ports:
       - "127.0.0.1:${WEB_PORT:-8000}:8000"
     depends_on:
@@ -114,6 +121,32 @@ services:
       backup:
         condition: service_started
 
+  # Exports: PDF, DOCX and Markdown from the repositories, on the `render` queue. Its only network
+  # is internal — the database and Redis beside it, nothing beyond — so a renderer that tried to
+  # fetch a remote reference could not reach it even past the fetcher's refusal.
+  render:
+    <<: *app
+    # Two renders at a time, each process renewed after fifty: a layout engine's memory is
+    # returned, and one large document cannot hold every slot.
+    entrypoint:
+      - celery
+      - -A
+      - syngraphe
+      - worker
+      - -Q
+      - render
+      - --concurrency=2
+      - --max-tasks-per-child=50
+      - --loglevel=info
+    volumes:
+      - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos:ro
+      - exports:/srv/exports
+    networks:
+      - render
+    depends_on:
+      web:
+        condition: service_healthy
+
   db:
     <<: *db-image
     # The log is archived by pgBackRest, asynchronously; a quiet segment is closed within five
@@ -135,6 +168,9 @@ services:
       - ${BACKUP_KEY_FILE:?name the backup store's private key in .env}:/run/backup/key.src:ro
     extra_hosts:
       - ${BACKUP_EXTRA_HOST:-backup-store.invalid:127.0.0.1}
+    networks:
+      - default
+      - render
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 5s
@@ -167,6 +203,9 @@ services:
   redis:
     image: redis:7
     command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks:
+      - default
+      - render
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -180,3 +219,9 @@ volumes:
   pgsocket:
   pgspool:
   backup-state:
+  exports:
+
+networks:
+  default:
+  render:
+    internal: true

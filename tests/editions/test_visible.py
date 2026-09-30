@@ -1,8 +1,8 @@
-"""What a reader may see (DL-0209, DL-0272, DL-0352): the latest content version to a holder of
-*view pending*, the latest accepted to a holder of *view accepted* — the `created` text before any
-acceptance — and the canonical edition's version to a holder of *view canonical*, for whom a
-document without an edition does not exist. The header names the version shown and the canonical
-edition. Carries the six cases of the alpha's stand-in (`review.visible`) over to
+"""What a reader may see (DL-0209, DL-0272, DL-0352, DL-0358): the latest content version to a
+holder of *view pending*, the latest accepted to a holder of *view accepted* — the `created` text
+before any acceptance — and the canonical edition's version to a holder of *view canonical*, for
+whom a document without an edition does not exist. The header names the version shown and the
+canonical edition. Carries the six cases of the alpha's stand-in (`review.visible`) over to
 `editions.visible`.
 
 People and groups are synthetic examples; the text is invented.
@@ -206,7 +206,8 @@ def test_header_before_any_edition(
     settings: Any,
 ) -> None:
     """Before any edition, *Viewing the 0.1 version* without the canonical segment; before any
-    acceptance with nothing pending, no line (DL-0352)."""
+    acceptance with nothing pending, the created text's own number, *Viewing the 0.0 version*
+    (DL-0352, DL-0358)."""
     settings.LANGUAGE_CODE = "en"
     people = edition_cast()
     document = people.document
@@ -214,8 +215,7 @@ def test_header_before_any_edition(
     route = f"/document/{document.number}/"
 
     created_only = _text(client.get(route).content.decode())
-    assert "Viewing" not in created_only
-    assert "0.0" not in created_only
+    assert "Viewing the 0.0 version" in created_only
 
     commit_version(document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
@@ -229,7 +229,8 @@ def test_view_accepted_before_the_first_acceptance(
     migrated_tenant: Any, edition_cast: Any, member_of: Any, link_group: Any
 ) -> None:
     """Only the `created` commit: it stands as the first accepted baseline (DL-0272), so a
-    reader of accepted text sees it, unnumbered; a reader of canonical text sees nothing."""
+    reader of accepted text sees it as version 0.0 (DL-0358); a reader of canonical text sees
+    nothing."""
     from editions.visible import latest_visible, visible
 
     people = edition_cast()
@@ -247,8 +248,8 @@ def test_view_accepted_before_the_first_acceptance(
         assert latest is not None and latest.pk == created.pk
         seen = visible(accepted_reader, document)
         assert seen is not None and seen.version.pk == created.pk
-        # `0.0` names no version and is never shown alone (DL-0272).
-        assert seen.number == ""
+        # The document's first version (DL-0358).
+        assert seen.number == "0.0"
         # The `created` text is the accepted baseline (DL-0272).
         assert (seen.stance, seen.canonical) == ("accepted", None)
 
@@ -349,7 +350,7 @@ def test_accepted_before_any_acceptance_sees_the_created_version(
     commit_version: Any,
 ) -> None:
     """A version pending and nothing accepted: the reader of accepted text sees the `created`
-    text, never the pending version, and no number."""
+    text, version 0.0, never the pending version."""
     from editions.visible import latest_visible, visible
 
     people = edition_cast()
@@ -363,7 +364,7 @@ def test_accepted_before_any_acceptance_sees_the_created_version(
         assert latest is not None and latest.pk == created.pk
         seen = visible(reader, document)
         assert seen is not None and seen.version.pk == created.pk
-        assert seen.number == ""
+        assert seen.number == "0.0"
         assert seen.canonical is None
 
 

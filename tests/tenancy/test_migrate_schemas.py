@@ -99,6 +99,7 @@ def test_tenant_schema_holds_tenant_tables_only(
             "review_correctionline",
             "editions_freeze",
             "editions_edition",
+            "rendering_exportjob",
             "notifications_notification",
         }
         assert migrations_recorded_in(tenant.schema_name) == every_migration

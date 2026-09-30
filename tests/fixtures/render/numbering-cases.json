@@ -1,0 +1,776 @@
+[
+  {
+    "id": "headings-all-depths",
+    "input": "# Розділ\n\n## Підрозділ\n\n### Пункт\n\n#### Підпункт\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.1.1",
+      "1.1.1.1"
+    ],
+    "note": "Each of the four heading depths reads its full path."
+  },
+  {
+    "id": "headings-count-on-at-each-depth",
+    "input": "# Перший розділ\n\n## Перший підрозділ\n\n## Другий підрозділ\n\n### Перший пункт\n\n### Другий пункт\n\n#### Перший підпункт\n\n#### Другий підпункт\n\n# Другий розділ\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.2",
+      "1.2.1",
+      "1.2.2",
+      "1.2.2.1",
+      "1.2.2.2",
+      "2"
+    ],
+    "note": "A heading counts on from the last heading of its own level under the same parent, at every depth."
+  },
+  {
+    "id": "headings-deeper-levels-restart",
+    "input": "# Перший розділ\n\n## Мета\n\n### Строки\n\n## Сфера\n\n### Винятки\n\n# Другий розділ\n\n## Відповідальність\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.1.1",
+      "1.2",
+      "1.2.1",
+      "2",
+      "2.1"
+    ],
+    "note": "After `1.1.1` the next `##` reads `1.2`, and every level deeper than a new heading starts again from 1."
+  },
+  {
+    "id": "headings-restart-after-depth-four",
+    "input": "# Перший розділ\n\n## Підрозділ\n\n### Пункт\n\n#### Підпункт\n\n# Другий розділ\n\n## Підрозділ\n\n### Пункт\n\n#### Підпункт\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.1.1",
+      "1.1.1.1",
+      "2",
+      "2.1",
+      "2.1.1",
+      "2.1.1.1"
+    ],
+    "note": "A new `#` restarts all three deeper levels at once."
+  },
+  {
+    "id": "headings-shallower-after-depth-four",
+    "input": "# Розділ\n\n## Перший підрозділ\n\n### Пункт\n\n#### Підпункт\n\n### Другий пункт\n\n## Другий підрозділ\n\n### Пункт другого підрозділу\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.1.1",
+      "1.1.1.1",
+      "1.1.2",
+      "1.2",
+      "1.2.1"
+    ],
+    "note": "Climbing back from depth four counts on at the shallower level and restarts the deeper ones."
+  },
+  {
+    "id": "heading-with-entity-and-marks",
+    "input": "# Розділ\n\n## Строк [погодження]{.term #strok-pohodzhennia}\n\n## Обов'язки **керівника**\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.2"
+    ],
+    "note": "Spans and marks inside a heading do not change its number."
+  },
+  {
+    "id": "skipped-level-first-heading-is-level-two",
+    "input": "## Сфера застосування\n\nПорядок діє в усіх підрозділах.\n",
+    "labels": [
+      "1.1",
+      "1.1-1"
+    ],
+    "note": "A `##` before any `#` reads `1.1`."
+  },
+  {
+    "id": "skipped-level-first-heading-is-level-three",
+    "input": "### Примітка\n\nТекст примітки.\n",
+    "labels": [
+      "1.1.1",
+      "1.1.1-1"
+    ],
+    "note": "A `###` before any heading reads `1.1.1`, both missing levels counting as 1."
+  },
+  {
+    "id": "skipped-level-first-heading-is-level-four",
+    "input": "#### Уточнення\n",
+    "labels": [
+      "1.1.1.1"
+    ],
+    "note": "A `####` before any heading reads `1.1.1.1`."
+  },
+  {
+    "id": "skipped-level-at-top-then-level-one",
+    "input": "## Вступ\n\n# Загальні положення\n\n## Мета\n",
+    "labels": [
+      "1.1",
+      "2",
+      "2.1"
+    ],
+    "note": "The level filled with 1 above a leading `##` counts as the first `#`, so the next `#` reads `2` and no number repeats."
+  },
+  {
+    "id": "skipped-level-in-the-middle",
+    "input": "# Порядок\n\n### Строки\n\nЗаяву розглядають за три дні.\n",
+    "labels": [
+      "1",
+      "1.1.1",
+      "1.1.1-1"
+    ],
+    "note": "A `###` directly under the first `#` reads `1.1.1`."
+  },
+  {
+    "id": "skipped-two-levels-in-the-middle",
+    "input": "# Порядок\n\n#### Уточнення\n",
+    "labels": [
+      "1",
+      "1.1.1.1"
+    ],
+    "note": "A `####` directly under a `#` fills both missing levels with 1."
+  },
+  {
+    "id": "skipped-level-then-the-skipped-level-counts-on",
+    "input": "# Порядок\n\n### Строки\n\n## Винятки\n\n### Особливі випадки\n",
+    "labels": [
+      "1",
+      "1.1.1",
+      "1.2",
+      "1.2.1"
+    ],
+    "note": "The filled `1` counts as the first heading of the skipped level, so a later `##` reads `1.2` and its `###` cannot repeat `1.1.1`."
+  },
+  {
+    "id": "skipped-level-siblings-count-on",
+    "input": "# Порядок\n\n### Перший пункт\n\n### Другий пункт\n",
+    "labels": [
+      "1",
+      "1.1.1",
+      "1.1.2"
+    ],
+    "note": "Headings under a filled level count on among themselves."
+  },
+  {
+    "id": "skipped-level-under-a-later-section",
+    "input": "# Перший розділ\n\n## Мета\n\n# Другий розділ\n\n### Строки\n",
+    "labels": [
+      "1",
+      "1.1",
+      "2",
+      "2.1.1"
+    ],
+    "note": "A level skipped under the second `#` is filled with 1 under that parent, not continued from the first."
+  },
+  {
+    "id": "skipped-level-deep-in-the-middle",
+    "input": "# Розділ\n\n## Підрозділ\n\n#### Підпункт\n\n### Пункт\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.1.1.1",
+      "1.1.2"
+    ],
+    "note": "A `####` under a `##` fills the third level with 1, and a later `###` counts on from it."
+  },
+  {
+    "id": "skipped-level-paragraphs-take-the-full-path",
+    "input": "# Порядок\n\nВступ до порядку.\n\n### Строки\n\nПерше речення пункту.\n\nДруге речення пункту.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1.1.1",
+      "1.1.1-1",
+      "1.1.1-2"
+    ],
+    "note": "A clause under a heading with a skipped level carries that heading's full path."
+  },
+  {
+    "id": "paragraphs-count-within-their-section",
+    "input": "# Загальні положення\n\nПерше речення розділу.\n\nДруге речення розділу.\n\n## Строки\n\nСтрок становить десять днів.\n\n# Відповідальність\n\nКерівник погоджує заявку.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1.1",
+      "1.1-1",
+      "2",
+      "2-1"
+    ],
+    "note": "Each paragraph takes the next index since the last heading, whatever that heading's level."
+  },
+  {
+    "id": "paragraph-index-restarts-after-every-heading",
+    "input": "# Розділ\n\nПерший абзац.\n\nДругий абзац.\n\nТретій абзац.\n\n## Підрозділ\n\nАбзац підрозділу.\n\n### Пункт\n\nАбзац пункту.\n\n## Другий підрозділ\n\nАбзац другого підрозділу.\n\nЩе один абзац.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1.1",
+      "1.1-1",
+      "1.1.1",
+      "1.1.1-1",
+      "1.2",
+      "1.2-1",
+      "1.2-2"
+    ],
+    "note": "The index counts from 1 again after every heading, deeper or shallower."
+  },
+  {
+    "id": "paragraph-several-sentences-counts-once",
+    "input": "# Розділ\n\nКожен працівник ознайомлюється з порядком.\nОзнайомлення підтверджується підписом.\nКопія зберігається у відділі кадрів.\n\nНаступний абзац.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "A paragraph stored one sentence per line is one clause."
+  },
+  {
+    "id": "paragraph-with-marks-links-and-entities",
+    "input": "# Розділ\n\nДокумент погоджує [керівник відділу]{.role #kerivnyk-viddilu} **письмово**.\n\nДив. [правила](https://example.org/pravyla) і [додаток 1](appendices/dodatok-1.md).\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "Inline marks, spans and links leave a paragraph one clause."
+  },
+  {
+    "id": "paragraph-with-escaped-leading-markers",
+    "input": "# Розділ\n\n\\# 5 — номер кімнати.\n\n2026\\. рік став першим роком дії.\n\n\\- 5 градусів — нижня межа.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "Paragraphs whose first character would otherwise open a heading or a list are plain clauses."
+  },
+  {
+    "id": "before-the-first-heading-index-alone",
+    "input": "Вступне речення.\n\nЩе одне вступне речення.\n\n# Розділ\n\nТекст розділу.\n",
+    "labels": [
+      "1",
+      "2",
+      "1",
+      "1-1"
+    ],
+    "note": "A paragraph before the first heading reads its index alone, and the first heading still reads `1`."
+  },
+  {
+    "id": "no-heading-at-all",
+    "input": "Перший абзац.\n\nДругий абзац.\nВін має два речення.\n\nТретій абзац.\n",
+    "labels": [
+      "1",
+      "2",
+      "3"
+    ],
+    "note": "A document with no heading numbers every paragraph by its index alone."
+  },
+  {
+    "id": "before-the-first-heading-single-paragraph",
+    "input": "Порядок набирає чинності з дня затвердження.\n",
+    "labels": [
+      "1"
+    ],
+    "note": "A single paragraph with no heading reads `1`."
+  },
+  {
+    "id": "before-the-first-heading-list-and-quote",
+    "input": "Вступ.\n\n- перший пункт\n- другий пункт\n\n> Цитата до вступу.\n\n## Сфера\n\nТекст сфери.\n",
+    "labels": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "1.1",
+      "1.1-1"
+    ],
+    "note": "List items and quotes before the first heading take the index alone too, and a leading `##` still reads `1.1`."
+  },
+  {
+    "id": "tight-bullet-list",
+    "input": "# Порядок\n\nЗаява містить:\n\n- прізвище заявника;\n- підрозділ заявника;\n- дату подання.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4"
+    ],
+    "note": "Each item of a tight bullet list is a clause."
+  },
+  {
+    "id": "tight-ordered-list",
+    "input": "# Порядок\n\n1. подати заяву\n2. отримати погодження\n3. передати до архіву\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "Each item of a tight ordered list is a clause."
+  },
+  {
+    "id": "ordered-list-marker-numbers-do-not-count",
+    "input": "# Порядок\n\n5. п'ятий пункт\n6. шостий пункт\n\nПісля переліку.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "An ordered list starting at 5 still takes the section's next indexes, not its markers."
+  },
+  {
+    "id": "loose-bullet-list",
+    "input": "# Порядок\n\n- Перший пункт переліку.\n\n- Другий пункт переліку.\n\n- Третій пункт переліку.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "Each item of a loose bullet list is a clause."
+  },
+  {
+    "id": "loose-ordered-list-item-with-two-paragraphs",
+    "input": "# Порядок\n\n1. Заявник подає заяву.\n\n2. Керівник погоджує заяву.\n\n   Погодження фіксують у реєстрі.\n\nПісля погодження заяву передають далі.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4"
+    ],
+    "note": "Every paragraph inside a loose item is its own clause, and the paragraph after the list counts on."
+  },
+  {
+    "id": "list-item-several-sentences-counts-once",
+    "input": "# Порядок\n\n- Заява подається письмово.\n  Строк розгляду становить десять днів.\n- Відповідь надсилається поштою.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "An item of two sentences stored on two lines is one clause."
+  },
+  {
+    "id": "nested-bullet-list-three-levels",
+    "input": "# Порядок\n\n- рівень один\n  - рівень два\n    - рівень три\n  - знову рівень два\n- другий пункт\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5"
+    ],
+    "note": "Nested bullet items count in document order at every depth, with no index of their own."
+  },
+  {
+    "id": "nested-ordered-list-three-levels",
+    "input": "# Порядок\n\n1. рівень один\n   1. рівень два\n      1. рівень три\n      2. ще рівень три\n2. другий пункт\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5"
+    ],
+    "note": "Nested ordered items count in document order at every depth."
+  },
+  {
+    "id": "mixed-nested-list",
+    "input": "# Порядок\n\n1. етап\n   - крок\n     1. дія\n     2. перевірка\n   - наступний крок\n2. другий етап\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5",
+      "1-6"
+    ],
+    "note": "Ordered and bullet items nested in each other count as one sequence."
+  },
+  {
+    "id": "lists-in-two-sections",
+    "input": "# Перший розділ\n\n- перший пункт\n- другий пункт\n\n# Другий розділ\n\n1. пункт другого розділу\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "2",
+      "2-1"
+    ],
+    "note": "A list's items are counted in their own section; the next heading restarts the index."
+  },
+  {
+    "id": "two-lists-and-paragraphs-interleaved",
+    "input": "# Порядок\n\nПерелік документів.\n\n- заява\n- копія наказу\n\nПерелік підписів.\n\n1. автор\n2. керівник\n\nКінець переліку.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5",
+      "1-6",
+      "1-7"
+    ],
+    "note": "Paragraphs and list items interleaved count as one sequence in document order."
+  },
+  {
+    "id": "quote-one-paragraph",
+    "input": "# Порядок\n\n> Документ не підлягає розголошенню.\n\nТекст після цитати.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "A quoted paragraph is a clause."
+  },
+  {
+    "id": "quote-two-sentences-counts-once",
+    "input": "# Порядок\n\n> Перше речення цитати.\n> Друге речення цитати.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "A quoted paragraph of two sentences is one clause."
+  },
+  {
+    "id": "quote-two-paragraphs",
+    "input": "# Порядок\n\nВступ.\n\n> Перший абзац цитати.\n>\n> Другий абзац цитати.\n\nПісля цитати.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4"
+    ],
+    "note": "Each paragraph of a quote is a clause."
+  },
+  {
+    "id": "quote-paragraph-and-list",
+    "input": "# Порядок\n\n> Цитата містить перелік.\n>\n> - перша умова\n> - друга умова\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "List items inside a quote are clauses after the quote's paragraph."
+  },
+  {
+    "id": "callout-note-paragraph",
+    "input": "# Порядок\n\nВступ.\n\n> [!note]\n> Примітка до розділу.\n\nПісля примітки.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "A note's paragraph is a clause; its type marker takes no index."
+  },
+  {
+    "id": "callout-warning-paragraph",
+    "input": "# Порядок\n\n> [!warning]\n> Порушення строку тягне відповідальність.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "A warning's paragraph is a clause."
+  },
+  {
+    "id": "callout-example-paragraph",
+    "input": "# Порядок\n\n> [!example]\n> Заява подається до п'ятнадцятого числа.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "An example's paragraph is a clause."
+  },
+  {
+    "id": "callout-note-list",
+    "input": "# Порядок\n\n> [!note]\n> - перша примітка\n> - друга примітка\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "Items of a list inside a note are clauses."
+  },
+  {
+    "id": "callout-warning-paragraph-and-list",
+    "input": "# Порядок\n\n> [!warning]\n> Перевірте такі умови.\n>\n> 1. наявність підпису\n> 2. дату реєстрації\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "A warning's paragraph and its ordered items count in order."
+  },
+  {
+    "id": "callout-example-two-paragraphs",
+    "input": "# Порядок\n\n> [!example]\n> Перший абзац прикладу.\n> Друге речення.\n>\n> Другий абзац прикладу.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "Each paragraph of an example is one clause, however many sentences it holds."
+  },
+  {
+    "id": "callout-nested-list",
+    "input": "# Порядок\n\n> [!note]\n> - розділ\n>   - пункт\n>     - підпункт\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3"
+    ],
+    "note": "A list nested three deep inside a callout counts every item."
+  },
+  {
+    "id": "callouts-of-every-type-in-one-section",
+    "input": "# Порядок\n\n> [!note]\n> Примітка.\n\n> [!warning]\n> Попередження.\n>\n> - перша умова\n\n> [!example]\n> Приклад.\n\nВисновок.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5"
+    ],
+    "note": "Note, warning and example in a row count on as one sequence with the paragraph after them."
+  },
+  {
+    "id": "table-between-paragraphs",
+    "input": "# Строки\n\nСтроки наведено в таблиці.\n\n| Вид заявки | Строк |\n| --- | --- |\n| звичайна | десять днів |\n| термінова | два дні |\n\nСтрок рахують від дня надходження.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "A table's cells take no label and consume no index."
+  },
+  {
+    "id": "table-first-in-section",
+    "input": "# Строки\n\n| Етап | Строк |\n| --- | --- |\n| подання | 1 день |\n\nПояснення до таблиці.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "A paragraph after a table that opens its section is still clause 1."
+  },
+  {
+    "id": "table-before-the-first-heading",
+    "input": "| Етап | Строк |\n| --- | --- |\n| подання | 1 день |\n\nПояснення до таблиці.\n\n# Розділ\n",
+    "labels": [
+      "1",
+      "1"
+    ],
+    "note": "A table before the first heading consumes no index either."
+  },
+  {
+    "id": "table-only-in-section",
+    "input": "# Строки\n\n| Посада | Строк |\n| --- | --- |\n| бухгалтер | 5 днів |\n\n## Винятки\n\nВинятків немає.\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.1-1"
+    ],
+    "note": "A section holding only a table has no clause."
+  },
+  {
+    "id": "table-with-marks-links-and-entities",
+    "input": "# Ролі\n\nРолі наведено нижче.\n\n| Хто | Що робить | Документ |\n| :--- | :---: | ---: |\n| [директор]{.role #dyrektor} | **затверджує** | [правила](https://example.org/pravyla) |\n| юрист | перевіряє \\| коментує |  |\n\nІнших ролей немає.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "Cells holding marks, spans, links, an escaped pipe or nothing take no label."
+  },
+  {
+    "id": "two-tables-in-a-row",
+    "input": "# Строки\n\n| Етап | Строк |\n| --- | --- |\n| подання | 1 день |\n\n| Посада | Строк |\n| --- | --- |\n| юрист | 3 дні |\n\nОбидві таблиці чинні.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "Two tables in a row consume no index between them."
+  },
+  {
+    "id": "image-only-paragraph-between-paragraphs",
+    "input": "# Схема\n\nСхема наведена нижче.\n\n![Схема](images/skhema_v2.png)\n\nПояснення до схеми.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "A paragraph holding only an image takes no label and consumes no index."
+  },
+  {
+    "id": "image-first-in-section",
+    "input": "# Схема\n\n![Схема погодження](images/skhema-pohodzhennia.png)\n\nПояснення до схеми.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "A paragraph after an image that opens its section is clause 1."
+  },
+  {
+    "id": "image-before-the-first-heading",
+    "input": "![Логотип](images/lohotyp.png)\n\nВступне речення.\n\n# Розділ\n",
+    "labels": [
+      "1",
+      "1"
+    ],
+    "note": "An image before the first heading consumes no index."
+  },
+  {
+    "id": "image-empty-alt",
+    "input": "# Схема\n\n![](images/skhema.png)\n\nТекст після схеми.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "An image with empty alternative text is still no clause."
+  },
+  {
+    "id": "image-in-list-item",
+    "input": "# Схема\n\n- ![Схема](images/skhema.png)\n- другий пункт\n- третій пункт\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "An image alone in a list item is no clause; the next items count from 1."
+  },
+  {
+    "id": "image-in-callout",
+    "input": "# Зразки\n\n> [!example]\n> ![Зразок заяви](images/zrazok-zaiavy.png)\n\nЗразок наведено вище.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "An image alone in a callout is no clause."
+  },
+  {
+    "id": "image-in-callout-with-paragraphs",
+    "input": "# Зразки\n\n> [!example]\n> Зразок заяви.\n>\n> ![Зразок заяви](images/zrazok-zaiavy.png)\n>\n> Заповніть усі поля.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2"
+    ],
+    "note": "Inside a callout the image paragraph is skipped between two clauses."
+  },
+  {
+    "id": "image-in-quote-with-paragraph",
+    "input": "# Зразки\n\n> ![Схема](images/skhema.png)\n>\n> Підпис до схеми.\n",
+    "labels": [
+      "1",
+      "1-1"
+    ],
+    "note": "Inside a quote the image paragraph is skipped and the text after it is clause 1."
+  },
+  {
+    "id": "images-only-document",
+    "input": "![Перша схема](images/persha.png)\n\n![Друга схема](images/druha.png)\n",
+    "labels": [],
+    "note": "A document of images alone has no label."
+  },
+  {
+    "id": "everything-in-one-section",
+    "input": "# Порядок\n\nВступ до розділу.\nДруге речення вступу.\n\n- перший пункт\n  - вкладений пункт\n- другий пункт\n\n| Етап | Строк |\n| --- | --- |\n| подання | 1 день |\n\n> Цитата.\n\n![Схема](images/skhema.png)\n\n> [!warning]\n> Попередження.\n>\n> 1. перша умова\n\nВисновок.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5",
+      "1-6",
+      "1-7",
+      "1-8"
+    ],
+    "note": "Paragraphs, nested items, a quote and a callout count as one sequence while the table and the image are skipped."
+  },
+  {
+    "id": "everything-across-sections",
+    "input": "Преамбула.\n\n![Логотип](images/lohotyp.png)\n\n## Вступ\n\nТекст вступу.\n\n# Загальні положення\n\n| Термін | Значення |\n| --- | --- |\n| строк | десять днів |\n\n- перший пункт\n- другий пункт\n\n### Строки\n\n> [!note]\n> Примітка.\n\n## Винятки\n\n1. перший виняток\n   - уточнення\n\n#### Особливий випадок\n\nТекст випадку.\n\n# Прикінцеві положення\n\n> Цитата.\n>\n> Друга цитата.\n",
+    "labels": [
+      "1",
+      "1.1",
+      "1.1-1",
+      "2",
+      "2-1",
+      "2-2",
+      "2.1.1",
+      "2.1.1-1",
+      "2.2",
+      "2.2-1",
+      "2.2-2",
+      "2.2.1.1",
+      "2.2.1.1-1",
+      "3",
+      "3-1",
+      "3-2"
+    ],
+    "note": "Pre-heading, skipped levels at the top and in the middle, counting on, restarts, lists, callouts, quotes, a table and an image in one document."
+  },
+  {
+    "id": "conformance-sample",
+    "input": "# Порядок погодження внутрішніх документів\n\nЦей порядок визначає, як внутрішні документи готують, погоджують і зберігають.\nВін поширюється на всі структурні підрозділи.\nТекст порядку вигаданий і слугує лише зразком.\n\n## Загальні положення\n\nПорядок набирає чинності з дня затвердження.\nКожен документ має *відповідального автора* і **одного власника**.\nВласником документа є [керівник підрозділу]{.role #kerivnyk-pidrozdilu}.\nВласник [зобов'язаний погодити]{.action #pohodyty} документ до його публікації.\n\n### Строки\n\nРозгляд проєкту триває [десять робочих днів]{.term #strok-rozghliadu}.\nСтрок рахується з дня реєстрації проєкту.\nСлова, [підкреслені в тексті]{.underline}, мають особливу вагу.\n\n#### Продовження строку\n\nСтрок можна продовжити один раз.\nПро продовження [секретар]{.role} [повідомляє]{.action} автора письмово.\n\n> Документ, не погоджений у строк, повертається автору без розгляду.\n> Автор може подати його повторно.\n\n## Порядок дій\n\nПогодження проходить такі етапи.\n\n1. Автор готує проєкт.\n2. Проєкт погоджують:\n   - керівник підрозділу;\n   - фахівці, яких він визначив:\n     1. юрист;\n     2. фінансист.\n   - відповідальний за архів.\n3. Власник затверджує документ.\n\nПід час підготовки варто перевірити таке.\n\n- структуру документа\n- посилання на інші документи\n- додатки\n\n> [!note]\n> Погоджувач може залишити зауваження до будь-якого речення.\n> Зауваження не зупиняє строк розгляду.\n\n> [!warning]\n> Не змінюйте проєкт після початку погодження.\n>\n> - Кожна зміна повертає проєкт на перший етап.\n> - Попередні погодження скасовуються.\n\n> [!example]\n> Автор подав проєкт у понеділок.\n> Останній день розгляду припадає на п'ятницю наступного тижня.\n\n## Ролі та строки\n\n| Роль | Дія | Строк |\n| :--- | :---: | ---: |\n| [автор]{.role #avtor} | готує проєкт | 5 днів |\n| керівник | **погоджує** | 3 дні |\n| юрист | перевіряє \\| коментує |  |\n\nПорожня клітинка означає, що строк не встановлено.\n\n## Схема процесу\n\nСхема нижче показує послідовність етапів.\n\n![Схема погодження документа](images/skhema-pohodzhennia.png)\n\n## Довідкові матеріали\n\nЗагальні правила оформлення наведено в [правилах діловодства](https://example.org/pravyla).\nШаблони документів розміщено в [додатку 1](appendices/dodatok-1.md).\nЗапитання надсилайте на [скриньку служби діловодства](mailto:dilovodstvo@example.org).\n\n### Особливі позначки\n\nПозначка \\* біля назви поля означає, що поле обов'язкове.\nЗначення \\< 3 днів вважається терміновим.\nСкорочення \\&nbsp; у тексті не є службовим символом.\n",
+    "labels": [
+      "1",
+      "1-1",
+      "1.1",
+      "1.1-1",
+      "1.1.1",
+      "1.1.1-1",
+      "1.1.1.1",
+      "1.1.1.1-1",
+      "1.1.1.1-2",
+      "1.2",
+      "1.2-1",
+      "1.2-2",
+      "1.2-3",
+      "1.2-4",
+      "1.2-5",
+      "1.2-6",
+      "1.2-7",
+      "1.2-8",
+      "1.2-9",
+      "1.2-10",
+      "1.2-11",
+      "1.2-12",
+      "1.2-13",
+      "1.2-14",
+      "1.2-15",
+      "1.2-16",
+      "1.2-17",
+      "1.2-18",
+      "1.3",
+      "1.3-1",
+      "1.4",
+      "1.4-1",
+      "1.5",
+      "1.5-1",
+      "1.5.1",
+      "1.5.1-1"
+    ],
+    "note": "The rendering conformance sample, verbatim: every construct of the subset numbered at once."
+  }
+]

@@ -6,7 +6,7 @@
 import { Plugin } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
-// Every paragraph's position and its number, in document order.
+// Every heading's and paragraph's position and its number, in document order.
 export function clauseNumbers(doc) {
   const path = [];
   let index = 0;
@@ -18,6 +18,7 @@ export function clauseNumbers(doc) {
       path[level - 1] = (path[level - 1] || 0) + 1;
       for (let i = 0; i < level - 1; i++) path[i] = path[i] || 1;
       index = 0;
+      found.push({ pos, label: path.join(".") });
       return false;
     }
     if (node.type.name === "table") return false;

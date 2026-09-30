@@ -19,6 +19,7 @@ workspace/
 
 # Document repositories of a local stack, and the editor's build inputs
 .repos/
+.exports/
 node_modules/
 # The editor's bundle, built by `npm run build`
 src/editing/static/editing/editor.js

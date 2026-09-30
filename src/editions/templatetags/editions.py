@@ -13,7 +13,7 @@ from django.utils.translation import gettext as _
 from access.rights import HISTORY, Right, rights_on
 from editing import holds
 from editions.models import REASON_MAX, open_freeze
-from review.views.pending import person
+from identity.naming import person
 
 register = template.Library()
 logger = logging.getLogger(__name__)

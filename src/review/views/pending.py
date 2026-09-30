@@ -28,6 +28,7 @@ from editing.authorship import DOCUMENT_FILE, blame_at
 from editing.diffview import render_changes
 from editing.models import LineAuthorship
 from identity.models import User, UserPreference
+from identity.naming import person
 from review import services
 from shell.views import not_found
 
@@ -37,18 +38,6 @@ SHOW_AUTHOR = "show_author"
 def show_author(user: Any) -> bool:
     """Whether the person keeps *show author* on; off until they turn it on."""
     return UserPreference.objects.filter(user_id=user.pk, key=SHOW_AUTHOR, value="on").exists()
-
-
-def person(user: User | None) -> str:
-    """How a page names a person to its reader: the name; *former user* once erased (DL-0108);
-    *anonymous editor* to everyone when the person has no name (DL-0339)."""
-    if user is None:
-        return ""
-    if user.is_tombstoned:
-        return _("former user")
-    if user.display_name:
-        return user.display_name
-    return _("anonymous editor")
 
 
 def _body(text: str) -> tuple[int, str]:

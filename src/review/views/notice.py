@@ -18,9 +18,9 @@ from access.rights import Right, rights_on
 from documents import gitstore
 from editing import holds
 from editing.diffview import render_changes
+from identity.naming import person
 from review import services
 from review.models import Acceptance, CorrectionLine, Entry
-from review.views.pending import person
 from shell.views import not_found
 
 RANGE = re.compile(r"([1-9][0-9]{0,9})(?:-([1-9][0-9]{0,9}))?")

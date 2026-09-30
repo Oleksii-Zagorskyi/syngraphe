@@ -1,0 +1,5 @@
+{% load i18n %}<div class="edge" role="separator" aria-orientation="vertical" data-drag="--panel-width" data-pane="panel" data-side="right" data-min="{{ panel_bounds.0 }}" data-max="{{ panel_bounds.1 }}" data-keep="/preferences/panel-width/"></div>
+    <aside class="panel" id="panel" aria-label="{% translate 'Parts' %}">
+      <div class="pane-head"><div class="iconrow"><span class="on" title="{% translate 'Parts' %}">{% translate "Parts" %}</span></div><button type="button" class="icon" data-pane-toggle="panel" aria-expanded="true" aria-label="{% translate 'Collapse the panel' %}">⇥</button></div>
+      {% include "documents/attachments.html" %}
+    </aside>

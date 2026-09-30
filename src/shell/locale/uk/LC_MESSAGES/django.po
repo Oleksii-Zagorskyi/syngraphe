@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syngraphē\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 23:09+0000\n"
+"POT-Creation-Date: 2026-09-30 06:55+0000\n"
 "PO-Revision-Date: 2026-09-28 17:08+0000\n"
 "Last-Translator: Oleksii Zagorskyi\n"
 "Language-Team: uk\n"
@@ -14,8 +14,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: access/forms.py:10 tenancy/forms.py:14
 msgid "Name"
@@ -95,17 +94,18 @@ msgstr "видалення вкладеного файлу"
 msgid "Document links"
 msgstr "Зв’язки документів"
 
-#: access/templates/access/document_links.html:9
+#: access/templates/access/document_links.html:9 rendering/export/job.py:65
+#: rendering/templates/rendering/export.html:13
 msgid "Document"
 msgstr "Документ"
 
 #: access/templates/access/document_links.html:9
-#: documents/templates/documents/info.html:8
+#: documents/templates/documents/info.html:10
 msgid "Linked groups"
 msgstr "Пов’язані групи"
 
 #: access/templates/access/document_links.html:17
-#: documents/templates/documents/info.html:8
+#: documents/templates/documents/info.html:10
 msgid "author-only"
 msgstr "лише для автора"
 
@@ -115,8 +115,8 @@ msgid ""
 "Created by %(name)s, %(date)s — only they can reach it until a group is "
 "linked."
 msgstr ""
-"Створено %(date)s, автор — %(name)s; лише автор має доступ, доки не "
-"пов’язано групу."
+"Створено %(date)s, автор — %(name)s; лише автор має доступ, доки не пов’язано"
+" групу."
 
 #: access/templates/access/document_links.html:19
 msgid "Archived — its links take effect on restore."
@@ -193,7 +193,8 @@ msgid "No groups yet."
 msgstr "Груп ще немає."
 
 #: documents/forms.py:25 documents/templates/documents/info.html:4
-#: documents/templates/documents/list.html:12
+#: documents/templates/documents/list.html:12 rendering/export/compose.py:346
+#: rendering/export/compose.py:399
 msgid "Title"
 msgstr "Назва"
 
@@ -206,7 +207,7 @@ msgstr "Мова"
 msgid "Type"
 msgstr "Тип документа"
 
-#: documents/forms.py:36 documents/templates/documents/info.html:7
+#: documents/forms.py:36 documents/templates/documents/info.html:9
 msgid "Folder"
 msgstr "Тека"
 
@@ -214,7 +215,12 @@ msgstr "Тека"
 msgid "A title is one line of text."
 msgstr "Назва — це один рядок тексту."
 
+#: documents/reconcile.py:898
+msgid "The file was not made in time. Export again."
+msgstr "Файл не створено вчасно. Експортуйте ще раз."
+
 #: documents/templates/documents/attachments.html:2
+#: rendering/templates/rendering/export.html:14
 msgid "Attachments"
 msgstr "Вкладені файли"
 
@@ -255,11 +261,20 @@ msgstr "Скасувати"
 msgid "Number"
 msgstr "Номер"
 
-#: documents/templates/documents/info.html:9
+#: documents/templates/documents/info.html:7
+msgid "Canonical version"
+msgstr "Канонічна версія"
+
+#: documents/templates/documents/info.html:8
+#: tenancy/templates/tenancy/tenants.html:7
+msgid "State"
+msgstr "Стан"
+
+#: documents/templates/documents/info.html:11
 msgid "Created"
 msgstr "Створено"
 
-#: documents/templates/documents/info.html:9
+#: documents/templates/documents/info.html:11
 #, python-format
 msgid "%(date)s, by %(name)s"
 msgstr "%(date)s, автор — %(name)s"
@@ -277,6 +292,8 @@ msgid "Latest"
 msgstr "Остання версія"
 
 #: documents/templates/documents/list.html:12
+#: rendering/templates/rendering/panes_panel.html:2
+#: rendering/templates/rendering/panes_panel.html:3
 msgid "Parts"
 msgstr "Частини"
 
@@ -289,26 +306,63 @@ msgid "attachments"
 msgstr "вкладені файли"
 
 #: documents/templates/documents/page.html:11
+#: rendering/templates/rendering/export.html:3
+#: rendering/templates/rendering/export.html:34
+#: rendering/templates/rendering/export_job.html:3
+msgid "Export"
+msgstr "Експорт"
+
+#: documents/templates/documents/page.html:16
+#: documents/templates/documents/page.html:23
 msgid "View"
 msgstr "Перегляд"
 
-#: documents/templates/documents/page.html:11
+#: documents/templates/documents/page.html:16
+#: documents/templates/documents/page.html:23
 msgid "Edit"
 msgstr "Редагування"
 
-#: documents/templates/documents/page.html:11
+#: documents/templates/documents/page.html:16
+#: documents/templates/documents/page.html:23
 msgid "My edits"
 msgstr "Мої правки"
 
-#: documents/templates/documents/page.html:11
+#: documents/templates/documents/page.html:16
+#: documents/templates/documents/page.html:23
 msgid "Pending edits"
 msgstr "Всі неприйняті правки"
 
-#: documents/templates/documents/page.html:11
+#: documents/templates/documents/page.html:16
+#: documents/templates/documents/page.html:23
 msgid "Info"
 msgstr "Відомості"
 
-#: editing/diffview.py:331
+#: documents/views.py:163
+msgctxt "document state"
+msgid "frozen"
+msgstr "заморожено"
+
+#: documents/views.py:164
+msgctxt "document state"
+msgid "canonical"
+msgstr "затверджено"
+
+#: documents/views.py:165
+msgctxt "document state"
+msgid "accepted"
+msgstr "погоджено"
+
+#: documents/views.py:166
+msgctxt "document state"
+msgid "awaiting review"
+msgstr "очікує на розгляд"
+
+#: documents/views.py:167
+msgctxt "document state"
+msgid "no reviewer assigned"
+msgstr "погоджувача не призначено"
+
+#: editing/diffview.py:353
 msgid "formatting only"
 msgstr "лише форматування"
 
@@ -536,7 +590,7 @@ msgid "A link of this kind is not allowed."
 msgstr "Посилання такого виду не дозволені."
 
 #: editing/messages.py:75 editing/views/finish.py:231 editions/views.py:87
-#: editions/views.py:155 review/views/accept.py:97
+#: editions/views.py:162 review/views/accept.py:98
 msgid "The document is busy. Try again in a moment."
 msgstr "Документ зараз обробляється. Спробуйте ще раз за мить."
 
@@ -728,8 +782,8 @@ msgstr ""
 
 #: editing/templates/editing/finish.html:6
 msgid ""
-"Your changes, marked in the text. The summary is for the reviewer and is "
-"kept with the version; it starts from the sections you changed."
+"Your changes, marked in the text. The summary is for the reviewer and is kept"
+" with the version; it starts from the sections you changed."
 msgstr ""
 "Ваші зміни, позначені в тексті. Підсумок — для погоджувача; він лишається "
 "разом із версією, а його чернетку складено з розділів, які ви змінили."
@@ -787,12 +841,12 @@ msgstr ""
 msgid "Frozen — until it is unfrozen or made canonical."
 msgstr "Заморожено — доки документ не розморозять або не затвердять."
 
-#: editing/templates/editing/held_by_other.html:7 review/views/pending.py:109
+#: editing/templates/editing/held_by_other.html:7 review/views/pending.py:98
 msgid "This document is held: someone is editing it."
 msgstr "Документ зайнятий: його редагують."
 
 #: editing/templates/editing/help.html:3 editing/templates/editing/help.html:7
-#: shell/templates/shell/base.html:20
+#: shell/templates/shell/base.html:21
 msgid "Help"
 msgstr "Довідка"
 
@@ -803,8 +857,8 @@ msgstr "в роботі"
 #: editing/templates/editing/help.html:14
 msgid ""
 "Text is written in Markdown, in the formatted view or the source view. These "
-"constructs are accepted; anything else is refused when it is pasted, with "
-"its line named and, where one exists, a conversion offered."
+"constructs are accepted; anything else is refused when it is pasted, with its"
+" line named and, where one exists, a conversion offered."
 msgstr ""
 "Текст пишуть у Markdown — у форматованому чи вихідному тексті. Редактор "
 "приймає ці конструкції; усе інше відхиляється під час вставлення із "
@@ -834,7 +888,7 @@ msgstr ""
 "Чернетка містить текст, якого редактор не приймає; виправте його в редакторі."
 
 #: editing/views/finish.py:188 editing/views/finish.py:207
-#: editing/views/finish.py:252 review/views/accept.py:105
+#: editing/views/finish.py:252 review/views/accept.py:106
 #, python-format
 msgid "Accepted as %(number)s."
 msgstr "Погоджено як %(number)s."
@@ -848,8 +902,8 @@ msgstr "Версію %(number)s створено — вона очікує на 
 msgid "Nothing changed: there is no version to send."
 msgstr "Нічого не змінено: немає версії, яку можна відправити."
 
-#: editing/views/finish.py:234 editions/templatetags/editions.py:77
-#: editions/views.py:50 review/views/accept.py:102
+#: editing/views/finish.py:234 editions/templatetags/editions.py:78
+#: editions/views.py:50 review/views/accept.py:103
 msgid ""
 "The document's record is incomplete; it cannot be changed until it is "
 "repaired."
@@ -988,7 +1042,9 @@ msgstr "Правки очікують на розгляд; спершу їх м�
 msgid ""
 "You accepted a run this edition would carry; another approver makes it "
 "canonical."
-msgstr "Ви погоджували правки, які увійдуть до цієї редакції, тож затвердити має інший затверджувач."
+msgstr ""
+"Ви погоджували правки, які увійдуть до цієї редакції, тож затвердити має "
+"інший затверджувач."
 
 #: editions/views.py:44
 msgid "What is accepted changed while you were confirming — check it again."
@@ -998,7 +1054,7 @@ msgstr "Поки ви підтверджували, погоджене змін�
 msgid "Frozen."
 msgstr "Заморожено."
 
-#: editions/views.py:161
+#: editions/views.py:168
 #, python-format
 msgid "Made canonical as %(number)s."
 msgstr "Затверджено як %(number)s."
@@ -1030,6 +1086,14 @@ msgstr "Обліковий запис із цією адресою вже існ
 #: identity/forms.py:64
 msgid "The two passwords differ."
 msgstr "Паролі не збігаються."
+
+#: identity/naming.py:16
+msgid "former user"
+msgstr "колишній користувач"
+
+#: identity/naming.py:19
+msgid "anonymous editor"
+msgstr "анонімний редактор"
 
 #: identity/passwords.py:23
 msgid "A password may contain only characters of a standard US keyboard."
@@ -1116,6 +1180,222 @@ msgstr "Адреса електронної пошти або пароль не�
 msgid "Sign in"
 msgstr "Увійти"
 
+#: rendering/export/compose.py:49
+msgctxt "stance"
+msgid "canonical version"
+msgstr "канонічна версія"
+
+#: rendering/export/compose.py:50
+msgctxt "stance"
+msgid "accepted edits"
+msgstr "погоджені правки"
+
+#: rendering/export/compose.py:51
+msgctxt "stance"
+msgid "pending edits"
+msgstr "всі неприйняті правки"
+
+#: rendering/export/compose.py:52
+msgctxt "stance"
+msgid "my edits"
+msgstr "мої правки"
+
+#: rendering/export/compose.py:264
+#, python-format
+msgid ""
+"The text holds what the platform does not accept: %(constructs)s. Correct it "
+"in the editor and export again."
+msgstr ""
+"Текст містить те, чого платформа не приймає: %(constructs)s. Виправте це в "
+"редакторі й експортуйте знову."
+
+#: rendering/export/compose.py:286
+msgid "Your draft has been finished or discarded since you asked."
+msgstr "Відколи ви замовили експорт, чернетку завершено або відкинуто."
+
+#: rendering/export/compose.py:316
+msgid "Not yet approved"
+msgstr "Ще не затверджено"
+
+#: rendering/export/compose.py:319
+#, python-format
+msgid "Approved: %(name)s, %(date)s; edition %(number)s"
+msgstr "Затверджено: %(name)s, %(date)s; редакція %(number)s"
+
+#: rendering/export/compose.py:325
+#, python-format
+msgid "Not approved — %(stance)s to edition %(number)s"
+msgstr "Не затверджено — %(stance)s до редакції %(number)s"
+
+#: rendering/export/compose.py:345 rendering/export/compose.py:397
+msgid "Attachment list"
+msgstr "Перелік вкладених файлів"
+
+#: rendering/export/compose.py:346 rendering/export/compose.py:399
+msgid "File name"
+msgstr "Назва файлу"
+
+#: rendering/export/compose.py:382
+msgctxt "marks in a file name"
+msgid "marked"
+msgstr "позначено"
+
+#: rendering/export/job.py:64
+msgctxt "a part in an exported file's name"
+msgid "attachment"
+msgstr "вкладений файл"
+
+#: rendering/export/job.py:103
+msgid "The version asked for is no longer one you may export."
+msgstr "Цю версію ви більше не можете експортувати."
+
+#: rendering/export/job.py:120
+msgid "The chosen version has no attachments to export."
+msgstr "У вибраній версії немає вкладених файлів для експорту."
+
+#: rendering/export/job.py:126
+msgid "The file could not be made. Try again, or tell the operator."
+msgstr "Файл не вдалося створити. Спробуйте ще раз або повідомте оператора."
+
+#: rendering/templates/rendering/export.html:6
+#: rendering/templates/rendering/export_job.html:6
+#, python-format
+msgid "Export — #%(number)s"
+msgstr "Експорт — #%(number)s"
+
+#: rendering/templates/rendering/export.html:12
+msgid "What"
+msgstr "Що"
+
+#: rendering/templates/rendering/export.html:12
+msgid "What can be exported"
+msgstr "Що можна експортувати"
+
+#: rendering/templates/rendering/export.html:12
+msgid ""
+"The document in the format chosen; attachments, when the document has them, "
+"as their own files. With attachments, the export is one zip."
+msgstr ""
+"Документ у вибраному форматі; вкладені файли, якщо вони є, — окремими "
+"файлами. З вкладеними файлами експорт завантажується одним zip-архівом."
+
+#: rendering/templates/rendering/export.html:17
+msgid "Format"
+msgstr "Формат"
+
+#: rendering/templates/rendering/export.html:17
+msgid "The formats"
+msgstr "Формати"
+
+#: rendering/templates/rendering/export.html:17
+msgid ""
+"PDF and DOCX carry the clause numbers, the page header and the page numbers. "
+"Markdown is the text as the source view shows it, and never carries marked "
+"changes."
+msgstr ""
+"PDF і DOCX містять номери пунктів, верхній колонтитул і номери сторінок. "
+"Markdown — це текст у тому вигляді, у якому його показує режим «Вихідний "
+"текст»; позначених змін він не містить."
+
+#: rendering/templates/rendering/export.html:23
+msgctxt "export"
+msgid "View"
+msgstr "Версія"
+
+#: rendering/templates/rendering/export.html:23
+msgid "The views"
+msgstr "Версії для експорту"
+
+#: rendering/templates/rendering/export.html:23
+msgid ""
+"Which version to export, among those you may read. Marked changes are "
+"measured against the version before it in the chain, named beside each."
+msgstr ""
+"Яку версію експортувати — з тих, які ви можете читати. Зміни позначаються "
+"відносно попередньої версії в ланцюжку, її номер указано поруч."
+
+#: rendering/templates/rendering/export.html:27
+msgid "Changes"
+msgstr "Зміни"
+
+#: rendering/templates/rendering/export.html:28
+#, python-format
+msgid "marked against %(number)s"
+msgstr "позначені відносно %(number)s"
+
+#: rendering/templates/rendering/export.html:29
+msgid "clean text"
+msgstr "чистий текст"
+
+#: rendering/templates/rendering/export.html:33
+msgid "Delivered as one zip."
+msgstr "Одним zip-архівом."
+
+#: rendering/templates/rendering/export.html:33
+msgid "Delivered as one file."
+msgstr "Одним файлом."
+
+#: rendering/templates/rendering/export_offer.html:1
+#, python-format
+msgid "Canonical %(number)s"
+msgstr "Канонічна версія %(number)s"
+
+#: rendering/templates/rendering/export_offer.html:1
+#, python-format
+msgid "Accepted %(number)s"
+msgstr "Погоджені правки %(number)s"
+
+#: rendering/templates/rendering/export_offer.html:1
+#, python-format
+msgid "Pending edits %(number)s"
+msgstr "Усі неприйняті правки %(number)s"
+
+#: rendering/templates/rendering/export_offer.html:1
+msgid "My edits — your draft"
+msgstr "Мої правки — ваша чернетка"
+
+#: rendering/templates/rendering/export_status.html:2
+msgid "The file is being made…"
+msgstr "Файл створюється…"
+
+#: rendering/templates/rendering/export_status.html:3
+#, python-format
+msgid "Download %(name)s"
+msgstr "Завантажити %(name)s"
+
+#: rendering/templates/rendering/export_status.html:3
+msgid "The file is kept for a day."
+msgstr "Файл зберігається добу."
+
+#: rendering/templates/rendering/export_status.html:4
+msgid "The file is no longer kept. Export again to make it anew."
+msgstr "Файл уже не зберігається. Експортуйте ще раз, щоб створити його знову."
+
+#: rendering/templates/rendering/export_status.html:5
+msgid "The export failed."
+msgstr "Експорт не вдався."
+
+#: rendering/templates/rendering/outline.html:1
+msgid "Collapse"
+msgstr "Згорнути"
+
+#: rendering/templates/rendering/panes_outline.html:1
+#: rendering/templates/rendering/panes_outline.html:2
+msgid "Outline"
+msgstr "Зміст"
+
+#: rendering/templates/rendering/panes_outline.html:2
+msgid "Collapse the outline"
+msgstr "Згорнути зміст"
+
+#: rendering/templates/rendering/panes_outline.html:3
+msgid "No headings"
+msgstr "Заголовків немає"
+
+#: rendering/templates/rendering/panes_panel.html:3
+msgid "Collapse the panel"
+msgstr "Згорнути панель"
+
 #: rendering/templates/rendering/view.html:2
 #, python-format
 msgid "Viewing canonical %(number)s"
@@ -1130,6 +1410,29 @@ msgstr "Перегляд версії %(number)s"
 #, python-format
 msgid "open canonical %(number)s"
 msgstr "канонічна версія — %(number)s"
+
+#: rendering/views.py:129 rendering/views.py:134
+msgid "Your previous export of this document is still being made."
+msgstr "Ваш попередній експорт цього документа ще створюється."
+
+#: rendering/views.py:168
+msgid "Choose a view and a format."
+msgstr "Виберіть версію і формат."
+
+#: rendering/views.py:170
+msgid "Nothing is chosen to export."
+msgstr "Для експорту нічого не вибрано."
+
+#: rendering/views.py:173
+msgid "The chosen version has no attachments: nothing is left to export."
+msgstr "У вибраній версії немає вкладених файлів: експортувати нічого."
+
+#: rendering/views.py:174
+msgid ""
+"The chosen version has no attachments; untick them to export the document."
+msgstr ""
+"У вибраній версії немає вкладених файлів; зніміть позначку, щоб експортувати "
+"документ."
 
 #: review/state.py:40
 msgid "frozen"
@@ -1204,34 +1507,26 @@ msgstr "Виправити"
 msgid "Show author"
 msgstr "Показувати авторів"
 
-#: review/templates/review/pending.html:21 review/views/accept.py:45
+#: review/templates/review/pending.html:21 review/views/accept.py:46
 msgid "Nothing awaits review."
 msgstr "Неприйнятих правок немає."
 
-#: review/views/accept.py:39
+#: review/views/accept.py:40
 #, python-format
 msgid "Reserved for editing by %(name)s since %(date)s."
 msgstr "Зарезервовано для редагування з %(date)s: %(name)s."
 
-#: review/views/accept.py:44
+#: review/views/accept.py:45
 msgid "No reviewer is assigned to this document."
 msgstr "Погоджувача для цього документа не призначено."
 
-#: review/views/accept.py:46
+#: review/views/accept.py:47
 msgid "You may not accept this document."
 msgstr "Ви не маєте права погоджувати цей документ."
 
-#: review/views/accept.py:47
+#: review/views/accept.py:48
 msgid "The run changed while you were confirming — check it again."
 msgstr "Поки ви підтверджували, з'явилися нові правки — перегляньте їх ще раз."
-
-#: review/views/pending.py:48
-msgid "former user"
-msgstr "колишній користувач"
-
-#: review/views/pending.py:51
-msgid "anonymous editor"
-msgstr "анонімний редактор"
 
 #: tenancy/forms.py:16
 msgid "First administrator — email address"
@@ -1349,10 +1644,6 @@ msgid "Organisation"
 msgstr "Організація"
 
 #: tenancy/templates/tenancy/tenants.html:7
-msgid "State"
-msgstr "Стан"
-
-#: tenancy/templates/tenancy/tenants.html:7
 msgid "Administrators"
 msgstr "Адміністратори"
 
@@ -1380,7 +1671,7 @@ msgid "being set up"
 msgstr "налаштовується"
 
 #: shell/templates/shell/administration.html:3
-#: shell/templates/shell/base.html:21
+#: shell/templates/shell/base.html:22
 msgid "Administration"
 msgstr "Адміністрування"
 
@@ -1392,11 +1683,11 @@ msgstr "Обрати"
 msgid "No organisation is chosen."
 msgstr "Організацію не обрано."
 
-#: shell/templates/shell/base.html:17
+#: shell/templates/shell/base.html:18
 msgid "All documents"
 msgstr "Усі документи"
 
-#: shell/templates/shell/base.html:31
+#: shell/templates/shell/base.html:32
 msgid "Sign out"
 msgstr "Вийти"
 
@@ -1417,8 +1708,7 @@ msgstr "До документів"
 
 #, python-format
 #~ msgid "Held by %(name)s — freeze once they finish"
-#~ msgstr ""
-#~ "Документ редагує %(name)s — заморозьте, коли редагування завершиться"
+#~ msgstr "Документ редагує %(name)s — заморозьте, коли редагування завершиться"
 
 #~ msgid "Someone is editing the document; freeze it once they finish."
 #~ msgstr ""
@@ -1438,8 +1728,7 @@ msgstr "До документів"
 #~ msgstr "Заголовок 4"
 
 #~ msgid "Links: to the web, to a mailbox, or to a path in the document"
-#~ msgstr ""
-#~ "Посилання: на вебсторінку, на поштову скриньку або на шлях у документі"
+#~ msgstr "Посилання: на вебсторінку, на поштову скриньку або на шлях у документі"
 
 #~ msgid "an unknown marking"
 #~ msgstr "невідома позначка"

@@ -45,8 +45,8 @@ def _context(document: Document, tab: str, **more: Any) -> dict[str, Any]:
 def _run(document: Document) -> list[dict[str, str]]:
     """The versions *accept as* accepts besides the holder's own, named as the confirmation names
     them (DL-0333)."""
+    from identity.naming import person
     from review.services import run
-    from review.views.pending import person
 
     accepted = numbering.accepted(document)
     return [

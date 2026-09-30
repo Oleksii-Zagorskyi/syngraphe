@@ -24,7 +24,7 @@ uv sync --locked && npm ci && npm run build && uv run playwright install chromiu
 uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
 ```
 
-The check needs PostgreSQL and Redis running — the compose stack's `db` and `redis` on a developer's machine, services in CI — and GNU gettext on the path, whose `xgettext` the catalogue test runs through `makemessages`: the developer's package manager installs it, CI a step of its own. The browser and conformance levels start the application themselves, as a live server inside the test run, so nothing else has to be started first.
+The check needs PostgreSQL and Redis running — the compose stack's `db` and `redis` on a developer's machine, services in CI — and GNU gettext on the path, whose `xgettext` the catalogue test runs through `makemessages`, with Pango and HarfBuzz, which weasyprint loads for the PDF export tests: the developer's package manager installs them, CI a step of its own. The browser and conformance levels start the application themselves, as a live server inside the test run, so nothing else has to be started first.
 
 CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs both on every push and pull request, on Python 3.12. A red build is fixed before the next story starts.
 

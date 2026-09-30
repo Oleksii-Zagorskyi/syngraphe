@@ -19,6 +19,8 @@ dependencies = [
     "whitenoise>=6.12.0",
     "pyyaml>=6.0,<7",
     "markdown-it-py>=4.2,<5",
+    "weasyprint>=70",
+    "pypandoc-binary>=1.17",
 ]
 
 [dependency-groups]
@@ -31,6 +33,7 @@ dev = [
     "celery-types>=0.22",
     "playwright>=1.63",
     "pytest-playwright>=0.9",
+    "pypdf>=6",
 ]
 
 [tool.uv]
@@ -58,6 +61,11 @@ plugins = ["mypy_django_plugin.main"]
 [[tool.mypy.overrides]]
 module = ["*.migrations.*"]
 ignore_errors = true
+
+# The renderers ship without type information.
+[[tool.mypy.overrides]]
+module = ["weasyprint", "weasyprint.*", "pypandoc"]
+ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "syngraphe.settings"

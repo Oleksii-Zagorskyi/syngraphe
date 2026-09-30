@@ -1,0 +1,10 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Export" %} — #{{ document.number }} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content export">
+  <h1>{% blocktranslate with number=document.number %}Export — #{{ number }}{% endblocktranslate %}</h1>
+  <p><a href="/document/{{ document.number }}/">{{ document.title }}</a></p>
+  {% include "rendering/export_status.html" %}
+</section>
+{% endblock %}

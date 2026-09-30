@@ -85,7 +85,8 @@ def test_the_toolbar_offers_only_whitelisted_controls(editing: Any, page: Any) -
 def test_gutter_numbers_follow_edits(editing: Any, page: Any) -> None:
     editing("# Перший\n\nАбзац один.\n\nАбзац два.\n\n# Другий\n\nАбзац три.\n")
     clauses = "() => [...document.querySelectorAll('.clause')].map(c => c.textContent)"
-    assert page.evaluate(clauses) == ["1-1", "1-2", "2-1"]
+    # Headings carry their number in the gutter too, as the reading view shows them.
+    assert page.evaluate(clauses) == ["1", "1-1", "1-2", "2", "2-1"]
     end_of_first = page.evaluate(
         f"(() => {{ let at = 0; {EDITOR}.view.state.doc.descendants((n, p) => "
         "{ if (!at && n.type.name === 'paragraph') at = p + n.nodeSize - 1; }); return at; })()"
@@ -94,7 +95,7 @@ def test_gutter_numbers_follow_edits(editing: Any, page: Any) -> None:
     page.focus(".ProseMirror")
     page.keyboard.press("Enter")
     page.keyboard.type("Новий абзац.")
-    assert page.evaluate(clauses) == ["1-1", "1-2", "1-3", "2-1"]
+    assert page.evaluate(clauses) == ["1", "1-1", "1-2", "1-3", "2", "2-1"]
     assert page.eval_on_selector(".clause", "c => c.isContentEditable") is False
 
 

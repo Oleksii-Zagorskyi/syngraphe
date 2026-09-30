@@ -61,6 +61,7 @@ class Config:
     backup_wal_alert: int
     editing_conformance_page: bool
     help_work_in_progress: bool
+    export_root: Path
 
 
 class _Reader:
@@ -157,9 +158,9 @@ class _Reader:
             self.malformed.append(key)
         return seconds
 
-    def directory(self, key: str) -> Path:
+    def directory(self, key: str, default: str | None = None) -> Path:
         """A path; a relative one is taken from the repository root, not the working directory."""
-        return REPOSITORY_ROOT / self.string(key)
+        return REPOSITORY_ROOT / self.string(key, default)
 
 
 def load(environ: Mapping[str, str] | None = None) -> Config:
@@ -192,6 +193,7 @@ def load(environ: Mapping[str, str] | None = None) -> Config:
         backup_wal_alert=reader.size("BACKUP_WAL_ALERT", "2GiB"),
         editing_conformance_page=reader.boolean("EDITING_CONFORMANCE_PAGE", "false"),
         help_work_in_progress=reader.boolean("HELP_WORK_IN_PROGRESS", "false"),
+        export_root=reader.directory("EXPORT_ROOT", "/srv/exports"),
     )
     if reader.missing or reader.malformed:
         raise ConfigurationError(reader.missing, reader.malformed)

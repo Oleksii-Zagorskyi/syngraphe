@@ -491,7 +491,7 @@ erDiagram
     }
 ```
 
-**`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` and each appendix at a version, and it exists only to drive the outline, the section editors and the rendered numbering. A row is valid for one version and rebuilt for the next.
+**`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` and each appendix at a version, for the section editors, which read a version's headings without rendering its text; the outline and the numbers are read from the rendered text itself. Rows are kept for the head and its parent, the latest accepted version and every edition, and the others' dropped when a version is derived.
 
 **Appendices and attachments are numbered per document from 1** in creation order (ADR-0008); the number names the file, appears in the part's URL, and never changes when parts are reordered.
 
@@ -527,10 +527,13 @@ erDiagram
         string appendices "none | embedded | separate"
         bool include_attachments
         string format "pdf | docx | markdown"
-        string view "canonical | accepted | pending_edits | my_edits | my_edits_clean"
+        string view "canonical | accepted | pending_edits | my_edits"
+        string changes "marked | clean"
+        uuid baseline_version FK "set exactly when marked"
         uuid requested_by FK
         string state "queued | done | failed"
-        string artifact_ref
+        string artifact_ref "job id / file name, under the exports root"
+        string failure_reason
         datetime created_at
     }
 ```
@@ -541,7 +544,7 @@ erDiagram
 
 **`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent. The platform's sender is one row in the shared schema, a tenant's own sender one row in its schema; each password is encrypted at rest and write-only in the interface (DL-0072, DL-0202).
 
-**`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce. What, format and view are the three choices the export screen composes (DL-0172, DL-0193); a *my edits* export reads the requester's own draft as well as the version.
+**`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce. What, format, view and changes are the choices the export screen composes (DL-0172, DL-0193); *changes* marks the text against `baseline_version`, the version before it in the chain (DL-0241), and a Markdown export is always clean; a *my edits* export reads the requester's own draft as well as the version. The row is written before the job is queued; `render` holds it while it runs, so a job queued twice runs once; its file is swept after a day and the row stays, with `failure_reason` naming what the platform refused or that the file could not be made.
 
 ## Stage 2 attachment points
 

@@ -1,15 +1,18 @@
-"""The reading view's renderer (ADR-0013): a handful of golden cases — headings and
-paragraphs numbered, a soft break read as a space, a list, a table, the entity and underline
-spans, a callout — and what a text may never make of the page: raw HTML, a `javascript:` link, an
-image fetched, an attribute value unescaped.
+"""The reading view's renderer (ADR-0013) against its oracle: the golden HTML for every accept case
+of the whitelist conformance list, byte for byte; the constructs of the conformance sample; and
+what a text may never make of the page — raw HTML, a `javascript:` link, an image fetched, an
+attribute value unescaped.
 
-Newlines between tags are not part of the contract and are ignored in the comparison. Every text
-is invented; the role *Бухгалтер* is a synthetic example.
+The golden files are written from the renderer's contract, never from its output
+(`tests/fixtures/whitelist/golden/README.md`). Every text is invented; the roles named are
+synthetic examples.
 """
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 
 import pytest
 
@@ -17,61 +20,52 @@ from rendering.renderer import render
 
 pytestmark = pytest.mark.fast
 
+FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
+CASES = FIXTURES / "whitelist" / "cases.json"
+GOLDEN = FIXTURES / "whitelist" / "golden"
+CONFORMANCE = FIXTURES / "render" / "conformance.md"
 
-def flat(html: str) -> str:
-    """The HTML without the line breaks markdown-it writes between tags."""
-    return re.sub(r">\n+<", "><", html.strip())
-
-
-def num(label: str) -> str:
-    return f'<span class="num">{label}</span> '
-
-
-GOLDEN = [
-    pytest.param(
-        "# Загальні положення\n\n## Строки\n\nЗаяву розглядають за три дні.\n",
-        f"<h1>{num('1')}Загальні положення</h1>"
-        f"<h2>{num('1.1')}Строки</h2>"
-        f"<p>{num('1.1-1')}Заяву розглядають за три дні.</p>",
-        id="headings",
-    ),
-    pytest.param(
-        "# Порядок\n\nПерше речення абзацу.\nДруге речення абзацу.\n",
-        f"<h1>{num('1')}Порядок</h1><p>{num('1-1')}Перше речення абзацу. Друге речення абзацу.</p>",
-        id="softbreak",
-    ),
-    pytest.param(
-        "Вступне речення.\n\n- перший пункт;\n- другий пункт.\n",
-        f"<p>{num('1')}Вступне речення.</p>"
-        f"<ul><li>{num('2')}перший пункт;</li><li>{num('3')}другий пункт.</li></ul>",
-        id="list",
-    ),
-    pytest.param(
-        "# Строки\n\n| Вид заявки | Строк |\n|---|---|\n| Звичайна | три дні |\n",
-        f"<h1>{num('1')}Строки</h1>"
-        "<table><thead><tr><th>Вид заявки</th><th>Строк</th></tr></thead>"
-        "<tbody><tr><td>Звичайна</td><td>три дні</td></tr></tbody></table>",
-        id="table",
-    ),
-    pytest.param(
-        "Заяву погоджує [Бухгалтер]{.role #r1}, а [строк]{.term} рахують [щодня]{.underline}.\n",
-        f"<p>{num('1')}Заяву погоджує "
-        '<span class="entity entity-role" data-id="r1">Бухгалтер</span>, а '
-        '<span class="entity entity-term">строк</span> рахують '
-        '<span class="underline">щодня</span>.</p>',
-        id="spans",
-    ),
-    pytest.param(
-        "> [!note]\n> Примітка до порядку.\n",
-        f'<div class="callout callout-note"><p>{num("1")}Примітка до порядку.</p></div>',
-        id="callout",
-    ),
-]
+ACCEPT = {
+    case["id"]: case["input"]
+    for case in json.loads(CASES.read_text(encoding="utf-8"))
+    if case["kind"] == "accept"
+}
 
 
-@pytest.mark.parametrize(("source", "expected"), GOLDEN)
-def test_golden(source: str, expected: str) -> None:
-    assert flat(render(source)) == expected
+def body(text: str) -> str:
+    """The text after its frontmatter, if it has one."""
+    match = re.match(r"---\n.*?\n---\n", text, re.DOTALL)
+    return text[match.end() :] if match else text
+
+
+@pytest.mark.parametrize("case_id", sorted(ACCEPT))
+def test_golden_html_for_every_accept_case(case_id: str) -> None:
+    expected = (GOLDEN / f"{case_id}.html").read_bytes().decode("utf-8")
+
+    assert render(ACCEPT[case_id]) == expected
+
+
+def test_every_accept_case_has_a_golden_file_and_every_file_a_case() -> None:
+    files = {path.stem for path in GOLDEN.glob("*.html")}
+
+    assert sorted(set(ACCEPT) - files) == [], "accept cases without a golden file"
+    assert sorted(files - set(ACCEPT)) == [], "golden files without an accept case"
+
+
+def test_conformance_sample_constructs() -> None:
+    source = body(CONFORMANCE.read_text(encoding="utf-8"))
+    html = render(source)
+
+    roles_with_id = re.findall(r"\]\{\.role #([A-Za-z0-9_-]+)\}", source)
+    assert roles_with_id
+    rendered_roles = re.findall(r'<span class="entity entity-role" data-id="([^"]*)">', html)
+    assert rendered_roles == roles_with_id
+    assert '<div class="callout callout-note">' in html
+    for alignment in ("left", "center", "right"):
+        assert f'<td style="text-align:{alignment}">' in html
+        assert f'<th style="text-align:{alignment}">' in html
+    assert "<br" not in html
+    assert not re.search(r"\[[^\]]*\]\{\.", html)
 
 
 def test_text_is_escaped() -> None:
@@ -88,6 +82,7 @@ def test_raw_html_is_escaped_not_rendered() -> None:
     assert "<b>" not in html and "<script" not in html and "<div onclick" not in html
     assert "&lt;b&gt;тегом&lt;/b&gt;" in html
     assert "&lt;script&gt;" in html
+    assert "&lt;div onclick=&quot;alert(2)&quot;&gt;" in html
 
 
 def test_javascript_link_is_not_a_link() -> None:
@@ -101,9 +96,7 @@ def test_a_link_opens_without_the_opener() -> None:
     html = render("Див. [синтетичний порядок](https://example.test/poriadok).\n")
 
     tags = re.findall(r"<a\b[^>]*>", html)
-    assert len(tags) == 1
-    assert 'href="https://example.test/poriadok"' in tags[0]
-    assert 'rel="noopener noreferrer"' in tags[0]
+    assert tags == ['<a href="https://example.test/poriadok" rel="noopener noreferrer">']
 
 
 def test_image_is_its_alt_text() -> None:
@@ -113,8 +106,9 @@ def test_image_is_its_alt_text() -> None:
 
     assert "<img" not in html
     assert "images/plan.png" not in html and "https://example.test/a.png" not in html
-    assert "План поверху" in html
-    assert "Схема &amp; &lt;b&gt;" in html
+    assert "src" not in html
+    assert "<p>План поверху</p>" in html
+    assert "<p>Схема &amp; &lt;b&gt;</p>" in html
 
 
 def test_attribute_values_are_escaped() -> None:
@@ -123,6 +117,29 @@ def test_attribute_values_are_escaped() -> None:
 
     assert 'onmouseover="' not in html
     assert '"onmouseover' not in html
+    assert 'class="callout callout-x&quot;onmouseover=&quot;alert(1)"' in html
     for opening in re.findall(r"<[a-z]+\b[^>]*>", html):
         # Every tag is its name and quoted values alone: the text added no attribute.
         assert re.fullmatch(r'<[a-z0-9]+(?: [a-z-]+="[^"<>]*")*>', opening), opening
+
+
+def test_span_attribute_values_are_escaped() -> None:
+    # The recogniser admits only `[A-Za-z0-9_-]` in a span's type and id; a quote cannot reach
+    # the attribute, so an attempt stays text or renders as a span without a kind of its own.
+    html = render('Текст [слово]{.role #a"b} далі.\n')
+
+    for opening in re.findall(r"<[a-z]+\b[^>]*>", html):
+        assert re.fullmatch(r'<[a-z0-9]+(?: [a-z-]+="[^"<>]*")*>', opening), opening
+
+
+def test_a_link_outside_the_whitelist_is_its_text() -> None:
+    """The renderer holds the whitelist's link schemes itself, for text that reached the store
+    another way: such a link reads as its words."""
+    html = render(
+        "Див. [схему](data:image/png;base64,AAAA) і [пошук](search-ms:query=x) та "
+        "[правила](https://example.org/pravyla).\n"
+    )
+
+    assert "data:" not in html and "search-ms" not in html
+    assert "схему" in html and "пошук" in html
+    assert 'href="https://example.org/pravyla"' in html

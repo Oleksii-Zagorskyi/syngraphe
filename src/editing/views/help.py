@@ -16,9 +16,9 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
-from editing.diffview import RENDERER
 from editing.markdown import Spec, load_spec
 from editing.messages import CONSTRUCTS, CONVERSIONS, HELP_PAGES, LABELS, SPAN_NAMES
+from rendering.renderer import RENDERER
 from shell.views import not_found
 
 PAGES = Path(__file__).resolve().parent.parent / "help"

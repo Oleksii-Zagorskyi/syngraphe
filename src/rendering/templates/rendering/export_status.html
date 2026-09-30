@@ -1,0 +1,6 @@
+{% load i18n %}<div class="export-status" data-state="{{ job.state }}"{% if job.state == "queued" %} hx-get="/document/{{ document.number }}/export/{{ job.pk }}/" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  {% if job.state == "queued" %}<p role="status">{% translate "The file is being made…" %}</p>
+  {% elif job.state == "done" and file %}<p><a class="download" href="/document/{{ document.number }}/export/{{ job.pk }}/download/">{% blocktranslate with name=file.name %}Download {{ name }}{% endblocktranslate %}</a></p><p class="muted">{% translate "The file is kept for a day." %}</p>
+  {% elif job.state == "done" %}<p>{% translate "The file is no longer kept. Export again to make it anew." %}</p>
+  {% else %}<p class="refusal" role="alert">{% translate "The export failed." %} {{ job.failure_reason }}</p>{% endif %}
+</div>

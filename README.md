@@ -117,7 +117,7 @@ cp .env.example .env         # fill every ??? (the store's for its kind only); n
                              # set SITE_HTTPS=false unless a TLS proxy is in front: over plain
                              # HTTP the cookies are never sent and nobody can sign in
 mkdir -p .repos              # the document repositories, written by the application's user, uid 1000
-docker compose up            # web, worker, PostgreSQL, Redis and the backup; the schema migrates on start
+docker compose up            # web, worker, render, PostgreSQL, Redis and the backup; the schema migrates on start
 curl http://127.0.0.1:8000/health/
 ```
 

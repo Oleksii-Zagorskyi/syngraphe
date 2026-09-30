@@ -15,8 +15,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_PROJECT_ENVIRONMENT=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
+# git and gettext; weasyprint's Pango and HarfBuzz, and fonts that cover Cyrillic in every face,
+# italic included (ADR-0013).
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git gettext \
+       fontconfig fonts-dejavu-core fonts-dejavu-extra \
+       libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=ghcr.io/astral-sh/uv:0.12 /uv /uvx /bin/
@@ -37,14 +41,25 @@ RUN arch="$(dpkg --print-architecture)" \
     && install -m 755 "/tmp/rclone-v${RCLONE_VERSION}-linux-${arch}/rclone" /usr/local/bin/rclone \
     && rm -rf /tmp/rclone.zip "/tmp/rclone-v${RCLONE_VERSION}-linux-${arch}"
 
+# Pandoc's source for the exact release the Python package bundles, shipped beside it (ADR-0013);
+# the build below refuses an image whose Pandoc is another release.
+ARG PANDOC_VERSION=3.9
+ARG PANDOC_SOURCE_SHA256=5a8c44ce2f4d0708babbabe09fb02b412ac4a96514654d45d70bdc4a41c81679
+RUN mkdir -p /usr/share/doc/pandoc \
+    && python -c "import sys, urllib.request; urllib.request.urlretrieve(sys.argv[1], sys.argv[2])" \
+       "https://hackage.haskell.org/package/pandoc-${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}.tar.gz" \
+       "/usr/share/doc/pandoc/pandoc-${PANDOC_VERSION}.tar.gz" \
+    && echo "$PANDOC_SOURCE_SHA256  /usr/share/doc/pandoc/pandoc-${PANDOC_VERSION}.tar.gz" | sha256sum -c -
+
 RUN useradd --create-home --uid 1000 app \
-    && mkdir -p /app /srv/repos \
-    && chown app:app /app /srv/repos
+    && mkdir -p /app /srv/repos /srv/exports \
+    && chown app:app /app /srv/repos /srv/exports
 
 USER app
 WORKDIR /app
 COPY --chown=app:app pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev
+RUN test "$(python -c 'import pypandoc; print(pypandoc.get_pandoc_version())')" = "$PANDOC_VERSION"
 
 COPY --chown=app:app src ./src
 COPY --from=editor --chown=app:app /build/src/editing/static/editing/ ./src/editing/static/editing/

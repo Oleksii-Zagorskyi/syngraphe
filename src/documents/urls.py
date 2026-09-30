@@ -15,4 +15,5 @@ urlpatterns = [
     path("", include("editing.urls")),
     path("", include("review.urls")),
     path("", include("editions.urls")),
+    path("", include("rendering.urls")),
 ]

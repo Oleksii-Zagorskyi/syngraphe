@@ -58,10 +58,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # GNU gettext, whose xgettext the catalogue test's makemessages runs; the
-      # runner image has none.
+      # GNU gettext, whose xgettext the catalogue test's makemessages runs, and
+      # weasyprint's Pango and HarfBuzz with the fonts the image carries, for the PDF
+      # exports.
       - name: System packages
-        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends gettext
+        run: >-
+          sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends
+          gettext fontconfig fonts-dejavu-core fonts-dejavu-extra
+          libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
 
       - uses: astral-sh/setup-uv@v6
         with:

@@ -9,7 +9,7 @@ import { EditorState, Plugin, TextSelection } from "prosemirror-state";
 import { columnResizing, tableEditing } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
 
-import { gutter } from "./gutter.js";
+import { clauseNumbers, gutter } from "./gutter.js";
 import { capturing } from "./capture.js";
 import { convert } from "./convert.js";
 import { makeParser, tokenMap, validate } from "./parser.js";
@@ -301,6 +301,12 @@ export function conformance(cases, element) {
     }
     return result;
   });
+}
+
+// Each text's labels in document order, headings and clauses, by the gutter's rule: the browser
+// test holds them to the shared numbering cases and to the reading view's derivation.
+export function numbering(texts) {
+  return texts.map((text) => clauseNumbers(parser.parse(text)).map(({ label }) => label));
 }
 
 if (typeof document !== "undefined") {

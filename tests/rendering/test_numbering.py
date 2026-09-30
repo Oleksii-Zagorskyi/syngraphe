@@ -1,12 +1,16 @@
-"""Clause numbers for the reading view, the twin of the editor's gutter (DL-0065;
-`src/editing/js/gutter.js::clauseNumbers`): a heading carries its path, a skipped level filled
-with `1`; every paragraph outside a table — in lists, tight or loose, in quotes and callouts —
-takes the next index of its section, `PATH-INDEX`, or `INDEX` alone before the first heading.
+"""Clause numbers for the reading view (DL-0065, DL-0327, DL-0330). The sequences are the shared
+oracle in `tests/fixtures/render/numbering-cases.json`, which the editor's gutter meets too
+(`tests/editing/browser/test_gutter_matches_renderer.py`); the tests below it check what a
+sequence cannot show — which token a label sits on and which text it names.
 
 Every text is invented.
 """
 
 from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -14,6 +18,15 @@ from editing.markdown.parser import parser
 from rendering.numbering import labels
 
 pytestmark = pytest.mark.fast
+
+CASES_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "render" / "numbering-cases.json"
+CASES: list[dict[str, Any]] = json.loads(CASES_PATH.read_text(encoding="utf-8"))
+
+
+def sequence(text: str) -> list[str]:
+    """The labels of `text` in ascending token index: its document-order sequence."""
+    found = labels(parser().parse(text))
+    return [found[index] for index in sorted(found)]
 
 
 def numbered(text: str) -> list[tuple[str, str]]:
@@ -25,6 +38,16 @@ def numbered(text: str) -> list[tuple[str, str]]:
     for index in found:
         assert tokens[index].type in ("heading_open", "paragraph_open"), tokens[index].type
     return [(found[index], tokens[index + 1].content) for index in sorted(found)]
+
+
+@pytest.mark.parametrize("case", CASES, ids=[case["id"] for case in CASES])
+def test_labels(case: dict[str, Any]) -> None:
+    assert sequence(case["input"]) == case["labels"]
+
+
+def test_every_case_is_labelled_on_headings_and_paragraphs() -> None:
+    for case in CASES:
+        numbered(case["input"])
 
 
 def test_headings_carry_their_path() -> None:
@@ -54,38 +77,8 @@ def test_skipped_level_is_filled_with_one() -> None:
         ("1", "Порядок"),
         ("1.1.1", "Строки"),
         ("1.1.1-1", "Заяву розглядають за три дні."),
-        # The filled `1` counts as the second level's first heading, as the gutter counts it.
+        # The filled `1` counts as the second level's first heading, so no number repeats.
         ("1.2", "Винятки"),
-    ]
-
-
-def test_a_first_heading_below_the_top_level() -> None:
-    assert numbered("### Примітка\n\nТекст примітки.\n") == [
-        ("1.1.1", "Примітка"),
-        ("1.1.1-1", "Текст примітки."),
-    ]
-
-
-def test_paragraphs_count_within_their_section() -> None:
-    text = (
-        "# Загальні положення\n\n"
-        "Перше речення розділу.\n\n"
-        "Друге речення розділу.\n\n"
-        "## Строки\n\n"
-        "Строк становить десять днів.\n\n"
-        "# Відповідальність\n\n"
-        "Керівник погоджує заявку.\n"
-    )
-
-    assert numbered(text) == [
-        ("1", "Загальні положення"),
-        ("1-1", "Перше речення розділу."),
-        ("1-2", "Друге речення розділу."),
-        # The index resets after every heading, whatever its level.
-        ("1.1", "Строки"),
-        ("1.1-1", "Строк становить десять днів."),
-        ("2", "Відповідальність"),
-        ("2-1", "Керівник погоджує заявку."),
     ]
 
 
@@ -100,63 +93,29 @@ def test_before_the_first_heading_the_index_alone() -> None:
     ]
 
 
-def test_tight_list_items_are_counted() -> None:
-    text = "# Порядок\n\nЗаява містить:\n\n- прізвище заявника;\n- підрозділ заявника.\n"
-
-    assert numbered(text) == [
-        ("1", "Порядок"),
-        ("1-1", "Заява містить:"),
-        ("1-2", "прізвище заявника;"),
-        ("1-3", "підрозділ заявника."),
-    ]
-
-
-def test_loose_and_ordered_list_items_are_counted() -> None:
+def test_list_quote_and_callout_paragraphs_carry_their_own_text() -> None:
     text = (
         "# Порядок\n\n"
-        "1. Заявник подає заяву.\n\n"
-        "2. Керівник погоджує заяву.\n\n"
-        "   Погодження фіксують у реєстрі.\n\n"
-        "Після погодження заяву передають далі.\n"
+        "- перший пункт;\n  - підпункт першого пункту;\n\n"
+        "> Цитата з синтетичного наказу.\n\n"
+        "> [!note]\n> Примітка до порядку.\n"
     )
 
     assert numbered(text) == [
         ("1", "Порядок"),
-        ("1-1", "Заявник подає заяву."),
-        ("1-2", "Керівник погоджує заяву."),
-        ("1-3", "Погодження фіксують у реєстрі."),
-        ("1-4", "Після погодження заяву передають далі."),
+        ("1-1", "перший пункт;"),
+        ("1-2", "підпункт першого пункту;"),
+        ("1-3", "Цитата з синтетичного наказу."),
+        ("1-4", "Примітка до порядку."),
     ]
 
 
-def test_nested_list_items_are_counted() -> None:
-    text = "# Порядок\n\n- перший пункт;\n  - підпункт першого пункту;\n- другий пункт.\n"
-
-    assert [label for label, _ in numbered(text)] == ["1", "1-1", "1-2", "1-3"]
-
-
-def test_quote_and_callout_paragraphs_are_counted() -> None:
-    text = (
-        "# Порядок\n\n"
-        "> Цитата з синтетичного наказу.\n>\n> Друге речення цитати.\n\n"
-        "> [!note]\n> Примітка до порядку.\n\n"
-        "Текст після примітки.\n"
-    )
-
-    assert numbered(text) == [
-        ("1", "Порядок"),
-        ("1-1", "Цитата з синтетичного наказу."),
-        ("1-2", "Друге речення цитати."),
-        ("1-3", "Примітка до порядку."),
-        ("1-4", "Текст після примітки."),
-    ]
-
-
-def test_table_cells_are_not_clauses() -> None:
+def test_table_cells_and_image_paragraphs_are_not_labelled() -> None:
     text = (
         "# Строки\n\n"
         "Строки наведено в таблиці.\n\n"
-        "| Вид заявки | Строк |\n|---|---|\n| Звичайна | десять днів |\n\n"
+        "| Вид заявки | Строк |\n| --- | --- |\n| звичайна | десять днів |\n\n"
+        "![Схема](images/skhema.png)\n\n"
         "Строк рахують від дня надходження.\n"
     )
 

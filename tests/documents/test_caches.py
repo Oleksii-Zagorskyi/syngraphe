@@ -28,3 +28,10 @@ def test_empty_headings_are_not_headings() -> None:
 
 def test_lines_are_counted_at_line_feeds_only() -> None:
     assert headings("﻿# First\r\nLine more\n# H\n") == [(1, "First", 1), (1, "H", 3)]
+
+
+def test_a_heading_reads_as_its_reader_reads_it() -> None:
+    """Marks and spans leave their words, never their syntax (the role is a synthetic example)."""
+    text = "## Звіт [Бухгалтера]{.role #b} за **квартал**\n\n### Строки\n"
+
+    assert headings(text) == [(2, "Звіт Бухгалтера за квартал", 1), (3, "Строки", 3)]
