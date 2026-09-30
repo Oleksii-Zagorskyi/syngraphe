@@ -93,3 +93,21 @@ def test_normalising_the_corpus_stays_within_its_share_of_finishing() -> None:
     started = time.perf_counter()
     run(body.encode(), submitted, lists_for("uk"))
     assert time.perf_counter() - started < 1.0
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Вступ. **Перше речення. Друге речення.**\n",
+        "Вступ. *Перше речення. Друге речення.*\n",
+        "Вступ. **Перше речення** і далі.\n",
+    ],
+)
+def test_a_mark_opening_a_new_line_stays_a_mark(text: str) -> None:
+    """A sentence that moves to a line's start and opens with a mark keeps the mark: only a
+    literal `+`, `-`, `>` or a number's stop is escaped there, and a literal `*` is escaped
+    already, so a bare one is always markup. The stored form is a fixed point."""
+    stored = normalize(b"", text, lists_for("uk")).decode()
+
+    assert "\\*" not in stored
+    assert stored.replace("\n", " ").replace("  ", " ").strip() == text.strip()

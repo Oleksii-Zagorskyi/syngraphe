@@ -30,6 +30,8 @@ ESCAPE = re.compile(r"[`*\\~\[\]_|]")
 WORD = re.compile(r"[A-Za-z0-9_]")
 EXTRA = re.compile(r"<|&(?=#?[A-Za-z0-9]+;)")
 LINE_START = re.compile(r"^[+\-*>]")
+# `LINE_START` for text already escaped: `*` is escaped everywhere, so it is not repeated here.
+MOVED_LINE_START = re.compile(r"^[+\->]")
 HEADING_START = re.compile(rf"^([{SPACE}]*)(#{{1,6}})([{SPACE}]|\Z)")
 NUMBER_START = re.compile(rf"^([{SPACE}]*[0-9]+)([.)])([{SPACE}]|\Z)")
 LEADING = re.compile(rf"^([{SPACE}]*)(.*)\Z", re.DOTALL)
@@ -218,7 +220,8 @@ def esc(text: str, start_of_line: bool) -> str:
 def escape_line_start(text: str) -> str:
     """The escapes `esc` adds only at a line's start, for text already escaped otherwise: a
     sentence that moves to a line's start is written as the editor would write it there."""
-    text = LINE_START.sub(lambda m: "\\" + m.group(0), text, count=1)
+    # A literal `*` is escaped wherever it stands, so a bare one here opens a mark and stays.
+    text = MOVED_LINE_START.sub(lambda m: "\\" + m.group(0), text, count=1)
     text = HEADING_START.sub(lambda m: m.group(1) + "\\" + m.group(2) + m.group(3), text, 1)
     text = NUMBER_START.sub(lambda m: m.group(1) + "\\" + m.group(2) + m.group(3), text, 1)
     if text.startswith("="):
