@@ -370,9 +370,10 @@ def derivable(document: Document, repo: pygit2.Repository, sha: str) -> Derivati
 def settle_head(document: Document) -> None:
     """Under the document's writer lock, before anything is read for a write or written: every
     commit at the head whose rows a stop left underived — a content version a finish committed, an
-    acceptance's passport commit — has them derived, oldest first, and an acceptance its notices
-    computed; so nothing is written over a commit the rows do not know, no run is read short of
-    git, and no number is given twice (DL-0111). `RecordIncomplete` when one cannot be."""
+    acceptance's or an approval's passport commit — has them derived, oldest first, an acceptance
+    its notices computed and an approval its tag and its freeze's end; so nothing is written over a
+    commit the rows do not know, no run is read short of git, and no number is given twice
+    (DL-0111). `RecordIncomplete` when one cannot be."""
     tenant_number = _tenant_number()
     repo = gitstore.open_repository(tenant_number, document.number)
     head = gitstore.head(repo)
@@ -392,6 +393,13 @@ def settle_head(document: Document) -> None:
             if isinstance(found, str):
                 raise RecordIncomplete(found)
             compute_notices(derive_acceptance(document, sha, found))
+        elif kind is gitstore.Kind.APPROVAL:
+            from editions import services as editions
+
+            approval = editions.derivable_approval(document, repo, sha)
+            if isinstance(approval, str):
+                raise RecordIncomplete(approval)
+            editions.derive_approval(document, sha, approval)
         elif kind in (gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT) and commit.parents:
             author = committer(commit, tenant_number)
             if author is None:

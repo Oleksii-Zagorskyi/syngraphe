@@ -85,6 +85,13 @@ AUTHORSHIP_MISSING = "authorship_missing"
 FINISH_STOPPED = "finish_stopped"
 ACCEPTANCE_DIFFERS = "acceptance_differs"
 NOTICES_MISSING = "notices_missing"
+# A tag with no approval section of its number on the commit it names: reported, never repaired —
+# the passport is believed (DL-0260).
+TAG_WITHOUT_SECTION = "tag_without_section"
+# An `EDITION` row that disagrees with its approval's section: reported.
+EDITION_DIFFERS = "edition_differs"
+# An approval's version whose `EDITION`, tag or freeze's end is missing: finished on repair.
+EDITION_UNFINISHED = "edition_unfinished"
 UNREADABLE = "unreadable"
 
 
@@ -214,6 +221,7 @@ class _Run:
         if commits:
             self.frontmatter(document, repo, commits[-1])
             self.passport(document, repo, commits[-1])
+            self.editions(document, repo, commits[-1])
             self.notices(document)
             self.finishes(document, commits)
             self.authorship(document, str(commits[-1].id))
@@ -280,7 +288,7 @@ class _Run:
             author = self.author(commit)
             kind = gitstore.kind_of(commit.message)
             derivable = kind in REPLAYED or (
-                kind is gitstore.Kind.ACCEPTANCE and author is not None
+                kind in (gitstore.Kind.ACCEPTANCE, gitstore.Kind.APPROVAL) and author is not None
             )
             if (
                 not self.repair
@@ -294,7 +302,13 @@ class _Run:
                 self.found(COMMIT_WITHOUT_ROW, document.number, sha + reason)
                 stopped = stopped or n > newest
                 continue
-            if kind is gitstore.Kind.ACCEPTANCE:
+            if kind is gitstore.Kind.APPROVAL:
+                refused = self.approval(document, commit, author)
+                if refused is not None:
+                    self.found(COMMIT_WITHOUT_ROW, document.number, f"{sha} ({refused})")
+                    stopped = True
+                    continue
+            elif kind is gitstore.Kind.ACCEPTANCE:
                 if not self.acceptance(document, commit, author):
                     self.found(
                         COMMIT_WITHOUT_ROW,
@@ -323,6 +337,77 @@ class _Run:
             review.derive_acceptance(document, sha, found)
             _audit(self.tenant, COMMIT_WITHOUT_ROW, document, None, {"commit": sha})
         return True
+
+    def approval(self, document: Document, commit: pygit2.Commit, author: User) -> str | None:
+        """An approval's passport commit finished from its section — the tag, the rows, the
+        freeze's end — by the rule `make_canonical` itself is settled by
+        (`editions.services.derivable_approval`); why not, or `None` when it was."""
+        from editions import services as editions
+
+        repo = gitstore.open_repository(self.tenant.number, document.number)
+        sha = str(commit.id)
+        found = editions.derivable_approval(document, repo, sha)
+        if isinstance(found, str):
+            return found
+        if found.approver.pk != author.pk:
+            return "its section is not its author's approval"
+        editions.derive_approval(document, sha, found)
+        _audit(self.tenant, COMMIT_WITHOUT_ROW, document, None, {"commit": sha})
+        return None
+
+    def editions(self, document: Document, repo: pygit2.Repository, head: Any) -> None:
+        """Every approval against its passport section, the passport believed: an approval
+        commit's version without its `EDITION`, or an edition missing its tag or its freeze's
+        end, finished on repair; a row that disagrees with its section, a section no `EDITION`
+        records, and a tag that is not its approval's, reported."""
+        from editions import services as editions
+        from editions.models import Edition
+
+        rows = {
+            e.approval_version.commit_sha: e
+            for e in Edition.objects.filter(version__document=document).select_related(
+                "approval_version", "freeze"
+            )
+        }
+        approvals = Version.objects.filter(document=document, kind="approval")
+        # The sections an approval's version answers for, found or repaired here: each is
+        # reported once, by what this loop says of it.
+        answered: set[str] = {e.number for e in rows.values()}
+        for sha in approvals.values_list("commit_sha", flat=True):
+            found = editions.derivable_approval(document, repo, sha)
+            if isinstance(found, str):
+                self.found(EDITION_DIFFERS, document.number, f"{sha} ({found})")
+                continue
+            number = found.entry.number or ""
+            answered.add(number)
+            row = rows.get(sha)
+            if row is not None and (
+                row.number != number
+                or row.version_id != found.version.pk
+                or row.approved_by_id != found.approver.pk
+                or row.approved_at != found.entry.at
+            ):
+                self.found(EDITION_DIFFERS, document.number, f"edition {number}")
+                continue
+            tagged = editions.tagged(repo, number)
+            if row is not None and tagged is not None and row.freeze.ended_at is not None:
+                continue
+            if self.repair:
+                editions.derive_approval(document, sha, found)
+                _audit(self.tenant, EDITION_UNFINISHED, document, None, {"commit": sha})
+            self.found(
+                EDITION_UNFINISHED, document.number, f"edition {number}", repaired=self.repair
+            )
+        text = gitstore.read(repo, "passport.md", str(head.id)).decode("utf-8")
+        try:
+            sections = {e.number for e in bundle.passport_entries(text) if e.kind == "approval"}
+        except ValueError:
+            sections = set()  # a passport that does not read is the passport check's finding
+        for number in sorted(n for n in sections - answered if n):
+            self.found(PASSPORT_ENTRY_WITHOUT_ROW, document.number, f"approval {number}")
+        for name, target in editions.tags(repo).items():
+            if not editions.tags_its_approval(repo, name, target):
+                self.found(TAG_WITHOUT_SECTION, document.number, name)
 
     def notices(self, document: Document) -> None:
         """An acceptance whose correction notices were never computed has them computed, so a stop

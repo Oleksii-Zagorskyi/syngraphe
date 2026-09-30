@@ -1,5 +1,6 @@
 """The *Edit* tab: the editor's mount point for the holder, *held* for anyone else with *edit*,
-and nothing for a reader without it. Loading the tab changes nothing; the editor takes the hold
+the freeze's reason to an editor without *accept* while frozen, and nothing for a reader without
+*edit*. Loading the tab changes nothing; the editor takes the hold
 with a POST as it mounts (DL-0319) — at once only when the tab was opened from the application
 itself or typed in, and otherwise on a *Start editing* the person presses (DL-0325)."""
 
@@ -71,6 +72,16 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         "tab": "edit",
         "words": {**messages.for_the_editor(), "capture": capture_settings()},
     }
+    from editions.models import open_freeze
+
+    frozen = open_freeze(document)
+    if frozen is not None and Right.ACCEPT not in rights_on_many(request.user, [document.pk]).get(
+        document.pk, frozenset()
+    ):
+        # While frozen only holders of *accept* edit (ADR-0016); the tab says why and offers
+        # nothing.
+        context["frozen"] = frozen
+        return render(request, "editing/held_by_other.html", context)
     if hold is not None and hold.user_id != request.user.pk:
         return render(request, "editing/held_by_other.html", context)
     return render(request, "editing/edit_tab.html", context)
@@ -90,6 +101,8 @@ def take(request: HttpRequest, number: int) -> HttpResponse:
         return not_found(request)
     except holds.HeldByOther:
         return JsonResponse({"held": True}, status=409)
+    except holds.Frozen:
+        return JsonResponse({"frozen": True}, status=409)
     except LockTimeout:
         return JsonResponse({"busy": True}, status=503)
     return JsonResponse({"held": False})

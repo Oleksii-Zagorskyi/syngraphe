@@ -41,6 +41,15 @@ class NotEditable(Exception):
     """The person may not edit the document, or it is not open to editing, as the locks see it."""
 
 
+class Frozen(Exception):
+    """The document is frozen and the person does not hold *accept* (ADR-0016); `reason` is the
+    freeze's own, possibly empty."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
+        self.reason = reason
+
+
 def split(document_md: str) -> tuple[dict[str, Any], str]:
     """`document.md` as the draft keeps it: its frontmatter as data, and its body."""
     frontmatter, body = bundle.parse(document_md)
@@ -66,15 +75,22 @@ def tenant_number() -> int:
 def take(document: Document, user: User) -> Hold:
     """The user's hold on `document` with its draft — the open one when they already hold it;
     `HeldByOther` when someone else does; `NotEditable` when, under the locks, they may not edit
-    it or it is not active. `documents.locks.LockTimeout` when the lock stays busy."""
+    it or it is not active; `Frozen` while a freeze is open and they do not hold *accept*.
+    `documents.locks.LockTimeout` when the lock stays busy."""
+    from editions.models import open_freeze
+
     number = tenant_number()
     with (
         document_lock(number, document.number, timeout=LOCK_WAIT_SECONDS),
         transaction.atomic(),
     ):
         locked = Document.objects.select_for_update().get(pk=document.pk)
-        if locked.state != DocumentState.ACTIVE or Right.EDIT not in rights_on(user, locked):
+        rights = rights_on(user, locked)
+        if locked.state != DocumentState.ACTIVE or Right.EDIT not in rights:
             raise NotEditable(locked.number)
+        frozen = open_freeze(locked)
+        if frozen is not None and Right.ACCEPT not in rights:
+            raise Frozen(frozen.reason)
         existing = open_hold(locked)
         if existing is not None:
             if existing.user_id != user.pk:

@@ -191,12 +191,14 @@ BEYOND_CANONICAL = frozenset(LADDER[1:])
 def readable(user: Any, document_ids: Iterable[Any]) -> set[Any]:
     """The documents `user` may open at all: a viewing right beyond canonical text, or canonical
     text where an edition exists (DL-0209). A history right alone opens nothing (ADR-0007)."""
-    from documents.models import Version, VersionKind
+    from editions.models import Edition
 
     rights = rights_on_many(user, document_ids)
+    # From the rows, not the approval's commit: a stopped approval opens nothing until its
+    # edition is derived.
     with_edition = set(
-        Version.objects.filter(document_id__in=list(rights), kind=VersionKind.APPROVAL).values_list(
-            "document_id", flat=True
+        Edition.objects.filter(version__document_id__in=list(rights)).values_list(
+            "version__document_id", flat=True
         )
     )
     return {

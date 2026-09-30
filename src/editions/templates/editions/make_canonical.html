@@ -1,0 +1,15 @@
+{% extends "documents/page.html" %}
+{% load i18n %}
+{% block tab %}
+<div class="make-canonical-confirm">
+  <h2>{% translate "Make canonical" %}</h2>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <p>{% blocktranslate with accepted=accepted number=number %}Version {{ accepted }} becomes edition {{ number }}, and the freeze ends. An edition is never undone: the next one supersedes it.{% endblocktranslate %}</p>
+  <form method="post" action="/document/{{ document.number }}/make-canonical/">
+    {% csrf_token %}
+    <input type="hidden" name="confirmed" value="{{ confirmed }}">
+    <p class="choice"><button class="btn primary" type="submit" data-command="make-canonical">{% blocktranslate with number=number %}Make canonical as {{ number }}{% endblocktranslate %}</button>
+    <a class="btn" href="/document/{{ document.number }}/">{% translate "Cancel" %}</a></p>
+  </form>
+</div>
+{% endblock %}

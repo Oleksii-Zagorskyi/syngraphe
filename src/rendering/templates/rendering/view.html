@@ -1,5 +1,5 @@
 {% load i18n static %}<link rel="stylesheet" href="{% static 'rendering/document.css' %}">
-{% if version_number %}<p class="version">{% if version_accepted %}{% blocktranslate with number=version_number %}Accepted version {{ number }}{% endblocktranslate %}{% else %}{% blocktranslate with number=version_number %}Version {{ number }}{% endblocktranslate %}{% endif %}</p>{% endif %}
+{% if version_number %}<p class="version">{% if version_stance == "canonical" %}{% blocktranslate with number=version_number %}Viewing canonical {{ number }}{% endblocktranslate %}{% else %}{% blocktranslate with number=version_number %}Viewing the {{ number }} version{% endblocktranslate %}{% if canonical_number %} · <span class="canonical">{% blocktranslate with number=canonical_number %}open canonical {{ number }}{% endblocktranslate %}</span>{% endif %}{% endif %}</p>{% endif %}
 {% include "documents/attachments.html" %}
 <article class="document-text">
 {{ text }}

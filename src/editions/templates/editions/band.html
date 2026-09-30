@@ -1,0 +1,1 @@
+{% load i18n %}{% if frozen %}<p class="band frozen" role="status">{% if frozen.reason %}{% blocktranslate with reason=frozen.reason %}Frozen — “{{ reason }}”{% endblocktranslate %}{% else %}{% translate "Frozen" %}{% endif %}{% if by %} <span class="muted">· {% blocktranslate with name=by %}frozen by {{ name }}{% endblocktranslate %}</span>{% endif %}</p>{% endif %}

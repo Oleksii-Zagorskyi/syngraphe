@@ -237,6 +237,15 @@ def send(request: HttpRequest, number: int) -> HttpResponse:
         return render(request, "editing/finish_waits.html", context, status=503)
     except holds.NotEditable:
         return _just_sent(request, number) or not_found(request)
+    except holds.Frozen as frozen:
+        said = (
+            _("Frozen — “%(reason)s” — until it is unfrozen or made canonical.")
+            % {"reason": frozen.reason}
+            if frozen.reason
+            else _("Frozen — until it is unfrozen or made canonical.")
+        )
+        context = _context(document, "edit", reason=said)
+        return render(request, "editing/finish_waits.html", context, status=409)
     accepted = _accepted_as(document, version)
     if accepted is not None:
         # A finish resumed after someone accepted the version it had committed.

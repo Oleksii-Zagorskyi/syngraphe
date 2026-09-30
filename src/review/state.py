@@ -1,8 +1,9 @@
 """The document's state: a function of the rows, the repository and the rights, never a stored
 column (ADR-0007, DL-0233, DL-0267).
 
-A document whose linked groups hold no *accept* has no reviewer, whatever else is true; the tags
-that speak of pending work reach only those who may see it.
+A document whose linked groups hold no *accept* has no reviewer, whatever else is true; a frozen
+one reads *frozen* beneath that (DL-0189). The tags that speak of pending work reach only those who
+may see it; *frozen* reaches every reader, beside them (DL-0351).
 """
 
 from __future__ import annotations
@@ -30,9 +31,13 @@ class State(StrEnum):
     AWAITING_REVIEW = "awaiting_review"
     ACCEPTED = "accepted"
     NO_REVIEWER_ASSIGNED = "no_reviewer_assigned"
+    FROZEN = "frozen"
+    # Nothing accepted or pending beyond the latest edition.
+    CANONICAL = "canonical"
 
 
 LABELS = {
+    State.FROZEN: _("frozen"),
     State.AWAITING_REVIEW: _("awaiting review"),
     State.NO_REVIEWER_ASSIGNED: _("no reviewer assigned"),
 }
@@ -71,9 +76,41 @@ def _state_of(
     return State.ACCEPTED if latest is not None else State.NEW
 
 
+def since_edition(document_ids: Iterable[Any], latest: dict[Any, Acceptance]) -> set[Any]:
+    """The documents whose latest edition came after their latest acceptance, in one query:
+    what is accepted there is the edition."""
+    from editions.models import Edition
+
+    newest: dict[Any, str] = {}
+    for document_id, number in Edition.objects.filter(
+        version__document_id__in=list(document_ids)
+    ).values_list("version__document_id", "number"):
+        if document_id not in newest or services.number_key(number) > services.number_key(
+            newest[document_id]
+        ):
+            newest[document_id] = number
+    return {
+        pk
+        for pk, number in newest.items()
+        if pk not in latest or services.number_key(number) > services.number_key(latest[pk].number)
+    }
+
+
+def frozen(document_ids: Iterable[Any]) -> set[Any]:
+    """The documents a freeze is open on, in one query."""
+    from editions.models import Freeze
+
+    return set(
+        Freeze.objects.filter(
+            document_id__in=list(document_ids), ended_at__isnull=True
+        ).values_list("document_id", flat=True)
+    )
+
+
 def _rows(documents: list[Document]) -> tuple[set[Any], dict[Any, Acceptance], dict[Any, set[str]]]:
-    """What the states of `documents` are read from, in three queries whatever their number: who
-    has a reviewer, each document's latest acceptance, each document's content commits."""
+    """What the review states of `documents` are read from, in three queries whatever their
+    number: who has a reviewer, each document's latest acceptance, each document's content
+    commits."""
     ids = [d.pk for d in documents]
     reviewed = with_reviewer(ids)
     latest: dict[Any, Acceptance] = {}
@@ -94,11 +131,25 @@ def _rows(documents: list[Document]) -> tuple[set[Any], dict[Any, Acceptance], d
 
 
 def states(documents: Iterable[Document]) -> dict[Any, State]:
-    """The state of each document, keyed by its primary key: three queries, then each document's
+    """The state of each document, keyed by its primary key: *no reviewer assigned* first, then
+    *frozen* while a freeze is open, then the review state — *canonical* where nothing is
+    accepted or pending beyond the latest edition; five queries, then each document's
     repository."""
     documents = list(documents)
     reviewed, latest, content = _rows(documents)
-    return {d.pk: _state_of(d, reviewed, latest.get(d.pk), content[d.pk]) for d in documents}
+    held_still = frozen(d.pk for d in documents)
+    canonical = since_edition((d.pk for d in documents), latest)
+    result: dict[Any, State] = {}
+    for d in documents:
+        found = _state_of(d, reviewed, latest.get(d.pk), content[d.pk])
+        if found is State.ACCEPTED and d.pk in canonical:
+            found = State.CANONICAL
+        result[d.pk] = (
+            State.FROZEN
+            if d.pk in held_still and found is not State.NO_REVIEWER_ASSIGNED
+            else found
+        )
+    return result
 
 
 def state(document: Document) -> State:
@@ -106,15 +157,18 @@ def state(document: Document) -> State:
     return states([document])[document.pk]
 
 
-def tags(user: Any, documents: Iterable[Document]) -> dict[Any, State | None]:
-    """The state tag each document shows `user`, or `None`. A state that speaks of pending work
-    shows only where the user holds *view pending*, which administrators do, and is computed only
-    there; a document whose record cannot be read shows none and is logged, never failing the
-    page it appears on."""
+def tags(user: Any, documents: Iterable[Document]) -> dict[Any, list[State]]:
+    """The state tags each document shows `user`, in order: *frozen* to every reader of it, then
+    a review state that speaks of pending work where the user holds *view pending*, which
+    administrators do, computed only there (DL-0351). A document whose record cannot be read
+    shows no review tag and is logged, never failing the page it appears on."""
     documents = list(documents)
     rights = rights_on_many(user, [d.pk for d in documents])
     seen = [d for d in documents if Right.VIEW_PENDING in rights.get(d.pk, frozenset())]
-    shown: dict[Any, State | None] = {d.pk: None for d in documents}
+    held_still = frozen(d.pk for d in documents)
+    shown: dict[Any, list[State]] = {
+        d.pk: [State.FROZEN] if d.pk in held_still else [] for d in documents
+    }
     reviewed, latest, content = _rows(seen)
     for document in seen:
         try:
@@ -124,5 +178,6 @@ def tags(user: Any, documents: Iterable[Document]) -> dict[Any, State | None]:
                 "a document's state could not be read", extra={"document": document.number}
             )
             continue
-        shown[document.pk] = found if found in PENDING_TAGS else None
+        if found in PENDING_TAGS:
+            shown[document.pk].append(found)
     return shown

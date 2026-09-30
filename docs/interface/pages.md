@@ -108,7 +108,7 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 | title — takes the free width; opens the reading view | **0.1** | — | ST-0013 | Epics 3, 4 |
 | state tags after the title — *held* (DL-0262), the fact and never the person except to a tenant administrator (ADR-0006); *reserved for editing, since* its date, with who to holders of *edit* or *accept* and to administrators (DL-0226); *frozen*; *awaiting review* and *returned* to those who may see pending edits (DL-0233); *no reviewer assigned* to those, and to administrators | **0.1** | — | ST-0014, ST-0018, ST-0051, ST-0052 | Epics 5, 6, 9, 15 |
 | sorting — by `#` or title, ascending or descending; title A to Z by default | **0.1** | — | ST-0013 | Epic 10 |
-| *Canonical* — the canonical number, linking to that version | **0.1** | — | ST-0013 | Epic 6 |
+| *Canonical* — the canonical number, as text until the historical page exists to link to (DL-0352) | **0.1** | — | ST-0013 | Epic 6 |
 | *Latest* — the latest version the user may see beyond canonical, else empty; links where the title does (DL-0208, DL-0209). **Drawn only for someone who may see beyond canonical text on at least one document** (DL-0233) | **0.1** | — | ST-0013, ST-0014 | Epic 6 |
 | part markers — presence, not count | **0.1** | — | ST-0013 | Epic 3 |
 | ✎ — opens the edit tab | **0.1** | *edit* | ST-0013 | Epic 4 |
@@ -171,7 +171,7 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 
 | Tab | URL segment | Shows | Release | Needs | Stories |
 |---|---|---|---|---|---|
-| View | — | the latest version the reader may see, with *Viewing the 2.3-1 version · open canonical 2.0* (DL-0209), or *Viewing canonical 2.0* to a reader of canonical text only; to such a reader a document with no canonical edition yet does not exist; clause numbers in the gutter; entities in their own formatting. Until editions exist, the view shows the latest accepted version to a holder of *view accepted*, headed *Accepted version 0.1* and without a number before any acceptance, with clause numbers inline, no outline, and an *Attachments* section above the text (DL-0348, DL-0349) | **0.1** | any viewing right | ST-0023, ST-0026, ST-0042 |
+| View | — | the latest version the reader may see, with *Viewing the 2.3-1 version · open canonical 2.0* (DL-0209), or *Viewing canonical 2.0* when the version shown is the latest edition — always, to a reader of canonical text only; *open canonical 2.0* is text until the historical page exists (DL-0352); to such a reader a document with no canonical edition yet does not exist; clause numbers in the gutter; entities in their own formatting. Until the outline and the three-pane layout exist, the view carries clause numbers inline, no outline, and an *Attachments* section above the text (DL-0349); before any acceptance, with nothing pending, it names no version (DL-0352) | **0.1** | any viewing right | ST-0023, ST-0026, ST-0042 |
 | View, mentions | — | a mention of another document as a link where the reader may open it, as plain text where not | **0.1** — not yet drawn | any viewing right | ST-0043 |
 | Edit | `edit/` | below | **0.1** | *edit* — which *accept*, *freeze* and *reserve for editing* include (ADR-0016); while frozen, *accept* | ST-0017, ST-0019 to ST-0022, ST-0028, ST-0035, ST-0059, ST-0060, ST-0069, ST-0070 |
 | My edits | `my-edits/` | the holder's draft: the whole document, the draft's changes marked in place | **0.1** | the holder | ST-0031 |

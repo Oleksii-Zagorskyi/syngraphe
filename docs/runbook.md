@@ -79,7 +79,27 @@ $C run --rm --no-deps -v /path/to/folders:/srv/load:ro web \
   python manage.py load_document --tenant N --as ADDRESS --group GROUP_ID /srv/load/<each> …
 ```
 
-`GROUP_ID` is the group's id, from the address of its rights page. The member must belong to that group, and the group must hold *create and edit* and *accept*. The loader links each document to that group alone: for readers, link it to their group — one holding *view accepted* — on the document-links page. Each folder becomes a document linked to the group, its text and attachments committed as one version and accepted as `0.1`; the command prints `document M · version 0.1 · attachments: K`. Every check — the folder against its description, the whitelist, image references (images are not loaded), each file against the organisation's attachment limit, the member's rights, and once those pass the size of the normalised text — runs before anything is written, and every reason found is reported at once. The first folder refused stops the run; those loaded before it stand, and running the same command again skips them (`document M already loaded — skipped`). A load that stops after the document exists names the step: `reconcile --tenant N --document M` and the interface continue it, and nothing is deleted. Remove the folders from the host afterwards.
+`GROUP_ID` is the group's id, from the address of its rights page. The member must belong to that group, and the group must hold *create and edit* and *accept*. The loader links each document to that group alone: for readers, link it to their group on the document-links page, and make it canonical (§ Making a document canonical) before that group holds only *view canonical* — a reader of canonical text does not see a document before its first edition (DL-0350). Each folder becomes a document linked to the group, its text and attachments committed as one version and accepted as `0.1`; the command prints `document M · version 0.1 · attachments: K`. Every check — the folder against its description, the whitelist, image references (images are not loaded), each file against the organisation's attachment limit, the member's rights, and once those pass the size of the normalised text — runs before anything is written, and every reason found is reported at once. The first folder refused stops the run; those loaded before it stand, and running the same command again skips them (`document M already loaded — skipped`). A load that stops after the document exists names the step: `reconcile --tenant N --document M` and the interface continue it, and nothing is deleted. Remove the folders from the host afterwards.
+
+### Making a document canonical
+
+A loaded document, or any accepted one, becomes its next edition by command (DL-0350): the member named freezes it and makes it canonical through the same acts as the document page.
+
+```bash
+$C exec web python manage.py make_canonical --tenant N --document M --as ADDRESS --reason "…"
+```
+
+The member must hold *freeze* and *make canonical* on the document through a group. Where the organisation requires a distinct approver, name a member who accepted none of the runs since the previous edition; the loading member accepted the loaded version, so name another. The command prints `document M · edition N.0`; run again on a document already at its edition, it prints `document M · edition N.0 already made — skipped` and changes nothing. Nothing is frozen when a refusal can be known beforehand — versions waiting for review, a refused approver, a reason of more than one line or 500 characters, a tag already bearing the next edition's number — and the refusal is named, as it is for a document with nothing accepted at all (`nothing_accepted`). A document already frozen is made canonical under its freeze, and `--reason` is not used. **Readers holding *view accepted* are lowered to *view canonical* only after each of their documents has an edition**; in the other order the documents disappear for them.
+
+### A freeze nobody can end
+
+Until *unfreeze* exists in the interface, a freeze is ended one of two ways: a holder of *make canonical* makes it canonical, or the operator ends the freeze:
+
+```bash
+$C exec web python manage.py end_freeze --tenant N --document M --reason "…"
+```
+
+The command prints `document M · freeze ended`; the freeze ends as *unfrozen*, the numbering unchanged, and the reason is written to the audit log. A document that is not frozen is reported — `document M is not frozen` — and nothing changes. **An edition made by mistake is never removed**: the correction is edited, accepted, frozen and made canonical as the next edition, and the record keeps both.
 
 ### Help as work in progress
 
@@ -160,11 +180,11 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | Finding | Means | `--repair` | `--prune-rows` |
 |---|---|---|---|
 | `creating_without_repository`, `creating_without_commit`, `creating_without_version`, `creating_unfinished` | a creation stopped at that step (ten minutes or more ago) | finishes it: the document becomes active, reaching its creator alone — nobody while the creator is blocked. Left as found when the creator was never a member of the organisation; a repository at its number that names another document is reported as `identity_mismatch` instead | — |
-| `commit_without_row` | git is ahead of the rows — normal after any restore | derives the version row, for a commit by a member of the organisation, of an ordinary kind — or an acceptance, from the one passport section its commit appended, exactly as the platform writes one, with its correction notices — after the newest commit the rows know. It stops at the first commit it cannot derive, and derives nothing while the document has a `row_without_commit`: what follows is reported, never derived past a hole | — |
+| `commit_without_row` | git is ahead of the rows — normal after any restore | derives the version row, for a commit by a member of the organisation, of an ordinary kind — or an acceptance or an approval, from the one passport section its commit appended, exactly as the platform writes one: an acceptance with its correction notices, an approval with its tag, its edition and its freeze's end — after the newest commit the rows know. It stops at the first commit it cannot derive, and derives nothing while the document has a `row_without_commit`: what follows is reported, never derived past a hole | — |
 | `row_without_commit` | a version row names a commit its repository does not hold — a repository restored from an older bundle | reports it | deletes the row, and with it the rows derived from it: an acceptance it records or started from, a correction notice naming it, their notifications — each counted in the audit |
 | `orphan_repository` | a repository with no row | recreates the row from `document.md`, in the root folder, type *document*, **with no groups and not author-only** — only administrators reach it until the tenant administrator links groups. Only when its first commit's author is a member of the organisation and its language is known; otherwise reported | — |
 | `frontmatter_differs` | the row's title or language differs from `document.md` | rewrites the row from the file | — |
-| `passport_entry_without_row` | the passport records an acceptance no row records | reports it; the passport is believed, and repair derives the row as `commit_without_row` does. A passport that does not read is reported heading by heading | — |
+| `passport_entry_without_row` | the passport records an acceptance or an approval no row records | reports it; the passport is believed, and repair derives the row as `commit_without_row` does. A passport that does not read is reported heading by heading | — |
 | `repository_missing` | a document's repository is not on disk | reports it; **nothing is pruned** — it may be a missing mount, not a loss | — |
 | `identity_mismatch` | a repository whose passport names another organisation or number, or not the creation its row began | reports it; never trusted | — |
 | `sequence_behind` | the next document number would repeat one a repository directory already has, with a row or without | moves the number past it | — |
@@ -174,6 +194,9 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `authorship_missing` | the newest version, or the latest accepted one, has no per-line authorship though its text has lines — the worker has not run yet, or its job was lost or failed | asks the worker for it again; a finding that returns on every run means the job fails, and the worker's log says why | — |
 | `acceptance_differs` | an acceptance row disagrees with the passport section its commit appended — its number, reviewer, time or the version it started from — or no section of the platform's form stands behind it | rewrites the row from its section, audited; the passport is believed | — |
 | `notices_missing` | an acceptance whose correction notices were never computed — a stop after its rows, or a computation that failed | computes them; a failure is reported with its error and tried again next run | — |
+| `edition_unfinished` | an approval's version whose edition row, tag or freeze's end is missing | derives what is missing from the approval's section: the tag with the approver's identity, the edition, the freeze's end — and, where a restore lost the freeze itself, the freeze the section proves (DL-0355) | — |
+| `edition_differs` | an edition row disagrees with its approval's section, or an approval commit is not of the platform's form | reports it; the passport is believed | — |
+| `tag_without_section` | a tag names a commit that is not the approval of that number | reports it; **never repaired** — a person decides what the tag was | — |
 
 A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Nothing re-enqueues tasks from rows yet either; the broker holds none that matter. ⟨fixed when tasks with rows are implemented⟩
 

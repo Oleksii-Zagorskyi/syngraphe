@@ -234,6 +234,7 @@ def commit_draft_locked(
     problem = summary.problem(message)
     if problem is not None:
         raise InvalidSummary(problem)
+    from editions.models import open_freeze
     from review.services import settle_head
 
     tenant_number = holds.tenant_number()
@@ -247,6 +248,11 @@ def commit_draft_locked(
         rights = rights_on(user, locked_document)
         if locked_document.state != DocumentState.ACTIVE or Right.EDIT not in rights:
             raise holds.NotEditable(document.number)
+        # While frozen only holders of *accept* commit (ADR-0016): a right lost since the hold
+        # was taken is seen here, and the draft stays.
+        frozen = open_freeze(locked_document)
+        if frozen is not None and Right.ACCEPT not in rights:
+            raise holds.Frozen(frozen.reason)
         kind = gitstore.Kind.REVIEWER_EDIT if Right.ACCEPT in rights else gitstore.Kind.EDIT
         locked = Hold.objects.select_for_update().get(pk=hold.pk)
         if locked.released_at is not None or locked.user_id != user.pk:

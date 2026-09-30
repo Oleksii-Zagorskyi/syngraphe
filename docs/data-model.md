@@ -353,11 +353,11 @@ erDiagram
     FREEZE {
         uuid id PK
         uuid document FK
-        text reason "optional: what the document waits for"
+        text reason "optional: what the document waits for — one line, at most 500 characters (DL-0353)"
         uuid frozen_by FK
         datetime frozen_at
-        string ended_by_kind "made_canonical | unfrozen; null while active"
-        uuid ended_by FK
+        string ended_by_kind "made_canonical | unfrozen; empty while active"
+        uuid ended_by FK "empty when an operator ended it"
         datetime ended_at
     }
     EDITION {

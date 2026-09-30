@@ -48,6 +48,8 @@ def test_every_model_carries_provenance_or_its_own_columns() -> None:
         "review.Acceptance",
         "review.CorrectionNotice",
         "review.CorrectionLine",
+        "editions.Freeze",
+        "editions.Edition",
         "notifications.Notification",
     }
     for model in apps.get_models():

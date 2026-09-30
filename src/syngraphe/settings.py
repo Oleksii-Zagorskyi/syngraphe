@@ -37,6 +37,7 @@ TENANT_APPS = [
     "access",
     "editing",
     "review",
+    "editions",
     "notifications",
     "rendering",
 ]

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Syngraphē\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 20:07+0000\n"
+"POT-Creation-Date: 2026-09-29 23:09+0000\n"
 "PO-Revision-Date: 2026-09-28 17:08+0000\n"
 "Last-Translator: Oleksii Zagorskyi\n"
 "Language-Team: uk\n"
@@ -245,6 +245,7 @@ msgstr ""
 "доступ, доки адміністратор не пов’яже з ним групи."
 
 #: documents/templates/documents/create.html:18
+#: editions/templates/editions/make_canonical.html:12
 #: review/templates/review/accept_confirm.html:15
 #: tenancy/templates/tenancy/tenant_form.html:17
 msgid "Cancel"
@@ -268,34 +269,42 @@ msgid "Create document"
 msgstr "Створити документ"
 
 #: documents/templates/documents/list.html:12
+msgid "Canonical"
+msgstr "Редакція"
+
+#: documents/templates/documents/list.html:12
+msgid "Latest"
+msgstr "Остання версія"
+
+#: documents/templates/documents/list.html:12
 msgid "Parts"
 msgstr "Частини"
 
-#: documents/templates/documents/list.html:21
+#: documents/templates/documents/list.html:23
 msgid "appendices"
 msgstr "додатки"
 
-#: documents/templates/documents/list.html:22
+#: documents/templates/documents/list.html:24
 msgid "attachments"
 msgstr "вкладені файли"
 
-#: documents/templates/documents/page.html:9
+#: documents/templates/documents/page.html:11
 msgid "View"
 msgstr "Перегляд"
 
-#: documents/templates/documents/page.html:9
+#: documents/templates/documents/page.html:11
 msgid "Edit"
 msgstr "Редагування"
 
-#: documents/templates/documents/page.html:9
+#: documents/templates/documents/page.html:11
 msgid "My edits"
 msgstr "Мої правки"
 
-#: documents/templates/documents/page.html:9
+#: documents/templates/documents/page.html:11
 msgid "Pending edits"
 msgstr "Всі неприйняті правки"
 
-#: documents/templates/documents/page.html:9
+#: documents/templates/documents/page.html:11
 msgid "Info"
 msgstr "Відомості"
 
@@ -513,7 +522,7 @@ msgstr "Почати редагування"
 msgid "Not pasted: it holds %(constructs)s."
 msgstr "Не вставлено — у тексті є: %(constructs)s."
 
-#: editing/messages.py:72 editing/messages.py:125
+#: editing/messages.py:72 editing/messages.py:126
 #: editing/templates/editing/finish_waits.html:6
 msgid "What the editor accepts"
 msgstr "Що приймає редактор"
@@ -526,7 +535,8 @@ msgstr "Зображення до вставки не ввійшли."
 msgid "A link of this kind is not allowed."
 msgstr "Посилання такого виду не дозволені."
 
-#: editing/messages.py:75 editing/views/finish.py:231 review/views/accept.py:97
+#: editing/messages.py:75 editing/views/finish.py:231 editions/views.py:87
+#: editions/views.py:155 review/views/accept.py:97
 msgid "The document is busy. Try again in a moment."
 msgstr "Документ зараз обробляється. Спробуйте ще раз за мить."
 
@@ -672,10 +682,14 @@ msgid "Reviewing and accepting"
 msgstr "Розгляд і погодження"
 
 #: editing/messages.py:124
+msgid "Freezing and editions"
+msgstr "Заморожування та редакції"
+
+#: editing/messages.py:125
 msgid "Editing"
 msgstr "Редагування"
 
-#: editing/messages.py:126
+#: editing/messages.py:127
 msgid "Exporting"
 msgstr "Експорт"
 
@@ -763,7 +777,17 @@ msgstr "версія отримає номер %(number)s"
 msgid "Continue editing"
 msgstr "Продовжити редагування"
 
-#: editing/templates/editing/held_by_other.html:4 review/views/pending.py:109
+#: editing/templates/editing/held_by_other.html:5 editing/views/finish.py:242
+#, python-format
+msgid "Frozen — “%(reason)s” — until it is unfrozen or made canonical."
+msgstr ""
+"Заморожено — «%(reason)s» — доки документ не розморозять або не затвердять."
+
+#: editing/templates/editing/held_by_other.html:5 editing/views/finish.py:245
+msgid "Frozen — until it is unfrozen or made canonical."
+msgstr "Заморожено — доки документ не розморозять або не затвердять."
+
+#: editing/templates/editing/held_by_other.html:7 review/views/pending.py:109
 msgid "This document is held: someone is editing it."
 msgstr "Документ зайнятий: його редагують."
 
@@ -810,12 +834,12 @@ msgstr ""
 "Чернетка містить текст, якого редактор не приймає; виправте його в редакторі."
 
 #: editing/views/finish.py:188 editing/views/finish.py:207
-#: editing/views/finish.py:243 review/views/accept.py:105
+#: editing/views/finish.py:252 review/views/accept.py:105
 #, python-format
 msgid "Accepted as %(number)s."
 msgstr "Погоджено як %(number)s."
 
-#: editing/views/finish.py:194 editing/views/finish.py:246
+#: editing/views/finish.py:194 editing/views/finish.py:255
 #, python-format
 msgid "Version created — it waits as %(number)s."
 msgstr "Версію %(number)s створено — вона очікує на розгляд."
@@ -824,14 +848,15 @@ msgstr "Версію %(number)s створено — вона очікує на 
 msgid "Nothing changed: there is no version to send."
 msgstr "Нічого не змінено: немає версії, яку можна відправити."
 
-#: editing/views/finish.py:234 review/views/accept.py:102
+#: editing/views/finish.py:234 editions/templatetags/editions.py:77
+#: editions/views.py:50 review/views/accept.py:102
 msgid ""
 "The document's record is incomplete; it cannot be changed until it is "
 "repaired."
 msgstr ""
 "Запис документа неповний: змінити документ можна буде, коли його відновлять."
 
-#: editing/views/finish.py:248
+#: editing/views/finish.py:257
 #, python-format
 msgid "Sent for review — the version waits as %(number)s."
 msgstr "Відправлено на розгляд — версія %(number)s очікує на розгляд."
@@ -881,6 +906,102 @@ msgstr "Зображення документа"
 #: editing/views/help.py:68
 msgid "Links"
 msgstr "Посилання"
+
+#: editions/templates/editions/band.html:1
+#, python-format
+msgid "Frozen — “%(reason)s”"
+msgstr "Заморожено — «%(reason)s»"
+
+#: editions/templates/editions/band.html:1
+msgid "Frozen"
+msgstr "Заморожено"
+
+#: editions/templates/editions/band.html:1
+#, python-format
+msgid "frozen by %(name)s"
+msgstr "заморожено користувачем %(name)s"
+
+#: editions/templates/editions/controls.html:2
+msgid "Reason — what the document waits for (optional)"
+msgstr "Причина — на що чекає документ (необов’язково)"
+
+#: editions/templates/editions/controls.html:3
+#: editions/templates/editions/controls.html:4
+#, python-format
+msgid "Held by %(name)s — freeze once it is released"
+msgstr "Документ зайнятий: %(name)s — заморозьте, коли його звільнять"
+
+#: editions/templates/editions/controls.html:3
+#: editions/templates/editions/controls.html:4
+msgid "Held — freeze once it is released"
+msgstr "Документ зайнятий — заморозьте, коли його звільнять"
+
+#: editions/templates/editions/controls.html:3
+msgid "Freeze"
+msgstr "Заморозити"
+
+#: editions/templates/editions/controls.html:7
+#: editions/templates/editions/make_canonical.html:5
+msgid "Make canonical"
+msgstr "Затвердити"
+
+#: editions/templates/editions/make_canonical.html:7
+#, python-format
+msgid ""
+"Version %(accepted)s becomes edition %(number)s, and the freeze ends. An "
+"edition is never undone: the next one supersedes it."
+msgstr ""
+"Версія %(accepted)s стане редакцією %(number)s, а заморожування завершиться. "
+"Редакцію не скасовують: її замінює наступна."
+
+#: editions/templates/editions/make_canonical.html:11
+#, python-format
+msgid "Make canonical as %(number)s"
+msgstr "Затвердити як %(number)s"
+
+#: editions/views.py:29
+msgid "The document is already frozen."
+msgstr "Документ уже заморожено."
+
+#: editions/views.py:30
+msgid "The document is held; freeze it once it is released."
+msgstr "Документ зайнятий; заморозьте його, коли його звільнять."
+
+#: editions/views.py:32
+#, python-format
+msgid "The reason is one line of at most %(count)s characters."
+msgstr "Причина — один рядок, не більше %(count)s символів."
+
+#: editions/views.py:36
+msgid "Freeze the document first."
+msgstr "Спершу заморозьте документ."
+
+#: editions/views.py:37
+msgid "Nothing new has been accepted to make canonical."
+msgstr "Немає нових погоджених правок, які можна затвердити."
+
+#: editions/views.py:39
+msgid "Changes are waiting for review; they must be accepted first."
+msgstr "Правки очікують на розгляд; спершу їх мають погодити."
+
+#: editions/views.py:41
+msgid ""
+"You accepted a run this edition would carry; another approver makes it "
+"canonical."
+msgstr "Ви погоджували правки, які увійдуть до цієї редакції, тож затвердити має інший затверджувач."
+
+#: editions/views.py:44
+msgid "What is accepted changed while you were confirming — check it again."
+msgstr "Поки ви підтверджували, погоджене змінилося — перевірте ще раз."
+
+#: editions/views.py:92
+msgid "Frozen."
+msgstr "Заморожено."
+
+#: editions/views.py:161
+#, python-format
+msgid "Made canonical as %(number)s."
+msgstr "Затверджено як %(number)s."
 
 #: identity/forms.py:16
 msgid "Setup token"
@@ -997,19 +1118,28 @@ msgstr "Увійти"
 
 #: rendering/templates/rendering/view.html:2
 #, python-format
-msgid "Accepted version %(number)s"
-msgstr "Погоджена версія %(number)s"
+msgid "Viewing canonical %(number)s"
+msgstr "Перегляд канонічної версії %(number)s"
 
 #: rendering/templates/rendering/view.html:2
 #, python-format
-msgid "Version %(number)s"
-msgstr "Версія %(number)s"
+msgid "Viewing the %(number)s version"
+msgstr "Перегляд версії %(number)s"
 
-#: review/state.py:36
+#: rendering/templates/rendering/view.html:2
+#, python-format
+msgid "open canonical %(number)s"
+msgstr "канонічна версія — %(number)s"
+
+#: review/state.py:40
+msgid "frozen"
+msgstr "заморожено"
+
+#: review/state.py:41
 msgid "awaiting review"
 msgstr "очікує на розгляд"
 
-#: review/state.py:37
+#: review/state.py:42
 msgid "no reviewer assigned"
 msgstr "погоджувача не призначено"
 
@@ -1284,6 +1414,19 @@ msgstr ""
 #: shell/templates/shell/nothing_to_show.html:7
 msgid "Back to the documents"
 msgstr "До документів"
+
+#, python-format
+#~ msgid "Held by %(name)s — freeze once they finish"
+#~ msgstr ""
+#~ "Документ редагує %(name)s — заморозьте, коли редагування завершиться"
+
+#~ msgid "Someone is editing the document; freeze it once they finish."
+#~ msgstr ""
+#~ "Документ зараз редагують; заморозьте його, коли редагування завершиться."
+
+#, python-format
+#~ msgid "Accepted version %(number)s"
+#~ msgstr "Погоджена версія %(number)s"
 
 #~ msgid "Heading 2"
 #~ msgstr "Заголовок 2"

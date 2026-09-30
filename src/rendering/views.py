@@ -1,5 +1,6 @@
-"""The *View* tab: the text of the version the reader may see, rendered with its clause numbers,
-and the attachments that version lists (DL-0348, DL-0349)."""
+"""The *View* tab: the text of the version the reader may see (DL-0209), rendered with its clause
+numbers, headed by its number and the canonical edition's (DL-0352), and the attachments that
+version lists (DL-0349)."""
 
 from __future__ import annotations
 
@@ -14,8 +15,8 @@ from django.utils.safestring import mark_safe
 from documents import bundle, gitstore
 from documents.models import Document
 from documents.parts import attachments
+from editions.visible import visible as visible_to
 from rendering.renderer import render
-from review.visible import shown
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ UNREADABLE = (pygit2.GitError, LookupError, ObjectDoesNotExist, ValueError)
 def view_context(request: HttpRequest, document: Document) -> dict[str, Any] | None:
     """What the tab shows, or `None` when there is nothing the person may be shown."""
     try:
-        visible = shown(request.user, document)
+        visible = visible_to(request.user, document)
         if visible is None:
             return None
         tenant = request.tenant  # type: ignore[attr-defined]
@@ -39,7 +40,8 @@ def view_context(request: HttpRequest, document: Document) -> dict[str, Any] | N
         return None
     return {
         "version_number": visible.number,
-        "version_accepted": visible.accepted,
+        "version_stance": visible.stance,
+        "canonical_number": visible.canonical,
         "attachments": attachments(visible.version),
         "text": mark_safe(render(body)),  # noqa: S308 — raw HTML is off, every value escaped
     }

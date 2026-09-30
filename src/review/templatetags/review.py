@@ -1,4 +1,4 @@
-"""The document page's header, the same on every tab: the state tag and whether the *Pending
+"""The document page's header, the same on every tab: the state tags and whether the *Pending
 edits* tab is drawn, both through the person's rights (DL-0233)."""
 
 from __future__ import annotations
@@ -15,8 +15,8 @@ register = template.Library()
 
 @register.inclusion_tag("review/state_tag.html", takes_context=True)
 def state_tag(context: dict[str, Any], document: Any) -> dict[str, Any]:
-    shown = tags(context["request"].user, [document]).get(document.pk)
-    return {"state": shown, "label": LABELS.get(shown) if shown else None}
+    shown = tags(context["request"].user, [document]).get(document.pk, [])
+    return {"tags": [{"state": tag, "label": LABELS[tag]} for tag in shown]}
 
 
 @register.simple_tag(takes_context=True)

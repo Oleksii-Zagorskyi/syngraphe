@@ -1,11 +1,12 @@
 """Version numbers, derived and never stored as the record (DL-0183, DL-0198, DL-0267, DL-0272).
 
-An acceptance is `N.M`: N the canonical editions before it, M the acceptances since the last one.
-Pending work is the latest acceptance's number, a hyphen, and the count of content versions since
-it; before the first acceptance that number is `0.0`, and the `created` commit is not counted
-(DL-0268). The next acceptance's number is counted from the passport's sections, pending work
-from the run; order within a document's history is read from git, since commit times share
-seconds.
+An acceptance is `N.M`: N the canonical editions before it, M the acceptances since the last one; an
+edition is `N.0`. Pending work is the later of the latest edition's and the latest acceptance's
+number, a hyphen, and the count of content versions since it — `2.0-1` is the first version after
+edition `2.0` (DL-0267); before the first acceptance that number is `0.0`, and the `created` commit
+is not counted (DL-0268). The next acceptance's number is counted from the passport's sections,
+pending work from the run; order within a document's history is read from git, since commit times
+share seconds.
 """
 
 from __future__ import annotations
@@ -16,12 +17,24 @@ CONTENT = (VersionKind.EDIT, VersionKind.REVIEWER_EDIT)
 BEFORE_ANY_ACCEPTANCE = "0.0"
 
 
+def edition(document: Document) -> str | None:
+    """The latest edition's number, or `None` before the first."""
+    from editions.models import Edition
+    from review.services import number_key
+
+    numbers = Edition.objects.filter(version__document=document).values_list("number", flat=True)
+    return max(numbers, key=number_key, default=None)
+
+
 def accepted(document: Document) -> str:
-    """The number pending work counts from: the latest acceptance's, `0.0` before any."""
-    from review.services import latest_acceptance
+    """The number pending work counts from: the later of the latest edition's and the latest
+    acceptance's, `0.0` before either. The edition's version is the latest accepted one, so the
+    run it counts is the same (DL-0267)."""
+    from review.services import latest_acceptance, number_key
 
     acceptance = latest_acceptance(document)
-    return acceptance.number if acceptance is not None else BEFORE_ANY_ACCEPTANCE
+    found = [n for n in (edition(document), acceptance and acceptance.number) if n]
+    return max(found, key=number_key, default=BEFORE_ANY_ACCEPTANCE)
 
 
 def content_versions(document: Document) -> int:

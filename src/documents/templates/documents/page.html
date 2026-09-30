@@ -1,11 +1,13 @@
 {% extends "shell/base.html" %}
-{% load i18n review %}
+{% load i18n review editions %}
 {% block title %}#{{ document.number }} {{ document.title }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document">
   {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
+  {% freeze_band document %}
   <nav class="breadcrumb"><a href="/folder/1/">{{ current_tenant.name }}</a> /</nav>
   <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% state_tag document %}</h1>
+  {% edition_controls document %}
   <nav class="tabs"><a href="/document/{{ document.number }}/"{% if tab == "view" %} aria-current="page"{% endif %}>{% translate "View" %}</a>{% if can_edit %}<a href="/document/{{ document.number }}/edit/"{% if tab == "edit" %} aria-current="page"{% endif %}>{% translate "Edit" %}</a>{% endif %}{% if holding %}<a href="/document/{{ document.number }}/my-edits/"{% if tab == "my-edits" %} aria-current="page"{% endif %}>{% translate "My edits" %}</a>{% endif %}{% views_pending document as pending %}{% if pending %}<a href="/document/{{ document.number }}/pending/"{% if tab == "pending" %} aria-current="page"{% endif %}>{% translate "Pending edits" %}</a>{% endif %}<a href="/document/{{ document.number }}/info/"{% if tab == "info" %} aria-current="page"{% endif %}>{% translate "Info" %}</a></nav>
   {% block tab %}{% if tab == "view" %}{% include "rendering/view.html" %}{% else %}{% include "documents/info.html" %}{% endif %}{% endblock %}
 </section>

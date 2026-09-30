@@ -116,4 +116,4 @@ def test_the_lists_tags_cost_a_fixed_number_of_queries(
             tags(author, documents[:1])
         with django_assert_max_num_queries(len(one.captured_queries)):
             found = tags(author, documents)
-    assert set(found.values()) == {State.AWAITING_REVIEW}
+    assert all(shown == [State.AWAITING_REVIEW] for shown in found.values())

@@ -89,39 +89,40 @@ def test_no_edition_no_document_for_canonical_or_history_readers(
     assert client.get(f"/document/{document.number}/").status_code == 404
 
 
-def test_part_markers_follow_the_latest_version(
-    migrated_tenant: Any, member_of: Any, make_document: Any
+def test_part_markers_follow_the_version_shown(
+    migrated_tenant: Any, operator: Any, commit_parts: Any, reader_in: Any
 ) -> None:
-    from datetime import UTC, datetime
+    """The *Parts* icons describe the version the row's numbers name (DL-0209): an attachment in
+    pending work shows to a reader of pending work, and not to a reader of accepted text."""
+    from access.rights import Right
+    from documents import services
+    from documents.models import DocumentType, Folder
+    from identity.models import Language
 
-    from documents.models import PartIndex, Version
-
-    client, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
-    document = make_document(title="З додатком", created_by=admin, author_only=False)
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
     with schema_context(migrated_tenant.number):
-        version = Version.objects.create(
-            document=document,
-            commit_sha="1" * 40,
-            author=admin,
-            summary="s",
-            kind="created",
-            committed_at=datetime(2026, 9, 1, tzinfo=UTC),
-            actor_kind="system",
+        document = services.create_document(
+            operator.user,
+            "З додатком",
+            "uk",
+            DocumentType.objects.get(code="document"),
+            Folder.objects.get(number=1),
         )
-        PartIndex.objects.create(
-            document=document,
-            version=version,
-            kind="appendix",
-            part_number=1,
-            position=1,
-            title="Додаток",
-            actor_kind="system",
-        )
+    commit_parts(
+        document,
+        operator.user,
+        "Синтетичний текст.\n",
+        [("Синтетична схема", "scheme.txt", "Синтетичний файл.\n".encode())],
+    )
+    pending_client, _ = reader_in(Right.VIEW_PENDING, document)
+    accepted_client, _ = reader_in(Right.VIEW_ACCEPTED, document)
 
-    body = client.get(ROOT).content.decode()
+    as_pending = pending_client.get(ROOT).content.decode()
+    as_accepted = accepted_client.get(ROOT).content.decode()
 
-    assert 'class="part appendices"' in body
-    assert 'class="part attachments absent"' in body
+    assert 'class="part attachments"' in as_pending
+    assert 'class="part attachments absent"' in as_accepted
+    assert 'class="part appendices absent"' in as_pending
 
 
 def test_author_only_visibility(migrated_tenant: Any, member_of: Any, make_document: Any) -> None:

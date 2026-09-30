@@ -135,7 +135,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 ---
 
-**ST-0074** — As the operator of an installation, I load a hand-prepared document with its attachments from a folder as its first accepted version, so that documents written outside the platform can be read in it (DL-0080, DL-0348).
+**ST-0074** — As the operator of an installation, I load a hand-prepared document with its attachments from a folder as its first accepted version, so that documents written outside the platform can be read in it (DL-0080, DL-0348). Readers of canonical text read it once it is made canonical by the operator's `make_canonical` (DL-0350).
 - The document is created as any other, then its text and every attachment are committed together as one version by a named member, who accepts it as `0.1` through the same act the interface performs — refused unless that member holds *create and edit* and *accept* through a group.
 - A folder whose document is already loaded is skipped, so the same command can be run again after a refusal.
 - The text passes the whitelist and the normalizer the editor's commit passes; a refused construct, or an attachment over the tenant's size limit, is named, and nothing is written for that document.
@@ -294,7 +294,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0039** — As a holder of the make-canonical right, I make a frozen document canonical, so that its latest accepted version becomes the next edition — *2.0*. *(skeleton)*
 - Refused while content versions since the latest acceptance are unaccepted (DL-0267).
 - One person records the decision; the approving body's own procedure — a board, for example — happens outside the platform.
-- The person who froze the document may be the person who makes it canonical, unless the tenant has switched on the check in ST-0053.
+- The person who froze the document may be the person who makes it canonical. With the check in ST-0053 switched on, the approver must have accepted none of the runs since the previous edition (DL-0115).
 
 **ST-0064** — As any reader, I compare two different documents — a version of each that I may read — so that I can see how a copy or a sibling policy differs from the original (DL-0187).
 - Started from the document list or from either document; the comparison is the same word-level view as between versions.

@@ -1,9 +1,9 @@
-"""The View tab (DL-0348, DL-0349): `/document/M/` shows the version the reader may see, rendered
-with its clause numbers, under a header naming its number — *Accepted version 0.1* for the base,
-*Version 0.1-1* for pending work — after the page's own gates; `/document/M/info/` stays *Info*.
+"""The View tab (DL-0349, DL-0352): `/document/M/` shows the version the reader may see, rendered
+with its clause numbers, under a header naming its number — *Viewing the 0.1 version*, *Viewing
+the 0.1-1 version* — after the page's own gates; `/document/M/info/` stays *Info*.
 
-The suite renders in `uk`: *View* is *Перегляд*, *Accepted version* *Погоджена версія*, *Version*
-*Версія*. People, groups and titles are synthetic examples; every text is invented.
+The suite renders in `uk`: *View* is *Перегляд*, *Viewing the … version* *Перегляд версії …*.
+People, groups and titles are synthetic examples; every text is invented.
 """
 
 from __future__ import annotations
@@ -141,7 +141,7 @@ def test_accepted_reader_sees_the_view_tab(accepted: Any, reader: Any) -> None:
     assert 'aria-current="page"' not in tab(body, "Відомості")
     # View comes first in the tab row.
     assert body.index(view) < body.index(tab(body, "Відомості"))
-    assert "Погоджена версія 0.1" in body
+    assert "Перегляд версії 0.1" in body
     text = article(body)
     assert re.search(r'<h1><span class="num">1</span> Загальні положення</h1>', text)
     assert re.search(r'<h2><span class="num">1\.1</span> Строки</h2>', text)
@@ -159,7 +159,7 @@ def test_header_then_attachments_then_text(accepted: Any, reader: Any) -> None:
     body = reader(Right.VIEW_ACCEPTED, document).get(f"/document/{document.number}/")
     html = body.content.decode()
 
-    header = html.index("Погоджена версія 0.1")
+    header = html.index("Перегляд версії 0.1")
     attachments = html.index('<section class="attachments">')
     text = html.index('<article class="document-text">')
     assert header < attachments < text
@@ -176,10 +176,10 @@ def test_pending_edit_is_not_the_accepted_readers(
     as_accepted = accepted_client.get(f"/document/{document.number}/").content.decode()
     as_pending = pending_client.get(f"/document/{document.number}/").content.decode()
 
-    assert "Погоджена версія 0.1" in as_accepted
+    assert re.search(r"Перегляд версії 0\.1(?![-\d])", as_accepted)
     assert PENDING_SENTENCE not in as_accepted
-    assert "Версія 0.1-1" in as_pending
-    assert "Погоджена версія" not in as_pending
+    assert "Перегляд версії 0.1-1" in as_pending
+    assert not re.search(r"Перегляд версії 0\.1(?![-\d])", as_pending)
     assert re.search(
         rf'<p><span class="num">1\.1-2</span> {re.escape(PENDING_SENTENCE)}</p>',
         article(as_pending),
@@ -194,7 +194,7 @@ def test_pending_holder_with_nothing_pending_sees_the_accepted_version(
 
     body = client.get(f"/document/{document.number}/").content.decode()
 
-    assert "Погоджена версія 0.1" in body
+    assert re.search(r"Перегляд версії 0\.1(?![-\d])", body)
 
 
 def test_view_canonical_alone_answers_as_missing(accepted: Any, reader: Any) -> None:

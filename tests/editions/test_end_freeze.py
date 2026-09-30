@@ -1,0 +1,94 @@
+"""`end_freeze`, the operator's way out of a freeze nobody can end before *unfreeze* exists: the
+freeze ended `unfrozen` with an audit event carrying the reason; the numbering unchanged.
+
+People and groups are synthetic examples; the text is invented.
+"""
+
+from __future__ import annotations
+
+from io import StringIO
+from typing import Any
+
+import pytest
+from django.core.management import CommandError, call_command
+
+from audit.models import AuditEvent
+from review import services as review
+from tenancy.schemas import schema_context
+
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.django_db(transaction=True, serialized_rollback=True),
+]
+
+BODY = "Заяву на погодження подають письмово.\n"
+
+
+def test_end_freeze_ends_it_unfrozen(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    from editing import numbering
+    from editions import services as editions
+    from editions.models import Freeze, open_freeze
+
+    people = edition_cast()
+    commit_version(people.document, people["a"], BODY, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Синтетична причина")
+    out = StringIO()
+
+    call_command(
+        "end_freeze",
+        tenant=migrated_tenant.number,
+        document=people.document.number,
+        reason="Синтетичне рішення оператора",
+        stdout=out,
+    )
+
+    assert out.getvalue().strip() == f"document {people.document.number} · freeze ended"
+    with schema_context(migrated_tenant.number):
+        freeze = Freeze.objects.get()
+        assert freeze.ended_by_kind == "unfrozen" and freeze.ended_at is not None
+        assert freeze.ended_by is None
+        assert open_freeze(people.document) is None
+        assert numbering.accepted(people.document) == "0.1"
+    event = AuditEvent.objects.get(action="document.unfrozen")
+    assert event.actor_id is None and event.after["reason"] == "Синтетичне рішення оператора"
+    # Ordinary editing resumes: an editor without *accept* takes the document.
+    from editing import holds
+
+    with schema_context(migrated_tenant.number):
+        assert holds.take(people.document, people["a"]).user_id == people["a"].pk
+
+
+def test_end_freeze_on_a_document_not_frozen(migrated_tenant: Any, edition_cast: Any) -> None:
+    people = edition_cast()
+    with pytest.raises(CommandError, match="not frozen"):
+        call_command(
+            "end_freeze",
+            tenant=migrated_tenant.number,
+            document=people.document.number,
+            reason="Синтетичне рішення",
+        )
+    assert not AuditEvent.objects.filter(action="document.unfrozen").exists()
+
+
+def test_end_freeze_needs_a_reason(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    from editions import services as editions
+    from editions.models import open_freeze
+
+    people = edition_cast()
+    with schema_context(migrated_tenant.number):
+        editions.freeze(people.document, people["p"])
+    with pytest.raises(CommandError, match="reason"):
+        call_command(
+            "end_freeze",
+            tenant=migrated_tenant.number,
+            document=people.document.number,
+            reason="  ",
+        )
+    with schema_context(migrated_tenant.number):
+        assert open_freeze(people.document) is not None

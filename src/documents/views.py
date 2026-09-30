@@ -15,7 +15,7 @@ from django.utils.http import content_disposition_header
 from django.views.decorators.cache import never_cache
 
 from access.models import DocumentGroup
-from access.rights import Right, can_create, readable, rights_on
+from access.rights import BEYOND_CANONICAL, Right, can_create, readable, rights_on, rights_on_many
 from audit.record import record
 from documents.forms import CreateForm
 from documents.holds import held_by
@@ -67,23 +67,49 @@ def _member(request: HttpRequest) -> bool:
     )
 
 
-def _parts(documents: list[Document]) -> dict[Any, set[str]]:
-    """The kinds of part each document's latest version lists; the newest version is the one
-    committed last, the row written last where two share a second."""
-    latest: dict[Any, Any] = {}
-    for document_id, version_id in (
-        Version.objects.filter(document__in=documents)
-        .order_by("document_id", "-committed_at", "-created_at")
-        .values_list("document_id", "id")
-    ):
-        latest.setdefault(document_id, version_id)
-    kinds: dict[Any, set[str]] = {pk: set() for pk in latest}
-    by_version = {version: document for document, version in latest.items()}
+def _parts(versions: dict[Any, Version]) -> dict[Any, set[str]]:
+    """The kinds of part each document's shown version lists, in one query: the version the row's
+    numbers name, so every cell of a row describes the same text (DL-0209)."""
+    by_version = {version.pk: document for document, version in versions.items()}
+    kinds: dict[Any, set[str]] = {pk: set() for pk in versions}
     for version_id, kind in PartIndex.objects.filter(version_id__in=by_version).values_list(
         "version_id", "kind"
     ):
         kinds[by_version[version_id]].add(kind)
     return kinds
+
+
+def _versions(user: Any, documents: list[Document]) -> dict[Any, Any]:
+    """What each listed document shows `user`, from `editions.visible`; a document whose record
+    cannot be read shows nothing of it and is logged, never failing the list."""
+    from editions.visible import visible_many
+    from rendering.views import UNREADABLE
+
+    try:
+        return visible_many(user, documents)
+    except UNREADABLE:
+        logger.exception("a list's versions could not be read, document by document")
+    shown: dict[Any, Any] = {}
+    for document in documents:
+        try:
+            shown |= visible_many(user, [document])
+        except UNREADABLE:
+            logger.exception(
+                "a document's version could not be read", extra={"document": document.number}
+            )
+            shown[document.pk] = None
+    return shown
+
+
+def _canonical(seen: Any) -> str:
+    """The *Canonical* cell: the latest edition's number (DL-0208)."""
+    return (seen.canonical or "") if seen is not None else ""
+
+
+def _latest(seen: Any) -> str:
+    """The *Latest* cell: the number of the latest version beyond the edition the person may
+    see, empty when what they see is the edition (DL-0209)."""
+    return seen.number if seen is not None and seen.stance != "canonical" else ""
 
 
 @never_cache
@@ -100,23 +126,32 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
     )
     allowed = readable(request.user, [d.pk for d in documents])
     shown = [d for d in documents if d.pk in allowed]
-    parts = _parts(shown)
-    # The review state after the title, to those it concerns (DL-0233).
+    seen = _versions(request.user, shown)
+    parts = _parts({pk: s.version for pk, s in seen.items() if s is not None})
+    # The state tags after the title, each to those it concerns (DL-0233, DL-0351).
     from review.state import LABELS, tags
 
     shown_tags = tags(request.user, shown)
-    labels = {pk: LABELS[tag] for pk, tag in shown_tags.items() if tag is not None}
     rows = [
         {
             "document": document,
+            "canonical": _canonical(seen.get(document.pk)),
+            "latest": _latest(seen.get(document.pk)),
             "appendices": PartKind.APPENDIX in parts.get(document.pk, set()),
             "attachments": PartKind.ATTACHMENT in parts.get(document.pk, set()),
-            "state": shown_tags.get(document.pk),
-            "state_label": labels.get(document.pk, ""),
+            "tags": [
+                {"state": tag, "label": LABELS[tag]} for tag in shown_tags.get(document.pk, [])
+            ],
         }
         for document in shown
     ]
-    context = {"rows": rows, "can_create": can_create(request.user, tenant)}
+    # Drawn only for someone who may see beyond canonical text on a listed document (DL-0233).
+    beyond = rights_on_many(request.user, [d.pk for d in shown])
+    context = {
+        "rows": rows,
+        "can_create": can_create(request.user, tenant),
+        "latest_column": any(held & BEYOND_CANONICAL for held in beyond.values()),
+    }
     return render(request, "documents/list.html", context)
 
 
@@ -191,18 +226,17 @@ def attachment(request: HttpRequest, number: int, part: int) -> HttpResponse:
     never opened by the platform (DL-0342, T-15). Whatever may not be served costs what a missing
     document costs."""
     from documents.parts import read_attachment
+    from editions.visible import latest_visible
     from rendering.views import UNREADABLE
-    from review.visible import shown
 
     document = _readable_document(request, number)
     if document is None:
         return not_found(request)
     tenant = request.tenant  # type: ignore[attr-defined]
     try:
-        visible = shown(request.user, document)
-        if visible is None:
+        version = latest_visible(request.user, document)
+        if version is None:
             return not_found(request)
-        version = visible.version
         found, data = read_attachment(tenant.number, document, version, part)
     except UNREADABLE:
         # An unlisted number or a hash mismatch (logged by the parts service), or a repository
