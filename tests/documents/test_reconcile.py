@@ -198,6 +198,46 @@ def test_prune_rows_is_explicit(migrated_tenant: Any, created: Any) -> None:
     assert survived
     assert [(f.kind, f.repaired) for f in pruned] == [("row_without_commit", True)]
     assert gone
+
+
+def test_a_pruned_version_takes_the_exports_that_name_it(
+    migrated_tenant: Any, created: Any
+) -> None:
+    """An export job is a record of a download, not of the text: a version pruned after a restore
+    takes the jobs that exported it or marked against it, counted in the audit."""
+    from datetime import UTC, datetime
+
+    from audit.models import AuditEvent
+    from documents import reconcile
+    from documents.models import Version
+    from rendering.models import ExportJob
+
+    document, user = created
+    with schema_context(migrated_tenant.number):
+        kept = Version.objects.filter(document=document).first()
+        lost = Version.objects.create(
+            document=document,
+            commit_sha="0" * 40,
+            author=user,
+            summary="lost",
+            kind="edit",
+            committed_at=datetime(2026, 9, 1, tzinfo=UTC),
+            actor_kind="system",
+        )
+        common = {"document": document, "include_document": True, "format": "pdf",
+                  "view": "pending_edits", "requested_by": user}  # fmt: skip
+        ExportJob.objects.create(version=lost, changes="clean", **common)
+        ExportJob.objects.create(version=kept, changes="marked", baseline_version=lost, **common)
+        ExportJob.objects.create(version=kept, changes="clean", **common)
+
+    pruned = reconcile.run(tenant=migrated_tenant.number, repair=True, prune_rows=True)
+
+    assert [(f.kind, f.repaired) for f in pruned] == [("row_without_commit", True)]
+    with schema_context(migrated_tenant.number):
+        assert not Version.objects.filter(commit_sha="0" * 40).exists()
+        assert ExportJob.objects.count() == 1
+    event = AuditEvent.objects.get(action="reconcile.row_without_commit")
+    assert event.before["exports"] == 2
     assert reconcile.run(tenant=migrated_tenant.number) == []
 
 

@@ -58,6 +58,18 @@ def queued_authorship(monkeypatch: pytest.MonkeyPatch) -> list[tuple[int, int, s
 
 
 @pytest.fixture(autouse=True)
+def queued_exports(monkeypatch: pytest.MonkeyPatch) -> list[tuple[Any, ...]]:
+    """The export jobs a test queues, recorded rather than sent, for the same reason: the web
+    process sends through the configured app, whose route leads to a development stack's
+    `render`. A test runs a job itself (`tests/rendering/conftest.py::exports`)."""
+    queued: list[tuple[Any, ...]] = []
+    monkeypatch.setattr(
+        "rendering.tasks.render_export.delay", lambda *args: queued.append(args), raising=True
+    )
+    return queued
+
+
+@pytest.fixture(autouse=True)
 def fresh_host_cache() -> None:
     """Each test sees the hosts it creates: the thirty-second cache never carries across tests."""
     from tenancy.middleware import invalidate_host_cache

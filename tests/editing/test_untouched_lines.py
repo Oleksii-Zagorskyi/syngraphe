@@ -95,6 +95,7 @@ def test_normalising_the_corpus_stays_within_its_share_of_finishing() -> None:
     assert time.perf_counter() - started < 1.0
 
 
+@pytest.mark.fast
 @pytest.mark.parametrize(
     "text",
     [

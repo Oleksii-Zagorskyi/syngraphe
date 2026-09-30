@@ -117,12 +117,16 @@ class Finding:
 
 def _derived_from(version: Version) -> dict[str, int]:
     """Delete the rows derived from `version` that would keep it from being pruned — its
-    acceptances, the correction notices naming it or theirs, their notifications — and count
-    them, for the audit."""
+    acceptances, the correction notices naming it or theirs, their notifications, the export jobs
+    that exported it or marked against it — and count them, for the audit."""
     from django.db.models import Q
 
     from notifications.models import Notification
+    from rendering.models import ExportJob
     from review.models import Acceptance, CorrectionNotice
+
+    # A job records a download, never the text; its file, if still kept, goes with the sweep.
+    exports, _ = ExportJob.objects.filter(Q(version=version) | Q(baseline_version=version)).delete()
 
     acceptances = Acceptance.objects.filter(Q(version=version) | Q(accepted_from=version))
     notices = CorrectionNotice.objects.filter(
@@ -140,6 +144,7 @@ def _derived_from(version: Version) -> dict[str, int]:
         "acceptances": acceptance_count,
         "correction_notices": notice_count,
         "notifications": notifications,
+        "exports": exports,
     }
 
 
@@ -897,13 +902,19 @@ def _exports(one: _Run, only: int | None) -> None:
             if abandoned:
                 reason = _("The file was not made in time. Export again.")
                 with transaction.atomic():
-                    # A job a render holds is not abandoned: skipped, never waited for.
-                    held = (
+                    # A job a render holds is not abandoned: skipped, never waited for. The row
+                    # is locked by a SELECT that skips it; an UPDATE alone would wait.
+                    free = (
                         ExportJob.objects.select_for_update(skip_locked=True)
                         .filter(pk=job.pk, state=ExportState.QUEUED)
-                        .update(state=ExportState.FAILED, failure_reason=reason)
+                        .values_list("pk", flat=True)
+                        .first()
                     )
-                if not held:
+                    if free is not None:
+                        ExportJob.objects.filter(pk=free).update(
+                            state=ExportState.FAILED, failure_reason=reason
+                        )
+                if free is None:
                     continue
             else:
                 render_export.delay(one.tenant.number, str(job.pk))

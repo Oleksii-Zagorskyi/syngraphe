@@ -23,7 +23,7 @@ from access.rights import Right, rights_on_many
 from documents import gitstore
 from documents.models import Document, DocumentState, Version, VersionKind
 from documents.views import ABSENT, _member
-from editing import holds
+from editing import holds, numbering
 from editing.authorship import DOCUMENT_FILE, blame_at
 from editing.diffview import render_changes
 from editing.models import LineAuthorship
@@ -127,8 +127,8 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     _offset, base_body = _body(gitstore.read(repo, DOCUMENT_FILE, base.commit_sha).decode("utf-8"))
     attributed = show_author(request.user)
     authors = _authors(tenant_number, document, head, base, offset) if attributed else None
-    acceptance = services.latest_acceptance(document)
-    accepted = acceptance.number if acceptance is not None else "0.0"
+    # Counted from the later of the latest edition and the latest acceptance (DL-0267).
+    accepted = numbering.accepted(document)
     versions = [
         {
             "number": f"{accepted}-{n}",

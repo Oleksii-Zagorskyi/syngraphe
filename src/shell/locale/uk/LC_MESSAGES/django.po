@@ -744,6 +744,10 @@ msgid "Editing"
 msgstr "Редагування"
 
 #: editing/messages.py:127
+msgid "Reading a document"
+msgstr "Читання документа"
+
+#: editing/messages.py:128
 msgid "Exporting"
 msgstr "Експорт"
 
@@ -1348,7 +1352,7 @@ msgstr "Погоджені правки %(number)s"
 #: rendering/templates/rendering/export_offer.html:1
 #, python-format
 msgid "Pending edits %(number)s"
-msgstr "Усі неприйняті правки %(number)s"
+msgstr "Всі неприйняті правки %(number)s"
 
 #: rendering/templates/rendering/export_offer.html:1
 msgid "My edits — your draft"
@@ -1378,6 +1382,10 @@ msgstr "Експорт не вдався."
 #: rendering/templates/rendering/outline.html:1
 msgid "Collapse"
 msgstr "Згорнути"
+
+#: rendering/templates/rendering/outline.html:1
+msgid "Expand"
+msgstr "Розгорнути"
 
 #: rendering/templates/rendering/panes_outline.html:1
 #: rendering/templates/rendering/panes_outline.html:2

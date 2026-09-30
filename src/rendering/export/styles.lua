@@ -16,9 +16,18 @@ local CALLOUTS = {
 }
 
 function Span(span)
-  -- A change of formatting alone: the text as it now reads, never its earlier form.
+  -- A change of formatting alone: the text as it now reads, never its earlier form, followed by
+  -- its label, as the reading view shows it.
   if span.classes:includes("format-old") then
     return {}
+  end
+  if span.classes:includes("format-changed") then
+    span.attributes["custom-style"] = "Format Changed"
+    local label = span.attributes["label"] or span.attributes["data-label"]
+    if label then
+      return { span, pandoc.Space(), pandoc.Span(pandoc.Str(label), { ["custom-style"] = "Change Label" }) }
+    end
+    return span
   end
   for _, class in ipairs(span.classes) do
     local style = SPANS[class]
@@ -47,4 +56,15 @@ function Div(div)
       return { PAGE, div }
     end
   end
+end
+
+-- A marked export's insertions and deletions arrive as `<ins>` and `<del>`, which Pandoc reads as
+-- underline and strike-out; each takes a style of its own, so an insertion never looks like the
+-- *Underline* span.
+function Underline(el)
+  return pandoc.Span(el.content, { ["custom-style"] = "Inserted" })
+end
+
+function Strikeout(el)
+  return pandoc.Span(el.content, { ["custom-style"] = "Deleted" })
 end

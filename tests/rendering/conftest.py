@@ -32,16 +32,12 @@ edition_cast = _editions.edition_cast
 
 @pytest.fixture
 def exports(
-    settings: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    settings: Any, tmp_path: Path, queued_exports: list[tuple[Any, ...]]
 ) -> list[tuple[Any, ...]]:
-    """The exports root in a scratch folder, and the render queue replaced by a list of what was
-    queued: a test runs a job itself, in its tenant's schema."""
+    """The exports root in a scratch folder, and what was queued, from the suite's own guard: a
+    test runs a job itself, in its tenant's schema."""
     settings.EXPORT_ROOT = tmp_path / "exports"
-    queued: list[tuple[Any, ...]] = []
-    from rendering import tasks
-
-    monkeypatch.setattr(tasks.render_export, "delay", lambda *args: queued.append(args))
-    return queued
+    return queued_exports
 
 
 # --- the export tests' documents, readers and jobs ----------------------------------------------

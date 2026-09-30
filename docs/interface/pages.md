@@ -288,11 +288,12 @@ Two tabs (DL-0204). **Document** — each entry linking to the document at the v
 
 ## Help
 
-Pages rendered from Markdown files shipped with the application (DL-0195): how a document moves, versions and their numbers, editing whole documents and sections, parts, the allowed Markdown — generated from the same specification as the editor and the parser — and exporting. Linked from every paste refusal.
+Pages rendered from Markdown files shipped with the application (DL-0195): how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, editing, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, and exporting. Linked from every paste refusal.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | the pages and the allowed-Markdown list — what is accepted and how it is written, and what is refused with the conversion each gets, built from the specification: its limits, entities and callout types, and every refusal with its conversion | **0.1**; the guide's full content B-016 | ST-0019, ST-0060 | Epic 4 |
+| *Reading a document* — the version shown, clause numbers, the outline, the parts, *Info*; *Exporting* — the dialog's choices, the file's name, delivery and failures | **0.1** | ST-0045 | Epic 7 |
 
 ## Nothing to show here
 

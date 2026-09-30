@@ -161,9 +161,11 @@ def _chosen(request: HttpRequest, offered: list[Any], parts: bool) -> dict[str, 
 
     by_view = {offer.view.value: offer for offer in offered}
     offer = by_view.get(request.POST.get("view", ""))
-    fmt = request.POST.get("format", "")
     include_document = request.POST.get("document") == "on"
     include_attachments = parts and request.POST.get("attachments") == "on"
+    # A format is the document's alone: the dialog disables it, and so never posts it, when the
+    # document is not chosen. The files go out as stored; the stored value is only the default.
+    fmt = request.POST.get("format", "") if include_document else ExportFormat.PDF.value
     if offer is None or fmt not in ExportFormat.values:
         return _("Choose a view and a format.")
     if not include_document and not include_attachments:
@@ -192,7 +194,6 @@ def _queued(request: HttpRequest, document: Document, chosen: dict[str, Any]) ->
     from django.db import transaction
 
     from rendering.models import ExportChanges, ExportJob
-    from rendering.tasks import render_export
 
     tenant = request.tenant  # type: ignore[attr-defined]
     offer = chosen["offer"]
@@ -230,8 +231,19 @@ def _queued(request: HttpRequest, document: Document, chosen: dict[str, Any]) ->
             tenant=tenant,
         )
         job_id = str(job.pk)
-        transaction.on_commit(lambda: render_export.delay(tenant.number, job_id))
+        transaction.on_commit(lambda: _send(tenant.number, job_id))
     return job
+
+
+def _send(tenant_number: int, job_id: str) -> None:
+    """Queue a job whose row is committed. A broker that refuses it is logged, not shown: the row
+    stands, and the reconciler queues it again (`export_stuck`)."""
+    from rendering.tasks import render_export
+
+    try:
+        render_export.delay(tenant_number, job_id)
+    except Exception:
+        logger.exception("an export could not be queued", extra={"export": job_id})
 
 
 def _own_job(request: HttpRequest, number: int, job_id: str) -> Any:

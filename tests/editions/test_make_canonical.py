@@ -329,3 +329,25 @@ def test_second_edition_is_two(
     tag = _tag(migrated_tenant, document, "2.0")
     assert tag is not None and str(tag.peel(pygit2.Commit).id) == repository.head(document)
     assert _tag(migrated_tenant, document, "1.0") is not None
+
+
+def test_the_pending_tab_numbers_from_the_edition(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    """After edition `1.0` — whose version was accepted as `0.1` — the first version waiting for
+    review reads `1.0-1` on the pending tab, as it does everywhere else (DL-0267), never `0.1-1`."""
+    from editions import services as editions
+
+    people = edition_cast()
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+        editions.freeze(document, people["p"], REASON)
+        editions.make_canonical(document, people["p"])
+    commit_version(document, people["a"], SECOND, "edit")
+
+    body = people.clients["r"].get(f"/document/{document.number}/pending/").content.decode()
+
+    assert "1.0-1" in body
+    assert "0.1-1" not in body

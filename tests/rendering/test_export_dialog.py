@@ -136,6 +136,47 @@ def test_a_request_writes_its_job_audits_and_queues_it(
     assert nothing.status_code == 400 and foreign.status_code == 400
 
 
+def test_a_broker_fault_after_the_commit_leaves_the_job_to_the_reconciler(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """The row is written before the call that leaves the process: when the broker refuses the
+    job, the person still reaches the job's page, the job stays queued for the reconciler, and
+    the fault is logged."""
+    import logging
+
+    from rendering import tasks
+    from rendering.models import ExportJob
+
+    def refused(*args: Any) -> None:
+        raise ConnectionError("the broker is down")
+
+    people = edition_cast()
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "broker")
+    monkeypatch.setattr(tasks.render_export, "delay", refused)
+    caplog.set_level(logging.ERROR)
+
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "pdf", "view": "canonical"},
+    )
+
+    assert response.status_code == 302
+    with schema_context(migrated_tenant.number):
+        job = ExportJob.objects.get()
+    assert job.state == "queued"
+    assert response["Location"].endswith(f"/{job.pk}/")
+    assert any(record.levelno >= logging.ERROR for record in caplog.records)
+
+
 def test_only_the_requester_sees_a_job(
     migrated_tenant: Any,
     edition_cast: Any,

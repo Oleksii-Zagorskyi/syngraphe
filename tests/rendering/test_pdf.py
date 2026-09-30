@@ -232,12 +232,45 @@ def test_title_page_says_what_the_text_is(
     people = edition_cast()
     kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
     with schema_context(migrated_tenant.number):
-        canonical = _title_page(SimpleNamespace(document=people.document, view="canonical"), "T")
-        pending = _title_page(SimpleNamespace(document=people.document, view="pending_edits"), "T")
+        canonical = _title_page(
+            SimpleNamespace(document=people.document, view="canonical"),
+            "T",
+            "1.0",
+        )
+        pending = _title_page(
+            SimpleNamespace(document=people.document, view="pending_edits"),
+            "T",
+            "1.0-1",
+        )
 
     assert "Затверджено:" in canonical and "редакція 1.0" in canonical
     assert "@" not in canonical
     assert "Не затверджено — всі неприйняті правки до редакції 1.0" in pending
+
+
+def test_the_title_page_names_the_exported_edition(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, kit: Any
+) -> None:
+    """A canonical export of edition 1.0 run after edition 2.0 exists — queued before it, and still
+    permitted — names 1.0 on its title page, as its header and file name do; a view departing from
+    1.0 names 1.0."""
+    from types import SimpleNamespace
+
+    from rendering.export.compose import _title_page
+
+    people = edition_cast()
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.SECOND)
+    with schema_context(migrated_tenant.number):
+        canonical = _title_page(
+            SimpleNamespace(document=people.document, view="canonical"), "T", "1.0"
+        )
+        accepted = _title_page(
+            SimpleNamespace(document=people.document, view="accepted"), "T", "1.1"
+        )
+
+    assert "редакція 1.0" in canonical and "2.0" not in canonical
+    assert "редакції 1.0" in accepted and "2.0" not in accepted
 
 
 def test_a_formatting_change_prints_once(
@@ -251,7 +284,7 @@ def test_a_formatting_change_prints_once(
     settings: Any,
 ) -> None:
     """A sentence whose formatting alone changed prints as it now reads, never beside its earlier
-    form."""
+    form, and marked as a change of formatting."""
     from pypdf import PdfReader
 
     sentence = "Заяву на погодження подають письмово."
@@ -273,3 +306,5 @@ def test_a_formatting_change_prints_once(
     pages = PdfReader(str(Path(settings.EXPORT_ROOT) / job.artifact_ref)).pages
     text = re.sub(r"\s+", " ", " ".join(page.extract_text() for page in pages))
     assert text.count(sentence) == 1
+    # Marked: the reader of the file sees that its formatting changed.
+    assert text.count("лише форматування") == 1

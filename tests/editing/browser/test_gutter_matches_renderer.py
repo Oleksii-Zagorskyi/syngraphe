@@ -13,14 +13,15 @@ from typing import Any
 
 import pytest
 
-from editing.markdown.parser import parser
 from rendering.numbering import labels
+from rendering.renderer import RENDERER
 
 CASES_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "render" / "numbering-cases.json"
 
 
 def python_sequence(text: str) -> list[str]:
-    found = labels(parser().parse(text))
+    """The reading view's numbers: its own parse, as `renderer.labelled` numbers it."""
+    found = labels(RENDERER.parse(text))
     return [found[index] for index in sorted(found)]
 
 

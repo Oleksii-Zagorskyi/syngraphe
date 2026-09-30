@@ -501,3 +501,87 @@ def test_a_one_document_reconcile_touches_its_exports_only(
 
     assert not [f for f in other if f.kind == reconcile.EXPORT_STUCK]
     assert [f.kind for f in own if f.kind == reconcile.EXPORT_STUCK] == ["export_stuck"]
+
+
+def test_attachments_alone_are_exported_as_the_dialog_posts_them(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """With *Document* unticked the dialog's script disables *Format*, and a disabled control is
+    not posted: the request carries no format, and the attachments are exported all the same."""
+    number = migrated_tenant.number
+    people = edition_cast()
+    kit.canonical(number, people, commit_version, kit.FIRST)
+    data = "Синтетичний рядок таблиці.\n".encode()
+    kit.attach(number, people, kit.SECOND, data)
+
+    response = people.clients["r"].post(
+        f"/document/{people.document.number}/export/",
+        {"attachments": "on", "view": "pending_edits"},
+    )
+
+    assert response.status_code == 302
+    job = kit.run_job(number, exports[0][1])
+    assert job.state == "done", job.failure_reason
+    with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as bundle_file:
+        assert bundle_file.namelist() == ["вкладений_файл-1_—_stroky.txt"]
+        assert bundle_file.read("вкладений_файл-1_—_stroky.txt") == data
+
+
+def test_the_reconciler_passes_over_an_abandoned_job_a_render_holds(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+) -> None:
+    """A job an hour old that a render holds is being made, not abandoned: the repair leaves it
+    at once rather than wait for the render's lock."""
+    import threading
+    import time
+
+    from django.db import connection, transaction
+
+    from documents import reconcile
+    from rendering.models import ExportJob
+
+    _asked(
+        migrated_tenant, edition_cast, member_of, link_group, commit_version, kit, kit.FIRST,
+        format="pdf",
+    )  # fmt: skip
+    job_id = exports[0][1]
+    with schema_context(migrated_tenant.number):
+        ExportJob.objects.update(created_at=timezone.now() - timedelta(hours=2))
+    held = threading.Event()
+    release = threading.Event()
+
+    def render_holds() -> None:
+        try:
+            with schema_context(migrated_tenant.number), transaction.atomic():
+                ExportJob.objects.select_for_update().get(pk=job_id)
+                held.set()
+                release.wait(15)
+        finally:
+            connection.close()
+
+    other = threading.Thread(target=render_holds)
+    other.start()
+    try:
+        assert held.wait(10)
+        started = time.monotonic()
+        found = reconcile.run(tenant=migrated_tenant.number, repair=True)
+        took = time.monotonic() - started
+    finally:
+        release.set()
+        other.join(20)
+
+    assert took < 5
+    assert [f.kind for f in found if f.kind.startswith("export")] == []
+    with schema_context(migrated_tenant.number):
+        assert ExportJob.objects.get(pk=job_id).state == "queued"

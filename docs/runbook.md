@@ -182,7 +182,7 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 |---|---|---|---|
 | `creating_without_repository`, `creating_without_commit`, `creating_without_version`, `creating_unfinished` | a creation stopped at that step (ten minutes or more ago) | finishes it: the document becomes active, reaching its creator alone — nobody while the creator is blocked. Left as found when the creator was never a member of the organisation; a repository at its number that names another document is reported as `identity_mismatch` instead | — |
 | `commit_without_row` | git is ahead of the rows — normal after any restore | derives the version row, for a commit by a member of the organisation, of an ordinary kind — or an acceptance or an approval, from the one passport section its commit appended, exactly as the platform writes one: an acceptance with its correction notices, an approval with its tag, its edition and its freeze's end — after the newest commit the rows know. It stops at the first commit it cannot derive, and derives nothing while the document has a `row_without_commit`: what follows is reported, never derived past a hole | — |
-| `row_without_commit` | a version row names a commit its repository does not hold — a repository restored from an older bundle | reports it | deletes the row, and with it the rows derived from it: an acceptance it records or started from, a correction notice naming it, their notifications — each counted in the audit |
+| `row_without_commit` | a version row names a commit its repository does not hold — a repository restored from an older bundle | reports it | deletes the row, and with it the rows derived from it: an acceptance it records or started from, a correction notice naming it, their notifications, the export jobs that exported it or marked against it — each counted in the audit |
 | `orphan_repository` | a repository with no row | recreates the row from `document.md`, in the root folder, type *document*, **with no groups and not author-only** — only administrators reach it until the tenant administrator links groups. Only when its first commit's author is a member of the organisation and its language is known; otherwise reported | — |
 | `frontmatter_differs` | the row's title or language differs from `document.md` | rewrites the row from the file | — |
 | `passport_entry_without_row` | the passport records an acceptance or an approval no row records | reports it; the passport is believed, and repair derives the row as `commit_without_row` does. A passport that does not read is reported heading by heading | — |
@@ -197,7 +197,8 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `notices_missing` | an acceptance whose correction notices were never computed — a stop after its rows, or a computation that failed | computes them; a failure is reported with its error and tried again next run | — |
 | `edition_unfinished` | an approval's version whose edition row, tag or freeze's end is missing | derives what is missing from the approval's section: the tag with the approver's identity, the edition, the freeze's end — and, where a restore lost the freeze itself, the freeze the section proves (DL-0355) | — |
 | `edition_differs` | an edition row disagrees with its approval's section, or an approval commit is not of the platform's form | reports it; the passport is believed | — |
-| `export_stuck` | an export still queued ten minutes after it was asked for — `render` was down, or the broker lost the entry | queues it again; a job runs once however often it is queued. One that returns on every run means `render` fails it or is down: `docker compose ps render`, `docker compose logs render` | — |
+| `export_stuck` | an export still queued ten minutes after it was asked for, at the next hourly run — `render` was down, or the broker lost the entry | queues it again; a job runs once however often it is queued. One that returns on every run means `render` fails it or is down: `docker compose ps render`, `docker compose logs render` | — |
+| `export_abandoned` | an export still queued an hour after it was asked for, at the next hourly run — `render` has been down that long | fails it, *not made in time*, so its person may ask again; a job a render is making is left alone | — |
 | `tag_without_section` | a tag names a commit that is not the approval of that number | reports it; **never repaired** — a person decides what the tag was | — |
 
 A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Exports are the one task queued again from its row; the broker holds no other that matters.
@@ -227,6 +228,29 @@ docker compose exec web python manage.py inspect_draft --tenant N --document M
 ```
 
 A draft whose text the editor does not accept is never lost: the editor opens it in the source view, as Markdown, with each refused line named, and the holder corrects it there. An operator does not repair a draft by hand. When the editor says *busy*, the document's writer lock is held by another write — a commit or a backup bundle — and the holder tries again. Any other failure is in `web`'s log.
+
+## Reading and export
+
+The reading view and every export render the text of a version the platform committed. An export is made by `render`, one job per request, and its file is kept a day under the exports volume, then swept; the job's row stays. Nothing there is a record: a lost file is exported again.
+
+### A failed export job
+
+The person who asked sees the reason on the job's page.
+
+- **The text holds what the platform does not accept**, with the constructs named as the editor names them and their codes. The document's text is corrected in the editor, sent for review and accepted like any other change; where the refused version is the canonical one, the correction is also frozen and made canonical as the next edition (§ Making a document canonical), since a reader of canonical text exports nothing else. The export is then asked for again. An operator does not edit the repository.
+- **The version asked for is no longer one you may export**: the person lost the right between asking and the run. This is not a fault.
+- **Your draft has been finished or discarded since you asked**: a *my edits* export whose draft was sent for review or discarded before the run. Not a fault; the person exports another version.
+- **The chosen version has no attachments to export**: attachments alone were asked of a version that has none. Not a fault.
+- **The file could not be made**: the renderer failed. `docker compose logs render` has the error under *an export failed*, with the job's id. Failures of one document's every export point at its text, an image it names or the fonts; failures of every export point at `render` itself.
+- ***Not made in time***: the job was still unrun at the first hourly reconciler run after it had waited an hour, one to two hours after the request, and `export_abandoned` failed it. `docker compose ps render` shows whether `render` is running; the person asks again once it is.
+
+A job still queued is the reconciler's `export_stuck`: the first hourly run after it has waited ten minutes queues it again, and a job runs once however often it is queued. A job the broker refused when it was asked for is logged in `web` as *an export could not be queued* and waits for that run.
+
+### A document whose text will not parse
+
+Every text the platform commits has passed the validator, so this happens only to a repository written outside the platform: restored from a foreign bundle, or edited by hand. Two cases. **A file that does not read** (its frontmatter broken, or not UTF-8): the reading view answers *Nothing to show here*, as for a missing document, and `web`'s log has *a document's text could not be read* with the document's number. **A text that reads but holds constructs the platform refuses**: the reading view shows it, raw HTML as plain text, and every export of it fails with the constructs named.
+
+Run the reconciler for that document first (`reconcile --tenant N --document M`); `identity_mismatch` or `unreadable` there means the repository is not the platform's own, and the restore is what to revisit (§ Restore, case C). A text that reads but holds refused constructs is corrected by its editors in the editor: the editor opens it in the source view with each refused line named (§ A draft that fails to load). The repository is never edited in place.
 
 ## Restore
 

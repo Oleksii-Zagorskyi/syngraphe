@@ -124,6 +124,7 @@ HELP_PAGES = {
     "editions": _("Freezing and editions"),
     "editing": _("Editing"),
     "markdown": _("What the editor accepts"),
+    "reading": _("Reading a document"),
     "exporting": _("Exporting"),
 }
 

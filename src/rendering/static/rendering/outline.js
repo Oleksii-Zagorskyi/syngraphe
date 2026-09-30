@@ -13,6 +13,7 @@
       const open = toggle.getAttribute("aria-expanded") === "true";
       toggle.setAttribute("aria-expanded", String(!open));
       toggle.textContent = open ? "▸" : "▾";
+      toggle.setAttribute("aria-label", open ? toggle.dataset.expand : toggle.dataset.collapse);
       toggle.closest("li").classList.toggle("shut", open);
       return;
     }

@@ -21,4 +21,11 @@
 
   form.addEventListener("change", update);
   update();
+
+  // A help box closes at a click anywhere else, and one opening closes the others (DL-0233).
+  document.addEventListener("click", (event) => {
+    for (const hint of form.querySelectorAll("details.hint[open]")) {
+      if (!hint.contains(event.target)) hint.open = false;
+    }
+  });
 })();

@@ -295,7 +295,7 @@ def _texts(job: ExportJob, tenant_number: int) -> tuple[bundle.Frontmatter, str,
     return frontmatter, _checked(body), baseline
 
 
-def _title_page(job: ExportJob, title: str) -> str:
+def _title_page(job: ExportJob, title: str, number: str) -> str:
     """The title page's default form, until a tenant configures its own (DL-0164, DL-0360): the
     title, the number, and the approval as the exported text stands — the approver, the date and
     the edition on the canonical view; elsewhere what the text is, to the edition it departs
@@ -306,11 +306,15 @@ def _title_page(job: ExportJob, title: str) -> str:
 
     from identity.naming import person
 
+    # The edition behind the exported version, from its own number: `N.M` and `N.M-X` stand on
+    # edition `N.0` (DL-0183), so a job run after a newer edition still names the one it exports.
+    major = int(number.split(".", 1)[0])
     edition = (
-        Edition.objects.filter(version__document=job.document)
+        Edition.objects.filter(version__document=job.document, number=f"{major}.0")
         .select_related("approved_by")
-        .order_by("-approved_at")
         .first()
+        if major
+        else None
     )
     if edition is None:
         approval = _("Not yet approved")
@@ -348,7 +352,9 @@ def _attachment_list(items: list[dict[str, Any]]) -> str:
     )
 
 
-def _page(job: ExportJob, frontmatter: bundle.Frontmatter, text: str, header: str) -> str:
+def _page(
+    job: ExportJob, frontmatter: bundle.Frontmatter, text: str, header: str, number: str
+) -> str:
     language = escape(job.document.language_id or "")
     hashes = "; ".join(
         f"{item.get('file_name', '')} {item.get('sha256', '')}" for item in frontmatter.attachments
@@ -359,7 +365,7 @@ def _page(job: ExportJob, frontmatter: bundle.Frontmatter, text: str, header: st
         f"<title>{escape(header)}</title>{meta}</head><body>"
     ]
     if frontmatter.title_page:
-        parts.append(_title_page(job, frontmatter.title))
+        parts.append(_title_page(job, frontmatter.title, number))
     parts.append(f'<article class="document-text">{text}</article>')
     if frontmatter.attachments:
         parts.append(_attachment_list(frontmatter.attachments))
@@ -405,5 +411,5 @@ def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
         rendered = render_changes(baseline.encode(), body.encode())
     else:
         rendered = render(body)
-    composed.html = _page(job, frontmatter, rendered, header)
+    composed.html = _page(job, frontmatter, rendered, header, number)
     return composed

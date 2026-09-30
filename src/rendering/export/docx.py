@@ -30,13 +30,17 @@ PART = "application/vnd.openxmlformats-officedocument.wordprocessingml"
 REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
 # The named styles and their look (the reading view's, `document.css`): character styles for the
-# spans and the label, paragraph styles for the callouts.
+# spans, the label and a marked export's changes, paragraph styles for the callouts.
 STYLES = {
     "Entity Role": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="E6E6E6"/>'),
     "Entity Action": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="E6E6E6"/>'),
     "Entity Term": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="E6E6E6"/>'),
     "Underline": ("character", '<w:u w:val="single"/>'),
     "Clause Number": ("character", '<w:color w:val="777777"/><w:sz w:val="18"/>'),
+    "Inserted": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="DFF0D8"/>'),
+    "Deleted": ("character", '<w:strike/><w:shd w:val="clear" w:color="auto" w:fill="F6D6D6"/>'),
+    "Format Changed": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="FFF3C4"/>'),
+    "Change Label": ("character", '<w:color w:val="777777"/><w:sz w:val="16"/>'),
     "Callout Note": ("paragraph", "F3F6F9"),
     "Callout Warning": ("paragraph", "FBF3E4"),
     "Callout Example": ("paragraph", "F4F4F4"),
