@@ -11,6 +11,9 @@ from documents.bundle import TITLE_MAX, valid_title
 from documents.models import ROOT_FOLDER, DocumentType, Folder
 from identity.models import Language
 
+# A new document's language when the organisation names none (DL-0366).
+DEFAULT_DOCUMENT_LANGUAGE = "en"
+
 
 class RootFolderField(forms.ModelChoiceField):  # type: ignore[type-arg]
     """The root folder, named after the organisation (DL-0194)."""
@@ -48,6 +51,8 @@ class CreateForm(forms.Form):
         folder = self.fields["folder"]
         assert isinstance(folder, RootFolderField)
         folder.organisation = organisation
+        # English until an organisation has a language of its own (DL-0366).
+        self.fields["language"].initial = DEFAULT_DOCUMENT_LANGUAGE
 
     def clean_title(self) -> str:
         title = str(self.cleaned_data["title"])

@@ -70,7 +70,9 @@
 .editor-surface h3 .clause,
 .editor-surface h4 .clause {
   position: static;
+  display: inline;
   width: auto;
+  text-align: left;
   color: inherit;
   font-size: inherit;
   margin-right: 0.3em;

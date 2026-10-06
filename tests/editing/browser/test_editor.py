@@ -150,3 +150,15 @@ def test_the_toolbar_shows_icons_named_by_their_words(editing: Any, page: Any) -
         assert button["svg"], button
         assert button["text"] == "", button
         assert button["name"] and button["title"] == button["name"], button
+
+
+def test_a_headings_number_stands_on_the_headings_line(editing: Any, page: Any) -> None:
+    """The number opens the heading's own line, as in the reading view (DL-0363)."""
+    editing("# Загальні положення\n\nПерше речення.\n")
+    number, title = page.evaluate(
+        "() => { const h = document.querySelector('.editor-surface h1');"
+        " const c = h.querySelector('.clause').getBoundingClientRect();"
+        " const r = document.createRange(); r.selectNodeContents(h.lastChild);"
+        " const t = r.getBoundingClientRect(); return [c.top, t.top]; }"
+    )
+    assert abs(number - title) < 4

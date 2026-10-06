@@ -192,6 +192,9 @@ def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) 
     Language.objects.update_or_create(
         code="uk", defaults={"label": "Українська", "actor_kind": "system"}
     )
+    Language.objects.update_or_create(
+        code="en", defaults={"label": "English", "actor_kind": "system"}
+    )
 
     response = client.get("/document/new/")
 
@@ -209,6 +212,9 @@ def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) 
         options = re.findall(r"<option[^>]*>([^<]*)</option>", body)
     assert language.label in options and "uk" not in options and "en" not in options
     assert kind.label in options and "document" not in options
+    # English preselected while an organisation has no language of its own (DL-0366), whatever
+    # the interface's language and the list's order.
+    assert re.search(r'<option value="en" selected>', body)
 
 
 def test_crash_states_are_the_documented_ones(
