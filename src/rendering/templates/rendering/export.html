@@ -14,7 +14,7 @@
       {% if parts %}<label><input type="checkbox" name="attachments" checked> {% translate "Attachments" %}</label>{% endif %}
     </fieldset>
     <fieldset class="format">
-      <legend>{% translate "Format" %} <details class="hint"><summary aria-label="{% translate 'The formats' %}">?</summary><p>{% translate "PDF and DOCX carry the clause numbers, the page header and the page numbers. Markdown is the text as the source view shows it, and never carries marked changes." %}</p></details></legend>
+      <legend>{% translate "Format" %} <details class="hint"><summary aria-label="{% translate 'The formats' %}">?</summary><p>{% translate "PDF and DOCX carry the headings' and clauses' numbers and the page numbers, and no page header. Markdown is the text as the source view shows it, its headings numbered, and never carries marked changes." %}</p></details></legend>
       <label><input type="radio" name="format" value="pdf" checked> PDF</label>
       <label><input type="radio" name="format" value="docx"> DOCX</label>
       <label><input type="radio" name="format" value="markdown"> Markdown</label>

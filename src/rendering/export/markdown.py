@@ -1,5 +1,6 @@
-"""The Markdown export (DL-0181, DL-0184): the source view saved — the stored text with each
-paragraph's lines joined into one, every mark as stored, no frontmatter.
+"""The Markdown export (DL-0181, DL-0184, DL-0363): the source view saved — the stored text
+with each paragraph's lines joined into one, every mark as stored, no frontmatter — and each
+heading numbered.
 """
 
 from __future__ import annotations
@@ -64,3 +65,19 @@ def join_paragraphs(body: str) -> str:
         heads[n] = len(out)
         out.append(line)
     return "\n".join(out).rstrip("\n") + "\n"
+
+
+def number_headings(text: str) -> str:
+    """`text` with each heading's number after its hashes — `## 1.1 Time limits` — as the outline
+    numbers it; no other line changes and clauses carry none (DL-0363)."""
+    from rendering.numbering import heading_labels
+
+    lines = text.split("\n")
+    headings = [t for t in parser().parse(text) if t.type == "heading_open" and t.map is not None]
+    for token, label in zip(
+        headings, heading_labels([int(t.tag[1:]) for t in headings]), strict=True
+    ):
+        assert token.map is not None
+        marks, _, title = lines[token.map[0]].partition(" ")
+        lines[token.map[0]] = f"{marks} {label} {title}" if title else f"{marks} {label}"
+    return "\n".join(lines)

@@ -1,5 +1,6 @@
 """The DOCX export (ADR-0013, DL-0182): the platform's classes as named Word styles, each carried
-by the text, the numbering definitions, and the header and footer filled.
+by the text, the numbering definitions, the footer's page number and no header (DL-0362); a
+heading's number set as the heading (DL-0363).
 
 People, groups and titles are synthetic examples; every text is invented.
 """
@@ -14,7 +15,6 @@ from typing import Any
 import pytest
 
 from access.rights import Right
-from tenancy.schemas import schema_context
 
 pytestmark = [
     pytest.mark.integration,
@@ -43,9 +43,6 @@ def test_docx_named_styles_and_furniture(
     kit: Any,
     settings: Any,
 ) -> None:
-    from rendering.export import compose
-    from rendering.models import ExportView
-
     sample = (kit.FIXTURES / "conformance.md").read_text(encoding="utf-8")
     people = edition_cast()
     kit.canonical(migrated_tenant.number, people, commit_version, sample)
@@ -63,16 +60,24 @@ def test_docx_named_styles_and_furniture(
         styles = docx.read("word/styles.xml").decode()
         document = docx.read("word/document.xml").decode()
         numbering = docx.read("word/numbering.xml").decode()
-        header = docx.read("word/header1.xml").decode()
+        names = docx.namelist()
         footer = docx.read("word/footer1.xml").decode()
     for style in STYLES:
         assert f'w:styleId="{style}"' in styles, style
         assert f'w:val="{style}"' in document, style
     assert len(re.findall(r"<w:abstractNum ", numbering)) == 3
-    with schema_context(migrated_tenant.number):
-        stance = compose.stance(ExportView.CANONICAL)
-    assert people.document.title in header and "1.0" in header and stance in header
+    assert not any(name.startswith("word/header") for name in names)
+    assert "headerReference" not in document
+    # Nor does the header's text open the body as a title paragraph, from the page's `<title>`.
+    assert not re.search(r'<w:pStyle w:val="Title"\s*/>', document)
+    assert "— " + "канонічна" not in re.sub(r"<[^>]+>", "", document)
     assert "PAGE" in footer
+    # A heading's number takes the heading's look, never the clause number's (DL-0363).
+    paragraphs = re.findall(r"<w:p>.*?</w:p>", document, re.S)
+    headings = [p for p in paragraphs if re.search(r'<w:pStyle w:val="Heading\d"\s*/>', p)]
+    assert headings
+    for heading in headings:
+        assert 'w:val="ClauseNumber"' not in heading
 
 
 def test_a_marked_docx_carries_its_changes_in_styles_of_their_own(
@@ -86,7 +91,8 @@ def test_a_marked_docx_carries_its_changes_in_styles_of_their_own(
     settings: Any,
 ) -> None:
     """An insertion, a deletion and a change of formatting each take a named style of its own,
-    never the look of an underlined or struck-out word; the formatting change carries its label."""
+    never the look of an underlined or struck-out word; the formatting change shows by its colour
+    alone."""
     people = edition_cast()
     kit.canonical(migrated_tenant.number, people, commit_version, kit.SECOND)
     changed = (
@@ -109,8 +115,10 @@ def test_a_marked_docx_carries_its_changes_in_styles_of_their_own(
     with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as docx:
         body = docx.read("word/document.xml").decode()
         styles = docx.read("word/styles.xml").decode()
-    for style in ("Inserted", "Deleted", "FormatChanged", "ChangeLabel"):
+    assert 'w:val="C2C2C2"' in styles
+    for style in ("Inserted", "Deleted", "FormatChanged"):
         assert f'w:styleId="{style}"' in styles, style
         assert re.search(rf'<w:rStyle w:val="{style}"\s*/>', body), style
     assert not re.search(r'<w:rStyle w:val="Underline"\s*/>', body)
-    assert "лише форматування" in body
+    # The formatting change is marked by its colour alone (DL-0363).
+    assert "лише форматування" not in body

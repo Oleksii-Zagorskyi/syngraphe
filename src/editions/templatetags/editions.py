@@ -1,6 +1,6 @@
 """The freeze on the document page, the same on every tab: the band every reader sees, and the
 *Freeze* and *Make canonical* controls to holders of each right, disabled with the reason while
-they cannot be used (DL-0233, DL-0234, DL-0236)."""
+they cannot be used (DL-0233, DL-0234, DL-0236); and the version the header names."""
 
 from __future__ import annotations
 
@@ -79,3 +79,21 @@ def edition_controls(context: dict[str, Any], document: Any) -> dict[str, Any]:
             )
         shown["canonical"] = {"refused": reason}
     return shown
+
+
+@register.simple_tag(takes_context=True)
+def version_shown(context: dict[str, Any], document: Any) -> str:
+    """The version the header names beside the title on every tab: the latest the person may see,
+    by the view's rule (DL-0209); empty when none can be read."""
+    from editions.visible import visible
+    from rendering.views import UNREADABLE
+
+    try:
+        seen = visible(context["request"].user, document)
+    except UNREADABLE:
+        # A record that cannot be read costs the number, never the page; logged for the operator.
+        logger.exception(
+            "a document's version could not be read", extra={"document": document.number}
+        )
+        return ""
+    return seen.number if seen is not None else ""

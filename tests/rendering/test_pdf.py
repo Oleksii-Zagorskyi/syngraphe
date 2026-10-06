@@ -102,10 +102,10 @@ def test_pdf_has_outline_labels_and_furniture(
     pages = PdfReader(str(Path(settings.EXPORT_ROOT) / job.artifact_ref)).pages
     assert len(pages) > 1
     for n, page in enumerate(pages, 1):
-        # Every page carries the header — title, number, stance — and its own page number.
+        # No page carries a header (DL-0362): the page number at its foot alone.
         lines = [line.strip() for line in page.extract_text().splitlines()]
         flat = re.sub(r"\s+", " ", " ".join(lines))
-        assert f"{title} 1.0 — {stance}" in flat, n
+        assert f"{title} 1.0 — {stance}" not in flat, n
         assert str(n) in lines, n
     # Images reach an export as their descriptions: nothing is fetched.
     assert fetched == []
@@ -306,5 +306,5 @@ def test_a_formatting_change_prints_once(
     pages = PdfReader(str(Path(settings.EXPORT_ROOT) / job.artifact_ref)).pages
     text = re.sub(r"\s+", " ", " ".join(page.extract_text() for page in pages))
     assert text.count(sentence) == 1
-    # Marked: the reader of the file sees that its formatting changed.
-    assert text.count("лише форматування") == 1
+    # Marked by its colour alone: the words that name the change are the screen's (DL-0363).
+    assert "лише форматування" not in text

@@ -48,3 +48,23 @@ def test_every_paste_refusal_links_to_the_page() -> None:
 
     template = Path(__file__).resolve().parents[2] / "src" / "editing" / "templates"
     assert 'data-help="/help/markdown/"' in (template / "editing" / "edit_tab.html").read_text()
+
+
+def test_the_index_opens_on_reading_a_document(member_of: Any, settings: Any) -> None:
+    """`/help/` is never an empty page beside its list: it opens on *Reading a document*, the page
+    every person can use, the list beside it (DL-0365)."""
+    import re
+
+    client, _, _ = member_of("a.reader@example.test")
+    settings.LANGUAGE_CODE = "uk"
+    index = client.get("/help/").content.decode()
+    reading = client.get("/help/reading/").content.decode()
+
+    def article(body: str) -> str:
+        found = re.search(r"<article>(.*?)</article>", body, re.S)
+        assert found is not None
+        return found.group(1).strip()
+
+    assert article(index)
+    assert article(index) == article(reading)
+    assert 'href="/help/markdown/"' in index

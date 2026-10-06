@@ -24,7 +24,7 @@ from editing.markdown.validator import validate
 from editing.numbering import BEFORE_ANY_ACCEPTANCE
 from editions.models import Edition
 from rendering.export import furniture, names
-from rendering.export.markdown import join_paragraphs
+from rendering.export.markdown import join_paragraphs, number_headings
 from rendering.models import ExportChanges, ExportFormat, ExportView
 from rendering.renderer import render
 from review.services import accepted_content_version, latest_acceptance, number_key, run
@@ -393,7 +393,7 @@ def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
         attachments=list(frontmatter.attachments) if job.include_attachments else [],
     )
     if job.format == ExportFormat.MARKDOWN:
-        text = join_paragraphs(body)
+        text = number_headings(join_paragraphs(body))
         if frontmatter.attachments:
             rows = "\n".join(
                 f"| {_cell(item.get('title', ''))} | {_cell(item.get('file_name', ''))} | "

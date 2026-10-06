@@ -203,7 +203,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0023** — As an editor, I see a clause number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
 - The form is `1.1-3` and `4.3.2-6`: the heading path, then the clause within it — each paragraph of text is one clause.
 - Inside an appendix the same numbers carry the appendix in front of them, so *Appendix 2, 1.1-3* is unambiguous.
-- The numbers are not part of the text and cannot be typed into; they sit in a gutter beside it.
+- The numbers are not part of the text and cannot be typed into: a heading's stands in the heading, a clause's in a gutter beside it (DL-0363).
 
 **ST-0024** — As any reader of a document, I navigate by an outline of its sections and subsections, so that a forty-page policy is usable.
 
@@ -250,6 +250,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0032** — As a holder of a history right on a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not.
 - Each entry shows the version, the event — edit, acceptance, return, freeze, canonisation — and who acted (DL-0197).
 - Each version opens as a historical page in a new window: the reading view and export, never editing, and *compare with* any other version, the latest included (DL-0195).
+- A comparison of a version with the one before it offers *previous* and *next*, moving the pair one version back or forward — `0.0-4` against `0.0-3` becomes `0.0-3` against `0.0-2`, or `0.0-5` against `0.0-4` — so a long history is read edit by edit; a version the reader may not see is skipped, and at either end of the history the button stands disabled (DL-0361).
 
 **ST-0033** — As a reviewer, I compare any two versions directly, so that I am not forced to read a long run one step at a time.
 - The comparison shows the newer version's whole text with the changes marked, links to both versions, appendices compared in pairs I pick, and each attachment with both files and whether it changed (DL-0208).
@@ -324,7 +325,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - I choose one format, and what to include — the document, its appendices (embedded or as separate files), its attachments — all included by default; parts the document lacks are not offered. Several files come as one zip. The view: canonical, accepted, pending edits, or my edits with or without marks, as my rights allow (DL-0193, DL-0209).
 - The title page and a table of the attachments — title, file name, hash — are generated; attachments themselves never go inside a text export.
 - Paragraphs read as paragraphs in every format, Markdown included; the document's frontmatter is never exported.
-- DOCX and PDF carry the page number in the footer, and in the header the title, the version number and the stance exported.
+- DOCX and PDF carry the page number in the footer and no header; the file's name carries the title, the version number and the stance exported (DL-0362).
 
 **ST-0046** — As a tenant administrator, I edit the stylesheet the exports are rendered with, so that documents look the way the organisation expects.
 - One stylesheet per organisation, selected per document.

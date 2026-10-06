@@ -15,7 +15,9 @@ class Command(BaseCommand):
     help = (
         "Print the three bounds of a whole-host restore — the newest clean marker, the last good "
         "moment and the end of the archive — and the one that governs. Reads `pgbackrest verify` "
-        "from standard input. The last line is the recovery, as pgBackRest's own variables."
+        "from standard input. The last line is the recovery, as pgBackRest's own variables, "
+        "each one word: a time target is written with a `T`, which `restore-database.sh` turns "
+        "into the space pgBackRest reads."
     )
 
     def add_arguments(self, parser: CommandParser) -> None:

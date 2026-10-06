@@ -44,10 +44,10 @@ def _write_document(
     if fmt == ExportFormat.MARKDOWN:
         path.write_text(composed.markdown, encoding="utf-8")
     elif fmt == ExportFormat.PDF:
-        stylesheets = [STYLESHEET.read_text(encoding="utf-8"), furniture.pdf_css(composed.header)]
+        stylesheets = [STYLESHEET.read_text(encoding="utf-8"), furniture.pdf_css()]
         pdf.write(composed.html, path, stylesheets=stylesheets, read_image=read_image)
     else:
-        docx.write(composed.html, path, header=composed.header)
+        docx.write(composed.html, path)
 
 
 def _zip(

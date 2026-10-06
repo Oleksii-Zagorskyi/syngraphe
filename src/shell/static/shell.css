@@ -53,8 +53,8 @@ td.r,th.r{text-align:right;white-space:nowrap}
 td.id{color:var(--muted);white-space:nowrap;width:1%}
 
 .tag{font-size:11px;border:1px dashed var(--accent);padding:0 5px;margin-left:6px;white-space:nowrap}
-.pi{display:inline-block;width:18px;text-align:center}
-.pi.no{opacity:.25}
+.part.absent{opacity:.25}
+h1 .version-number{color:var(--muted);font-weight:400;margin-left:6px}
 
 .grouphd{background:#fafafa;font-size:12px;color:var(--muted);font-weight:600}
 
@@ -120,6 +120,10 @@ del{background:var(--del)}
 
 .help{display:none;background:#f7f7f7;border:1px solid var(--line);padding:8px;font-size:12px;margin:6px 0}
 .help.on{display:block}
+/* A help page: the list of pages beside the page it shows (DL-0365). */
+.help-page{display:grid;grid-template-columns:minmax(180px,240px) minmax(0,48rem);gap:32px;align-items:start}
+.help-pages ul{list-style:none;padding:0;margin:8px 0}
+.help-pages li{margin:4px 0}
 .ind{margin-left:22px}
 
 .ntabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:8px}

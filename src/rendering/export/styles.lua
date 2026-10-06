@@ -16,17 +16,13 @@ local CALLOUTS = {
 }
 
 function Span(span)
-  -- A change of formatting alone: the text as it now reads, never its earlier form, followed by
-  -- its label, as the reading view shows it.
+  -- A change of formatting alone: the text as it now reads, never its earlier form.
   if span.classes:includes("format-old") then
     return {}
   end
   if span.classes:includes("format-changed") then
+    -- Marked by its colour alone: the words naming the change are the screen's (DL-0363).
     span.attributes["custom-style"] = "Format Changed"
-    local label = span.attributes["label"] or span.attributes["data-label"]
-    if label then
-      return { span, pandoc.Space(), pandoc.Span(pandoc.Str(label), { ["custom-style"] = "Change Label" }) }
-    end
     return span
   end
   for _, class in ipairs(span.classes) do
@@ -67,4 +63,24 @@ end
 
 function Strikeout(el)
   return pandoc.Span(el.content, { ["custom-style"] = "Deleted" })
+end
+
+-- A heading's number is part of the heading and takes its look, not a clause number's (DL-0363):
+-- its span is unwrapped, so the heading's own style sets it.
+function Header(header)
+  header.content = header.content:walk({
+    Span = function(span)
+      if span.classes:includes("num") then
+        return span.content
+      end
+    end,
+  })
+  return header
+end
+
+-- The page's `<title>` names the export for the PDF's metadata; Pandoc would print it at the top
+-- of the document as a title paragraph, the header DL-0362 removed. A DOCX has no such line.
+function Meta(meta)
+  meta.title = nil
+  return meta
 end

@@ -7,6 +7,7 @@ import { addRowAfter } from "prosemirror-tables";
 import { insertPoint } from "prosemirror-transform";
 
 import { spec } from "./spec.js";
+import { ICONS } from "./icons.js";
 
 // The deepest list nesting in `doc`.
 function listDepth(doc) {
@@ -46,10 +47,19 @@ function insertTable(schema) {
   };
 }
 
+// An icon where one is drawn, its word the tooltip and the accessible name (DL-0365); the word
+// on the button where none is.
 function button(label, name, run) {
   const element = document.createElement("button");
   element.type = "button";
-  element.textContent = label;
+  if (ICONS[name]) {
+    element.innerHTML = ICONS[name];
+    element.title = label;
+    element.setAttribute("aria-label", label);
+    element.className = "icon";
+  } else {
+    element.textContent = label;
+  }
   element.dataset.command = name;
   element.addEventListener("mousedown", (event) => event.preventDefault());
   element.addEventListener("click", run);

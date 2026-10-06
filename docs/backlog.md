@@ -250,3 +250,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The text a renderer parses is escaped and its images are read as their descriptions, so the path needs a flaw in a native parser first; the split touches the backup design, which uses the stack's role, and the configuration reader, which requires the secret key of every process.
 
 **What has to be true before it is taken up.** Before the first production deploy.
+
+## B-038 — A page about the document, or a passport exported beside it
+
+**Idea.** An export carries no page header (DL-0362). What a header used to repeat on every page — the title, the version, the stance — and more of the document's record (who approved it, when, its editions) could stand once: on a last page of information about the document, or in a separate passport document exported together with it.
+
+**Why it is parked.** The file's name says which version and stance a file holds, and the title page where a document has one — off by default, and naming the edition rather than the exported version; nothing in release 0.1 needs more yet.
+
+**What has to be true before it is taken up.** Readers of printed or exported documents ask which version a loose page belongs to, or what stands behind an approval.

@@ -107,8 +107,11 @@ def test_markdown_export_is_the_source_view(
 
     assert job.state == "done", job.failure_reason
     produced = (Path(settings.EXPORT_ROOT) / job.artifact_ref).read_text(encoding="utf-8")
+    from rendering.export.markdown import number_headings
+
+    # The source view with its headings numbered (DL-0363); `number_headings` has its own cases.
     expected = (kit.FIXTURES / "conformance.export.md").read_text(encoding="utf-8")
-    assert produced == expected
+    assert produced == number_headings(expected)
     assert not produced.startswith("---")
 
 

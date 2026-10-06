@@ -6,7 +6,7 @@
   {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
   {% freeze_band document %}
   <nav class="breadcrumb"><a href="/folder/1/">{{ current_tenant.name }}</a> /</nav>
-  <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% state_tag document %}</h1>
+  <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% version_shown document as shown %}{% if shown %} <span class="version-number">{{ shown }}</span>{% endif %}{% state_tag document %}</h1>
   {% edition_controls document %}
   <p class="document-actions"><a class="button" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a></p>
   {% if tab == "view" %}

@@ -98,7 +98,9 @@ def test_finish_waits_while_text_is_not_captured(
 def test_no_save_control(editing: Any, page: Any) -> None:
     editing(START)
     labels = page.eval_on_selector_all(
-        "button, input[type=submit], [role=button]", "els => els.map(e => e.textContent)"
+        "button, input[type=submit], [role=button]",
+        # An icon's name is its accessible name, not its text.
+        "els => els.map(e => (e.getAttribute('aria-label') || '') + ' ' + e.textContent)",
     )
     assert not any(re.search(r"(?i)save|зберегти", label or "") for label in labels)
 

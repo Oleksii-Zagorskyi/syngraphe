@@ -190,6 +190,34 @@ def test_pending_edit_is_not_the_accepted_readers(
     )
 
 
+def test_the_header_names_the_readers_version_on_every_tab(
+    migrated_tenant: Any, accepted: Any, reader: Any
+) -> None:
+    """The document's header follows the view's rule (DL-0209, `pages.md § Document page`): the
+    latest version the reader may see stands after the title, on *View* and on *Info* alike."""
+    document = accepted.document
+    _commit(migrated_tenant.number, document, accepted.operator, BODY + f"\n{PENDING_SENTENCE}\n")
+    accepted_client = reader(Right.VIEW_ACCEPTED, document)
+    pending_client = reader(Right.VIEW_PENDING, document)
+
+    def header(client: Any, path: str) -> str:
+        found = re.search(r"<h1>(.*?)</h1>", client.get(path).content.decode(), re.S)
+        assert found is not None
+        return found.group(1)
+
+    for path in (f"/document/{document.number}/", f"/document/{document.number}/info/"):
+        assert re.search(r'<span class="version-number">0\.1</span>', header(accepted_client, path))
+        assert '<span class="version-number">0.1-1</span>' in header(pending_client, path)
+    # The tabs and pages beyond *View* and *Info* share the header, and its version with it.
+    assert '<span class="version-number">0.1-1</span>' in header(
+        pending_client, f"/document/{document.number}/pending/"
+    )
+    editor = reader(Right.EDIT, document)
+    assert '<span class="version-number">0.1-1</span>' in header(
+        editor, f"/document/{document.number}/edit/"
+    )
+
+
 def test_pending_holder_with_nothing_pending_sees_the_accepted_version(
     accepted: Any, reader: Any
 ) -> None:

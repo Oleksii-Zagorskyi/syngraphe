@@ -13,7 +13,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 
 **Derived by `scripts/derive_coverage.py`** from the *Stories* column of each region table in `pages.md` and its *not yet drawn* marks, and from the stories of [`user-stories.md`](../user-stories.md) in their order — a withdrawn story and one outside release 0.1 left out; run it whenever either file changes. A region is named by its section — `› The tabs` or `› The edit tab` for those subsections — then the region cell up to its first ` — ` or `; `, emphasis removed, cut at 58 characters; a region named as its section is the section alone. A story's title stops before its *so that* or at its sentence's end. A story is **drawn** when every region carrying it is drawn, **partly drawn** when some are, **not yet drawn** when none are. A region for a later release carries no 0.1 story (DL-0228).
 
-**70 stories:** 64 drawn · 3 partly drawn · 3 not yet drawn. Every story has at least one region.
+**73 stories:** 64 drawn · 3 partly drawn · 3 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
 
 | # | Story | Where | Drawn |
 |---|---|---|---|
@@ -77,10 +77,10 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0064 | As any reader, I compare two different documents — a version of each that I may read | Document page › The tabs — History; Compare — comparing two documents | partly drawn |
 | ST-0040 | As a holder of the freeze right, I unfreeze a document | Document page — Freeze / Unfreeze | drawn |
 | ST-0041 | As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two | Document page › The tabs — History; Historical page — the page; Compare — version comparison, appendix comparison, attachment list | drawn |
-| ST-0042 | As a reader, I read a document, with its numbering and outline, and always know which version I am reading | Document page — breadcrumb, #12, title, the latest version the reader may …; Document page › The tabs — View | drawn |
+| ST-0042 | As a reader, I read a document, with its numbering and outline, and always know which version I am reading | Document page — breadcrumb, #12, title, the latest version the reader may …; Document page — the text; Document page › The tabs — View | drawn |
 | ST-0043 | As a reader, I follow a mention of another document as a link when I have access to it | Document page › The tabs — View, mentions | not yet drawn |
 | ST-0044 | As any reader of a document, I see an automatically maintained *see also* listing the documents it links to, filtered the same way | Document page — generated views | not yet drawn |
-| ST-0045 | As a reader, I export a stated version to PDF, to Word or to Markdown | Document page — Export, Copy; Export — What checkboxes, all checked by default; Export — embedded / separate; Export — View; Export — Changes; Export — what will be delivered; Export; Export — ? beside each section's heading; Export — file names | drawn |
+| ST-0045 | As a reader, I export a stated version to PDF, to Word or to Markdown | Document page — Export, Copy; Export — What checkboxes, all checked by default; Export — embedded / separate; Export — View; Export — Changes; Export — what will be delivered; Export; Export — ? beside each section's heading; Export — file names; Export — the file's pages; Help — Reading a document | drawn |
 | ST-0046 | As a tenant administrator, I edit the stylesheet the exports are rendered with | Administration — styles | drawn |
 | ST-0047 | As any user, I see in the application what is waiting for me | Shell — notifications; Notifications — both tabs | drawn |
 | ST-0048 | As any user, I receive an email for the same events | Notifications — both tabs; Administration — mail and outbox | drawn |

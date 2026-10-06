@@ -1293,13 +1293,14 @@ msgstr "Формати"
 
 #: rendering/templates/rendering/export.html:17
 msgid ""
-"PDF and DOCX carry the clause numbers, the page header and the page numbers. "
-"Markdown is the text as the source view shows it, and never carries marked "
-"changes."
+"PDF and DOCX carry the headings' and clauses' numbers and the page numbers, "
+"and no page header. Markdown is the text as the source view shows it, its "
+"headings numbered, and never carries marked changes."
 msgstr ""
-"PDF і DOCX містять номери пунктів, верхній колонтитул і номери сторінок. "
-"Markdown — це текст у тому вигляді, у якому його показує режим «Вихідний "
-"текст»; позначених змін він не містить."
+"PDF і DOCX містять номери заголовків і пунктів та номери сторінок, без "
+"верхнього колонтитула. Markdown — це текст у тому вигляді, у якому його "
+"показує режим «Вихідний текст», із пронумерованими заголовками; позначених "
+"змін він не містить."
 
 #: rendering/templates/rendering/export.html:23
 msgctxt "export"

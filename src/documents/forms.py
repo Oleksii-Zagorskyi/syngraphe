@@ -21,12 +21,19 @@ class RootFolderField(forms.ModelChoiceField):  # type: ignore[type-arg]
         return self.organisation
 
 
+class LabelledField(forms.ModelChoiceField):  # type: ignore[type-arg]
+    """A choice of seeded rows named by their labels, never by their codes."""
+
+    def label_from_instance(self, obj: Any) -> str:
+        return str(obj.label)
+
+
 class CreateForm(forms.Form):
     title = forms.CharField(label=_("Title"), max_length=TITLE_MAX, strip=True)
-    language = forms.ModelChoiceField(
+    language = LabelledField(
         label=_("Language"), queryset=Language.objects.all(), to_field_name="code", empty_label=None
     )
-    document_type = forms.ModelChoiceField(
+    document_type = LabelledField(
         label=_("Type"),
         queryset=DocumentType.objects.filter(retired_at__isnull=True),
         empty_label=None,

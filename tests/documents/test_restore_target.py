@@ -175,7 +175,9 @@ def test_the_restore_passes_the_target_whole(tmp_path: Path) -> None:
 
     assert result.returncode == 0, result.stderr.decode()
     restore_call = next(line for line in logged.splitlines() if "--delta restore" in line)
-    assert "<-e><PGBACKREST_TARGET=2026-09-29T10:00:00+00>" in restore_call
+    # pgBackRest reads a time target only with a space between the date and the time: one
+    # argument, the space kept.
+    assert "<-e><PGBACKREST_TARGET=2026-09-29 10:00:00+00>" in restore_call
     assert "<-e><PGBACKREST_TYPE=time>" in restore_call
 
 

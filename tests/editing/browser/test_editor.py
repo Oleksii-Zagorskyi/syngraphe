@@ -85,7 +85,7 @@ def test_the_toolbar_offers_only_whitelisted_controls(editing: Any, page: Any) -
 def test_gutter_numbers_follow_edits(editing: Any, page: Any) -> None:
     editing("# Перший\n\nАбзац один.\n\nАбзац два.\n\n# Другий\n\nАбзац три.\n")
     clauses = "() => [...document.querySelectorAll('.clause')].map(c => c.textContent)"
-    # Headings carry their number in the gutter too, as the reading view shows them.
+    # Headings carry their number too, set in the heading, as the reading view shows them.
     assert page.evaluate(clauses) == ["1", "1-1", "1-2", "2", "2-1"]
     end_of_first = page.evaluate(
         f"(() => {{ let at = 0; {EDITOR}.view.state.doc.descendants((n, p) => "
@@ -133,3 +133,20 @@ def test_a_tab_from_elsewhere_waits_for_start_editing(
     page.evaluate("document.getElementById('editor').editor.capture.finish()")
     page.unroute_all(behavior="wait")
     page.close()
+
+
+def test_the_toolbar_shows_icons_named_by_their_words(editing: Any, page: Any) -> None:
+    """Each formatting control is an icon (DL-0365): its word is its tooltip and its accessible
+    name, never text on the button."""
+    editing("слово\n")
+    buttons = page.eval_on_selector_all(
+        ".toolbar button",
+        "els => els.map(e => ({command: e.dataset.command, text: [...e.childNodes]"
+        ".filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim(),"
+        " name: e.getAttribute('aria-label'), title: e.title, svg: !!e.querySelector('svg')}))",
+    )
+    assert len(buttons) >= 19
+    for button in buttons:
+        assert button["svg"], button
+        assert button["text"] == "", button
+        assert button["name"] and button["title"] == button["name"], button

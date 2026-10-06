@@ -6,6 +6,9 @@ archived, and `pgbackrest verify` reports a gap without its moment — so it nev
 it only warns. When PostgreSQL then ends recovery before reaching the time, the operator runs
 again to the end of the archive (DL-0314). A newer marker that lists failures is named; the
 operator alone may choose it, giving up the repositories it lists.
+
+The plan's last line holds each variable as one word, a time target as `YYYY-MM-DDTHH:MM:SS+00`;
+`scripts/restore-database.sh` passes it to pgBackRest with a space in place of the `T`.
 """
 
 from __future__ import annotations

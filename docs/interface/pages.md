@@ -163,6 +163,7 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | *Groups* — locked, with who holds the document, while it is held or reserved | **0.1** | tenant administrator | ST-0005 | Epic 8 |
 | *Archive* / *Restore*; *More ▾* holds *force release* for an ordinary hold and *end the reservation…* for a reserved one, a reason required (DL-0225) | **0.1** | tenant administrator | ST-0015, ST-0016, ST-0030 | Epics 10, 9 |
 | outline — every heading level, ▸ ▾, no appendices; collapsible and resizable; on the *View* tab (DL-0356) | **0.1** | — | ST-0024 | Epic 7 |
+| the text — a heading's number part of the heading, set as the heading is; each clause's number in the gutter beside it in a light grey, never selected with the text; the same in the editor and the exports (DL-0363) | **0.1** | — | ST-0042 | Epic 7 |
 | right panel — the icon row; collapsible and resizable; widths kept per user (DL-0194, DL-0195) | **0.1** — *parts* alone; comments **later** (B-013) and the agents' views **0.2**, not drawn until built (DL-0228, DL-0356) | — | — | Epics 3, 4, 7 |
 | parts — appendices in their order, *add*, rename, reorder, delete; attachments with download, *add*, replace, rename, reorder, delete — the changing controls only while holding the document; a file above the organisation's limit refused with the limit | **0.1** | any viewing right for the list and downloads; *edit* and the part rights for the changing controls (ADR-0007) | ST-0061, ST-0062 | Epic 13; its thinnest form — the attachments with title, file name, size and download, in the panel's parts tab (DL-0349, DL-0356) — Epics 18, 7 |
 | generated views — role directory, see also | **0.1** — their content not yet drawn; contradictions, ambiguities, blind spots **0.2** | — | ST-0027, ST-0044 | Epic 11 |
@@ -185,7 +186,7 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | *edit* beside each `#` section, several open at once; *edit whole document* only when none is open — disabled with its reason otherwise | **0.1** | ST-0059 | Epic 9 |
-| a section editor opened in place, the rest rendered around it; toolbar exactly the whitelist — *quote* among it (DL-0238) — *undo* and *redo* (DL-0241), *mark* for entities; *rich / markdown* | **0.1** | ST-0019, ST-0021, ST-0026, ST-0060 | Epics 4, 9; *mark* Epic 11 |
+| a section editor opened in place, the rest rendered around it; toolbar exactly the whitelist — *quote* among it (DL-0238) — *undo* and *redo* (DL-0241), *mark* for entities, each control an icon with its word as tooltip and accessible name; *rich / markdown* | **0.1** | ST-0019, ST-0021, ST-0026, ST-0060 | Epics 4, 9; *mark* Epic 11 |
 | paste refusal — the lines named, the converted text previewed, *paste converted*, a link to help; an image left out of a paste with a one-line notice (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 4 |
 | image refusal — the format or the size. A pasted or dropped image becomes an upload and a paragraph of its own; an image that is only a web address is left out of the paste, with a one-line notice to save it and paste the file, which blocks nothing (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 11 |
 | capture indicator — no Save control | **0.1** | ST-0020 | Epic 4 |
@@ -267,10 +268,11 @@ Within the edit tab, opened by *finish editing* for every holder (DL-0222): the 
 | *Export* — disabled while nothing is chosen; a message when a chosen part is not in the chosen version, or nothing is left to export (DL-0208) | **0.1** | ST-0045 | Epic 7 |
 | *?* beside each section's heading — a box of help above the dialog, closed by a click anywhere else; no help text in the layout (DL-0233) | **0.1** | ST-0045 | Epic 7 |
 | file names — `<title>_—_<version>_—_<stance>.<ext>`, the stance in the interface's language; a marked export ends in `-позначено` (`-marked`), `<stance>-позначено.<ext>`, and a clean one has none (DL-0359); the title cut at eighty characters; several files a zip of the same name (DL-0275) | **0.1** | ST-0045 | Epic 7 |
+| the file's pages — the page number at the foot and no header, the title, version and stance standing in the file's name, and on the title page where the document has one (DL-0182, DL-0362); headings numbered in their text and clause numbers in a light-grey gutter — in DOCX at the start of the paragraph, Word having no gutter — a change of formatting alone marked by its colour; a Markdown file's headings carry their numbers and its clauses none (DL-0363) | **0.1** | ST-0045 | Epic 7 |
 
 ## Create or copy a document
 
-Title, language, type, folder (the root allowed). A **copy** adds the source version — canonical, accepted or pending, among those the user may see — the appendices to take (none, all, chosen), and the notice that attachments are not copied. The new document is reachable only by its author until groups are linked.
+Title, language, type — each named in words, never by its code — folder (the root allowed). A **copy** adds the source version — canonical, accepted or pending, among those the user may see — the appendices to take (none, all, chosen), and the notice that attachments are not copied. The new document is reachable only by its author until groups are linked.
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
@@ -288,7 +290,7 @@ Two tabs (DL-0204). **Document** — each entry linking to the document at the v
 
 ## Help
 
-Pages rendered from Markdown files shipped with the application (DL-0195): how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, editing, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, and exporting. Linked from every paste refusal.
+Pages rendered from Markdown files shipped with the application (DL-0195), `/help/` opening on *reading a document* with the list beside it: how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, editing, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, and exporting. Linked from every paste refusal.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|

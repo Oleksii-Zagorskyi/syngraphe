@@ -1,12 +1,11 @@
-"""Page furniture (DL-0182): the header names the document, its version and the stance the export
-shows; the footer numbers the page. In PDF it is the page's margin boxes; in DOCX Pandoc takes
-headers and footers only from the reference document, so the produced file's header and footer
-parts are rewritten after it.
+"""Page furniture (DL-0182, DL-0362): the footer numbers the page, and no page carries a header —
+the title, the version and the stance stand on the title page and in the file's name. In PDF the
+number is a page margin box; in DOCX Pandoc takes a footer only from the reference document, so
+the produced file's footer part is rewritten after it. `header_text` still names the export, as
+its HTML title and its PDF's title.
 """
 
 from __future__ import annotations
-
-from xml.sax.saxutils import escape
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
@@ -24,27 +23,19 @@ def _css_string(text: str) -> str:
     return f'"{escaped}"'
 
 
-def pdf_css(header: str) -> str:
-    """A4 pages, the header across the top and the page number at the foot; the title page and
-    the attachment list each on a page of their own."""
+def pdf_css() -> str:
+    """A4 pages, the page number at the foot and nothing at the head (DL-0362), a narrow left
+    margin beside the gutter (DL-0363); the title page and the attachment list each on a page of
+    their own."""
     return (
-        "@page { size: A4; margin: 22mm 18mm 20mm 18mm;"
-        f" @top-center {{ content: {_css_string(header)}; font: 9pt 'DejaVu Sans', sans-serif;"
-        " color: #555; }"
+        "@page { size: A4; margin: 18mm 18mm 20mm 10mm;"
         " @bottom-center { content: counter(page); font: 9pt 'DejaVu Sans', sans-serif;"
         " color: #555; } }"
         # The title page and the attachment list each stand on a page of their own.
         " .title-page { break-after: page; } .attachment-list { break-before: page; }"
+        # On paper a change of formatting is marked by its colour; its words are the screen's.
+        " .document-text .format-changed::after { content: none; }"
     )
-
-
-def docx_header(header: str) -> bytes:
-    """`word/header1.xml` holding the header's text."""
-    return (
-        f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:hdr xmlns:w="{W}">'
-        '<w:p><w:pPr><w:pStyle w:val="Header"/><w:jc w:val="center"/></w:pPr>'
-        f'<w:r><w:t xml:space="preserve">{escape(header)}</w:t></w:r></w:p></w:hdr>'
-    ).encode()
 
 
 def docx_footer() -> bytes:

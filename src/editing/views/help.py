@@ -96,12 +96,11 @@ def refused(spec: Spec) -> list[tuple[str, str]]:
 
 @login_required
 def index(request: HttpRequest) -> HttpResponse:
-    """The list of help pages."""
+    """The list of help pages, opened on *Reading a document* — the page every person can use —
+    so the index is never an empty page beside its list."""
     if request.method != "GET":
         return not_found(request)
-    if settings.HELP_WORK_IN_PROGRESS:
-        return _work_in_progress(request)
-    return render(request, "editing/help.html", {"pages": HELP_PAGES, "current": None})
+    return page(request, "reading")
 
 
 @login_required

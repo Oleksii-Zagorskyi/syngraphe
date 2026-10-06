@@ -23,6 +23,15 @@
   padding: 0.2rem 0.5rem;
 }
 
+.edit-tab .editor-controls button.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
 .edit-tab .editor-controls input {
   font: inherit;
   min-width: 16rem;
@@ -33,7 +42,7 @@
 }
 
 .editor-surface .ProseMirror {
-  padding: 1rem 0 1rem 4.5rem;
+  padding: 1rem 0 1rem 68px;
   outline: none;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -44,15 +53,27 @@
   content: " ";
 }
 
+/* As the reading view (DL-0363): clause numbers in the gutter, light grey, 22 px from the text;
+   a heading's number part of the heading. */
 .editor-surface .clause {
   position: absolute;
   left: 0;
-  width: 4rem;
+  width: 46px;
   text-align: right;
-  padding-right: 0.5rem;
-  color: var(--muted);
+  color: #c2c2c2;
   font-size: 0.85em;
   user-select: none;
+}
+
+.editor-surface h1 .clause,
+.editor-surface h2 .clause,
+.editor-surface h3 .clause,
+.editor-surface h4 .clause {
+  position: static;
+  width: auto;
+  color: inherit;
+  font-size: inherit;
+  margin-right: 0.3em;
 }
 
 .editor-surface .callout {

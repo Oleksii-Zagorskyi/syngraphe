@@ -186,7 +186,12 @@ def test_the_form_refuses_what_it_cannot_take(
 
 
 def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) -> None:
+    from identity.models import Language
+
     client, _ = author
+    Language.objects.update_or_create(
+        code="uk", defaults={"label": "Українська", "actor_kind": "system"}
+    )
 
     response = client.get("/document/new/")
 
@@ -194,6 +199,16 @@ def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) 
     body = response.content.decode()
     assert 'name="title"' in body
     assert 'value="uk"' in body
+    # Language and type are named in words, as the Info tab names them, never by their codes.
+    from documents.models import DocumentType
+    from tenancy.schemas import schema_context
+
+    with schema_context(migrated_tenant.number):
+        kind = DocumentType.objects.get(code="document")
+        language = Language.objects.get(code="uk")
+        options = re.findall(r"<option[^>]*>([^<]*)</option>", body)
+    assert language.label in options and "uk" not in options and "en" not in options
+    assert kind.label in options and "document" not in options
 
 
 def test_crash_states_are_the_documented_ones(

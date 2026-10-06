@@ -160,3 +160,29 @@ def test_line_start_escapes_go_with_the_line_start() -> None:
 
 def test_the_result_ends_with_one_newline() -> None:
     assert join_paragraphs("Одне речення.\nДруге речення.") == "Одне речення. Друге речення.\n"
+
+
+def test_headings_carry_their_numbers_and_nothing_else_does() -> None:
+    """A Markdown export's headings read with the numbers the outline gives them; clauses carry
+    none, and every other line is as joined (DL-0363)."""
+    from rendering.export.markdown import number_headings
+
+    body = (
+        "# Загальні положення\n\n"
+        "Цей порядок діє для всіх працівників.\n\n"
+        "## Строки\n\n"
+        "Заяву розглядають десять днів.\n\n"
+        "#### Пропущений рівень\n\n"
+        "# Відповідальність\n\n"
+        "- Перший пункт.\n"
+    )
+
+    assert number_headings(body) == (
+        "# 1 Загальні положення\n\n"
+        "Цей порядок діє для всіх працівників.\n\n"
+        "## 1.1 Строки\n\n"
+        "Заяву розглядають десять днів.\n\n"
+        "#### 1.1.1.1 Пропущений рівень\n\n"
+        "# 2 Відповідальність\n\n"
+        "- Перший пункт.\n"
+    )

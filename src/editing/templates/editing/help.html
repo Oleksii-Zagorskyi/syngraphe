@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block title %}{% translate "Help" %} · Syngraphē{% endblock %}
 {% block content %}
-<section class="content help">
+<section class="content help-page">
   <nav class="help-pages">
     <h1>{% translate "Help" %}</h1>
     {% if pages %}<ul>{% for slug, name in pages.items %}<li>{% if slug == current %}<strong>{{ name }}</strong>{% else %}<a href="/help/{{ slug }}/">{{ name }}</a>{% endif %}</li>{% endfor %}</ul>{% endif %}

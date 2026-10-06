@@ -69,6 +69,11 @@ read -r answer
 [ "$answer" = restore ] || { echo "restore-database: nothing written" >&2; exit 1; }
 set --
 for assignment in $recovery; do
+    # pgBackRest reads a time target only with a space between the date and the time; the plan's
+    # line keeps the target one word, so its `T` becomes the space here, the value passed whole.
+    case $assignment in
+        PGBACKREST_TARGET=*) assignment="$(printf '%s' "$assignment" | sed 's/\([0-9]\)T\([0-9]\)/\1 \2/')" ;;
+    esac
     set -- "$@" -e "$assignment"
 done
 $compose run --rm --no-deps "$@" --entrypoint sh db -c \
