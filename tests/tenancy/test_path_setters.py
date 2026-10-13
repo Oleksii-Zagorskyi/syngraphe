@@ -1,8 +1,11 @@
 """Who sets the `search_path` (ADR-0017, DL-0290): the context manager's module and the
 middleware define and call the setter; the context manager is used by the migration command, by
-the reconciler and the operator's commands on a hold, a draft, a loaded document and an
-edition — commands and tasks, never a request — and, inside one request, by the service that
-creates an organisation; nothing else."""
+the reconciler, the operator's commands on a hold, a draft, a loaded document, an edition and the
+mail key, and the tasks — never a request — and, inside a request, by the service that creates an
+organisation, by the notifications' writer, which writes a platform administrator's notification
+to the shared schema, by the mail's queue, which reads the platform's sender (DL-0367, DL-0382),
+and by the platform's mail page, which reads the shared rows whatever organisation the session
+names (DL-0393); nothing else."""
 
 from __future__ import annotations
 
@@ -43,4 +46,9 @@ def test_the_context_manager_is_used_where_the_decisions_allow() -> None:
         "editions/management/commands/end_freeze.py",
         "editing/tasks.py",
         "rendering/tasks.py",
+        "notifications/services.py",
+        "mail/services.py",
+        "mail/tasks.py",
+        "mail/management/commands/rotate_mail_key.py",
+        "mail/views/platform.py",
     }

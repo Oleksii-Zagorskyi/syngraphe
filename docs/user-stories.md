@@ -161,6 +161,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0070** — As an editor whose reservation an administrator ended, I learn who ended it, when and why, and keep my work, so that weeks of editing are never lost.
 - The notification and the notice on the document carry the administrator's reason (DL-0225).
 - If nobody committed since, I take the document back and may reserve it again; otherwise my draft opens read-only as changes against the current text, and I can switch the comparison to any version I may see.
+- A draft I will not carry over I discard from that view, confirmed, and the document opens for editing as usual (DL-0381).
 
 **ST-0019** — As an editor, I write and format text with headings, lists, bold, underline, italics, quotes, callouts and tables, so that a policy reads as a policy. *(skeleton)*
 - Nothing outside that set is available, and anything pasted that falls outside it is refused at the moment of pasting, never silently dropped. The refusal names the offending lines and offers a conversion, shown before it is applied, and links to a help page listing what is allowed (DL-0171).

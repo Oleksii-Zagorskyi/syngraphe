@@ -73,7 +73,7 @@ def test_reconciler_derives_acceptance(
         assert notice.author_id == author.pk
         line = CorrectionLine.objects.get(notice=notice)
         assert (line.changing_version_id, line.author_version_id) == (corrected.pk, written.pk)
-        notification = Notification.objects.get()
+        notification = Notification.objects.get(event="correction_notice")
         assert (notification.user_id, notification.correction_notice_id) == (author.pk, notice.pk)
 
     # Idempotent: a second repair writes nothing more.
@@ -82,7 +82,11 @@ def test_reconciler_derives_acceptance(
         assert Acceptance.objects.count() == 1
         assert CorrectionNotice.objects.count() == 1
         assert CorrectionLine.objects.count() == 1
-        assert Notification.objects.count() == 1
+        assert Notification.objects.filter(event="correction_notice").count() == 1
+        # The run's author told once that it was accepted, the reviewer not at all.
+        assert list(
+            Notification.objects.filter(event="accepted").values_list("user_id", flat=True)
+        ) == [author.pk]
     assert repository.head(document) == head
 
 
@@ -282,7 +286,7 @@ def test_a_restore_before_an_acceptance_is_pruned_with_what_derived_from_it(
     commit_version(document, reviewer, CORRECTED, "reviewer_edit")
     with schema_context(migrated_tenant.number):
         services.accept(document, reviewer)
-        assert Notification.objects.count() == 1
+        assert Notification.objects.filter(event="correction_notice").count() == 1
         repo = gitstore.open_repository(migrated_tenant.number, document.number)
         repo.references["refs/heads/main"].set_target(written.commit_sha)
 
@@ -292,7 +296,12 @@ def test_a_restore_before_an_acceptance_is_pruned_with_what_derived_from_it(
 
     with schema_context(migrated_tenant.number):
         assert not Acceptance.objects.exists()
-        assert not CorrectionNotice.objects.exists() and not Notification.objects.exists()
+        assert (
+            not CorrectionNotice.objects.exists()
+            and not Notification.objects.filter(
+                event__in=("correction_notice", "accepted")
+            ).exists()
+        )
         kept = set(Version.objects.filter(document=document).values_list("commit_sha", flat=True))
         assert written.commit_sha in kept and repository.head(document) in kept
         assert len(kept) == 2  # the `created` commit and the author's version

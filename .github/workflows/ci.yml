@@ -54,6 +54,7 @@ jobs:
       GIT_REPO_ROOT: /tmp/repos
       DISPLAY_TIMEZONE: UTC
       DEFAULT_LANGUAGE: uk
+      MAIL_PASSWORD_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 
     steps:
       - uses: actions/checkout@v4

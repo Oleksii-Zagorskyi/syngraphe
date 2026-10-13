@@ -81,6 +81,20 @@ class AccessGroup(Mutable):
                     action=AccessChange.Action.ADDED,
                     **_actor(by),
                 )
+                self._tell_the_member(membership, by)
+
+    def _tell_the_member(self, membership: Any, by: Any) -> None:
+        """The member told they joined the group — unless they added themselves."""
+        from notifications.models import Category, Event
+        from notifications.services import notify, others
+
+        notify(
+            users=others([membership.user_id], by),
+            category=Category.ADMINISTRATIVE,
+            event=Event.ACCESS_GRANTED,
+            actor=by,
+            facts={"group": str(self.pk)},
+        )
 
     def remove_member(self, membership: Any, *, by: Any) -> None:
         with transaction.atomic():

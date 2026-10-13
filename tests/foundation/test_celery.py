@@ -39,3 +39,18 @@ def test_a_task_sent_from_the_web_process_follows_the_routes() -> None:
         check=True,
     )
     assert result.stdout.strip().splitlines()[-1] == "render"
+
+
+def test_the_outbox_task_runs_on_the_worker() -> None:
+    """The outbox is sent every minute by beat, on the default queue the `worker` consumes — the
+    one container that sends mail — never on `render`, which has no way out."""
+    from celery.schedules import crontab
+    from django.conf import settings
+
+    from syngraphe.celery import app
+
+    entry = settings.CELERY_BEAT_SCHEDULE["send-outbox"]
+    assert entry["task"] == "mail.send_outbox"
+    assert entry["schedule"] == crontab(minute="*")
+    route = app.amqp.router.route({}, "mail.send_outbox", (), {})
+    assert route["queue"].name == app.conf.task_default_queue

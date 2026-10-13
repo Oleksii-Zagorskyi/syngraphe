@@ -18,6 +18,8 @@ SECRETS = {
     "BACKUP_S3_ACCESS_KEY",
     "BACKUP_S3_SECRET_KEY",
     "DJANGO_SECRET_KEY",
+    "MAIL_PASSWORD_KEY",
+    "MAIL_PASSWORD_KEY_PREVIOUS",
     "POSTGRES_PASSWORD",
 }
 
@@ -35,8 +37,12 @@ def _secrets(service: dict[str, Any]) -> set[str]:
 def test_each_service_holds_its_own_secrets() -> None:
     services = _services()
 
-    assert _secrets(services["web"]) == {"DJANGO_SECRET_KEY", "POSTGRES_PASSWORD"}
+    # The sending passwords' key: the web process encrypts, the worker decrypts (DL-0384).
+    mail = {"MAIL_PASSWORD_KEY", "MAIL_PASSWORD_KEY_PREVIOUS"}
+    assert _secrets(services["web"]) == {"DJANGO_SECRET_KEY", "POSTGRES_PASSWORD", *mail}
+    assert _secrets(services["render"]) == {"DJANGO_SECRET_KEY", "POSTGRES_PASSWORD"}
     assert _secrets(services["worker"]) == {
+        *mail,
         "DJANGO_SECRET_KEY",
         "POSTGRES_PASSWORD",
         "BACKUP_BUNDLE_CRYPT_PASSWORD",

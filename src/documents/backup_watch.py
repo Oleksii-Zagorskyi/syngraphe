@@ -4,7 +4,9 @@ Three conditions, read from the state volume each minute: a repository failing i
 marker, each repository its own; no clean marker newer than fifteen minutes; the log waiting to be
 archived past its alert size. Each change is logged once at error level as it is seen, and
 announced once as it begins and once as it clears, with numbers and ages, never a title; a change
-counts as announced only once its notification is accepted.
+counts as announced only once its notification is accepted. The notifications commit before the
+state file records them, which cannot join their transaction, so a failure between the two
+announces the change again: at least once, never lost.
 """
 
 from __future__ import annotations
@@ -34,9 +36,16 @@ def _moment(value: Any) -> datetime | None:
 
 
 def notify_backup_condition(condition: str, change: str, facts: dict[str, Any]) -> bool:
-    """Stub until the platform's notifications exist (DL-0306): nothing is sent, and it says so by
-    returning `False`; the watch has already logged the change."""
-    return False
+    """Every platform administrator told of a condition's change (DL-0295); `True` once at least
+    one was told, `False` with nobody to tell — the watch has logged the change and tries again
+    on its next run."""
+    from notifications.models import Event
+    from notifications.services import notify_platform
+
+    told = notify_platform(
+        event=Event.BACKUP_CONDITION, facts={"condition": condition, "change": change, **facts}
+    )
+    return bool(told)
 
 
 def conditions(now: datetime) -> dict[str, dict[str, Any] | None]:
@@ -52,8 +61,8 @@ def conditions(now: datetime) -> dict[str, dict[str, Any] | None]:
         since = _moment(failure.get("since"))
         key = f"repository_failing:{failure.get('tenant')}:{failure.get('document')}"
         found[key] = {
-            "tenant": failure.get("tenant"),
-            "document": failure.get("document"),
+            "tenant": _number(failure.get("tenant")),
+            "document": _number(failure.get("document")),
             "failing_seconds": int((now - since).total_seconds()) if since else None,
         }
     clean = _moment(run.get("newest_clean"))
@@ -68,6 +77,37 @@ def conditions(now: datetime) -> dict[str, dict[str, Any] | None]:
         else None
     )
     return found
+
+
+def _numbers_of(key: str) -> dict[str, Any]:
+    """The numbers a condition's key carries — a failing repository's tenant and document — so a
+    clear names what cleared."""
+    parts = key.split(":")
+    if parts[0] != "repository_failing" or len(parts) != 3:
+        return {}
+    return {"tenant": _number(parts[1]), "document": _number(parts[2])}
+
+
+def _number(value: Any) -> int | None:
+    """`value` as an integer when it is one, else `None`: a garbled state file carries no text
+    into a notification (DL-0370)."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.isdigit():
+        return int(value)
+    return None
+
+
+def _announce(condition: str, change: str, facts: dict[str, Any]) -> bool:
+    """`notify_backup_condition`, a failure logged and counted as not delivered, so the run's
+    state is written and only this condition is tried again."""
+    try:
+        return notify_backup_condition(condition, change, facts)
+    except Exception:  # noqa: BLE001 — the next run tries again; the others stay announced
+        logger.exception("a backup condition was not announced", extra={"condition": condition})
+        return False
 
 
 def check(now: datetime | None = None) -> None:
@@ -91,8 +131,8 @@ def check(now: datetime | None = None) -> None:
                     },
                 )
                 observed[key] = holding
-            if holding != announced.get(key, False) and notify_backup_condition(
-                condition, "began" if holding else "cleared", facts or {}
+            if holding != announced.get(key, False) and _announce(
+                condition, "began" if holding else "cleared", facts or _numbers_of(key)
             ):
                 announced[key] = holding
             if not holding and not observed.get(key) and not announced.get(key):

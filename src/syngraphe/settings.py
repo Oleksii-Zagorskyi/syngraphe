@@ -31,6 +31,7 @@ SHARED_APPS = [
     "tenancy",
     "audit",
     "shell",
+    "mail",
 ]
 TENANT_APPS = [
     "documents",
@@ -40,6 +41,7 @@ TENANT_APPS = [
     "editions",
     "notifications",
     "rendering",
+    "mail",
 ]
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
@@ -136,6 +138,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "rendering.sweep_exports",
         "schedule": crontab(minute=40),
     },
+    # Each due email, every minute; a refusal waits five minutes for its next attempt (DL-0203).
+    "send-outbox": {
+        "task": "mail.send_outbox",
+        "schedule": crontab(minute="*"),
+        # A run not started within its minute is dropped: the next one sends what it would have.
+        "options": {"expires": 50},
+    },
 }
 # Rendering runs on its own worker, on a network with no way out (ADR-0013): the render queue.
 CELERY_TASK_ROUTES = {
@@ -163,6 +172,7 @@ LOGIN_URL = "/signin/"
 SESSION_COOKIE_AGE = 12 * 3600
 SESSION_SAVE_EVERY_REQUEST = False
 SESSION_COOKIE_HTTPONLY = True
+SITE_HTTPS = _CONFIG.site_https
 SESSION_COOKIE_SECURE = _CONFIG.site_https
 CSRF_COOKIE_SECURE = _CONFIG.site_https
 

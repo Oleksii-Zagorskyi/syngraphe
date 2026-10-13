@@ -50,7 +50,7 @@ def a_notice(tenant: Any, cast: Any, commit_version: Any) -> tuple[Any, Any]:
     commit_version(people.document, people["r"], CORRECTED, "reviewer_edit")
     with schema_context(tenant.number):
         services.accept(people.document, people["r"])
-        notification = Notification.objects.get(user=people["a"])
+        notification = Notification.objects.get(user=people["a"], event="correction_notice")
     return people, notification
 
 
@@ -72,8 +72,15 @@ def test_notice_for_its_author(migrated_tenant: Any, cast: Any, commit_version: 
     assert signed_in(migrated_tenant, people["a"]).get("/notifications/0/").status_code == 404
 
 
-def test_text_follows_current_rights(migrated_tenant: Any, cast: Any, commit_version: Any) -> None:
+def test_text_follows_current_rights(
+    migrated_tenant: Any, cast: Any, commit_version: Any, link_group: Any
+) -> None:
+    """DL-0337 under DL-0396: with every right gone the notice is missing and stays unread; with
+    canonical text alone, once an edition exists, it shows that it exists, its lines and who
+    changed them, no text; with *view accepted*, the text."""
     from access.models import DocumentGroup
+    from access.rights import Right
+    from editions import services as editions
 
     people, notification = a_notice(migrated_tenant, cast, commit_version)
     address = f"/notifications/{notification.pk}/"
@@ -81,9 +88,25 @@ def test_text_follows_current_rights(migrated_tenant: Any, cast: Any, commit_ver
     editors = people.groups["editors"]
     with schema_context(migrated_tenant.number):
         DocumentGroup.unlink(people.document, editors, by=people["r"])
+    assert client.get(address).status_code == 404
+    with schema_context(migrated_tenant.number):
+        notification.refresh_from_db()
+    assert notification.read_at is None
+
+    link_group(
+        people.document,
+        [Right.FREEZE, Right.MAKE_CANONICAL],
+        [people.memberships["r"]],
+        people["r"],
+    )
+    link_group(people.document, [Right.VIEW_CANONICAL], [people.memberships["a"]], people["r"])
+    with schema_context(migrated_tenant.number):
+        editions.freeze(people.document, people["r"], "Синтетична причина")
+        editions.make_canonical(people.document, people["r"])
     body = client.get(address).content.decode()
     assert 'data-lines="1"' in body and "Погоджувач Р" in body
     assert "десять" not in body and "п&#x27;ять" not in body and "Заяву" not in body
+
     with schema_context(migrated_tenant.number):
         DocumentGroup.link(people.document, editors, by=people["r"])
     body = client.get(address).content.decode()

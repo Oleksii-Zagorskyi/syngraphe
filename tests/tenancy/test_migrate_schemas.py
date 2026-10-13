@@ -101,6 +101,8 @@ def test_tenant_schema_holds_tenant_tables_only(
             "editions_edition",
             "rendering_exportjob",
             "notifications_notification",
+            "mail_mailsender",
+            "mail_emailoutbox",
         }
         assert migrations_recorded_in(tenant.schema_name) == every_migration
 
@@ -154,6 +156,8 @@ def test_shared_tables_stay_in_public(
 
     assert "identity_user" in tables_in("public")
     assert "tenancy_tenant" in tables_in("public")
+    assert "tenancy_platformnotification" in tables_in("public")
+    assert {"mail_mailsender", "mail_emailoutbox"} <= tables_in("public")
 
 
 def test_router_migrates_each_app_in_its_own_schema(auth_as_tenant_app: None) -> None:

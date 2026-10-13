@@ -16,7 +16,8 @@ from __future__ import annotations
 import logging
 import unicodedata
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 import pygit2
 from django.db import transaction
@@ -31,6 +32,7 @@ from documents.locks import document_lock
 from documents.models import Document, DocumentState, Version
 from editing import holds
 from editions.models import REASON_MAX, Edition, Freeze, FreezeEnd, open_freeze
+from notifications.models import Category, Event
 from review import services as review
 from review.models import Acceptance
 from tenancy.models import Tenant
@@ -118,7 +120,34 @@ def freeze_locked(document: Document, user: User, reason: str = "", *, via: str 
             after={"number": locked.number, "freeze": str(made.pk), **_via(via)},
             tenant=Tenant.objects.get(number=number),
         )
+        _tell_readers(locked, Event.FROZEN, user)
     return made
+
+
+def _tell_readers(
+    document: Document,
+    event: Event,
+    actor: User | None,
+    *,
+    version: Version | None = None,
+    facts: dict[str, Any] | None = None,
+    at: datetime | None = None,
+) -> None:
+    """The document's readers and the organisation's administrators told of a freeze, its end
+    or an edition — never the person who acted; at the act's own time when it is given, so an
+    edition the reconciler derives later is dated when it was made."""
+    from notifications.services import notify, others, readers_and_administrators
+
+    notify(
+        users=others(readers_and_administrators(document), actor),
+        category=Category.DOCUMENT,
+        event=event,
+        actor=actor,
+        document=document,
+        version=version,
+        facts=facts,
+        at=at,
+    )
 
 
 def _via(via: str) -> dict[str, str]:
@@ -354,6 +383,14 @@ def _edition_rows(
                 },
                 tenant=Tenant.objects.get(number=holds.tenant_number()),
             )
+            _tell_readers(
+                document,
+                Event.MADE_CANONICAL,
+                approver,
+                version=approval,
+                facts={"edition": entry.number},
+                at=entry.at,
+            )
         Freeze.objects.filter(pk=edition.freeze_id, ended_at__isnull=True).update(
             ended_by_kind=FreezeEnd.MADE_CANONICAL, ended_by=approver, ended_at=entry.at
         )
@@ -540,4 +577,5 @@ def end_freeze(document: Document, reason: str) -> Freeze:
                 after={"number": locked.number, "freeze": str(frozen.pk), "reason": reason},
                 tenant=Tenant.objects.get(number=number),
             )
+            _tell_readers(locked, Event.UNFROZEN, None)
     return frozen

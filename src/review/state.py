@@ -152,6 +152,28 @@ def states(documents: Iterable[Document]) -> dict[Any, State]:
     return result
 
 
+def any_awaiting(documents: Iterable[Document]) -> bool:
+    """Whether any of `documents` awaits review, freeze or not: three queries, then one
+    repository at a time until the first, passing over a document without a content commit
+    unread. One whose record cannot be read is passed over with a warning, since every page asks
+    this."""
+    documents = list(documents)
+    reviewed, latest, content = _rows(documents)
+    for document in documents:
+        if document.pk not in reviewed or not content[document.pk]:
+            continue
+        try:
+            found = _state_of(document, reviewed, latest.get(document.pk), content[document.pk])
+        except Exception:  # noqa: BLE001 — one unreadable record must not fail every page
+            logger.warning(
+                "a document's state could not be read", extra={"document": document.number}
+            )
+            continue
+        if found is State.AWAITING_REVIEW:
+            return True
+    return False
+
+
 def state(document: Document) -> State:
     """The state of one document."""
     return states([document])[document.pk]

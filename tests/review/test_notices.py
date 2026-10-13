@@ -107,7 +107,7 @@ def test_one_notice_per_author_run_lines_only(
         notice = CorrectionNotice.objects.get(acceptance=acceptance)
         assert notice.author_id == author.pk
         lines = list(CorrectionLine.objects.filter(notice=notice))
-        notifications = list(Notification.objects.all())
+        notifications = list(Notification.objects.filter(event="correction_notice"))
     assert len(lines) == 2
     assert {line.changing_version_id for line in lines} == {by_reviewer.pk}
     assert {line.author_version_id for line in lines} == {by_author.pk}
@@ -126,6 +126,7 @@ def test_one_notice_per_author_run_lines_only(
     assert (notification.category, notification.event) == ("document", "correction_notice")
     assert notification.correction_notice_id == notice.pk
     assert notification.version_id == acceptance.version_id
+    assert notification.created_at == notice.at and notification.facts == {}
     assert_no_text([notice, *lines, notification], [A_RUN_1, A_RUN_2, A_BASE_5, R_1, R_2, R_3])
 
 
@@ -147,7 +148,7 @@ def test_moved_lines_generate_nothing(
         assert Acceptance.objects.get(pk=acceptance.pk).notices_computed_at is not None
         assert not CorrectionNotice.objects.exists()
         assert not CorrectionLine.objects.exists()
-        assert not Notification.objects.exists()
+        assert not Notification.objects.filter(event="correction_notice").exists()
 
 
 @pytest.mark.integration
@@ -165,7 +166,7 @@ def test_editors_versions_generate_nothing(
         acceptance = services.accept(document, people["r"])
         assert Acceptance.objects.get(pk=acceptance.pk).notices_computed_at is not None
         assert not CorrectionNotice.objects.exists()
-        assert not Notification.objects.exists()
+        assert not Notification.objects.filter(event="correction_notice").exists()
 
 
 @pytest.mark.integration
@@ -191,7 +192,7 @@ def test_acceptors_own_versions_count(
         acceptance = services.accept(document, acceptor)
         notice = CorrectionNotice.objects.get(acceptance=acceptance)
         line = CorrectionLine.objects.get(notice=notice)
-        notification = Notification.objects.get()
+        notification = Notification.objects.get(event="correction_notice")
     assert notice.author_id == author.pk
     assert (line.entry, line.changing_version_id, line.author_version_id) == (
         "line",
@@ -223,7 +224,7 @@ def test_restored_line(
         acceptance = services.accept(document, reviewer)
         notice = CorrectionNotice.objects.get(acceptance=acceptance)
         line = CorrectionLine.objects.get(notice=notice)
-        notification = Notification.objects.get()
+        notification = Notification.objects.get(event="correction_notice")
     assert notice.author_id == remover.pk
     assert line.entry == "restored"
     # The remover as the author, the removing version as `author_version`, the line's range in

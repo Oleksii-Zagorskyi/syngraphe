@@ -70,6 +70,11 @@ x-db-image: &db-image
 services:
   web:
     <<: *app
+    environment:
+      <<: *app-environment
+      # The sending passwords' key: web encrypts, worker decrypts; render holds neither.
+      MAIL_PASSWORD_KEY: ${MAIL_PASSWORD_KEY:-}
+      MAIL_PASSWORD_KEY_PREVIOUS: ${MAIL_PASSWORD_KEY_PREVIOUS:-}
     volumes:
       - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos
       - backup-state:/srv/backup-state:ro
@@ -109,6 +114,9 @@ services:
       BACKUP_S3_ACCESS_KEY: ${BACKUP_S3_ACCESS_KEY:-}
       BACKUP_S3_SECRET_KEY: ${BACKUP_S3_SECRET_KEY:-}
       BACKUP_BUNDLE_CRYPT_PASSWORD: ${BACKUP_BUNDLE_CRYPT_PASSWORD:-}
+      # The sending passwords' key, as on web.
+      MAIL_PASSWORD_KEY: ${MAIL_PASSWORD_KEY:-}
+      MAIL_PASSWORD_KEY_PREVIOUS: ${MAIL_PASSWORD_KEY_PREVIOUS:-}
     volumes:
       - ${GIT_REPO_ROOT_HOST:-./.repos}:/srv/repos
       - backup-state:/srv/backup-state

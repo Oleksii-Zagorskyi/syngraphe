@@ -1,0 +1,133 @@
+"""Each event's category, and the words its entry reads. An entry is composed at render from the
+row's ids and facts, so it never carries a line of a document (DL-0113)."""
+
+from __future__ import annotations
+
+import uuid
+from dataclasses import dataclass
+from typing import Any
+
+from django.utils.translation import gettext as _
+
+from notifications.models import PLATFORM_EVENTS, Category, Event
+
+
+@dataclass(frozen=True)
+class EventSpec:
+    category: Category
+
+
+EVENTS: dict[Event, EventSpec] = {
+    Event.CORRECTION_NOTICE: EventSpec(Category.DOCUMENT),
+    Event.VERSION_COMMITTED: EventSpec(Category.DOCUMENT),
+    Event.ACCEPTED: EventSpec(Category.DOCUMENT),
+    Event.FROZEN: EventSpec(Category.DOCUMENT),
+    Event.UNFROZEN: EventSpec(Category.DOCUMENT),
+    Event.MADE_CANONICAL: EventSpec(Category.DOCUMENT),
+    Event.ACCESS_GRANTED: EventSpec(Category.ADMINISTRATIVE),
+    Event.DOCUMENT_CREATED: EventSpec(Category.ADMINISTRATIVE),
+    Event.DOCUMENT_COPIED: EventSpec(Category.ADMINISTRATIVE),
+    Event.BACKUP_CONDITION: EventSpec(Category.ADMINISTRATIVE),
+    Event.EMAIL_FAILED: EventSpec(Category.ADMINISTRATIVE),
+}
+
+# The events a tenant administrator can receive in the organisation's schema, and what a platform
+# administrator adds in the shared one; a member receives only `access_granted`, in the
+# organisation's schema. The filters follow these lists (DL-0236).
+# `document_copied` joins it with the act that writes it: no filter for an event nobody receives.
+TENANT_ADMINISTRATIVE = (
+    Event.DOCUMENT_CREATED,
+    Event.ACCESS_GRANTED,
+    Event.EMAIL_FAILED,
+)
+PLATFORM_ADMINISTRATIVE = PLATFORM_EVENTS
+
+
+def label(event: Event) -> str:
+    """The event's name in a filter."""
+    return {
+        Event.ACCESS_GRANTED: _("Added to a group"),
+        Event.DOCUMENT_CREATED: _("Documents created"),
+        Event.DOCUMENT_COPIED: _("Documents copied"),
+        Event.BACKUP_CONDITION: _("Backup"),
+        Event.EMAIL_FAILED: _("Failed email"),
+    }.get(event, event.value)
+
+
+def _condition(facts: dict[str, Any]) -> str:
+    began = facts.get("change") != "cleared"
+    return {
+        ("repository_failing", True): _("A document's backup is failing."),
+        ("repository_failing", False): _("A document's backup works again."),
+        ("backup_behind", True): _("The backup has fallen behind."),
+        ("backup_behind", False): _("The backup has caught up."),
+        ("archive_waiting", True): _("The database archive is waiting to be copied."),
+        ("archive_waiting", False): _("The database archive has been copied."),
+    }.get((str(facts.get("condition", "")), began), _("The backup's state changed."))
+
+
+def _group(facts: dict[str, Any]) -> str:
+    from access.models import AccessGroup
+
+    try:
+        group_id = uuid.UUID(str(facts.get("group", "")))
+    except ValueError:
+        return ""
+    return AccessGroup.objects.filter(pk=group_id).values_list("name", flat=True).first() or ""
+
+
+def describe(row: Any) -> str:
+    """What the entry of a `Notification` or a `PlatformNotification` reads."""
+    facts: dict[str, Any] = row.facts or {}
+    event = Event(row.event)
+    if event == Event.BACKUP_CONDITION:
+        return _condition(facts)
+    if event == Event.EMAIL_FAILED:
+        return _("An email could not be sent after three attempts.")
+    if event == Event.ACCESS_GRANTED:
+        group = _group(facts)
+        if group:
+            return _("You were added to the group %(group)s.") % {"group": group}
+        return _("You were added to a group.")
+    document = getattr(row, "document", None)
+    named = {
+        "number": document.number if document is not None else "",
+        "title": document.title if document is not None else "",
+    }
+    if event == Event.CORRECTION_NOTICE:
+        accepted = row.correction_notice.acceptance.number if row.correction_notice else ""
+        return _("Correction notice: #%(number)s %(title)s, accepted as %(accepted)s.") % {
+            **named,
+            "accepted": accepted,
+        }
+    words = {
+        Event.VERSION_COMMITTED: _("#%(number)s %(title)s: version %(version)s awaits review."),
+        Event.ACCEPTED: _("#%(number)s %(title)s: your edits were accepted as %(accepted)s."),
+        Event.FROZEN: _("#%(number)s %(title)s was frozen."),
+        Event.UNFROZEN: _("#%(number)s %(title)s is no longer frozen."),
+        Event.MADE_CANONICAL: _("#%(number)s %(title)s was approved as edition %(edition)s."),
+        Event.DOCUMENT_CREATED: _("#%(number)s %(title)s was created."),
+        Event.DOCUMENT_COPIED: _("#%(number)s %(title)s was created as a copy."),
+    }
+    if event == Event.DOCUMENT_CREATED and facts.get("recreated"):
+        words[event] = _(
+            "#%(number)s %(title)s was recreated by the platform; no group is linked to it."
+        )
+    numbers = {key: facts.get(key, "") for key in ("version", "accepted", "edition")}
+    return words[event] % {**named, **numbers}
+
+
+def tag(row: Any) -> str | None:
+    """The document list's own tag beside a created document's entry — *no reviewer assigned*,
+    read at render, so it goes once a group holding *accept* is linked (DL-0233)."""
+    document = getattr(row, "document", None)
+    if row.event not in (Event.DOCUMENT_CREATED, Event.DOCUMENT_COPIED) or document is None:
+        return None
+    if (row.facts or {}).get("recreated"):
+        # Its sentence already says no group is linked.
+        return None
+    from review.state import LABELS, State, with_reviewer
+
+    if document.pk in with_reviewer([document.pk]):
+        return None
+    return str(LABELS[State.NO_REVIEWER_ASSIGNED])

@@ -17,6 +17,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
 from access.rights import Right, rights_on
+from documents.holds import held_by
 from documents.locks import LockTimeout
 from documents.models import Document
 from editing import numbering
@@ -57,6 +58,8 @@ def _confirmation(
     context: dict[str, Any] = {
         "document": document,
         "tab": "pending",
+        "can_edit": Right.EDIT in rights_on(request.user, document),
+        "holding": held_by(document, request.user),
         "run": [
             {"number": f"{accepted}-{n}", "summary": v.summary, "author": person(v.author)}
             for n, v in enumerate(pending, 1)

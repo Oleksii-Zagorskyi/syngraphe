@@ -262,6 +262,7 @@ def test_reader_sees_no_editing_tabs(accepted: Any, reader: Any) -> None:
         body = client.get(path).content.decode()
         for hidden in ("edit/", "pending/", "my-edits/"):
             assert f'href="/document/{document.number}/{hidden}"' not in body, (path, hidden)
+        assert 'data-nav="in-edit"' not in body and 'data-nav="in-review"' not in body
 
 
 # --- by rights, at an edition, and the diff views ----------------------------------------------

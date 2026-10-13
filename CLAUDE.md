@@ -63,7 +63,8 @@ and never a second authorisation surface.
 
 Copy `.env.example` to `.env` and fill every `???` first — the backup store's
 only for the kind `BACKUP_TARGET` names; the application refuses to start while
-one remains, naming every missing key at once. The stack needs an off-host
+one remains, naming every missing key at once — all but the mail key, read where
+it is used. The stack needs an off-host
 backup store, `sftp` or `s3`, before `db` and `backup` start: there is no local
 kind (`docs/runbook.md § Backup`). Set
 `SITE_HTTPS=false` unless a TLS proxy is in front: over plain HTTP the session

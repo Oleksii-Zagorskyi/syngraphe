@@ -229,6 +229,14 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **notification** · сповіщення · *proposed*
 
+**sending address** · адреса надсилання · *proposed* — the address an installation's or an organisation's email leaves from, with the server that carries it (DL-0202).
+
+**outbox** · вихідні листи · *proposed* — every email written before it is sent, and the record of what was sent (DL-0203).
+
+**test email** · тестовий лист · *proposed* — a message from a sending address to itself, reporting the connection, the sign-in and the sending (DL-0202).
+
+**sender's name** · ім’я відправника · *proposed* — the name an email is shown as coming from (DL-0368).
+
 ---
 
 ## The product and its releases

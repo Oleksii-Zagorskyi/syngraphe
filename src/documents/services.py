@@ -10,7 +10,7 @@ any database row lock.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.db import connection, transaction
 
@@ -215,4 +215,25 @@ def resume_creation(
             },
             tenant=tenant,
         )
+        tell_administrators(document, user)
     return True
+
+
+def tell_administrators(document: Document, user: User | None, **facts: Any) -> None:
+    """The administrators of the organisation whose schema holds `document` told it exists —
+    never its creator; the reconciler, recreating one, tells them with `recreated`."""
+    from access.rights import administrators
+    from notifications.models import Category, Event
+    from notifications.services import notify, others
+
+    tenant_number = current_tenant(connection)
+    if tenant_number is None:
+        raise RuntimeError("a document's administrators are read inside its organisation's schema")
+    notify(
+        users=others((admin.pk for admin in administrators(tenant_number)), user),
+        category=Category.ADMINISTRATIVE,
+        event=Event.DOCUMENT_CREATED,
+        actor=user,
+        document=document,
+        facts=facts or None,
+    )

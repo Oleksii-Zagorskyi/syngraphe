@@ -113,7 +113,7 @@ server or an S3 bucket — which the database and the backup need before they
 start; there is no local kind ([the runbook](docs/runbook.md#backup)).
 
 ```bash
-cp .env.example .env         # fill every ??? (the store's for its kind only); nothing starts while one remains
+cp .env.example .env         # fill every ??? (the store's for its kind only); nothing starts while one remains but the mail key, read when used
                              # set SITE_HTTPS=false unless a TLS proxy is in front: over plain
                              # HTTP the cookies are never sent and nobody can sign in
 mkdir -p .repos              # the document repositories, written by the application's user, uid 1000

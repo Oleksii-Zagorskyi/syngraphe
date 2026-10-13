@@ -68,3 +68,29 @@ def test_the_index_opens_on_reading_a_document(member_of: Any, settings: Any) ->
     assert article(index)
     assert article(index) == article(reading)
     assert 'href="/help/markdown/"' in index
+
+
+def test_the_notifications_and_mail_pages(member_of: Any, settings: Any) -> None:
+    """Both listed in the index and rendered in the interface's language, no message id shown."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "help_catalogue", Path(__file__).resolve().parents[1] / "review" / "test_catalogue.py"
+    )
+    assert spec is not None and spec.loader is not None
+    catalogue = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(catalogue)
+    ids = catalogue.message_ids(catalogue.CATALOGUE.read_text(encoding="utf-8"))
+
+    client, _, _ = member_of("a.reader@example.test")
+    settings.LANGUAGE_CODE = "uk"
+    index = client.get("/help/").content.decode()
+    for slug, heading in (("notifications", "Сповіщення"), ("mail", "Пошта")):
+        assert f'href="/help/{slug}/"' in index, slug
+        page = client.get(f"/help/{slug}/")
+        assert page.status_code == 200, slug
+        body = page.content.decode()
+        assert f"<h1>{heading}</h1>" in body, slug
+        leaked = [message for message in ids if message in catalogue.text_of(body)]
+        assert leaked == [], (slug, leaked)

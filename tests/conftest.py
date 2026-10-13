@@ -26,6 +26,8 @@ _TEST_DEFAULTS = {
     "DISPLAY_TIMEZONE": "UTC",
     "DEFAULT_LANGUAGE": "uk",
     "GIT_REPO_ROOT": str(Path(tempfile.gettempdir()) / "syngraphe-test-repos"),
+    # Thirty-two zero bytes, for the tests alone.
+    "MAIL_PASSWORD_KEY": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
 }
 for _key, _value in _TEST_DEFAULTS.items():
     os.environ.setdefault(_key, _value)

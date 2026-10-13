@@ -11,6 +11,7 @@
         <li><a href="/administration/platform/hosts/">{% translate "Hosts" %}</a></li>
         <li><a href="/administration/platform/tenants/">{% translate "Organisations" %}</a></li>
         <li><a href="/administration/platform/administrators/">{% translate "Platform administrators" %}</a></li>
+        <li><a href="/administration/platform/mail/">{% translate "Mail and outbox" %}</a></li>
       {% endblock %}</ul>
       {% if selector %}
       <form method="post" action="/administration/organisation/" class="selector">{% csrf_token %}
@@ -27,7 +28,7 @@
     <section class="pane organisation">
       <h2>{% translate "Organisation" %}</h2>
       <p class="muted">{{ current_tenant.name }}</p>
-      <ul class="sections">{% block organisation_sections %}<li><a href="/administration/tenant/groups/">{% translate "Groups" %}</a></li><li><a href="/administration/tenant/document-links/">{% translate "Document links" %}</a></li>{% endblock %}</ul>
+      <ul class="sections">{% block organisation_sections %}<li><a href="/administration/tenant/groups/">{% translate "Groups" %}</a></li><li><a href="/administration/tenant/document-links/">{% translate "Document links" %}</a></li><li><a href="/administration/tenant/sending-address/">{% translate "Sending address" %}</a></li>{% endblock %}</ul>
     </section>
     {% elif platform_pane %}
     <section class="pane organisation">

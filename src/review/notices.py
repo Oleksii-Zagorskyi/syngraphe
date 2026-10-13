@@ -344,17 +344,22 @@ def _range(lines: set[int]) -> str:
 
 def compute(acceptance: Any) -> list[Any]:
     """The correction notices of `acceptance`, written once: one `CORRECTION_NOTICE` per author,
-    a `CORRECTION_LINE` per entry, one `NOTIFICATION` per notice, and `notices_computed_at` set
-    in the same transaction — so an acceptance with no notice is told from one never computed.
+    a `CORRECTION_LINE` per entry, one `NOTIFICATION` per notice, one `accepted` notification to
+    each author of the run but the reviewer who can still open the document, and
+    `notices_computed_at` set in the same transaction — so an acceptance with no notice is told
+    from one never computed.
     Idempotent: computed again, it writes nothing and returns what is there. The versions covered
     are the run's `reviewer_edit` versions and the acceptor's own, whatever their kind
     (ADR-0014)."""
     from django.db import connection, transaction
     from django.utils import timezone
 
+    from access.rights import readable
     from documents import gitstore
     from documents.models import Version, VersionKind
-    from notifications.models import Category, Event, Notification
+    from identity.models import User
+    from notifications.models import Category, Event
+    from notifications.services import notify, others
     from review import services
     from review.models import Acceptance, CorrectionLine, CorrectionNotice
     from tenancy.schemas import current_tenant
@@ -392,6 +397,7 @@ def compute(acceptance: Any) -> list[Any]:
     by_author: dict[Any, list[Entry]] = {}
     for entry in found:
         by_author.setdefault(entry.author, []).append(entry)
+    authors = User.objects.in_bulk(list(by_author))
     with transaction.atomic():
         locked = Acceptance.objects.select_for_update().get(pk=acceptance.pk)
         if locked.notices_computed_at is not None:
@@ -412,16 +418,36 @@ def compute(acceptance: Any) -> list[Any]:
                 )
                 for entry in listed
             )
-            Notification.objects.create(
-                user_id=author,
-                document=document,
+            # No actor: the acceptor may be an author whose line a reviewer's version replaced;
+            # each entry already leaves out its own changer (ADR-0014).
+            notify(
+                users=[authors[author]],
                 category=Category.DOCUMENT,
                 event=Event.CORRECTION_NOTICE,
+                document=document,
                 version=locked.version,
                 correction_notice=notice,
-                created_at=now,
+                at=now,
             )
             notices.append(notice)
+        # The run's authors told it was accepted, once, with the notices: whichever path
+        # finishes the acceptance — the act, the next writer, the reconciler — tells them, at
+        # the acceptance's own time, and only those who can still open the document.
+        reviewer = User.objects.get(pk=locked.reviewer_id)
+        notify(
+            users=[
+                author
+                for author in others({version.author_id for version in versions}, reviewer)
+                if document.pk in readable(author, [document.pk])
+            ],
+            category=Category.DOCUMENT,
+            event=Event.ACCEPTED,
+            actor=reviewer,
+            document=document,
+            version=locked.version,
+            facts={"accepted": locked.number},
+            at=locked.at,
+        )
         locked.notices_computed_at = now
         locked.save(update_fields=["notices_computed_at"])
         acceptance.notices_computed_at = now

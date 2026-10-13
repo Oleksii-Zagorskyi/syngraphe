@@ -258,3 +258,51 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The file's name says which version and stance a file holds, and the title page where a document has one — off by default, and naming the edition rather than the exported version; nothing in release 0.1 needs more yet.
 
 **What has to be true before it is taken up.** Readers of printed or exported documents ask which version a loose page belongs to, or what stands behind an approval.
+
+## B-039 — A code or preformatted block in the whitelist
+
+**Idea.** A block of text set as written — an organisation chart drawn with box characters, a command, a form laid out in columns — kept as a preformatted block rather than refused.
+
+**Why it is parked.** The whitelist has no preformatted block, and a tree drawn with box characters was refused when a synthetic regulation was loaded; the author converted it to a nested list. Whether such a block belongs in a governed document is a product decision, and the whitelist is not opened again until marks and images are added to it.
+
+**What has to be true before it is taken up.** The whitelist is next opened — with marks and images (Epic 11).
+
+## B-040 — A list written `- 1.` read as a numbered list
+
+**Idea.** Authors write numbered items as `- 1. Text`, which the whitelist reads as an empty bullet and refuses; the platform could read the form as a numbered list.
+
+**Why it is parked.** The loader met it in a synthetic document; whether the platform accepts the author's habit or names the refusal is a whitelist decision, taken with the others.
+
+**What has to be true before it is taken up.** The whitelist is next opened (Epic 11).
+
+## B-041 — Telling the author that single line breaks are joined
+
+**Idea.** Lines an author wrote one under another inside a paragraph are joined into one line — Markdown's rule, and what the one-sentence-per-line storage depends on — without a word to the author. The editor, or the loader, could say so where it happens.
+
+**Why it is parked.** It is a notice about the whitelist's reading of a line break, and it is decided with the whitelist.
+
+**What has to be true before it is taken up.** The whitelist is next opened (Epic 11).
+
+## B-042 — A leading heading number stripped on load or paste
+
+**Idea.** A Markdown export carries heading numbers in its headings (DL-0363); loaded again or pasted back, they stay as text and gain a second number on the next export. The loader and the paste could strip a leading number equal to the heading's own.
+
+**Why it is parked.** It is a normalizer rule on the whitelist's reading of a heading, decided with the whitelist.
+
+**What has to be true before it is taken up.** The whitelist is next opened (Epic 11).
+
+## B-043 — Three controls drawn out of proportion
+
+**Idea.** Three controls are drawn at a size that does not fit what they hold: *Create a document* in a box several lines tall beside the organisation's name; the change summary on the finishing screen a short single-line field, so the drafted summary is cut off; the freeze's reason field too narrow for its own placeholder. Each is a rule of the shell's stylesheet.
+
+**Why it is parked.** None of them blocks an act; they are fixed together, with the look of the pages they sit on.
+
+**What has to be true before it is taken up.** The next pass over the interface's look, before release 0.1 is accepted in Ukrainian.
+
+## B-044 — The sending settings reaching an installation's own machines
+
+**Idea.** An organisation's sending address, and *Send a test email*, connect to whatever server its administrator enters, and a failed test shows what answered: an organisation's administrator can probe the installation's own network from that page. Restricting an organisation's sender to public addresses, checked at every connection, and showing a fixed sentence where something other than a mail server answers, would close it.
+
+**Why it is parked.** One organisation operates an installation in release 0.1, so its administrators are trusted with that network (DL-0391).
+
+**What has to be true before it is taken up.** A second organisation, unrelated to the operator, on one installation.

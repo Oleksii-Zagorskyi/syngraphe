@@ -221,3 +221,5 @@ def test_all_documents_in_the_navigation(migrated_tenant: Any, member_of: Any) -
     body = client.get(ROOT).content.decode()
 
     assert '<a href="/folder/1/"' in body
+    # A member holding *edit* or *accept* on no document is offered neither view.
+    assert 'data-nav="in-edit"' not in body and 'data-nav="in-review"' not in body

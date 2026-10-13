@@ -19,7 +19,7 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
-- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, `SETUP_TOKEN`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203), so those two tables exist in both: the mail app is on both the shared and the tenant list, and a query reaches the tenant's rows when a tenant is set and the platform's only with the shared schema alone (ADR-0017).
+- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, `SETUP_TOKEN`, `PLATFORM_NOTIFICATION`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203), so those two tables exist in both: the `mail` app is on both the shared and the tenant list, and a query reaches the tenant's rows when a tenant is set and the platform's only with the shared schema alone (ADR-0017). A person's `NOTIFICATION` lives in the tenant's schema, a platform administrator's `PLATFORM_NOTIFICATION` in the shared one (DL-0382).
 - **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
 
 **`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
@@ -78,16 +78,27 @@ erDiagram
     EMAIL_OUTBOX {
         uuid id PK
         uuid tenant FK "null for platform mail"
-        string sender
+        string sender "the address it left from"
         string recipient
         string subject
         text body "number, title, versions, people, event, state, link — never document text or the change summary (DL-0205)"
         string status "queued | sent | failed"
-        int attempts "at most 3, five minutes apart (DL-0203)"
+        int attempts "refusals so far; failed at the third, five minutes apart (DL-0203)"
         datetime next_attempt_at
         datetime sent_at
-        string last_error
+        string last_error "a reason code and the server's answer, never an exception's text"
         datetime created_at
+        uuid notification_id "the notification it carries, of the same schema; no constraint, since neither notification table is in both"
+    }
+    USER ||--o{ PLATFORM_NOTIFICATION : told
+    PLATFORM_NOTIFICATION {
+        uuid id PK
+        uuid user FK "a platform administrator"
+        string event "backup_condition | email_failed (DL-0382); user_partially_blocked and tenant_without_admin join with the acts that write them (DL-0367)"
+        json facts "ids and numbers only (DL-0370)"
+        datetime created_at
+        datetime read_at
+        datetime emailed_at
     }
     TENANT {
         uuid id PK
@@ -229,11 +240,14 @@ erDiagram
         uuid id PK
         string host
         int port
-        string address "the sending address; one per tenant at most (DL-0202)"
-        string username
-        bytes password_encrypted "authenticated encryption; key from the environment"
+        string address "the sending address; one per schema at most (DL-0202)"
+        string display_name "the sender's name in the From line, optional"
+        string username "empty: no sign-in"
+        bytes password_encrypted "authenticated encryption; key from the environment (DL-0384)"
+        string security "starttls | tls | none (DL-0371); sign-in without encryption only to the same machine (DL-0388)"
+        datetime last_test_requested_at "one test at a time (DL-0392)"
         datetime last_test_at
-        string last_test_result
+        string last_test_result "each step's outcome"
     }
     DOCUMENT_TEMPLATE {
         uuid id PK
@@ -510,11 +524,12 @@ erDiagram
     NOTIFICATION {
         uuid id PK
         uuid user FK
-        uuid document FK
+        uuid document FK "null where the event concerns no document (DL-0367)"
         string category "document | administrative (DL-0204)"
-        string event "version_committed | accepted | returned | correction_notice | frozen | unfrozen | made_canonical | hold_expiring | reservation_started | reservation_ended_by_admin | access_granted | document_created | document_copied | user_partially_blocked | tenant_without_admin | email_failed"
+        string event "version_committed | accepted | returned | correction_notice | frozen | unfrozen | made_canonical | hold_expiring | reservation_started | reservation_ended_by_admin | access_granted | document_created | document_copied | email_failed"
         uuid version FK
         uuid correction_notice FK "set for event correction_notice; one notification per notice"
+        json facts "ids and numbers only — never an address, a title or a line of text (DL-0370)"
         datetime created_at
         datetime read_at
         datetime emailed_at
@@ -538,9 +553,9 @@ erDiagram
     }
 ```
 
-**A document's `NOTIFICATION` lives in the tenant's schema**, beside the document it concerns — where the administrative ones live is decided with them; a notification is opened at its own address, never a document's, and only by its person.
+**A `NOTIFICATION` lives in the tenant's schema**, beside the document it concerns, an organisation's administrative ones with them; a platform administrator's own — a backup condition, a failed email — is a `PLATFORM_NOTIFICATION` in the shared schema, since a platform administrator may belong to no organisation (DL-0382). A notification is opened at its own address, never a document's, and only by its person; one about a document its person can no longer open is neither shown nor counted (DL-0386).
 
-**`EMAIL_OUTBOX` is written before any attempt to send** (DL-0203): three attempts five minutes apart, then *failed* and an in-application notification to the tenant's and the platform's administrators. It is also the log of every email sent. With no sender configured, nothing is queued.
+**`EMAIL_OUTBOX` is written before any attempt to send** (DL-0203), in the notification's own transaction: three attempts five minutes apart, then *failed* and an in-application notification to the tenant's and the platform's administrators. It is also the log of every email sent. With no sender configured, nothing is queued. The recipient's right is read again at the send, and an email about a document they can no longer open fails without telling anyone (DL-0387); an email whose sender's password cannot be read for want of the key waits, its attempts untouched (DL-0389).
 
 **`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent. The platform's sender is one row in the shared schema, a tenant's own sender one row in its schema; each password is encrypted at rest and write-only in the interface (DL-0072, DL-0202).
 

@@ -1,0 +1,28 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% if scope == "platform" %}{% translate "Mail and outbox" %}{% else %}{% translate "Sending address" %}{% endif %} · Syngraphē{% endblock %}
+{% block section %}
+<h1>{% if scope == "platform" %}{% translate "Mail and outbox" %}{% else %}{% translate "Sending address" %}{% endif %}</h1>
+{% if not sender %}<p class="notice" data-no-sender>{% if scope == "platform" %}{% translate "No sending address is set: the platform's own email, and that of every organisation without an address of its own, is not sent — nor kept to send later." %}{% else %}{% translate "The organisation has no sending address of its own: its email leaves from the platform's address, when one is set." %}{% endif %}</p>{% endif %}
+{% if scope == "organisation" %}<p class="muted" data-dns-note>{% translate "Email from the organisation's own address is delivered reliably only when its domain's DNS records — SPF and DKIM — allow the server below to send for it." %}</p>{% endif %}
+{% if running %}<p class="err" role="alert" data-test-running>{% translate "A test is still running; its result appears below." %}</p>{% endif %}
+<form method="post" action="{{ page_url }}" class="sender">{% csrf_token %}
+  {% for field in form %}
+  <p>
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {{ field }}{% if field.name == "password" and sender and sender.password_encrypted %}<span class="muted" data-password-stored>{% translate "A password is stored; it is never shown." %}</span>{% endif %}
+    {% for error in field.errors %}<span class="err" data-error-for="{{ field.name }}">{{ error }}</span>{% endfor %}
+  </p>
+  {% endfor %}
+  {% for error in form.non_field_errors %}<p class="err">{{ error }}</p>{% endfor %}
+  <p class="toolbar">
+    <button class="btn primary" type="submit" name="action" value="save">{% translate "Apply settings" %}</button>
+    {% if sender %}<button class="btn" type="submit" formaction="{{ test_url }}">{% translate "Send a test email" %}</button>
+    <button class="btn" type="submit" name="action" value="remove" formnovalidate>{% translate "Remove" %}</button>{% endif %}
+  </p>
+</form>
+{% if sender %}{% include "mail/test_result.html" %}{% endif %}
+<h2>{% translate "The outbox" %}</h2>
+{% if capped %}<p class="muted" data-outbox-capped>{% blocktranslate %}The {{ shown }} most recent emails.{% endblocktranslate %}</p>{% endif %}
+{% include "mail/outbox_rows.html" %}
+{% endblock %}

@@ -208,6 +208,30 @@ def derive_committed(document: Document, repo: pygit2.Repository, sha: str, user
         )
 
 
+def tell_reviewers(document: Document, sha: str, user: User) -> None:
+    """The holders of *accept* told that the version `sha` awaits them, by its number in the run —
+    nobody, once an acceptance has taken it in."""
+    from access.rights import holders_of
+    from notifications.models import Category, Event
+    from notifications.services import notify, others
+    from review.services import run
+
+    pending = run(document)
+    position = next((n for n, v in enumerate(pending, 1) if v.commit_sha == sha), None)
+    if position is None:
+        return
+    reviewers = holders_of([Right.ACCEPT], [document.pk])[document.pk]
+    notify(
+        users=others(reviewers, user),
+        category=Category.DOCUMENT,
+        event=Event.VERSION_COMMITTED,
+        actor=user,
+        document=document,
+        version=pending[position - 1],
+        facts={"version": f"{numbering.accepted(document)}-{position}"},
+    )
+
+
 def commit_draft(hold: Hold, user: User, message: str, *, fault_at: int | None = None) -> Version:
     """Commit the draft of `hold` as one version, under the document's lock: of kind
     `reviewer_edit` when the holder holds *accept* at that moment, `edit` otherwise (ADR-0014). A
@@ -234,10 +258,11 @@ def ask_authorship(tenant_number: int, document: Document, sha: str) -> None:
 
 
 def commit_draft_locked(
-    hold: Hold, user: User, message: str, *, fault_at: int | None = None
+    hold: Hold, user: User, message: str, *, fault_at: int | None = None, tell: bool = True
 ) -> Version:
     """`commit_draft`'s body, for a caller that holds the document's writer lock; the caller asks
-    for the authorship afterwards (`ask_authorship`)."""
+    for the authorship afterwards (`ask_authorship`). `tell` false leaves the reviewers untold,
+    for a caller that accepts the version in the same act."""
     problem = summary.problem(message)
     if problem is not None:
         raise InvalidSummary(problem)
@@ -303,10 +328,16 @@ def commit_draft_locked(
         # (2) The version row and its caches, audited.
         _derive(document, repo, sha, user)
     _fault(2, fault_at)
-    # (3) The hold released as finished.
+    # (3) The hold released as finished, and the reviewers told, in one transaction. A finish
+    # stopped before this step tells them when it is completed — by its holder's next finish or
+    # by the reconciler's repair — while the version still awaits review.
     with transaction.atomic():
         Document.objects.select_for_update().get(pk=document.pk)
         holds.release(hold, ReleaseKind.FINISHED, actor=user)
+        if tell:
+            if stopped is not None and stopped != sha:
+                tell_reviewers(document, stopped, user)
+            tell_reviewers(document, sha, user)
     _fault(3, fault_at)
     # (4) The draft consumed.
     Draft.objects.filter(hold=hold).delete()

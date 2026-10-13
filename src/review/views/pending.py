@@ -21,8 +21,9 @@ from django.views.decorators.cache import never_cache
 
 from access.rights import Right, rights_on_many
 from documents import gitstore
+from documents.holds import held_by
 from documents.models import Document, DocumentState, Version, VersionKind
-from documents.views import ABSENT, _member
+from documents.views import ABSENT, is_member
 from editing import holds, numbering
 from editing.authorship import DOCUMENT_FILE, blame_at
 from editing.diffview import render_changes
@@ -101,7 +102,7 @@ def _correct_blocked(document: Document, user: User) -> str:
 def readable_pending(request: HttpRequest, number: int) -> Document | None:
     """The active document `number` when the person holds *view pending* on it; `None`
     otherwise, a missing document costing what a forbidden one does (ADR-0008)."""
-    if getattr(request, "tenant", None) is None or not _member(request):
+    if getattr(request, "tenant", None) is None or not is_member(request):
         return None
     document = Document.objects.filter(number=number, state=DocumentState.ACTIVE).first()
     rights = rights_on_many(request.user, [document.pk if document is not None else ABSENT])
@@ -140,8 +141,9 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     ]
     # Raw HTML in the text is escaped by the renderer, and every name is escaped: safe to mark.
     changes = render_changes(base_body.encode(), head_body.encode(), authors=authors)
+    rights = rights_on_many(request.user, [document.pk])[document.pk]
     acts = None
-    if Right.ACCEPT in rights_on_many(request.user, [document.pk])[document.pk]:
+    if Right.ACCEPT in rights:
         from review.views.accept import reason
 
         user = cast(User, request.user)
@@ -153,6 +155,8 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     context = {
         "document": document,
         "tab": "pending",
+        "can_edit": Right.EDIT in rights,
+        "holding": held_by(document, request.user),
         "acts": acts,
         "run": versions,
         "changes": mark_safe(changes),  # noqa: S308

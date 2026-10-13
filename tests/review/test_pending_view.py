@@ -166,6 +166,20 @@ def test_pending_needs_view_pending(
     assert f"/document/{document.number}/pending/" not in page
 
 
+def test_the_tabs_are_the_documents_on_pending_and_its_confirmation(
+    member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+) -> None:
+    """The pending tab and the accept confirmation draw the tab bar every other tab draws: *Edit*
+    to a holder of *edit* (DL-0208)."""
+    client, _, author_a, _, document = reviewer_and_authors(member_of, new_document, link_group)
+    commit_version(document, author_a, FIRST, "edit")
+    edit = f'href="/document/{document.number}/edit/"'
+    for address in ("pending/", "pending/accept/"):
+        page = client.get(f"/document/{document.number}/{address}").content.decode()
+        tabs = page.split('<nav class="tabs">', 1)[1].split("</nav>", 1)[0]
+        assert edit in tabs, address
+
+
 def test_empty_run(
     migrated_tenant: Any,
     member_of: Any,

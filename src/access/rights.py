@@ -224,3 +224,87 @@ def can_create(user: Any, tenant: Tenant) -> bool:
     )
     # `create_and_edit` is never implied by another right, so the stored rows answer alone.
     return Right.CREATE_AND_EDIT in {Right(r) for r in rights}
+
+
+def holders_of(rights: Iterable[Right], document_ids: Iterable[Any]) -> dict[Any, set[Any]]:
+    """For each document, the people whose groups linked to it imply any of `rights`, members of
+    the current organisation in good standing (DL-0308) — who an act on the document tells.
+    Only an active document reaches its groups, as in `rights_on_many`; the author's own reach
+    and the administrators' reading are not groups and are not here."""
+    from access.models import DocumentGroup, GroupMember, GroupRight
+    from documents.models import DocumentState
+    from identity.models import member_in_good_standing_q
+
+    wanted = set(rights)
+    ids = list(document_ids)
+    result: dict[Any, set[Any]] = {pk: set() for pk in ids}
+    tenant_number = current_tenant(connection)
+    if tenant_number is None:
+        return result
+    links = list(
+        DocumentGroup.objects.filter(
+            document_id__in=ids, document__state=DocumentState.ACTIVE
+        ).values_list("document_id", "group_id")
+    )
+    granted: dict[Any, set[Right]] = {}
+    for group_id, right in GroupRight.objects.filter(
+        group_id__in={link[1] for link in links}
+    ).values_list("group_id", "right"):
+        granted.setdefault(group_id, set()).add(Right(right))
+    holding = {group for group, held in granted.items() if implied(held) & wanted}
+    members: dict[Any, set[Any]] = {}
+    for group_id, user_id in GroupMember.objects.filter(
+        member_in_good_standing_q("membership__"),
+        group_id__in=holding,
+        membership__tenant__number=tenant_number,
+    ).values_list("group_id", "membership__user_id"):
+        members.setdefault(group_id, set()).add(user_id)
+    for document_id, group_id in links:
+        result[document_id] |= members.get(group_id, set())
+    return result
+
+
+def administrators(tenant_number: int) -> list[User]:
+    """The organisation's tenant administrators in good standing — who its administrative events,
+    and every document's freeze and edition, tell."""
+    from identity.models import Membership, User, member_in_good_standing_q
+
+    return list(
+        User.objects.filter(
+            pk__in=Membership.objects.filter(
+                member_in_good_standing_q(), tenant__number=tenant_number, is_tenant_admin=True
+            ).values("user_id")
+        )
+    )
+
+
+def holds_anywhere(user: Any, right: Right) -> bool:
+    """Whether `user` holds `right` on some active document of the current organisation, through
+    a group or as an author-only document's author, as `rights_on_many` grants it — who is
+    offered a view of the documents that right acts on (DL-0194, DL-0197)."""
+    from access.models import DocumentGroup, GroupRight
+    from documents.models import Document, DocumentState
+
+    tenant_number = current_tenant(connection)
+    person = _person(user)
+    if tenant_number is None or person is None:
+        return False
+    membership = _active_membership(person, tenant_number)
+    if membership is None:
+        return False
+    if (
+        right in AUTHOR_ONLY
+        and Document.objects.filter(
+            state=DocumentState.ACTIVE, author_only=True, created_by=person
+        ).exists()
+    ):
+        return True
+    linked = DocumentGroup.objects.filter(
+        group__members__membership=membership, document__state=DocumentState.ACTIVE
+    ).values("group_id")
+    granted: dict[Any, set[Right]] = {}
+    for group_id, held in GroupRight.objects.filter(group_id__in=linked).values_list(
+        "group_id", "right"
+    ):
+        granted.setdefault(group_id, set()).add(Right(held))
+    return any(right in implied(held) for held in granted.values())

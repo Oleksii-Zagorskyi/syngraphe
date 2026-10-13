@@ -10,6 +10,7 @@ from django.db import connection, models
 from django.db.models import Q
 from django.utils import timezone
 
+from notifications.models import PLATFORM_EVENTS
 from syngraphe.provenance import Mutable, Provenanced
 from tenancy.schemas import schema_name
 
@@ -128,3 +129,29 @@ class TenantStateHistory(models.Model):
 
     def __str__(self) -> str:
         return f"{self.tenant_id}: {self.before} → {self.after}"
+
+
+class PlatformNotification(models.Model):
+    """What a platform administrator is told, in the shared schema (DL-0382): platform
+    administrators may belong to no organisation, and an entry here names no document. Read
+    and written only through `notifications.services`."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    event = models.CharField(max_length=40)
+    # Ids and numbers only — never an address, a title or a line of text (DL-0370).
+    facts = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    read_at = models.DateTimeField(null=True, blank=True)
+    emailed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(event__in=[event.value for event in PLATFORM_EVENTS]),
+                name="tenancy_platform_notification_event_known",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"platform notification {self.pk}"

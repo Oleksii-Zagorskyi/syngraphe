@@ -52,6 +52,9 @@ def test_every_model_carries_provenance_or_its_own_columns() -> None:
         "editions.Edition",
         "rendering.ExportJob",
         "notifications.Notification",
+        "tenancy.PlatformNotification",
+        "mail.MailSender",
+        "mail.EmailOutbox",
     }
     for model in apps.get_models():
         if model._meta.app_label in ("admin", "auth", "contenttypes", "sessions"):

@@ -487,11 +487,18 @@ def accept_as(hold: Any, user: User, summary: str, *, confirmed: str | None = No
                 raise AcceptRefused("no_reviewer")
             if Right.ACCEPT not in rights_on(user, document):
                 raise AcceptRefused("not_a_reviewer")
-            version = editing.commit_draft_locked(hold, user, summary)
+            # Accepted in the same act, the version never waits: nobody is told it awaits review,
+            # unless the acceptance is refused and it stays pending.
+            version = editing.commit_draft_locked(hold, user, summary, tell=False)
             try:
                 acceptance = accept_locked(document, user)
             except AcceptRefused as refused:
+                editing.tell_reviewers(document, version.commit_sha, user)
                 raise AcceptRefused(refused.reason, version) from refused
+            except Exception:
+                # The version stands and awaits review whatever stopped its acceptance.
+                editing.tell_reviewers(document, version.commit_sha, user)
+                raise
     finally:
         if version is not None:
             editing.ask_authorship(tenant_number, document, version.commit_sha)

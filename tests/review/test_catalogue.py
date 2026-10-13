@@ -112,7 +112,7 @@ def test_catalogue_covers_review_pages(
     )
     bodies["the notice after accepting"] = text_of(accepted.content.decode())
     with schema_context(migrated_tenant.number):
-        notification = Notification.objects.get(user=author)
+        notification = Notification.objects.get(user=author, event="correction_notice")
     bodies["the correction notice"] = shown(author_client, f"/notifications/{notification.pk}/")
 
     for name, body in bodies.items():

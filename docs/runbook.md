@@ -147,7 +147,7 @@ In Administration › Platform › Organisations, *Create an organisation*: its 
 
 3. **Off-host, encrypted.** Both copies leave the host encrypted, the database's archive under `BACKUP_DB_CIPHER_PASS` and the bundles under `BACKUP_BUNDLE_CRYPT_PASSWORD`, keys kept in `.env` and never in the backup store. In production the store keeps whatever the host deletes for thirty days, by its own control, so that whoever takes the host cannot destroy the backups. **Keep a copy of `.env` and of the key file `BACKUP_KEY_FILE` names away from the platform**: without the two encryption keys no backup can be read, and without the store's credentials no backup can be reached; a fresh host needs all of them in step 3 of case A. *Nothing is ever lost* is true only while this step runs.
 
-**Watch it.** `/health/` shows the backup's state: the age of the newest clean marker, whether any repository is failing — which ones only in the worker's log, as *a repository's bundle failed* with its numbers — the last segment archived and the log waiting. It does not change the endpoint's status. Each change of the three conditions — a repository failing, no clean marker newer than fifteen minutes, the waiting log past `BACKUP_WAL_ALERT` — is logged once at error level by the worker. ⟨until the platform sends mail and notifications, an external check on the health entry, set up at the deploy⟩
+**Watch it.** `/health/` shows the backup's state: the age of the newest clean marker, whether any repository is failing — which ones only in the worker's log, as *a repository's bundle failed* with its numbers — the last segment archived and the log waiting. It does not change the endpoint's status. Each change of the three conditions — a repository failing, no clean marker newer than fifteen minutes, the waiting log past `BACKUP_WAL_ALERT` — is logged once at error level by the worker, and told to every platform administrator as an administrative notification — by email too, once the platform has a sending address (§ Mail). With no platform administrator to tell, the worker tries again on its next run.
 
 **The store is unreachable.** The waiting log grows on the host's disk. Bring the store back; confirm `pgbackrest check` passes and a new clean marker appears. If the waiting log reached `BACKUP_WAL_QUEUE_MAX`, the archive has a gap: take a full base backup at once — until it completes, no restore can reach a moment after the gap began:
 
@@ -251,6 +251,49 @@ A job still queued is the reconciler's `export_stuck`: the first hourly run afte
 Every text the platform commits has passed the validator, so this happens only to a repository written outside the platform: restored from a foreign bundle, or edited by hand. Two cases. **A file that does not read** (its frontmatter broken, or not UTF-8): the reading view answers *Nothing to show here*, as for a missing document, and `web`'s log has *a document's text could not be read* with the document's number. **A text that reads but holds constructs the platform refuses**: the reading view shows it, raw HTML as plain text, and every export of it fails with the constructs named.
 
 Run the reconciler for that document first (`reconcile --tenant N --document M`); `identity_mismatch` or `unreadable` there means the repository is not the platform's own, and the restore is what to revisit (§ Restore, case C). A text that reads but holds refused constructs is corrected by its editors in the editor: the editor opens it in the source view with each refused line named (§ A draft that fails to load). The repository is never edited in place.
+
+## Mail
+
+Every notification but a failed email's queues one email in the outbox of its schema — an organisation's, or the shared one for a platform administrator's — sent from that organisation's own sending address, else the platform's; with neither, nothing is queued and the notification stays in the application alone. The worker sends what is due every minute. The platform's address is set in Administration › Platform › *Mail and outbox*, an organisation's in its Administration › *Sending address*; each page lists its outbox below the form, the newest 200, and offers *Send a test email*, which reports *connection*, *sign-in* and *sending* apart. An email links to its notification on the organisation's default domain, else the platform's host (DL-0394): **give an organisation whose people receive mail a default domain**, or a member of several organisations who follows a link with another chosen is answered *Nothing to show here*.
+
+### The mail key
+
+A sending password is stored encrypted under `MAIL_PASSWORD_KEY`, which only `web` and `worker` receive. Set it in `.env` **before the first sending address with a password is saved**. Generate one on the host, inside the running stack:
+
+```bash
+$C exec web python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Put the printed value in `.env` as `MAIL_PASSWORD_KEY`, then `$C up -d web worker`. Keep a copy of it with `.env`'s other keys: a stored password cannot be read without it, and the addresses that sign in would have to be entered again. **Without the key**, the pages refuse to store a password, and every email of an address that signs in waits in the outbox, its attempts untouched, reading *The sending password cannot be read until the mail key is set.*; the worker logs *an email waits for the mail key* once per email. Setting the key sends them at the next minute.
+
+**Rotating the key**, in three steps:
+
+1. In `.env`, move the current value to `MAIL_PASSWORD_KEY_PREVIOUS` and set a newly generated one as `MAIL_PASSWORD_KEY`; `$C up -d web worker`. Both keys now read a stored password.
+2. Re-encrypt every stored password — the platform's and each organisation's — under the new key; each schema's run is audited as `mail.key_rotated`. Run it again if it stops part way; it changes nothing a reader sees:
+
+   ```bash
+   $C exec worker python manage.py rotate_mail_key
+   ```
+
+3. Empty `MAIL_PASSWORD_KEY_PREVIOUS` and `$C up -d web worker`.
+
+A key that is not a valid key — the current one or the previous — is reported by its name, never its value: the pages refuse to store a password and mail of an address that signs in waits until it is corrected. A valid key that is not the one a password was stored under holds that address's mail with *The mail key does not open the sending password: enter it again.*: restore the right key, or enter the password again on the address's page.
+
+### When mail fails
+
+The outbox row says why, in the page's language. A refusal is tried again five minutes later; the third fails the row and tells the organisation's administrators and the platform's, in the application only. What the reasons mean:
+
+- ***The server answered: …*** — the sending server refused, in its own words: a wrong user name or password, an address it will not send from, a recipient it rejects. Correct the address's settings and *Send a test email*.
+- ***The server did not answer in time***, ***No server of that name was found***, ***The server refused the connection***, ***The server could not be reached*** — the host or port is wrong, or the server is down; *Send a test email* says which step failed.
+- ***The server's certificate was not accepted***, ***No encrypted connection could be made*** — the connection's security does not match the server: *STARTTLS* for port 587, *TLS* for 465. Sign-in without encryption is allowed only to a server on the same machine.
+- ***The recipient may no longer open the document*** — the person lost the right to the document between the notification and the send. Not a fault, and nobody is told.
+- ***The server offers no sign-in*** — a user name is set for a server that takes none: clear it.
+- ***The server closed the connection*** — the server dropped it mid-way, often a limit on connections or messages; the next attempt usually passes.
+- ***The email could not be sent.*** — a refusal the platform has no words for; the worker's log has it under the row's id.
+- ***The sending password cannot be read until the mail key is set***, ***The mail key does not open the sending password: enter it again.*** — § The mail key. These emails wait, their attempts untouched.
+- ***No sending address is set.*** — the address was removed and none is left, the organisation's nor the platform's. The emails wait, their attempts untouched, and leave once an address is set (DL-0395); nobody is told, since an administrator removed it.
+
+A stored password is kept only while the host, port, security and user name it was entered for are unchanged; change any of them and enter the password again. `docker compose logs worker` has *an email not sent* or *an outbox not sent* where the database itself refused, with the row's id or the organisation's number; the outbox continues with the rest.
 
 ## Restore
 

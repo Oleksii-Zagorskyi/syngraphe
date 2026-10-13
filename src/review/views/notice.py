@@ -46,13 +46,23 @@ def _lines(text: bytes, value: str) -> bytes:
 
 
 def _numbers(acceptance: Any) -> dict[str, str]:
-    """Each version of the accepted run by its number, `N.M-X`, as it waited."""
+    """Each version of the accepted run by its number, `N.M-X`, as it waited: counted from the
+    later of the acceptance and the edition before it, as the pending tab counts (DL-0267)."""
+    from editions.models import Edition
+
     base = acceptance.accepted_from
     key = services.number_key(acceptance.number)
     earlier = [
-        other.number
-        for other in Acceptance.objects.filter(version__document=base.document)
-        if services.number_key(other.number) < key
+        number
+        for number in [
+            *Acceptance.objects.filter(version__document=base.document).values_list(
+                "number", flat=True
+            ),
+            *Edition.objects.filter(version__document=base.document).values_list(
+                "number", flat=True
+            ),
+        ]
+        if services.number_key(number) < key
     ]
     accepted = max(earlier, key=services.number_key, default="0.0")
     run = services.run(

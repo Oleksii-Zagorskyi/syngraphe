@@ -18,7 +18,25 @@ class Category(models.TextChoices):
 
 
 class Event(models.TextChoices):
+    """Every event a notification can record; an act that adds one adds its value here and
+    rebuilds the constraints in a migration of its own."""
+
     CORRECTION_NOTICE = "correction_notice", "correction_notice"
+    VERSION_COMMITTED = "version_committed", "version_committed"
+    ACCEPTED = "accepted", "accepted"
+    FROZEN = "frozen", "frozen"
+    UNFROZEN = "unfrozen", "unfrozen"
+    MADE_CANONICAL = "made_canonical", "made_canonical"
+    ACCESS_GRANTED = "access_granted", "access_granted"
+    DOCUMENT_CREATED = "document_created", "document_created"
+    DOCUMENT_COPIED = "document_copied", "document_copied"
+    BACKUP_CONDITION = "backup_condition", "backup_condition"
+    EMAIL_FAILED = "email_failed", "email_failed"
+
+
+# What platform administrators are told in the shared schema (DL-0382); `email_failed` also
+# reaches an organisation's administrators in its own.
+PLATFORM_EVENTS = (Event.BACKUP_CONDITION, Event.EMAIL_FAILED)
 
 
 class Notification(models.Model):
@@ -27,7 +45,10 @@ class Notification(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
-    document = models.ForeignKey("documents.Document", on_delete=models.PROTECT, related_name="+")
+    # Empty where the event concerns no document: a failed email, a group, the backup (DL-0367).
+    document = models.ForeignKey(
+        "documents.Document", null=True, blank=True, on_delete=models.PROTECT, related_name="+"
+    )
     category = models.CharField(max_length=14, choices=Category.choices)
     event = models.CharField(max_length=40, choices=Event.choices)
     version = models.ForeignKey(
@@ -41,6 +62,8 @@ class Notification(models.Model):
         on_delete=models.PROTECT,
         related_name="notification",
     )
+    # Ids and numbers only — never an address, a title or a line of text (DL-0370).
+    facts = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     read_at = models.DateTimeField(null=True, blank=True)
     emailed_at = models.DateTimeField(null=True, blank=True)
@@ -56,6 +79,10 @@ class Notification(models.Model):
             models.CheckConstraint(
                 condition=~Q(event=Event.CORRECTION_NOTICE) | Q(correction_notice__isnull=False),
                 name="notifications_correction_notice_names_its_notice",
+            ),
+            models.CheckConstraint(
+                condition=Q(category=Category.ADMINISTRATIVE) | Q(document__isnull=False),
+                name="notifications_document_event_names_its_document",
             ),
         ]
 

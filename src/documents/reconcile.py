@@ -462,6 +462,7 @@ class _Run:
         the commit does not; otherwise it is reported, and the holder's next *send for review*
         resumes it. A finished hold whose draft is still there has the draft deleted."""
         from editing import holds as editing
+        from editing import services as finishing
         from editing.models import Draft, Hold, ReleaseKind
 
         order = {str(commit.id): n for n, commit in enumerate(commits)}
@@ -490,6 +491,8 @@ class _Run:
                     Document.objects.select_for_update().get(pk=document.pk)
                     if hold.released_at is None:
                         editing.release(hold, ReleaseKind.FINISHED)
+                        # The finish the holder could not complete tells the reviewers here.
+                        finishing.tell_reviewers(document, edit, hold.user)
                     draft.delete()
                     _audit(self.tenant, FINISH_STOPPED, document, None, {"number": document.number})
             detail = f"{edit} ({reason})" if reason else edit
@@ -744,6 +747,7 @@ class _Run:
                     "author_only": False,
                 },
             )
+            services.tell_administrators(document, None, recreated=True)
         self.found(ORPHAN_REPOSITORY, number, repaired=True)
         self.commits_without_rows(document, commits, replay=True)
 

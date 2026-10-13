@@ -64,6 +64,7 @@ def test_platform_admin_sees_both_panes(signed_in: Any, tenant: Any) -> None:
     assert 'class="pane organisation"' in body
     assert 'name="organisation"' in body
     assert tenant.name in body
+    assert 'href="/administration/platform/mail/"' in body
 
 
 def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: Any) -> None:
@@ -74,6 +75,8 @@ def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: An
     assert 'class="pane organisation"' in body
     assert 'class="pane platform"' not in body
     assert 'name="organisation"' not in body
+    assert 'href="/administration/platform/mail/"' not in body
+    assert 'href="/administration/tenant/sending-address/"' in body
 
 
 def test_organisation_selector_writes_the_session(signed_in: Any, tenant: Any) -> None:
@@ -134,6 +137,21 @@ def test_anonymous_is_sent_to_sign_in() -> None:
 
     assert response.status_code == 302
     assert response["Location"].startswith("/signin/")
+
+
+def test_no_bell_without_a_page_to_open(signed_in: Any, tenant: Any) -> None:
+    """The count is drawn only where `/notifications/` answers: never to someone signed out, nor
+    to someone signed in with no organisation who is not a platform administrator."""
+    from django.test import Client
+
+    anonymous = Client(headers={"host": "127.0.0.1"}).get("/signin/").content.decode()
+    client, _ = signed_in("no.organisation@example.test")
+    alone = client.get("/help/").content.decode()
+    member, _ = signed_in("a.member@example.test", tenant=tenant)
+
+    assert 'class="notifications"' not in anonymous
+    assert 'class="notifications"' not in alone
+    assert 'class="notifications"' in member.get("/help/").content.decode()
 
 
 def test_catalogue_covers_the_shell(signed_in: Any, tenant: Any, settings: Any) -> None:

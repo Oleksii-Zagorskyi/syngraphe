@@ -10,10 +10,10 @@ from django.test import Client
 
 
 @pytest.fixture
-def tenant() -> Any:
-    from tenancy.models import Tenant
-
-    return Tenant.objects.create(name="Example Org", state="active", actor_kind="system")
+def tenant(migrated_tenant: Any) -> Any:
+    """An organisation as a request resolves one: active, its schema migrated, since the shell
+    counts its person's unread notifications there."""
+    return migrated_tenant
 
 
 @pytest.fixture

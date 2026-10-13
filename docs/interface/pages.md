@@ -117,7 +117,7 @@ An archived document leaves the list for everyone, administrators included; they
 
 ## In edit, In review
 
-The document list's shape, each a page of its own reached from the menu: matching documents grouped under a heading per folder path, the groups alphabetical, sorting within each group; the folder tree shows only folders holding matches (DL-0197, DL-0207).
+The document list's shape, each a page of its own reached from the menu: matching documents grouped under a heading per folder path, the groups alphabetical, sorting within each group; the folder tree shows only folders holding matches (DL-0197, DL-0207). An empty view reads *No documents here.*; to anyone the menu does not offer it, its address answers *Nothing to show here*.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
@@ -186,7 +186,7 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | *edit* beside each `#` section, several open at once; *edit whole document* only when none is open — disabled with its reason otherwise | **0.1** | ST-0059 | Epic 9 |
-| a section editor opened in place, the rest rendered around it; toolbar exactly the whitelist — *quote* among it (DL-0238) — *undo* and *redo* (DL-0241), *mark* for entities, each control an icon with its word as tooltip and accessible name; *rich / markdown* | **0.1** | ST-0019, ST-0021, ST-0026, ST-0060 | Epics 4, 9; *mark* Epic 11 |
+| a section editor opened in place, the rest rendered around it; toolbar exactly the whitelist — *quote* among it (DL-0238) — *undo* and *redo* (DL-0241), *mark* for entities, each control an icon with its word as tooltip and accessible name; *rich / markdown* | **0.1** | ST-0019, ST-0021, ST-0026, ST-0060 | Epic 4, *undo* and *redo* included; *mark* Epic 11 |
 | paste refusal — the lines named, the converted text previewed, *paste converted*, a link to help; an image left out of a paste with a one-line notice (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 4 |
 | image refusal — the format or the size. A pasted or dropped image becomes an upload and a paragraph of its own; an image that is only a web address is left out of the paste, with a one-line notice to save it and paste the file, which blocks nothing (DL-0232) | **0.1** | ST-0019, ST-0028 | Epic 11 |
 | capture indicator — no Save control | **0.1** | ST-0020 | Epic 4 |
@@ -197,7 +197,7 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | *Reserve for editing*, to a holder with the right — disabled with its reason while frozen (DL-0252); then *Cancel the reservation* (DL-0218, DL-0219, DL-0223) | **0.1** | ST-0069 | Epic 9 |
 | *Discard my edits* whenever the user holds the document, confirmed in a box saying the whole draft is thrown away and a reservation ends with it (DL-0237) | **0.1** | ST-0022 | Epic 9 |
 | to a reviewer correcting a pending run: that their changes become their own version; after an undo, what reverted and what is left for them (ADR-0015) | **0.1** | ST-0035, ST-0037 | Epics 5, 15 |
-| the holder's draft after an administrator ended their reservation and someone committed since — read-only, as changes against the current text or any version they choose (DL-0225) | **0.1** | ST-0070 | Epic 9 |
+| the holder's draft after an administrator ended their reservation and someone committed since — read-only, as changes against the current text or any version they choose (DL-0225); *discard this draft*, confirmed (DL-0381) | **0.1** | ST-0070 | Epic 9 |
 | the tab while someone else holds or has reserved the document, or it is frozen and the user lacks *accept* | **0.1** — says so, offers nothing | ST-0017, ST-0038 | Epic 4 |
 
 ## Appendix page
@@ -281,7 +281,7 @@ Title, language, type — each named in words, never by its code — folder (the
 
 ## Notifications
 
-Two tabs (DL-0204). **Document** — each entry linking to the document at the version concerned, for every event ST-0047 lists; among them a version sent for review; a run returned, with the reason; a **correction notice** — one per acceptance, however many of the author's lines changed (ADR-0014) — which opens to show, for each, what the author wrote, what was accepted and who changed it, marked, with a link to the passage; *your reservation was ended*, with who, when and why. **Administrative** — users, groups, access, blocks, failed mail, documents without groups, reservations started — with filters, *mark all as read*, and marking one read. Filters and entries for events a person never receives are not drawn: a non-administrator sees their own group changes. Opening a notification marks it read.
+Two tabs (DL-0204). **Document** — each entry linking to the document at the version concerned, for every event ST-0047 lists; among them a version sent for review; a run returned, with the reason; a **correction notice** — one per acceptance, however many of the author's lines changed (ADR-0014) — which opens to show, for each, what the author wrote, what was accepted and who changed it, marked, with a link to the passage; *your reservation was ended*, with who, when and why. **Administrative** — users, groups, access, blocks, failed mail, documents without groups, reservations started — with filters, *mark all as read*, and marking one read. Filters and entries for events a person never receives are not drawn: a non-administrator sees their own group changes, each leading to the document list; an administrator's leads to the group. A failed email leads to the outbox that holds it (DL-0385). An entry whose document its reader can no longer open is not drawn and not counted (DL-0386). Opening a notification marks it read.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
@@ -315,7 +315,7 @@ One area with two parts in a left pane: **Platform**, for platform administrator
 | organisations | `…/platform/tenants/` | the organisations with their state and administrators; *block* | **0.1** | ST-0065 | the list Epic 2; *block* Epic 8 |
 | organisations — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** | ST-0001, ST-0071 | create Epic 2 — a registered person only, the invitation of an unregistered address with Epic 8; lift a block and appoint Epic 8 |
 | platform administrators | `…/platform/administrators/` | grant; the last one cannot be removed or blocked | **0.1** | ST-0002 | the list Epic 2; grant Epic 8 |
-| mail and outbox | `…/platform/mail/` | the platform's sender, the password write-only, *Send a test email*; the outbox with each email's status and attempts (DL-0202, DL-0203) | **0.1** | ST-0048, ST-0049 | Epic 14 |
+| mail and outbox | `…/platform/mail/` | the platform's sender, the password write-only and asked for again when the server, port, connection or user name changes (DL-0390), a user name refused on an unencrypted connection but to the same machine (DL-0388), *Send a test email*, one at a time; the outbox, its newest 200, with each email's status and attempts (DL-0202, DL-0203, DL-0392) | **0.1** | ST-0048, ST-0049 | Epic 14 |
 | audit log | `…/platform/audit/` | what people, the system and agents did | **0.1** | ST-0050 | Epic 12 |
 | heuristics | `…/platform/heuristics/` | the catalogue | **0.2** — drawn as a placeholder | — | — |
 | users | `/administration/tenant/users/` | *invite by email*, with groups to join, answering alike for a known and an unknown address (ASR-17); *block…*, asking which of the organisations one administers; the last active administrator's *block* disabled with its reason; *lift the block* on a membership; a self-blocked account shown as blocked, with no *lift the block* — lifting it is not in 0.1 (DL-0254, B-033) | **0.1** | ST-0003, ST-0004, ST-0066, ST-0072 | Epic 8 |
@@ -326,7 +326,7 @@ One area with two parts in a left pane: **Platform**, for platform administrator
 | document types | `…/tenant/document-types/` | this organisation's own list, seeded with *document*; add, rename, retire; delete only a type no document uses (DL-0235) | **0.1** | ST-0011 | Epic 10 |
 | template | `…/tenant/template/` | the headings and starting text new documents start from; the title page switch and *title page layout…* — which details, in which order | **0.1** | ST-0058 | Epic 16 |
 | settings | `…/tenant/settings/` | attachment size cap, inactivity timeout, the distinct-approver check | **0.1** | ST-0030, ST-0053, ST-0062 | Epic 12 |
-| sending address | `…/tenant/sending-address/` | the tenant's own sender or none; the password write-only; *Send a test email* — to the address itself, with the step results; the DNS note | **0.1** | ST-0068 | Epic 14 |
+| sending address | `…/tenant/sending-address/` | the tenant's own sender or none; the password write-only and asked for again when the server, port, connection or user name changes (DL-0390); a user name refused on an unencrypted connection but to the same machine (DL-0388); *Send a test email* — to the address itself, with the step results, one at a time; the DNS note; the organisation's outbox, its newest 200, with each email's status and attempts (DL-0385, DL-0392) | **0.1** | ST-0068 | Epic 14 |
 | archive | `…/tenant/archive/` | archived documents: restore, export | **0.1** | ST-0015, ST-0016 | Epic 10 |
 | styles | `…/tenant/styles/` | the organisation's export stylesheet and which documents use it, *apply*, *export a sample PDF* (DL-0230) | **0.1** | ST-0046 | Epic 16 |
 | access history | `…/tenant/access-history/` | a document and a date: which groups could read it then, each with its members that day; the changes to access that led there | **0.1** | ST-0006 | Epic 12 |

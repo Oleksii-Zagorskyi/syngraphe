@@ -16,7 +16,15 @@ from django.utils.translation import pgettext_lazy
 from django.views.decorators.cache import never_cache
 
 from access.models import DocumentGroup
-from access.rights import BEYOND_CANONICAL, Right, can_create, readable, rights_on, rights_on_many
+from access.rights import (
+    BEYOND_CANONICAL,
+    Right,
+    can_create,
+    holds_anywhere,
+    readable,
+    rights_on,
+    rights_on_many,
+)
 from audit.record import record
 from documents.forms import CreateForm
 from documents.holds import held_by
@@ -60,7 +68,7 @@ def create(request: HttpRequest) -> HttpResponse:
     return render(request, "documents/create.html", {"form": CreateForm(organisation=organisation)})
 
 
-def _member(request: HttpRequest) -> bool:
+def is_member(request: HttpRequest) -> bool:
     """Someone the resolved organisation's documents are for: an active member, or a platform
     administrator exercising the role (DL-0308)."""
     return getattr(request, "membership", None) is not None or bool(
@@ -118,7 +126,7 @@ def _latest(seen: Any) -> str:
 def folder(request: HttpRequest, number: int) -> HttpResponse:
     """A folder's documents the person may open, by title; the root alone until folders exist."""
     tenant = getattr(request, "tenant", None)
-    if request.method != "GET" or tenant is None or number != ROOT_FOLDER or not _member(request):
+    if request.method != "GET" or tenant is None or number != ROOT_FOLDER or not is_member(request):
         return not_found(request)
     documents = list(
         Document.objects.filter(folder__number=number, state=DocumentState.ACTIVE)
@@ -127,12 +135,19 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
     )
     allowed = readable(request.user, [d.pk for d in documents])
     shown = [d for d in documents if d.pk in allowed]
-    seen = _versions(request.user, shown)
+    context = {**_rows(request.user, shown), "can_create": can_create(request.user, tenant)}
+    return render(request, "documents/list.html", context)
+
+
+def _rows(user: Any, shown: list[Document], seen: Any = None) -> dict[str, Any]:
+    """A list's rows — the numbers, the parts and the state tags of each document — and whether
+    the *Latest* column is drawn; shared by the folder and the two views."""
+    seen = _versions(user, shown) if seen is None else seen
     parts = _parts({pk: s.version for pk, s in seen.items() if s is not None})
     # The state tags after the title, each to those it concerns (DL-0233, DL-0351).
     from review.state import LABELS, tags
 
-    shown_tags = tags(request.user, shown)
+    shown_tags = tags(user, shown)
     rows = [
         {
             "document": document,
@@ -147,13 +162,111 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
         for document in shown
     ]
     # Drawn only for someone who may see beyond canonical text on a listed document (DL-0233).
-    beyond = rights_on_many(request.user, [d.pk for d in shown])
-    context = {
+    beyond = rights_on_many(user, [d.pk for d in shown])
+    return {
         "rows": rows,
-        "can_create": can_create(request.user, tenant),
         "latest_column": any(held & BEYOND_CANONICAL for held in beyond.values()),
     }
-    return render(request, "documents/list.html", context)
+
+
+def _active_documents() -> list[Document]:
+    return list(
+        Document.objects.filter(state=DocumentState.ACTIVE)
+        .select_related("document_type", "folder")
+        .order_by(Collate("title", "uk-x-icu"), "number")
+    )
+
+
+def _holding(user: Any, right: Right) -> list[Document]:
+    documents = _active_documents()
+    rights = rights_on_many(user, [d.pk for d in documents])
+    return [d for d in documents if right in rights.get(d.pk, frozenset())]
+
+
+def in_review_documents(user: Any) -> list[Document]:
+    """The documents awaiting review that `user` may accept (DL-0197), frozen ones included: the
+    list's own tags decide, so a freeze hides no run (DL-0351) and an unreadable record is left
+    out and logged."""
+    from review.state import State, tags
+
+    mine = _holding(user, Right.ACCEPT)
+    shown = tags(user, mine)
+    return [d for d in mine if State.AWAITING_REVIEW in shown[d.pk]]
+
+
+def in_edit_documents(user: Any) -> tuple[list[Document], dict[Any, Any]]:
+    """The documents `user` may edit whose text they read lies beyond the latest edition, and
+    what each shows them (DL-0197)."""
+    mine = _holding(user, Right.EDIT)
+    seen = _versions(user, mine)
+    beyond = [d for d in mine if seen.get(d.pk) is not None and seen[d.pk].stance != "canonical"]
+    return beyond, seen
+
+
+def any_in_review(user: Any) -> bool:
+    """Whether *In review* lists anything for `user`, stopping at the first document: what the
+    menu draws on every page."""
+    from review.state import any_awaiting
+
+    return any_awaiting(_holding(user, Right.ACCEPT))
+
+
+def any_in_edit(user: Any) -> bool:
+    """Whether *In edit* lists anything for `user`, stopping at the first document. *edit*
+    implies *view pending*, so the text read is the latest content version."""
+    from editions.visible import any_beyond_edition
+
+    return any_beyond_edition(_holding(user, Right.EDIT))
+
+
+def _view(request: HttpRequest, right: Right) -> HttpResponse | None:
+    if (
+        request.method != "GET"
+        or getattr(request, "tenant", None) is None
+        or not is_member(request)
+        or not holds_anywhere(request.user, right)
+    ):
+        return not_found(request)
+    return None
+
+
+def _grouped(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The rows under one heading per folder: the root alone until folders exist, when the
+    groups take their folder's path as heading and its alphabetical order (DL-0207)."""
+    groups: dict[Any, dict[str, Any]] = {}
+    for row in rows:
+        folder = row["document"].folder
+        groups.setdefault(folder.pk, {"folder": folder, "rows": []})["rows"].append(row)
+    return sorted(groups.values(), key=lambda group: group["folder"].number)
+
+
+@never_cache
+@login_required
+def in_review(request: HttpRequest) -> HttpResponse:
+    """*In review*: the documents awaiting review the person may accept, by folder."""
+    refused = _view(request, Right.ACCEPT)
+    if refused is not None:
+        return refused
+    documents = in_review_documents(request.user)
+    # The menu draws its link from this answer rather than reading the view again.
+    cast(Any, request).views_found = {"in_review": bool(documents)}
+    listed = _rows(request.user, documents)
+    context = {**listed, "groups": _grouped(listed["rows"]), "view": "in-review"}
+    return render(request, "documents/view_list.html", context)
+
+
+@never_cache
+@login_required
+def in_edit(request: HttpRequest) -> HttpResponse:
+    """*In edit*: the documents the person may edit with versions beyond the latest edition."""
+    refused = _view(request, Right.EDIT)
+    if refused is not None:
+        return refused
+    documents, seen = in_edit_documents(request.user)
+    cast(Any, request).views_found = {"in_edit": bool(documents)}
+    listed = _rows(request.user, documents, seen)
+    context = {**listed, "groups": _grouped(listed["rows"]), "view": "in-edit"}
+    return render(request, "documents/view_list.html", context)
 
 
 # Looked up in place of a missing number, so a missing document costs what a forbidden one does.
@@ -174,7 +287,7 @@ def readable_document(
     """The document page's gates, in their order: an organisation, the method, a member, the
     document active and readable. `None` wherever the answer is *nothing to show*."""
     tenant = getattr(request, "tenant", None)
-    if tenant is None or request.method not in methods or not _member(request):
+    if tenant is None or request.method not in methods or not is_member(request):
         return None
     document = (
         Document.objects.filter(number=number, state=DocumentState.ACTIVE)

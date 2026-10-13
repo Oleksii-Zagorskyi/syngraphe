@@ -351,3 +351,35 @@ def test_the_pending_tab_numbers_from_the_edition(
 
     assert "1.0-1" in body
     assert "0.1-1" not in body
+
+
+def test_a_notice_after_an_edition_numbers_its_versions_from_it(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    """A run accepted after an edition counts from the edition, as the pending tab does
+    (DL-0267): the correction notice names `1.0-1` and `1.0-2`, never the acceptance before it."""
+    from django.test import Client
+
+    from editions import services as editions
+    from notifications.models import Notification
+
+    people = edition_cast()
+    document, approver = people.document, people["p"]
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+        editions.freeze(document, approver, REASON)
+        editions.make_canonical(document, approver)
+    commit_version(document, people["a"], SECOND, "edit")
+    commit_version(document, people["r"], THIRD, "reviewer_edit")
+    with schema_context(migrated_tenant.number):
+        assert review.accept(document, people["r"]).number == "1.1"
+        notification = Notification.objects.get(user=people["a"], event="correction_notice")
+    client = Client(headers={"host": "127.0.0.1"})
+    client.force_login(people["a"])
+    session = client.session
+    session["tenant_number"] = migrated_tenant.number
+    session.save()
+    body = client.get(f"/notifications/{notification.pk}/").content.decode()
+    assert "1.0-1" in body and "1.0-2" in body
+    assert "0.1-" not in body

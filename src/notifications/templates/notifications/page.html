@@ -1,0 +1,23 @@
+{% extends "shell/base.html" %}
+{% load i18n tz %}
+{% block title %}{% translate "Notifications" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content notifications-page">
+  <h1>{% translate "Notifications" %}</h1>
+  {% if no_sender %}<p class="notice" data-no-sender>{% translate "No sending address is set: no email leaves the platform, and notifications can be read only on this page." %}</p>{% endif %}
+  <nav class="tabs">{% if "document" in tabs %}<a href="/notifications/?tab=document"{% if tab == "document" %} aria-current="page"{% endif %}>{% translate "Document" context "notifications tab" %}</a>{% endif %}<a href="/notifications/?tab=administrative"{% if tab == "administrative" %} aria-current="page"{% endif %}>{% translate "Administrative" %}</a></nav>
+  {% if tab == "administrative" %}
+  <div class="toolbar">
+    {% if filters %}<nav class="filters"><a href="/notifications/?tab=administrative"{% if not chosen %} aria-current="page"{% endif %}>{% translate "All" %}</a>{% for filter in filters %}<a href="/notifications/?tab=administrative&amp;event={{ filter.event }}"{% if chosen == filter.event %} aria-current="page"{% endif %}>{{ filter.label }}</a>{% endfor %}</nav>{% endif %}
+    {% if entries %}<form method="post" action="/notifications/read-all/" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Mark all as read" %}</button></form>{% endif %}
+  </div>
+  {% endif %}
+  {% if entries %}
+  <ul class="notifications-list">
+    {% timezone display_timezone %}{% for entry in entries %}<li class="notification{% if entry.unread %} unread{% endif %}" data-id="{{ entry.id }}"><a href="/notifications/{{ entry.id }}/">{{ entry.text }}</a>{% if entry.tag %}<span class="tag">{{ entry.tag }}</span>{% endif %} <span class="muted">{{ entry.at|date:"j M Y, H:i" }}</span></li>{% endfor %}{% endtimezone %}
+  </ul>
+  {% else %}
+  <p class="muted">{% translate "No notifications." %}</p>
+  {% endif %}
+</section>
+{% endblock %}

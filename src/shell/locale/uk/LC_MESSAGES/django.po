@@ -1715,6 +1715,406 @@ msgstr ""
 msgid "Back to the documents"
 msgstr "До документів"
 
+#: shell/templates/shell/base.html notifications/templates/notifications/page.html
+msgid "Notifications"
+msgstr "Сповіщення"
+
+#: notifications/templates/notifications/page.html
+msgctxt "notifications tab"
+msgid "Document"
+msgstr "Документи"
+
+#: notifications/templates/notifications/page.html
+msgid "Administrative"
+msgstr "Адміністративні"
+
+#: notifications/templates/notifications/page.html
+msgid "All"
+msgstr "Усі"
+
+#: notifications/templates/notifications/page.html
+msgid "Mark all as read"
+msgstr "Позначити всі прочитаними"
+
+#: notifications/templates/notifications/page.html
+msgid "No notifications."
+msgstr "Сповіщень немає."
+
+#: notifications/templates/notifications/page.html
+msgid "No sending address is set: no email leaves the platform, and notifications can be read only on this page."
+msgstr "Адресу надсилання не задано: листи не надсилаються, і сповіщення можна прочитати лише на цій сторінці."
+
+#: notifications/events.py
+msgid "Added to a group"
+msgstr "Додавання до груп"
+
+#: notifications/events.py
+msgid "Documents created"
+msgstr "Створені документи"
+
+#: notifications/events.py
+msgid "Documents copied"
+msgstr "Скопійовані документи"
+
+#: notifications/events.py
+msgid "Backup"
+msgstr "Резервне копіювання"
+
+#: notifications/events.py
+msgid "Failed email"
+msgstr "Ненадіслані листи"
+
+#: notifications/events.py
+msgid "A document's backup is failing."
+msgstr "Не вдається створити резервну копію одного з документів."
+
+#: notifications/events.py
+msgid "A document's backup works again."
+msgstr "Резервне копіювання документів знову працює."
+
+#: notifications/events.py
+msgid "The backup has fallen behind."
+msgstr "Резервне копіювання відстає."
+
+#: notifications/events.py
+msgid "The backup has caught up."
+msgstr "Резервне копіювання більше не відстає."
+
+#: notifications/events.py
+msgid "The database archive is waiting to be copied."
+msgstr "Архів бази даних чекає на копіювання."
+
+#: notifications/events.py
+msgid "The database archive has been copied."
+msgstr "Архів бази даних скопійовано."
+
+#: notifications/events.py
+msgid "The backup's state changed."
+msgstr "Стан резервного копіювання змінився."
+
+#: notifications/events.py
+msgid "An email could not be sent after three attempts."
+msgstr "Лист не вдалося надіслати після трьох спроб."
+
+#: notifications/events.py
+#, python-format
+msgid "You were added to the group %(group)s."
+msgstr "Вас додано до групи «%(group)s»."
+
+#: notifications/events.py
+msgid "You were added to a group."
+msgstr "Вас додано до групи."
+
+#: notifications/events.py
+#, python-format
+msgid "Correction notice: #%(number)s %(title)s, accepted as %(accepted)s."
+msgstr "Сповіщення про виправлення: #%(number)s %(title)s, погоджено як %(accepted)s."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s: version %(version)s awaits review."
+msgstr "#%(number)s %(title)s: версія %(version)s очікує на розгляд."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s: your edits were accepted as %(accepted)s."
+msgstr "#%(number)s %(title)s: ваші правки погоджено як %(accepted)s."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s was frozen."
+msgstr "Документ #%(number)s «%(title)s» заморожено."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s is no longer frozen."
+msgstr "Документ #%(number)s «%(title)s» розморожено."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s was approved as edition %(edition)s."
+msgstr "Документ #%(number)s «%(title)s» затверджено як редакцію %(edition)s."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s was created."
+msgstr "Створено документ #%(number)s «%(title)s»."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s was created as a copy."
+msgstr "Створено копію документа: #%(number)s «%(title)s»."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s was recreated by the platform; no group is linked to it."
+msgstr "Документ #%(number)s «%(title)s» відтворено платформою; з ним не пов’язано жодної групи."
+
+#: mail/services.py
+#, python-format
+msgid "Version by %(person)s."
+msgstr "Автор версії — %(person)s."
+
+#: mail/forms.py
+msgid "A server's name or address, with no smtp://, path or port."
+msgstr "Назва або адреса сервера — без smtp://, шляху й порту."
+
+#: mail/templates/mail/sender_form.html
+msgid "Email from the organisation's own address is delivered reliably only when its domain's DNS records — SPF and DKIM — allow the server below to send for it."
+msgstr "Листи з власної адреси організації надійно доходять до одержувачів, лише коли DNS-записи її домену — SPF і DKIM — дозволяють указаному нижче серверу надсилати від її імені."
+
+#: mail/templates/mail/sender_form.html
+msgid "No sending address is set: the platform's own email, and that of every organisation without an address of its own, is not sent — nor kept to send later."
+msgstr "Адресу надсилання не задано: листи платформи та кожної організації без власної адреси не надсилаються — і не зберігаються, щоб надіслати пізніше."
+
+#: mail/forms.py
+msgid "Sender's name"
+msgstr "Ім’я відправника"
+
+#: mail/views/common.py
+msgid "The server's certificate was not accepted."
+msgstr "Сертифікат сервера не прийнято."
+
+#: mail/templates/mail/sender_form.html
+msgid "A test is still running; its result appears below."
+msgstr "Перевірка ще триває; її результат з’явиться нижче."
+
+#: mail/templates/mail/sender_form.html
+msgid "Apply settings"
+msgstr "Застосувати"
+
+#: mail/views/common.py
+msgid "No encrypted connection could be made."
+msgstr "Не вдалося встановити шифроване з’єднання."
+
+#: mail/templates/mail/test_result.html
+msgid "No result has come yet; reload the page later to see it."
+msgstr "Результату ще немає; оновіть сторінку пізніше, щоб його побачити."
+
+#: mail/views/common.py
+msgid "No server of that name was found."
+msgstr "Сервер із такою назвою не знайдено."
+
+#: mail/views/common.py
+msgid "Sending"
+msgstr "Надсилання"
+
+#: mail/views/common.py
+msgid "Sign-in"
+msgstr "Вхід"
+
+#: mail/forms.py
+msgid "Signing in needs an encrypted connection, unless the server runs on this machine."
+msgstr "Для входу потрібне шифроване з’єднання, якщо сервер працює не на цій самій машині."
+
+#: mail/forms.py
+msgid "Signing in with a user name needs a password."
+msgstr "Для входу з іменем користувача потрібен пароль."
+
+#: mail/templates/mail/sender_form.html
+#, python-format
+msgid "The %(shown)s most recent emails."
+msgstr "Останні %(shown)s листів."
+
+#: mail/views/common.py
+msgid "The email could not be sent."
+msgstr "Лист не вдалося надіслати."
+
+#: mail/views/common.py
+#, python-format
+msgid "The key sending passwords are kept under is not set: %(keys)s."
+msgstr "Ключ, під яким зберігаються паролі надсилання, не задано: %(keys)s."
+
+#: mail/forms.py
+msgid "The part before @ may hold Latin letters, digits and symbols only."
+msgstr "Частина перед @ може містити лише латинські літери, цифри й символи."
+
+#: mail/forms.py
+msgid "The password may hold Latin letters, digits and symbols only."
+msgstr "Пароль може містити лише латинські літери, цифри й символи."
+
+#: mail/views/common.py
+msgid "The recipient may no longer open the document."
+msgstr "Одержувач, можливо, більше не може відкрити документ."
+
+#: mail/views/common.py
+msgid "The sending password cannot be read until the mail key is set."
+msgstr "Пароль надсилання не можна прочитати, доки не задано поштовий ключ."
+
+#: mail/views/common.py
+#, python-format
+msgid "The server answered: %(answer)s"
+msgstr "Відповідь сервера: %(answer)s"
+
+#: mail/views/common.py
+msgid "The server closed the connection."
+msgstr "Сервер розірвав з’єднання."
+
+#: mail/views/common.py
+msgid "The server could not be reached."
+msgstr "Сервер недоступний."
+
+#: mail/views/common.py
+msgid "The server did not answer in time."
+msgstr "Сервер не відповів вчасно."
+
+#: mail/views/common.py
+msgid "The server offers no sign-in."
+msgstr "Сервер не пропонує входу."
+
+#: mail/views/common.py
+msgid "The server refused the connection."
+msgstr "Сервер відхилив з’єднання."
+
+#: mail/forms.py
+msgid "The user name may hold Latin letters, digits and symbols only."
+msgstr "Ім’я користувача може містити лише латинські літери, цифри й символи."
+
+#: mail/forms.py
+msgid "Type the password again: the server or user name has changed."
+msgstr "Введіть пароль ще раз: сервер або ім’я користувача змінилися."
+
+#: mail/templates/mail/test_result.html
+msgid "not needed"
+msgstr "не потрібен"
+
+#: shell/templates/shell/base.html documents/templates/documents/view_list.html
+msgid "In edit"
+msgstr "У редагуванні"
+
+#: shell/templates/shell/base.html documents/templates/documents/view_list.html
+msgid "In review"
+msgstr "На розгляді"
+
+#: documents/templates/documents/view_list.html
+msgid "No documents here."
+msgstr "Тут немає документів."
+
+#: mail/templates/mail/sender_form.html
+msgid "The organisation has no sending address of its own: its email leaves from the platform's address, when one is set."
+msgstr "Організація не має власної адреси надсилання: її листи надсилаються з адреси платформи, якщо її задано."
+
+#: mail/templates/mail/sender_form.html
+msgid "A password is stored; it is never shown."
+msgstr "Пароль збережено; його ніколи не показують."
+
+#: mail/templates/mail/outbox_rows.html
+msgid "Attempts"
+msgstr "Спроби"
+
+#: mail/forms.py
+msgid "Connection"
+msgstr "З’єднання"
+
+#: mail/views/common.py
+msgid "Failed"
+msgstr "Не надіслано"
+
+#: mail/templates/mail/outbox_rows.html
+msgid "Last error"
+msgstr "Остання помилка"
+
+#: mail/templates/mail/test_result.html
+msgid "Last test"
+msgstr "Остання перевірка"
+
+#: shell/templates/shell/administration.html mail/templates/mail/sender_form.html
+msgid "Mail and outbox"
+msgstr "Пошта й вихідні листи"
+
+#: mail/templates/mail/outbox_rows.html
+msgid "No email yet."
+msgstr "Листів ще немає."
+
+#: mail/forms.py
+msgid "Port"
+msgstr "Порт"
+
+#: mail/views/common.py
+msgid "Queued"
+msgstr "У черзі"
+
+#: mail/templates/mail/outbox_rows.html
+msgid "Recipient"
+msgstr "Одержувач"
+
+#: mail/forms.py
+msgid "Replace the password"
+msgstr "Замінити пароль"
+
+#: mail/forms.py
+msgid "STARTTLS"
+msgstr "STARTTLS"
+
+#: mail/templates/mail/sender_form.html
+msgid "Send a test email"
+msgstr "Надіслати тестовий лист"
+
+#: mail/templates/mail/sender_form.html
+msgid "Sending address"
+msgstr "Адреса надсилання"
+
+#: mail/views/common.py
+msgid "Sent"
+msgstr "Надіслано"
+
+#: mail/forms.py
+msgid "Server"
+msgstr "Сервер"
+
+#: mail/templates/mail/outbox_rows.html
+msgid "Status"
+msgstr "Стан"
+
+#: mail/templates/mail/outbox_rows.html
+msgid "Subject"
+msgstr "Тема"
+
+#: mail/forms.py
+msgid "TLS"
+msgstr "TLS"
+
+#: mail/services.py
+#, python-format
+msgid "Test email from %(host)s, sent at %(time)s"
+msgstr "Тестовий лист із %(host)s, надіслано %(time)s"
+
+#: mail/services.py
+msgid "Test message"
+msgstr "Тестове повідомлення"
+
+#: mail/forms.py
+msgid "The name may hold printable characters only."
+msgstr "Ім’я може містити лише друковані символи."
+
+#: mail/templates/mail/sender_form.html mail/templates/mail/outbox_rows.html
+msgid "The outbox"
+msgstr "Вихідні листи"
+
+#: mail/templates/mail/test_result.html
+msgid "The test email is on its way…"
+msgstr "Тестовий лист надсилається…"
+
+#: mail/forms.py
+msgid "Unencrypted"
+msgstr "Без шифрування"
+
+#: mail/forms.py
+msgid "User name"
+msgstr "Ім’я користувача"
+
+#: editing/messages.py
+msgid "Mail"
+msgstr "Пошта"
+
+#: mail/views/common.py
+msgid "The mail key does not open the sending password: enter it again."
+msgstr "Ключ пошти не відкриває пароль надсилання: введіть його знову."
+
+#: mail/views/common.py
+msgid "No sending address is set."
+msgstr "Адресу надсилання не задано."
+
 #, python-format
 #~ msgid "Held by %(name)s — freeze once they finish"
 #~ msgstr "Документ редагує %(name)s — заморозьте, коли редагування завершиться"

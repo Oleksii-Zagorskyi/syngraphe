@@ -107,6 +107,34 @@ def test_healthy_is_silent(migrated_tenant: Any, created: Any) -> None:
     assert out.getvalue().strip() == "nothing to report"
 
 
+def test_a_recreated_document_notifies_the_administrators(
+    migrated_tenant: Any, created: Any, member_of: Any
+) -> None:
+    """Both administrators told of the recreated document, marked as recreated; the reconciler
+    is the actor, so nobody is left out."""
+    from documents import reconcile
+    from documents.models import Document, HeadingIndex, Version
+    from notifications.models import Notification
+
+    document, _ = created
+    _, first, _ = member_of("first.admin@example.test", is_tenant_admin=True)
+    _, second, _ = member_of("second.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        Notification.objects.all().delete()
+        HeadingIndex.objects.all().delete()
+        Version.objects.all().delete()
+        Document.objects.all().delete()
+
+    reconcile.run(tenant=migrated_tenant.number, repair=True)
+
+    with schema_context(migrated_tenant.number):
+        told = list(Notification.objects.filter(event="document_created").order_by("user__email"))
+        recreated = Document.objects.get(number=document.number)
+    assert [row.user_id for row in told] == [first.pk, second.pk]
+    assert all(row.document_id == recreated.pk for row in told)
+    assert all(row.facts == {"recreated": True} for row in told)
+
+
 def test_report_mode_exits_one_and_changes_nothing(migrated_tenant: Any, created: Any) -> None:
     from documents.models import Document
 

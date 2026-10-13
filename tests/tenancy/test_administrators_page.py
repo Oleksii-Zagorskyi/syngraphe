@@ -14,13 +14,15 @@ PAGES = (
     "/administration/platform/tenants/new/",
     "/administration/platform/hosts/",
     "/administration/platform/administrators/",
+    "/administration/platform/mail/",
 )
 
 
-def test_platform_pages_closed_to_tenant_admins(make_tenant: Any) -> None:
+def test_platform_pages_closed_to_tenant_admins(make_tenant_schema: Any) -> None:
     from identity.models import Membership, User
 
-    tenant = make_tenant("Example Org")
+    # Its schema migrated, as every organisation a request resolves has one.
+    tenant = make_tenant_schema("Example Org")
     user = User.objects.create_user("t.admin@example.test", "Tr4vel-Plan-Ok")
     Membership.objects.create(tenant=tenant, user=user, is_tenant_admin=True, actor_kind="system")
     client = Client(headers={"host": "127.0.0.1"})
@@ -55,10 +57,16 @@ def test_platform_pages_render(platform_admin: Any) -> None:
         assert client.get(page).status_code == 200, page
 
 
-def test_platform_pages_closed_on_an_organisations_domain(make_tenant: Any) -> None:
+def test_platform_pages_closed_on_an_organisations_domain(make_tenant_schema: Any) -> None:
     from identity.models import User
+    from tenancy.middleware import invalidate_host_cache
+    from tenancy.models import TenantDomain
 
-    make_tenant("Example Org", domain="docs.example.test")
+    tenant = make_tenant_schema("Example Org")
+    TenantDomain.objects.create(
+        tenant=tenant, host="docs.example.test", is_default=True, actor_kind="system"
+    )
+    invalidate_host_cache()
     user = User.objects.create_user(
         "p.admin@example.test", "Tr4vel-Plan-Ok", is_platform_admin=True
     )
