@@ -347,3 +347,28 @@ def test_a_change_is_never_kept_without_its_audit(
         operator.post(PAGE, {"action": "remove"})
     with schema_context(None):
         assert MailSender.objects.exists()
+
+
+def test_a_change_is_audited_with_the_values_it_replaced(operator: Any) -> None:
+    from audit.models import AuditEvent
+
+    stored()
+    operator.post(
+        PAGE,
+        form(host="elsewhere.example.test", security="tls", password="new-synthetic-password"),
+    )
+    event = AuditEvent.objects.filter(action="mail.sender_saved").latest("at")
+    assert event.before["host"] == "smtp.example.test" and event.before["security"] == "starttls"
+    assert event.after["host"] == "elsewhere.example.test" and event.after["security"] == "tls"
+
+
+def test_a_test_is_claimed_once_whoever_asks_at_the_same_moment(operator: Any) -> None:
+    """Two requests that both found no test running: one claim succeeds, the other is refused,
+    so one job is queued (DL-0392)."""
+    from mail.views import common
+
+    with schema_context(None):
+        sender = stored()
+        stale = type(sender).objects.get(pk=sender.pk)
+        assert common.claim_test(sender) is True
+        assert common.claim_test(stale) is False

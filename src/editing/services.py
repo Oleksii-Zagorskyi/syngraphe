@@ -232,6 +232,13 @@ def tell_reviewers(document: Document, sha: str, user: User) -> None:
     )
 
 
+def finish_accepting(hold: Hold) -> None:
+    """The *accepting* mark lifted once *accept as* has landed or told the reviewers."""
+    Hold.objects.filter(pk=hold.pk, release_kind=ReleaseKind.ACCEPTING).update(
+        release_kind=ReleaseKind.FINISHED
+    )
+
+
 def commit_draft(hold: Hold, user: User, message: str, *, fault_at: int | None = None) -> Version:
     """Commit the draft of `hold` as one version, under the document's lock: of kind
     `reviewer_edit` when the holder holds *accept* at that moment, `edit` otherwise (ADR-0014). A
@@ -333,7 +340,9 @@ def commit_draft_locked(
     # by the reconciler's repair — while the version still awaits review.
     with transaction.atomic():
         Document.objects.select_for_update().get(pk=document.pk)
-        holds.release(hold, ReleaseKind.FINISHED, actor=user)
+        # *Accept as* tells nobody here: the hold stays *accepting* until its acceptance lands,
+        # and a process that dies between the two leaves that mark for the reconciler.
+        holds.release(hold, ReleaseKind.FINISHED if tell else ReleaseKind.ACCEPTING, actor=user)
         if tell:
             if stopped is not None and stopped != sha:
                 tell_reviewers(document, stopped, user)

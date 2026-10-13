@@ -60,7 +60,8 @@ def test(request: HttpRequest) -> HttpResponse:
         return _page(request, sender, form, running=running)
     sender = MailSender.objects.first()
     assert sender is not None
-    common.ask_for_test(sender)
+    if not common.claim_test(sender):
+        return _page(request, sender, form, running=True)
     test_sender.delay(tenant.number)
     return common.after_test(PAGE)
 

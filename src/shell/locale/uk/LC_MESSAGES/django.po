@@ -2115,6 +2115,14 @@ msgstr "Ключ пошти не відкриває пароль надсила�
 msgid "No sending address is set."
 msgstr "Адресу надсилання не задано."
 
+#: mail/templates/mail/sender_form.html
+msgid "No sending address is set: new notifications of the platform, and of every organisation without an address of its own, are not emailed. Email already queued waits, and leaves once an address is set."
+msgstr "Адресу надсилання не задано: нові сповіщення платформи та кожної організації без власної адреси листами не надсилаються. Листи, що вже в черзі, чекають і підуть, щойно адресу буде задано."
+
+#: mail/views/common.py
+msgid "The notification this email carried no longer exists."
+msgstr "Сповіщення, яке ніс цей лист, більше не існує."
+
 #, python-format
 #~ msgid "Held by %(name)s — freeze once they finish"
 #~ msgstr "Документ редагує %(name)s — заморозьте, коли редагування завершиться"

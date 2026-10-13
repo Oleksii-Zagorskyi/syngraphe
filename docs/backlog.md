@@ -265,7 +265,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** The whitelist has no preformatted block, and a tree drawn with box characters was refused when a synthetic regulation was loaded; the author converted it to a nested list. Whether such a block belongs in a governed document is a product decision, and the whitelist is not opened again until marks and images are added to it.
 
-**What has to be true before it is taken up.** The whitelist is next opened — with marks and images (Epic 11).
+**What has to be true before it is taken up.** The whitelist is next opened — with marks and images.
 
 ## B-040 — A list written `- 1.` read as a numbered list
 
@@ -273,7 +273,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** The loader met it in a synthetic document; whether the platform accepts the author's habit or names the refusal is a whitelist decision, taken with the others.
 
-**What has to be true before it is taken up.** The whitelist is next opened (Epic 11).
+**What has to be true before it is taken up.** The whitelist is next opened.
 
 ## B-041 — Telling the author that single line breaks are joined
 
@@ -281,7 +281,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** It is a notice about the whitelist's reading of a line break, and it is decided with the whitelist.
 
-**What has to be true before it is taken up.** The whitelist is next opened (Epic 11).
+**What has to be true before it is taken up.** The whitelist is next opened.
 
 ## B-042 — A leading heading number stripped on load or paste
 
@@ -289,7 +289,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** It is a normalizer rule on the whitelist's reading of a heading, decided with the whitelist.
 
-**What has to be true before it is taken up.** The whitelist is next opened (Epic 11).
+**What has to be true before it is taken up.** The whitelist is next opened.
 
 ## B-043 — Three controls drawn out of proportion
 

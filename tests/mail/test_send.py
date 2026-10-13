@@ -537,3 +537,66 @@ def test_a_run_stops_claiming_once_its_time_is_spent(
     monkeypatch.undo()
     tasks.send_outbox()
     assert [reread(migrated_tenant.number, row).status for row in rows] == [Status.SENT] * 3
+
+
+def test_an_email_whose_notification_is_gone_is_never_sent(
+    migrated_tenant: Any, sender: Any, sink: Any
+) -> None:
+    """A notification removed after its email was queued — a restore's pruning — takes the email
+    with it: the row fails as withdrawn, nothing leaves, and nobody is told."""
+    import uuid
+
+    from mail import services as mail
+    from mail.models import Status
+    from mail.tasks import send_outbox
+    from notifications.models import Notification
+
+    number = migrated_tenant.number
+    sender(number)
+    with schema_context(number):
+        row = mail.queue(
+            migrated_tenant,
+            RECIPIENT,
+            "Синтетична тема",
+            "Синтетичний лист.",
+            notification_id=uuid.uuid4(),
+        )
+    assert row is not None
+    send_outbox(now=row.next_attempt_at)
+    reread(number, row)
+    assert (row.status, row.last_error) == (Status.FAILED, "withdrawn")
+    assert sink.messages == []
+    with schema_context(number):
+        assert not Notification.objects.filter(event="email_failed").exists()
+
+
+def test_every_schema_gets_its_turn_under_a_busy_one(
+    migrated_tenant: Any, sender: Any, sink: Any, monkeypatch: Any
+) -> None:
+    """Each run starts at another schema, so an outbox that fills every run's time cannot keep
+    another's mail waiting."""
+    import time as clock
+
+    from mail import services as mail
+    from mail import tasks
+    from mail.models import Status
+
+    sender(None)
+    sender(migrated_tenant.number)
+    with schema_context(None):
+        for n in range(3):
+            mail.queue(None, f"p{n}.synthetic@example.test", "Синтетична тема", "Синтетичний лист.")
+    row = queued_row(migrated_tenant)
+    real = mail.send
+
+    def slow(*args: Any, **kwargs: Any) -> bool:
+        clock.sleep(0.2)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(mail, "send", slow)
+    monkeypatch.setattr(tasks, "RUN_SECONDS", 0.1)
+    turns = iter(range(10))
+    monkeypatch.setattr(tasks, "_turn", lambda: next(turns))
+    tasks.send_outbox()
+    tasks.send_outbox()
+    assert reread(migrated_tenant.number, row).status == Status.SENT

@@ -392,7 +392,7 @@ erDiagram
         datetime reserved_at "set while reserved for editing; exempt from the inactivity release (ADR-0009)"
         datetime released_at
         uuid released_by FK "the administrator who forced it; the blocking administrator when blocked; null for a finish, a discard, an inactivity release, a self-block, or a release forced from the operator's command"
-        string release_kind "finished | discarded | inactivity | forced | blocked — blocked when the holder's membership, account or tenant is blocked (DL-0256)"
+        string release_kind "finished | accepting | discarded | inactivity | forced | blocked — blocked when the holder's membership, account or tenant is blocked (DL-0256); accepting while an *accept as* has its version and not yet its acceptance (DL-0397)"
         string release_reason "required when an administrator ends a reservation (DL-0225)"
     }
     LINE_AUTHORSHIP {
@@ -555,7 +555,7 @@ erDiagram
 
 **A `NOTIFICATION` lives in the tenant's schema**, beside the document it concerns, an organisation's administrative ones with them; a platform administrator's own — a backup condition, a failed email — is a `PLATFORM_NOTIFICATION` in the shared schema, since a platform administrator may belong to no organisation (DL-0382). A notification is opened at its own address, never a document's, and only by its person; one about a document its person can no longer open is neither shown nor counted (DL-0386).
 
-**`EMAIL_OUTBOX` is written before any attempt to send** (DL-0203), in the notification's own transaction: three attempts five minutes apart, then *failed* and an in-application notification to the tenant's and the platform's administrators. It is also the log of every email sent. With no sender configured, nothing is queued. The recipient's right is read again at the send, and an email about a document they can no longer open fails without telling anyone (DL-0387); an email whose sender's password cannot be read for want of the key waits, its attempts untouched (DL-0389).
+**`EMAIL_OUTBOX` is written before any attempt to send** (DL-0203), in the notification's own transaction: three attempts five minutes apart, then *failed* and an in-application notification to the tenant's and the platform's administrators. It is also the log of every notification email sent; *Send a test email* goes to the server directly and keeps only its latest steps on the sender row (DL-0392). With no sender configured, nothing is queued. The recipient's right is read again at the send, and an email about a document they can no longer open fails without telling anyone (DL-0387); an email whose sender's password cannot be read for want of the key waits, its attempts untouched (DL-0389).
 
 **`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent. The platform's sender is one row in the shared schema, a tenant's own sender one row in its schema; each password is encrypted at rest and write-only in the interface (DL-0072, DL-0202).
 

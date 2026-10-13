@@ -89,6 +89,7 @@ SEQUENCE_BEHIND = "sequence_behind"
 LOCKED = "locked"
 AUTHORSHIP_MISSING = "authorship_missing"
 FINISH_STOPPED = "finish_stopped"
+ACCEPT_AS_STOPPED = "accept_as_stopped"
 ACCEPTANCE_DIFFERS = "acceptance_differs"
 NOTICES_MISSING = "notices_missing"
 # A tag with no approval section of its number on the commit it names: reported, never repaired —
@@ -237,6 +238,7 @@ class _Run:
             self.editions(document, repo, commits[-1])
             self.notices(document)
             self.finishes(document, commits)
+            self.accepting(document)
             self.authorship(document, str(commits[-1].id))
 
     def creating(self, document: Document) -> None:
@@ -453,6 +455,39 @@ class _Run:
                     {"number": document.number, "accepted": acceptance.number},
                 )
             self.found(NOTICES_MISSING, document.number, acceptance.number, repaired=self.repair)
+
+    def accepting(self, document: Document) -> None:
+        """An *accept as* stopped between its version and its acceptance: the hold left
+        *accepting*. Repaired by telling the reviewers the version awaits them — nobody, once an
+        acceptance has taken it in — then finishing the hold and deleting what is left of its
+        draft."""
+        from editing import services as finishing
+        from editing.models import Draft, Hold, ReleaseKind
+
+        for hold in Hold.objects.filter(document=document, release_kind=ReleaseKind.ACCEPTING):
+            version = (
+                Version.objects.filter(
+                    document=document,
+                    author_id=hold.user_id,
+                    kind__in=CONTENT_KINDS,
+                    created_at__gte=hold.acquired_at,
+                    created_at__lte=hold.released_at,
+                )
+                .order_by("-created_at")
+                .first()
+            )
+            if self.repair:
+                with transaction.atomic():
+                    Document.objects.select_for_update().get(pk=document.pk)
+                    if version is not None:
+                        finishing.tell_reviewers(document, version.commit_sha, hold.user)
+                    finishing.finish_accepting(hold)
+                    Draft.objects.filter(hold=hold).delete()
+                    _audit(
+                        self.tenant, ACCEPT_AS_STOPPED, document, None, {"number": document.number}
+                    )
+            detail = version.commit_sha if version is not None else ""
+            self.found(ACCEPT_AS_STOPPED, document.number, detail, repaired=self.repair)
 
     def finishes(self, document: Document, commits: list[pygit2.Commit]) -> None:
         """A finish that stopped after its commit (DL-0318, DL-0335). An open hold whose draft's

@@ -48,13 +48,21 @@ def _send_due(due_by: datetime, now: datetime | None, deadline: float) -> None:
             logger.exception("an email not sent", extra={"outbox": str(pk)})
 
 
+def _turn() -> int:
+    """Which schema a run starts at: the minute it runs, so each takes the first place in turn."""
+    return int(time.time() // 60)
+
+
 @shared_task(name="mail.send_outbox")
 def send_outbox(now: datetime | None = None) -> None:
-    """Send what is due: the platform's mail, then each organisation's. Without `now`, each
+    """Send what is due: the platform's mail and each organisation's, a run starting at another
+    schema each minute so a busy outbox cannot keep the others waiting. Without `now`, each
     attempt is dated when it is made, so a slow run never sets a next attempt already due."""
     due_by = now or timezone.now()
     deadline = time.monotonic() + RUN_SECONDS
-    for tenant_number in [None, *(tenant.number for tenant in visited_by_background_work())]:
+    schemas = [None, *(tenant.number for tenant in visited_by_background_work())]
+    start = _turn() % len(schemas)
+    for tenant_number in schemas[start:] + schemas[:start]:
         if time.monotonic() >= deadline:
             return
         try:

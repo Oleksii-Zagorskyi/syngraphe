@@ -15,6 +15,9 @@ from django.db.models import Q
 
 class ReleaseKind(models.TextChoices):
     FINISHED = "finished", "finished"
+    # Finished by *accept as*, its acceptance still to land: the reconciler's mark (ADR-0014's
+    # one act, held across two writes).
+    ACCEPTING = "accepting", "accepting"
     DISCARDED = "discarded", "discarded"
     INACTIVITY = "inactivity", "inactivity"
     FORCED = "forced", "forced"

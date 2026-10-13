@@ -64,8 +64,8 @@ def test(request: HttpRequest) -> HttpResponse:
         if saved:
             sender = MailSender.objects.first()
             assert sender is not None
-            common.ask_for_test(sender)
-    if not saved:
+            running = not common.claim_test(sender)
+    if not saved or running:
         return _page(request, sender, form, running=running)
     test_sender.delay(None)
     return common.after_test(PAGE)

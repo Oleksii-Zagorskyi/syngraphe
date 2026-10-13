@@ -494,11 +494,14 @@ def accept_as(hold: Any, user: User, summary: str, *, confirmed: str | None = No
                 acceptance = accept_locked(document, user)
             except AcceptRefused as refused:
                 editing.tell_reviewers(document, version.commit_sha, user)
+                editing.finish_accepting(hold)
                 raise AcceptRefused(refused.reason, version) from refused
             except Exception:
                 # The version stands and awaits review whatever stopped its acceptance.
                 editing.tell_reviewers(document, version.commit_sha, user)
+                editing.finish_accepting(hold)
                 raise
+            editing.finish_accepting(hold)
     finally:
         if version is not None:
             editing.ask_authorship(tenant_number, document, version.commit_sha)

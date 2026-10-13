@@ -178,9 +178,10 @@ def send(row: EmailOutbox, now: datetime | None = None) -> bool:
     """Try to send `row` once; `True` only when the server accepted it. A refusal is recorded
     on the row and tried again five minutes later, until the third. `now`, when not given, is
     the moment of the attempt."""
-    if not _recipient_may_read(row):
+    withheld = _withheld(row)
+    if withheld is not None:
         row.status = Status.FAILED
-        row.last_error = UNREADABLE
+        row.last_error = withheld
         row.save(update_fields=["status", "last_error"])
         return False
     sender = _sender_of(row)
@@ -223,6 +224,7 @@ def send(row: EmailOutbox, now: datetime | None = None) -> bool:
 
 # Reason codes a page words in its own language (`mail.views.common.reason`).
 UNREADABLE = "unreadable"
+WITHDRAWN = "withdrawn"
 KEY_MISSING = "key_missing"
 KEY_WRONG = "key_wrong"
 NO_SENDER = "no_sender"
@@ -235,20 +237,29 @@ HELD = {
 }
 
 
-def _recipient_may_read(row: EmailOutbox) -> bool:
-    """Whether the person an organisation's email is for may still open the document its
-    notification names — read again at the send (DL-0387)."""
+def _withheld(row: EmailOutbox) -> str | None:
+    """Why an email may not leave, read again at the send, or `None`: its notification gone —
+    pruned with what a restore undid — or a document its person can no longer open (DL-0387).
+    An email that carries no notification is sent as queued."""
     from access.rights import readable
     from notifications.models import Notification
+    from tenancy.models import PlatformNotification
 
-    if row.notification_id is None or current_tenant(connection) is None:
-        return True
+    if row.notification_id is None:
+        return None
+    if current_tenant(connection) is None:
+        found = PlatformNotification.objects.filter(pk=row.notification_id).exists()
+        return None if found else WITHDRAWN
     notification = (
         Notification.objects.filter(pk=row.notification_id).select_related("user").first()
     )
-    if notification is None or notification.document_id is None:
-        return True
-    return notification.document_id in readable(notification.user, [notification.document_id])
+    if notification is None:
+        return WITHDRAWN
+    if notification.document_id is None:
+        return None
+    if notification.document_id in readable(notification.user, [notification.document_id]):
+        return None
+    return UNREADABLE
 
 
 def _held(row: EmailOutbox, reason: str) -> None:

@@ -451,3 +451,63 @@ def test_accept_as_failing_after_its_version_tells_the_reviewers(
 
     [told] = acts(migrated_tenant, second, "version_committed")
     assert told.facts == {"version": "0.0-1"}
+
+
+def test_an_accept_as_stopped_before_its_acceptance_is_told_by_the_reconciler(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, monkeypatch: Any
+) -> None:
+    """A process that dies between the version and its acceptance leaves the hold *accepting*:
+    the reconciler tells the other reviewers once, and finishes the hold."""
+    from documents import reconcile
+    from editing.models import Draft, Hold, ReleaseKind
+    from review import services
+
+    _, _, first_client, first, second, document = a_review(member_of, new_document, link_group)
+    assert first_client.post(f"/document/{document.number}/edit/take/").status_code == 200
+
+    def dies(*args: Any, **kwargs: Any) -> Any:
+        raise SystemExit("the process stops")
+
+    monkeypatch.setattr(services, "accept_locked", dies)
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document, released_at__isnull=True)
+        draft = Draft.objects.get(hold=hold)
+        draft.content = {**draft.content, "document.md": BODY}
+        draft.save()
+        with pytest.raises(SystemExit):
+            services.accept_as(hold, first, "Синтетична правка")
+        hold.refresh_from_db()
+    assert hold.release_kind == ReleaseKind.ACCEPTING
+    assert acts(migrated_tenant, second, "version_committed") == []
+
+    monkeypatch.undo()
+    reconcile.run(tenant=migrated_tenant.number, repair=True)
+    reconcile.run(tenant=migrated_tenant.number, repair=True)
+
+    [told] = acts(migrated_tenant, second, "version_committed")
+    assert told.facts == {"version": "0.0-1"}
+    with schema_context(migrated_tenant.number):
+        hold.refresh_from_db()
+        assert not Draft.objects.filter(hold=hold).exists()
+    assert hold.release_kind == ReleaseKind.FINISHED
+
+
+def test_a_completed_accept_as_leaves_its_hold_finished(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any
+) -> None:
+    from documents import reconcile
+    from editing.models import Draft, Hold, ReleaseKind
+    from review import services
+
+    _, _, first_client, first, second, document = a_review(member_of, new_document, link_group)
+    assert first_client.post(f"/document/{document.number}/edit/take/").status_code == 200
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document, released_at__isnull=True)
+        draft = Draft.objects.get(hold=hold)
+        draft.content = {**draft.content, "document.md": BODY}
+        draft.save()
+        services.accept_as(hold, first, "Синтетична правка")
+        hold.refresh_from_db()
+    assert hold.release_kind == ReleaseKind.FINISHED
+    reconcile.run(tenant=migrated_tenant.number, repair=True)
+    assert acts(migrated_tenant, second, "version_committed") == []

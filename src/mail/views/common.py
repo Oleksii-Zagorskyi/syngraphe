@@ -10,6 +10,7 @@ from datetime import timedelta
 from typing import Any, cast
 
 from django.db import transaction
+from django.db.models import F, Q
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
@@ -53,6 +54,12 @@ def save(request: HttpRequest, form: SenderForm, sender: MailSender | None, tena
     data = form.cleaned_data
     row = sender or MailSender()
     before = stored(sender) or None
+    # Read before the row changes: `row` and `sender` are one object.
+    audited_before = (
+        None
+        if sender is None
+        else {"host": sender.host, "address": sender.address, "security": sender.security}
+    )
     password = None
     if not data["username"]:
         password = "removed" if sender is not None and sender.password_encrypted else None
@@ -79,12 +86,16 @@ def save(request: HttpRequest, form: SenderForm, sender: MailSender | None, tena
     row.updated_at = timezone.now()
     with transaction.atomic():
         row.save()
-        _audit_saved(request, row, sender, password, tenant)
+        _audit_saved(request, row, audited_before, password, tenant)
     return True
 
 
 def _audit_saved(
-    request: HttpRequest, row: MailSender, sender: MailSender | None, password: Any, tenant: Any
+    request: HttpRequest,
+    row: MailSender,
+    before: dict[str, Any] | None,
+    password: Any,
+    tenant: Any,
 ) -> None:
     after: dict[str, Any] = {"host": row.host, "address": row.address, "security": row.security}
     if password:
@@ -94,9 +105,7 @@ def _audit_saved(
         actor=cast(User, request.user),
         action="mail.sender_saved",
         obj=row,
-        before=None
-        if sender is None
-        else {"host": sender.host, "address": sender.address, "security": sender.security},
+        before=before,
         after=after,
         tenant=tenant,
     )
@@ -127,11 +136,21 @@ def test_running(sender: MailSender | None) -> bool:
     return recent and not answered
 
 
-def ask_for_test(sender: MailSender) -> None:
-    """The test asked for: the last result forgotten, the moment kept."""
-    MailSender.objects.filter(pk=sender.pk).update(
-        last_test_requested_at=timezone.now(), last_test_at=None, last_test_result=""
+def claim_test(sender: MailSender) -> bool:
+    """The test asked for, if no other is running: one conditional update, so of two requests
+    that both found none running, one claims it and the other is refused (DL-0392). The last
+    result is forgotten, the moment kept."""
+    now = timezone.now()
+    free = (
+        Q(last_test_requested_at__isnull=True)
+        | Q(last_test_requested_at__lte=now - timedelta(seconds=POLL_SECONDS))
+        | Q(last_test_at__gte=F("last_test_requested_at"))
     )
+    # PostgreSQL re-reads the condition of a row another update held, so the second is refused.
+    claimed = MailSender.objects.filter(free, pk=sender.pk).update(
+        last_test_requested_at=now, last_test_at=None, last_test_result=""
+    )
+    return claimed == 1
 
 
 def reason(code: str) -> str:
@@ -151,6 +170,7 @@ def reason(code: str) -> str:
         "key_wrong": _("The mail key does not open the sending password: enter it again."),
         "no_sender": _("No sending address is set."),
         "unreadable": _("The recipient may no longer open the document."),
+        "withdrawn": _("The notification this email carried no longer exists."),
         "": "",
     }.get(code, _("The email could not be sent."))
 
