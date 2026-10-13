@@ -55,6 +55,9 @@ jobs:
       DISPLAY_TIMEZONE: UTC
       DEFAULT_LANGUAGE: uk
       MAIL_PASSWORD_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      # The current 3.12 that uv manages, as the image's is, never the runner's older
+      # system build: the standard library's email parser differs between them.
+      UV_PYTHON_PREFERENCE: only-managed
 
     steps:
       - uses: actions/checkout@v4
