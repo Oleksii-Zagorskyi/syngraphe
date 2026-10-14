@@ -204,3 +204,43 @@ def test_a_busy_document_says_so(
             f"/document/{n}/pending/return/", {"reason": REASON, "confirmed": last}, follow=True
         )
         assert words in answer.content.decode(), words
+
+
+def test_a_second_undo_keeps_the_places_the_first_left(
+    migrated_tenant: Any, cast: Any, commit_version: Any
+) -> None:
+    """A place the reviewer's draft had changed, listed by the first undo, is still listed after a
+    second undo of a version elsewhere in the text; the first stays refused as done."""
+    from editing import holds
+    from editing.models import Draft
+    from review import services, undo
+
+    start = "# General provisions\n\nThe first sentence stands.\nA middle sentence stands.\n"
+    base = start + "The last sentence stands.\n"
+    people = cast(editors=("a", "b"), reviewers=("r",))
+    document = people.document
+    commit_version(document, people["a"], base, "edit")
+    with schema_context(migrated_tenant.number):
+        services.accept(document, people["r"])
+    by_a = base.replace("The first sentence stands.", "Author A rewrote the first sentence.")
+    first = commit_version(document, people["a"], by_a, "edit")
+    by_b = by_a.replace("The last sentence stands.", "Author B rewrote the last sentence.")
+    second = commit_version(document, people["b"], by_b, "edit")
+    own = "The reviewer's own first sentence."
+    with schema_context(migrated_tenant.number):
+        hold = holds.take(document, people["r"])
+        draft = Draft.objects.get(hold=hold)
+        body = draft.content[holds.BODY]
+        draft.content = {
+            **draft.content,
+            holds.BODY: body.replace("Author A rewrote the first sentence.", own),
+        }
+        draft.save()
+        undo.apply(document, people["r"], version=first)
+        (kept,) = [p for p in _draft(document).content["undo"]["listed"] if own in p["after"]]
+        undo.apply(document, people["r"], version=second)
+        after = _draft(document).content
+        assert own in after[holds.BODY]
+        assert "The last sentence stands." in after[holds.BODY]
+        assert kept in after["undo"]["listed"]
+        assert undo.refusal(document, people["r"], version=first) == "nothing_to_undo"

@@ -724,6 +724,10 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
                 listed += conflicts
                 if _frontmatter_changed(locked, undone):
                     listed.append({"before": "", "after": "", "frontmatter": "kept"})
+                # An earlier undo's places stay until the reviewer finishes or discards: a place
+                # the draft had changed is not seen again by a merge from the derived text.
+                earlier = (draft.content.get(UNDO) or {}).get("listed", [])
+                listed = earlier + [place for place in listed if place not in earlier]
                 draft.content = {
                     **draft.content,
                     holds.BODY: body,
@@ -759,23 +763,22 @@ def merge(
     """The draft with the undo merged in, line by line, three ways: what the reversal changes
     against the text the draft was derived from is applied where the draft still holds that text,
     and listed where the draft changed it — never overwritten (ADR-0015). Lines are taken out and
-    put in whole, never re-split (ASR-20). Returns the body, the places listed, and the non-blank
-    lines taken out and put back."""
-    from difflib import SequenceMatcher
-
+    put in whole, never re-split (ASR-20). Both alignments are the diff view's, bounded under the
+    writer lock: a stretch too costly to align is one change, applied only where the draft holds it
+    whole and listed otherwise. Returns the body, the places listed, and the non-blank lines taken
+    out and put back."""
     from documents import bundle
+    from editing.diffview import opcodes
 
     base = bundle.parse(derived_from)[1].splitlines(keepends=True)
     wanted = bundle.parse(reversal.body)[1].splitlines(keepends=True)
     draft = draft_body.splitlines(keepends=True)
     same: dict[int, int] = {}
-    for op, b1, b2, d1, _d2 in SequenceMatcher(None, base, draft, autojunk=False).get_opcodes():
+    for op, b1, b2, d1, _d2 in opcodes(base, draft):
         if op == "equal":
             same.update({b1 + k: d1 + k for k in range(b2 - b1)})
     changes = [
-        (b1, b2, wanted[w1:w2])
-        for op, b1, b2, w1, w2 in SequenceMatcher(None, base, wanted, autojunk=False).get_opcodes()
-        if op != "equal"
+        (b1, b2, wanted[w1:w2]) for op, b1, b2, w1, w2 in opcodes(base, wanted) if op != "equal"
     ]
     out = list(draft)
     listed: list[dict[str, str]] = []

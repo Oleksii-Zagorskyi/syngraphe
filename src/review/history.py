@@ -191,20 +191,30 @@ def entries(user: Any, document: Document) -> list[Entry]:
             boundary=commit.sha == accepted and commit.kind in CONTENT,
             target=target,
         )
-        found.append((version.created_at, entry))
-    if everything:
-        found.extend(_freezes(past, rows))
-    found.sort(key=lambda pair: pair[0])
-    return [entry for _key, entry in found]
+        # Placed among the freezes by when its row was written, never later than its commit's
+        # own second: a row derived again after a repair keeps its commit's place.
+        found.append((min(version.created_at, version.committed_at + timedelta(seconds=1)), entry))
+    if not everything:
+        return [entry for _key, entry in found]
+    # The commits keep git's order; a freeze goes before the first commit written after it.
+    freezes = sorted(_freezes(past, rows), key=lambda pair: pair[0])
+    ordered: list[Entry] = []
+    for key, entry in found:
+        while freezes and freezes[0][0] < key:
+            ordered.append(freezes.pop(0)[1])
+        ordered.append(entry)
+    return ordered + [entry for _key, entry in freezes]
 
 
 def _freezes(past: Ceiling, rows: dict[str, Version]) -> list[tuple[datetime, Entry]]:
     """Each freeze and each *unfreeze* as entries of their own, keyed to fall between the versions
-    they fell between. A freeze's time counts whole seconds while a version row's does not, so a
-    freeze falls after every version of its second — and one that *make canonical* ended, before
+    they fell between. A freeze's own time counts whole seconds while a version row's does not, so
+    each is keyed by the time of its audit event, written in the same transaction; without one, a
+    freeze falls after every version of its second. One that *make canonical* ended falls before
     its approval at the latest. To a reader of canonical text alone, only the freezes their stance
     reaches: the open one, which every reader sees (DL-0236), and those an edition they reach
     ended; a later one would tell them that accepted work lies beyond the edition."""
+    from audit.models import AuditEvent
     from editions.models import Edition, Freeze, FreezeEnd
 
     editions = {
@@ -214,6 +224,12 @@ def _freezes(past: Ceiling, rows: dict[str, Version]) -> list[tuple[datetime, En
         )
     }
     accepted_reader = Right.VIEW_ACCEPTED in past.rights
+    audited: dict[tuple[str, str], datetime] = {
+        (event.action, str((event.after or {}).get("freeze", ""))): event.at
+        for event in AuditEvent.objects.filter(
+            action__in=("document.frozen", "document.unfrozen"), object_id=past.document.pk
+        ).only("action", "after", "at")
+    }
     found: list[tuple[datetime, Entry]] = []
     for freeze in Freeze.objects.filter(document=past.document).select_related(
         "frozen_by", "ended_by"
@@ -225,12 +241,15 @@ def _freezes(past: Ceiling, rows: dict[str, Version]) -> list[tuple[datetime, En
             and (edition is None or edition.version.commit_sha not in past.reach)
         ):
             continue
-        key = freeze.frozen_at.replace(microsecond=999_999)
+        key = audited.get(
+            ("document.frozen", str(freeze.pk)), freeze.frozen_at.replace(microsecond=999_999)
+        )
         approval = rows.get(edition.approval_version.commit_sha) if edition is not None else None
         if approval is not None:
             key = min(key, approval.created_at - timedelta(microseconds=1))
         found.append((key, Entry(None, "", "freeze", freeze.frozen_by, freeze.frozen_at)))
         if freeze.ended_by_kind == FreezeEnd.UNFROZEN and freeze.ended_at is not None:
-            ended = max(freeze.ended_at, key + timedelta(microseconds=1))
+            ended = audited.get(("document.unfrozen", str(freeze.pk)), freeze.ended_at)
+            ended = max(ended, key + timedelta(microseconds=1))
             found.append((ended, Entry(None, "", "unfreeze", freeze.ended_by, freeze.ended_at)))
     return found

@@ -1,5 +1,5 @@
 {% extends "documents/page.html" %}
-{% load i18n %}
+{% load i18n tz %}
 {% block tab %}
 <div class="history">
   {% if editions_only %}<p class="muted">{% translate "Canonical editions only — your groups hold view previous canonical versions." %}</p>{% endif %}
@@ -8,11 +8,13 @@
   <table class="entries">
     <thead><tr><th>{% translate "Version" %}</th><th>{% translate "Event" %}</th><th>{% translate "Who" %}</th><th>{% translate "When" %}</th><th></th></tr></thead>
     <tbody>
+      {% timezone display_timezone %}
       {% for row in rows %}
       {% if row.boundary %}<tr class="boundary"><td colspan="5">{% translate "accepted" %} ↓</td></tr>{% endif %}
       <tr data-event="{{ row.code }}"><td class="id">{{ row.number }}</td><td>{{ row.event }}</td><td>{{ row.who }}</td><td class="muted">{{ row.at|date:"j M Y, H:i" }}</td><td>{% if row.opens %}<a href="/document/{{ document.number }}/version/{{ row.number }}/" target="_blank" rel="noopener">{% translate "open" %} ↗</a>{% endif %}</td></tr>
       {% if row.undo %}<tr class="undo"><td colspan="5">{% if undo_blocked %}<button class="btn" type="button" disabled>{% translate "Undo this edit" %}</button>{% if row.undo.all %} <button class="btn" type="button" disabled>{% blocktranslate with number=since %}Undo all of this author’s edits since {{ number }}{% endblocktranslate %}</button>{% endif %} <span class="muted">{{ undo_blocked }}</span>{% else %}<form method="post" action="/document/{{ document.number }}/history/undo/" class="inline">{% csrf_token %}<input type="hidden" name="version" value="{{ row.number }}"><button class="btn" type="submit" data-command="undo-version">{% translate "Undo this edit" %}</button></form>{% if row.undo.all %} <form method="post" action="/document/{{ document.number }}/history/undo/" class="inline">{% csrf_token %}<input type="hidden" name="author" value="{{ row.undo.author }}"><button class="btn" type="submit" data-command="undo-author">{% blocktranslate with number=since %}Undo all of this author’s edits since {{ number }}{% endblocktranslate %}</button></form>{% endif %}{% endif %}</td></tr>{% endif %}
       {% endfor %}
+      {% endtimezone %}
     </tbody>
   </table>
   {% else %}

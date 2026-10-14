@@ -30,3 +30,33 @@ def test_the_walk_meets_the_budget(platform_corpus: dict[str, Any]) -> None:
     assert reversal.classified
     print(f"the walk: {elapsed:.3f} s over {len(commits) - 1} versions")
     assert elapsed < BUDGET_SECONDS
+
+
+@pytest.mark.budget
+def test_the_merge_into_the_draft_is_bounded() -> None:
+    """The three-way merge after the walk, on the text that makes an unbounded alignment slowest:
+    one short line repeated to the body's ceiling, the first and the last changed. It meets the
+    walk's budget and still yields the reversal where the draft holds the base."""
+    from documents import bundle
+    from editing.markdown import load_spec
+    from review.undo import Reversal, merge
+
+    line = "# h\n"
+    count = load_spec().max_bytes // len(line) - 2
+    base_body = "# first\n" + line * count + "# last\n"
+    wanted_body = line * (count + 2)
+    front = bundle.Frontmatter(title="Synthetic repeated headings", language="en")
+    reversal = Reversal(
+        head="",
+        body=bundle.render(front, wanted_body),
+        removed=frozenset(),
+        inserted={},
+        listed=(),
+        classified=(),
+    )
+    started = time.perf_counter()
+    body, listed, _applied = merge(bundle.render(front, base_body), reversal, base_body)
+    elapsed = time.perf_counter() - started
+    print(f"the merge: {elapsed:.3f} s over {count + 2} lines")
+    assert elapsed < BUDGET_SECONDS
+    assert body == wanted_body and not listed

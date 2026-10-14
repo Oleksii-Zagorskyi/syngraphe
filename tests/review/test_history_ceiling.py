@@ -9,7 +9,6 @@ People, groups and texts are synthetic examples; every text is invented.
 
 from __future__ import annotations
 
-import time
 from typing import Any
 
 import pytest
@@ -148,8 +147,6 @@ def test_a_freeze_is_listed_where_it_began(
     commit_version(document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
         editions.freeze(document, people["r"], REASON)
-    # A freeze counts whole seconds; the version after it falls in a later one.
-    time.sleep(1.1)
     # While frozen, a holder of *accept* still commits and accepts (ADR-0016).
     commit_version(document, people["r"], SECOND, "reviewer_edit")
     with schema_context(migrated_tenant.number):
@@ -297,3 +294,78 @@ def test_a_return_is_listed_within_each_readers_reach(
         assert "return" not in [e.event for e in entries(editions_only, document)]
         # *Accept* without a history right: the run's versions alone, no passport entry.
         assert [e.event for e in entries(people["r"], document)] == ["edit"]
+
+
+def test_a_recreated_row_keeps_the_order_of_git(
+    migrated_tenant: Any, cast: Any, link_group: Any, member_of: Any, commit_version: Any
+) -> None:
+    """A row derived again after a repair is inserted later than the versions after it; the
+    history keeps the order the commits have."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from documents.models import Version
+    from review.history import entries
+
+    people = _people(cast, link_group)
+    document = people.document
+    early = commit_version(document, people["a"], FIRST, "edit")
+    commit_version(document, people["a"], SECOND, "edit")
+    commit_version(document, people["a"], THIRD, "edit")
+    everything = _reader(
+        member_of, link_group, people, [Right.VIEW_PENDING, Right.VIEW_ALL_HISTORY], "all"
+    )
+    with schema_context(migrated_tenant.number):
+        before = [e.number for e in entries(everything, document)]
+        Version.objects.filter(pk=early.pk).update(created_at=timezone.now() + timedelta(hours=1))
+        assert [e.number for e in entries(everything, document)] == before
+
+
+def test_the_times_read_in_the_display_timezone(
+    migrated_tenant: Any,
+    cast: Any,
+    link_group: Any,
+    member_of: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    from datetime import UTC, datetime
+
+    from documents.models import Version
+
+    settings.LANGUAGE_CODE = "en"
+    # Just before midnight in UTC is the next day east of it: the date is the reader's.
+    settings.DISPLAY_TIMEZONE = "Asia/Tokyo"
+    people = _people(cast, link_group)
+    document = people.document
+    version = commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        Version.objects.filter(pk=version.pk).update(
+            committed_at=datetime(2026, 10, 4, 22, 30, tzinfo=UTC)
+        )
+    client, _user, membership = member_of("all.synthetic@example.test")
+    link_group(document, [Right.VIEW_PENDING, Right.VIEW_ALL_HISTORY], [membership], people["a"])
+    page = client.get(f"/document/{document.number}/history/").content.decode()
+    assert "5 Oct 2026, 07:30" in page
+    assert "4 Oct 2026, 22:30" not in page
+
+
+def test_a_freeze_and_its_unfreeze_keep_their_place_within_one_second(
+    migrated_tenant: Any, cast: Any, link_group: Any, member_of: Any, commit_version: Any
+) -> None:
+    from editions import services as editions
+    from review.history import entries
+
+    people = _people(cast, link_group)
+    document = people.document
+    with schema_context(migrated_tenant.number):
+        editions.freeze(document, people["r"], REASON)
+        editions.end_freeze(document, user=people["r"])
+    commit_version(document, people["a"], FIRST, "edit")
+    everything = _reader(
+        member_of, link_group, people, [Right.VIEW_PENDING, Right.VIEW_ALL_HISTORY], "all"
+    )
+    with schema_context(migrated_tenant.number):
+        events = [e.event for e in entries(everything, document)]
+    assert events == ["created", "freeze", "unfreeze", "edit"]

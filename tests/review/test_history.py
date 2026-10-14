@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import html
 import re
-import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from types import SimpleNamespace
@@ -98,10 +97,7 @@ def standard_history(tenant: Any, edition_cast: Any, commit_version: Any) -> Sim
     """Created (`0.0`); three edits by `a` (`0.0-1` to `0.0-3`); accepted by `r` as `0.1`; a
     freeze and its unfreeze; one edit (`0.1-1`) accepted as `0.2`; a freeze and *make canonical*
     (`1.0`, approving `0.1-1`); two edits by `a` and `b` (`1.0-1`, `1.0-2`). `.versions` by
-    pending number; `.acceptances`, `.edition`, `.freezes`.
-
-    A second passes around the first freeze and its unfreeze, so the commits beside them never
-    share their second: the order is then the clock's, whatever precision each record keeps."""
+    pending number; `.acceptances`, `.edition`, `.freezes`."""
     from documents.models import Version
     from editions import services as editions
     from review import services as review
@@ -124,10 +120,8 @@ def standard_history(tenant: Any, edition_cast: Any, commit_version: Any) -> Sim
     versions["0.0-3"] = commit_version(document, people["a"], THIRD, "edit")
     with schema_context(tenant.number):
         first = review.accept(document, people["r"])
-        time.sleep(1.1)
         freeze = editions.freeze(document, people["p"], REASON)
         editions.end_freeze(document, user=people["p"])
-        time.sleep(1.1)
     versions["0.1-1"] = commit_version(document, people["a"], FOURTH, "edit")
     with schema_context(tenant.number):
         second = review.accept(document, people["r"])
