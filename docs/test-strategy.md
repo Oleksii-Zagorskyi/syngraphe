@@ -5,7 +5,7 @@ aliases:
   - Syngraphē test strategy
 status: draft
 date: 2026-09-23
-last-updated: 2026-09-28
+last-updated: 2026-10-14
 ---
 
 # Test strategy
@@ -21,16 +21,18 @@ The commands a developer runs locally are the commands CI runs — never a varia
 
 ```bash
 uv sync --locked && npm ci && npm run build && uv run playwright install chromium
-uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
+uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget
 ```
+
+The tests run on one worker per core (`pytest-xdist`), each worker with a test database of its own, and every run with a database name of its own, so two runs on one server never share one (DL-0428). The timing budgets, marked `budget`, run afterwards in a process of their own: beside the workers they measure the load. A single file or test runs without `-n`, in one process.
 
 The check needs PostgreSQL and Redis running — the compose stack's `db` and `redis` on a developer's machine, services in CI — and GNU gettext on the path, whose `xgettext` the catalogue test runs through `makemessages`, with Pango and HarfBuzz, which weasyprint loads for the PDF export tests: the developer's package manager installs them, CI a step of its own. The browser and conformance levels start the application themselves, as a live server inside the test run, so nothing else has to be started first.
 
-CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs both on every push and pull request, on Python 3.12. A red build is fixed before the next story starts.
+CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs both on every push and pull request, on Python 3.12, the timing budgets as a step of their own. A red build is fixed before the next story starts.
 
 ## Levels
 
-Each level is a pytest marker, so it can run alone while working and CI runs them all. A test carries exactly one level marker.
+Each level is a pytest marker, so it can run alone while working and CI runs them all. A test carries exactly one level marker; a test that asserts on elapsed time also carries `budget`.
 
 | Level | Marker | Runs against | Command |
 |---|---|---|---|
@@ -77,6 +79,8 @@ Fixed, never random or time-dependent; datetimes are UTC. A generated fixture �
 ## Layout
 
 Tests live in `tests/` at the repository root, one directory per functional area, named for the app it tests, and one file per topic — `tests/documents/test_create.py`, `tests/editing/test_splitter.py` — so a test can be named, as `tests/{area}/test_{topic}.py::test_{behaviour}`, before the code it tests exists. Test functions are named for the behaviour, so a failure says what broke. Shared fixtures — a migrated tenant schema, a temporary repository root, a signed-in client per role — are in `tests/conftest.py`.
+
+**A test reaches the tenant, the repositories and the files through these fixtures, never a fixed path or number.** `migrated_tenant` is one schema per worker, migrated once and put back to its migrated state before every test that takes it — its rows, and its sequences, so document numbers start again at 1. Its number is the same in every test of a worker, so each such test gets a repository root of its own. Another tenant comes from `make_tenant_schema`, which migrates a schema of its own. Everything a test writes goes under `tmp_path` or the roots the fixtures set.
 
 ## Tests done, for a story
 

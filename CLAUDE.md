@@ -87,15 +87,18 @@ docker compose up
 docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 
 # the check; needs PostgreSQL and Redis, published by the developer override,
-# GNU gettext on the path, and Pango and HarfBuzz for the PDF exports
-uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
+# GNU gettext on the path, and Pango and HarfBuzz for the PDF exports; the
+# tests on one worker per core, then the timing budgets alone
+uv run ruff check . && uv run ruff format --check . && uv run mypy src \
+  && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget
 ```
 
 The first line installs the Python dependencies from `uv.lock` and the
 editor's from `package-lock.json`, builds the editor's bundle and installs the
 Chromium the browser tests drive; it needs Node 22. The check is the line CI
 runs, the one `docs/test-strategy.md § What CI runs` names, run the same way by
-a developer and by CI.
+a developer and by CI. Every run gets a test database of its own, so a second
+run beside it — a sub-agent's, a reviewer's — needs nothing set.
 
 Run the suite after every unit of work. A failing test is fixed before the
 next one starts, not after.

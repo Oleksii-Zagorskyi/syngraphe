@@ -1,38 +1,21 @@
-"""The generated corpus, built once per run from its generator into a temporary directory."""
+"""The generated corpus, a copy of the run's own in a temporary directory."""
 
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import pytest
 
-CORPUS = Path(__file__).resolve().parents[1] / "fixtures" / "corpus"
-
 
 @pytest.fixture(scope="session")
-def corpus_ukr(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
+def corpus_ukr(
+    tmp_path_factory: pytest.TempPathFactory, ukrainian_corpus: Callable[[Path], tuple[Path, Path]]
+) -> dict[str, Any]:
     """The Ukrainian history as a bare repository, and its record of who wrote what."""
-    out = tmp_path_factory.mktemp("corpus")
-    repo = out / "corpus-ukr.git"
-    truth = out / "truth-ukr.json"
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(CORPUS / "corpus.py"),
-            "--lang",
-            "ukr",
-            "--repo",
-            str(repo),
-            "--truth",
-            str(truth),
-        ],
-        capture_output=True,
-    )
-    assert result.returncode == 0, result.stderr.decode(errors="replace")
+    repo, truth = ukrainian_corpus(tmp_path_factory.mktemp("corpus"))
     return {"repo": repo, "truth": json.loads(truth.read_text(encoding="utf-8"))}
 
 

@@ -116,6 +116,7 @@ def test_lock_creates_the_tenant_directory(repo_root: Path) -> None:
     assert (repo_root / "tenant-7").stat().st_mode & 0o007 == 0
 
 
+@pytest.mark.budget
 def test_lock_times_out_when_held(repo_root: Path) -> None:
     with _held_elsewhere(lock_path(3, 12)):
         started = time.monotonic()

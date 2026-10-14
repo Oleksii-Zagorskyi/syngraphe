@@ -110,6 +110,7 @@ def test_a_restored_line_names_its_remover(tmp_path: Path) -> None:
     assert [(e.kind, e.author, e.range_before) for e in got] == [("restored", 2, "12")]
 
 
+@pytest.mark.budget
 def test_a_long_run_costs_its_length(tmp_path: Path) -> None:
     """Two hundred versions of a four-hundred-line text, every other one covered, a move every
     fifth: seconds, never minutes."""

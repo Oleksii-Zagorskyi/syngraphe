@@ -29,22 +29,24 @@ def position_of(page: Any, text: str) -> int:
 def test_boundary_behaviour(editing: Any, markdown: Any, page: Any) -> None:
     editing(STORED)
     at = position_of(page, "Друге")
-    page.evaluate(f"{EDITOR}.select({at}, {at + len('Друге')})")
+    # Focused first: focusing an editor that lacks it may put the cursor at the start, over a
+    # selection set before.
     page.focus(".ProseMirror")
+    page.evaluate(f"{EDITOR}.select({at}, {at + len('Друге')})")
     page.keyboard.type("Інше")
     assert markdown() == STORED.replace("Друге", "Інше")
 
     page.evaluate(f"{EDITOR}.replace({STORED!r})")
     at = position_of(page, "Третє")
-    page.evaluate(f"{EDITOR}.select({at})")
     page.focus(".ProseMirror")
+    page.evaluate(f"{EDITOR}.select({at})")
     page.keyboard.press("Backspace")
     assert markdown() == "Перше речення абзацу.\nДруге речення абзацу.Третє речення абзацу.\n"
 
     page.evaluate(f"{EDITOR}.replace({STORED!r})")
     at = position_of(page, "Друге")
-    page.evaluate(f"{EDITOR}.select({at + len('Друге')})")
     page.focus(".ProseMirror")
+    page.evaluate(f"{EDITOR}.select({at + len('Друге')})")
     page.keyboard.press("Enter")
     # The spaces at the new paragraphs' edges are the normalizer's to drop at commit.
     assert [line.strip() for line in markdown().split("\n")] == [

@@ -82,6 +82,7 @@ def test_version_trailer_names_the_lists() -> None:
     assert normalize(b"", "", uk) == b""
 
 
+@pytest.mark.budget
 @pytest.mark.invariant
 def test_normalising_the_corpus_stays_within_its_share_of_finishing() -> None:
     """ASR-21 gives finishing five seconds; the normalizer's share on the forty-page corpus, with

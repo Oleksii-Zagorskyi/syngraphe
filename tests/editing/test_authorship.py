@@ -12,7 +12,7 @@ import json
 import os
 import re
 import subprocess
-import sys
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -27,7 +27,6 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-CORPUS = Path(__file__).resolve().parents[1] / "fixtures" / "corpus"
 DOMAIN = "users.noreply.syngraphe.local"
 # The generator's fixed clock: commit `n` is dated `EPOCH + n` hours.
 EPOCH = 1_800_000_000
@@ -82,17 +81,13 @@ def with_platform_frontmatter(text: str) -> tuple[str, int]:
 
 
 @pytest.fixture(scope="module")
-def corpus(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
+def corpus(
+    tmp_path_factory: pytest.TempPathFactory, ukrainian_corpus: Callable[[Path], tuple[Path, Path]]
+) -> dict[str, Any]:
     """The Ukrainian corpus, commit by commit, with the platform's frontmatter; its record; and
     the corpus's commits with their new shas."""
     out = tmp_path_factory.mktemp("authorship-corpus")
-    generated, truth_path = out / "generated.git", out / "truth.json"
-    result = subprocess.run(
-        [sys.executable, str(CORPUS / "corpus.py"), "--lang", "ukr", "--repo", str(generated)]
-        + ["--truth", str(truth_path)],
-        capture_output=True,
-    )
-    assert result.returncode == 0, result.stderr.decode(errors="replace")
+    generated, truth_path = ukrainian_corpus(out)
     truth = json.loads(truth_path.read_text(encoding="utf-8"))
     batch = git(
         generated,

@@ -241,6 +241,7 @@ def test_ends_follow_the_rule_for_any_sequence_of_levels() -> None:
         assert [r.level for r in ranges(body)] == levels
 
 
+@pytest.mark.budget
 def test_ranges_cost_about_what_the_parse_costs() -> None:
     """At the size allowed, a body of nothing but headings — the case that costs most — is
     divided in little more than the time the parser takes to read it."""

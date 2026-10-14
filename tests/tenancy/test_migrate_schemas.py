@@ -43,6 +43,7 @@ def timed(*numbers: int) -> float:
     return time.perf_counter() - started
 
 
+@pytest.mark.budget
 def test_ten_schemas_within_budget(
     make_tenant: Any, drop_tenant_schemas: None, auth_as_tenant_app: None, record_property: Any
 ) -> None:

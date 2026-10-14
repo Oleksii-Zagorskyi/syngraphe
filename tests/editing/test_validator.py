@@ -62,6 +62,7 @@ def test_refusals_sort_by_line_then_code() -> None:
     ]
 
 
+@pytest.mark.budget
 def test_a_long_run_of_labels_costs_linear_time() -> None:
     """A text of a hundred thousand characters that opens a span label at every fourth is checked
     in seconds at most, not in the minute and more a scan of the rest of the text at each takes."""

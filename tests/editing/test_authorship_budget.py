@@ -23,6 +23,7 @@ pytestmark = [
 BUDGET_SECONDS = 5.0
 
 
+@pytest.mark.budget
 def test_cold_run_within_budget(
     platform_corpus: dict[str, Any], migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:

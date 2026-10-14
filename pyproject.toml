@@ -36,6 +36,7 @@ dev = [
     "pytest-playwright>=0.9",
     "pypdf>=6",
     "aiosmtpd>=1.4",
+    "pytest-xdist>=3.8",
 ]
 
 [tool.uv]
@@ -86,6 +87,7 @@ markers = [
     "invariant: one or more per ASR that code can break",
     "conformance: the parser, the renderer's output and the editor against one case list",
     "browser: the running application in Chromium",
+    "budget: a timing budget, judged in a run of its own, never beside the workers",
 ]
 # The suite renders pages without collecting the static files first.
 filterwarnings = ["ignore:No directory at:UserWarning"]

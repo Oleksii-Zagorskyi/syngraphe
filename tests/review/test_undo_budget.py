@@ -18,6 +18,7 @@ pytestmark = [pytest.mark.integration]
 BUDGET_SECONDS = 5.0
 
 
+@pytest.mark.budget
 def test_the_walk_meets_the_budget(platform_corpus: dict[str, Any]) -> None:
     from review.undo import prepare
 

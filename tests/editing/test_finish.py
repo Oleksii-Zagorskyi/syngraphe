@@ -175,6 +175,7 @@ def test_a_summary_a_commit_cannot_carry_is_refused(
         assert sent.status_code == 400, summary
 
 
+@pytest.mark.budget
 def test_finish_within_budget(migrated_tenant: Any, member_of: Any, new_document: Any) -> None:
     """ASR-21's five seconds for finishing, on the forty-page corpus with one sentence changed."""
     text = CORPUS.read_text(encoding="utf-8")

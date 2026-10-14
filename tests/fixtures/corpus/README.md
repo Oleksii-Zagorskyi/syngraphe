@@ -10,7 +10,7 @@ Two invented policy documents, one Ukrainian and one English, each built by thre
 | `document-ukr.md`, `document-eng.md` | each document at its last commit |
 | `results/truth-ukr.json`, `results/truth-eng.json` | the record: every sentence's author, the commit that created it and what later happened to it; every commit; the expected author of every line at the last commit |
 
-The generator is deterministic: the same seed yields the same commits, byte for byte. The tests build the repository with it into a temporary directory; the generator refuses a directory that already exists. To regenerate the committed files, from this directory:
+The generator is deterministic: the same seed yields the same commits, byte for byte. The tests build the repository with it into a temporary directory, once per run, and never commit it (DL-0429); the generator refuses a directory that already exists. To regenerate the committed files, from this directory:
 
 ```bash
 repo="$(mktemp -d)/corpus-ukr.git"

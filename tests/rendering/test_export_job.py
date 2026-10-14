@@ -535,6 +535,7 @@ def test_attachments_alone_are_exported_as_the_dialog_posts_them(
         assert bundle_file.read("вкладений_файл-1_—_stroky.txt") == data
 
 
+@pytest.mark.budget
 def test_the_reconciler_passes_over_an_abandoned_job_a_render_holds(
     migrated_tenant: Any,
     edition_cast: Any,

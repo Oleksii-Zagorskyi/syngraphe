@@ -3,8 +3,13 @@ tenant and its members, and the live server the browser tests run against."""
 
 from __future__ import annotations
 
+import fcntl
+import hashlib
 import json
 import os
+import re
+import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -121,25 +126,155 @@ def repo_root(tmp_path: Path, settings: Any) -> Iterator[Path]:
 
 @pytest.fixture
 def drop_tenant_schemas() -> Iterator[None]:
-    """Drop every `tenant_N` schema the test created, since a schema outlives a rolled-back row."""
+    """Drop every `tenant_N` schema the test created, since a schema outlives a rolled-back row;
+    the run's own tenant schema (`tenant_schema`) stays."""
     yield
     with connection.cursor() as cursor:
-        cursor.execute("SELECT nspname FROM pg_namespace WHERE nspname LIKE 'tenant\\_%'")
+        cursor.execute(
+            "SELECT nspname FROM pg_namespace WHERE nspname LIKE 'tenant\\_%%' AND nspname <> %s",
+            [_KEPT_SCHEMA.get("name", "")],
+        )
         for (name,) in cursor.fetchall():
             cursor.execute(f'DROP SCHEMA "{name}" CASCADE')
 
 
-@pytest.fixture
-def migrated_tenant(drop_tenant_schemas: None) -> Any:
-    """An active tenant whose schema holds every tenant table.
+# The name of the schema `tenant_schema` keeps for the run, once it exists.
+_KEPT_SCHEMA: dict[str, str] = {}
+# Where a tenant schema's rows as its migrations seed them are kept: never `tenant_…`, so neither
+# `drop_tenant_schemas` nor a tenant's search path reaches it.
+PRISTINE_SCHEMA = "pristine_tenant"
 
-    `drop_tenant_schemas` is requested first so it tears down last: the tenant schema's rows
-    reference `identity_membership`, which the flush after the test truncates.
+
+class TenantSchema:
+    """A tenant schema migrated once, and the means to put it back as its migrations left it."""
+
+    def __init__(self, number: int) -> None:
+        from tenancy.schemas import schema_name
+
+        self.number = number
+        self.name = schema_name(number)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT tablename FROM pg_tables WHERE schemaname = %s ORDER BY 1", [self.name]
+            )
+            self.tables = [row[0] for row in cursor.fetchall()]
+            cursor.execute(f'CREATE SCHEMA "{PRISTINE_SCHEMA}"')
+            # The seeded tables, each with the columns an insert may write: never a generated one.
+            self.seeded: dict[str, str] = {}
+            for table in self.tables:
+                source = f'"{self.name}"."{table}"'
+                cursor.execute(f"SELECT EXISTS (SELECT 1 FROM {source})")
+                if cursor.fetchone()[0]:
+                    cursor.execute(f'CREATE TABLE "{PRISTINE_SCHEMA}"."{table}" AS TABLE {source}')
+                    cursor.execute(
+                        "SELECT string_agg(quote_ident(attname), ', ' ORDER BY attnum)"
+                        " FROM pg_attribute WHERE attrelid = %s::regclass AND attnum > 0"
+                        " AND NOT attisdropped AND attgenerated = ''",
+                        [source],
+                    )
+                    self.seeded[table] = cursor.fetchone()[0]
+            # A sequence never called is set back to its start, not past it.
+            cursor.execute(
+                "SELECT format('%%I.%%I', schemaname, sequencename), coalesce(last_value,"
+                " start_value), last_value IS NOT NULL FROM pg_sequences WHERE schemaname = %s",
+                [self.name],
+            )
+            self.sequences = cursor.fetchall()
+
+    def restore(self) -> None:
+        """Every row the last test left removed, the seeded rows put back, and every sequence
+        set to where the migrations left it — in one statement, since this runs before every
+        test that takes the tenant. Foreign keys are checked at the end of the transaction, so
+        the order of the tables does not matter."""
+        statements = [f'DELETE FROM "{self.name}"."{table}";' for table in self.tables]
+        statements += [
+            f'INSERT INTO "{self.name}"."{table}" ({columns}) OVERRIDING SYSTEM VALUE'
+            f' SELECT {columns} FROM "{PRISTINE_SCHEMA}"."{table}";'
+            for table, columns in self.seeded.items()
+        ]
+        with connection.cursor() as cursor:
+            self._check_shape(cursor)
+            cursor.execute("".join(statements))
+            cursor.execute(
+                "SELECT setval(name::regclass, value, called)"
+                " FROM unnest(%s::text[], %s::bigint[], %s::bool[]) AS s(name, value, called)",
+                [[s[0] for s in self.sequences], [s[1] for s in self.sequences]]
+                + [[s[2] for s in self.sequences]],
+            )
+
+    def _check_shape(self, cursor: Any) -> None:
+        """Fail, naming them, when the schema's tables or sequences are no longer the ones kept:
+        `restore` would leave a new one's rows to the next test."""
+        cursor.execute(
+            "SELECT relname FROM pg_class WHERE relnamespace = %s::regnamespace"
+            " AND relkind IN ('r', 'p', 'S')",
+            [self.name],
+        )
+        now = {row[0] for row in cursor.fetchall()}
+        kept = {*self.tables, *(s[0].split(".", 1)[1].strip('"') for s in self.sequences)}
+        if now != kept:
+            pytest.fail(
+                f"{self.name} changed since it was kept: added {sorted(now - kept)},"
+                f" removed {sorted(kept - now)}"
+            )
+
+    def flushed_with(self, tables: list[str]) -> list[str]:
+        """`tables` and every table of this schema: its rows reference shared tables such as
+        `identity_membership`, so a flush truncating those must truncate these in the same
+        statement."""
+        return [*tables, *(f'"{self.name}"."{table}"' for table in self.tables)]
+
+
+@pytest.fixture(scope="session")
+def tenant_schema(django_db_setup: None, django_db_blocker: Any) -> Iterator[TenantSchema]:
+    """One tenant schema per run — per worker — migrated once, for every test that takes
+    `migrated_tenant`: migrating a schema costs over a second, and some six hundred tests take one.
+
+    Its tenant's row is removed again, so no other test sees a tenant it did not make; each test
+    that takes it makes the row anew. While it exists, a committing test's flush empties its tables
+    with the shared ones (`TenantSchema.flushed_with`), and `restore` refills them.
     """
+    from django.db.backends.postgresql.operations import DatabaseOperations
+
+    from tenancy.models import Tenant, TenantStateHistory
+
+    with django_db_blocker.unblock():
+        tenant = Tenant.objects.create(name="Example Org", actor_kind="system")
+        call_command("migrate_schemas", f"--tenant={tenant.number}", verbosity=0)
+        schema = TenantSchema(tenant.number)
+        TenantStateHistory.objects.filter(tenant=tenant).delete()
+        tenant.delete()
+    _KEPT_SCHEMA["name"] = schema.name
+    flush = DatabaseOperations.sql_flush
+
+    def flushing_the_schema(self: Any, style: Any, tables: Any, **options: Any) -> list[str]:
+        return flush(self, style, schema.flushed_with(list(tables)) if tables else [], **options)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(DatabaseOperations, "sql_flush", flushing_the_schema)
+        yield schema
+    _KEPT_SCHEMA.clear()
+    with django_db_blocker.unblock(), connection.cursor() as cursor:
+        cursor.execute(f'DROP SCHEMA "{schema.name}", "{PRISTINE_SCHEMA}" CASCADE')
+
+
+@pytest.fixture
+def migrated_tenant(tenant_schema: TenantSchema, repo_root: Path, drop_tenant_schemas: None) -> Any:
+    """An active tenant whose schema holds every tenant table, as its migrations left it.
+
+    The schema is the run's own (`tenant_schema`), so its number is the same in every test: the
+    test's repositories go under a root of its own (`repo_root`). The row is made as
+    `migrate_schemas` leaves a new tenant — created, then activated with its history row.
+    `drop_tenant_schemas` drops any other tenant's schema the test made.
+    """
+    from tenancy.management.commands.migrate_schemas import Command
     from tenancy.models import Tenant
 
-    tenant = Tenant.objects.create(name="Example Org", actor_kind="system")
-    call_command("migrate_schemas", f"--tenant={tenant.number}", verbosity=0)
+    tenant_schema.restore()
+    tenant = Tenant.objects.create(
+        number=tenant_schema.number, name="Example Org", actor_kind="system"
+    )
+    Command.activate(tenant)
     tenant.refresh_from_db()
     return tenant
 
@@ -263,18 +398,62 @@ def _platform_frontmatter(text: str) -> str:
 
 
 @pytest.fixture(scope="session")
-def platform_corpus(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
+def ukrainian_corpus(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> Callable[[Path], tuple[Path, Path]]:
+    """`copy(folder)`: the generator's Ukrainian corpus copied into `folder` — its bare repository
+    `generated.git` and its record `truth.json`; the two paths.
+
+    The generator runs once per run, not once per worker or per fixture: it is deterministic and
+    takes seconds. The workers of one run share the generated folder under a lock; each fixture
+    works on a copy of its own, as it did when it generated one."""
+    workerinput = getattr(request.config, "workerinput", None)
+    if workerinput is None:
+        shared = tmp_path_factory.getbasetemp() / "corpus-ukr"
+    else:
+        shared = tmp_path_factory.getbasetemp().parent / f"corpus-ukr-{workerinput['testrunuid']}"
+    shared.mkdir(exist_ok=True)
+    with open(shared / ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        if not (shared / "done").exists():
+            # Generated beside the shared folder and moved into it whole, so a failed or killed
+            # generation leaves nothing the next worker would build on.
+            for leftover in ("generated.git", "truth.json"):
+                shutil.rmtree(shared / leftover, ignore_errors=True)
+                (shared / leftover).unlink(missing_ok=True)
+            work = Path(tempfile.mkdtemp(dir=shared))
+            result = subprocess.run(
+                [sys.executable, str(CORPUS / "corpus.py"), "--lang", "ukr"]
+                + ["--repo", str(work / "generated.git"), "--truth", str(work / "truth.json")],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                shutil.rmtree(work)
+            assert result.returncode == 0, result.stderr.decode(errors="replace")
+            (work / "generated.git").rename(shared / "generated.git")
+            (work / "truth.json").rename(shared / "truth.json")
+            work.rmdir()
+            (shared / "done").touch()
+
+    def copy(folder: Path) -> tuple[Path, Path]:
+        repo, truth = folder / "generated.git", folder / "truth.json"
+        shutil.copytree(shared / "generated.git", repo)
+        shutil.copyfile(shared / "truth.json", truth)
+        return repo, truth
+
+    return copy
+
+
+@pytest.fixture(scope="session")
+def platform_corpus(
+    tmp_path_factory: pytest.TempPathFactory,
+    ukrainian_corpus: Callable[[Path], tuple[Path, Path]],
+) -> dict[str, Any]:
     """The invented Ukrainian corpus of `tests/fixtures/corpus/` with the platform's frontmatter,
     as a bare repository: `repo`, its `commits` — the generator's, each with the repository's
     `sha` and its time `at` — and the generator's record of who wrote every sentence, `truth`."""
     out = tmp_path_factory.mktemp("platform-corpus")
-    generated, truth_path = out / "generated.git", out / "truth.json"
-    result = subprocess.run(
-        [sys.executable, str(CORPUS / "corpus.py"), "--lang", "ukr", "--repo", str(generated)]
-        + ["--truth", str(truth_path)],
-        capture_output=True,
-    )
-    assert result.returncode == 0, result.stderr.decode(errors="replace")
+    generated, truth_path = ukrainian_corpus(out)
     truth = json.loads(truth_path.read_text(encoding="utf-8"))
     commits = truth["commits"]
     batch = _git(
@@ -319,6 +498,78 @@ BUNDLE = (
 _SEEDED: dict[str, str] = {}
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    if config.getoption("reuse_db", False):
+        raise pytest.UsageError(
+            "--reuse-db is not supported: each run names its test databases for itself"
+        )
+
+
+# A test database's name ends in this host and the process that started the run, so that a run
+# can tell a database whose run is gone from one whose run is still going.
+_HOST = hashlib.sha256(socket.gethostname().encode()).hexdigest()[:6]
+
+
+def _running(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _drop_abandoned_databases(base: str) -> None:
+    """Drop every test database of `base` that a run on this host started and did not live to
+    drop — killed, or stopped at a timeout. A database with anyone still connected stays."""
+    from django.db import DatabaseError
+
+    named = re.compile(rf"test_{re.escape(base)}(?:_gw\d+)?_{_HOST}p(\d+)")
+    with connection._nodb_cursor() as cursor:
+        cursor.execute("SELECT datname FROM pg_database WHERE datname LIKE 'test\\_%'")
+        for (name,) in cursor.fetchall():
+            match = named.fullmatch(name)
+            if match and not _running(int(match[1])):
+                try:
+                    cursor.execute(f'DROP DATABASE IF EXISTS "{name}"')
+                except DatabaseError:
+                    pass
+
+
+@pytest.fixture(scope="session")
+def django_db_modify_db_settings(
+    request: pytest.FixtureRequest,
+    django_db_modify_db_settings_parallel_suffix: None,
+    django_db_blocker: Any,
+) -> None:
+    """A test database name of this run's own — after pytest-django's `_gw<n>` for a worker, this
+    host and the run's process — so a second run on the same server, beside this one, never
+    shares its database; and the databases of runs on this host that are gone, dropped."""
+    from django.conf import settings
+
+    started_by = os.getppid() if hasattr(request.config, "workerinput") else os.getpid()
+    for database in settings.DATABASES.values():
+        test = database.setdefault("TEST", {})
+        test["NAME"] = f"{test.get('NAME') or 'test_' + database['NAME']}_{_HOST}p{started_by}"
+    with django_db_blocker.unblock():
+        _drop_abandoned_databases(settings.DATABASES["default"]["NAME"])
+
+
+@pytest.fixture(scope="session", autouse=True)
+def run_directories(tmp_path_factory: pytest.TempPathFactory) -> Iterator[None]:
+    """The repository root and the exports root of this process alone: tenant and document numbers
+    start again in every worker's database, so two workers sharing a root would share a
+    repository and its lock file. A test that needs an empty root still takes `repo_root`."""
+    from django.test import override_settings
+
+    base = tmp_path_factory.mktemp("roots")
+    (base / "repos").mkdir()
+    (base / "exports").mkdir()
+    with override_settings(GIT_REPO_ROOT=base / "repos", EXPORT_ROOT=base / "exports"):
+        yield
+
+
 @pytest.fixture(scope="session")
 def django_db_setup(django_db_setup: None) -> Iterator[None]:
     """pytest-django's test database, and a copy of the rows its migrations seed, kept for the
@@ -332,7 +583,7 @@ def django_db_setup(django_db_setup: None) -> Iterator[None]:
     yield
 
 
-@pytest.hookimpl(tryfirst=True)
+@pytest.hookimpl(trylast=True)
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
     """Every browser test runs against committed rows, which a live server needs, with the rows the
     migrations seed restored after it; and the browser tests run last. Playwright's synchronous API

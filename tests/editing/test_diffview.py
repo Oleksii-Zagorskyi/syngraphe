@@ -88,6 +88,7 @@ def test_a_change_to_a_line_without_words_is_shown() -> None:
     assert html.index("format-changed") < html.index("<table>")
 
 
+@pytest.mark.budget
 def test_a_diff_costs_a_bounded_amount() -> None:
     """A sentence of 110 KB with one word changed, and a text of repeated lines rewritten, render
     in well under a second each, not the minutes an unbounded alignment takes."""
@@ -203,6 +204,7 @@ def test_unrelated_sentences_are_not_diffed_word_by_word() -> None:
     "line",
     [":-" + " " * 399_990 + "x", "|" + " " * 399_990 + "x", "> " + " " * 399_990 + "[!x"],
 )
+@pytest.mark.budget
 def test_a_line_that_fails_a_pattern_costs_its_length(line: str) -> None:
     """The line patterns never backtrack over a long run of spaces (a line at the size ceiling)."""
     import time
@@ -329,6 +331,7 @@ def test_a_changed_target_alone_is_shown() -> None:
 # --- cost and escaping ------------------------------------------------
 
 
+@pytest.mark.budget
 def test_crafted_alignments_cost_a_bounded_amount() -> None:
     """Regions with no line met once on each side, each led by a unique line, and one long
     sentence of the same shape in words: the aligner's cost is budgeted per diff, so neither takes
@@ -345,6 +348,7 @@ def test_crafted_alignments_cost_a_bounded_amount() -> None:
         assert time.perf_counter() - started < 3.0
 
 
+@pytest.mark.budget
 def test_many_marker_changes_and_removed_blocks_cost_linearly() -> None:
     import time
 
