@@ -481,4 +481,4 @@ def test_ending_a_reservation_over_a_stopped_finish_keeps_its_reason(
     event = AuditEvent.objects.filter(action="document.hold_released").latest("at")
     assert event.after["release_kind"] == "finished" and event.after["finish_completed"] is True
     assert event.after["reason"] == "Синтетична причина"
-    assert "finish that had stopped was completed" in page
+    assert "interrupted finish of this editing was completed" in page

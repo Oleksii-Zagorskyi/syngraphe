@@ -2,7 +2,7 @@
 
 ## Held and reserved
 
-While someone edits a document, it is *held*: nobody else can edit it, and everyone who may read it sees the tag *held* beside its title. Who is editing it is shown to the organisation's administrators alone.
+While someone edits a document, it is *held*: nobody else can edit it, and everyone who may read it sees the tag *held* beside its title. Who is editing it is shown to administrators alone: the organisation's, and a platform administrator acting in it.
 
 The person editing, if their group has the right *reserve for editing*, may reserve the document from the edit tab, to keep it for days or weeks. Everyone who may read it then sees *reserved for editing, since* the date it began; those who may edit or accept it, and the administrators, also see by whom. Until the reservation ends, review, freezing and changes to the document's groups wait. The person editing ends it by finishing, by discarding their edits, or by *Cancel the reservation*, which makes it ordinary editing again. Your reservations are listed under *My reservations* in the menu.
 

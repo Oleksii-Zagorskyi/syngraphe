@@ -379,3 +379,51 @@ def test_the_notice_takes_the_documents_lock_first(
         first.join(timeout=30)
         second.join(timeout=30)
     assert len(told(migrated_tenant)) == 1
+
+
+def test_the_notice_never_waits_for_the_person(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """A self-block holds the person's row while it ends their holds; the notice locks the
+    document's row and the hold's alone, so it goes ahead and never closes a cycle with the
+    block."""
+    import threading
+
+    from django.contrib.auth import get_user_model
+    from django.db import connection, transaction
+
+    from editing import tasks
+
+    _, author, document, _ = opened(member_of, new_document)
+    listed = idle_for(migrated_tenant, document, 31)
+    holding, release = threading.Event(), threading.Event()
+
+    def block() -> None:
+        try:
+            with transaction.atomic():
+                get_user_model().objects.select_for_update(no_key=True).get(pk=author.pk)
+                holding.set()
+                release.wait(timeout=30)
+        finally:
+            connection.close()
+
+    def tell() -> None:
+        try:
+            with schema_context(migrated_tenant.number):
+                tasks._tell_once(listed)
+        finally:
+            connection.close()
+
+    blocker = threading.Thread(target=block)
+    blocker.start()
+    assert holding.wait(timeout=30)
+    notice = threading.Thread(target=tell)
+    notice.start()
+    notice.join(timeout=10)
+    try:
+        assert not notice.is_alive()
+    finally:
+        release.set()
+        blocker.join(timeout=30)
+        notice.join(timeout=30)
+    assert len(told(migrated_tenant)) == 1

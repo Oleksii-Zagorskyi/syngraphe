@@ -162,8 +162,10 @@ def _tell_once(hold: Any) -> None:
     with transaction.atomic():
         # The document's row before the hold's, as every writer of a hold takes them.
         Document.objects.select_for_update().get(pk=hold.document_id)
+        # The hold's row alone: the joined person's row is a self-block's, taken before the
+        # document's.
         locked = (
-            Hold.objects.select_for_update()
+            Hold.objects.select_for_update(of=("self",))
             .select_related("document", "user")
             .filter(pk=hold.pk, released_at__isnull=True, reserved_at__isnull=True)
             .first()

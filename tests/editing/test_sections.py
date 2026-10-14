@@ -218,3 +218,41 @@ def test_a_span_holds_its_subsections_and_typed_headings() -> None:
     assert sections.span_of("section:4:1") is None
     assert sections.span_of("whole") is None
     assert sections.span_name(4, 1) == "section:4" and sections.span_name(4, 3) == "section:4:3"
+
+
+def _ends_by_scanning(levels: list[int]) -> list[int]:
+    """Each section's end as the rule states it: the next heading of the same or a higher level."""
+    return [
+        next((j for j in range(i + 1, len(levels)) if levels[j] <= level), len(levels))
+        for i, level in enumerate(levels)
+    ]
+
+
+def test_ends_follow_the_rule_for_any_sequence_of_levels() -> None:
+    """Every sequence of heading levels, deep and shallow mixed, ends each section where the rule
+    says; one heading per line, so a section's end is the line of the heading that ends it."""
+    import random
+
+    chance = random.Random(9)
+    for _ in range(300):
+        levels = [chance.randint(1, 6) for _ in range(chance.randint(1, 40))]
+        body = "".join("#" * level + " Розділ\n" for level in levels)
+        assert [r.end for r in ranges(body)] == _ends_by_scanning(levels)
+        assert [r.level for r in ranges(body)] == levels
+
+
+def test_ranges_cost_about_what_the_parse_costs() -> None:
+    """At the size allowed, a body of nothing but headings — the case that costs most — is
+    divided in little more than the time the parser takes to read it."""
+    import time
+
+    from editing.markdown.parser import parser
+
+    body = "# а\n" * 60_000
+    started = time.perf_counter()
+    parser().parse(body)
+    parsed = time.perf_counter() - started
+    started = time.perf_counter()
+    assert len(ranges(body)) == 60_000
+    divided = time.perf_counter() - started
+    assert divided < 3 * parsed

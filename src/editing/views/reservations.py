@@ -13,7 +13,7 @@ from django.shortcuts import render
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
-from access.rights import Right, holds_anywhere
+from access.rights import Right, holds_anywhere, readable
 from documents.locks import LockTimeout
 from documents.views import is_member
 from editing import holds, reservations
@@ -102,7 +102,11 @@ def my_reservations(request: HttpRequest) -> HttpResponse:
         .select_related("document")
         .order_by("reserved_at", "document__number")
     )
-    return render(request, "editing/my_reservations.html", {"reserved": list(reserved)})
+    # A reservation outlives its holder's removal from the document's groups; the document is
+    # listed only while they may still read it.
+    may_read = readable(request.user, [hold.document_id for hold in reserved])
+    shown = [hold for hold in reserved if hold.document_id in may_read]
+    return render(request, "editing/my_reservations.html", {"reserved": shown})
 
 
 @never_cache
@@ -215,7 +219,7 @@ def end(request: HttpRequest, number: int) -> HttpResponse:
                 messages.info(
                     request,
                     _(
-                        "The holder's finish that had stopped was completed: the version awaits "
+                        "An interrupted finish of this editing was completed: the version awaits "
                         "review, and the document is free."
                     ),
                 )

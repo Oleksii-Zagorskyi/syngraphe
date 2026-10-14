@@ -189,3 +189,17 @@ def test_catalogue_covers_editing_together_pages(
         assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
     assert "Скасувати резервування" in bodies["the reserved edit tab"]
     assert "Забрати документ назад" in bodies["the return, nothing committed since"]
+
+
+@pytest.mark.fast
+def test_the_editing_messages_name_the_person_editing() -> None:
+    """Whoever has a document open is *the person editing* · *той, хто редагує*: in the interface
+    never its *holder* or *owner*, never its *власник* (the glossary)."""
+    blocks = CATALOGUE.read_text(encoding="utf-8").split("\n\n")
+    named = [
+        block
+        for block in blocks
+        if "#: editing/" in block
+        and re.search(r"\b(holder|owner)s?\b|власник", block.split("\n#: ")[-1], re.IGNORECASE)
+    ]
+    assert named == []

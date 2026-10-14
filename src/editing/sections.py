@@ -57,14 +57,15 @@ def ranges(body: str) -> list[Range]:
         for token in parser().parse(body)
         if token.type == "heading_open" and token.level == 0 and token.map is not None
     ]
-    found: list[Range] = []
+    # One pass: a heading ends every open section of its own or a deeper level. Scanning ahead
+    # from each heading instead costs the square of their number, under the document's lock.
+    ends = [len(lines)] * len(headings)
+    waiting: list[int] = []
     for position, (start, level) in enumerate(headings):
-        end = next(
-            (later for later, depth in headings[position + 1 :] if depth <= level),
-            len(lines),
-        )
-        found.append(Range(start, end, level))
-    return found
+        while waiting and headings[waiting[-1]][1] >= level:
+            ends[waiting.pop()] = start
+        waiting.append(position)
+    return [Range(start, ends[i], level) for i, (start, level) in enumerate(headings)]
 
 
 def section_text(body: str, section: Range) -> str:

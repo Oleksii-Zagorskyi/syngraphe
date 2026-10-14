@@ -509,6 +509,43 @@ def test_changes_shows_the_stopped_text_to_its_holder_alone(
     )
 
 
+def test_changes_shows_the_text_alone_once_its_heading_went(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """An editor the server closed because its capture removed its own heading still names an
+    ordinal, now another section's: with `alone`, its later text is shown as typed and compared
+    with nothing."""
+    client, document = sectioned(migrated_tenant, member_of, new_document)
+    second = section(client, document, 1)
+    headless = second["body"].replace("# Другий розділ\n\n", "")
+    assert send(client, document, second, headless).json().get("closed") is True
+    later = headless + "Набране потім.\n"
+    shown = post(client, document, "changes", editor=second["editor"], body=later, alone=True)
+    assert shown.status_code == 200
+    html = shown.json()["html"]
+    assert "Набране потім." in html and "<ins" not in html and "Третій розділ" not in html
+    # The sentence says what is shown: the text as typed, not changes.
+    assert "як зміни" not in html and "так, як ви його набрали" in html
+
+
+def test_section_captures_keep_the_draft_within_its_size(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """Each section's text is within the size allowed, and so must be the draft its capture
+    leaves: one that would grow the draft past it is refused as too large, the draft as it was."""
+    from editing.markdown import load_spec
+
+    client, document = sectioned(migrated_tenant, member_of, new_document)
+    first, second = section(client, document, 0), section(client, document, 1)
+    filler = "слово " * (load_spec().max_bytes * 6 // 10 // len("слово ".encode()))
+    assert send(client, document, first, first["body"] + filler + "\n").status_code == 200
+    before = draft_body(migrated_tenant, document)
+    refused = send(client, document, second, second["body"] + filler + "\n")
+    assert refused.status_code == 413 and refused.json() == {"too_large": True}
+    assert draft_body(migrated_tenant, document) == before
+    assert len(before.encode()) <= load_spec().max_bytes
+
+
 def test_a_heading_level_changed_tells_the_page(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:

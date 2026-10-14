@@ -50,7 +50,13 @@ def _locked(hold: Hold) -> Iterator[Hold]:
         transaction.atomic(),
     ):
         Document.objects.select_for_update().get(pk=hold.document_id)
-        locked = Hold.objects.select_for_update().select_related("document", "user").get(pk=hold.pk)
+        # The hold's row alone: the joined person's row is a self-block's, taken before the
+        # document's.
+        locked = (
+            Hold.objects.select_for_update(of=("self",))
+            .select_related("document", "user")
+            .get(pk=hold.pk)
+        )
         if locked.released_at is not None:
             raise ReservationRefused("released")
         yield locked

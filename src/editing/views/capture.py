@@ -169,6 +169,9 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
             if current != base or locked.base_hash != base:
                 return _stale(locked, now, close)
             changed = sections.splice(whole, found, stored) if found is not None else stored
+            # Each section is within the size allowed; the draft its capture leaves must be too.
+            if len(changed.encode("utf-8")) > load_spec().max_bytes:
+                return JsonResponse({"too_large": True}, status=413)
             draft.content = {**draft.content, holds.BODY: changed}
             draft.save(update_fields=["content", "updated_at"])
             Hold.objects.filter(pk=hold.pk).update(last_activity_at=now)
@@ -299,7 +302,8 @@ def changes(request: HttpRequest, number: int) -> HttpResponse:
     """What a stopped editor shows (ADR-0006): the person's unsaved text as changes against its
     range of the draft as it now stands, to carry over by hand, and the way to open the range
     again; the editor's own holder alone. The text is shown as typed where the whitelist refuses
-    it."""
+    it, where its lines are gone, and with `alone` — an editor the server closed when its capture
+    removed its own heading, whose ordinal names another section now."""
     from django.shortcuts import render
     from django.utils.safestring import mark_safe
 
@@ -324,8 +328,9 @@ def changes(request: HttpRequest, number: int) -> HttpResponse:
     span = sections.span_of(editor.range)
     found_range = sections.extent(whole, *span) if span is not None else None
     context: dict[str, Any] = {"number": number}
-    if span is not None and found_range is None:
-        # Its lines are gone from the draft: the text alone, nothing to compare it with.
+    if (span is not None and found_range is None) or _payload(request).get("alone") is True:
+        # Its lines are gone from the draft, or its heading went in a capture that closed it: the
+        # text alone, nothing to compare it with.
         context["typed"] = body
         html = render(request, "editing/stopped_editor.html", context).content.decode("utf-8")
         return JsonResponse({"html": html})

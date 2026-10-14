@@ -2668,8 +2668,8 @@ msgid "I am still working"
 msgstr "Я ще працюю"
 
 #: editing/templates/editing/end_reservation.html
-msgid "Ending it frees the document for others. The holder's draft is kept, and the holder is told who ended it, when and why."
-msgstr "Завершення звільняє документ для інших. Чернетку власника резервування буде збережено, і йому повідомлять, хто, коли й чому завершив резервування."
+msgid "Ending it frees the document for others. The draft is kept for the person editing, who is told who ended it, when and why."
+msgstr "Завершення звільняє документ для інших. Чернетку буде збережено для того, хто редагує, і цій людині повідомлять, хто, коли й чому завершив резервування."
 
 #: editing/templates/editing/end_reservation.html
 msgid "This reservation has changed since the page was opened. Read it again before ending it."
@@ -2802,6 +2802,10 @@ msgstr "Редагувати весь документ"
 msgid "Your unsaved text is below, as changes against the text as it now stands; carry it over by hand."
 msgstr "Ваш незбережений текст нижче — як зміни відносно тексту в його теперішньому вигляді; перенесіть його вручну."
 
+#: editing/templates/editing/stopped_editor.html
+msgid "Your unsaved text is below, as you typed it; carry it over by hand."
+msgstr "Ваш незбережений текст нижче — так, як ви його набрали; перенесіть його вручну."
+
 #: editing/messages.py
 msgid "Another editor is open on part of this section; close it first."
 msgstr "На частині цього розділу відкрито інший редактор; спершу закрийте його."
@@ -2847,8 +2851,8 @@ msgid "Reservations"
 msgstr "Резервування"
 
 #: editing/views/reservations.py
-msgid "The holder's finish that had stopped was completed: the version awaits review, and the document is free."
-msgstr "Завершення редагування, яке власник резервування не закінчив, доведено до кінця: версія очікує на розгляд, а документ вільний."
+msgid "An interrupted finish of this editing was completed: the version awaits review, and the document is free."
+msgstr "Перерване завершення редагування доведено до кінця: версія очікує на розгляд, а документ вільний."
 
 #: editions/views.py
 msgid "The document is held; make it canonical once it is released."

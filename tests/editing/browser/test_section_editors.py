@@ -194,6 +194,40 @@ def test_a_heading_added_stops_the_other_sections_opening(tab: Any, page: Any) -
     assert later.get_attribute("title")
 
 
+def test_text_typed_while_its_heading_goes_is_kept(tab: Any, page: Any) -> None:
+    """The server closes a section editor whose capture removed its own heading; text typed while
+    that capture was on its way is never lost: the editor stops, read-only, the text shown to carry
+    over by hand, and the tab is not drawn again over it."""
+    tab(BODY)
+    navigations: list[str] = []
+    page.on("framenavigated", lambda frame: navigations.append(frame.url))
+    open_section(page, 1)
+    held: list[Any] = []
+
+    def hold_the_first(route: Any) -> None:
+        if held:
+            route.continue_()
+        else:
+            held.append(route)
+
+    page.route("**/edit/capture/", hold_the_first)
+    page.evaluate(f"{section(1)}.replace('Перше речення другого розділу.\\n')")
+    page.evaluate(f"() => {{ window.firstCapture = {section(1)}.capture.flush(); }}")
+    while not held:
+        page.wait_for_timeout(20)
+    page.evaluate(
+        f"{section(1)}.replace({section(1)}.markdown() + '\\nНабране під час збереження.\\n')"
+    )
+    held[0].continue_()
+    assert page.evaluate("window.firstCapture") == "stale"
+    page.wait_for_selector(".stopped-editor")
+    assert "Набране під час збереження." in (page.text_content(".stopped-editor") or "")
+    assert page.locator(".stopped-editor [data-command=reopen]").count() == 1
+    page.wait_for_load_state("networkidle")
+    assert navigations == []
+    assert "Набране під час збереження." in page.evaluate(f"{section(1)}.markdown()")
+
+
 MEASURE = """async ([ordinal, keys]) => {
   const editor = document.querySelector(`.section-editor[data-ordinal="${ordinal}"]`).editor;
   const times = [];

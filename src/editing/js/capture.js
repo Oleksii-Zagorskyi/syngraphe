@@ -93,16 +93,18 @@ export function capturing({ element, editor, words, disable }) {
 
   // The editor can no longer capture: it is closed on the server first, so it keeps no other tab
   // from finishing, then disabled here.
-  function stop() {
+  // `alone` when the server has closed it with its section gone: the text is shown as typed.
+  function stop(alone = false) {
     stopped = true;
     clearTimeout(timer);
     prompt.hidden = true;
-    post(urls.close, { editor: editor.draft.editor }).catch(() => null);
+    if (!alone) post(urls.close, { editor: editor.draft.editor }).catch(() => null);
     show("stale");
     disable();
     // The text it holds is never lost (ADR-0006): shown as changes against its range as it now
     // stands, to carry over by hand, with the way to open the range again.
-    post(urls.changes, { editor: editor.draft.editor, body: editor.markdown() })
+    const shown = { editor: editor.draft.editor, body: editor.markdown(), ...(alone && { alone }) };
+    post(urls.changes, shown)
       .then((response) => (response.ok ? response.json() : null))
       .then((answer) => {
         if (!answer || !answer.html) return;
@@ -176,6 +178,12 @@ export function capturing({ element, editor, words, disable }) {
     base = answer.base_hash;
     sent = text;
     if (answer.sections_changed) element.dispatchEvent(new CustomEvent("sections-changed", { bubbles: true }));
+    if (answer.closed && editor.markdown() !== sent) {
+      // Its own heading is gone and the server closed it, but what was typed since that capture
+      // left is not captured: it stops here, never closed over that text.
+      stop(true);
+      return "stale";
+    }
     if (answer.closed) {
       // Its own heading is gone: the text is captured and the editor closed by the server.
       stopped = true;

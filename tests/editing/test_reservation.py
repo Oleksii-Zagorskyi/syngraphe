@@ -285,3 +285,88 @@ def test_my_reservations(
 
     assert other_client.get("/my-reservations/").status_code == 404
     assert "/my-reservations/" not in other_client.get("/folder/1/").content.decode()
+
+
+def test_my_reservations_lists_only_what_its_holder_may_read(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any
+) -> None:
+    """A reservation outlives its holder's removal from the document's group, but the document is
+    no longer theirs to read: the list leaves it out, its number and its title."""
+    _, author, _ = member_of("author.synthetic@example.test")
+    holder_client, _, holder_membership = member_of("holder.synthetic@example.test")
+    revoked = new_document(author, "Синтетичний порядок відкликаного доступу")
+    kept = new_document(author, "Синтетичний порядок чинного доступу")
+    groups = {}
+    for document in (revoked, kept):
+        groups[document.pk] = link_group(
+            document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [holder_membership], author
+        )
+        number = document.number
+        assert holder_client.post(f"/document/{number}/edit/take/").status_code == 200
+        assert redirected_to(
+            holder_client.post(f"/document/{number}/edit/reserve/"), f"/document/{number}/edit/"
+        )
+    with schema_context(migrated_tenant.number):
+        groups[revoked.pk].remove_member(holder_membership, by=author)
+    assert open_hold(migrated_tenant, revoked).reserved_at is not None
+
+    body = holder_client.get("/my-reservations/").content.decode()
+
+    assert f'href="/document/{kept.number}/"' in body
+    assert f'href="/document/{revoked.number}/"' not in body
+    assert "відкликаного доступу" not in body
+
+
+def test_reserving_never_waits_for_the_person(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any
+) -> None:
+    """A self-block holds the person's row while it ends their holds; a reservation locks the
+    document's row and the hold's alone, so it goes ahead rather than waiting out its lock."""
+    import threading
+
+    from django.contrib.auth import get_user_model
+    from django.db import connection, transaction
+
+    from editing.reservations import reserve
+
+    _, author, _ = member_of("author.synthetic@example.test")
+    holder_client, holder, holder_membership = member_of("holder.synthetic@example.test")
+    document = new_document(author, "Синтетичний порядок резервування")
+    link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [holder_membership], author)
+    assert holder_client.post(f"/document/{document.number}/edit/take/").status_code == 200
+    hold = open_hold(migrated_tenant, document)
+    holding, release = threading.Event(), threading.Event()
+    outcome: list[Any] = []
+
+    def block() -> None:
+        try:
+            with transaction.atomic():
+                get_user_model().objects.select_for_update(no_key=True).get(pk=holder.pk)
+                holding.set()
+                release.wait(timeout=30)
+        finally:
+            connection.close()
+
+    def reserving() -> None:
+        try:
+            with schema_context(migrated_tenant.number):
+                outcome.append(reserve(hold, holder))
+        except Exception as error:  # noqa: BLE001 — reported by the assertion below
+            outcome.append(error)
+        finally:
+            connection.close()
+
+    blocker = threading.Thread(target=block)
+    blocker.start()
+    assert holding.wait(timeout=30)
+    worker = threading.Thread(target=reserving)
+    worker.start()
+    worker.join(timeout=10)
+    try:
+        assert not worker.is_alive()
+    finally:
+        release.set()
+        blocker.join(timeout=30)
+        worker.join(timeout=30)
+    assert outcome and not isinstance(outcome[0], Exception), outcome
+    assert open_hold(migrated_tenant, document).reserved_at is not None
