@@ -81,12 +81,12 @@ mkdir -p .repos
 docker compose up
 
 # the developer's shape: source bind-mounted, the development server, the
-# database and Redis reachable from the host; it serves the bundle built on
+# database, the test suite's test-db and Redis reachable from the host; it serves the bundle built on
 # the host, so run `npm run build` after changing src/editing/js/ or the
 # whitelist specification
 docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 
-# the check; needs PostgreSQL and Redis, published by the developer override,
+# the check; needs the override's test-db and Redis, POSTGRES_TEST_PORT set,
 # GNU gettext on the path, and Pango and HarfBuzz for the PDF exports; the
 # tests on one worker per core, then the timing budgets alone
 uv run ruff check . && uv run ruff format --check . && uv run mypy src \

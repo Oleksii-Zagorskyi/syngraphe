@@ -537,22 +537,40 @@ def _drop_abandoned_databases(base: str) -> None:
                     pass
 
 
+def _refuse_an_archiving_server() -> None:
+    with connection._nodb_cursor() as cursor:
+        cursor.execute("SHOW archive_mode")
+        archiving = cursor.fetchone()[0] != "off"
+    if archiving:
+        pytest.fail(
+            "the tests' database server archives its log, which would send every run to the"
+            " backup store: start the developer override's `test-db` and set POSTGRES_TEST_PORT",
+            pytrace=False,
+        )
+
+
 @pytest.fixture(scope="session")
 def django_db_modify_db_settings(
     request: pytest.FixtureRequest,
     django_db_modify_db_settings_parallel_suffix: None,
     django_db_blocker: Any,
 ) -> None:
-    """A test database name of this run's own — after pytest-django's `_gw<n>` for a worker, this
-    host and the run's process — so a second run on the same server, beside this one, never
-    shares its database; and the databases of runs on this host that are gone, dropped."""
+    """The test suite's own database server, `POSTGRES_TEST_PORT` on the configured host when it
+    is set, and never one that archives its log: a run's log would go to the backup store. A test
+    database name of this run's own — after pytest-django's `_gw<n>` for a worker, this host and
+    the run's process — so a second run on the same server, beside this one, never shares its
+    database; and the databases of runs on this host that are gone, dropped."""
     from django.conf import settings
 
+    test_port = os.environ.get("POSTGRES_TEST_PORT")
     started_by = os.getppid() if hasattr(request.config, "workerinput") else os.getpid()
     for database in settings.DATABASES.values():
+        if test_port:
+            database["PORT"] = test_port
         test = database.setdefault("TEST", {})
         test["NAME"] = f"{test.get('NAME') or 'test_' + database['NAME']}_{_HOST}p{started_by}"
     with django_db_blocker.unblock():
+        _refuse_an_archiving_server()
         _drop_abandoned_databases(settings.DATABASES["default"]["NAME"])
 
 

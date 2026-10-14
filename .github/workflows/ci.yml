@@ -84,6 +84,16 @@ jobs:
       - name: Install
         run: uv sync --locked && npm ci && npm run build && uv run playwright install chromium
 
+      # The test database server keeps nothing a crash must not lose, as the developer
+      # override's `test-db`; a service container takes no server arguments.
+      - name: Test database settings
+        run: >-
+          docker exec ${{ job.services.postgres.id }} psql -U syngraphe -d syngraphe_test
+          -c "ALTER SYSTEM SET fsync = off"
+          -c "ALTER SYSTEM SET synchronous_commit = off"
+          -c "ALTER SYSTEM SET full_page_writes = off"
+          -c "SELECT pg_reload_conf()"
+
       # The system libraries Chromium needs, which the runner image lacks.
       - name: Browser system libraries
         run: uv run playwright install-deps chromium

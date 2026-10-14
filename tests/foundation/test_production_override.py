@@ -101,6 +101,21 @@ def test_override_resolves(tmp_path: Path) -> None:
 
 
 @needs_docker
+def test_production_archives_and_has_no_test_server(tmp_path: Path) -> None:
+    """The database production runs archives its log; the test suite's server, which does not,
+    is the developer override's alone."""
+    made = compose_config(tmp_path, environment(tmp_path))
+    assert made.returncode == 0, made.stderr
+    services = json.loads(made.stdout)["services"]
+
+    command = services["db"]["command"]
+    assert "test-db" not in services
+    assert "archive_mode=on" in command
+    assert "archive_command=pgbackrest --stanza=syngraphe archive-push %p" in command
+    assert not {"fsync=off", "synchronous_commit=off", "full_page_writes=off"} & set(command)
+
+
+@needs_docker
 @pytest.mark.parametrize("key", REQUIRED)
 def test_override_names_missing_keys(tmp_path: Path, key: str) -> None:
     values = environment(tmp_path)
