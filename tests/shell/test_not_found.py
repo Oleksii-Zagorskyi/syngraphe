@@ -10,9 +10,10 @@ from django.test import Client
 
 pytestmark = [pytest.mark.invariant, pytest.mark.django_db]
 
-# Set per response and carrying nothing about the object: the clock, the request's own id, and
-# the masked CSRF token in the shell's sign-out form.
-PER_RESPONSE_HEADERS = {"Date", "X-Request-Id"}
+# Set per response and carrying nothing about the object: the clock (`Date`, and `Expires`, which
+# never-cache sets to the moment), the request's own id, and the masked CSRF token in the shell's
+# sign-out form.
+PER_RESPONSE_HEADERS = {"Date", "Expires", "X-Request-Id"}
 CSRF_TOKEN = re.compile(rb'name="csrfmiddlewaretoken" value="[^"]+"')
 
 

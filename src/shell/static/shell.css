@@ -181,9 +181,11 @@ details.um>summary{list-style:none;cursor:pointer}
 .answer{border:1px solid var(--line);background:#fafafa;padding:8px 10px;margin:8px 0}
 .why2{font-size:11px;color:var(--muted)}
 
-/* The shell's own regions: the organisation, the notifications bell, the user menu, the
+/* The shell's own regions: the organisation, the switcher, the notifications bell, the user menu, the
    administration panes. */
 .organisation{font-weight:600;padding:0 8px}
+.switcher{display:flex;align-items:center;gap:4px;margin:0 8px}
+.switcher select{font:inherit;padding:2px 4px}
 nav.menu a.disabled{color:var(--muted);cursor:default;text-decoration:none}
 .notifications{display:inline-flex;align-items:center;gap:3px;color:var(--ink);text-decoration:none}
 .notifications .count{background:var(--accent);color:#fff;border-radius:8px;padding:0 5px;font-size:11px;line-height:16px}

@@ -180,9 +180,21 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **source view** · вихідний текст · *proposed* — the editor showing and accepting Markdown instead of formatted text. An editor, not an import.
 
-**block / lift the block** · заблокувати / розблокувати · *proposed* — end access, and restore it as it stood, at one of three levels: a tenant administrator blocks a person's membership in their organisation and lifts that block (ST-0004, ST-0072); a platform administrator blocks a whole organisation and lifts that block (ST-0065, ST-0071); a person blocks their own account (ST-0066), a block nothing in release 0.1 lifts (DL-0254). *Unblock* is not a second name for it.
+**block / lift the block** · заблокувати / розблокувати · *proposed* — end access, and restore it as it stood, at one of three levels: a tenant administrator blocks a person's membership in their organisation and lifts that block (ST-0004, ST-0072); a platform administrator blocks a whole organisation and lifts that block (ST-0065, ST-0071); a person blocks their own account (ST-0066), a block nothing in the platform lifts in release 0.1: a platform administrator asks the installation's operator, who lifts it in the database (DL-0254). *Unblock* is not a second name for it.
 
 **blocked** · заблоковано · *proposed* — the state of a blocked membership, account or tenant; of an organisation, *заблокована*.
+
+**block my account** · заблокувати мій обліковий запис · *proposed* — a person's own block, from the user menu (ST-0066): every organisation closes to them; in release 0.1 nothing in the platform lifts it — a platform administrator asks the installation's operator, who lifts it in the database (DL-0254).
+
+**account** · обліковий запис · *proposed* — a person's own sign-in to the platform, one per address, whatever organisations they belong to.
+
+**invite by email** · запросити електронною поштою · *proposed* — how a person enters an organisation (DL-0107): an administrator gives an address and the groups to join; the person is a member at once and gets an **invitation**.
+
+**invitation** · запрошення · *proposed* — the email with a single-use link of seven days that sets the person's password and signs them in; **accept the invitation** · прийняти запрошення · *proposed* — follow that link and set the password.
+
+**reset the password** · скинути пароль · *proposed* — set a new password through *Forgot your password?* · *Забули пароль?*: an email with a single-use link of one hour.
+
+**switch organisation** · перейти до іншої організації · *proposed* — choose, in the switcher beside the organisation's name, which of one's organisations to work in (ST-0007). The platform administrator's selector in the administration *chooses* the organisation its pane shows; the switcher changes where one works.
 
 **being set up** · налаштовується · *proposed* — what the interface shows for a new organisation whose schema is not yet fully migrated, the state `migrating`: no request reaches it until the migration completes and it becomes active (DL-0280, DL-0287).
 
@@ -219,7 +231,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **platform** · платформа · *proposed* — the installation as a whole, above every organisation; what a platform administrator administers.
 
-**active** · активна · *proposed* — the state of an organisation people can use; with *blocked* (заблокована) and *being set up* (налаштовується), the three an organisation shows.
+**active** · активна · *proposed* — the state of an organisation people can use; with *blocked* (заблокована) and *being set up* (налаштовується), the three an organisation shows. Of a membership, *активне*, beside *заблоковано*.
 
 **access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical, reserve for editing; create or delete appendices; upload, replace or delete attachments. Held over a whole document. Some include others: each viewing right the ones below it; *accept*, *freeze* and *reserve for editing* include *edit* (ADR-0016); *make canonical* includes *view accepted* (DL-0234).
 

@@ -85,3 +85,73 @@ class SignInForm(forms.Form):
         if len(email) > 254:
             raise forms.ValidationError(_("Enter a valid email address."))
         return email
+
+
+class InviteForm(forms.Form):
+    """*Invite by email*: an address, and the organisation's groups to join."""
+
+    email = forms.EmailField(
+        label=_("Email address"),
+        max_length=254,
+        error_messages={"invalid": _("Enter a valid email address.")},
+    )
+    groups = forms.MultipleChoiceField(
+        label=_("Groups to join"), required=False, widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args: Any, groups: list[Any], **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        field = self.fields["groups"]
+        assert isinstance(field, forms.MultipleChoiceField)
+        field.choices = [(str(group.pk), group.name) for group in groups]
+
+    def clean_email(self) -> str:
+        email = fold_email(self.cleaned_data["email"])
+        if len(email) > 254:
+            raise forms.ValidationError(_("Enter a valid email address."))
+        return email
+
+
+class SetPasswordForm(forms.Form):
+    """The password an invitation or a reset sets, under the platform's rule (DL-0284)."""
+
+    password = forms.CharField(
+        label=_("Password"),
+        strip=False,
+        max_length=1024,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+    )
+    password_again = forms.CharField(
+        label=_("Password again"),
+        strip=False,
+        max_length=1024,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+    )
+
+    def __init__(self, *args: Any, user: User, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean(self) -> dict[str, Any]:
+        cleaned = super().clean() or {}
+        password = cleaned.get("password")
+        if password is None:
+            return cleaned
+        try:
+            validate_password(password, user=self.user)
+        except forms.ValidationError as error:
+            self.add_error("password", error)
+        if password != cleaned.get("password_again"):
+            self.add_error("password_again", _("The two passwords differ."))
+        return cleaned
+
+
+class ResetRequestForm(forms.Form):
+    """The address a reset is asked for; never checked against the accounts here (ASR-17)."""
+
+    email = forms.EmailField(
+        label=_("Email address"),
+        max_length=254,
+        error_messages={"invalid": _("Enter a valid email address.")},
+        widget=forms.EmailInput(attrs={"autocomplete": "username"}),
+    )

@@ -21,8 +21,9 @@ from django.utils import formats, timezone, translation
 from django.utils.translation import gettext as _
 
 from mail import secrets
-from mail.models import EmailOutbox, MailSender, Security, Status
+from mail.models import EmailOutbox, Kind, MailSender, Security, Status
 from syngraphe.config import ConfigurationError
+from syngraphe.redaction import without_credentials
 from tenancy.schemas import current_tenant, schema_context
 
 ATTEMPTS = 3
@@ -42,9 +43,15 @@ def sender_for_queue() -> MailSender | None:
 
 
 def queue(
-    tenant: Any, recipient: str, subject: str, body: str, *, notification_id: Any = None
+    tenant: Any,
+    recipient: str,
+    subject: str,
+    body: str,
+    *,
+    notification_id: Any = None,
+    kind: str = Kind.NOTIFICATION,
 ) -> EmailOutbox | None:
-    """One email written to the current schema's outbox, due now, from the sender
+    """One email of `kind` written to the current schema's outbox, due now, from the sender
     `sender_for_queue` finds; `None`, and nothing written, without one."""
     sender = sender_for_queue()
     if sender is None:
@@ -58,6 +65,7 @@ def queue(
         status=Status.QUEUED,
         next_attempt_at=timezone.now(),
         notification_id=notification_id,
+        kind=kind,
     )
 
 
@@ -212,7 +220,9 @@ def send(row: EmailOutbox, now: datetime | None = None) -> bool:
     row.sent_at = moment
     # The outbox records the address the email left from.
     row.sender = sender.address
-    row.save(update_fields=["status", "sent_at", "sender"])
+    # The outbox keeps the record without the credential once the email has left (DL-0406).
+    row.body = without_credentials(row.body)
+    row.save(update_fields=["status", "sent_at", "sender", "body"])
     try:
         with transaction.atomic():
             _emailed(row, moment)
@@ -290,7 +300,8 @@ def _refused(row: EmailOutbox, error: Exception, now: datetime) -> None:
         row.save(update_fields=["attempts", "last_error", "next_attempt_at"])
         return
     row.status = Status.FAILED
-    row.save(update_fields=["attempts", "last_error", "status"])
+    row.body = without_credentials(row.body)
+    row.save(update_fields=["attempts", "last_error", "status", "body"])
     _tell_administrators(row)
 
 
@@ -303,13 +314,17 @@ def _tell_administrators(row: EmailOutbox) -> None:
 
     number = current_tenant(connection)
     facts: dict[str, Any] = {"outbox": str(row.pk)}
-    if number is not None:
+    # A reset is the platform's to know of: an organisation's administrators are never told one
+    # was asked for (DL-0410).
+    if number is not None and row.kind != Kind.RESET:
         notify(
             users=administrators(number),
             category=Category.ADMINISTRATIVE,
             event=Event.EMAIL_FAILED,
             facts=facts,
         )
+    # The organisation names the outbox that holds the row, a reset's included.
+    if number is not None:
         facts = {**facts, "tenant": number}
     notify_platform(event=Event.EMAIL_FAILED, facts=facts)
 

@@ -25,6 +25,15 @@ class Status(models.TextChoices):
     FAILED = "failed", "failed"
 
 
+class Kind(models.TextChoices):
+    """What an email carries: a notification's, an invitation's link, or a reset's link — the last
+    left out of an organisation's own outbox page (DL-0410)."""
+
+    NOTIFICATION = "notification", "notification"
+    INVITATION = "invitation", "invitation"
+    RESET = "reset", "reset"
+
+
 class MailSender(models.Model):
     """The schema's one sending address, or none. The password is held only encrypted, under a
     key the environment supplies (`mail.secrets`); it is never read back into a page."""
@@ -81,12 +90,16 @@ class EmailOutbox(models.Model):
     last_error = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     notification_id = models.UUIDField(null=True, blank=True)
+    kind = models.CharField(max_length=12, choices=Kind.choices, default=Kind.NOTIFICATION)
 
     class Meta:
         indexes = [models.Index(fields=["status", "next_attempt_at"])]
         constraints = [
             models.CheckConstraint(
                 condition=Q(status__in=Status.values), name="mail_outbox_status_known"
+            ),
+            models.CheckConstraint(
+                condition=Q(kind__in=Kind.values), name="mail_outbox_kind_known"
             ),
         ]
 

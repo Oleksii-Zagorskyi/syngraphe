@@ -6,9 +6,16 @@
 # Docker's resolver, asked per request, so a recreated `web` is found at its new address.
 resolver 127.0.0.11 valid=10s ipv6=off;
 
+# A link that sets a password carries its token in the path, a credential while it is valid: the
+# log keeps the path and drops the token.
+map $request $logged_request {
+    "~^(?<before>.*/(?:invitation|reset)/)[^/ ?]+(?<after>.*)$" "$before[token]$after";
+    default $request;
+}
+
 # The client's address as the estate's proxy reported it, not the gateway every connection
 # arrives from.
-log_format front '${FRONT_CLIENT_IP_VAR} "$request" $status $body_bytes_sent $request_time';
+log_format front '${FRONT_CLIENT_IP_VAR} "$logged_request" $status $body_bytes_sent $request_time';
 access_log /var/log/nginx/access.log front;
 
 server {

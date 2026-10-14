@@ -65,8 +65,10 @@ class AccessGroup(Mutable):
                     **_actor(by),
                 )
 
-    def add_member(self, membership: Any, *, by: Any) -> None:
-        """Add a member of this organisation; the database cannot check that boundary, this does."""
+    def add_member(self, membership: Any, *, by: Any, email: bool = True) -> None:
+        """Add a member of this organisation; the database cannot check that boundary, this does.
+        The member is told in the application, and by email unless `email` is false — an
+        invitation's own email says it (DL-0399)."""
         if membership.tenant.number != current_tenant(connection):
             raise ValueError("the membership belongs to another organisation")
         with transaction.atomic():
@@ -81,9 +83,9 @@ class AccessGroup(Mutable):
                     action=AccessChange.Action.ADDED,
                     **_actor(by),
                 )
-                self._tell_the_member(membership, by)
+                self._tell_the_member(membership, by, email)
 
-    def _tell_the_member(self, membership: Any, by: Any) -> None:
+    def _tell_the_member(self, membership: Any, by: Any, email: bool) -> None:
         """The member told they joined the group — unless they added themselves."""
         from notifications.models import Category, Event
         from notifications.services import notify, others
@@ -94,6 +96,7 @@ class AccessGroup(Mutable):
             event=Event.ACCESS_GRANTED,
             actor=by,
             facts={"group": str(self.pk)},
+            email=email,
         )
 
     def remove_member(self, membership: Any, *, by: Any) -> None:

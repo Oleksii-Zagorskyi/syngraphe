@@ -41,6 +41,7 @@ def test_release_hold(migrated_tenant: Any, member_of: Any, new_document: Any) -
         assert hold.release_kind == "forced"
         assert hold.released_at is not None and hold.released_by is None
         assert Draft.objects.filter(hold=hold).exists()
+        base = Draft.objects.get(hold=hold).base_commit
     events = AuditEvent.objects.filter(action="document.hold_released")
     assert events.count() == 1
     event = events.get()
@@ -49,6 +50,7 @@ def test_release_hold(migrated_tenant: Any, member_of: Any, new_document: Any) -
         "number": document.number,
         "release_kind": "forced",
         "reason": "the holder left",
+        "draft_base": base,
     }
 
 

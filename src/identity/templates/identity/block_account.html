@@ -1,0 +1,21 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Block my account" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="dlg">
+  <h1>{% translate "Block my account" %}</h1>
+  {% if refused == "busy" %}<p class="err" role="alert">{% translate "A document is being worked on. Try again in a moment." %}</p>{% endif %}
+  <p>{% translate "Every organisation you belong to closes to you, and every document you hold or have reserved is released, your drafts kept. You can still sign in, and reach nothing." %}</p>
+  <p class="note">{% translate "Nothing in the platform lifts this block: a platform administrator asks the installation's operator, who lifts it in the database." %}</p>
+  {% if last %}
+  <p class="note">{% translate "The last platform administrator cannot block their own account." %}</p>
+  <span class="btn disabled" aria-disabled="true">{% translate "Block my account" %}</span>
+  {% else %}
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn primary" type="submit">{% translate "Block my account" %}</button>
+    <a class="btn" href="/">{% translate "Cancel" %}</a>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

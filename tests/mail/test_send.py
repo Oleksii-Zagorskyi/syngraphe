@@ -600,3 +600,58 @@ def test_every_schema_gets_its_turn_under_a_busy_one(
     tasks.send_outbox()
     tasks.send_outbox()
     assert reread(migrated_tenant.number, row).status == Status.SENT
+
+
+CREDENTIAL_TOKEN = "A" * 43
+
+
+@pytest.mark.parametrize("path", ["invitation", "reset"])
+def test_a_credential_link_is_not_kept_once_sent(
+    migrated_tenant: Any, sender: Any, sink: Any, path: str
+) -> None:
+    """The email leaves with its link; the outbox keeps the record without the token (DL-0406)."""
+    from mail import services as mail
+    from mail.models import EmailOutbox, Status
+    from mail.tasks import send_outbox
+
+    sender(migrated_tenant.number)
+    body = f"Синтетичний лист.\nhttps://docs.example.test/{path}/{CREDENTIAL_TOKEN}/\n"
+    with schema_context(migrated_tenant.number):
+        row = mail.queue(migrated_tenant, RECIPIENT, "Синтетична тема", body)
+        assert row is not None
+
+    send_outbox(now=row.next_attempt_at)
+
+    with schema_context(migrated_tenant.number):
+        row = EmailOutbox.objects.get(pk=row.pk)
+    assert row.status == Status.SENT
+    assert CREDENTIAL_TOKEN in sink.messages[0].body
+    assert CREDENTIAL_TOKEN not in row.body
+    assert f"https://docs.example.test/{path}/" in row.body
+
+
+def test_a_credential_link_is_not_kept_once_failed(
+    migrated_tenant: Any, sender: Any, sink: Any
+) -> None:
+    from mail import services as mail
+    from mail.models import EmailOutbox, Status
+    from mail.tasks import send_outbox
+
+    sender(migrated_tenant.number)
+    sink.always_refuse = True
+    body = f"https://docs.example.test/reset/{CREDENTIAL_TOKEN}/\n"
+    with schema_context(migrated_tenant.number):
+        row = mail.queue(migrated_tenant, RECIPIENT, "Синтетична тема", body)
+        assert row is not None
+    start = row.next_attempt_at
+
+    for attempt in range(3):
+        send_outbox(now=start + attempt * FIVE_MINUTES)
+        with schema_context(migrated_tenant.number):
+            stored = EmailOutbox.objects.get(pk=row.pk)
+        if attempt < 2:
+            # Still to be tried again: the link must survive until the last attempt.
+            assert CREDENTIAL_TOKEN in stored.body
+
+    assert stored.status == Status.FAILED
+    assert CREDENTIAL_TOKEN not in stored.body

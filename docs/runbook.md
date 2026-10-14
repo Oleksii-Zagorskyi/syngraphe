@@ -56,13 +56,13 @@ curl -s http://127.0.0.1:8000/health/    # {"database": "ok", "redis": "ok", "ba
 
 ### Adding a member by command
 
-Before invitations exist (DL-0343), an operator adds a person to one organisation as an ordinary member:
+Invitations are the way in (DL-0374). Where an organisation has no sending address, and so no invitation can be sent, an operator adds a person to it as an ordinary member by command (DL-0343):
 
 ```bash
 $C exec web python manage.py create_member --tenant N --email ADDRESS --name "Display name"
 ```
 
-A new person gets a generated password, **printed once** — run the command in the operator's own terminal and hand the password over by hand; it is shown nowhere again, and the person cannot change it until the reset exists. A person already registered gets the membership only, and their password is never changed; an existing active member is reported and nothing is written. Then add the membership to its groups on the group's page.
+A new person gets a generated password, **printed once** — run the command in the operator's own terminal and hand the password over by hand; it is shown nowhere again, and the person changes it through *Forgot your password?* on the sign-in page. A person already registered gets the membership only, and their password is never changed; an existing active member is reported and nothing is written. Then add the membership to its groups on the group's page.
 
 ### Loading a document
 
@@ -125,6 +125,33 @@ In Administration › Platform › Organisations, *Create an organisation*: its 
 
 - **A migration that failed** leaves the organisation listed *being set up*, reachable by nobody, with the failure in the audit log. Once the fault is fixed: `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being its number; it becomes active.
 - **Its own domain**, if it has one: Administration › Platform › Hosts, *Add a host*, belonging to the organisation. Its first domain is its default. A removed host stops answering within thirty seconds.
+
+## People
+
+Invitations, resets and blocks are the administrators' own pages; help page *People and access* describes them. Three cases need an operator. Lifting any block leaves ended what the block ended: the holds, and the invitations still open when it was written — the person is invited again for a fresh link.
+
+- **Lifting a person's own block.** Nothing in the platform lifts it in this release (DL-0254): a platform administrator asks the operator, who lifts it in the database. With the person's address in `ADDRESS`, write the flag, its history row and the audit event in one transaction; the address is folded as the platform stores it, and a person not blocked by themselves is left untouched:
+
+  ```bash
+  $C exec web python manage.py shell -c "
+  from django.db import transaction
+  from audit.record import record
+  from identity.models import AccountBlockHistory, User, fold_email
+  with transaction.atomic():
+      person = User.objects.select_for_update().get(email=fold_email('ADDRESS'))
+      if not person.self_blocked:
+          raise SystemExit('not blocked by themselves; nothing written')
+      person.self_blocked = False
+      person.save(update_fields=['self_blocked'])
+      AccountBlockHistory.objects.create(user=person, action='block_lifted', by=None)
+      record(actor=None, action='user.self_block_lifted', obj=person,
+             before={'self_blocked': True}, after={'user': str(person.pk)})
+  "
+  ```
+
+  The person's memberships and groups apply as they stood. The documents they held were released when they blocked their account; their drafts are kept.
+- **An organisation blocked by mistake** is lifted from Administration › Platform › Organisations, *Lift the block*. Nothing is rebuilt: its memberships, groups and links stand as they were. The holds the block ended stay ended, their drafts kept.
+- **The platform's last administrator lost** — erased, or blocked with nobody left to lift it — is recovered in the database the same way, by setting `is_platform_admin` or lifting the block as above (backlog B-035).
 
 ## Backup
 

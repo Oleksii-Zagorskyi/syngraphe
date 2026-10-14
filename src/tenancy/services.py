@@ -1,5 +1,6 @@
-"""Creating an organisation, and the hosts it and the platform answer on (ST-0001, ADR-0008,
-ADR-0017, DL-0280, DL-0290)."""
+"""Creating, blocking and lifting the block on an organisation and appointing its administrator; the
+hosts it and the platform answer on; platform administration granted and revoked (ST-0001,
+ST-0002, ST-0065, ST-0071, ADR-0008, ADR-0017, DL-0280, DL-0290)."""
 
 from __future__ import annotations
 
@@ -208,3 +209,168 @@ def _siblings(row: PlatformHost | TenantDomain) -> QuerySet[Any]:
 def _described(row: PlatformHost | TenantDomain) -> dict[str, object]:
     belongs_to = "platform" if isinstance(row, PlatformHost) else row.tenant.number
     return {"host": row.host, "belongs_to": belongs_to, "default": row.is_default}
+
+
+def _state_change(tenant: Tenant, before: str, after: str, by: User) -> Tenant | None:
+    """The organisation's row locked and moved from `before` to `after` with its history row, or
+    `None` when it is not in `before` — nothing written."""
+    from tenancy.models import TenantStateHistory
+
+    # `NO KEY UPDATE`: every row naming the organisation — an audit event, an email — still writes
+    # while the state changes; a take's shared lock waits for it.
+    locked = Tenant.objects.select_for_update(no_key=True).get(pk=tenant.pk)
+    if locked.state != before:
+        return None
+    locked.state = after
+    locked.updated_by = by
+    locked.save(update_fields=["state", "updated_at", "updated_by"])
+    TenantStateHistory.objects.create(tenant=locked, before=before, after=after, by=by)
+    return locked
+
+
+def block_tenant(tenant: Tenant, *, by: User) -> bool:
+    """Block an active organisation (ST-0065): its state and history row, every open hold in it
+    ended with the drafts kept, audited — one transaction; whether it blocked. Its members reach
+    nothing from then on by the membership step, which needs an active organisation; platform
+    administrators still reach it. `identity.blocking.BlockRefused` when a document stays busy."""
+    from django.utils import timezone
+
+    from identity import blocking
+    from identity.models import Invitation
+
+    with transaction.atomic():
+        _still_platform_administrator(by)
+        locked = _state_change(tenant, TenantState.ACTIVE, TenantState.BLOCKED, by)
+        if locked is None:
+            return False
+        # A link sent before the block would sign its person in to an organisation closed to them.
+        now = timezone.now()
+        Invitation.objects.filter(
+            tenant=locked, accepted_at__isnull=True, expires_at__gt=now
+        ).update(expires_at=now)
+        blocking.end_holds([locked], by=by, cause=blocking.TENANT_BLOCKED)
+        record(
+            actor=by,
+            action="tenant.blocked",
+            obj=locked,
+            before={"state": TenantState.ACTIVE},
+            after={"number": locked.number, "state": TenantState.BLOCKED},
+        )
+        transaction.on_commit(invalidate_host_cache)
+    return True
+
+
+def lift_tenant_block(tenant: Tenant, *, by: User) -> bool:
+    """Lift an organisation's block (ST-0071): memberships, groups and links were never touched,
+    so they apply as they stood; whether it lifted."""
+    with transaction.atomic():
+        _still_platform_administrator(by)
+        locked = _state_change(tenant, TenantState.BLOCKED, TenantState.ACTIVE, by)
+        if locked is None:
+            return False
+        record(
+            actor=by,
+            action="tenant.block_lifted",
+            obj=locked,
+            before={"state": TenantState.BLOCKED},
+            after={"number": locked.number, "state": TenantState.ACTIVE},
+        )
+        transaction.on_commit(invalidate_host_cache)
+    return True
+
+
+def appoint_administrator(tenant: Tenant, membership: Any, *, by: User) -> bool:
+    """Make an active member of an active `tenant` its administrator, with the membership's
+    history row, audited — an organisation left without one is given one (the data model's prose
+    on blocking, DL-0367). The organisation and the membership are read again under their locks;
+    whether it appointed."""
+    from identity.models import Membership, member_in_good_standing_q
+
+    with transaction.atomic():
+        _still_platform_administrator(by)
+        if (
+            not Tenant.objects.select_for_update(no_key=True)
+            .filter(pk=tenant.pk, state=TenantState.ACTIVE)
+            .exists()
+        ):
+            return False
+        membership = (
+            Membership.objects.select_for_update(no_key=True)
+            .filter(member_in_good_standing_q(), pk=membership.pk, tenant=tenant)
+            .first()
+        )
+        if membership is None:
+            return False
+        if membership.is_tenant_admin:
+            return True
+        membership.change("is_tenant_admin", True, by=by)
+        record(
+            actor=by,
+            action="membership.administrator_appointed",
+            obj=membership,
+            before={"is_tenant_admin": False},
+            after={"user": str(membership.user_id), "tenant": tenant.number},
+            tenant=tenant,
+        )
+    return True
+
+
+def _still_platform_administrator(by: User) -> None:
+    """Refuse an act whose actor lost the platform's role since the request began: read again
+    under the act's own transaction."""
+    if not platform_administrators().filter(pk=by.pk).exists():
+        raise Refused(_("You no longer administer the platform."))
+
+
+def platform_administrators() -> QuerySet[Any]:
+    """The people who hold the platform's role today: neither erased nor blocked by themselves
+    (DL-0308) — the count the last of them is kept by (DL-0315)."""
+    from identity.models import User
+
+    return User.objects.filter(is_platform_admin=True, is_tombstoned=False, self_blocked=False)
+
+
+def grant_platform_administration(user: User, *, by: User) -> None:
+    """Give a registered person the platform administrator's role (ST-0002), audited by ids."""
+    from identity.models import User
+
+    with transaction.atomic():
+        _still_platform_administrator(by)
+        locked = User.objects.select_for_update().get(pk=user.pk)
+        if locked.is_platform_admin:
+            return
+        locked.is_platform_admin = True
+        locked.save(update_fields=["is_platform_admin"])
+        record(
+            actor=by,
+            action="platform.administration_granted",
+            obj=locked,
+            before={"is_platform_admin": False},
+            after={"user": str(locked.pk), "is_platform_admin": True},
+        )
+
+
+def revoke_platform_administration(user: User, *, by: User) -> None:
+    """Take the role back (ST-0002); `Refused` for the last platform administrator, who never
+    loses it (DL-0315)."""
+    from identity.models import User
+
+    with transaction.atomic():
+        # Every holder locked in one order: two revocations at once cannot leave none.
+        holders = list(platform_administrators().select_for_update().order_by("pk"))
+        if by.pk not in [holder.pk for holder in holders]:
+            raise Refused(_("You no longer administer the platform."))
+        locked = User.objects.select_for_update().get(pk=user.pk)
+        if not locked.is_platform_admin:
+            return
+        if [holder.pk for holder in holders] == [locked.pk]:
+            raise Refused(_("The last platform administrator keeps the role."))
+        locked.is_platform_admin = False
+        locked.save(update_fields=["is_platform_admin"])
+        record(
+            actor=by,
+            action="platform.administration_revoked",
+            obj=locked,
+            before={"is_platform_admin": True},
+            after={"user": str(locked.pk), "is_platform_admin": False},
+        )

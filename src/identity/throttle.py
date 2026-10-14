@@ -5,7 +5,8 @@ client — or, when the browser carries a device cookie issued at an earlier sig
 address, by that device alone (DL-0293). The next attempt waits 1, 2, 4 … 60 seconds after the last
 failure. An attempt made while either delay runs is refused and counted as a failure. A success
 resets the pair only, so signing into one's own account does not clear the client's count, and
-nobody's failures delay the owner of an address signing in from another client.
+nobody's failures delay the owner of an address signing in from another client. A reset request
+is counted on a row of its own per client, and never settled (DL-0408).
 """
 
 from __future__ import annotations
@@ -77,6 +78,12 @@ def _digest(text: str) -> str:
 
 def pair_key(email: str, client: str) -> str:
     return _digest(f"{email}\n{client}")
+
+
+def reset_key(client: str) -> str:
+    """The row a reset request from `client` counts on: its own, never the client's sign-in row,
+    so asking for resets lengthens nobody's sign-in delay behind a shared address (DL-0408)."""
+    return _digest(f"reset\n{client}")
 
 
 @dataclass(frozen=True)

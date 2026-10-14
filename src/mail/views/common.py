@@ -20,7 +20,7 @@ from audit.record import record
 from identity.models import User
 from mail import secrets
 from mail.forms import SERVER, SenderForm
-from mail.models import EmailOutbox, MailSender
+from mail.models import EmailOutbox, Kind, MailSender
 from mail.services import STEPS
 from syngraphe.config import ConfigurationError
 
@@ -212,8 +212,20 @@ def listed(rows: list[EmailOutbox]) -> list[dict[str, Any]]:
 
 def outbox() -> tuple[list[EmailOutbox], bool]:
     """The current schema's newest emails, and whether there are more than the page draws."""
-    rows = list(EmailOutbox.objects.order_by("-created_at", "-id")[: OUTBOX_SHOWN + 1])
-    return rows[:OUTBOX_SHOWN], len(rows) > OUTBOX_SHOWN
+    return _newest(EmailOutbox.objects.all())
+
+
+def organisation_outbox(*, platform: bool = False) -> tuple[list[EmailOutbox], bool]:
+    """An organisation's outbox as its administrators see it: every email but a reset's, which
+    would tell them who asked for one (DL-0410). A platform administrator, told of a failed reset,
+    sees it here."""
+    rows = EmailOutbox.objects.all() if platform else EmailOutbox.objects.exclude(kind=Kind.RESET)
+    return _newest(rows)
+
+
+def _newest(rows: Any) -> tuple[list[EmailOutbox], bool]:
+    found = list(rows.order_by("-created_at", "-id")[: OUTBOX_SHOWN + 1])
+    return found[:OUTBOX_SHOWN], len(found) > OUTBOX_SHOWN
 
 
 def _testing(request: HttpRequest) -> int | None:

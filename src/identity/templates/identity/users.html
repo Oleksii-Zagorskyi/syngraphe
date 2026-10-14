@@ -1,0 +1,23 @@
+{% extends "shell/administration.html" %}
+{% load i18n tz %}
+{% block title %}{% translate "Users" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="users">
+  <h1>{% translate "Users" %}</h1>
+  <p class="toolbar"><a class="btn primary" href="{{ invite_url }}">{% translate "Invite by email" %}</a></p>
+  <table class="links">
+    <thead>
+      <tr><th>{% translate "Email address" %}</th><th>{% translate "Role" %}</th><th>{% translate "State" %}</th><th>{% translate "Member since" %}</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% timezone display_timezone %}
+      {% for row in rows %}
+      <tr data-row="member"><td>{{ row.email }}</td><td>{% if row.is_tenant_admin %}{% translate "administrator" %}{% endif %}</td><td>{% if row.state == "blocked" %}{% translate "blocked" context "membership" %}{% else %}{% translate "active" context "membership" %}{% endif %}</td><td>{{ row.granted_at|date:"j E Y, H:i" }}</td><td>{% if row.state == "blocked" %}<form method="post" action="{{ users_url }}{{ row.id }}/lift/" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Lift the block" %}</button></form>{% elif row.last_administrator %}<span class="btn disabled" aria-disabled="true" title="{% translate "The organisation's last active administrator cannot be blocked." %}">{% translate "Block…" %}</span> <span class="note">{% translate "The organisation's last active administrator cannot be blocked." %}</span>{% else %}<a class="btn" href="{{ users_url }}{{ row.id }}/block/">{% translate "Block…" %}</a>{% endif %}</td></tr>
+      {% empty %}
+      <tr><td colspan="5" class="muted">{% translate "No members yet." %}</td></tr>
+      {% endfor %}
+      {% endtimezone %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

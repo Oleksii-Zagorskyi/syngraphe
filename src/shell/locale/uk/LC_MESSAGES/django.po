@@ -1632,11 +1632,13 @@ msgstr "Створити організацію"
 #: tenancy/templates/tenancy/tenant_form.html:15
 msgid ""
 "The first administrator is a person already registered; enter your own "
-"address to administer it yourself. An organisation is never created without "
-"an administrator."
+"address to administer it yourself, and invite anyone else from the "
+"organisation's users page afterwards. An organisation is never created "
+"without an administrator."
 msgstr ""
 "Перший адміністратор — особа, яка вже зареєстрована; щоб адмініструвати "
-"організацію самостійно, введіть власну адресу. Організацію не створюють без "
+"організацію самостійно, введіть власну адресу, а інших запросіть згодом зі "
+"сторінки користувачів організації. Організацію не створюють без "
 "адміністратора."
 
 #: tenancy/templates/tenancy/tenants.html:3
@@ -2123,6 +2125,320 @@ msgstr "Адресу надсилання не задано: нові спові
 msgid "The notification this email carried no longer exists."
 msgstr "Сповіщення, яке ніс цей лист, більше не існує."
 
+#: identity/invitations.py
+#, python-format
+msgid "Invitation to %(organisation)s"
+msgstr "Запрошення до організації %(organisation)s"
+
+#: identity/invitations.py
+#, python-format
+msgid "%(inviter)s has invited you to %(organisation)s."
+msgstr "%(inviter)s запрошує вас до організації %(organisation)s."
+
+#: identity/invitations.py
+msgid ""
+"Follow the link to set your password and sign in; it works once, for seven "
+"days:"
+msgstr ""
+"Перейдіть за посиланням, щоб задати пароль і увійти; воно діє один раз, "
+"протягом семи днів:"
+
+#: identity/forms.py
+msgid "Groups to join"
+msgstr "Додати до груп"
+
+#: identity/templates/identity/users.html
+msgid "Users"
+msgstr "Користувачі"
+
+#: identity/templates/identity/users.html
+#: identity/templates/identity/invite.html
+msgid "Invite by email"
+msgstr "Запросити електронною поштою"
+
+#: identity/templates/identity/users.html
+msgid "Role"
+msgstr "Роль"
+
+#: identity/templates/identity/users.html
+msgid "Member since"
+msgstr "В організації з"
+
+#: identity/templates/identity/users.html
+msgid "administrator"
+msgstr "адміністратор організації"
+
+#: identity/templates/identity/users.html
+msgctxt "membership"
+msgid "blocked"
+msgstr "заблоковано"
+
+#: identity/templates/identity/users.html
+msgctxt "membership"
+msgid "active"
+msgstr "активне"
+
+#: identity/templates/identity/invite.html
+#, python-format
+msgid "An invitation to %(address)s is queued for sending."
+msgstr "Запрошення на адресу %(address)s поставлено в чергу надсилання."
+
+#: identity/templates/identity/invite.html
+msgid "The invitation could not be sent."
+msgstr "Не вдалося надіслати запрошення."
+
+#: identity/templates/identity/invite.html
+msgid ""
+"The person gets an email with a link that sets their password; it works "
+"once, for seven days. Inviting a member again sends a fresh link."
+msgstr ""
+"Особа отримає лист із посиланням, яке задає пароль; воно діє один раз, "
+"протягом семи днів. Повторне запрошення учасника надсилає нове посилання."
+
+#: identity/templates/identity/invite.html
+msgid "Invite"
+msgstr "Запросити"
+
+#: identity/templates/identity/set_password.html
+msgid "Set your password"
+msgstr "Задайте пароль"
+
+#: identity/templates/identity/set_password.html
+msgid "Set the password and sign in"
+msgstr "Задати пароль і увійти"
+
+#: identity/resets.py
+#: identity/templates/identity/reset_request.html
+msgid "Reset your password"
+msgstr "Скидання пароля"
+
+#: identity/resets.py
+msgid "Someone asked for a new password for this address."
+msgstr "Для цієї адреси попросили новий пароль."
+
+#: identity/resets.py
+msgid "Follow the link to set one; it works once, for an hour:"
+msgstr "Перейдіть за посиланням, щоб його задати; воно діє один раз, протягом години:"
+
+#: identity/resets.py
+msgid ""
+"If you did not ask for it, ignore this email: your password stays as it is."
+msgstr ""
+"Якщо ви цього не просили, не зважайте на цей лист: ваш пароль залишається "
+"незмінним."
+
+#: identity/templates/identity/reset_request.html
+msgid ""
+"Request received. If the address is registered, an email with a link to set "
+"a new password is sent to it; if none arrives, ask an administrator."
+msgstr ""
+"Запит отримано. Якщо адресу зареєстровано, на неї надсилається лист із "
+"посиланням для нового пароля; якщо лист не надійде, зверніться до "
+"адміністратора."
+
+#: identity/templates/identity/reset_request.html
+msgid ""
+"If the address is registered, an email with a link to set a new password is "
+"sent to it; the link works once, for an hour."
+msgstr ""
+"Якщо адресу зареєстровано, на неї надсилається лист із посиланням для нового "
+"пароля; посилання діє один раз, протягом години."
+
+#: identity/templates/identity/reset_request.html
+msgid "Send the link"
+msgstr "Надіслати посилання"
+
+#: identity/templates/identity/reset_request.html
+msgid "Back to sign in"
+msgstr "Повернутися до входу"
+
+#: identity/templates/identity/signin.html
+msgid "Forgot your password?"
+msgstr "Забули пароль?"
+
+#: access/templates/access/document_links.html
+#, python-format
+msgid "Held by %(name)s."
+msgstr "Документ зайнятий: %(name)s."
+
+#: notifications/events.py
+#, python-format
+msgid "%(organisation)s has no active administrator."
+msgstr "Організація %(organisation)s не має активного адміністратора."
+
+#: notifications/events.py
+#, python-format
+msgid "%(person)s was blocked in %(organisation)s and is active in another one."
+msgstr "%(person)s заблоковано в організації %(organisation)s, але в іншій ця особа активна."
+
+#: notifications/events.py
+msgid "Blocked, active elsewhere"
+msgstr "Заблоковані, активні деінде"
+
+#: notifications/events.py
+msgid "Without an administrator"
+msgstr "Без адміністратора"
+
+#: identity/templates/identity/block_confirm.html
+msgid "Block"
+msgstr "Заблокувати"
+
+#: identity/templates/identity/block_confirm.html
+#, python-format
+msgid "Block %(address)s"
+msgstr "Заблокувати %(address)s"
+
+#: identity/templates/identity/block_confirm.html
+msgid "Block in these organisations"
+msgstr "Заблокувати в організаціях"
+
+#: identity/templates/identity/users.html
+msgid "Block…"
+msgstr "Заблокувати…"
+
+#: identity/templates/identity/users.html
+msgid "Lift the block"
+msgstr "Розблокувати"
+
+#: identity/templates/identity/users.html
+#: identity/templates/identity/block_confirm.html
+msgid "The organisation's last active administrator cannot be blocked."
+msgstr "Останнього активного адміністратора організації заблокувати не можна."
+
+#: identity/templates/identity/block_confirm.html
+msgid ""
+"As a member, the person reaches nothing in each organisation chosen, and "
+"every document they hold or have reserved there is released, their draft "
+"kept. Their groups stay as they are, and apply again when the block is lifted."
+msgstr ""
+"Як учасник особа не матиме доступу до жодної вибраної організації; кожен "
+"документ, який вона там зайняла чи зарезервувала, звільниться, а її чернетка "
+"залишиться. Її групи лишаються як є і знову діятимуть після розблокування."
+
+#: shell/templates/shell/base.html
+#: tenancy/templates/tenancy/switch.html
+msgctxt "organisation switcher"
+msgid "Switch"
+msgstr "Перейти"
+
+#: tenancy/templates/tenancy/switch.html
+msgid "Switch organisation"
+msgstr "Перейти до іншої організації"
+
+#: tenancy/templates/tenancy/switch.html
+#, python-format
+msgid "Work in %(organisation)s?"
+msgstr "Працювати в організації %(organisation)s?"
+
+#: identity/templates/identity/block_account.html
+msgid "Block my account"
+msgstr "Заблокувати мій обліковий запис"
+
+#: shell/templates/shell/base.html
+msgid "Block my account…"
+msgstr "Заблокувати мій обліковий запис…"
+
+#: identity/templates/identity/block_account.html
+msgid ""
+"Every organisation you belong to closes to you, and every document you hold "
+"or have reserved is released, your drafts kept. You can still sign in, and "
+"reach nothing."
+msgstr ""
+"Кожна організація, до якої ви належите, закриється для вас, а кожен документ, "
+"який ви зайняли чи зарезервували, звільниться, ваші чернетки залишаться. Ви "
+"й надалі зможете увійти, але не матимете доступу ні до чого."
+
+#: identity/templates/identity/block_account.html
+msgid ""
+"Nothing in the platform lifts this block: a platform administrator asks the "
+"installation's operator, who lifts it in the database."
+msgstr ""
+"Жодна дія на платформі не знімає цього блокування: адміністратор платформи "
+"звертається до оператора платформи, який знімає його в базі даних."
+
+#: identity/templates/identity/block_account.html
+msgid "The last platform administrator cannot block their own account."
+msgstr ""
+"Останній адміністратор платформи не може заблокувати власний обліковий запис."
+
+#: tenancy/services.py
+#: tenancy/templates/tenancy/administrators.html
+msgid "The last platform administrator keeps the role."
+msgstr "Останній адміністратор платформи не може втратити цю роль."
+
+#: identity/templates/identity/block_account.html
+#: identity/templates/identity/block_confirm.html
+#: tenancy/templates/tenancy/block_tenant.html
+msgid "A document is being worked on. Try again in a moment."
+msgstr "Один із документів зараз обробляється. Спробуйте ще раз за мить."
+
+#: tenancy/services.py
+msgid "You no longer administer the platform."
+msgstr "Ви більше не адмініструєте платформу."
+
+#: tenancy/forms.py
+msgid "No active member of this organisation has this address."
+msgstr "Жоден активний учасник цієї організації не має такої адреси."
+
+#: tenancy/templates/tenancy/appoint_form.html
+msgid "An active member of the organisation becomes one of its administrators."
+msgstr "Активний учасник організації стає одним із її адміністраторів."
+
+#: tenancy/templates/tenancy/appoint_form.html
+msgid "Appoint"
+msgstr "Призначити"
+
+#: tenancy/templates/tenancy/appoint_form.html
+msgid "Appoint an administrator"
+msgstr "Призначити адміністратора"
+
+#: tenancy/templates/tenancy/appoint_form.html
+#, python-format
+msgid "Appoint an administrator of %(organisation)s"
+msgstr "Призначити адміністратора організації %(organisation)s"
+
+#: tenancy/templates/tenancy/tenants.html
+msgid "Appoint an administrator…"
+msgstr "Призначити адміністратора…"
+
+#: tenancy/templates/tenancy/block_tenant.html
+#, python-format
+msgid "Block %(organisation)s"
+msgstr "Заблокувати організацію %(organisation)s"
+
+#: tenancy/templates/tenancy/block_tenant.html
+msgid "Block an organisation"
+msgstr "Заблокувати організацію"
+
+#: tenancy/templates/tenancy/administrators.html
+msgid "Grant"
+msgstr "Надати"
+
+#: tenancy/templates/tenancy/administrators.html
+msgid "Grant to"
+msgstr "Надати роль особі з адресою"
+
+#: tenancy/templates/tenancy/block_tenant.html
+msgid ""
+"Until the block is lifted, its members reach nothing in it, on its own hosts "
+"or on the platform's; every document held or reserved in it is released, the "
+"drafts kept, and its open invitations end. Platform administrators still "
+"reach it. Its memberships, groups and links stay as they are."
+msgstr ""
+"Доки блокування не знято, її учасники не матимуть доступу ні до чого в ній — "
+"ні на її власних хостах, ні на хостах платформи; кожен зайнятий чи "
+"зарезервований у ній документ звільниться, чернетки залишаться, а відкриті "
+"запрошення втратять силу. Адміністратори платформи й надалі мають до неї "
+"доступ. Її членства, групи й зв’язки лишаються як є."
+
+#: tenancy/templates/tenancy/administrators.html
+msgid "Revoke"
+msgstr "Відкликати"
+
+#: editing/messages.py
+msgid "People and access"
+msgstr "Люди й доступ"
+
 #, python-format
 #~ msgid "Held by %(name)s — freeze once they finish"
 #~ msgstr "Документ редагує %(name)s — заморозьте, коли редагування завершиться"
@@ -2181,3 +2497,11 @@ msgstr "Сповіщення, яке ніс цей лист, більше не �
 
 #~ msgid "Apply"
 #~ msgstr "Застосувати"
+
+#: tenancy/templates/tenancy/administrators.html
+msgid "blocked their own account"
+msgstr "обліковий запис заблоковано власником"
+
+#: tenancy/forms.py
+msgid "This person has blocked their own account; the role cannot be granted to it."
+msgstr "Ця особа заблокувала власний обліковий запис; роль не можна надати."

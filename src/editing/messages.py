@@ -128,6 +128,7 @@ HELP_PAGES = {
     "exporting": _("Exporting"),
     "notifications": _("Notifications"),
     "mail": _("Mail"),
+    "people": _("People and access"),
 }
 
 

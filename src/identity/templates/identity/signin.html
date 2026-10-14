@@ -14,5 +14,6 @@
     {{ form.password }}
     <div class="go"><button class="btn primary" type="submit">{% translate "Sign in" %}</button></div>
   </form>
+  <p class="note"><a href="{% url 'reset_request' %}">{% translate "Forgot your password?" %}</a></p>
 </section>
 {% endblock %}

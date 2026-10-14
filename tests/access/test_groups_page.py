@@ -91,6 +91,33 @@ def test_a_blocked_member_cannot_be_added(migrated_tenant: Any, member_of: Any) 
         assert group.members.count() == 0
 
 
+def test_a_self_block_shows_through_no_group(migrated_tenant: Any, member_of: Any) -> None:
+    """A person's own block is drawn on no organisation's page (DL-0398): their membership is a
+    candidate and joins a group as any active member's does; they still reach nothing."""
+    from access.models import AccessGroup
+    from identity.models import User
+    from tenancy.schemas import schema_context
+
+    client, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    _, plain, plain_membership = member_of("plain.one@example.test")
+    _, blocked, blocked_membership = member_of("blocked.on@example.test")
+    User.objects.filter(pk=blocked.pk).update(self_blocked=True)
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(name="Editors", created_by=admin, actor_kind="user")
+    members = f"{GROUPS}{group.id}/members/"
+
+    page = client.get(members).content.decode()
+    added = [
+        client.post(members, {"membership": membership.id}).status_code
+        for membership in (plain_membership, blocked_membership)
+    ]
+
+    assert f'value="{plain_membership.id}"' in page and f'value="{blocked_membership.id}"' in page
+    assert added == [200, 200]
+    with schema_context(migrated_tenant.number):
+        assert group.members.count() == 2
+
+
 def test_a_stored_part_right_without_edit_is_inert(migrated_tenant: Any, member_of: Any) -> None:
     from access.models import AccessGroup
     from access.rights import Right

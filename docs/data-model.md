@@ -15,16 +15,16 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **Git holds content. PostgreSQL holds everything else, and never a second copy of content.** The only content-derived rows are navigation and search indexes and the per-line authorship cache (`LINE_AUTHORSHIP`), all rebuildable from git at any time by replaying the repository. If a table would make git the second source of truth for a document's text, it is wrong.
 
-**Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on every table except those that are themselves the record of one act — the histories and `AUDIT_EVENT`, which carry their own timestamp and actor — two that are state without provenance: `SIGN_IN_ATTEMPT`, a counter no person writes, and `SETUP_TOKEN`, written by the install command; the editing tables `HOLD`, `DRAFT`, `DRAFT_FILE` and `OPEN_EDITOR`, whose own columns say who and when; and `LINE_AUTHORSHIP`, a cache the worker derives from git, whose provenance is the commit it names.
+**Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on every table except those that are themselves the record of one act — the histories and `AUDIT_EVENT`, which carry their own timestamp and actor — three that are state without provenance: `SIGN_IN_ATTEMPT`, a counter no person writes, `SETUP_TOKEN`, written by the install command, and `PASSWORD_RESET`, written for whoever asks at the sign-in page, before anyone is known — swept a day after it is used or expires (DL-0413); the editing tables `HOLD`, `DRAFT`, `DRAFT_FILE` and `OPEN_EDITOR`, whose own columns say who and when; and `LINE_AUTHORSHIP`, a cache the worker derives from git, whose provenance is the commit it names.
 
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
-- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, `SETUP_TOKEN`, `PLATFORM_NOTIFICATION`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203), so those two tables exist in both: the `mail` app is on both the shared and the tenant list, and a query reaches the tenant's rows when a tenant is set and the platform's only with the shared schema alone (ADR-0017). A person's `NOTIFICATION` lives in the tenant's schema, a platform administrator's `PLATFORM_NOTIFICATION` in the shared one (DL-0382).
+- **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `PASSWORD_RESET`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, `SETUP_TOKEN`, `PLATFORM_NOTIFICATION`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203), so those two tables exist in both: the `mail` app is on both the shared and the tenant list, and a query reaches the tenant's rows when a tenant is set and the platform's only with the shared schema alone (ADR-0017). A person's `NOTIFICATION` lives in the tenant's schema, a platform administrator's `PLATFORM_NOTIFICATION` in the shared one (DL-0382). A reset's email is queued where DL-0383 places it — on an organisation's domain, that organisation's outbox; on the platform host, the outbox of the person's one active membership, else the shared one — and an organisation's outbox page leaves resets out (DL-0410).
 - **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
 
 **`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
 
-**`MEMBERSHIP_HISTORY`, `INVITATION` and `LANGUAGE` are shared** because each is about the platform-level object beside it: a membership, an email address that is the platform identifier, and a reference list every tenant draws from.
+**`MEMBERSHIP_HISTORY`, `INVITATION`, `PASSWORD_RESET` and `LANGUAGE` are shared** because each is about the platform-level object beside it: a membership, an email address that is the platform identifier, a person, and a reference list every tenant draws from.
 
 **The first-run setup token is one row in the shared schema** — its hash and expiry, deleted when used and ignored once expired (DL-0231, T-19). Using it is an `AUDIT_EVENT`. Once a platform administrator exists there is no row, and the first-run page answers as not found.
 
@@ -43,7 +43,7 @@ erDiagram
         string password_hash
         bool is_platform_admin
         bool is_tombstoned "former user (DL-0108); the procedure is backlog B-017"
-        bool self_blocked "blocks every membership until a platform administrator lifts it"
+        bool self_blocked "blocks every membership; no control lifts it in release 0.1 (DL-0254)"
         bool is_superuser "operator of the framework's own interface (DL-0210); set from the command line, never by the application"
         datetime last_login_at
         datetime created_at "never exposed to a tenant admin"
@@ -56,7 +56,17 @@ erDiagram
         string token_hash UK "single use"
         datetime expires_at
         datetime accepted_at
-        uuid invited_by FK
+        uuid invited_by FK "domain field: who sent this invitation"
+        uuid created_by FK "provenance: the same administrator, as every row records its writer"
+    }
+    USER ||--o{ PASSWORD_RESET : asked_for
+    PASSWORD_RESET {
+        uuid id PK
+        uuid user FK
+        string token_hash UK "single use"
+        datetime expires_at "one hour (DL-0373)"
+        datetime used_at
+        datetime created_at
     }
     TENANT ||--o{ TENANT_DOMAIN : served_at
     TENANT_DOMAIN {
@@ -81,7 +91,7 @@ erDiagram
         string sender "the address it left from"
         string recipient
         string subject
-        text body "number, title, versions, people, event, state, link — never document text or the change summary (DL-0205)"
+        text body "number, title, versions, people, event, state, link — never document text or the change summary (DL-0205); a credential link's token replaced once sent or failed (DL-0406)"
         string status "queued | sent | failed"
         int attempts "refusals so far; failed at the third, five minutes apart (DL-0203)"
         datetime next_attempt_at
@@ -89,12 +99,13 @@ erDiagram
         string last_error "a reason code and the server's answer, never an exception's text"
         datetime created_at
         uuid notification_id "the notification it carries, of the same schema; no constraint, since neither notification table is in both"
+        string kind "notification | invitation | reset; a reset is left out of an organisation's outbox page (DL-0410)"
     }
     USER ||--o{ PLATFORM_NOTIFICATION : told
     PLATFORM_NOTIFICATION {
         uuid id PK
         uuid user FK "a platform administrator"
-        string event "backup_condition | email_failed (DL-0382); user_partially_blocked and tenant_without_admin join with the acts that write them (DL-0367)"
+        string event "backup_condition | email_failed | user_partially_blocked | tenant_without_admin (DL-0367, DL-0382)"
         json facts "ids and numbers only (DL-0370)"
         datetime created_at
         datetime read_at
@@ -173,21 +184,21 @@ erDiagram
         datetime at
     }
     SIGN_IN_ATTEMPT {
-        string key PK "the client address; a hash of the address typed and the client; or a device's"
-        string key_kind "address | pair | device"
+        string key PK "the client address; a hash of the address typed and the client; a device's; or a hash of a reset request's client"
+        string key_kind "address | pair | device | reset"
         int consecutive_failures
         datetime next_allowed_at
         datetime last_failure_at
     }
 ```
 
-**`SIGN_IN_ATTEMPT` is shared and deliberately keyless to a tenant.** Throttling happens before anyone is identified, so there is no tenant to scope it by; a row exists per client address and per pair of address typed and client — hashed, so the address typed is never stored — a browser that signed in before is counted on its device's row alone (DL-0293); the pair's or the device's row is reset on a successful sign-in, and rows older than a day are swept (DL-0289). It holds no reference to `USER`, because a row must be writable for an address that belongs to nobody — that is exactly the case the identical-response rule exists to hide (T-14).
+**`SIGN_IN_ATTEMPT` is shared and deliberately keyless to a tenant.** Throttling happens before anyone is identified, so there is no tenant to scope it by; a row exists per client address and per pair of address typed and client — hashed, so the address typed is never stored — a browser that signed in before is counted on its device's row alone (DL-0293); the pair's or the device's row is reset on a successful sign-in, and rows older than a day are swept (DL-0289). It holds no reference to `USER`, because a row must be writable for an address that belongs to nobody — that is exactly the case the identical-response rule exists to hide (T-14). A reset request is counted on a `reset` row per client, a key apart from the client's sign-in row, never settled by a success (DL-0408).
 
-**There is no self-registration** (DL-0107). A person exists because a tenant administrator invited them; `INVITATION` carries a hashed single-use token with an expiry, and sign-in, password reset and invitation acceptance all answer **identically whether or not an address is known** — they are the classic account-enumeration surfaces, and ASR-17 promises a tenant administrator learns nothing about a person's existence elsewhere.
+**There is no self-registration** (DL-0107). A person exists because a tenant administrator invited them; `INVITATION` carries a hashed single-use token with a seven-day expiry, and sign-in, password reset and invitation acceptance all answer **identically whether or not an address is known** — they are the classic account-enumeration surfaces, and ASR-17 promises a tenant administrator learns nothing about a person's existence elsewhere. **An invitation creates the person and the membership at once** (DL-0374): a new address becomes a `USER` with no usable password, and both cases get their `MEMBERSHIP` with `granted_at` by the same clock; the link sets the password. Inviting again ends the organisation's earlier open invitation; spending any link — an invitation's or a reset's — ends every other open link to the person. A reset is a `PASSWORD_RESET` row, its token hashed, one hour long (DL-0373).
 
 **`USER.is_tombstoned` is what erasure sets** (DL-0108): display name and email cleared, identifier kept, a *former user* label rendered in their place. Every reference from `created_by`, `ACCESS_CHANGE`, `ACCEPTANCE` and `EDITION` stays valid, so ASR-18 keeps its answers.
 
-**Blocking has three levels** (ADR-0007). A tenant administrator sets `MEMBERSHIP.state` in organisations they administer; a person sets `USER.self_blocked`; a platform administrator sets `TENANT.state`. An active tenant keeps at least one active tenant administrator — the last one may block themselves only as the tenant's last active user — and the last platform administrator can be neither blocked nor demoted. Every block and every lifting of one is typed history — `MEMBERSHIP_HISTORY`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY` — so who could reach what on a past date stays answerable. A platform administrator is notified when a person ends up blocked in some tenants and active in others, and when a tenant is left without an active administrator.
+**Blocking has three levels** (ADR-0007). A tenant administrator sets `MEMBERSHIP.state` in organisations they administer; a person sets `USER.self_blocked`; a platform administrator sets `TENANT.state`. An active tenant keeps at least one active tenant administrator, memberships counted by their own state (DL-0409) — the last one may block themselves only as the tenant's last active user — and the last platform administrator can be neither blocked nor demoted. **An organisation's pages show a membership's own state and never a person's own block** (DL-0398): a self-blocked person's membership reads *active*, and its administrators may block and lift it, which changes the membership alone. A block of any level ends the holds and reservations it closes to the person (DL-0256), a membership's block ends the organisation's open invitations to the person, and an organisation's block all of its open invitations. Every block and every lifting of one is typed history — `MEMBERSHIP_HISTORY`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY` — so who could reach what on a past date stays answerable. A platform administrator is notified when a person ends up blocked in some tenants and active in others, and when a tenant is left without an active administrator.
 
 **A tenant is `migrating` until its schema is complete** (ADR-0017). Its row is written before its schema is created and migrated; no request resolves it in that state; it becomes `active` only when its migrations have all run — in the act that creates it, or later, when `migrate_schemas` completes a schema a crash or a failed migration left half-made.
 

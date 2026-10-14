@@ -1,0 +1,21 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Block" %} · Syngraphē{% endblock %}
+{% block section %}
+<section class="dlg">
+  <h1>{% blocktranslate with address=person %}Block {{ address }}{% endblocktranslate %}</h1>
+  {% if refused == "last_administrator" %}<p class="err" role="alert">{% translate "The organisation's last active administrator cannot be blocked." %}</p>{% elif refused == "busy" %}<p class="err" role="alert">{% translate "A document is being worked on. Try again in a moment." %}</p>{% endif %}
+  <p class="note">{% translate "As a member, the person reaches nothing in each organisation chosen, and every document they hold or have reserved there is released, their draft kept. Their groups stay as they are, and apply again when the block is lifted." %}</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <fieldset>
+      <legend class="note">{% translate "Block in these organisations" %}</legend>
+      {% for organisation in organisations %}
+      <label><input type="checkbox" name="organisations" value="{{ organisation.number }}"{% if organisation.checked %} checked{% endif %}> {{ organisation.name }}</label>
+      {% endfor %}
+    </fieldset>
+    <button class="btn primary" type="submit">{% translate "Block" %}</button>
+    <a class="btn" href="{{ users_url }}">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

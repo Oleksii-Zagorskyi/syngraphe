@@ -17,7 +17,7 @@
       <form method="post" action="/administration/organisation/" class="selector">{% csrf_token %}
         <label for="organisation">{% translate "Organisation" %}</label>
         <select id="organisation" name="organisation">
-          {% for organisation in organisations %}<option value="{{ organisation.number }}"{% if current_tenant and organisation.number == current_tenant.number %} selected{% endif %}>{{ organisation.name }}</option>{% endfor %}
+          {% for organisation in organisations %}<option value="{{ organisation.number }}"{% if current_tenant and organisation.number == current_tenant.number %} selected{% endif %}>{{ organisation.name }}{% if organisation.state == "blocked" %} — {% translate "blocked" context "organisation state" %}{% endif %}</option>{% endfor %}
         </select>
         <button class="btn" type="submit">{% translate "Choose" %}</button>
       </form>
@@ -28,7 +28,7 @@
     <section class="pane organisation">
       <h2>{% translate "Organisation" %}</h2>
       <p class="muted">{{ current_tenant.name }}</p>
-      <ul class="sections">{% block organisation_sections %}<li><a href="/administration/tenant/groups/">{% translate "Groups" %}</a></li><li><a href="/administration/tenant/document-links/">{% translate "Document links" %}</a></li><li><a href="/administration/tenant/sending-address/">{% translate "Sending address" %}</a></li>{% endblock %}</ul>
+      <ul class="sections">{% block organisation_sections %}<li><a href="/administration/tenant/users/">{% translate "Users" %}</a></li><li><a href="/administration/tenant/groups/">{% translate "Groups" %}</a></li><li><a href="/administration/tenant/document-links/">{% translate "Document links" %}</a></li><li><a href="/administration/tenant/sending-address/">{% translate "Sending address" %}</a></li>{% endblock %}</ul>
     </section>
     {% elif platform_pane %}
     <section class="pane organisation">

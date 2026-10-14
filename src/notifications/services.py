@@ -56,13 +56,20 @@ def notify(
     correction_notice: Any = None,
     facts: dict[str, Any] | None = None,
     at: datetime | None = None,
+    email: bool = True,
 ) -> list[Notification]:
-    """One `Notification` per person in the current organisation's schema, in one transaction.
+    """One `Notification` per person in the current organisation's schema, in one transaction,
+    each with its email unless `email` is false — an act that sends its own (DL-0399).
     `ValueError` when `actor` is among `users`, or `category` is not the event's own."""
     from notifications.events import EVENTS
+    from notifications.models import PLATFORM_EVENTS
 
     if EVENTS[Event(event)].category != category:
         raise ValueError(f"{event} is not a {category} event")
+    # What only platform administrators are told never lands in an organisation's schema, where
+    # its administrators read it (ASR-17); a failed email reaches both.
+    if event in PLATFORM_EVENTS and event != Event.EMAIL_FAILED:
+        raise ValueError(f"{event} is told to platform administrators alone")
     people = list(users)
     _refuse_the_actor(people, actor)
     moment = at or timezone.now()
@@ -83,7 +90,8 @@ def notify(
                 facts=facts or {},
                 created_at=moment,
             )
-            _queue(row, tenant)
+            if email:
+                _queue(row, tenant)
             rows.append(row)
     return rows
 

@@ -1,0 +1,17 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Appoint an administrator" %} · Syngraphē{% endblock %}
+{% block section %}
+<section class="dlg">
+  <h1>{% blocktranslate with organisation=tenant.name %}Appoint an administrator of {{ organisation }}{% endblocktranslate %}</h1>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <p class="note"><label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label></p>
+    <p>{{ form.email }}</p>
+    {% for error in form.email.errors %}<p class="err">{{ error }}</p>{% endfor %}
+    <p class="note">{% translate "An active member of the organisation becomes one of its administrators." %}</p>
+    <button class="btn primary" type="submit">{% translate "Appoint" %}</button>
+    <a class="btn" href="{% url 'tenants' %}">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

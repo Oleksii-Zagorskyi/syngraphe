@@ -112,9 +112,11 @@ def frame(request: HttpRequest) -> dict[str, Any]:
         and not getattr(request, "tenant_from_domain", True),
     }
     if context["selector"]:
-        context["organisations"] = Tenant.objects.filter(state=TenantState.ACTIVE).order_by(
-            "number"
-        )
+        # A blocked organisation is listed, marked: the selector is a platform administrator's
+        # way into it from the platform host; one being set up is never listed (DL-0376).
+        context["organisations"] = Tenant.objects.filter(
+            state__in=[TenantState.ACTIVE, TenantState.BLOCKED]
+        ).order_by("number")
     return context
 
 
@@ -144,7 +146,9 @@ def choose_organisation(request: HttpRequest) -> HttpResponse:
         number = int(request.POST.get("organisation", ""))
     except ValueError:
         return not_found(request)
-    if not Tenant.objects.filter(number=number, state=TenantState.ACTIVE).exists():
+    if not Tenant.objects.filter(
+        number=number, state__in=[TenantState.ACTIVE, TenantState.BLOCKED]
+    ).exists():
         return not_found(request)
     request.session[SESSION_TENANT_KEY] = number
     return HttpResponseRedirect(reverse("administration"))

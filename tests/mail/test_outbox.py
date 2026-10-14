@@ -272,3 +272,27 @@ def test_the_version_author_is_named_only_where_a_version_awaits_review(
         [waiting] = tell_reviewers(people, version, number)[:1]
         assert AUTHOR not in mail.compose(frozen)[1]
         assert AUTHOR in mail.compose(waiting)[1]
+
+
+def test_an_email_without_a_notification_is_sent_as_queued(
+    migrated_tenant: Any, sender: Any, sink: Any
+) -> None:
+    """An invitation's or a reset's email carries no notification; it is queued and sent as any
+    other, never withheld for a notification it never had."""
+    from mail import services as mail
+    from mail.models import EmailOutbox, Status
+    from mail.tasks import send_outbox
+
+    sender(migrated_tenant.number)
+    with schema_context(migrated_tenant.number):
+        row = mail.queue(
+            migrated_tenant, "i.synthetic@example.test", "Синтетична тема", "Синтетичний лист.\n"
+        )
+        assert row is not None and row.notification_id is None
+
+    send_outbox(now=row.next_attempt_at)
+
+    with schema_context(migrated_tenant.number):
+        row = EmailOutbox.objects.get(pk=row.pk)
+    assert row.status == Status.SENT
+    assert [message.rcpt_tos for message in sink.messages] == [["i.synthetic@example.test"]]

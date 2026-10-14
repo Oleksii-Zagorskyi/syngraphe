@@ -176,3 +176,9 @@ def test_signed_in_person_is_sent_on(client: Client, person: Any) -> None:
     response = client.get(SIGNIN)
 
     assert response.status_code == 302 and response["Location"] == "/"
+
+
+def test_reset_link_on_the_page(client: Client) -> None:
+    body = client.get(SIGNIN).content.decode()
+
+    assert 'href="/reset/"' in body

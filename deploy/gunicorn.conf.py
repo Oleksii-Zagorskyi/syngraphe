@@ -1,5 +1,9 @@
 """Gunicorn's settings: the bind address, the workers, and every log line as JSON on stdout."""
 
+from gunicorn.glogging import Logger
+
+from syngraphe.redaction import without_credentials
+
 bind = "0.0.0.0:8000"
 # Threaded workers: an idle browser connection holds a thread, not the worker (DL-0347).
 worker_class = "gthread"
@@ -14,6 +18,20 @@ forwarded_allow_ips = ""
 # the proxy behind a proxy: the client address, resolved per request by the application, is in
 # the application's own log lines, never taken from a header Gunicorn cannot judge.
 access_log_format = '%(h)s "%(r)s" %(s)s %(b)s'
+
+
+# A link that sets a password carries its token in the path, a credential while it is valid: the
+# access log keeps the path and drops the token (DL-0406).
+class CredentialRedactingLogger(Logger):
+    def atoms(self, resp, req, environ, request_time):  # type: ignore[no-untyped-def]
+        found = super().atoms(resp, req, environ, request_time)
+        return {
+            key: without_credentials(value) if isinstance(value, str) else value
+            for key, value in found.items()
+        }
+
+
+logger_class = CredentialRedactingLogger
 
 logconfig_dict = {
     "version": 1,

@@ -4,7 +4,7 @@
   <ul>
     {% for member in members %}
     <li>
-      <span>{{ member.membership.user.email }}</span>{% if member.membership.user.display_name %} <span class="muted">{{ member.membership.user.display_name }}</span>{% endif %}
+      <span>{{ member.membership.user.email }}</span>
       <form method="post" action="{{ groups_url }}{{ group.id }}/members/" hx-post="{{ groups_url }}{{ group.id }}/members/" hx-target="#members" hx-swap="outerHTML" class="inline">{% csrf_token %}
         <input type="hidden" name="membership" value="{{ member.membership_id }}">
         <input type="hidden" name="action" value="remove">

@@ -127,7 +127,8 @@ def _may_reach(user: Any, tenant: Tenant) -> bool:
 
 
 def active_membership(request: HttpRequest, tenant: Tenant | None) -> Membership | None:
-    """The signed-in person's active membership in the resolved tenant, or `None`.
+    """The signed-in person's active membership in the resolved tenant, or `None`. This is the gate
+    of a blocked organisation: it resolves, and its members reach nothing (ST-0065).
 
     `None` also for a tenant that is not active and for a person who blocked their own account:
     each closes every membership it covers (`identity.models.active_membership_q`).

@@ -216,14 +216,17 @@ STORAGES = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "filters": {"request_context": {"()": "syngraphe.logs.RequestContextFilter"}},
+    "filters": {
+        "request_context": {"()": "syngraphe.logs.RequestContextFilter"},
+        "credentials": {"()": "syngraphe.logs.CredentialFilter"},
+    },
     "formatters": {"json": {"()": "syngraphe.logs.JsonFormatter"}},
     "handlers": {
         "stdout": {
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
             "formatter": "json",
-            "filters": ["request_context"],
+            "filters": ["credentials", "request_context"],
         }
     },
     "root": {"handlers": ["stdout"], "level": "INFO"},

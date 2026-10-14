@@ -76,7 +76,9 @@ def _page(
         scope="organisation",
         page_url=PAGE,
         test_url=TEST,
-        rows=common.outbox,
+        rows=lambda: common.organisation_outbox(
+            platform=bool(getattr(request.user, "acts_as_platform_admin", False))
+        ),
         frame=frame(request),
         running=running,
     )

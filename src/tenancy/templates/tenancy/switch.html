@@ -1,0 +1,15 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Switch organisation" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="dlg">
+  <h1>{% translate "Switch organisation" %}</h1>
+  <form method="post" action="{% url 'switch_organisation' %}">
+    {% csrf_token %}
+    <input type="hidden" name="organisation" value="{{ tenant.number }}">
+    <p>{% blocktranslate with organisation=tenant.name %}Work in {{ organisation }}?{% endblocktranslate %}</p>
+    <button class="btn primary" type="submit">{% translate "Switch" context "organisation switcher" %}</button>
+    <a class="btn" href="/">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

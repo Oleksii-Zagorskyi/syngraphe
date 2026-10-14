@@ -22,7 +22,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The token is single-use and expires. Once a platform administrator exists, the page answers as an address that does not exist (ADR-0008). Every other story assumes it has happened.
 
 **ST-0001** — As a platform administrator, I create a tenant, so that an organisation can have its own independent workspace. *(skeleton)*
-- The tenant is created with its first tenant administrator: a person invited by email, or one already registered on the platform.
+- The tenant is created with its first tenant administrator, a person already registered on the platform; anyone else is invited from the tenant's users page afterwards (DL-0412).
 - An active tenant always has at least one active tenant administrator.
 
 **ST-0073** — As the operator of an installation, I add a person to a tenant from the command line, so that people can sign in before invitations exist.

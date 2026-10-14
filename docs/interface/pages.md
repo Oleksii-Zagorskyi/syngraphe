@@ -67,8 +67,8 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | *Help* | **0.1** | — | ST-0019 | Epic 4 |
 | *Administration* | **0.1** | tenant or platform administrator | — | Epic 2 |
 | notifications — unread count, opening the notifications page | **0.1** | — | ST-0047 | Epic 14 |
-| tenant switcher — only with several memberships; on a tenant's own domain, switching moves to the other tenant's domain (ADR-0008) | **0.1** | — | ST-0007 | Epic 8; the tenant's name Epic 2 |
-| user menu — *My reservations*, each document with its start date, drawn only for a holder of *reserve for editing* (DL-0241); *block my account…*, confirmed; *sign out* | **0.1** | — | ST-0066, ST-0069 | Epic 2; self-block Epic 8; reservations Epic 9 |
+| tenant switcher — only with several memberships; on a tenant's own domain, switching moves to the other tenant's domain, or to the platform's host, where the choice is confirmed (ADR-0008) | **0.1** | — | ST-0007 | Epic 8; the tenant's name Epic 2 |
+| user menu — *My reservations*, each document with its start date, drawn only for a holder of *reserve for editing* (DL-0241); *block my account…*, confirmed, never offered to a person whose account is blocked; *sign out* | **0.1** | — | ST-0066, ST-0069 | Epic 2; self-block Epic 8; reservations Epic 9 |
 
 ## Sign-in pages
 
@@ -290,12 +290,13 @@ Two tabs (DL-0204). **Document** — each entry linking to the document at the v
 
 ## Help
 
-Pages rendered from Markdown files shipped with the application (DL-0195), `/help/` opening on *reading a document* with the list beside it: how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, editing, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, and exporting. Linked from every paste refusal.
+Pages rendered from Markdown files shipped with the application (DL-0195), `/help/` opening on *reading a document* with the list beside it: how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, editing, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, exporting, and people and access. Linked from every paste refusal.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | the pages and the allowed-Markdown list — what is accepted and how it is written, and what is refused with the conversion each gets, built from the specification: its limits, entities and callout types, and every refusal with its conversion | **0.1**; the guide's full content B-016 | ST-0019, ST-0060 | Epic 4 |
 | *Reading a document* — the version shown, clause numbers, the outline, the parts, *Info*; *Exporting* — the dialog's choices, the file's name, delivery and failures | **0.1** | ST-0045 | Epic 7 |
+| *People and access* — inviting, a forgotten password, blocking a member and one's own account and lifting a block, several organisations, and the platform administrator's acts | **0.1** | ST-0002, ST-0003, ST-0004, ST-0007, ST-0054, ST-0055, ST-0065, ST-0066 | Epic 8 |
 
 ## Nothing to show here
 
@@ -307,26 +308,26 @@ The one response for a document or folder that does not exist, may not be seen, 
 
 ## Administration
 
-One area with two parts in a left pane: **Platform**, for platform administrators, and **Organisation** — the tenant part — with an organisation selector for platform administrators; a tenant administrator sees only that part, for their own organisation. The interface says *organisation* throughout; *tenant* stays in the URLs (ADR-0008). Django's own administration interface is not part of it (DL-0210).
+One area with two parts in a left pane: **Platform**, for platform administrators, and **Organisation** — the tenant part — with an organisation selector for platform administrators — active and blocked organisations, a blocked one marked, never one being set up (DL-0376); a tenant administrator sees only that part, for their own organisation. The interface says *organisation* throughout; *tenant* stays in the URLs (ADR-0008). Django's own administration interface is not part of it (DL-0210).
 
 | Section | URL | Holds | Release | Stories | Built by |
 |---|---|---|---|---|---|
 | hosts | `/administration/platform/hosts/` | the platform's hosts and each tenant's, host with optional port, one default per set; every change audited (ADR-0008) | **0.1** | — | Epic 2 |
-| organisations | `…/platform/tenants/` | the organisations with their state and administrators; *block* | **0.1** | ST-0065 | the list Epic 2; *block* Epic 8 |
-| organisations — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** | ST-0001, ST-0071 | create Epic 2 — a registered person only, the invitation of an unregistered address with Epic 8; lift a block and appoint Epic 8 |
-| platform administrators | `…/platform/administrators/` | grant; the last one cannot be removed or blocked | **0.1** | ST-0002 | the list Epic 2; grant Epic 8 |
+| organisations | `…/platform/tenants/` | the organisations with their state and administrators; *block…* confirmed; nothing on one being set up (DL-0291) | **0.1** | ST-0065 | the list Epic 2; *block* Epic 8 |
+| organisations — forms | `…/platform/tenants/` | create with a first administrator, lift a block, appoint an administrator | **0.1** | ST-0001, ST-0071 | create Epic 2 — a registered person only; anyone else is invited from the organisation's users page afterwards; lift a block and appoint Epic 8 |
+| platform administrators | `…/platform/administrators/` | *grant to* a registered person by address; *revoke* per row; the last one cannot be removed or blocked, the act drawn disabled with its reason (DL-0315) | **0.1** | ST-0002 | the list Epic 2; grant and revoke Epic 8 |
 | mail and outbox | `…/platform/mail/` | the platform's sender, the password write-only and asked for again when the server, port, connection or user name changes (DL-0390), a user name refused on an unencrypted connection but to the same machine (DL-0388), *Send a test email*, one at a time; the outbox, its newest 200, with each email's status and attempts (DL-0202, DL-0203, DL-0392) | **0.1** | ST-0048, ST-0049 | Epic 14 |
 | audit log | `…/platform/audit/` | what people, the system and agents did | **0.1** | ST-0050 | Epic 12 |
 | heuristics | `…/platform/heuristics/` | the catalogue | **0.2** — drawn as a placeholder | — | — |
-| users | `/administration/tenant/users/` | *invite by email*, with groups to join, answering alike for a known and an unknown address (ASR-17); *block…*, asking which of the organisations one administers; the last active administrator's *block* disabled with its reason; *lift the block* on a membership; a membership's own state alone — a person's own block is shown on no organisation's page, so an invitation of a self-blocked address draws the row a new one does (DL-0398); lifting a self-block is not in 0.1 (DL-0254, B-033) | **0.1** | ST-0003, ST-0004, ST-0066, ST-0072 | Epic 8 |
+| users | `/administration/tenant/users/` | each membership by its address alone, never a display name (DL-0403); *invite by email*, with groups to join, answering alike for a known and an unknown address (ASR-17); *block…*, asking which of the organisations one administers; the last active administrator's *block* disabled with its reason; *lift the block* on a membership; a membership's own state alone — a person's own block is shown on no organisation's page, so an invitation of a self-blocked address draws the row a new one does (DL-0398); lifting a self-block is not in 0.1 (DL-0254, B-033) | **0.1** | ST-0003, ST-0004, ST-0066, ST-0072 | Epic 8 |
 | groups | `…/tenant/groups/` | a grid of each group's rights — the viewing ladder, history, *accept*, *freeze*, *make canonical*, *reserve for editing*, the part rights; a right included by another shown as a faint tick — *edit* and the views under *accept*, *freeze* and *reserve for editing* (ADR-0016), *view accepted* under *make canonical* (DL-0234); *members…* per group | **0.1** | ST-0005 | Epics 2, 8 |
-| document links | `…/tenant/document-links/` | which groups reach which document, as removable chips and *link a group*; locked while held or reserved, with who, and *force the release* or *end the reservation…*; author-only documents with who created them; an archived document's links, which take effect on restore | **0.1** | ST-0005, ST-0015, ST-0030, ST-0051 | Epics 3, 8 |
+| document links | `…/tenant/document-links/` | which groups reach which document, as removable chips and *link a group*; locked while held or reserved, with who, and *force the release* or *end the reservation…*; author-only documents with who created them; an archived document's links, which take effect on restore | **0.1** | ST-0005, ST-0015, ST-0030, ST-0051 | Epics 3, 8, 9; the holder Epic 8, the two acts Epic 9 |
 | reservations | `…/tenant/reservations/` | every reservation in the organisation: document, holder, since when; *end the reservation…*, a reason required and sent to the holder (DL-0225, DL-0227) | **0.1** | ST-0030 | Epic 9 |
 | folders | `…/tenant/folders/` | the tree with each folder's documents; new, rename; *delete* disabled with its reason when a folder holds anything; *move documents…* — which, and where to | **0.1** | ST-0012 | Epic 10 |
 | document types | `…/tenant/document-types/` | this organisation's own list, seeded with *document*; add, rename, retire; delete only a type no document uses (DL-0235) | **0.1** | ST-0011 | Epic 10 |
 | template | `…/tenant/template/` | the headings and starting text new documents start from; the title page switch and *title page layout…* — which details, in which order | **0.1** | ST-0058 | Epic 16 |
 | settings | `…/tenant/settings/` | attachment size cap, inactivity timeout, the distinct-approver check | **0.1** | ST-0030, ST-0053, ST-0062 | Epic 12 |
-| sending address | `…/tenant/sending-address/` | the tenant's own sender or none; the password write-only and asked for again when the server, port, connection or user name changes (DL-0390); a user name refused on an unencrypted connection but to the same machine (DL-0388); *Send a test email* — to the address itself, with the step results, one at a time; the DNS note; the organisation's outbox, its newest 200, with each email's status and attempts (DL-0385, DL-0392) | **0.1** | ST-0068 | Epic 14 |
+| sending address | `…/tenant/sending-address/` | the tenant's own sender or none; the password write-only and asked for again when the server, port, connection or user name changes (DL-0390); a user name refused on an unencrypted connection but to the same machine (DL-0388); *Send a test email* — to the address itself, with the step results, one at a time; the DNS note; the organisation's outbox, its newest 200, with each email's status and attempts (DL-0385, DL-0392) — a reset's email listed to a platform administrator alone (DL-0410) | **0.1** | ST-0068 | Epics 14, 8 |
 | archive | `…/tenant/archive/` | archived documents: restore, export | **0.1** | ST-0015, ST-0016 | Epic 10 |
 | styles | `…/tenant/styles/` | the organisation's export stylesheet and which documents use it, *apply*, *export a sample PDF* (DL-0230) | **0.1** | ST-0046 | Epic 16 |
 | access history | `…/tenant/access-history/` | a document and a date: which groups could read it then, each with its members that day; the changes to access that led there | **0.1** | ST-0006 | Epic 12 |

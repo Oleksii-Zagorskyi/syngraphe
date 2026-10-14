@@ -39,6 +39,7 @@ def test_every_model_carries_provenance_or_its_own_columns() -> None:
         "identity.AccountBlockHistory",
         "identity.SignInAttempt",
         "identity.SetupToken",
+        "identity.PasswordReset",
         "tenancy.TenantStateHistory",
         "editing.Hold",
         "editing.Draft",

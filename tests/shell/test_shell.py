@@ -77,6 +77,7 @@ def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: An
     assert 'name="organisation"' not in body
     assert 'href="/administration/platform/mail/"' not in body
     assert 'href="/administration/tenant/sending-address/"' in body
+    assert 'href="/administration/tenant/users/"' in body
 
 
 def test_organisation_selector_writes_the_session(signed_in: Any, tenant: Any) -> None:
@@ -87,6 +88,32 @@ def test_organisation_selector_writes_the_session(signed_in: Any, tenant: Any) -
     assert response.status_code == 302
     assert client.session["tenant_number"] == tenant.number
     assert tenant.name in client.get("/administration/").content.decode()
+
+
+def test_selector_lists_blocked_organisations_marked(
+    signed_in: Any, tenant: Any, settings: Any
+) -> None:
+    """A blocked organisation is listed and marked, so a platform administrator reaches it from
+    the platform host (DL-0376); one being set up is never listed (DL-0291)."""
+    from tenancy.models import Tenant
+
+    settings.LANGUAGE_CODE = "en"
+    client, _ = signed_in("an.operator@example.test", is_platform_admin=True)
+    tenant.state = "blocked"
+    tenant.save(update_fields=["state"])
+    setting_up = Tenant.objects.create(
+        name="Синтетична, що налаштовується", state="migrating", actor_kind="system"
+    )
+
+    page = client.get("/administration/").content.decode()
+    chosen = client.post("/administration/organisation/", {"organisation": tenant.number})
+    refused = client.post("/administration/organisation/", {"organisation": setting_up.number})
+
+    option = page.split(f'value="{tenant.number}"', 1)[1].split("</option>", 1)[0]
+    assert tenant.name in option and "blocked" in option
+    assert setting_up.name not in page
+    assert chosen.status_code == 302 and client.session["tenant_number"] == tenant.number
+    assert refused.status_code == 404
 
 
 def test_selector_is_closed_to_others_like_a_missing_page(signed_in: Any, tenant: Any) -> None:

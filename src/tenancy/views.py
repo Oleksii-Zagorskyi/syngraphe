@@ -1,5 +1,6 @@
-"""Administration › Platform: organisations, hosts and platform administrators (ST-0001,
-ADR-0008). Every page answers not-found to anyone but a platform administrator."""
+"""Administration › Platform — organisations, hosts and platform administrators (ST-0001,
+ADR-0008), every page answering not-found to anyone but a platform administrator — and switching
+organisation (ST-0007), which answers a person with an active membership."""
 
 from __future__ import annotations
 
@@ -15,10 +16,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from identity.models import User, member_in_good_standing_q
+from identity.models import Membership, User, member_in_good_standing_q
 from shell.views import frame, not_found
 from tenancy import services
-from tenancy.forms import HostForm, TenantForm
+from tenancy.forms import AppointForm, GrantForm, HostForm, TenantForm
+from tenancy.middleware import SESSION_TENANT_KEY
 from tenancy.models import PlatformHost, Tenant, TenantDomain, TenantState
 
 # What the interface calls each state; `migrating` is internal (DL-0287).
@@ -175,8 +177,155 @@ def _host_row(identifier: str) -> PlatformHost | TenantDomain:
 
 
 @login_required
+def switch(request: HttpRequest) -> HttpResponse:
+    """Switch organisation (ST-0007, ADR-0008): on the platform host the session's organisation
+    changes; on an organisation's domain, which carries its own session, the browser goes to the
+    other's default domain, or the platform's default host when it has none, and signs in there.
+    Only an organisation the person reaches through an active membership; anything else is the
+    not-found answer. Reads the shared schema alone."""
+    # The one place a link to another host is built, from the rows alone, never the request.
+    from mail.services import link
+
+    if request.method not in ("GET", "POST"):
+        return not_found(request)
+    field = "to" if request.method == "GET" else "organisation"
+    source = request.GET if request.method == "GET" else request.POST
+    try:
+        number = int(source.get(field, ""))
+    except ValueError:
+        return not_found(request)
+    membership = (
+        Membership.objects.active()
+        .filter(user=_actor(request), tenant__number=number)
+        .select_related("tenant")
+        .first()
+    )
+    if membership is None:
+        return not_found(request)
+    on_domain = getattr(request, "tenant_from_domain", True)
+    if request.method == "GET":
+        # The confirmation a switch from a domain arrives at: opening it writes nothing.
+        if on_domain:
+            return not_found(request)
+        return render(request, "tenancy/switch.html", {"tenant": membership.tenant})
+    if on_domain:
+        if TenantDomain.objects.filter(tenant=membership.tenant, is_default=True).exists():
+            return HttpResponseRedirect(link(membership.tenant, "/"))
+        # The platform host carries a session of its own: the choice travels in the address and
+        # is made there by the person's own POST.
+        return HttpResponseRedirect(link(None, f"{reverse('switch_organisation')}?to={number}"))
+    request.session[SESSION_TENANT_KEY] = number
+    return HttpResponseRedirect("/")
+
+
+@login_required
 def administrators(request: HttpRequest) -> HttpResponse:
+    """The platform's administrators, *grant to* and per row *revoke*; the last one's *revoke*
+    drawn disabled with its reason (DL-0315)."""
     if request.method != "GET" or not _platform_admin(request):
         return not_found(request)
+    return _administrators_page(request, GrantForm())
+
+
+def _administrators_page(request: HttpRequest, form: GrantForm) -> HttpResponse:
     listed = User.objects.filter(is_platform_admin=True, is_tombstoned=False).order_by("email")
-    return _page(request, "administrators.html", administrators=list(listed))
+    holders = list(services.platform_administrators().values_list("pk", flat=True)[:2])
+    return _page(
+        request,
+        "administrators.html",
+        administrators=list(listed),
+        last=holders[0] if len(holders) == 1 else None,
+        form=form,
+    )
+
+
+@login_required
+def administration_grant(request: HttpRequest) -> HttpResponse:
+    if request.method != "POST" or not _platform_admin(request):
+        return not_found(request)
+    form = GrantForm(request.POST)
+    if not form.is_valid():
+        return _administrators_page(request, form)
+    try:
+        services.grant_platform_administration(form.person, by=_actor(request))
+    except services.Refused:
+        return not_found(request)
+    return HttpResponseRedirect(reverse("administrators"))
+
+
+@login_required
+def administration_revoke(request: HttpRequest, user_id: uuid.UUID) -> HttpResponse:
+    if request.method != "POST" or not _platform_admin(request):
+        return not_found(request)
+    person = User.objects.filter(pk=user_id, is_platform_admin=True).first()
+    if person is None:
+        return not_found(request)
+    try:
+        services.revoke_platform_administration(person, by=_actor(request))
+    except services.Refused:
+        # The control is drawn disabled; a request that reaches here was forged.
+        return not_found(request)
+    return HttpResponseRedirect(reverse("administrators"))
+
+
+def _organisation_for_act(request: HttpRequest, number: int, state: str) -> Tenant | None:
+    """The organisation an act on the organisations page names, in the state the act needs, to a
+    platform administrator; otherwise `None`. An organisation being set up takes no act
+    (DL-0291)."""
+    if not _platform_admin(request):
+        return None
+    return Tenant.objects.filter(number=number, state=state).first()
+
+
+@login_required
+def tenant_block(request: HttpRequest, number: int) -> HttpResponse:
+    """*Block…*: the confirmation, and the block (ST-0065)."""
+    from identity.blocking import BlockRefused
+
+    tenant = _organisation_for_act(request, number, TenantState.ACTIVE)
+    if tenant is None or request.method not in ("GET", "POST"):
+        return not_found(request)
+    if request.method == "GET":
+        return _page(request, "block_tenant.html", tenant=tenant)
+    try:
+        services.block_tenant(tenant, by=_actor(request))
+    except services.Refused:
+        return not_found(request)
+    except BlockRefused:
+        return _page(request, "block_tenant.html", tenant=tenant, busy=True)
+    return HttpResponseRedirect(reverse("tenants"))
+
+
+@login_required
+def tenant_lift(request: HttpRequest, number: int) -> HttpResponse:
+    """*Lift the block* on an organisation (ST-0071)."""
+    tenant = _organisation_for_act(request, number, TenantState.BLOCKED)
+    if tenant is None or request.method != "POST":
+        return not_found(request)
+    try:
+        services.lift_tenant_block(tenant, by=_actor(request))
+    except services.Refused:
+        return not_found(request)
+    return HttpResponseRedirect(reverse("tenants"))
+
+
+@login_required
+def tenant_appoint(request: HttpRequest, number: int) -> HttpResponse:
+    """*Appoint an administrator…*: an active member, chosen by address (a platform page, so
+    naming a missing person tells only a platform administrator)."""
+    tenant = _organisation_for_act(request, number, TenantState.ACTIVE)
+    if tenant is None or request.method not in ("GET", "POST"):
+        return not_found(request)
+    if request.method == "GET":
+        return _page(request, "appoint_form.html", tenant=tenant, form=AppointForm(tenant=tenant))
+    form = AppointForm(request.POST, tenant=tenant)
+    if not form.is_valid():
+        return _page(request, "appoint_form.html", tenant=tenant, form=form)
+    try:
+        appointed = services.appoint_administrator(tenant, form.membership, by=_actor(request))
+    except services.Refused:
+        return not_found(request)
+    if not appointed:
+        form.add_error("email", form.missing)
+        return _page(request, "appoint_form.html", tenant=tenant, form=form)
+    return HttpResponseRedirect(reverse("tenants"))

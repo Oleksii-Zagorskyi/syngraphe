@@ -8,6 +8,7 @@ import json
 import re
 import shutil
 import subprocess
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
@@ -116,6 +117,50 @@ def test_gunicorn_threads() -> None:
     assert (namespace["workers"], namespace["threads"]) == (2, 4)
 
 
+def test_gunicorn_access_log_hides_link_tokens() -> None:
+    """A credential link's token is a password while it is valid; the access log keeps the path
+    and drops the token."""
+    from types import SimpleNamespace
+
+    namespace: dict[str, Any] = {}
+    exec((ROOT / "deploy" / "gunicorn.conf.py").read_text(), namespace)  # noqa: S102
+    logger = namespace["logger_class"](SimpleNamespace(**_gunicorn_defaults()))
+    token = "A" * 43
+    request = SimpleNamespace(
+        method="GET", path=f"/invitation/{token}/", query="", version=(1, 1), headers=[]
+    )
+    response = SimpleNamespace(status="200 OK", sent=10, headers=[], response_length=10)
+    environ = {
+        "REQUEST_METHOD": "GET",
+        "RAW_URI": f"/reset/{token}/",
+        "PATH_INFO": f"/reset/{token}/",
+        "QUERY_STRING": "",
+        "SERVER_PROTOCOL": "HTTP/1.1",
+        "REMOTE_ADDR": "192.0.2.1",
+    }
+    atoms = logger.atoms(response, request, environ, timedelta(seconds=0))
+
+    assert token not in " ".join(str(value) for value in atoms.values())
+    assert "/reset/" in atoms["r"]
+
+
+def _gunicorn_defaults() -> dict[str, Any]:
+    from gunicorn.config import Config
+
+    config = Config()
+    return {name: setting.get() for name, setting in config.settings.items()}
+
+
+def test_front_log_hides_link_tokens() -> None:
+    template = (FRONT / "default.conf.template").read_text()
+    assert '"$logged_request"' in template
+    # The front keeps its own copy of the paths a credential travels in; it names the same ones.
+    from syngraphe.redaction import CREDENTIAL_LINK
+
+    [paths] = re.findall(r"\(\?:[a-z|]+\)", CREDENTIAL_LINK.pattern)
+    assert f"{paths}/" in template
+
+
 @needs_docker
 def test_front_renders(tmp_path: Path) -> None:
     subprocess.run(
@@ -144,6 +189,7 @@ def test_front_renders(tmp_path: Path) -> None:
     assert made.returncode == 0, made.stderr
     assert "proxy_set_header X-Forwarded-For $http_cf_connecting_ip;" in made.stdout
     assert "proxy_set_header Host $http_host;" in made.stdout
+    assert "map $request $logged_request" in made.stdout
 
 
 def test_front_helper_executable_and_keys_documented() -> None:

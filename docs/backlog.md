@@ -306,3 +306,20 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** One organisation operates an installation in release 0.1, so its administrators are trusted with that network (DL-0391).
 
 **What has to be true before it is taken up.** A second organisation, unrelated to the operator, on one installation.
+
+## B-045 — Credential links through the platform's sender alone
+
+**Idea.** Queue every email that carries a credential link — an invitation's, a reset's — in the shared outbox through the platform's sender, whatever organisation it is for, so no organisation's administrator runs the server a link to another person's account passes through (T-22). The organisation is still named in the email, and the link still opens on its domain.
+
+**Why it is parked.** One organisation operates an installation in release 0.1, and its administrators are trusted with it (DL-0404).
+
+**What has to be true before it is taken up.** A second organisation, unrelated to the operator, on one installation.
+
+## B-046 — Telling a person their password changed
+
+**Idea.** When a link — an invitation's or a reset's — sets a person's password, an email through the platform's sender tells them it changed and how to recover if it was not them.
+
+**Why it is parked.** The controls on the link come first in release 0.1: single use, a short life, its token not kept once sent (DL-0405).
+
+**What has to be true before it is taken up.** B-045 taken up, or a person reporting an account changed without them.
+

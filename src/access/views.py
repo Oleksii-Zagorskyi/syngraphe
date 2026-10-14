@@ -15,7 +15,8 @@ from access.models import AccessGroup, DocumentGroup, DocumentHeld
 from access.rights import GRID, LABELS, Right, implied
 from documents import holds
 from documents.models import Document, DocumentState
-from identity.models import Membership, User, member_in_good_standing_q
+from identity.models import Membership, MembershipState, User
+from identity.naming import person
 from shell.views import frame, not_found
 from syngraphe.provenance import ActorKind
 from tenancy.middleware import TenantRequest
@@ -121,8 +122,10 @@ def _members_context(request: HttpRequest, group: AccessGroup) -> dict[str, Any]
     tenant = cast(TenantRequest, request).tenant
     members = group.members.select_related("membership__user").order_by("membership__user__email")
     in_group = {m.membership_id for m in members}
+    # By the membership's own state, the one an organisation's pages draw: a person's own block
+    # shows through no page (DL-0398, DL-0409).
     candidates = (
-        Membership.objects.filter(member_in_good_standing_q(), tenant=tenant)
+        Membership.objects.filter(state=MembershipState.ACTIVE, tenant=tenant)
         .exclude(pk__in=in_group)
         .select_related("user")
         .order_by("user__email")
@@ -154,8 +157,8 @@ def group_members(request: HttpRequest, group_id: uuid.UUID) -> HttpResponse:
         removing = form.cleaned_data["action"] == "remove"
         candidates = Membership.objects.filter(pk=form.cleaned_data["membership"], tenant=tenant)
         if not removing:
-            # Only an active member joins a group; a blocked one may still be taken out.
-            candidates = candidates.filter(member_in_good_standing_q())
+            # Only an active membership joins a group; a blocked one may still be taken out.
+            candidates = candidates.filter(state=MembershipState.ACTIVE)
         membership = candidates.first()
         if membership is None:
             return not_found(request)
@@ -174,17 +177,23 @@ def _links_context(request: HttpRequest) -> dict[str, Any]:
         .order_by("number")
     )
     groups = list(AccessGroup.objects.order_by("name"))
+    listed = list(documents)
+    held = holds.open_holds(document.pk for document in listed)
     rows = []
-    for document in documents:
+    for document in listed:
         linked = sorted((link.group for link in document.links.all()), key=lambda g: g.name)
         linked_ids = {g.id for g in linked}
         creator = document.created_by
+        hold = held.get(document.pk)
         rows.append(
             {
                 "document": document,
                 "linked": linked,
                 "candidates": [g for g in groups if g.id not in linked_ids],
-                "held": holds.is_held(document),
+                "held": hold is not None,
+                # The holder's name goes to administrators only (ADR-0006, DL-0226).
+                "holder": person(hold.user) if hold is not None else "",
+                "reserved_at": hold.reserved_at if hold is not None else None,
                 "archived": document.state == DocumentState.ARCHIVED,
                 "creator": (creator.display_name or creator.email) if creator else "",
             }

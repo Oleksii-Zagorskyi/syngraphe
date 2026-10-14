@@ -4,8 +4,10 @@ the reconciler, the operator's commands on a hold, a draft, a loaded document, a
 mail key, and the tasks — never a request — and, inside a request, by the service that creates an
 organisation, by the notifications' writer, which writes a platform administrator's notification
 to the shared schema, by the mail's queue, which reads the platform's sender (DL-0367, DL-0382),
-and by the platform's mail page, which reads the shared rows whatever organisation the session
-names (DL-0393); nothing else."""
+by the platform's mail page, which reads the shared rows whatever organisation the session
+names (DL-0393), by a reset's request, which queues its email where its place is decided
+(DL-0383, DL-0401), and by a block, which ends holds in every organisation it closes (DL-0256,
+DL-0401); nothing else."""
 
 from __future__ import annotations
 
@@ -51,4 +53,6 @@ def test_the_context_manager_is_used_where_the_decisions_allow() -> None:
         "mail/tasks.py",
         "mail/management/commands/rotate_mail_key.py",
         "mail/views/platform.py",
+        "identity/resets.py",
+        "identity/blocking.py",
     }

@@ -32,11 +32,18 @@ class Event(models.TextChoices):
     DOCUMENT_COPIED = "document_copied", "document_copied"
     BACKUP_CONDITION = "backup_condition", "backup_condition"
     EMAIL_FAILED = "email_failed", "email_failed"
+    USER_PARTIALLY_BLOCKED = "user_partially_blocked", "user_partially_blocked"
+    TENANT_WITHOUT_ADMIN = "tenant_without_admin", "tenant_without_admin"
 
 
 # What platform administrators are told in the shared schema (DL-0382); `email_failed` also
 # reaches an organisation's administrators in its own.
-PLATFORM_EVENTS = (Event.BACKUP_CONDITION, Event.EMAIL_FAILED)
+PLATFORM_EVENTS = (
+    Event.BACKUP_CONDITION,
+    Event.EMAIL_FAILED,
+    Event.USER_PARTIALLY_BLOCKED,
+    Event.TENANT_WITHOUT_ADMIN,
+)
 
 
 class Notification(models.Model):

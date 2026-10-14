@@ -24,11 +24,11 @@
     <div class="spacer"></div>
     {% block notifications %}{% if unread_notifications is not None %}<a class="notifications" href="/notifications/" data-unread="{{ unread_notifications }}" aria-label="{% translate "Notifications" %}" title="{% translate "Notifications" %}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a4.5 4.5 0 0 0-4.5 4.5v3L2 11.5h12L12.5 9V6A4.5 4.5 0 0 0 8 1.5zM6.5 13a1.5 1.5 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>{% if unread_notifications %}<span class="count">{{ unread_notifications }}</span>{% endif %}</a>{% endif %}{% endblock %}
     {% if current_tenant %}<span class="organisation">{{ current_tenant.name }}</span>{% endif %}
-    {% block switcher %}{% endblock %}
+    {% block switcher %}{% if organisations_of_person|length > 1 %}<form method="post" action="/organisation/switch/" class="switcher">{% csrf_token %}<label class="visually-hidden" for="switch-organisation">{% translate "Organisation" %}</label><select id="switch-organisation" name="organisation">{% if current_tenant and not organisations_of_person.holds_current %}<option value="" selected disabled>{{ current_tenant.name }}</option>{% elif not current_tenant %}<option value="" selected disabled>—</option>{% endif %}{% for organisation in organisations_of_person %}<option value="{{ organisation.tenant__number }}"{% if current_tenant and organisation.tenant__number == current_tenant.number %} selected{% endif %}>{{ organisation.tenant__name }}</option>{% endfor %}</select><button class="btn" type="submit">{% translate "Switch" context "organisation switcher" %}</button></form>{% endif %}{% endblock %}
     {% if user.is_authenticated %}
     <div class="user">
       <span class="muted">{{ user.email }}</span>
-      {% block user_menu %}{% endblock %}
+      {% block user_menu %}{% if not user.self_blocked %}<a class="muted" href="/account/block/">{% translate "Block my account…" %}</a>{% endif %}{% endblock %}
       <form method="post" action="/signout/" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Sign out" %}</button></form>
     </div>
     {% endif %}

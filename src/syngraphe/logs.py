@@ -11,6 +11,8 @@ from typing import Any
 from django.http import HttpRequest, HttpResponse
 from pythonjsonlogger.json import JsonFormatter as _JsonFormatter
 
+from syngraphe.redaction import without_credentials
+
 request_id_var: ContextVar[str | None] = ContextVar("request_id", default=None)
 tenant_number_var: ContextVar[int | None] = ContextVar("tenant_number", default=None)
 
@@ -21,6 +23,18 @@ class RequestContextFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         record.request_id = request_id_var.get()
         record.tenant = tenant_number_var.get()
+        return True
+
+
+class CredentialFilter(logging.Filter):
+    """Drops a credential link's token from a record before any handler writes it: the framework
+    logs a refused request's path, and a link's path carries its token (DL-0406)."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        cleaned = without_credentials(message)
+        if cleaned != message:
+            record.msg, record.args = cleaned, None
         return True
 
 

@@ -304,9 +304,16 @@ def test_filters_drawn_are_the_events_each_person_can_receive(
         "document_created",
         "backup_condition",
         "email_failed",
+        "user_partially_blocked",
+        "tenant_without_admin",
     ]
     page = without_tenant(platform_client).get("/notifications/?tab=administrative")
-    assert filters.findall(page.content.decode()) == ["backup_condition", "email_failed"]
+    assert filters.findall(page.content.decode()) == [
+        "backup_condition",
+        "email_failed",
+        "user_partially_blocked",
+        "tenant_without_admin",
+    ]
     assert "data-no-sender" in page.content.decode()
 
 
@@ -357,3 +364,24 @@ def test_an_entry_whose_document_its_reader_cannot_open_is_neither_drawn_nor_cou
     with schema_context(migrated_tenant.number):
         DocumentGroup.link(document, group, by=admin)
     assert entries(client.get("/notifications/").content.decode()) == [str(row.pk)]
+
+
+def test_the_platform_notices_lead_to_a_page_their_host_serves(
+    migrated_tenant: Any, member_of: Any
+) -> None:
+    """The organisations page is a platform host's alone (DL-0290): on an organisation's domain a
+    block's notices lead to the administration instead of a not-found."""
+    from types import SimpleNamespace
+
+    from notifications.views.detail import _target
+    from tenancy.models import PlatformNotification
+
+    _, admin, _ = member_of("p.admin@example.test", is_platform_admin=True)
+    for event in ("user_partially_blocked", "tenant_without_admin"):
+        row = PlatformNotification(
+            user=admin, event=event, facts={"tenant": migrated_tenant.number}
+        )
+        on_platform = SimpleNamespace(tenant=None, tenant_from_domain=False, user=admin)
+        on_domain = SimpleNamespace(tenant=migrated_tenant, tenant_from_domain=True, user=admin)
+        assert _target(on_platform, row) == "/administration/platform/tenants/", event
+        assert _target(on_domain, row) == "/administration/", event

@@ -1,5 +1,6 @@
 """What every template knows: the organisation, the person's membership in it, their roles, how
-many of their notifications are unread, and which of *In edit* and *In review* are offered."""
+many of their notifications are unread, which of *In edit* and *In review* are offered, and the
+organisations they can switch to."""
 
 from __future__ import annotations
 
@@ -70,6 +71,45 @@ class _Views:
         return self._found[view]
 
 
+class _Organisations:
+    """The organisations a person reaches through an active membership, read once a template asks
+    — the switcher, drawn for two or more (ST-0007, ADR-0008)."""
+
+    def __init__(self, request: HttpRequest) -> None:
+        self.request = request
+        self._found: list[Any] | None = None
+
+    def __iter__(self) -> Any:
+        return iter(self._read())
+
+    def __len__(self) -> int:
+        return len(self._read())
+
+    @property
+    def holds_current(self) -> bool:
+        """Whether the organisation the request names is one of the person's own — else the
+        switcher shows it as current rather than one of theirs."""
+        tenant = getattr(self.request, "tenant", None)
+        return tenant is not None and any(
+            row["tenant__number"] == tenant.number for row in self._read()
+        )
+
+    def _read(self) -> list[Any]:
+        if self._found is None:
+            from identity.models import Membership
+
+            user = getattr(self.request, "user", None)
+            self._found = []
+            if user is not None and user.is_authenticated:
+                self._found = list(
+                    Membership.objects.active()
+                    .filter(user=user)
+                    .order_by("tenant__name", "tenant__number")
+                    .values("tenant__number", "tenant__name")
+                )
+        return self._found
+
+
 def shell(request: HttpRequest) -> dict[str, Any]:
     membership = getattr(request, "membership", None)
     is_platform_admin = bool(
@@ -83,4 +123,5 @@ def shell(request: HttpRequest) -> dict[str, Any]:
         "is_administrator": is_platform_admin or bool(membership and membership.is_tenant_admin),
         "unread_notifications": _unread(request, is_platform_admin),
         "views": _Views(request),
+        "organisations_of_person": _Organisations(request),
     }

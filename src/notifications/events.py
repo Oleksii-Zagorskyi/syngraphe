@@ -29,6 +29,8 @@ EVENTS: dict[Event, EventSpec] = {
     Event.DOCUMENT_COPIED: EventSpec(Category.ADMINISTRATIVE),
     Event.BACKUP_CONDITION: EventSpec(Category.ADMINISTRATIVE),
     Event.EMAIL_FAILED: EventSpec(Category.ADMINISTRATIVE),
+    Event.USER_PARTIALLY_BLOCKED: EventSpec(Category.ADMINISTRATIVE),
+    Event.TENANT_WITHOUT_ADMIN: EventSpec(Category.ADMINISTRATIVE),
 }
 
 # The events a tenant administrator can receive in the organisation's schema, and what a platform
@@ -51,6 +53,8 @@ def label(event: Event) -> str:
         Event.DOCUMENT_COPIED: _("Documents copied"),
         Event.BACKUP_CONDITION: _("Backup"),
         Event.EMAIL_FAILED: _("Failed email"),
+        Event.USER_PARTIALLY_BLOCKED: _("Blocked, active elsewhere"),
+        Event.TENANT_WITHOUT_ADMIN: _("Without an administrator"),
     }.get(event, event.value)
 
 
@@ -76,6 +80,31 @@ def _group(facts: dict[str, Any]) -> str:
     return AccessGroup.objects.filter(pk=group_id).values_list("name", flat=True).first() or ""
 
 
+def _organisation(facts: dict[str, Any]) -> str:
+    """The organisation a platform entry names, by its number; read in the shared schema."""
+    from tenancy.models import Tenant
+
+    number = facts.get("tenant")
+    if not isinstance(number, int):
+        return ""
+    name = Tenant.objects.filter(number=number).values_list("name", flat=True).first()
+    return name or f"#{number}"
+
+
+def _address(facts: dict[str, Any]) -> str:
+    """The person a platform entry names — to a platform administrator, by address."""
+    from identity.models import User
+
+    try:
+        user_id = uuid.UUID(str(facts.get("user", "")))
+    except ValueError:
+        return _("former user")
+    person = User.objects.filter(pk=user_id).first()
+    if person is None or person.is_tombstoned:
+        return _("former user")
+    return person.email
+
+
 def describe(row: Any) -> str:
     """What the entry of a `Notification` or a `PlatformNotification` reads."""
     facts: dict[str, Any] = row.facts or {}
@@ -84,6 +113,13 @@ def describe(row: Any) -> str:
         return _condition(facts)
     if event == Event.EMAIL_FAILED:
         return _("An email could not be sent after three attempts.")
+    if event == Event.USER_PARTIALLY_BLOCKED:
+        blocked = _("%(person)s was blocked in %(organisation)s and is active in another one.")
+        return blocked % {"person": _address(facts), "organisation": _organisation(facts)}
+    if event == Event.TENANT_WITHOUT_ADMIN:
+        return _("%(organisation)s has no active administrator.") % {
+            "organisation": _organisation(facts)
+        }
     if event == Event.ACCESS_GRANTED:
         group = _group(facts)
         if group:

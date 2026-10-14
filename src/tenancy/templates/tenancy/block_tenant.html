@@ -1,0 +1,15 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Block an organisation" %} · Syngraphē{% endblock %}
+{% block section %}
+<section class="dlg">
+  <h1>{% blocktranslate with organisation=tenant.name %}Block {{ organisation }}{% endblocktranslate %}</h1>
+  {% if busy %}<p class="err" role="alert">{% translate "A document is being worked on. Try again in a moment." %}</p>{% endif %}
+  <p class="note">{% translate "Until the block is lifted, its members reach nothing in it, on its own hosts or on the platform's; every document held or reserved in it is released, the drafts kept, and its open invitations end. Platform administrators still reach it. Its memberships, groups and links stay as they are." %}</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <button class="btn primary" type="submit">{% translate "Block" %}</button>
+    <a class="btn" href="{% url 'tenants' %}">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

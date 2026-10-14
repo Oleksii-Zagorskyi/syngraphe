@@ -1,0 +1,27 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Invite by email" %} · Syngraphē{% endblock %}
+{% block section %}
+<section class="dlg">
+  <h1>{% translate "Invite by email" %}</h1>
+  {% if sent_to %}<p class="notice" role="status">{% blocktranslate with address=sent_to %}An invitation to {{ address }} is queued for sending.{% endblocktranslate %}</p>{% endif %}
+  {% if refused %}<p class="err" role="alert">{% translate "The invitation could not be sent." %}</p>{% endif %}
+  <form method="post" action="{{ invite_url }}" novalidate>
+    {% csrf_token %}
+    {% for error in form.non_field_errors %}<p class="err">{{ error }}</p>{% endfor %}
+    <p class="note"><label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label></p>
+    <p>{{ form.email }}</p>
+    {% for error in form.email.errors %}<p class="err">{{ error }}</p>{% endfor %}
+    {% if form.groups.field.choices %}
+    <fieldset>
+      <legend class="note">{{ form.groups.label }}</legend>
+      {{ form.groups }}
+      {% for error in form.groups.errors %}<p class="err">{{ error }}</p>{% endfor %}
+    </fieldset>
+    {% endif %}
+    <p class="note">{% translate "The person gets an email with a link that sets their password; it works once, for seven days. Inviting a member again sends a fresh link." %}</p>
+    <button class="btn primary" type="submit">{% translate "Invite" %}</button>
+    <a class="btn" href="{{ users_url }}">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

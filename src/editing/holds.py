@@ -20,6 +20,7 @@ from documents import bundle, gitstore
 from documents.locks import document_lock
 from documents.models import Document, DocumentState
 from editing.models import Draft, Hold, ReleaseKind
+from identity.models import Membership
 from tenancy.models import Tenant
 from tenancy.schemas import current_tenant
 
@@ -77,9 +78,24 @@ def take(document: Document, user: User) -> Hold:
     `HeldByOther` when someone else does; `NotEditable` when, under the locks, they may not edit
     it or it is not active; `Frozen` while a freeze is open and they do not hold *accept*.
     `documents.locks.LockTimeout` when the lock stays busy."""
+    number = tenant_number()
+    with transaction.atomic():
+        # The organisation's row and the taker's membership first, as the blocks take them before
+        # any document's lock: a block being written is waited for, and then seen — no hold
+        # outlives a block (DL-0256). Shared, so takes never wait on one another.
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1 FROM tenancy_tenant WHERE number = %s FOR SHARE", [number])
+        list(
+            Membership.objects.select_for_update(no_key=True, of=("self",)).filter(
+                user=user, tenant__number=number
+            )
+        )
+        return _take_locked(document, user, number)
+
+
+def _take_locked(document: Document, user: User, number: int) -> Hold:
     from editions.models import open_freeze
 
-    number = tenant_number()
     with (
         document_lock(number, document.number, timeout=LOCK_WAIT_SECONDS),
         transaction.atomic(),
@@ -133,12 +149,19 @@ def release(
     locked.release_reason = reason
     locked.save(update_fields=["released_at", "release_kind", "released_by", "release_reason"])
     document = Document.objects.get(pk=locked.document_id)
+    # The draft's state as the release left it, as break-the-glass records it (DL-0225, DL-0256).
+    draft_base = Draft.objects.filter(hold=locked).values_list("base_commit", flat=True).first()
     record(
         actor=actor,
         action="document.hold_released",
         obj=document,
         before=None,
-        after={"number": document.number, "release_kind": kind.value, "reason": reason},
+        after={
+            "number": document.number,
+            "release_kind": kind.value,
+            "reason": reason,
+            "draft_base": draft_base,
+        },
         tenant=Tenant.objects.get(number=tenant_number()),
     )
     return True

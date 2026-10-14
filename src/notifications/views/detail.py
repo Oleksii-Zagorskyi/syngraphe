@@ -53,6 +53,12 @@ def _target(request: HttpRequest, row: Any) -> str:
         if chosen is not None and chosen.number == facts["tenant"]:
             return reverse("sending_address")
         return reverse("administration")
+    if event in (Event.USER_PARTIALLY_BLOCKED, Event.TENANT_WITHOUT_ADMIN):
+        # The organisations page, which shows each organisation's state and administrators; on an
+        # organisation's domain, which never serves it (DL-0290), the administration.
+        if getattr(request, "tenant_from_domain", True):
+            return reverse("administration")
+        return reverse("tenants")
     if event == Event.ACCESS_GRANTED:
         return _group_page(facts) if administers(request) else reverse("folder", args=[ROOT_FOLDER])
     if row.document is None:

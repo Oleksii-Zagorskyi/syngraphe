@@ -17,7 +17,7 @@
           {% if row.document.author_only %}<span class="tag author-only">{% translate "author-only" %}</span>
           {% timezone display_timezone %}<div class="muted">{% blocktranslate with name=row.creator date=row.document.created_at|date:"j E" %}Created by {{ name }}, {{ date }} — only they can reach it until a group is linked.{% endblocktranslate %}</div>{% endtimezone %}{% endif %}
           {% if row.archived %}<div class="muted">{% translate "Archived — its links take effect on restore." %}</div>{% endif %}
-          {% if row.held %}<div class="muted">{% translate "Locked while the document is held." %}</div>{% endif %}
+          {% if row.held %}<div class="muted">{% if row.reserved_at %}{% timezone display_timezone %}{% blocktranslate with name=row.holder date=row.reserved_at|date:"DATE_FORMAT" %}Reserved for editing by {{ name }} since {{ date }}.{% endblocktranslate %}{% endtimezone %}{% else %}{% blocktranslate with name=row.holder %}Held by {{ name }}.{% endblocktranslate %}{% endif %} {% translate "Locked while the document is held." %}</div>{% block hold_acts %}{% endblock %}{% endif %}
         </td>
         <td>
           <div class="chips">

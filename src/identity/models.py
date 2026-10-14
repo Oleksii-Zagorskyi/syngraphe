@@ -23,6 +23,7 @@ __all__ = [
     "MembershipManager",
     "MembershipQuerySet",
     "MembershipState",
+    "PasswordReset",
     "SetupToken",
     "SignInAttempt",
     "User",
@@ -263,6 +264,20 @@ class Invitation(Provenanced):
         super().save(*args, **kwargs)
 
 
+class PasswordReset(models.Model):
+    """A hashed, single-use password reset link of one hour (DL-0373)."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="+")
+    token_hash = models.CharField(max_length=128, unique=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    def __str__(self) -> str:
+        return f"password reset {self.id}"
+
+
 class SignInAttempt(models.Model):
     """Throttling state per client and per pair of address typed and client (DL-0289); no
     reference to a user, and the address typed only inside the pair's hash."""
@@ -271,6 +286,8 @@ class SignInAttempt(models.Model):
         ADDRESS = "address", "address"
         PAIR = "pair", "pair"
         DEVICE = "device", "device"
+        # A reset request, counted per client on a row of its own (DL-0408).
+        RESET = "reset", "reset"
 
     key = models.CharField(primary_key=True, max_length=254)
     key_kind = models.CharField(max_length=7, choices=KeyKind.choices)

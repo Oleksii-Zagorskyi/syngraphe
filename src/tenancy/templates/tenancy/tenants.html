@@ -4,12 +4,12 @@
 {% block section %}
 <h1>{% translate "Organisations" %}</h1>
 <table>
-  <thead><tr><th>#</th><th>{% translate "Organisation" %}</th><th>{% translate "State" %}</th><th>{% translate "Administrators" %}</th></tr></thead>
+  <thead><tr><th>#</th><th>{% translate "Organisation" %}</th><th>{% translate "State" %}</th><th>{% translate "Administrators" %}</th><th></th></tr></thead>
   <tbody>
     {% for row in rows %}
-    <tr><td>{{ row.tenant.number }}</td><td>{{ row.tenant.name }}</td><td>{{ row.state_label }}</td><td>{{ row.administrators }}</td></tr>
+    <tr><td>{{ row.tenant.number }}</td><td>{{ row.tenant.name }}</td><td>{{ row.state_label }}</td><td>{{ row.administrators }}</td><td>{% if row.tenant.state == "active" %}<a class="btn" href="{% url 'tenant_block' row.tenant.number %}">{% translate "Block…" %}</a> <a class="btn" href="{% url 'tenant_appoint' row.tenant.number %}">{% translate "Appoint an administrator…" %}</a>{% elif row.tenant.state == "blocked" %}<form method="post" action="{% url 'tenant_lift' row.tenant.number %}" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Lift the block" %}</button></form>{% endif %}</td></tr>
     {% empty %}
-    <tr><td colspan="4" class="muted">{% translate "No organisations yet." %}</td></tr>
+    <tr><td colspan="5" class="muted">{% translate "No organisations yet." %}</td></tr>
     {% endfor %}
   </tbody>
 </table>

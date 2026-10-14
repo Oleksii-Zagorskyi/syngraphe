@@ -48,8 +48,15 @@ ADMINISTRATIVE = {
     "email_failed",
     "backup_condition",
 }
-# Written below through the paths that write them, not directly.
-WRITTEN_BY_THEIR_PATH = {"correction_notice", "email_failed", "backup_condition"}
+# Written below through the paths that write them, not directly: the platform's own in the shared
+# schema, which `notify` refuses in an organisation's.
+WRITTEN_BY_THEIR_PATH = {
+    "correction_notice",
+    "email_failed",
+    "backup_condition",
+    "user_partially_blocked",
+    "tenant_without_admin",
+}
 
 
 def test_no_email_carries_document_text(
@@ -111,6 +118,12 @@ def test_no_email_carries_document_text(
                 version=version,
             )
     notify_platform(event=Event.BACKUP_CONDITION, users=[operator])
+    notify_platform(
+        event=Event.USER_PARTIALLY_BLOCKED,
+        users=[operator],
+        facts={"user": str(people["r"].pk), "tenant": number},
+    )
+    notify_platform(event=Event.TENANT_WITHOUT_ADMIN, users=[operator], facts={"tenant": number})
 
     start = timezone.now()
     for attempt in range(3):
