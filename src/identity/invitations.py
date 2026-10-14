@@ -188,23 +188,27 @@ def accept(token: str, password: str) -> tuple[User, Invitation] | None:
     # Hashed before the rows are locked: the hash is slow on purpose.
     hashed = make_password(password)
     with transaction.atomic():
+        # The person first, then the link, as `invite` and every other writer of a person's links
+        # take them: a link locked before its person would wait on a spend of another link that
+        # ends this one.
+        owner = person_of(token)
+        if owner is None:
+            return None
+        user = User.objects.select_for_update().filter(pk=owner.pk, is_tombstoned=False).first()
+        if user is None:
+            return None
         invitation = (
-            Invitation.objects.select_for_update()
+            Invitation.objects.select_for_update(of=("self",))
+            .select_related("tenant")
             .filter(
                 token_hash=hash_token(token),
+                email=user.email,
                 expires_at__gt=timezone.now(),
                 accepted_at__isnull=True,
             )
             .first()
         )
         if invitation is None:
-            return None
-        user = (
-            User.objects.select_for_update()
-            .filter(email=invitation.email, is_tombstoned=False)
-            .first()
-        )
-        if user is None:
             return None
         user.password = hashed
         user.save(update_fields=["password"])

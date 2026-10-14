@@ -56,13 +56,13 @@ curl -s http://127.0.0.1:8000/health/    # {"database": "ok", "redis": "ok", "ba
 
 ### Adding a member by command
 
-Invitations are the way in (DL-0374). Where an organisation has no sending address, and so no invitation can be sent, an operator adds a person to it as an ordinary member by command (DL-0343):
+Invitations are the way in (DL-0374), sent from the organisation's sending address or else the platform's. Where neither exists, so no invitation can be sent, an operator adds a person as an ordinary member by command (DL-0343):
 
 ```bash
 $C exec web python manage.py create_member --tenant N --email ADDRESS --name "Display name"
 ```
 
-A new person gets a generated password, **printed once** — run the command in the operator's own terminal and hand the password over by hand; it is shown nowhere again, and the person changes it through *Forgot your password?* on the sign-in page. A person already registered gets the membership only, and their password is never changed; an existing active member is reported and nothing is written. Then add the membership to its groups on the group's page.
+A new person gets a generated password, **printed once** — run the command in the operator's own terminal and hand the password over by hand; it is shown nowhere again. The person keeps it until a sending address exists: *Forgot your password?* on the sign-in page sends its link by email, and without a sender no email leaves. A person already registered gets the membership only, and their password is never changed; an existing active member is reported and nothing is written. Then add the membership to its groups on the group's page.
 
 ### Loading a document
 
@@ -128,7 +128,7 @@ In Administration › Platform › Organisations, *Create an organisation*: its 
 
 ## People
 
-Invitations, resets and blocks are the administrators' own pages; help page *People and access* describes them. Three cases need an operator. Lifting any block leaves ended what the block ended: the holds, and the invitations still open when it was written — the person is invited again for a fresh link.
+Invitations, resets and blocks are the administrators' own pages; help page *People and access* describes them. Three cases need an operator. Lifting a block leaves ended what the block ended. Every block — a membership's, an organisation's, a person's own — ends the holds it reaches. A membership's and an organisation's block also end the invitations still open there when it was written; the person is invited again for a fresh link. A person's own block ends no invitation: a link sent before it still sets the password, and the account reaches nothing until the block is lifted.
 
 - **Lifting a person's own block.** Nothing in the platform lifts it in this release (DL-0254): a platform administrator asks the operator, who lifts it in the database. With the person's address in `ADDRESS`, write the flag, its history row and the audit event in one transaction; the address is folded as the platform stores it, and a person not blocked by themselves is left untouched:
 

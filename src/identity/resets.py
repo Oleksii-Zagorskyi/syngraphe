@@ -102,17 +102,25 @@ def reset(token: str, password: str) -> User | None:
     # Hashed before the rows are locked: the hash is slow on purpose.
     hashed = make_password(password)
     with transaction.atomic():
+        # The person first, then the link, as every writer of a person's links takes them: a link
+        # locked before its person would wait on a spend of another link that ends this one.
+        owner = person_of(token)
+        if owner is None:
+            return None
+        user = User.objects.select_for_update().filter(pk=owner.pk, is_tombstoned=False).first()
+        if user is None:
+            return None
         row = (
             PasswordReset.objects.select_for_update()
             .filter(
-                token_hash=hash_token(token), expires_at__gt=timezone.now(), used_at__isnull=True
+                token_hash=hash_token(token),
+                user=user,
+                expires_at__gt=timezone.now(),
+                used_at__isnull=True,
             )
             .first()
         )
         if row is None:
-            return None
-        user = User.objects.select_for_update().filter(pk=row.user_id, is_tombstoned=False).first()
-        if user is None:
             return None
         user.password = hashed
         user.save(update_fields=["password"])

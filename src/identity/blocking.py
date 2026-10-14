@@ -105,8 +105,11 @@ def is_last_administrator(membership: Membership) -> bool:
 def administers(person: User, tenant_id: Any) -> bool:
     """Whether `person` may block and lift memberships of the organisation: a platform
     administrator, or an active administrator of it in good standing — read again inside the
-    act, under its locks."""
-    if person.acts_as_platform_admin:
+    act, under its locks. The platform's role is read from the database too, never from the
+    request's user, which may predate a revocation or the person's own block."""
+    from tenancy.services import platform_administrators
+
+    if platform_administrators().filter(pk=person.pk).exists():
         return True
     return Membership.objects.filter(
         member_in_good_standing_q(), tenant_id=tenant_id, user=person, is_tenant_admin=True

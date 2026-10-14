@@ -117,31 +117,69 @@ def test_gunicorn_threads() -> None:
     assert (namespace["workers"], namespace["threads"]) == (2, 4)
 
 
-def test_gunicorn_access_log_hides_link_tokens() -> None:
+TOKEN = "A" * 43
+
+# Each as the client sends it: a route spelled with an escape, which the server decodes before
+# routing, and a second route inside the query.
+CREDENTIAL_REQUESTS = (
+    f"/reset/{TOKEN}/",
+    f"/invitation/{TOKEN}/",
+    f"/%72eset/{TOKEN}/",
+    f"/invit%61tion/{TOKEN}/",
+    f"/reset/{TOKEN}/?next=/reset/other",
+)
+
+
+@pytest.mark.parametrize("raw", CREDENTIAL_REQUESTS)
+def test_gunicorn_access_log_hides_link_tokens(raw: str) -> None:
     """A credential link's token is a password while it is valid; the access log keeps the path
-    and drops the token."""
+    and drops the token, however the route is spelled."""
     from types import SimpleNamespace
+    from urllib.parse import unquote
 
     namespace: dict[str, Any] = {}
     exec((ROOT / "deploy" / "gunicorn.conf.py").read_text(), namespace)  # noqa: S102
     logger = namespace["logger_class"](SimpleNamespace(**_gunicorn_defaults()))
-    token = "A" * 43
-    request = SimpleNamespace(
-        method="GET", path=f"/invitation/{token}/", query="", version=(1, 1), headers=[]
-    )
+    path, _, query = raw.partition("?")
+    request = SimpleNamespace(method="GET", path=path, query=query, version=(1, 1), headers=[])
     response = SimpleNamespace(status="200 OK", sent=10, headers=[], response_length=10)
     environ = {
         "REQUEST_METHOD": "GET",
-        "RAW_URI": f"/reset/{token}/",
-        "PATH_INFO": f"/reset/{token}/",
-        "QUERY_STRING": "",
+        "RAW_URI": raw,
+        "PATH_INFO": unquote(path),
+        "QUERY_STRING": query,
         "SERVER_PROTOCOL": "HTTP/1.1",
         "REMOTE_ADDR": "192.0.2.1",
     }
     atoms = logger.atoms(response, request, environ, timedelta(seconds=0))
 
-    assert token not in " ".join(str(value) for value in atoms.values())
-    assert "/reset/" in atoms["r"]
+    assert TOKEN not in " ".join(str(value) for value in atoms.values())
+    assert atoms["r"].startswith("GET /")
+    assert "/reset/" in atoms["r"] or "/invitation/" in atoms["r"]
+    assert "next=" not in atoms["r"]
+
+
+def test_gunicorn_access_log_keeps_other_requests_whole() -> None:
+    from types import SimpleNamespace
+
+    namespace: dict[str, Any] = {}
+    exec((ROOT / "deploy" / "gunicorn.conf.py").read_text(), namespace)  # noqa: S102
+    logger = namespace["logger_class"](SimpleNamespace(**_gunicorn_defaults()))
+    request = SimpleNamespace(
+        method="GET", path="/folder/1/", query="tab=shared", version=(1, 1), headers=[]
+    )
+    response = SimpleNamespace(status="200 OK", sent=10, headers=[], response_length=10)
+    environ = {
+        "REQUEST_METHOD": "GET",
+        "RAW_URI": "/folder/1/?tab=shared",
+        "PATH_INFO": "/folder/1/",
+        "QUERY_STRING": "tab=shared",
+        "SERVER_PROTOCOL": "HTTP/1.1",
+        "REMOTE_ADDR": "192.0.2.1",
+    }
+    atoms = logger.atoms(response, request, environ, timedelta(seconds=0))
+
+    assert atoms["r"] == "GET /folder/1/?tab=shared HTTP/1.1"
 
 
 def _gunicorn_defaults() -> dict[str, Any]:
@@ -159,6 +197,43 @@ def test_front_log_hides_link_tokens() -> None:
 
     [paths] = re.findall(r"\(\?:[a-z|]+\)", CREDENTIAL_LINK.pattern)
     assert f"{paths}/" in template
+
+
+@needs_docker
+def test_front_access_log_hides_link_tokens(tmp_path: Path) -> None:
+    """The front's own map, run by nginx: no request for a credential route leaves its token in
+    the log, however it is spelled; any other request is logged whole."""
+    template = (FRONT / "default.conf.template").read_text()
+    [mapping] = re.findall(r"^map \S+ \$logged_request \{.*?^\}", template, re.M | re.S)
+    (tmp_path / "default.conf").write_text(
+        mapping
+        + """
+log_format probe '"$logged_request"';
+server {
+    listen 8080;
+    access_log /tmp/access.log probe;
+    location / { return 204; }
+}
+"""
+    )
+    asked = " && ".join(
+        f"curl -s --path-as-is -o /dev/null 'http://127.0.0.1:8080{raw}'"
+        for raw in (*CREDENTIAL_REQUESTS, "/folder/1/?tab=shared")
+    )
+    made = subprocess.run(
+        [
+            str(DOCKER), "run", "--rm",
+            "-v", f"{tmp_path / 'default.conf'}:/etc/nginx/conf.d/default.conf:ro",
+            "nginx:1.27-alpine", "sh", "-c", f"nginx && {asked} && cat /tmp/access.log",
+        ],
+        capture_output=True,
+        text=True,
+    )  # fmt: skip
+    assert made.returncode == 0, made.stderr
+    lines = made.stdout.splitlines()
+    assert len(lines) == len(CREDENTIAL_REQUESTS) + 1, made.stdout
+    assert TOKEN not in made.stdout
+    assert lines[-1] == '"GET /folder/1/?tab=shared HTTP/1.1"'
 
 
 @needs_docker
@@ -189,7 +264,7 @@ def test_front_renders(tmp_path: Path) -> None:
     assert made.returncode == 0, made.stderr
     assert "proxy_set_header X-Forwarded-For $http_cf_connecting_ip;" in made.stdout
     assert "proxy_set_header Host $http_host;" in made.stdout
-    assert "map $request $logged_request" in made.stdout
+    assert "$logged_request" in made.stdout
 
 
 def test_front_helper_executable_and_keys_documented() -> None:

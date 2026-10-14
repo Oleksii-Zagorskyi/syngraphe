@@ -756,3 +756,42 @@ def test_no_invitation_into_a_blocked_organisation(
     assert answer.status_code == 200
     assert "The invitation could not be sent." in text_of(answer)
     assert not Invitation.objects.exists()
+
+
+@pytest.mark.parametrize("lost_by", ["revoked", "self_blocked", "erased"])
+def test_a_platform_role_lost_before_the_act_blocks_and_lifts_nothing(
+    migrated_tenant: Any, member_of: Any, lost_by: str
+) -> None:
+    """The actor's platform role is read again inside the act: one revoked, self-blocked or erased
+    since the request loaded its user refuses the block and the lift, and nothing is written."""
+    from identity import blocking
+    from identity.models import Membership, User
+
+    member_of("t.admin@example.test", is_tenant_admin=True)
+    _, _, active = member_of("still.active@example.test")
+    _, _, blocked = member_of("already.blocked@example.test")
+    Membership.objects.filter(pk=blocked.pk).update(state="blocked")
+    stale = platform_administrator("p.stale@example.test")
+    platform_administrator("p.other@example.test")
+    lost = {
+        "revoked": {"is_platform_admin": False},
+        "self_blocked": {"self_blocked": True},
+        "erased": {"is_tombstoned": True},
+    }[lost_by]
+    User.objects.filter(pk=stale.pk).update(**lost)
+    seen = audit_ids()
+    before = history_of(active, blocked)
+
+    for act, membership in (
+        (blocking.block_membership, active),
+        (blocking.lift_membership_block, blocked),
+    ):
+        with pytest.raises(blocking.BlockRefused) as refused:
+            act(membership, by=stale)
+        assert refused.value.reason == "not_administrator"
+
+    assert Membership.objects.get(pk=active.pk).state == "active"
+    assert Membership.objects.get(pk=blocked.pk).state == "blocked"
+    assert history_of(active, blocked) == before
+    assert written_since(seen) == []
+    assert platform_notifications() == []

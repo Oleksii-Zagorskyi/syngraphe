@@ -7,9 +7,11 @@
 resolver 127.0.0.11 valid=10s ipv6=off;
 
 # A link that sets a password carries its token in the path, a credential while it is valid: the
-# log keeps the path and drops the token.
-map $request $logged_request {
-    "~^(?<before>.*/(?:invitation|reset)/)[^/ ?]+(?<after>.*)$" "$before[token]$after";
+# log keeps the path and drops the token. Matched on the decoded path, which is what routes the
+# request, never the line as sent, where an escaped letter or a second route in the query would
+# hide the real one; such a request is logged without its query.
+map $uri $logged_request {
+    "~^(?<before>/(?:invitation|reset)/)[^/]+(?<after>.*)$" "$request_method $before[token]$after $server_protocol";
     default $request;
 }
 

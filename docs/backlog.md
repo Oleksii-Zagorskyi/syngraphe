@@ -322,4 +322,3 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The controls on the link come first in release 0.1: single use, a short life, its token not kept once sent (DL-0405).
 
 **What has to be true before it is taken up.** B-045 taken up, or a person reporting an account changed without them.
-

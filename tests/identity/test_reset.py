@@ -493,3 +493,82 @@ def test_a_reset_spent_is_one_transaction(person: Any, monkeypatch: Any) -> None
     assert user.check_password(PASSWORD)
     assert not PasswordReset.objects.filter(used_at__isnull=False).exists()
     assert resets.person_of(other) == user
+
+
+def _spend_together(user: Any, spends: list[Any]) -> list[Any]:
+    """Each spend in a thread of its own, started while another connection holds the person's row,
+    so each has gone as far as it can before any reaches the person; then the row is let go. The
+    outcomes, an exception among them when a spend raised."""
+    import threading
+    import time
+
+    from django.db import transaction
+
+    from identity.models import User
+
+    holding, release = threading.Event(), threading.Event()
+
+    def hold() -> None:
+        try:
+            with transaction.atomic():
+                User.objects.select_for_update().get(pk=user.pk)
+                holding.set()
+                release.wait(timeout=30)
+        finally:
+            connection.close()
+
+    outcomes: list[Any] = []
+
+    def run(spend: Any) -> None:
+        try:
+            outcomes.append(spend())
+        except Exception as error:  # noqa: BLE001 — the outcome under test
+            outcomes.append(error)
+        finally:
+            connection.close()
+
+    holder = threading.Thread(target=hold)
+    holder.start()
+    assert holding.wait(timeout=30)
+    spenders = [threading.Thread(target=run, args=(spend,)) for spend in spends]
+    for spender in spenders:
+        spender.start()
+    deadline = time.monotonic() + 15
+    with connection.cursor() as cursor:
+        while time.monotonic() < deadline:
+            cursor.execute(
+                "SELECT count(*) FROM pg_stat_activity"
+                " WHERE datname = current_database() AND wait_event_type = 'Lock'"
+            )
+            if cursor.fetchone()[0] >= len(spends):
+                break
+            time.sleep(0.05)
+    release.set()
+    holder.join(timeout=30)
+    for spender in spenders:
+        spender.join(timeout=30)
+    return outcomes
+
+
+@pytest.mark.parametrize("second", ["reset", "invitation"])
+def test_two_links_spent_at_once_give_one_password_and_no_error(
+    person: Any, migrated_tenant: Any, member_of: Any, invited: Any, second: str
+) -> None:
+    """Two links of one person spent together: one sets the password, the other answers as a link
+    that no longer opens, and neither fails on the locks the two take."""
+    from identity import invitations, resets
+
+    user = person(P1)
+    first = a_reset(user)
+    if second == "reset":
+        other = a_reset(user)
+        spend_other = lambda: resets.reset(other, PASSWORD + "-other")  # noqa: E731
+    else:
+        _, admin, _ = member_of("t.admin@example.test", is_tenant_admin=True)
+        other = invited(migrated_tenant, P1, by=admin)
+        spend_other = lambda: invitations.accept(other, PASSWORD + "-other")  # noqa: E731
+
+    outcomes = _spend_together(user, [lambda: resets.reset(first, NEW_PASSWORD), spend_other])
+
+    assert not [o for o in outcomes if isinstance(o, Exception)], outcomes
+    assert sorted(o is None for o in outcomes) == [False, True]

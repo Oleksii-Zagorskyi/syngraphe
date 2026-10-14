@@ -2,7 +2,7 @@
 
 from gunicorn.glogging import Logger
 
-from syngraphe.redaction import without_credentials
+from syngraphe.redaction import CREDENTIAL_LINK, without_credentials
 
 bind = "0.0.0.0:8000"
 # Threaded workers: an idle browser connection holds a thread, not the worker (DL-0347).
@@ -24,6 +24,13 @@ access_log_format = '%(h)s "%(r)s" %(s)s %(b)s'
 # access log keeps the path and drops the token (DL-0406).
 class CredentialRedactingLogger(Logger):
     def atoms(self, resp, req, environ, request_time):  # type: ignore[no-untyped-def]
+        # Decided on the decoded path, which is what routes the request, never the line as sent,
+        # where an escaped letter hides the route: such a request is logged by its redacted path
+        # alone, without its query, in every field built from the request's address.
+        path = environ.get("PATH_INFO", "")
+        if CREDENTIAL_LINK.search(path):
+            redacted = without_credentials(path)
+            environ = {**environ, "RAW_URI": redacted, "PATH_INFO": redacted, "QUERY_STRING": ""}
         found = super().atoms(resp, req, environ, request_time)
         return {
             key: without_credentials(value) if isinstance(value, str) else value
