@@ -149,9 +149,18 @@ HISTORY = {Right.VIEW_ALL_HISTORY, Right.VIEW_PREVIOUS_CANONICAL}
 
 def still_permitted(job: ExportJob) -> bool:
     """Whether the person who asked still holds the rights the job's view needs — and, for marks
-    against an earlier edition, a history right. A right lost after asking fails the job and
+    against an earlier edition, a history right; for a job asked at a version, whether their
+    ceiling still reaches it. A right lost after asking fails the job and
     serves nothing; a run accepted or a draft sent for review since does not, the job being of
     its stated version."""
+    if job.at_version:
+        # Reached through the reader's ceiling, a history right included: what the job asks again
+        # is that ceiling, for its version and its baseline (DL-0423).
+        from review.history import ceiling
+
+        past = ceiling(job.requested_by, job.document)
+        baseline = job.baseline_version
+        return past.reaches(job.version) and (baseline is None or past.reaches(baseline))
     rights = rights_on(job.requested_by, job.document)
     if not rights & VIEW_RIGHTS[ExportView(job.view)]:
         return False
@@ -170,12 +179,20 @@ def _tenant() -> int:
     return number
 
 
-def offers(user: Any, document: Document) -> list[Offer]:
+def offers(
+    user: Any, document: Document, *, version: Version | None = None, past: Any = None
+) -> list[Offer]:
     """The views `user` may export of `document`, in the dialog's order (DL-0209, DL-0241): the
     latest edition to every reader, marked against the previous one only with a history right;
     the latest acceptance beyond it to a reader of accepted text, against the edition; the pending
     run to a holder of *view pending*, against the last acceptance; the holder's draft, against
-    the current text."""
+    the current text. With `version` — one the caller resolved for `user` on a historical page —
+    the one offer at that version (DL-0195, DL-0208): its view by the stance it reached, marked by
+    the same chain (DL-0426) — `past`, the reader's ceiling when the caller has read it."""
+    if version is not None:
+        from review.history import ceiling
+
+        return _offer_at(document, version, past or ceiling(user, document))
     rights = rights_on(user, document)
     if not rights & {Right.VIEW_CANONICAL, Right.VIEW_ACCEPTED, Right.VIEW_PENDING}:
         return []
@@ -231,6 +248,52 @@ def offers(user: Any, document: Document) -> list[Offer]:
             Offer(ExportView.MY_EDITS, current, draft_number, current, current_number, True)
         )
     return found
+
+
+def _offer_at(document: Document, version: Version, past: Any) -> list[Offer]:
+    """The one offer at `version`, marked by DL-0241's chain for the stance it reached
+    (DL-0426): an edition against the previous edition, accepted text against the edition before
+    it, pending work against the acceptance or edition it counts from — each only where `past`
+    reaches it, and marked by default where the dialog marks the same view by default."""
+    history = past.history
+    number = past.number(version)
+    order = {c.sha: i for i, c in enumerate(history.commits)}
+    # Content versions that became editions, in the order of their text.
+    editions = sorted(
+        (c.decides for c in history.commits if c.kind == VersionKind.APPROVAL and c.decides),
+        key=order.__getitem__,
+    )
+    sha = version.commit_sha
+    baseline_sha: str | None
+    if sha in editions:
+        view, by_default = ExportView.CANONICAL, False
+        earlier = editions[: editions.index(sha)]
+        baseline_sha = earlier[-1] if earlier else None
+    elif "-" not in number:
+        view, by_default = ExportView.ACCEPTED, True
+        earlier = [e for e in editions if order[e] < order[sha]]
+        baseline_sha = earlier[-1] if earlier else None
+    else:
+        view, by_default = ExportView.PENDING_EDITS, True
+        baseline_sha = history.aliases.get(number.split("-")[0])
+    baseline = (
+        Version.objects.filter(document=document, commit_sha=baseline_sha).first()
+        if baseline_sha is not None
+        else None
+    )
+    if baseline is None or not past.reaches(baseline):
+        return [Offer(view, version, number, None, "", False)]
+    baseline_number = number.split("-")[0] if view == ExportView.PENDING_EDITS else ""
+    return [
+        Offer(
+            view,
+            version,
+            number,
+            baseline,
+            baseline_number or past.number(baseline),
+            by_default,
+        )
+    ]
 
 
 def _body(

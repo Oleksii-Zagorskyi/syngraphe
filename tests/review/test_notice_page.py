@@ -62,7 +62,9 @@ def test_notice_for_its_author(migrated_tenant: Any, cast: Any, commit_version: 
     body = page.content.decode()
     assert "<del>десять</del>" in body and "<ins>п&#x27;ять робочих</ins>" in body
     assert "Погоджувач Р" in body
-    assert f'href="/document/{people.document.number}/"' in body
+    # The accepted version's page at the numbered heading the passage falls under, which the
+    # author's ceiling reaches (DL-0334).
+    assert f'href="/document/{people.document.number}/version/0.1/#h-1"' in body
     assert 'data-lines="1"' in body
     with schema_context(migrated_tenant.number):
         notification.refresh_from_db()

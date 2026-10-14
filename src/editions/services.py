@@ -62,9 +62,12 @@ class FreezeRefused(Exception):
         self.reason = reason
 
 
-# Characters that reorder the text around them: a reason is drawn beside who froze the document,
-# and must read as it was stored.
-BIDI_CONTROLS = frozenset("\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069")
+# Characters that reorder the text around them — the embeddings, overrides and isolates, and the
+# implicit marks that move neutral characters: a reason is drawn beside who gave it, and must
+# read as it was stored (DL-0378).
+BIDI_CONTROLS = frozenset(
+    "\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069\u200e\u200f\u061c"
+)
 
 
 def valid_reason(reason: str) -> bool:

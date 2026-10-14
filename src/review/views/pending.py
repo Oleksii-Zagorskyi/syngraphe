@@ -148,8 +148,12 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
 
         user = cast(User, request.user)
         refused = services.refusal(document, user)
+        from review.views.return_run import reason as return_reason
+
+        refused_return = services.return_refusal(document, user)
         acts = {
             "accept": reason(document, user, refused) if refused else "",
+            "return": return_reason(document, user, refused_return) if refused_return else "",
             "correct": _correct_blocked(document, user),
         }
     context = {

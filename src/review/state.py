@@ -21,7 +21,7 @@ from django.utils.translation import gettext_lazy as _
 
 from access.rights import Right, rights_on_many
 from documents import gitstore
-from documents.models import Document, Version
+from documents.models import Document, Version, VersionKind
 from editing import holds
 from review import services
 from review.models import Acceptance
@@ -33,6 +33,8 @@ class State(StrEnum):
     # Nothing written since the `created` commit and nothing accepted: no tag.
     NEW = "new"
     AWAITING_REVIEW = "awaiting_review"
+    # The run's reviewer returned it without accepting, and nothing was sent since (DL-0114).
+    RETURNED = "returned"
     ACCEPTED = "accepted"
     NO_REVIEWER_ASSIGNED = "no_reviewer_assigned"
     FROZEN = "frozen"
@@ -48,10 +50,11 @@ LABELS = {
     State.FROZEN: _("frozen"),
     State.HELD: _("held"),
     State.AWAITING_REVIEW: _("awaiting review"),
+    State.RETURNED: _("returned"),
     State.NO_REVIEWER_ASSIGNED: _("no reviewer assigned"),
 }
 # The states a tag shows, and to whom: pending work only to those who may see it (DL-0233).
-PENDING_TAGS = frozenset({State.AWAITING_REVIEW, State.NO_REVIEWER_ASSIGNED})
+PENDING_TAGS = frozenset({State.AWAITING_REVIEW, State.RETURNED, State.NO_REVIEWER_ASSIGNED})
 # Who may learn who reserved a document: those it keeps from editing or reviewing (DL-0226).
 NAMED_ON_A_RESERVATION = frozenset({Right.EDIT, Right.ACCEPT})
 
@@ -78,7 +81,11 @@ def with_reviewer(document_ids: Iterable[Any]) -> set[Any]:
 
 
 def _state_of(
-    document: Document, reviewed: set[Any], latest: Acceptance | None, content: set[str]
+    document: Document,
+    reviewed: set[Any],
+    latest: Acceptance | None,
+    content: set[str],
+    returns: set[str],
 ) -> State:
     if document.pk not in reviewed:
         return State.NO_REVIEWER_ASSIGNED
@@ -87,10 +94,15 @@ def _state_of(
     if head is None:
         return State.NEW
     if latest is not None:
-        base = services.accepted_sha(latest, document.number)
+        # From the acceptance's own commit: a return of the run it accepted lies before it.
+        base = latest.version.commit_sha
     else:
         base = str(next(iter(gitstore.history(repo))).id)
-    if any(sha in content for sha in services.commits_after(repo, base, head)):
+    since = [sha for sha in services.commits_after(repo, base, head) if sha in content | returns]
+    if since and since[-1] in returns:
+        # A return with no content version after it: the run is back with its authors.
+        return State.RETURNED
+    if any(sha in content for sha in since):
         return State.AWAITING_REVIEW
     return State.ACCEPTED if latest is not None else State.NEW
 
@@ -126,10 +138,17 @@ def frozen(document_ids: Iterable[Any]) -> set[Any]:
     )
 
 
-def _rows(documents: list[Document]) -> tuple[set[Any], dict[Any, Acceptance], dict[Any, set[str]]]:
+class _Rows(NamedTuple):
+    reviewed: set[Any]
+    latest: dict[Any, Acceptance]
+    content: dict[Any, set[str]]
+    returns: dict[Any, set[str]]
+
+
+def _rows(documents: list[Document]) -> _Rows:
     """What the review states of `documents` are read from, in three queries whatever their
-    number: who has a reviewer, each document's latest acceptance, each document's content
-    commits."""
+    number: who has a reviewer, each document's latest acceptance, each document's content and
+    return commits."""
     ids = [d.pk for d in documents]
     reviewed = with_reviewer(ids)
     latest: dict[Any, Acceptance] = {}
@@ -142,11 +161,12 @@ def _rows(documents: list[Document]) -> tuple[set[Any], dict[Any, Acceptance], d
         ):
             latest[acceptance.version.document_id] = acceptance
     content: dict[Any, set[str]] = {pk: set() for pk in ids}
-    for document_id, sha in Version.objects.filter(
-        document_id__in=ids, kind__in=services.CONTENT
-    ).values_list("document_id", "commit_sha"):
-        content[document_id].add(sha)
-    return reviewed, latest, content
+    returns: dict[Any, set[str]] = {pk: set() for pk in ids}
+    for document_id, sha, kind in Version.objects.filter(
+        document_id__in=ids, kind__in=(*services.CONTENT, VersionKind.RETURN)
+    ).values_list("document_id", "commit_sha", "kind"):
+        (returns if kind == VersionKind.RETURN else content)[document_id].add(sha)
+    return _Rows(reviewed, latest, content, returns)
 
 
 def states(documents: Iterable[Document]) -> dict[Any, State]:
@@ -155,12 +175,12 @@ def states(documents: Iterable[Document]) -> dict[Any, State]:
     accepted or pending beyond the latest edition; five queries, then each document's
     repository."""
     documents = list(documents)
-    reviewed, latest, content = _rows(documents)
+    reviewed, latest, content, returns = _rows(documents)
     held_still = frozen(d.pk for d in documents)
     canonical = since_edition((d.pk for d in documents), latest)
     result: dict[Any, State] = {}
     for d in documents:
-        found = _state_of(d, reviewed, latest.get(d.pk), content[d.pk])
+        found = _state_of(d, reviewed, latest.get(d.pk), content[d.pk], returns[d.pk])
         if found is State.ACCEPTED and d.pk in canonical:
             found = State.CANONICAL
         result[d.pk] = (
@@ -177,12 +197,18 @@ def any_awaiting(documents: Iterable[Document]) -> bool:
     unread. One whose record cannot be read is passed over with a warning, since every page asks
     this."""
     documents = list(documents)
-    reviewed, latest, content = _rows(documents)
+    reviewed, latest, content, returns = _rows(documents)
     for document in documents:
         if document.pk not in reviewed or not content[document.pk]:
             continue
         try:
-            found = _state_of(document, reviewed, latest.get(document.pk), content[document.pk])
+            found = _state_of(
+                document,
+                reviewed,
+                latest.get(document.pk),
+                content[document.pk],
+                returns[document.pk],
+            )
         except Exception:  # noqa: BLE001 — one unreadable record must not fail every page
             logger.warning(
                 "a document's state could not be read", extra={"document": document.number}
@@ -251,10 +277,16 @@ def tags(
             shown[d.pk].append(
                 hold_tag(held[d.pk], rights.get(d.pk, frozenset()), administrator=administrator)
             )
-    reviewed, latest, content = _rows(seen)
+    reviewed, latest, content, returns = _rows(seen)
     for document in seen:
         try:
-            found = _state_of(document, reviewed, latest.get(document.pk), content[document.pk])
+            found = _state_of(
+                document,
+                reviewed,
+                latest.get(document.pk),
+                content[document.pk],
+                returns[document.pk],
+            )
         except Exception:  # noqa: BLE001 — one unreadable record must not fail a shared page
             logger.exception(
                 "a document's state could not be read", extra={"document": document.number}

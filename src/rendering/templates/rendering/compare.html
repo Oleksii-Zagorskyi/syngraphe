@@ -1,0 +1,24 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}#{{ document.number }} {{ older }} · {{ newer }} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content document compare">
+  <p class="band historical" role="status">{% blocktranslate with older=older_link newer=newer_link %}Comparing {{ older }} with {{ newer }} — read only{% endblocktranslate %}</p>
+  <h1><span class="id">#{{ document.number }}</span> {{ document.title }}</h1>
+  <form class="compare-pair" method="get" action="/document/{{ document.number }}/compare/">
+    <label>{% translate "From" context "compare" %} <select name="from">{% for number in numbers %}<option value="{{ number }}"{% if number == older %} selected{% endif %}>{{ number }}</option>{% endfor %}</select></label>
+    <label>{% translate "To" context "compare" %} <select name="to">{% for number in numbers %}<option value="{{ number }}"{% if number == newer %} selected{% endif %}>{{ number }}</option>{% endfor %}</select></label>
+    <button class="btn" type="submit">{% translate "Compare" %}</button>
+    {% if consecutive %}<span class="steps">{% if previous %}<a class="step previous" href="{{ previous }}">← {% translate "previous" %}</a>{% else %}<button class="step previous" type="button" disabled>← {% translate "previous" %}</button>{% endif %} {% if next %}<a class="step next" href="{{ next }}">{% translate "next" %} →</a>{% else %}<button class="step next" type="button" disabled>{% translate "next" %} →</button>{% endif %}</span>{% endif %}
+  </form>
+  <div class="compare-panes">
+    <div class="changes document-text">{{ changes }}</div>
+    <aside class="panel" aria-label="{% translate 'Parts' %}">
+      <section class="attachments">
+        <h2>{% translate "Attachments" %}</h2>
+        {% if parts %}<ul>{% for part in parts %}<li data-change="{{ part.change }}">{% firstof part.newer.title part.older.title %}{% if part.older and part.newer and part.older.title != part.newer.title %} <span class="muted">({{ part.older.title }})</span>{% endif %} — {% if part.change == "added" %}{% translate "added" %}{% elif part.change == "changed" %}{% translate "changed" %}{% elif part.change == "removed" %}{% translate "removed" %}{% else %}{% translate "unchanged" %}{% endif %}<br>{% if part.older %}<a href="/document/{{ document.number }}/version/{{ older }}/attachment/{{ part.number }}/">{{ older }} · {{ part.older.file_name }}</a>{% endif %}{% if part.older and part.newer %} · {% endif %}{% if part.newer %}<a href="/document/{{ document.number }}/version/{{ newer }}/attachment/{{ part.number }}/">{{ newer }} · {{ part.newer.file_name }}</a>{% endif %}</li>{% endfor %}</ul>{% else %}<p>{% translate "No attachments" %}</p>{% endif %}
+      </section>
+    </aside>
+  </div>
+</section>
+{% endblock %}

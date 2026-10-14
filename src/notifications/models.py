@@ -37,6 +37,7 @@ class Event(models.TextChoices):
     RESERVATION_STARTED = "reservation_started", "reservation_started"
     RESERVATION_ENDED_BY_ADMIN = "reservation_ended_by_admin", "reservation_ended_by_admin"
     HOLD_EXPIRING = "hold_expiring", "hold_expiring"
+    RETURNED = "returned", "returned"
 
 
 # What platform administrators are told in the shared schema (DL-0382); `email_failed` also

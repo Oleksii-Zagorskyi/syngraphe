@@ -3,7 +3,10 @@ tenant and its members, and the live server the browser tests run against."""
 
 from __future__ import annotations
 
+import json
 import os
+import subprocess
+import sys
 import tempfile
 import uuid
 from collections.abc import Callable, Iterator
@@ -230,6 +233,83 @@ def make_document(migrated_tenant: Any) -> Callable[..., Any]:
             )
 
     return make
+
+
+CORPUS = Path(__file__).resolve().parent / "fixtures" / "corpus"
+CORPUS_DOMAIN = "users.noreply.syngraphe.local"
+# The generator's fixed clock: commit `n` is dated `CORPUS_EPOCH + n` hours.
+CORPUS_EPOCH = 1_800_000_000
+
+
+def _git(repo: Path, *args: str, stdin: bytes | None = None) -> bytes:
+    env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args], input=stdin, env=env, capture_output=True, timeout=120
+    )
+    assert result.returncode == 0, result.stderr.decode(errors="replace")
+    return result.stdout
+
+
+def _platform_frontmatter(text: str) -> str:
+    """The corpus's document with its frontmatter as the platform writes it."""
+    from documents import bundle
+
+    lines = text.split("\n")
+    fields = dict(line.split(": ", 1) for line in lines[1:4])
+    return bundle.render(
+        bundle.Frontmatter(title=fields["title"], language=fields["language"]),
+        "\n".join(lines[6:]),
+    )
+
+
+@pytest.fixture(scope="session")
+def platform_corpus(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
+    """The invented Ukrainian corpus of `tests/fixtures/corpus/` with the platform's frontmatter,
+    as a bare repository: `repo`, its `commits` — the generator's, each with the repository's
+    `sha` and its time `at` — and the generator's record of who wrote every sentence, `truth`."""
+    out = tmp_path_factory.mktemp("platform-corpus")
+    generated, truth_path = out / "generated.git", out / "truth.json"
+    result = subprocess.run(
+        [sys.executable, str(CORPUS / "corpus.py"), "--lang", "ukr", "--repo", str(generated)]
+        + ["--truth", str(truth_path)],
+        capture_output=True,
+    )
+    assert result.returncode == 0, result.stderr.decode(errors="replace")
+    truth = json.loads(truth_path.read_text(encoding="utf-8"))
+    commits = truth["commits"]
+    batch = _git(
+        generated,
+        "cat-file",
+        "--batch",
+        stdin="".join(f"{c['sha']}:document.md\n" for c in commits).encode(),
+    )
+    repo = out / "corpus-ukr.git"
+    subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(repo)], check=True)
+    stream, at = bytearray(), 0
+    for mark, commit in enumerate(commits, 1):
+        header_end = batch.index(b"\n", at)
+        size = int(batch[at:header_end].split(b" ")[2])
+        text = batch[header_end + 1 : header_end + 1 + size].decode("utf-8")
+        at = header_end + 1 + size + 1
+        data = _platform_frontmatter(text).encode("utf-8")
+        when = CORPUS_EPOCH + commit["n"] * 3600
+        who = f"{commit['author']} <{commit['author']}@{CORPUS_DOMAIN}> {when} +0000"
+        stream += f"commit refs/heads/main\nmark :{mark}\nauthor {who}\ncommitter {who}\n".encode()
+        stream += b"data 6\nCommit\n"
+        if mark > 1:
+            stream += f"from :{mark - 1}\n".encode()
+        stream += f"M 100644 inline document.md\ndata {len(data)}\n".encode() + data + b"\n"
+    marks = out / "marks"
+    _git(repo, "fast-import", "--quiet", f"--export-marks={marks}", stdin=bytes(stream))
+    shas = dict(line.split(" ") for line in marks.read_text().splitlines())
+    return {
+        "repo": repo,
+        "commits": [
+            {**c, "sha": shas[f":{m}"], "at": CORPUS_EPOCH + c["n"] * 3600}
+            for m, c in enumerate(commits, 1)
+        ],
+        "truth": truth,
+    }
 
 
 BUNDLE = (

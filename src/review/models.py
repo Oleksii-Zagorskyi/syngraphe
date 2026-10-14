@@ -108,3 +108,27 @@ class CorrectionLine(models.Model):
 
     def __str__(self) -> str:
         return f"correction line {self.pk}"
+
+
+class Return(models.Model):
+    """One return of a run without accepting it (DL-0114): its passport commit, which is the
+    record, and the reviewer's reason, one line under DL-0378's rule. The run stays pending; the
+    returned versions are the run's up to the version the section names."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # The passport commit, kind `return`.
+    version = models.OneToOneField(
+        "documents.Version", on_delete=models.PROTECT, related_name="returned"
+    )
+    # The content version the latest acceptance before it accepted, or the `created` one.
+    returned_from = models.ForeignKey(
+        "documents.Version", on_delete=models.PROTECT, related_name="+"
+    )
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+"
+    )
+    reason = models.CharField(max_length=500)
+    at = models.DateTimeField()
+
+    def __str__(self) -> str:
+        return f"return {self.pk}"

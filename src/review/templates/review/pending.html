@@ -4,7 +4,8 @@
 <div class="pending">
   {% if acts %}
   <p class="acts">{% if acts.correct %}<button class="btn" type="button" disabled data-command="correct">{% translate "Correct" %}</button> <span class="muted">{{ acts.correct }}</span>{% else %}<a class="btn" href="/document/{{ document.number }}/edit/" data-command="correct">{% translate "Correct" %}</a>{% endif %}
-  {% if acts.accept %}<button class="btn primary" type="button" disabled>{% translate "Accept the run" %}</button> <span class="muted">{{ acts.accept }}</span>{% else %}<a class="btn primary" href="/document/{{ document.number }}/pending/accept/" data-command="accept">{% translate "Accept the run" %}</a>{% endif %}</p>
+  {% if acts.accept %}<button class="btn primary" type="button" disabled>{% translate "Accept the run" %}</button> <span class="muted">{{ acts.accept }}</span>{% else %}<a class="btn primary" href="/document/{{ document.number }}/pending/accept/" data-command="accept">{% translate "Accept the run" %}</a>{% endif %}
+  {% if acts.return %}<button class="btn" type="button" disabled>{% translate "Return without accepting" %}</button> <span class="muted">{{ acts.return }}</span>{% else %}<a class="btn" href="/document/{{ document.number }}/pending/return/" data-command="return">{% translate "Return without accepting" %}</a>{% endif %}</p>
   {% endif %}
   <form method="post" action="/preferences/show-author/" class="show-author">
     {% csrf_token %}

@@ -41,6 +41,14 @@ def reason(document: Document, user: User, code: str) -> str:
             "name": person(hold.user),
             "date": reserved_since(hold.reserved_at),
         }
+    if code == "undo_waits":
+        from review.services import undo_waiting
+
+        hold = undo_waiting(document)
+        return _(
+            "An undo of these edits waits in %(name)s’s draft: the run is accepted when they "
+            "finish it with “Accept as”."
+        ) % {"name": person(hold.user) if hold is not None else ""}
     return {
         "no_reviewer": _("No reviewer is assigned to this document."),
         "nothing_to_accept": _("Nothing awaits review."),

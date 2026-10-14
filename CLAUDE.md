@@ -106,8 +106,9 @@ next one starts, not after.
 every other Markdown file in this repository are written in English. Material
 that arrives in Ukrainian — an answer, a screenshot, an example — is translated
 when it is recorded. Ukrainian appears only where it is the subject: the
-glossary's Ukrainian terms, invented test prose, interface strings — or where
-a document's frontmatter lists both languages, which marks it bilingual by design.
+glossary's Ukrainian terms, invented test prose where the language is what
+the test is about, interface strings — or where a document's frontmatter lists
+both languages, which marks it bilingual by design.
 
 **Configuration, never code.** No hostname, domain, tenant name, display name,
 mailbox or timezone appears as a literal in `src/`. The test: could this file be
@@ -169,9 +170,15 @@ as a test sample, not in a docstring, not in an issue, not temporarily. The
 organisation's policies, their text, their titles and anything identifying the
 organisation itself live outside the tree entirely.
 
-Test material is invented. If a test needs realistic Ukrainian prose, write
-invented Ukrainian prose. Anything sourced from a real document does not enter
+Test material is invented. Anything sourced from a real document does not enter
 this repository at all.
+
+**A test's sample text is invented English, unless the language is what the
+test is about.** Invented Ukrainian stays where the behaviour depends on it:
+the move rule, which git does not apply to Cyrillic (ADR-0011), and the
+undo's walk, which follows moves by it; the sentence splitter and the
+normalizer; the diff, rendering and export engines' own tests; the generated
+corpus; the Ukrainian catalogue's coverage.
 
 **An example is marked as one.** A group, a role holder, a department or a
 document named to illustrate a rule — *Accountants*, *the CFO*, a finance

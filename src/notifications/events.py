@@ -34,6 +34,7 @@ EVENTS: dict[Event, EventSpec] = {
     Event.RESERVATION_STARTED: EventSpec(Category.ADMINISTRATIVE),
     Event.RESERVATION_ENDED_BY_ADMIN: EventSpec(Category.DOCUMENT),
     Event.HOLD_EXPIRING: EventSpec(Category.DOCUMENT),
+    Event.RETURNED: EventSpec(Category.DOCUMENT),
 }
 
 # The events a tenant administrator can receive in the organisation's schema, and what a platform
@@ -171,6 +172,9 @@ def describe(row: Any, *, named: bool = True) -> str:
             "#%(number)s %(title)s: your reservation was ended by %(by)s."
         ),
         Event.HOLD_EXPIRING: _("#%(number)s %(title)s: your editing will soon end for inactivity."),
+        # As for an ended reservation, the reason is read on the page, never in the email
+        # (DL-0369).
+        Event.RETURNED: _("#%(number)s %(title)s: your edits were returned without accepting."),
     }
     if event == Event.DOCUMENT_CREATED and facts.get("recreated"):
         words[event] = _(

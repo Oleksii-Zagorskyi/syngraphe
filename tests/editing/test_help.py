@@ -150,3 +150,34 @@ def test_editing_together_help_page(member_of: Any, settings: Any) -> None:
         if language == "uk":
             leaked = [message for message in ids if message in catalogue.text_of(body)]
             assert leaked == [], leaked
+
+
+def test_history_help_page(member_of: Any, settings: Any) -> None:
+    """*History, comparing and undoing*: listed in the index and rendered in both languages, no
+    message id shown."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "history_catalogue",
+        Path(__file__).resolve().parents[1] / "review" / "test_catalogue.py",
+    )
+    assert spec is not None and spec.loader is not None
+    catalogue = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(catalogue)
+    ids = catalogue.message_ids(catalogue.CATALOGUE.read_text(encoding="utf-8"))
+    client, _, _ = member_of("a.reader@example.test")
+
+    for language, heading in (
+        ("en", "History, comparing and undoing"),
+        ("uk", "Історія, порівняння і скасування"),
+    ):
+        settings.LANGUAGE_CODE = language
+        index = client.get("/help/").content.decode()
+        page = client.get("/help/history/")
+        body = page.content.decode()
+        assert 'href="/help/history/"' in index, language
+        assert page.status_code == 200 and f"<h1>{heading}</h1>" in body, language
+        if language == "uk":
+            leaked = [message for message in ids if message in catalogue.text_of(body)]
+            assert leaked == [], leaked

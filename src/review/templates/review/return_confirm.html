@@ -1,0 +1,19 @@
+{% extends "documents/page.html" %}
+{% load i18n %}
+{% block tab %}
+<div class="return-confirm">
+  <h2>{% translate "Return without accepting" %}</h2>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <p>{% translate "The versions below go back to their authors without being accepted. They stay pending, and the authors are told your reason." %}</p>
+  <ol class="run">
+    {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}</span></li>{% endfor %}
+  </ol>
+  <form method="post" action="/document/{{ document.number }}/pending/return/">
+    {% csrf_token %}
+    <input type="hidden" name="confirmed" value="{{ confirmed }}">
+    <p><label>{% translate "Reason" %} <input type="text" name="reason" value="{{ typed }}" maxlength="500" required size="60"></label></p>
+    <p class="choice"><button class="btn primary" type="submit" data-command="return">{% translate "Return without accepting" %}</button>
+    <a class="btn" href="/document/{{ document.number }}/pending/">{% translate "Cancel" %}</a></p>
+  </form>
+</div>
+{% endblock %}

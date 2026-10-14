@@ -91,3 +91,10 @@
 .export-dialog details.hint { display: inline-block; position: relative; font-weight: 400; }
 .export-dialog details.hint summary { cursor: pointer; list-style: none; padding: 0 5px; border: 1px solid #d4d4d4; border-radius: 50%; color: #555; font-size: 11px; }
 .export-dialog details.hint[open] p { position: absolute; left: 0; top: 1.6em; z-index: 5; width: max-content; max-width: 36rem; margin: 0; padding: 6px 8px; background: #f7f7f7; border: 1px solid #d4d4d4; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12); font-size: 12px; }
+
+/* A historical page and the compare page: a fixed version, read only (DL-0195, DL-0233). */
+.band.historical { background: #eceff3; border-color: #b7c0cc; }
+.compare-pair { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 12px; }
+.compare-pair .steps { margin-left: auto; display: flex; gap: 8px; }
+.compare-panes { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
+@media (max-width: 800px) { .compare-panes { grid-template-columns: minmax(0, 1fr); } }

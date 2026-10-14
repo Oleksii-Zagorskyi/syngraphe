@@ -63,8 +63,27 @@ def _target(request: HttpRequest, row: Any) -> str:
         return _group_page(facts) if administers(request) else reverse("folder", args=[ROOT_FOLDER])
     if row.document is None:
         return reverse("notifications") + "?tab=administrative"
-    # The version's own page is the historical page's; until it exists, the document (DL-0334).
-    return reverse("document", args=[row.document.number])
+    return _version_page(request, row) or reverse("document", args=[row.document.number])
+
+
+def _version_page(request: HttpRequest, row: Any) -> str:
+    """The historical page of the version an entry concerns, where the reader's ceiling reaches
+    it; `""` otherwise, and the entry leads to the document (`pages.md § Notifications`)."""
+    from documents.models import Version
+    from editing.numbering import number_of
+    from rendering.views import UNREADABLE
+    from review.history import version_for
+
+    version = getattr(row, "version", None)
+    if not isinstance(version, Version):
+        return ""
+    try:
+        number = number_of(row.document, version)
+        if not number or version_for(request.user, row.document, number) is None:
+            return ""
+    except UNREADABLE:
+        return ""
+    return reverse("document_version", args=[row.document.number, number])
 
 
 @never_cache
@@ -79,7 +98,7 @@ def detail(request: HttpRequest, pk: uuid.UUID) -> HttpResponse:
     if _in_organisation(request):
         row = (
             Notification.objects.filter(pk=pk, user_id=user.pk)
-            .select_related("document", "correction_notice")
+            .select_related("document", "correction_notice", "version")
             .first()
         )
         # An entry the list hides — its document no longer opens for its reader — is missing

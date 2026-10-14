@@ -95,6 +95,9 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
             )
     context["reservation"] = _reservation(request, document, hold, frozen, context)
     context["draft_view"] = _draft_view(document, hold if holding else None)
+    if holding and hold is not None:
+        # What an undo left for the holder's hand, beside the text and never in it (DL-0380).
+        context["undo"] = hold.draft.content.get("undo")
     return render(request, "editing/edit_tab.html", context)
 
 
@@ -147,8 +150,9 @@ def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, 
     from documents import gitstore
     from editing.diffview import render_changes
     from editing.markdown.validator import validate
-    from editing.services import comparison_choices
     from identity.naming import person
+    from rendering.views import UNREADABLE
+    from review.history import reachable
 
     released = kept.hold
     repo = gitstore.open_repository(holds.tenant_number(), document.number)
@@ -167,8 +171,10 @@ def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, 
     if not shown["moved"]:
         return shown
     try:
-        choices = comparison_choices(document)
-    except LookupError:
+        # What the holder's ceiling reaches, newest first: the run, the latest accepted version
+        # and edition, and what a history right adds (DL-0417).
+        choices = [(n, v.commit_sha) for n, v in reachable(request.user, document)][::-1]
+    except UNREADABLE:
         # A head that no longer follows the accepted version: the current text alone.
         choices = []
     chosen = request.GET.get("against", "")

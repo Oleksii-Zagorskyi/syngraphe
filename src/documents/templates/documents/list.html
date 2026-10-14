@@ -17,7 +17,7 @@
         <td class="id">#{{ row.document.number }}</td>
         <td><a href="/document/{{ row.document.number }}/">{{ row.document.title }}</a>{% for tag in row.tags %}<span class="tag" data-state="{{ tag.state }}">{{ tag.label }}</span>{% endfor %}</td>
         <td>{{ row.document.document_type.label }}</td>
-        <td class="canonical">{{ row.canonical }}</td>{% if latest_column %}
+        <td class="canonical">{% if row.canonical %}<a href="/document/{{ row.document.number }}/version/{{ row.canonical }}/" target="_blank" rel="noopener">{{ row.canonical }}</a>{% endif %}</td>{% if latest_column %}
         <td class="latest">{% if row.latest %}<a href="/document/{{ row.document.number }}/">{{ row.latest }}</a>{% endif %}</td>{% endif %}
         <td class="parts">
           <span class="part appendices{% if not row.appendices %} absent{% endif %}" title="{% translate 'appendices' %}">▤</span>

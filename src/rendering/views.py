@@ -1,6 +1,8 @@
 """The *View* tab: the text of the version the reader may see (DL-0209), rendered with its clause
 numbers, headed by its number and the canonical edition's (DL-0352); beside it the outline of
-that text and the attachments that version lists, in the page's side panes (DL-0356)."""
+that text and the attachments that version lists, in the page's side panes (DL-0356). The
+historical page of any version the reader's ceiling reaches, with its attachments and its export,
+and the comparison of two (DL-0195, DL-0208); the export dialog and its jobs."""
 
 from __future__ import annotations
 
@@ -15,14 +17,16 @@ from django.http.response import HttpResponseBase
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.cache import patch_cache_control
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
 from audit.record import record
 from documents import bundle, gitstore
-from documents.models import Document
+from documents.models import Document, Version
 from documents.parts import attachments
+from editing.numbering import number_of
 from editions.visible import visible as visible_to
 from identity.models import User, UserPreference
 from identity.views.preferences import (
@@ -44,15 +48,33 @@ logger = logging.getLogger(__name__)
 UNREADABLE = (pygit2.GitError, LookupError, ObjectDoesNotExist, ValueError)
 
 
-def view_context(request: HttpRequest, document: Document) -> dict[str, Any] | None:
-    """What the tab shows, or `None` when there is nothing the person may be shown."""
+def view_context(
+    request: HttpRequest,
+    document: Document,
+    *,
+    version: Version | None = None,
+    number: str | None = None,
+) -> dict[str, Any] | None:
+    """What the tab shows — or, with `version`, what the historical page shows of a version the
+    caller resolved through the reader's ceiling, and its `number` (DL-0195) — or `None` when
+    there is nothing the person may be shown."""
     try:
-        visible = visible_to(request.user, document)
-        if visible is None:
-            return None
+        if version is None:
+            visible = visible_to(request.user, document)
+            if visible is None:
+                return None
+            shown, number, stance, canonical = (
+                visible.version,
+                visible.number,
+                visible.stance,
+                visible.canonical,
+            )
+        else:
+            shown, stance, canonical = version, "", None
+            number = number or number_of(document, version)
         tenant = request.tenant  # type: ignore[attr-defined]
         repo = gitstore.open_repository(tenant.number, document.number)
-        text = gitstore.read(repo, "document.md", visible.version.commit_sha).decode("utf-8")
+        text = gitstore.read(repo, "document.md", shown.commit_sha).decode("utf-8")
         _, body = bundle.parse(text)
     except UNREADABLE:
         logger.exception("a document's text could not be read", extra={"document": document.number})
@@ -60,10 +82,10 @@ def view_context(request: HttpRequest, document: Document) -> dict[str, Any] | N
     tokens = labelled(body)
     headings = outline(tokens)
     return {
-        "version_number": visible.number,
-        "version_stance": visible.stance,
-        "canonical_number": visible.canonical,
-        "attachments": attachments(visible.version),
+        "version_number": number,
+        "version_stance": stance,
+        "canonical_number": canonical,
+        "attachments": attachments(shown),
         "headings": headings,
         "outline_width": _kept(
             request, "outline_width", OUTLINE_WIDTH, OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX
@@ -87,15 +109,163 @@ def _kept(request: HttpRequest, key: str, default: int, least: int, most: int) -
     return default
 
 
+# --- the historical page (DL-0195, DL-0208) -----------------------------------------------------
+
+
+def _version(
+    request: HttpRequest, number: int, version_number: str
+) -> tuple[Document, Version, Any] | None:
+    """The document, the version `version_number` names when the reader's ceiling reaches it, and
+    that ceiling, read once for the request (`review.history.ceiling`); `None` wherever the
+    answer is *nothing to show*."""
+    from documents.views import readable_document
+    from review.history import ceiling
+
+    document = readable_document(request, number, methods=(request.method or "GET",))
+    if document is None or request.method not in ("GET", "POST"):
+        return None
+    try:
+        past = ceiling(request.user, document)
+        version = past.version(version_number)
+    except UNREADABLE:
+        logger.exception("a document's history could not be read", extra={"document": number})
+        return None
+    return (document, version, past) if version is not None else None
+
+
+@never_cache
+@login_required
+def historical(request: HttpRequest, number: int, version_number: str) -> HttpResponse:
+    """One version, read only, in a window of its own: the banner, the reading view and its
+    outline, the attachments at that version, *Export*, and *compare with* the other versions the
+    reader may see. Never editable."""
+    if request.method != "GET":
+        return not_found(request)
+    found = _version(request, number, version_number)
+    if found is None:
+        return not_found(request)
+    document, version, past = found
+    shown = view_context(request, document, version=version, number=past.number(version))
+    if shown is None:
+        return not_found(request)
+    others = [n for n, v in past.reachable() if v.pk != version.pk]
+    context = {
+        **shown,
+        "document": document,
+        "version_path": f"/document/{document.number}/version/{shown['version_number']}/",
+        "others": others[::-1],
+    }
+    return render(request, "rendering/historical.html", context)
+
+
+@never_cache
+@login_required
+def historical_attachment(
+    request: HttpRequest, number: int, version_number: str, part: int
+) -> HttpResponseBase:
+    """An attachment as the version lists it, under its original name, never opened by the
+    platform (DL-0342, DL-0421); whatever may not be served answers as a missing document."""
+    if request.method != "GET":
+        return not_found(request)
+    found = _version(request, number, version_number)
+    if found is None:
+        return not_found(request)
+    document, version, _past = found
+    from documents.views import serve_attachment
+
+    return serve_attachment(request, document, version, part)
+
+
+@never_cache
+@login_required
+def compare(request: HttpRequest, number: int) -> HttpResponse:
+    """Two versions on a page of their own (ST-0033, DL-0208, DL-0233): the newer one's whole
+    text with its changes against the older marked in place, whichever order they were asked in;
+    the attachments of both, each file at each version and whether it changed; *previous* and
+    *next* on a pair consecutive among the content versions the reader may see (DL-0361). Both
+    versions resolve through the reader's ceiling, read once; one version asked against itself, by
+    one number or two, opens that version's page; a reader who may see one version is offered no
+    comparison."""
+    from documents.parts import changed_between
+    from documents.views import readable_document
+    from editing.diffview import render_changes
+    from review.history import ceiling
+
+    document = readable_document(request, number)
+    if document is None:
+        return not_found(request)
+    asked = request.GET.get("from", ""), request.GET.get("to", "")
+    try:
+        past = ceiling(request.user, document)
+        seen = past.reachable()
+        pair = [past.version(n) for n in asked]
+    except UNREADABLE:
+        logger.exception("a document's history could not be read", extra={"document": number})
+        return not_found(request)
+    position = {version.pk: i for i, (_n, version) in enumerate(seen)}
+    found = [v for v in pair if v is not None and v.pk in position]
+    if len(found) < 2:
+        return not_found(request)
+    if found[0].pk == found[1].pk:
+        only = seen[position[found[0].pk]][0]
+        return HttpResponseRedirect(f"/document/{document.number}/version/{only}/")
+    i, j = sorted(position[v.pk] for v in found)
+    (older_number, older), (newer_number, newer) = seen[i], seen[j]
+    tenant = request.tenant  # type: ignore[attr-defined]
+    try:
+        repo = gitstore.open_repository(tenant.number, document.number)
+        _, older_body = bundle.parse(gitstore.read(repo, "document.md", older.commit_sha).decode())
+        _, newer_body = bundle.parse(gitstore.read(repo, "document.md", newer.commit_sha).decode())
+    except UNREADABLE:
+        logger.exception("a document's text could not be read", extra={"document": number})
+        return not_found(request)
+
+    def link(a: int, b: int) -> str:
+        return f"/document/{document.number}/compare/?from={seen[a][0]}&to={seen[b][0]}"
+
+    consecutive = j == i + 1
+    context = {
+        "document": document,
+        "older": older_number,
+        "newer": newer_number,
+        "older_link": _version_link(document, older_number),
+        "newer_link": _version_link(document, newer_number),
+        "numbers": [n for n, _v in seen],
+        "consecutive": consecutive,
+        "previous": link(i - 1, i) if consecutive and i > 0 else "",
+        "next": link(j, j + 1) if consecutive and j + 1 < len(seen) else "",
+        "parts": changed_between(older, newer),
+        # Rendered from text the whitelist accepted, by the renderer that escapes it.
+        "changes": mark_safe(  # noqa: S308
+            render_changes(older_body.encode("utf-8"), newer_body.encode("utf-8"))
+        ),
+    }
+    return render(request, "rendering/compare.html", context)
+
+
+def _version_link(document: Document, number: str) -> str:
+    """A version's number as a link to its historical page, which opens in a window of its own
+    (DL-0195)."""
+    return format_html(
+        '<a href="/document/{}/version/{}/" target="_blank" rel="noopener">{}</a>',
+        document.number,
+        number,
+        number,
+    )
+
+
 # --- export (DL-0172, DL-0193, DL-0241) --------------------------------------------------------
 
 
-def _offers_and_parts(user: Any, document: Document) -> tuple[list[Any], bool]:
-    """The views the person may export, and whether any offered version has attachments."""
+def _offers_and_parts(
+    user: Any, document: Document, version: Version | None = None, past: Any = None
+) -> tuple[list[Any], bool]:
+    """The views the person may export — the one at `version` from a historical page — and
+    whether any offered version has attachments."""
     from documents.models import PartIndex, PartKind
     from rendering.export.compose import offers
 
-    offered = offers(user, document)
+    offered = offers(user, document, version=version, past=past)
     parts = PartIndex.objects.filter(
         version__in=[offer.version for offer in offered], kind=PartKind.ATTACHMENT
     ).exists()
@@ -104,22 +274,35 @@ def _offers_and_parts(user: Any, document: Document) -> tuple[list[Any], bool]:
 
 @never_cache
 @login_required
-def export(request: HttpRequest, number: int) -> HttpResponse:
+def export(request: HttpRequest, number: int, version_number: str | None = None) -> HttpResponse:
     """The export dialog, and the job it asks for: *what*, *format*, *view* and *changes* by the
-    person's rights; a request writes the job row, then queues it, then shows its progress."""
+    person's rights; a request writes the job row, then queues it, then shows its progress. From a
+    historical page, the dialog at that version alone (DL-0195, DL-0208)."""
     from documents.views import readable_document
 
-    document = readable_document(request, number, methods=("GET", "POST"))
+    document: Document | None
+    version: Version | None = None
+    past: Any = None
+    if version_number is None:
+        document = readable_document(request, number, methods=("GET", "POST"))
+    else:
+        found = _version(request, number, version_number)
+        document, version, past = found if found is not None else (None, None, None)
     if document is None:
         return not_found(request)
     try:
-        offered, parts = _offers_and_parts(request.user, document)
+        offered, parts = _offers_and_parts(request.user, document, version, past)
     except UNREADABLE:
         logger.exception("a document's versions could not be read", extra={"document": number})
         return not_found(request)
     if not offered:
         return not_found(request)
-    context: dict[str, Any] = {"document": document, "offers": offered, "parts": parts}
+    context: dict[str, Any] = {
+        "document": document,
+        "offers": offered,
+        "parts": parts,
+        "action": request.path,
+    }
     if request.method == "GET":
         return render(request, "rendering/export.html", context)
     chosen = _chosen(request, offered, parts)
@@ -129,7 +312,7 @@ def export(request: HttpRequest, number: int) -> HttpResponse:
             chosen = _("Your previous export of this document is still being made.")
         context["refusal"] = chosen
         return render(request, "rendering/export.html", context, status=400)
-    job = _queued(request, document, chosen)
+    job = _queued(request, document, chosen, at_version=version is not None)
     if job is None:
         context["refusal"] = _("Your previous export of this document is still being made.")
         return render(request, "rendering/export.html", context, status=400)
@@ -189,7 +372,9 @@ def _chosen(request: HttpRequest, offered: list[Any], parts: bool) -> dict[str, 
     }
 
 
-def _queued(request: HttpRequest, document: Document, chosen: dict[str, Any]) -> Any:
+def _queued(
+    request: HttpRequest, document: Document, chosen: dict[str, Any], *, at_version: bool = False
+) -> Any:
     """The job written, audited, and queued once its row is committed."""
     from django.db import transaction
 
@@ -214,6 +399,7 @@ def _queued(request: HttpRequest, document: Document, chosen: dict[str, Any]) ->
             changes=chosen["changes"],
             baseline_version=offer.baseline if marked else None,
             requested_by=cast(User, request.user),
+            at_version=at_version,
         )
         record(
             actor=cast(User, request.user),

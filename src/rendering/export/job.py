@@ -101,7 +101,13 @@ def _held(job: ExportJob, tenant: int) -> ExportState:
         with translation.override(settings.LANGUAGE_CODE):
             if not compose.still_permitted(job):
                 raise compose.Refused(_("The version asked for is no longer one you may export."))
-            number = compose.number_of(job.document, job.version, job.view)
+            if job.at_version:
+                # The number the version's page shows, from git and the passport (DL-0183, DL-0267).
+                from editing import numbering
+
+                number = numbering.number_of(job.document, job.version)
+            else:
+                number = compose.number_of(job.document, job.version, job.view)
             composed = compose.compose(job, tenant, number=number)
             folder.mkdir(parents=True, exist_ok=True)
             # Marked as fresh: the hourly sweep keys on the folder's age.

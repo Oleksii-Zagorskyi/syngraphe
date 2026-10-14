@@ -72,6 +72,9 @@ class ExportJob(models.Model):
     requested_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+"
     )
+    # Asked from a version's historical page: re-checked against the reader's ceiling when it runs,
+    # not against the view's rights (DL-0423).
+    at_version = models.BooleanField(default=False)
     state = models.CharField(max_length=6, choices=ExportState.choices, default=ExportState.QUEUED)
     # The produced file's path under the exports root, `<job id>/<file name>`.
     artifact_ref = models.CharField(max_length=400, blank=True)

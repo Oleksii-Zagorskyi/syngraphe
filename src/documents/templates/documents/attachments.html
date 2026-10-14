@@ -1,4 +1,4 @@
 {% load i18n %}<section class="attachments">
   <h2>{% translate "Attachments" %}</h2>
-  {% if attachments %}<ul>{% for item in attachments %}<li><a href="/document/{{ document.number }}/attachment/{{ item.number }}/">{{ item.title }}</a> <span class="file-name">{{ item.file_name }}</span> <span class="size">{{ item.bytes|filesizeformat }}</span></li>{% endfor %}</ul>{% else %}<p>{% translate "No attachments" %}</p>{% endif %}
+  {% if attachments %}<ul>{% for item in attachments %}<li><a href="{% if version_path %}{{ version_path }}{% else %}/document/{{ document.number }}/{% endif %}attachment/{{ item.number }}/">{{ item.title }}</a> <span class="file-name">{{ item.file_name }}</span> <span class="size">{{ item.bytes|filesizeformat }}</span></li>{% endfor %}</ul>{% else %}<p>{% translate "No attachments" %}</p>{% endif %}
 </section>

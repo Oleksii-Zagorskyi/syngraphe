@@ -182,19 +182,19 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 
 **Status.** Proven — 2026-09-27; the owner judged the same day that the result supports the scope agreement's promise. For one author of the corpus, every sentence the author added — 440, found in the diffs of the author's 71 commits — is classified from blame: 414 untouched, 22 built on by a later author, 4 removed; the classification, the later wording of every built-on sentence and the text before the author agree with the generator's own record on all 440, with nothing unresolved. The computation is a reverse blame from each of the author's commits to HEAD, plus the diff of the commit that changed a sentence: 3.1 s over the Ukrainian history, 2.1 s over the English, against a budget of 5 s, on 2 CPUs. The Ukrainian history needs the platform's own move rule (V-06): without it a paragraph moved by someone else reads as that author removing the sentences.
 
-**Since.** The choice this claim proved presentable is no longer offered: undoing a contribution lists the built-on sentences for the reviewer to edit by hand (ADR-0015). The classification it proved is what the design uses; the per-version unit is V-14.
+**Since.** The choice this claim proved presentable is no longer offered: undoing a contribution lists the built-on sentences for the reviewer to edit by hand (ADR-0015). Its classification — clean, or built on and listed — is what the design uses; its method is not: the undo walks the run forward with the correction notice's walk (DL-0425), proven by V-14.
 
 ### V-14 — A per-version revert separates the lines a later version changed from those that revert cleanly
 
-**Claim.** For *undo this edit* on any version of the pending run, every line that version changed is classified as reverting cleanly, or as changed again by a later version of the run and left for the reviewer (ADR-0015) — the per-author walk of V-11 restricted to one commit.
+**Claim.** For *undo this edit* on any version of the pending run, every line that version changed is classified as reverting cleanly, or as changed again by a later version of the run and left for the reviewer (ADR-0015) — by the correction notice's forward walk, which serves the per-author undo too (DL-0425).
 
-**Test.** In the tests of the story that builds undo in Epic 15: on the V-05 corpus, revert each of a run's versions in turn; compare every line's classification with the generator's record, and apply the clean reversal to a draft.
+**Test.** `tests/review/test_undo_corpus.py`: on the V-05 corpus, revert each of a run's versions in turn; compare every line's classification with the generator's record, and the reversed text with the text before that version on every clean line. `tests/review/test_undo_budget.py` times the walk.
 
-**Pass condition.** **Every** line of the version classified, **none** misclassified against the generator's record, and the draft after the reversal equal to the text before that version on every clean line.
+**Pass condition.** **Every** line of the version classified, **none** misclassified against the generator's record, and the reversed text equal to the text before that version on every clean line.
 
 **If it fails** *(proposed during planning; no earlier document states it)*. *Undo this edit* is withdrawn and the per-author undo, which V-11 proved, remains; ST-0037 loses its first form.
 
-**Status.** Accepted as a risk before the design review — resolved in Epic 15 by the test above (DL-0247, DL-0278).
+**Status.** Proven — 2026-10-14: over the corpus's 200 edits, 283 lines classified — 258 clean, 23 built on and listed, 2 built on and not listed, the lines a later version deleted outright (DL-0422) — none against the generator's record, every clean line placed as the text before its version had it. *Undo this edit* on the earliest version of the run walks 202 commits in 0.11 s, against DL-0135's five seconds, measured alone. The walk is the correction notice's forward walk and its move rule (ADR-0011), so no third rule exists. Was: accepted as a risk before the design review (DL-0247, DL-0278).
 
 ### V-15 — The normalizer keeps unchanged text's stored lines on every text path
 

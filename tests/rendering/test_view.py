@@ -317,7 +317,7 @@ def test_view_by_rights(
     assert "Перегляд версії 1.1" in pages["accepted"] and "1.1-1" not in pages["accepted"]
     assert "Перегляд канонічної версії 1.0" in pages["canonical"]
     for name in ("pending", "accepted"):
-        assert "канонічна версія — 1.0" in pages[name], name
+        assert "відкрити канонічну версію 1.0" in pages[name], name
     pending, accepted, canonical = (article(pages[n]) for n in ("pending", "accepted", "canonical"))
     assert '<div class="callout callout-note">' in pending
     assert "Реєстр заяв" not in accepted

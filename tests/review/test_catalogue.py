@@ -120,3 +120,64 @@ def test_catalogue_covers_review_pages(
         assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
     assert "Погоджено як 0.1" in bodies["the notice after accepting"]
     assert "Сповіщення про виправлення" in bodies["the correction notice"]
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_history_compare_and_return(
+    migrated_tenant: Any,
+    cast: Any,
+    commit_version: Any,
+    link_group: Any,
+    settings: Any,
+) -> None:
+    from access.rights import Right
+    from editions import services as editions
+    from review import services
+
+    settings.LANGUAGE_CODE = "uk"
+    people = cast(editors=("a",), reviewers=("r",))
+    document, author, reviewer = people.document, people["a"], people["r"]
+    link_group(document, [Right.VIEW_ALL_HISTORY, Right.FREEZE], [people.memberships["r"]], author)
+    reviewer_client = signed_in(migrated_tenant, reviewer)
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+
+    def shown(path: str) -> str:
+        response = reviewer_client.get(path, follow=True)
+        assert response.status_code == 200, path
+        return text_of(response.content.decode())
+
+    number = document.number
+    commit_version(document, author, WRITTEN, "edit")
+    with schema_context(migrated_tenant.number):
+        services.accept(document, reviewer)
+        editions.freeze(document, reviewer, "Синтетична причина")
+        editions.end_freeze(document, user=reviewer)
+    commit_version(document, author, CORRECTED, "edit")
+    bodies = {
+        "the history tab": shown(f"/document/{number}/history/"),
+        "the historical page": shown(f"/document/{number}/version/0.1/"),
+        "the export at a version": shown(f"/document/{number}/version/0.1/export/"),
+        "the compare page": shown(f"/document/{number}/compare/?from=0.1&to=0.1-1"),
+    }
+    bodies["the pending tab"] = shown(f"/document/{number}/pending/")
+    bodies["the return's confirmation"] = shown(f"/document/{number}/pending/return/")
+    refused = reviewer_client.post(f"/document/{number}/pending/return/", {"reason": ""})
+    bodies["a refused reason"] = text_of(refused.content.decode())
+    with schema_context(migrated_tenant.number):
+        services.return_run(document, reviewer, "Synthetic reason: recheck the time limits")
+    bodies["the list"] = shown("/folder/1/")
+    bodies["the info tab"] = shown(f"/document/{number}/info/")
+    bodies["the author's notifications"] = text_of(
+        signed_in(migrated_tenant, author).get("/notifications/").content.decode()
+    )
+    with schema_context(migrated_tenant.number):
+        from review import undo
+
+        undo.apply(document, reviewer, author=author)
+    bodies["the edit tab after an undo"] = shown(f"/document/{number}/edit/")
+    for name, body in bodies.items():
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+        assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
+    assert "Історична версія 0.1" in bodies["the historical page"]
+    assert "повернено" in bodies["the list"]

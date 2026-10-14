@@ -43,6 +43,18 @@ def _receivable(request: HttpRequest, in_organisation: bool, platform: bool) -> 
     return [event for event in Event if event in events]
 
 
+def _pending_readable(user: Any, rows: list[Any]) -> set[Any]:
+    """The documents of the `returned` entries whose pending text the reader may still read: a
+    return's reason may quote it (DL-0369), so it is shown to them alone, in one query."""
+    from access.rights import Right, rights_on_many
+
+    documents = {row.document_id for row in rows if row.event == Event.RETURNED}
+    if not documents:
+        return set()
+    rights = rights_on_many(user, documents)
+    return {pk for pk in documents if Right.VIEW_PENDING in rights.get(pk, frozenset())}
+
+
 @never_cache
 @login_required
 def page(request: HttpRequest) -> HttpResponse:
@@ -74,6 +86,7 @@ def page(request: HttpRequest) -> HttpResponse:
     rows.sort(key=lambda row: (row.created_at, str(row.pk)), reverse=True)
     membership = getattr(request, "membership", None)
     administrator = platform or bool(membership and membership.is_tenant_admin)
+    pending_readable = _pending_readable(user, rows)
     context = {
         "tab": tab,
         "tabs": tabs,
@@ -90,6 +103,7 @@ def page(request: HttpRequest) -> HttpResponse:
                 # the email the entry's sentence becomes (DL-0369).
                 "reason": (row.facts or {}).get("reason", "")
                 if row.event == Event.RESERVATION_ENDED_BY_ADMIN
+                or (row.event == Event.RETURNED and row.document_id in pending_readable)
                 else "",
                 "unread": row.read_at is None,
                 "at": row.created_at,

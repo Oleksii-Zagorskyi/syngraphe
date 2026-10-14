@@ -1,4 +1,5 @@
-"""The run, its base, and accepting it (ADR-0001, DL-0090, DL-0092, DL-0224, DL-0267, DL-0268).
+"""The run, its base, and the reviewer's two decisions on it — accepting it, and returning it
+without accepting (ADR-0001, DL-0090, DL-0092, DL-0114, DL-0224, DL-0267, DL-0268).
 
 The run is every content version — `edit`, `reviewer_edit` — after the base, in the order of the
 repository's history, which is linear (ADR-0003); commit times share seconds, so the order is read
@@ -9,7 +10,8 @@ Accepting is one act under the document's writer lock (DL-0111): the passport co
 commit point; its version row and the `ACCEPTANCE` row, audited; the correction notices (ADR-0014);
 then the authorship asked of the worker. A stop after the commit is finished by the next writer
 under the lock (`settle_head`), or by the reconciler, both deriving the rows from the passport
-section by one rule (`derivable`) and computing the notices of an acceptance without them.
+section by one rule (`derivable`) and computing the notices of an acceptance without them. A
+return is a passport commit of the same shape, derived by its own rule (`derivable_return`).
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ from documents import services as documents
 from documents.identity import identity_for
 from documents.locks import document_lock
 from documents.models import Document, Version, VersionKind
-from review.models import Acceptance
+from review.models import Acceptance, Return
 from tenancy.models import Tenant
 from tenancy.schemas import current_tenant
 
@@ -38,8 +40,8 @@ if TYPE_CHECKING:
     from identity.models import User
 
 logger = logging.getLogger(__name__)
-# How long an acceptance waits for the document's writer lock before it answers that the document
-# is busy, as taking a hold does.
+# How long an acceptance or a return waits for the document's writer lock before it answers that
+# the document is busy, as taking a hold does.
 LOCK_WAIT_SECONDS = 10.0
 
 CONTENT = (VersionKind.EDIT, VersionKind.REVIEWER_EDIT)
@@ -163,12 +165,27 @@ class AcceptRefused(Exception):
 
 
 class InjectedFault(Exception):
-    """Raised by `accept` after the step a crash test names; never set in production."""
+    """Raised by `accept` or `return_run` after the step a crash test names; never set in
+    production."""
 
 
 def _fault(step: int, fault_at: int | None) -> None:
     if fault_at == step:
         raise InjectedFault(step)
+
+
+def undo_waiting(document: Document) -> Any:
+    """The open hold whose draft carries an undo of versions of the run, or `None` (DL-0427)."""
+    from editing.models import Draft
+
+    draft = (
+        Draft.objects.filter(hold__document=document, hold__released_at__isnull=True)
+        .select_related("hold__user")
+        .first()
+    )
+    if draft is None or not (draft.content.get("undo") or {}).get("undone"):
+        return None
+    return draft.hold
 
 
 def refusal(
@@ -177,10 +194,13 @@ def refusal(
     *,
     confirmed: str | None = None,
     pending: list[Version] | None = None,
+    around_an_undo: bool = False,
 ) -> str | None:
     """Why `reviewer` may not accept the document's run now, or `None`: checked in this order —
-    no linked group holds *accept*; someone has reserved the document (DL-0224); the run is empty;
-    the reviewer does not hold *accept*; the run grew past the version the confirmation named.
+    no linked group holds *accept*; someone has reserved the document (DL-0224); an undo waits in
+    an open draft (DL-0427), unless `around_an_undo` — a return decides nothing the undo needs;
+    the run is empty; the reviewer does not hold *accept*; the run grew past the version the
+    confirmation named.
     `pending` is the run when the caller has read it."""
     from editing.models import Hold
     from review.state import with_reviewer
@@ -191,6 +211,10 @@ def refusal(
         document=document, released_at__isnull=True, reserved_at__isnull=False
     ).exists():
         return "reserved"
+    if not around_an_undo and undo_waiting(document) is not None:
+        # Accepted around a waiting undo, the undone versions would become accepted text and
+        # their authors never be told (ADR-0015); the undo's own reviewer accepts through it.
+        return "undo_waits"
     pending = run(document) if pending is None else pending
     if not pending:
         return "nothing_to_accept"
@@ -281,14 +305,14 @@ def compute_notices(acceptance: Acceptance) -> None:
 
 
 class RecordIncomplete(Exception):
-    """The head is an acceptance whose rows cannot be derived from its passport section; nothing
-    is written on top of it until the reconciler's report is answered."""
+    """The head holds a commit whose rows cannot be derived — an acceptance's or a return's from its
+    passport section; nothing is written on top of it until the reconciler's report is answered."""
 
 
 @dataclass(frozen=True)
 class Derivation:
-    """What an acceptance's passport commit implies: its section, the content version the
-    previous acceptance accepted — or the `created` one — and the reviewer."""
+    """What an acceptance's or a return's passport commit implies: its section, the content
+    version the previous acceptance accepted — or the `created` one — and the reviewer."""
 
     entry: bundle.PassportEntry
     accepted_from: Version
@@ -370,8 +394,9 @@ def derivable(document: Document, repo: pygit2.Repository, sha: str) -> Derivati
 def settle_head(document: Document) -> None:
     """Under the document's writer lock, before anything is read for a write or written: every
     commit at the head whose rows a stop left underived — a content version a finish committed, an
-    acceptance's or an approval's passport commit — has them derived, oldest first, an acceptance
-    its notices computed and an approval its tag and its freeze's end; so nothing is written over a
+    acceptance's, a return's or an approval's passport commit — has them derived, oldest first, an
+    acceptance its notices computed, a return its authors told and an approval its tag and its
+    freeze's end; so nothing is written over a
     commit the rows do not know, no run is read short of git, and no number is given twice
     (DL-0111). `RecordIncomplete` when one cannot be."""
     tenant_number = _tenant_number()
@@ -393,6 +418,11 @@ def settle_head(document: Document) -> None:
             if isinstance(found, str):
                 raise RecordIncomplete(found)
             compute_notices(derive_acceptance(document, sha, found))
+        elif kind is gitstore.Kind.RETURN:
+            returned = derivable_return(document, repo, sha)
+            if isinstance(returned, str):
+                raise RecordIncomplete(returned)
+            derive_return(document, sha, returned)
         elif kind is gitstore.Kind.APPROVAL:
             from editions import services as editions
 
@@ -507,3 +537,237 @@ def accept_as(hold: Any, user: User, summary: str, *, confirmed: str | None = No
             editing.ask_authorship(tenant_number, document, version.commit_sha)
     ask_authorship(document, acceptance)
     return acceptance
+
+
+# --- returning a run without accepting it (ST-0052, DL-0114, DL-0224, DL-0378) -------------------
+
+
+class ReturnRefused(Exception):
+    """A return the document's state does not allow; `reason` names why."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
+        self.reason = reason
+
+
+def _returned_already(repo: pygit2.Repository, last: str, head: str) -> bool:
+    """Whether a return follows `last` up to `head`: the run was returned and nothing was sent
+    since."""
+    return any(
+        gitstore.kind_of(gitstore.commit_at(repo, sha).message) is gitstore.Kind.RETURN
+        for sha in commits_after(repo, last, head)
+    )
+
+
+def returned_since(document: Document, sha: str) -> bool:
+    """Whether a return has sent the version `sha` back since it was committed."""
+    repo = gitstore.open_repository(_tenant_number(), document.number)
+    return _returned_already(repo, sha, _head(repo))
+
+
+def return_refusal(
+    document: Document,
+    reviewer: User,
+    *,
+    confirmed: str | None = None,
+    pending: list[Version] | None = None,
+) -> str | None:
+    """Why `reviewer` may not return the document's run now, or `None`: the acceptance's checks in
+    its order — `no_reviewer`, `reserved` (DL-0224), `nothing_to_return`, `not_a_reviewer`,
+    `run_changed` — then `already_returned` while nothing was sent since the last return."""
+    pending = run(document) if pending is None else pending
+    reason = refusal(document, reviewer, confirmed=confirmed, pending=pending, around_an_undo=True)
+    if reason == "nothing_to_accept":
+        return "nothing_to_return"
+    if reason is not None:
+        return reason
+    repo = gitstore.open_repository(_tenant_number(), document.number)
+    if _returned_already(repo, pending[-1].commit_sha, _head(repo)):
+        return "already_returned"
+    return None
+
+
+def return_run(
+    document: Document,
+    reviewer: User,
+    reason: str,
+    *,
+    confirmed: str | None = None,
+    fault_at: int | None = None,
+) -> Return:
+    """Return the document's run without accepting it, as `reviewer`, with `reason`, under the
+    document's lock: the passport's `return` section, committed as `return` — the commit point —
+    then its version and `RETURN` rows, audited, and the run's authors told, the reason in the
+    application alone (DL-0369). `editing.reservations.ReasonRefused` for a reason outside
+    DL-0378's rule, checked before anything is locked; `ReturnRefused` with the reason when the
+    run may not be returned. `confirmed` is the last version the confirmation named."""
+    from editing.reservations import checked_reason
+
+    reason = checked_reason(reason)
+    with document_lock(_tenant_number(), document.number, timeout=LOCK_WAIT_SECONDS):
+        returned = return_run_locked(
+            document, reviewer, reason, confirmed=confirmed, fault_at=fault_at
+        )
+    _ask_head_authorship(document, returned.version.commit_sha)
+    return returned
+
+
+def _ask_head_authorship(document: Document, sha: str) -> None:
+    """The worker asked for the rows of a new head that changed no text, as for any head
+    (DL-0326); the reconciler asks again when the broker refuses."""
+    from editing import tasks
+
+    try:
+        tasks.queue_authorship(_tenant_number(), document.number, sha)
+    except Exception:  # noqa: BLE001 — any failure to publish is the reconciler's to repair
+        logger.warning("authorship not queued", extra={"document": document.number})
+
+
+def return_run_locked(
+    document: Document,
+    reviewer: User,
+    reason: str,
+    *,
+    confirmed: str | None = None,
+    fault_at: int | None = None,
+) -> Return:
+    """`return_run`'s body, for a caller that holds the document's writer lock; `reason` already
+    checked. The document's row stays locked from the refusal's check to the rows, as an
+    acceptance keeps it."""
+    tenant_number = _tenant_number()
+    settle_head(document)
+    repo = gitstore.open_repository(tenant_number, document.number)
+    with transaction.atomic():
+        locked = Document.objects.select_for_update(of=("self",)).get(pk=document.pk)
+        before = base(locked)
+        head = _head(repo)
+        pending = run(locked, since=before, head=head)
+        refused = return_refusal(locked, reviewer, confirmed=confirmed, pending=pending)
+        if refused is not None:
+            raise ReturnRefused(refused)
+        now = timezone.now().replace(microsecond=0)
+        entry = bundle.PassportEntry(
+            kind="return",
+            number=None,
+            at=now,
+            by=str(reviewer.pk),
+            version=pending[-1].commit_sha,
+            reason=reason,
+        )
+        passport = gitstore.read(repo, PASSPORT, head).decode("utf-8")
+        # (1) The commit point: the passport's section.
+        sha = gitstore.commit(
+            repo,
+            {PASSPORT: bundle.append_passport(passport, entry).encode("utf-8")},
+            identity_for(reviewer, at=now),
+            "Returned without accepting",
+            gitstore.Kind.RETURN,
+        )
+        _fault(1, fault_at)
+        # (2) Its version and `RETURN` rows, audited, and the authors told.
+        return derive_return(document, sha, Derivation(entry, before, reviewer))
+
+
+def derivable_return(document: Document, repo: pygit2.Repository, sha: str) -> Derivation | str:
+    """The rows commit `sha` implies when it is a return exactly as `return_run` writes one, or
+    why not: it changes the passport alone, appending one return section by its author, timed as
+    the commit, its reason one line of at most 500 characters, naming the last content version
+    before it — of a run nothing returned since."""
+    from editions.models import REASON_MAX
+
+    commit = gitstore.commit_at(repo, sha)
+    if gitstore.kind_of(commit.message) is not gitstore.Kind.RETURN or not commit.parents:
+        return "not a return"
+    parent = commit.parents[0]
+    reviewer = committer(commit, _tenant_number())
+    if reviewer is None:
+        return "its author is not of this tenant"
+    try:
+        entries, before = passport_at(repo, sha), passport_at(repo, str(parent.id))
+    except (KeyError, ValueError, UnicodeDecodeError):
+        return "its passport does not read"
+    if len(entries) != len(before) + 1 or entries[: len(before)] != before:
+        return "it does not append one section"
+    if [delta.new_file.path for delta in repo.diff(parent, commit).deltas] != [PASSPORT]:
+        return "it changes more than the passport"
+    entry = entries[-1]
+    if entry.kind != "return" or entry.by != str(reviewer.pk) or entry.reason is None:
+        return "its section is not its author's return"
+    # The passport's own field rule already holds it to one line without controls; a committed
+    # reason is judged by that and its length, never by a rule for new input tightened since.
+    if not entry.reason or len(entry.reason) > REASON_MAX:
+        return "its reason is outside its rule"
+    if int(entry.at.timestamp()) != commit.author.time:
+        return "its section is not timed as the platform writes it"
+    previous = [e for e in before if e.kind == "acceptance"]
+    returned_from = Version.objects.filter(
+        document=document,
+        **({"commit_sha": previous[-1].version} if previous else {"kind": VersionKind.CREATED}),
+    ).first()
+    if returned_from is None:
+        return "the version accepted before it has no row"
+    try:
+        shas = commits_after(repo, returned_from.commit_sha, str(parent.id))
+    except LookupError:
+        return "it does not follow the version accepted before it"
+    content = [
+        s
+        for s in shas
+        if gitstore.kind_of(gitstore.commit_at(repo, s).message)
+        in (gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT)
+    ]
+    if not content or content[-1] != entry.version:
+        return "it does not return the last version before it"
+    if _returned_already(repo, entry.version, str(parent.id)):
+        return "it returns a run returned already"
+    if not Version.objects.filter(document=document, commit_sha=entry.version).exists():
+        return "the version it returns has no row"
+    return Derivation(entry, returned_from, reviewer)
+
+
+def derive_return(document: Document, sha: str, derivation: Derivation) -> Return:
+    """The rows a return's passport commit implies — its version, when not there yet, and its
+    `RETURN` — audited with the reviewer as the actor whoever derives them, and the run's authors
+    told, in one transaction (DL-0111)."""
+    from notifications.models import Category, Event
+    from notifications.services import notify, others
+
+    entry = derivation.entry
+    if entry.kind != "return" or entry.reason is None:
+        raise ValueError("not a return's passport section")
+    repo = gitstore.open_repository(_tenant_number(), document.number)
+    with transaction.atomic():
+        version = Version.objects.filter(document=document, commit_sha=sha).first()
+        if version is None:
+            version = documents.derive_version(
+                document, gitstore.commit_at(repo, sha), derivation.reviewer
+            )
+        returned = Return.objects.create(
+            version=version,
+            returned_from=derivation.accepted_from,
+            reviewer=derivation.reviewer,
+            reason=entry.reason,
+            at=entry.at,
+        )
+        record(
+            actor=derivation.reviewer,
+            action="document.returned",
+            obj=document,
+            before=None,
+            after={"number": document.number, "commit": sha, "returned": entry.version},
+            tenant=Tenant.objects.get(number=_tenant_number()),
+        )
+        returned_run = run(document, since=derivation.accepted_from, head=entry.version)
+        told = others({v.author_id for v in returned_run}, derivation.reviewer)
+        if told:
+            notify(
+                users=told,
+                category=Category.DOCUMENT,
+                event=Event.RETURNED,
+                actor=derivation.reviewer,
+                document=document,
+                version=version,
+                facts={"reason": entry.reason},
+                at=entry.at,
+            )
+    return returned

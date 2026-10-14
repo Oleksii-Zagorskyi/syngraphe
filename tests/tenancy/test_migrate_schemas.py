@@ -97,6 +97,7 @@ def test_tenant_schema_holds_tenant_tables_only(
             "review_acceptance",
             "review_correctionnotice",
             "review_correctionline",
+            "review_return",
             "editions_freeze",
             "editions_edition",
             "rendering_exportjob",

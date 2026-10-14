@@ -283,6 +283,7 @@ INFO_STATES = {
     "canonical": pgettext_lazy("document state", "canonical"),
     "accepted": pgettext_lazy("document state", "accepted"),
     "awaiting_review": pgettext_lazy("document state", "awaiting review"),
+    "returned": pgettext_lazy("document state", "returned"),
     "no_reviewer_assigned": pgettext_lazy("document state", "no reviewer assigned"),
 }
 
@@ -391,18 +392,31 @@ def attachment(request: HttpRequest, number: int, part: int) -> HttpResponse:
     """One attachment of the version the reader may see, as a download under its original name,
     never opened by the platform (DL-0342, T-15). Whatever may not be served costs what a missing
     document costs."""
-    from documents.parts import read_attachment
     from editions.visible import latest_visible
     from rendering.views import UNREADABLE
 
     document = readable_document(request, number)
     if document is None:
         return not_found(request)
-    tenant = request.tenant  # type: ignore[attr-defined]
     try:
         version = latest_visible(request.user, document)
-        if version is None:
-            return not_found(request)
+    except UNREADABLE:
+        return not_found(request)
+    if version is None:
+        return not_found(request)
+    return serve_attachment(request, document, version, part)
+
+
+def serve_attachment(
+    request: HttpRequest, document: Document, version: Version, part: int
+) -> HttpResponse:
+    """Attachment `part` as `version` lists it, as a download under its original name, audited;
+    the caller has decided the reader may read that version."""
+    from documents.parts import read_attachment
+    from rendering.views import UNREADABLE
+
+    tenant = request.tenant  # type: ignore[attr-defined]
+    try:
         found, data = read_attachment(tenant.number, document, version, part)
     except UNREADABLE:
         # An unlisted number or a hash mismatch (logged by the parts service), or a repository

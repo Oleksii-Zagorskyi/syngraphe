@@ -38,6 +38,38 @@ def attachments(version: Version) -> list[Attachment]:
     ]
 
 
+@dataclass(frozen=True)
+class AttachmentChange:
+    """What became of attachment `number` from an older version to a newer one: `added`,
+    `changed` — its file, its title or its file name differs — `removed` or `unchanged`, with
+    the entry at each version, `None` where it is absent."""
+
+    number: int
+    change: str
+    older: Attachment | None
+    newer: Attachment | None
+
+
+def changed_between(older: Version, newer: Version) -> list[AttachmentChange]:
+    """Every attachment of either version, by its number, and what became of it (DL-0208); an
+    attachment cannot be compared, so the change is the fact and the two files."""
+    before = {a.number: a for a in attachments(older)}
+    after = {a.number: a for a in attachments(newer)}
+    found = []
+    for number in sorted(before.keys() | after.keys()):
+        old, new = before.get(number), after.get(number)
+        if old is None:
+            change = "added"
+        elif new is None:
+            change = "removed"
+        else:
+            # A rename is a change too: the reader is told the attachment is not as it was.
+            same = (old.sha256, old.title, old.file_name) == (new.sha256, new.title, new.file_name)
+            change = "unchanged" if same else "changed"
+        found.append(AttachmentChange(number, change, old, new))
+    return found
+
+
 def read_attachment(
     tenant_number: int, document: Document, version: Version, number: int
 ) -> tuple[Attachment, bytes]:

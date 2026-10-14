@@ -111,9 +111,9 @@ CONTENT_KINDS = (gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT)
 
 def _stopped(repo: pygit2.Repository, head: str, draft: Draft, user: User) -> str | None:
     """The sha of the holder's own content version — either kind (DL-0335) — committed from this
-    draft by a finish that stopped before it released the hold, with nothing but acceptances
-    after it; else `None`. A head that does not descend from the draft's base — moved by a
-    restore — never has one, as the reconciler reads it."""
+    draft by a finish that stopped before it released the hold, with nothing but acceptances and
+    returns after it; else `None`. A head that does not descend from the draft's base — moved by
+    a restore — never has one, as the reconciler reads it."""
     if head == draft.base_commit:
         return None
     try:
@@ -125,7 +125,8 @@ def _stopped(repo: pygit2.Repository, head: str, draft: Draft, user: User) -> st
     walker.hide(draft.base_commit)
     for commit in walker:
         kind = gitstore.kind_of(commit.message)
-        if kind is gitstore.Kind.ACCEPTANCE:
+        if kind in (gitstore.Kind.ACCEPTANCE, gitstore.Kind.RETURN):
+            # A reviewer's decision on the run changes no text: the finish's version is below it.
             continue
         if kind in CONTENT_KINDS and commit.author.name == str(user.pk):
             return str(commit.id)
@@ -212,15 +213,15 @@ def derive_committed(document: Document, repo: pygit2.Repository, sha: str, user
 
 def tell_reviewers(document: Document, sha: str, user: User) -> None:
     """The holders of *accept* told that the version `sha` awaits them, by its number in the run —
-    nobody, once an acceptance has taken it in."""
+    nobody, once an acceptance has taken it in or a return has sent it back (DL-0114)."""
     from access.rights import holders_of
     from notifications.models import Category, Event
     from notifications.services import notify, others
-    from review.services import run
+    from review.services import returned_since, run
 
     pending = run(document)
     position = next((n for n, v in enumerate(pending, 1) if v.commit_sha == sha), None)
-    if position is None:
+    if position is None or returned_since(document, sha):
         return
     reviewers = holders_of([Right.ACCEPT], [document.pk])[document.pk]
     notify(
@@ -386,36 +387,19 @@ def discard_preserved(draft: Draft, user: User) -> bool:
     return True
 
 
-def comparison_choices(document: Document) -> list[tuple[str, str]]:
-    """The versions a holder of an ended reservation may compare their kept draft with, as
-    `(number, commit)` pairs, newest first (DL-0379): the pending run's versions, the latest
-    accepted version, and the latest edition where it is not that version — what *edit*
-    reaches."""
-    from editions.models import Edition
-    from review.services import base, number_key, run
-
-    accepted = numbering.accepted(document)
-    choices = [(f"{accepted}-{n}", v.commit_sha) for n, v in enumerate(run(document), 1)][::-1]
-    choices.append((accepted, base(document).commit_sha))
-    editions = Edition.objects.filter(version__document=document).select_related("version")
-    latest = max(editions, key=lambda e: number_key(e.number), default=None)
-    if latest is not None and latest.number != accepted:
-        choices.append((latest.number, latest.version.commit_sha))
-    return choices
-
-
 def finish_stopped(hold: Hold, *, actor: User | None, reason: str = "") -> bool:
     """Complete a finish of `hold` that stopped after its commit (DL-0414), for a release that is
     not the holder's own. The record is settled first — every commit the rows do not know derived,
     as every writer does — then the commit path's own test: the holder's content version above
-    the draft's base with nothing but acceptances after it, and the draft holding nothing beyond
-    it. Then the hold is released `finished` by `actor`, who acted, with `reason` where they gave
-    one, the audit saying the finish was completed; the reviewers are told the version awaits
-    them, where it still does; and the draft is deleted. Whether it was. A version found under a
-    draft holding later text is committed all the same: its reviewers are told, and the draft is
-    kept as asked. A record that cannot be settled, or a repository that cannot be read, leaves
-    the release as asked and the stop to the reconciler's report: no release depends on git. The
-    caller holds the document's writer lock and, in a transaction, its row and the hold's."""
+    the draft's base with nothing but acceptances or returns after it, and the draft holding
+    nothing beyond it. Then the hold is released `finished` by `actor`, who acted, with `reason`
+    where they gave one, the audit saying the finish was completed; the reviewers are told the
+    version awaits them, where it still does; and the draft is deleted. Whether it was. A version
+    found under a draft holding later text is committed all the same: its reviewers are told, and
+    the draft is kept as asked. A record that cannot be settled, or a repository that cannot be
+    read, leaves the release as asked and the stop to the reconciler's report: no release depends
+    on git. The caller holds the document's writer lock and, in a transaction, its row and the
+    hold's."""
     from editing.normalizer import NormalizerDefect
     from rendering.views import UNREADABLE
     from review.services import RecordIncomplete, settle_head

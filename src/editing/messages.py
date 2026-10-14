@@ -142,6 +142,7 @@ HELP_PAGES = {
     "versions": _("Versions and their numbers"),
     "review": _("Reviewing and accepting"),
     "editions": _("Freezing and editions"),
+    "history": _("History, comparing and undoing"),
     "editing": _("Editing"),
     "editing-together": _("Editing together"),
     "markdown": _("What the editor accepts"),

@@ -7,6 +7,7 @@ made them, and no text."""
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
@@ -24,6 +25,8 @@ from review.models import Acceptance, CorrectionLine, Entry
 from shell.views import not_found
 
 RANGE = re.compile(r"([1-9][0-9]{0,9})(?:-([1-9][0-9]{0,9}))?")
+
+logger = logging.getLogger(__name__)
 
 
 def _span(value: str) -> tuple[int, int] | None:
@@ -69,6 +72,51 @@ def _numbers(acceptance: Any) -> dict[str, str]:
         base.document, since=base, head=services.accepted_content_version(acceptance).commit_sha
     )
     return {version.commit_sha: f"{accepted}-{n}" for n, version in enumerate(run, 1)}
+
+
+def _passage(text: bytes, line: int) -> str:
+    """The reading view's anchor of the numbered heading `line` of `document.md` falls under, or
+    `""` above the first (DL-0334)."""
+    from documents import bundle
+    from rendering.outline import anchor
+    from rendering.renderer import labelled
+
+    decoded = text.decode("utf-8")
+    _frontmatter, body = bundle.parse(decoded)
+    offset = decoded[: len(decoded) - len(body)].count("\n")
+    tokens = labelled(body)
+    found = ""
+    for i, token in enumerate(tokens):
+        if token.type != "heading_open" or token.map is None or token.map[0] + offset >= line:
+            continue
+        children = tokens[i + 1].children or []
+        if children and (children[0].meta or {}).get("num"):
+            found = anchor(children[0].meta["label"])
+    return found
+
+
+def _link(request: HttpRequest, document: Any, acceptance: Any, lines: list[Any]) -> str:
+    """Where *open the document* leads: the accepted version's historical page at the first
+    passage, where the reader's ceiling reaches it; else the document (DL-0334)."""
+    from rendering.views import UNREADABLE
+    from review.history import version_for
+
+    plain = f"/document/{document.number}/"
+    try:
+        version = version_for(request.user, document, acceptance.number)
+    except UNREADABLE:
+        # A record that does not read costs the passage, never the notice; logged for the operator.
+        logger.exception("a document's history could not be read", extra={"document": plain})
+        return plain
+    if version is None:
+        return plain
+    page = f"{plain}version/{acceptance.number}/"
+    first = next((_span(line.range_after) for line in lines if line.range_after), None)
+    if first is None:
+        return page
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    target = _passage(gitstore.read(repo, "document.md", version.commit_sha), first[0])
+    return f"{page}#{target}" if target else page
 
 
 def page(request: HttpRequest, notification: Any) -> HttpResponse:
@@ -132,6 +180,7 @@ def page(request: HttpRequest, notification: Any) -> HttpResponse:
     context = {
         "document": document,
         "acceptance": acceptance,
+        "link": _link(request, document, acceptance, lines) if readable else "",
         "count": len(lines),
         "changers": changers,
         "readable": readable,

@@ -137,46 +137,50 @@ def take(document: Document, user: User, *, take_back: bool = False) -> Hold:
 
 
 def _take_locked(document: Document, user: User, number: int, take_back: bool) -> Hold:
-    from editions.models import open_freeze
-
     with (
         document_lock(number, document.number, timeout=LOCK_WAIT_SECONDS),
         transaction.atomic(),
     ):
         locked = Document.objects.select_for_update().get(pk=document.pk)
-        rights = rights_on(user, locked)
-        if locked.state != DocumentState.ACTIVE or Right.EDIT not in rights:
-            raise NotEditable(locked.number)
-        frozen = open_freeze(locked)
-        if frozen is not None and Right.ACCEPT not in rights:
-            raise Frozen(frozen.reason)
-        existing = open_hold(locked)
-        if existing is not None:
-            if existing.user_id != user.pk:
-                raise HeldByOther(locked.number)
-            return existing
-        repo = gitstore.open_repository(number, locked.number)
-        base = gitstore.head(repo)
-        if base is None:
-            raise RuntimeError(f"document {locked.number} has no commit to edit")
-        kept = preserved_draft(locked, user)
-        if take_back and kept is None:
-            raise NothingKept(locked.number)
-        if kept is not None and (not take_back or kept.base_commit != base):
-            raise DraftPreserved(moved=kept.base_commit != base)
-        now = timezone.now()
-        hold = Hold.objects.create(
-            document=locked, user=user, acquired_at=now, last_activity_at=now
-        )
-        if kept is not None:
-            kept.hold = hold
-            kept.save(update_fields=["hold", "updated_at"])
-            OpenEditor.objects.filter(draft=kept, closed_at__isnull=True).update(closed_at=now)
-            return hold
-        frontmatter, body = split(gitstore.read(repo, BODY, base).decode("utf-8"))
-        Draft.objects.create(
-            hold=hold, base_commit=base, content={BODY: body, FRONTMATTER: frontmatter}
-        )
+        return hold_locked(locked, user, number, take_back=take_back)
+
+
+def hold_locked(locked: Document, user: User, number: int, *, take_back: bool = False) -> Hold:
+    """`take`'s body, for a caller that holds the document's writer lock and, in its transaction,
+    the document's row — an act that opens the hold only once it is sure to write in it."""
+    from editions.models import open_freeze
+
+    rights = rights_on(user, locked)
+    if locked.state != DocumentState.ACTIVE or Right.EDIT not in rights:
+        raise NotEditable(locked.number)
+    frozen = open_freeze(locked)
+    if frozen is not None and Right.ACCEPT not in rights:
+        raise Frozen(frozen.reason)
+    existing = open_hold(locked)
+    if existing is not None:
+        if existing.user_id != user.pk:
+            raise HeldByOther(locked.number)
+        return existing
+    repo = gitstore.open_repository(number, locked.number)
+    base = gitstore.head(repo)
+    if base is None:
+        raise RuntimeError(f"document {locked.number} has no commit to edit")
+    kept = preserved_draft(locked, user)
+    if take_back and kept is None:
+        raise NothingKept(locked.number)
+    if kept is not None and (not take_back or kept.base_commit != base):
+        raise DraftPreserved(moved=kept.base_commit != base)
+    now = timezone.now()
+    hold = Hold.objects.create(document=locked, user=user, acquired_at=now, last_activity_at=now)
+    if kept is not None:
+        kept.hold = hold
+        kept.save(update_fields=["hold", "updated_at"])
+        OpenEditor.objects.filter(draft=kept, closed_at__isnull=True).update(closed_at=now)
+        return hold
+    frontmatter, body = split(gitstore.read(repo, BODY, base).decode("utf-8"))
+    Draft.objects.create(
+        hold=hold, base_commit=base, content={BODY: body, FRONTMATTER: frontmatter}
+    )
     return hold
 
 

@@ -13,7 +13,7 @@
     <div class="changes document-text">{{ entry.changes }}</div>
   </div>
   {% endfor %}
-  <p><a class="btn" href="/document/{{ document.number }}/">{% translate "Open the document" %}</a></p>
+  <p><a class="btn" href="{{ link }}">{% translate "Open the document" %}</a></p>
   {% else %}
   <p class="muted">{% translate "The text is not shown: you may no longer read this document's accepted text." %}</p>
   {% endif %}

@@ -1418,7 +1418,7 @@ msgstr "Перегляд версії %(number)s"
 #: rendering/templates/rendering/view.html:2
 #, python-format
 msgid "open canonical %(number)s"
-msgstr "канонічна версія — %(number)s"
+msgstr "відкрити канонічну версію %(number)s"
 
 #: rendering/views.py:129 rendering/views.py:134
 msgid "Your previous export of this document is still being made."
@@ -2591,7 +2591,7 @@ msgstr "Завершити резервування"
 msgid "#%(number)s %(title)s is reserved for editing by %(name)s since %(date)s."
 msgstr "#%(number)s %(title)s зарезервовано для редагування з %(date)s: %(name)s."
 
-#: editing/templates/editing/end_reservation.html
+#: editing/templates/editing/end_reservation.html review/views/return_run.py
 #, python-format
 msgid "The reason is required: one line of at most %(most)s characters, without control characters."
 msgstr "Причина обов'язкова: один рядок до %(most)s символів, без керівних символів."
@@ -2857,3 +2857,231 @@ msgstr "Перерване завершення редагування дове�
 #: editions/views.py
 msgid "The document is held; make it canonical once it is released."
 msgstr "Документ зайнятий; затвердьте його, коли його звільнять."
+
+#: documents/templates/documents/tabs.html
+msgid "History"
+msgstr "Історія"
+
+#: rendering/templates/rendering/compare.html
+#, python-format
+msgid "Comparing %(older)s with %(newer)s — read only"
+msgstr "Порівняння %(older)s з %(newer)s — лише для читання"
+
+#: rendering/templates/rendering/compare.html
+msgctxt "compare"
+msgid "From"
+msgstr "Від"
+
+#: rendering/templates/rendering/compare.html
+msgctxt "compare"
+msgid "To"
+msgstr "До"
+
+#: rendering/templates/rendering/compare.html
+msgid "previous"
+msgstr "попередня"
+
+#: rendering/templates/rendering/compare.html
+msgid "next"
+msgstr "наступна"
+
+#: rendering/templates/rendering/compare.html
+msgid "added"
+msgstr "додано"
+
+#: rendering/templates/rendering/compare.html
+msgid "changed"
+msgstr "змінено"
+
+#: rendering/templates/rendering/compare.html
+msgid "unchanged"
+msgstr "без змін"
+
+#: rendering/templates/rendering/historical.html
+#, python-format
+msgid "Historical version %(number)s — read only"
+msgstr "Історична версія %(number)s — лише для читання"
+
+#: rendering/templates/rendering/historical.html
+msgid "open the current document"
+msgstr "відкрити поточний документ"
+
+#: review/templates/review/history.html
+msgid "Canonical editions only — your groups hold view previous canonical versions."
+msgstr "Лише канонічні редакції — ваші групи мають право «перегляд попередніх редакцій»."
+
+#: review/templates/review/history.html
+msgid "The pending run only — your groups hold accept without a history right."
+msgstr "Лише правки після останнього погодження — ваші групи мають право «погодження» без права на історію."
+
+#: review/templates/review/history.html
+msgid "Version"
+msgstr "Версія"
+
+#: review/templates/review/history.html
+msgid "Event"
+msgstr "Подія"
+
+#: review/templates/review/history.html
+msgid "Who"
+msgstr "Хто"
+
+#: review/templates/review/history.html
+msgid "When"
+msgstr "Коли"
+
+#: review/templates/review/history.html
+msgid "open"
+msgstr "відкрити"
+
+#: review/templates/review/history.html
+msgid "Nothing to list yet."
+msgstr "Поки що немає записів."
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "created"
+msgstr "створено"
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "edit"
+msgstr "правка"
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "a reviewer's version"
+msgstr "правка погоджувача"
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "acceptance"
+msgstr "погодження"
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "return"
+msgstr "повернення без погодження"
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "canonisation"
+msgstr "затвердження"
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "freeze"
+msgstr "заморожування"
+
+#: review/views/history.py
+msgctxt "history event"
+msgid "unfreeze"
+msgstr "розморожування"
+
+#: documents/views.py
+msgctxt "document state"
+msgid "returned"
+msgstr "повернено"
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s: your edits were returned without accepting."
+msgstr "#%(number)s %(title)s: ваші правки повернено без погодження."
+
+#: review/state.py
+msgid "returned"
+msgstr "повернено"
+
+#: review/templates/review/history.html
+msgid "accepted"
+msgstr "погоджено"
+
+#: review/templates/review/pending.html
+msgid "Return without accepting"
+msgstr "Повернути без погодження"
+
+#: review/templates/review/return_confirm.html
+msgid "The versions below go back to their authors without being accepted. They stay pending, and the authors are told your reason."
+msgstr "Правки нижче повертаються авторам без погодження. Вони лишаються неприйнятими, а автори побачать указану вами причину."
+
+#: review/views/return_run.py
+msgid "You may not return this document's edits."
+msgstr "Ви не можете повертати правки цього документа."
+
+#: review/views/return_run.py
+msgid "The run is already returned; nothing was sent since."
+msgstr "Правки вже повернено; відтоді нічого не надіслано."
+
+#: review/views/return_run.py
+msgid "Returned to its authors without accepting."
+msgstr "Повернено авторам без погодження."
+
+#: editing/templates/editing/edit_tab.html
+msgid "After the undo"
+msgstr "Після скасування"
+
+#: editing/templates/editing/edit_tab.html
+msgid "These places changed after the undone edits — in a later version or in your draft — so they were not undone in full. Edit them by hand:"
+msgstr "Ці місця змінено після скасованих правок — у пізнішій правці або у вашій чернетці, — тож їх скасовано не повністю. Відредагуйте їх вручну:"
+
+#: editing/templates/editing/edit_tab.html
+msgid "Before the undone edits:"
+msgstr "До скасованих правок:"
+
+#: editing/templates/editing/edit_tab.html
+msgid "Now:"
+msgstr "Зараз:"
+
+#: editing/templates/editing/edit_tab.html
+msgid "The undone edits wrote:"
+msgstr "Скасовані правки написали:"
+
+#: review/views/accept.py
+#, python-format
+msgid ""
+"An undo of these edits waits in %(name)s’s draft: the run is accepted when "
+"they finish it with “Accept as”."
+msgstr ""
+"Скасування цих правок чекає в чернетці %(name)s: правки погоджують, коли "
+"ця особа завершить її через «Погодити як»."
+
+#: editing/templates/editing/edit_tab.html
+msgid "nothing"
+msgstr "нічого"
+
+#: editing/templates/editing/edit_tab.html
+msgid "Everything was undone; nothing is left for you to edit by hand."
+msgstr "Усе скасовано; для ручного редагування нічого не лишилося."
+
+#: review/templates/review/history.html
+msgid "Undo this edit"
+msgstr "Скасувати цю правку"
+
+#: review/templates/review/history.html
+#, python-format
+msgid "Undo all of this author’s edits since %(number)s"
+msgstr "Скасувати всі правки цього автора після %(number)s"
+
+#: review/views/undo.py
+msgid "Your editing of this document was ended, and your draft was kept: take the document back or discard the draft first."
+msgstr "Ваше редагування цього документа завершено, чернетку збережено: спершу заберіть документ назад або відкиньте чернетку."
+
+#: review/views/undo.py
+msgid "Nothing of this is left to undo."
+msgstr "Тут уже нічого скасовувати."
+
+#: review/views/undo.py
+msgid "You may not undo edits of this document."
+msgstr "Ви не можете скасовувати правки цього документа."
+
+#: review/views/undo.py
+msgid "The undo would make your draft larger than the platform accepts."
+msgstr "Після скасування чернетка стала б більшою, ніж приймає платформа."
+
+#: editing/templates/editing/edit_tab.html
+msgid "A title or part changed by the undone edits is not undone here; change it with the parts’ own controls."
+msgstr "Назву чи частину, змінену скасованими правками, тут не скасовано; змініть її засобами самих частин."
+
+#: editing/messages.py
+msgid "History, comparing and undoing"
+msgstr "Історія, порівняння і скасування"
