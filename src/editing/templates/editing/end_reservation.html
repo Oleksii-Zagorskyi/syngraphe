@@ -1,0 +1,20 @@
+{% extends "shell/base.html" %}
+{% load i18n tz %}
+{% block title %}{% translate "End the reservation" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content">
+  <h1>{% translate "End the reservation" %}</h1>
+  {% timezone display_timezone %}<p>{% blocktranslate with number=document.number title=document.title name=holder date=hold.reserved_at|date:"DATE_FORMAT" %}#{{ number }} {{ title }} is reserved for editing by {{ name }} since {{ date }}.{% endblocktranslate %}</p>{% endtimezone %}
+  <p class="muted">{% translate "Ending it frees the document for others. The holder's draft is kept, and the holder is told who ended it, when and why." %}</p>
+  {% if changed %}<p class="notice error" role="alert">{% translate "This reservation has changed since the page was opened. Read it again before ending it." %}</p>{% endif %}
+  {% if refused %}<p class="notice error" role="alert">{% blocktranslate with most=reason_max %}The reason is required: one line of at most {{ most }} characters, without control characters.{% endblocktranslate %}</p>{% endif %}
+  {% if busy %}<p class="notice error" role="alert">{% translate "The document is busy. Try again in a moment." %}</p>{% endif %}
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="hold" value="{{ hold.pk }}">
+    <label for="reason">{% translate "Reason" %}</label>
+    <input id="reason" name="reason" type="text" maxlength="{{ reason_max }}" required value="{{ reason }}">
+    <button class="btn danger" type="submit">{% translate "End the reservation" %}</button>
+    <a class="btn" href="/document/{{ document.number }}/">{% translate "Cancel" %}</a>
+  </form>
+</section>
+{% endblock %}

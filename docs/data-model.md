@@ -403,7 +403,7 @@ erDiagram
         datetime reserved_at "set while reserved for editing; exempt from the inactivity release (ADR-0009)"
         datetime released_at
         uuid released_by FK "the administrator who forced it; the blocking administrator when blocked; null for a finish, a discard, an inactivity release, a self-block, or a release forced from the operator's command"
-        string release_kind "finished | accepting | discarded | inactivity | forced | blocked — blocked when the holder's membership, account or tenant is blocked (DL-0256); accepting while an *accept as* has its version and not yet its acceptance (DL-0397)"
+        string release_kind "finished | accepting | discarded | inactivity | forced | blocked — blocked when the holder's membership, account or tenant is blocked (DL-0256); accepting while an *accept as* has its version and not yet its acceptance (DL-0397); finished also when another's release completes a finish that stopped after its commit, the actor in the audit (DL-0414)"
         string release_reason "required when an administrator ends a reservation (DL-0225)"
     }
     LINE_AUTHORSHIP {
@@ -439,7 +439,7 @@ erDiagram
         uuid id PK
         uuid draft FK
         string file "document.md or appendices/{id}.md"
-        string range "whole file, or a section by position"
+        string range "whole, or a section by its heading's ordinal: section:<n>, or section:<n>:<count> when its text holds more headings than its own"
         string base_hash "hash of the range as this editor last saw it"
         datetime last_seen_at "heartbeat"
         datetime closed_at
@@ -464,13 +464,13 @@ erDiagram
 
 **A reservation is a mark on `HOLD`, not a table** (ADR-0009, DL-0221). `reserved_at` set means the hold is exempt from the inactivity release; cancelling clears it and sets `last_activity_at` to that moment, so the inactivity clock starts afresh. It is set only by a holder whose group linked to the document holds `reserve_for_editing`, which includes `edit` (ADR-0016), and never while a `FREEZE` is open. As for any open hold, freezing, `DOCUMENT_GROUP` changes and correction are refused; while it is set, acceptance and return are refused as well, the holder's own *Accept the run* included — the holder's *accept as N.M* ends the reservation in the same act (DL-0224). Starting, cancelling and ending a reservation each write an `AUDIT_EVENT`, so the record keeps every reservation after `reserved_at` is cleared (DL-0221). An administrator ending it also records `released_by`, `release_kind` `forced` and `release_reason`, puts the draft's state in that event, and notifies the holder (`reservation_ended_by_admin`); starting one notifies the tenant administrator (`reservation_started`).
 
-**A block ends the hold** (DL-0256). Blocking a membership, an account or a tenant releases every hold and reservation of the person it closes documents to, with `release_kind` `blocked`, an `AUDIT_EVENT` naming the block and the draft's state, and the draft preserved as after a forced release.
+**A block ends the hold** (DL-0256). Blocking a membership, an account or a tenant releases every hold and reservation of the person it closes documents to, with `release_kind` `blocked`, an `AUDIT_EVENT` naming the block and the draft's state, and the draft kept as after a forced release — unless a finish of the hold had stopped after its commit, which the release completes instead (DL-0414).
 
-**`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** Releasing a hold — voluntarily or after the inactivity timeout — preserves the draft rather than discarding it (ADR-0003), and the foreign key is what makes that automatic rather than remembered. `base_commit` is the head the draft started from: a released draft is taken back only while `base_commit` is still the head, and a finish that committed and then stopped is recognised by a content commit of the holder's after it, `edit` or `reviewer_edit`, with nothing but acceptances above it (DL-0318, DL-0335).
+**`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** A hold someone else ended — forced, ended by an administrator, released for inactivity, blocked — keeps its draft for its holder (ADR-0003), and the foreign key is what makes that automatic rather than remembered; a finish and a discard, the holder's own ends, delete it. The holder's latest such hold with a draft is their *kept draft*: the edit tab offers it back before any new hold is taken. `base_commit` is the head the draft started from: the kept draft is taken back — its row moved to the new hold — only while `base_commit` is still the head, read under the lock; otherwise it is shown read-only and may be discarded (DL-0318, DL-0381). A finish that committed and then stopped is recognised by a content commit of the holder's after it, `edit` or `reviewer_edit`, with nothing but acceptances above it (DL-0318, DL-0335); a release that would keep such a draft completes the finish instead, and nothing is kept (DL-0414).
 
 **`DRAFT_FILE` holds uploads until they are committed** (DL-0175). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by the commit that finishes the session. It is the first copy of that content, not a second one.
 
-**`OPEN_EDITOR` is what makes several editors safe** (DL-0167). A capture is accepted only while its range of the draft still hashes to `base_hash`; an editor with no heartbeat past the timeout is closed; finishing is refused while any row is open.
+**`OPEN_EDITOR` is what makes several editors safe** (ADR-0006). A capture is accepted only while its range of the draft still hashes to `base_hash`; an editor with no heartbeat past the timeout is closed; finishing and discarding are refused while any row is open. A section editor's range is its heading's ordinal among the draft's headings, with the count of headings its own text holds (DL-0418); a capture that adds or removes headings renumbers the later editors in the same write, and the whole-document editor and a section editor are never open at once.
 
 ## Content index, entities, images
 
@@ -516,7 +516,7 @@ erDiagram
     }
 ```
 
-**`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` and each appendix at a version, for the section editors, which read a version's headings without rendering its text; the outline and the numbers are read from the rendered text itself. Rows are kept for the head and its parent, the latest accepted version and every edition, and the others' dropped when a version is derived.
+**`HEADING_INDEX` is a cache and says so** — rebuilt by parsing `document.md` and each appendix at a version, and read by nothing in release 0.1; the outline and the numbers are read from the rendered text itself. Rows are kept for the head and its parent, the latest accepted version and every edition, and the others' dropped when a version is derived.
 
 **Appendices and attachments are numbered per document from 1** in creation order (ADR-0008); the number names the file, appears in the part's URL, and never changes when parts are reordered.
 

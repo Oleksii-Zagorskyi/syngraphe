@@ -31,6 +31,9 @@ EVENTS: dict[Event, EventSpec] = {
     Event.EMAIL_FAILED: EventSpec(Category.ADMINISTRATIVE),
     Event.USER_PARTIALLY_BLOCKED: EventSpec(Category.ADMINISTRATIVE),
     Event.TENANT_WITHOUT_ADMIN: EventSpec(Category.ADMINISTRATIVE),
+    Event.RESERVATION_STARTED: EventSpec(Category.ADMINISTRATIVE),
+    Event.RESERVATION_ENDED_BY_ADMIN: EventSpec(Category.DOCUMENT),
+    Event.HOLD_EXPIRING: EventSpec(Category.DOCUMENT),
 }
 
 # The events a tenant administrator can receive in the organisation's schema, and what a platform
@@ -41,6 +44,7 @@ TENANT_ADMINISTRATIVE = (
     Event.DOCUMENT_CREATED,
     Event.ACCESS_GRANTED,
     Event.EMAIL_FAILED,
+    Event.RESERVATION_STARTED,
 )
 PLATFORM_ADMINISTRATIVE = PLATFORM_EVENTS
 
@@ -55,6 +59,7 @@ def label(event: Event) -> str:
         Event.EMAIL_FAILED: _("Failed email"),
         Event.USER_PARTIALLY_BLOCKED: _("Blocked, active elsewhere"),
         Event.TENANT_WITHOUT_ADMIN: _("Without an administrator"),
+        Event.RESERVATION_STARTED: _("Reservations started"),
     }.get(event, event.value)
 
 
@@ -105,8 +110,23 @@ def _address(facts: dict[str, Any]) -> str:
     return person.email
 
 
-def describe(row: Any) -> str:
-    """What the entry of a `Notification` or a `PlatformNotification` reads."""
+def _named(facts: dict[str, Any], key: str) -> str:
+    """The person a reservation's entry names under `key`, as the organisation's pages name
+    them."""
+    from identity.models import User
+    from identity.naming import person
+
+    try:
+        user_id = uuid.UUID(str(facts.get(key, "")))
+    except ValueError:
+        return ""
+    return person(User.objects.filter(pk=user_id).first())
+
+
+def describe(row: Any, *, named: bool = True) -> str:
+    """What the entry of a `Notification` or a `PlatformNotification` reads. `named` false leaves
+    out who reserved a document, for a reader who no longer administers the organisation
+    (DL-0226)."""
     facts: dict[str, Any] = row.facts or {}
     event = Event(row.event)
     if event == Event.BACKUP_CONDITION:
@@ -126,14 +146,14 @@ def describe(row: Any) -> str:
             return _("You were added to the group %(group)s.") % {"group": group}
         return _("You were added to a group.")
     document = getattr(row, "document", None)
-    named = {
+    document_named = {
         "number": document.number if document is not None else "",
         "title": document.title if document is not None else "",
     }
     if event == Event.CORRECTION_NOTICE:
         accepted = row.correction_notice.acceptance.number if row.correction_notice else ""
         return _("Correction notice: #%(number)s %(title)s, accepted as %(accepted)s.") % {
-            **named,
+            **document_named,
             "accepted": accepted,
         }
     words = {
@@ -144,13 +164,23 @@ def describe(row: Any) -> str:
         Event.MADE_CANONICAL: _("#%(number)s %(title)s was approved as edition %(edition)s."),
         Event.DOCUMENT_CREATED: _("#%(number)s %(title)s was created."),
         Event.DOCUMENT_COPIED: _("#%(number)s %(title)s was created as a copy."),
+        Event.RESERVATION_STARTED: _("#%(number)s %(title)s was reserved for editing by %(name)s."),
+        # The reason stays out of the sentence, which is also the email (DL-0369); the page draws
+        # it beneath, from the facts.
+        Event.RESERVATION_ENDED_BY_ADMIN: _(
+            "#%(number)s %(title)s: your reservation was ended by %(by)s."
+        ),
+        Event.HOLD_EXPIRING: _("#%(number)s %(title)s: your editing will soon end for inactivity."),
     }
     if event == Event.DOCUMENT_CREATED and facts.get("recreated"):
         words[event] = _(
             "#%(number)s %(title)s was recreated by the platform; no group is linked to it."
         )
+    if event == Event.RESERVATION_STARTED and not named:
+        words[event] = _("#%(number)s %(title)s was reserved for editing.")
     numbers = {key: facts.get(key, "") for key in ("version", "accepted", "edition")}
-    return words[event] % {**named, **numbers}
+    people = {"name": _named(facts, "holder"), "by": _named(facts, "by")}
+    return words[event] % {**document_named, **numbers, **people}
 
 
 def tag(row: Any) -> str | None:

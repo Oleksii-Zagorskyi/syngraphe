@@ -116,4 +116,55 @@ def test_the_lists_tags_cost_a_fixed_number_of_queries(
             tags(author, documents[:1])
         with django_assert_max_num_queries(len(one.captured_queries)):
             found = tags(author, documents)
-    assert all(shown == [State.AWAITING_REVIEW] for shown in found.values())
+    assert all([tag.state for tag in shown] == [State.AWAITING_REVIEW] for shown in found.values())
+
+
+def test_hold_tags_cost_one_query(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+) -> None:
+    """Thirty documents, ten of them held: the folder list reads the holds in one query of its
+    own, and costs the same with ten held as with none."""
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+    from django.utils import timezone
+
+    from editing.models import Draft, Hold
+    from review.state import tags
+
+    client, author, _ = member_of("the.author@example.test")
+    documents = [new_document(author, f"Синтетичний порядок {n}") for n in range(30)]
+
+    def hold_reads(queries: list[dict[str, Any]]) -> int:
+        return sum('"editing_hold"' in query["sql"] for query in queries)
+
+    # The first request fills the caches every later one reads.
+    assert client.get("/folder/1/").status_code == 200
+    with CaptureQueriesContext(connection) as unheld:
+        assert client.get("/folder/1/").status_code == 200
+    with schema_context(migrated_tenant.number):
+        now = timezone.now()
+        for n, document in enumerate(documents[:10]):
+            hold = Hold.objects.create(
+                document=document,
+                user=author,
+                acquired_at=now,
+                last_activity_at=now,
+                reserved_at=now if n % 2 else None,
+            )
+            Draft.objects.create(hold=hold, base_commit="0" * 40, content={})
+    with CaptureQueriesContext(connection) as held:
+        assert client.get("/folder/1/").status_code == 200
+    assert len(held.captured_queries) == len(unheld.captured_queries)
+    with schema_context(migrated_tenant.number):
+        with CaptureQueriesContext(connection) as tagged:
+            found = tags(author, documents, administrator=True)
+    assert hold_reads(tagged.captured_queries) == 1
+    hold_states = [
+        tag.state.value
+        for document in documents
+        for tag in found[document.pk]
+        if tag.state.value in ("held", "reserved")
+    ]
+    assert sorted(hold_states) == ["held"] * 5 + ["reserved"] * 5

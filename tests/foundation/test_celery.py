@@ -54,3 +54,19 @@ def test_the_outbox_task_runs_on_the_worker() -> None:
     assert entry["schedule"] == crontab(minute="*")
     route = app.amqp.router.route({}, "mail.send_outbox", (), {})
     assert route["queue"].name == app.conf.task_default_queue
+
+
+def test_idle_holds_are_visited_by_beat() -> None:
+    """Idle holds are visited every minute by beat, on the default queue, each minute's visit
+    expiring rather than queueing behind an outage."""
+    from celery.schedules import crontab
+    from django.conf import settings
+
+    from syngraphe.celery import app
+
+    entry = settings.CELERY_BEAT_SCHEDULE["release-inactive-holds"]
+    assert entry["task"] == "editing.release_inactive_holds"
+    assert entry["schedule"] == crontab(minute="*")
+    assert entry["options"] == {"expires": 50}
+    route = app.amqp.router.route({}, "editing.release_inactive_holds", (), {})
+    assert route["queue"].name == app.conf.task_default_queue

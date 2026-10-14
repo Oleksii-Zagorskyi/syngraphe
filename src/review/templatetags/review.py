@@ -8,15 +8,21 @@ from typing import Any
 from django import template
 
 from access.rights import Right, rights_on
-from review.state import LABELS, tags
+from review.state import tags
 
 register = template.Library()
 
 
 @register.inclusion_tag("review/state_tag.html", takes_context=True)
 def state_tag(context: dict[str, Any], document: Any) -> dict[str, Any]:
-    shown = tags(context["request"].user, [document]).get(document.pk, [])
-    return {"tags": [{"state": tag, "label": LABELS[tag]} for tag in shown]}
+    from access.views import administers
+
+    request = context["request"]
+    return {
+        "tags": tags(request.user, [document], administrator=administers(request)).get(
+            document.pk, []
+        )
+    }
 
 
 @register.simple_tag(takes_context=True)

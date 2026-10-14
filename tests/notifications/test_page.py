@@ -295,6 +295,7 @@ def test_filters_drawn_are_the_events_each_person_can_receive(
         "access_granted",
         "document_created",
         "email_failed",
+        "reservation_started",
     ]
     chosen = admin_client.get("/notifications/?tab=administrative&event=access_granted")
     assert len(entries(chosen.content.decode())) == 1
@@ -306,6 +307,7 @@ def test_filters_drawn_are_the_events_each_person_can_receive(
         "email_failed",
         "user_partially_blocked",
         "tenant_without_admin",
+        "reservation_started",
     ]
     page = without_tenant(platform_client).get("/notifications/?tab=administrative")
     assert filters.findall(page.content.decode()) == [

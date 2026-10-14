@@ -89,6 +89,9 @@ SEQUENCE_BEHIND = "sequence_behind"
 LOCKED = "locked"
 AUTHORSHIP_MISSING = "authorship_missing"
 FINISH_STOPPED = "finish_stopped"
+# A draft kept by a release — forced, inactivity, blocked — whose base lies below a content commit
+# of its holder: the stopped finish the release met could not be completed. Reported, not repaired.
+FINISH_STOPPED_KEPT = "finish_stopped_kept"
 ACCEPT_AS_STOPPED = "accept_as_stopped"
 ACCEPTANCE_DIFFERS = "acceptance_differs"
 NOTICES_MISSING = "notices_missing"
@@ -506,6 +509,7 @@ class _Run:
             edit, reason = "", ""
             if hold.released_at is not None:
                 if hold.release_kind != ReleaseKind.FINISHED:
+                    self.kept_over_a_stop(document, commits, order, hold, draft)
                     continue
             else:
                 base = order.get(draft.base_commit)
@@ -532,6 +536,30 @@ class _Run:
                     _audit(self.tenant, FINISH_STOPPED, document, None, {"number": document.number})
             detail = f"{edit} ({reason})" if reason else edit
             self.found(FINISH_STOPPED, document.number, detail, repaired=self.repair and not reason)
+
+    def kept_over_a_stop(
+        self,
+        document: Document,
+        commits: list[pygit2.Commit],
+        order: dict[str, int],
+        hold: Any,
+        draft: Any,
+    ) -> None:
+        """A kept draft over its holder's own content commit: a release met a stopped finish it
+        could not complete — text typed after the stop — and kept the draft (DL-0414). The version
+        stands and its reviewers were told; the draft is the holder's, so it is named, not
+        repaired."""
+        base = order.get(draft.base_commit)
+        if base is None:
+            return
+        edits = [
+            commit
+            for commit in commits[base + 1 :]
+            if gitstore.kind_of(commit.message) in CONTENT_KINDS
+            and commit.author.name == str(hold.user_id)
+        ]
+        if edits:
+            self.found(FINISH_STOPPED_KEPT, document.number, str(edits[-1].id))
 
     def unfinishable(self, document: Document, commit: pygit2.Commit, draft: Any) -> str:
         """Why a stopped finish is left for its holder: an empty string when it may be finished."""

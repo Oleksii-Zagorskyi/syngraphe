@@ -213,3 +213,88 @@ def test_the_confirmation_names_the_run_and_a_grown_run_is_refused(
     session["tenant_number"] = migrated_tenant.number
     session.save()
     assert editor.get(address).status_code == 404
+
+
+def test_reservation_and_acceptance_never_interleave(
+    migrated_tenant: Any, cast: Any, commit_version: Any, link_group: Any
+) -> None:
+    """Review waits for a reservation, never the reverse (DL-0224): a reservation attempted while
+    an acceptance holds the document's lock waits and lands after its commit, both standing; an
+    acceptance that finds the reservation refuses `reserved`, and the reservation stands."""
+    import threading
+
+    from django.db import connection
+
+    from access.rights import Right
+    from documents.locks import document_lock
+    from editing import holds, reservations
+
+    people = cast(editors=("a",), reviewers=("r",))
+    document = people.document
+    link_group(document, [Right.RESERVE_FOR_EDITING], [people.memberships["a"]], people["a"])
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        hold = holds.take(document, people["a"])
+    reserved: list[Any] = []
+
+    def reserve() -> None:
+        try:
+            with schema_context(migrated_tenant.number):
+                reserved.append(reservations.reserve(hold, people["a"]))
+        finally:
+            connection.close()
+
+    # The acceptance first: the reservation waits for its lock and lands after its commit.
+    with schema_context(migrated_tenant.number):
+        with document_lock(migrated_tenant.number, document.number):
+            waiting = threading.Thread(target=reserve)
+            waiting.start()
+            waiting.join(timeout=1)
+            still_waiting = waiting.is_alive()
+            accepted = services.accept_locked(document, people["r"])
+        waiting.join(timeout=30)
+        assert still_waiting
+        assert len(reserved) == 1
+        hold.refresh_from_db()
+        assert hold.reserved_at is not None and hold.reserved_at >= accepted.version.created_at
+
+        # The reservation first: the next acceptance refuses, and the reservation stands.
+        commit_version(document, people["a"], SECOND, "edit")
+        with pytest.raises(services.AcceptRefused) as refused:
+            services.accept(document, people["r"])
+        assert refused.value.reason == "reserved"
+        assert Acceptance.objects.count() == 1
+        hold.refresh_from_db()
+        assert hold.reserved_at is not None and hold.released_at is None
+
+
+def test_the_reserved_refusal_dates_in_the_display_timezone(
+    migrated_tenant: Any, cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """The refusal names the reservation's date as the band beside it does, in the display
+    timezone: late on the 13th in UTC is the 14th east of it."""
+    from datetime import UTC, datetime
+
+    from django.test import Client
+
+    settings.LANGUAGE_CODE = "en"
+    settings.DISPLAY_TIMEZONE = "Europe/Kyiv"
+    people = cast(editors=("a",), reviewers=("r",))
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        Hold.objects.create(
+            document=document,
+            user=people["a"],
+            acquired_at=timezone.now(),
+            last_activity_at=timezone.now(),
+            reserved_at=datetime(2026, 10, 13, 22, 30, tzinfo=UTC),
+        )
+    reviewer = Client(headers={"host": "127.0.0.1"})
+    reviewer.force_login(people["r"])
+    session = reviewer.session
+    session["tenant_number"] = migrated_tenant.number
+    session.save()
+    page = reviewer.get(f"/document/{document.number}/pending/").content.decode()
+    assert "Oct. 14, 2026" in page
+    assert "Oct. 13, 2026" not in page

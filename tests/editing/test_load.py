@@ -1,4 +1,5 @@
-"""`load` opens an editor on the whole draft, for its holder alone, with the validator's verdict."""
+"""`load` opens an editor on the whole draft or on one section of it, for its holder alone, with
+the validator's verdict."""
 
 from __future__ import annotations
 
@@ -53,7 +54,25 @@ def test_load_is_the_holders_alone(
     assert holder.get(f"/document/{document.number}/edit/load/").status_code == 404
 
 
-@pytest.mark.parametrize("route", ["load", "capture", "heartbeat", "close", "finish", "send"])
+@pytest.mark.parametrize(
+    "route",
+    [
+        "load",
+        "capture",
+        "heartbeat",
+        "close",
+        "finish",
+        "send",
+        "reserve",
+        "cancel-reservation",
+        "end-reservation",
+        "take-back",
+        "discard-draft",
+        "force-release",
+        "discard",
+        "changes",
+    ],
+)
 def test_every_editing_post_needs_the_csrf_token(
     migrated_tenant: Any, member_of: Any, new_document: Any, route: str
 ) -> None:
@@ -157,3 +176,82 @@ def test_another_tenants_editing_is_not_found(
 
         assert "Чуже" not in Draft.objects.get(hold__document=document).content["document.md"]
         assert OpenEditor.objects.get(pk=loaded["editor"]).closed_at is None
+
+
+def test_whole_and_section_editors_exclude_each_other(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """The whole-document editor cannot be opened while a section editor is, nor the reverse
+    (DL-0167); a section that does not exist cannot be opened."""
+    import json
+
+    from editing.models import Draft
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold__document=document)
+        draft.content = {**draft.content, "document.md": "# Розділ\n\nРечення.\n"}
+        draft.save()
+
+    def load(range_: str) -> Any:
+        return client.post(
+            f"/document/{document.number}/edit/load/",
+            data=json.dumps({"range": range_}),
+            content_type="application/json",
+        )
+
+    opened = load("section:0")
+    assert opened.status_code == 200 and opened.json()["body"] == "# Розділ\n\nРечення.\n"
+    refused = load("whole")
+    assert refused.status_code == 409 and refused.json() == {"sections_open": 1}
+    client.post(
+        f"/document/{document.number}/edit/close/",
+        data=json.dumps({"editor": opened.json()["editor"]}),
+        content_type="application/json",
+    )
+    assert load("whole").status_code == 200
+    refused = load("section:0")
+    assert refused.status_code == 409 and refused.json() == {"whole_open": True}
+    assert load("section:7").status_code == 404
+    assert load("section:x").status_code == 404
+
+
+def test_overlapping_sections_and_too_many_are_refused(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """A section whose lines another open editor covers is refused, so two editors never stop
+    each other over a subsection; past the most open at once, a new section editor is refused,
+    never a live one closed; a long ordinal is no section."""
+    import json
+
+    from editing.models import Draft, OpenEditor
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    body = "".join(f"# Розділ {n}\n\n## Підрозділ {n}\n\nРечення.\n\n" for n in range(8))
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold__document=document)
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+    def load(range_: str) -> Any:
+        return client.post(
+            f"/document/{document.number}/edit/load/",
+            data=json.dumps({"range": range_}),
+            content_type="application/json",
+        )
+
+    assert load("section:0").status_code == 200
+    assert load("section:1").json() == {"overlaps": True}
+    # The same section again — a second tab — opens; capture settles which one stops.
+    assert load("section:0").status_code == 200
+    for ordinal in (2, 4, 6):
+        assert load(f"section:{ordinal}").status_code == 200
+    refused = load("section:10")
+    assert refused.status_code == 409 and refused.json() == {"too_many": True}
+    with schema_context(migrated_tenant.number):
+        assert OpenEditor.objects.filter(closed_at__isnull=True).count() == 5
+    assert load("section:" + "1" * 5000).status_code == 404

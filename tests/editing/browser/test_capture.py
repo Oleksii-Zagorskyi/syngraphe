@@ -32,6 +32,7 @@ def test_typing_survives_a_closed_page(
     page.close()
     reopened = page.context.new_page()
     reopened.goto(url)
+    reopened.click("button[data-command=edit-whole]")
     reopened.wait_for_function("() => document.getElementById('editor').editor !== undefined")
     assert "Друге речення." in reopened.evaluate(f"{EDITOR}.markdown()")
     reopened.wait_for_function(f"() => {EDITOR}.others === 0", timeout=5000)

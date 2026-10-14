@@ -1,5 +1,5 @@
-"""`end_freeze`: an operator ends a freeze nobody can end in the interface yet — the act *unfreeze*
-will perform — with a reason recorded in the audit trail."""
+"""`end_freeze`: an operator ends a freeze no holder of *freeze* is there to end — *unfreeze* with
+no actor — with a reason recorded in the audit trail."""
 
 from __future__ import annotations
 

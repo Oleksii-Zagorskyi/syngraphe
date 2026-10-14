@@ -32,8 +32,8 @@ def editing(
     browser_server: str, page: Any, migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> Iterator[Callable[[str | None], Any]]:
     """Open the edit tab of a new document as its author, the draft's body set to `body` when
-    given; returns the document once the editor is mounted. On teardown, before the page and
-    the server go, every page's editor is finished and the page closed."""
+    given; returns the document once the whole editor is opened by its control. On teardown,
+    before the page and the server go, every page's editor is finished and the page closed."""
 
     def open_tab(body: str | None = None) -> Any:
         from editing.models import Draft
@@ -49,6 +49,8 @@ def editing(
         session = client.cookies["sessionid"].value
         page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
         page.goto(f"{browser_server}/document/{document.number}/edit/")
+        # The tab opens on the draft as text; the whole editor is opened by its control.
+        page.click("button[data-command=edit-whole]")
         page.wait_for_function("() => document.getElementById('editor').editor !== undefined")
         return document
 

@@ -103,3 +103,89 @@ def test_catalogue_covers_epic_4_pages(
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
     assert "Відправлено на розгляд" in bodies["the notice after sending"]
+
+
+def _commit(tenant: Any, document: Any, user: Any, body: str) -> None:
+    """`body` committed on the head as `user`, kind `edit`, its version row derived."""
+    from documents import gitstore, services
+    from documents.identity import identity_for
+    from documents.locks import document_lock
+    from editing import holds
+
+    with schema_context(tenant.number):
+        repo = gitstore.open_repository(tenant.number, document.number)
+        with document_lock(tenant.number, document.number):
+            head = gitstore.head(repo)
+            assert head is not None
+            frontmatter, _ = holds.split(gitstore.read(repo, holds.BODY, head).decode())
+            sha = gitstore.commit(
+                repo,
+                {holds.BODY: holds.join(frontmatter, body).encode("utf-8")},
+                identity_for(user),
+                "Синтетична правка",
+                gitstore.Kind("edit"),
+            )
+            services.derive_version(document, gitstore.commit_at(repo, sha), user)
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_editing_together_pages(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    settings: Any,
+) -> None:
+    """The pages of reserving, ending a reservation, the kept draft's return, section editors'
+    tab and the notifications they write, in Ukrainian from the one catalogue: no message id
+    shown verbatim."""
+    from access.rights import Right
+    from editing.models import Draft, Hold
+
+    settings.LANGUAGE_CODE = "uk"
+    holder, author, own = member_of("the.holder@example.test")
+    other, _, theirs = member_of("another.editor@example.test")
+    admin, _, _ = member_of("the.admin@example.test", is_tenant_admin=True)
+    document = new_document(author)
+    link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [own], author)
+    link_group(document, [Right.EDIT], [theirs], author)
+    number = document.number
+    assert holder.post(f"/document/{number}/edit/take/").status_code == 200
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        draft.content = {**draft.content, "document.md": BODY}
+        draft.save()
+    holder.post(f"/document/{number}/edit/reserve/")
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+
+    def shown(client: Any, path: str) -> str:
+        response = client.get(path, follow=True)
+        assert response.status_code == 200, path
+        return text_of(response.content.decode())
+
+    bodies = {
+        "the reserved edit tab": shown(holder, f"/document/{number}/edit/"),
+        "the reserved document to another editor": shown(other, f"/document/{number}/"),
+        "my reservations": shown(holder, "/my-reservations/"),
+        "the reservations page": shown(admin, "/administration/tenant/reservations/"),
+        "the end page": shown(admin, f"/document/{number}/edit/end-reservation/"),
+        "the administrators' notifications": shown(admin, "/notifications/?tab=administrative"),
+    }
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document, released_at__isnull=True)
+    admin.post(
+        f"/document/{number}/edit/end-reservation/",
+        {"reason": "Синтетична причина", "hold": str(hold.pk)},
+    )
+    bodies["the return, nothing committed since"] = shown(holder, f"/document/{number}/edit/")
+    bodies["the document to the returning holder"] = shown(holder, f"/document/{number}/")
+    bodies["the holder's notifications"] = shown(holder, "/notifications/?tab=document")
+    _commit(migrated_tenant, document, author, BODY + "\nСинтетичне нове речення.\n")
+    bodies["the return, read-only"] = shown(holder, f"/document/{number}/edit/")
+
+    for name, body in bodies.items():
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+        assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
+    assert "Скасувати резервування" in bodies["the reserved edit tab"]
+    assert "Забрати документ назад" in bodies["the return, nothing committed since"]

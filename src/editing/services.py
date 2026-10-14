@@ -1,5 +1,6 @@
-"""Finishing an editing session: the screen's content, and the commit that turns a draft into a
-version (ADR-0003, DL-0222, DL-0261).
+"""Ending an editing session: finishing — the screen's content, and the commit that turns a draft
+into a version (ADR-0003, DL-0222, DL-0261) — or discarding the draft, the holder's own or one
+kept from an ended hold (DL-0180, DL-0381).
 
 The commit is a write across both stores, under the document's writer lock throughout, in this
 order: the git commit, which is the commit point; the version row and its caches, audited; the hold
@@ -39,7 +40,8 @@ logger = logging.getLogger(__name__)
 
 
 class EditorsOpen(Exception):
-    """An editor is still open on the draft; finishing waits for every one to close."""
+    """An editor is still open on the draft; finishing or discarding waits for every one to
+    close."""
 
 
 class NothingChanged(Exception):
@@ -353,3 +355,168 @@ def commit_draft_locked(
     _fault(4, fault_at)
     # (5), by the caller once the lock is released: the authorship asked of the worker.
     return Version.objects.get(document=document, commit_sha=sha)
+
+
+def discard_preserved(draft: Draft, user: User) -> bool:
+    """Throw away the draft kept for `user` from a released hold of theirs (DL-0381): the draft and
+    its staged files deleted without a hold, audited with what was thrown away. Under the
+    document's writer lock and its row, as every writer of the draft; whether this call deleted
+    it — `False` once it is gone, or taken back meanwhile."""
+    tenant_number = holds.tenant_number()
+    document = Document.objects.get(pk=draft.hold.document_id)
+    with (
+        document_lock(tenant_number, document.number, timeout=holds.LOCK_WAIT_SECONDS),
+        transaction.atomic(),
+    ):
+        locked = Document.objects.select_for_update().get(pk=document.pk)
+        kept = holds.preserved_draft(locked, user)
+        if kept is None or kept.pk != draft.pk:
+            return False
+        state = holds.draft_state(kept.hold)
+        kept.files.all().delete()
+        kept.delete()
+        record(
+            actor=user,
+            action="document.draft_discarded",
+            obj=locked,
+            before=None,
+            after={"number": locked.number, **state},
+            tenant=Tenant.objects.get(number=tenant_number),
+        )
+    return True
+
+
+def comparison_choices(document: Document) -> list[tuple[str, str]]:
+    """The versions a holder of an ended reservation may compare their kept draft with, as
+    `(number, commit)` pairs, newest first (DL-0379): the pending run's versions, the latest
+    accepted version, and the latest edition where it is not that version — what *edit*
+    reaches."""
+    from editions.models import Edition
+    from review.services import base, number_key, run
+
+    accepted = numbering.accepted(document)
+    choices = [(f"{accepted}-{n}", v.commit_sha) for n, v in enumerate(run(document), 1)][::-1]
+    choices.append((accepted, base(document).commit_sha))
+    editions = Edition.objects.filter(version__document=document).select_related("version")
+    latest = max(editions, key=lambda e: number_key(e.number), default=None)
+    if latest is not None and latest.number != accepted:
+        choices.append((latest.number, latest.version.commit_sha))
+    return choices
+
+
+def finish_stopped(hold: Hold, *, actor: User | None, reason: str = "") -> bool:
+    """Complete a finish of `hold` that stopped after its commit (DL-0414), for a release that is
+    not the holder's own. The record is settled first — every commit the rows do not know derived,
+    as every writer does — then the commit path's own test: the holder's content version above
+    the draft's base with nothing but acceptances after it, and the draft holding nothing beyond
+    it. Then the hold is released `finished` by `actor`, who acted, with `reason` where they gave
+    one, the audit saying the finish was completed; the reviewers are told the version awaits
+    them, where it still does; and the draft is deleted. Whether it was. A version found under a
+    draft holding later text is committed all the same: its reviewers are told, and the draft is
+    kept as asked. A record that cannot be settled, or a repository that cannot be read, leaves
+    the release as asked and the stop to the reconciler's report: no release depends on git. The
+    caller holds the document's writer lock and, in a transaction, its row and the hold's."""
+    from editing.normalizer import NormalizerDefect
+    from rendering.views import UNREADABLE
+    from review.services import RecordIncomplete, settle_head
+
+    draft = Draft.objects.filter(hold=hold).first()
+    if draft is None:
+        return False
+    document = Document.objects.select_related("language").get(pk=hold.document_id)
+    user = hold.user
+    try:
+        settle_head(document)
+        repo = gitstore.open_repository(holds.tenant_number(), document.number)
+        head = gitstore.head(repo)
+        stopped = _stopped(repo, head, draft, user) if head is not None else None
+        if stopped is None:
+            return False
+        _, committed = holds.split(gitstore.read(repo, holds.BODY, stopped).decode("utf-8"))
+    except (RecordIncomplete, *UNREADABLE):
+        logger.warning(
+            "a release over a record that cannot be read", extra={"document": document.number}
+        )
+        return False
+    body: str = draft.content[holds.BODY]
+    try:
+        again = (
+            None
+            if validate(body)
+            else normalize(committed.encode("utf-8"), body, _lists(document)).decode("utf-8")
+        )
+    except NormalizerDefect:
+        again = None
+    if again != committed:
+        # Typed since the commit: that work is at risk and is kept as asked; the version the
+        # stop made stands, and its reviewers are told it awaits them.
+        tell_reviewers(document, stopped, user)
+        return False
+    holds.release(hold, ReleaseKind.FINISHED, actor=actor, reason=reason, finish_completed=True)
+    tell_reviewers(document, stopped, user)
+    draft.delete()
+    return True
+
+
+def discard(hold: Hold, user: User) -> str | None:
+    """Throw the holder's draft away — its text and every staged file (DL-0180) — and release the
+    hold `discarded`, a reservation ending with it (ADR-0009). What was thrown away is audited as a
+    kept draft's discard is. A finish of the hold that stopped after its commit made a version no
+    discard takes back: the record is settled, and the reviewers are told it awaits them. Under the
+    document's writer lock and, in a transaction, its row and the hold's. The sha of such a
+    version, or `None`; `EditorsOpen` while an editor is open on the draft — it may hold text not
+    yet captured, and the page closes its editors before it asks; `holds.NotEditable` for a hold
+    not the user's, or ended."""
+    from rendering.views import UNREADABLE
+    from review.services import RecordIncomplete, settle_head
+
+    tenant_number = holds.tenant_number()
+    document = Document.objects.get(pk=hold.document_id)
+    with document_lock(tenant_number, document.number, timeout=holds.LOCK_WAIT_SECONDS):
+        try:
+            settle_head(document)
+        except (RecordIncomplete, *UNREADABLE):
+            # The record is the reconciler's to report; the draft is still the holder's to drop.
+            logger.warning(
+                "a discard over a record that cannot be settled",
+                extra={"document": document.number},
+            )
+        with transaction.atomic():
+            Document.objects.select_for_update().get(pk=document.pk)
+            locked = Hold.objects.select_for_update().get(pk=hold.pk)
+            if locked.released_at is not None or locked.user_id != user.pk:
+                raise holds.NotEditable(document.number)
+            if OpenEditor.objects.filter(draft__hold=locked, closed_at__isnull=True).exists():
+                raise EditorsOpen(locked.pk)
+            draft = Draft.objects.filter(hold=locked).first()
+            try:
+                repo = gitstore.open_repository(tenant_number, document.number)
+                head = gitstore.head(repo)
+                stopped = (
+                    _stopped(repo, head, draft, user)
+                    if draft is not None and head is not None
+                    else None
+                )
+            except UNREADABLE:
+                stopped = None
+            # Released first, so the release records the draft's state; then the draft goes.
+            holds.release(locked, ReleaseKind.DISCARDED, actor=user)
+            if draft is not None:
+                record(
+                    actor=user,
+                    action="document.draft_discarded",
+                    obj=document,
+                    before=None,
+                    after={
+                        "number": document.number,
+                        "reserved": locked.reserved_at is not None,
+                        "files": draft.files.count(),
+                        "version_kept": stopped,
+                    },
+                    tenant=Tenant.objects.get(number=tenant_number),
+                )
+                draft.files.all().delete()
+                draft.delete()
+            if stopped is not None:
+                tell_reviewers(document, stopped, user)
+    return stopped

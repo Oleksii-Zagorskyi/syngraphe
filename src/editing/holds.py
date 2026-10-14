@@ -19,7 +19,7 @@ from audit.record import record
 from documents import bundle, gitstore
 from documents.locks import document_lock
 from documents.models import Document, DocumentState
-from editing.models import Draft, Hold, ReleaseKind
+from editing.models import Draft, Hold, OpenEditor, ReleaseKind
 from identity.models import Membership
 from tenancy.models import Tenant
 from tenancy.schemas import current_tenant
@@ -51,6 +51,26 @@ class Frozen(Exception):
         self.reason = reason
 
 
+class DraftPreserved(Exception):
+    """The person has a draft kept from a released hold of theirs (DL-0225): the tab offers it
+    back before a new hold is taken. `moved` when someone committed since it was started, so it
+    can only be read, or discarded (DL-0318, DL-0381)."""
+
+    def __init__(self, moved: bool) -> None:
+        super().__init__(moved)
+        self.moved = moved
+
+
+class NothingKept(Exception):
+    """A take-back found no kept draft: it was discarded, or taken back, meanwhile."""
+
+
+# The releases that keep a draft for its holder (ADR-0006): someone else ended the hold. A finish
+# or a discard is the holder's own end, and a draft such a hold still has is one a stopped finish
+# left behind, which its commit already holds.
+KEEPING = (ReleaseKind.INACTIVITY, ReleaseKind.FORCED, ReleaseKind.BLOCKED)
+
+
 def split(document_md: str) -> tuple[dict[str, Any], str]:
     """`document.md` as the draft keeps it: its frontmatter as data, and its body."""
     frontmatter, body = bundle.parse(document_md)
@@ -66,6 +86,23 @@ def open_hold(document: Document) -> Hold | None:
     return Hold.objects.filter(document=document, released_at__isnull=True).first()
 
 
+def preserved_draft(document: Document, user: Any) -> Draft | None:
+    """The draft kept for `user` from their latest released hold on `document`, or `None`: a
+    release by an administrator, by inactivity or by a block keeps it (ADR-0006); a finish and a
+    discard delete it, and taking it back moves it to the new hold."""
+    user_id = getattr(user, "pk", None)
+    if user_id is None:
+        return None
+    latest = (
+        Hold.objects.filter(document=document, user_id=user_id, released_at__isnull=False)
+        .order_by("-released_at")
+        .first()
+    )
+    if latest is None or latest.release_kind not in KEEPING:
+        return None
+    return Draft.objects.filter(hold=latest).first()
+
+
 def tenant_number() -> int:
     number = current_tenant(connection)
     if number is None:
@@ -73,11 +110,17 @@ def tenant_number() -> int:
     return number
 
 
-def take(document: Document, user: User) -> Hold:
+def take(document: Document, user: User, *, take_back: bool = False) -> Hold:
     """The user's hold on `document` with its draft — the open one when they already hold it;
     `HeldByOther` when someone else does; `NotEditable` when, under the locks, they may not edit
     it or it is not active; `Frozen` while a freeze is open and they do not hold *accept*.
-    `documents.locks.LockTimeout` when the lock stays busy."""
+    `documents.locks.LockTimeout` when the lock stays busy.
+
+    While the user has a preserved draft, a new hold is taken only by `take_back`, and only while
+    nobody has committed since the draft was started — the head read under the lock (DL-0318):
+    the draft row moves to the new hold, its text and base kept, and the editors the ended hold
+    left open on it are closed. Otherwise `DraftPreserved`, with `moved` saying whether the head
+    has moved on; `NothingKept` for a take-back that finds no kept draft."""
     number = tenant_number()
     with transaction.atomic():
         # The organisation's row and the taker's membership first, as the blocks take them before
@@ -90,10 +133,10 @@ def take(document: Document, user: User) -> Hold:
                 user=user, tenant__number=number
             )
         )
-        return _take_locked(document, user, number)
+        return _take_locked(document, user, number, take_back)
 
 
-def _take_locked(document: Document, user: User, number: int) -> Hold:
+def _take_locked(document: Document, user: User, number: int, take_back: bool) -> Hold:
     from editions.models import open_freeze
 
     with (
@@ -116,15 +159,39 @@ def _take_locked(document: Document, user: User, number: int) -> Hold:
         base = gitstore.head(repo)
         if base is None:
             raise RuntimeError(f"document {locked.number} has no commit to edit")
-        frontmatter, body = split(gitstore.read(repo, BODY, base).decode("utf-8"))
+        kept = preserved_draft(locked, user)
+        if take_back and kept is None:
+            raise NothingKept(locked.number)
+        if kept is not None and (not take_back or kept.base_commit != base):
+            raise DraftPreserved(moved=kept.base_commit != base)
         now = timezone.now()
         hold = Hold.objects.create(
             document=locked, user=user, acquired_at=now, last_activity_at=now
         )
+        if kept is not None:
+            kept.hold = hold
+            kept.save(update_fields=["hold", "updated_at"])
+            OpenEditor.objects.filter(draft=kept, closed_at__isnull=True).update(closed_at=now)
+            return hold
+        frontmatter, body = split(gitstore.read(repo, BODY, base).decode("utf-8"))
         Draft.objects.create(
             hold=hold, base_commit=base, content={BODY: body, FRONTMATTER: frontmatter}
         )
     return hold
+
+
+def draft_state(hold: Hold) -> dict[str, Any]:
+    """The state of `hold`'s draft, as a release or a discard records what it leaves behind
+    (DL-0225, DL-0256): the commit it started from, when it last changed, and how many editors
+    are still open on it — `None` for each where the hold has no draft."""
+    draft = Draft.objects.filter(hold=hold).first()
+    if draft is None:
+        return {"draft_base": None, "draft_updated_at": None, "open_editors": None}
+    return {
+        "draft_base": draft.base_commit,
+        "draft_updated_at": draft.updated_at.isoformat(),
+        "open_editors": OpenEditor.objects.filter(draft=draft, closed_at__isnull=True).count(),
+    }
 
 
 def release(
@@ -134,23 +201,31 @@ def release(
     actor: User | None = None,
     released_by: User | None = None,
     reason: str = "",
+    finish_completed: bool = False,
 ) -> bool:
     """End `hold`, keeping its draft (ADR-0003); whether this call ended it. The caller holds the
     document's writer lock and, inside a transaction, its row lock, as `take` does, so a release
     never falls between the steps of a commit. `released_by` is who forced or blocked it, when
     someone did; `actor` is who acted, for the audit trail, `None` for the platform or an
-    operator's command. Audited with the document's number, never a title."""
+    operator's command. Audited with the document's number, never a title. A release of a kind
+    that keeps the draft first completes a finish that stopped after its commit (DL-0414): the
+    hold then ends `finished`, which the caller reads on the hold."""
     locked = Hold.objects.select_for_update().get(pk=hold.pk)
     if locked.released_at is not None:
         return False
+    if kind in KEEPING:
+        from editing.services import finish_stopped
+
+        # A draft its holder's own commit already holds is no work at risk: the stopped finish
+        # is completed instead, and the hold released `finished` (DL-0414).
+        if finish_stopped(locked, actor=actor, reason=reason):
+            return True
     locked.released_at = timezone.now()
     locked.release_kind = kind
     locked.released_by = released_by
     locked.release_reason = reason
     locked.save(update_fields=["released_at", "release_kind", "released_by", "release_reason"])
     document = Document.objects.get(pk=locked.document_id)
-    # The draft's state as the release left it, as break-the-glass records it (DL-0225, DL-0256).
-    draft_base = Draft.objects.filter(hold=locked).values_list("base_commit", flat=True).first()
     record(
         actor=actor,
         action="document.hold_released",
@@ -160,7 +235,9 @@ def release(
             "number": document.number,
             "release_kind": kind.value,
             "reason": reason,
-            "draft_base": draft_base,
+            "holder": str(locked.user_id),
+            **draft_state(locked),
+            **({"finish_completed": True} if finish_completed else {}),
         },
         tenant=Tenant.objects.get(number=tenant_number()),
     )

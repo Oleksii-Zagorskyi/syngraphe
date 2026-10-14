@@ -125,7 +125,9 @@ class DraftFile(models.Model):
 
 class OpenEditor(models.Model):
     """An editor open on a range of the draft, known by its heartbeat; open while `closed_at` is
-    null. Its captures are taken only while the range still hashes to `base_hash`."""
+    null. Its captures are taken only while the range still hashes to `base_hash`. `range` is
+    `whole`, or a section editor's span by its heading's ordinal — `section:<n>`, or
+    `section:<n>:<count>` when its text holds more headings than its own (`editing.sections`)."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     draft = models.ForeignKey(Draft, on_delete=models.CASCADE, related_name="editors")

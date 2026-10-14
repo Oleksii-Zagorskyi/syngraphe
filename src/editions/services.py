@@ -1,4 +1,5 @@
-"""Freezing a document and making it canonical (DL-0189, DL-0260, DL-0267, DL-0353, ADR-0016).
+"""Freezing a document, unfreezing it and making it canonical (DL-0189, DL-0260, DL-0267, DL-0353,
+ADR-0016).
 
 A freeze is taken under the document's writer lock with its row locked, as a hold is, so a hold
 opened meanwhile is seen: a document is frozen only when nobody holds it, a reserved hold
@@ -47,9 +48,14 @@ logger = logging.getLogger(__name__)
 LOCK_WAIT_SECONDS = holds.LOCK_WAIT_SECONDS
 
 
+class NotFrozen(ValueError):
+    """The freeze an unfreeze would end is not open."""
+
+
 class FreezeRefused(Exception):
-    """A freeze the document's state or the person's rights do not allow; `reason` names why:
-    `already_frozen`, `held`, `not_active`, `not_permitted`, `reason_invalid`."""
+    """A freeze, or its end, the document's state or the person's rights do not allow; `reason`
+    names why: `already_frozen`, `held`, `held_unfreeze`, `made_canonical`, `not_active`,
+    `not_permitted`, `reason_invalid`."""
 
     def __init__(self, reason: str) -> None:
         super().__init__(reason)
@@ -191,6 +197,9 @@ def canonical_refusal(document: Document, user: User, *, once_frozen: bool = Fal
         return "not_permitted"
     if not once_frozen and open_freeze(document) is None:
         return "not_frozen"
+    # Ending the freeze beneath a holder changes their rules mid-session: it waits (DL-0419).
+    if holds.open_hold(document) is not None:
+        return "held"
     since = _since_edition(document)
     if not since:
         return "nothing_accepted"
@@ -550,32 +559,51 @@ def _ask_authorship(tenant_number: int, document: Document, sha: str) -> None:
         logger.warning("authorship not queued", extra={"document": document.number})
 
 
-def end_freeze(document: Document, reason: str) -> Freeze:
-    """End the document's open freeze as an operator, `unfrozen`, audited with the operator's
-    reason: the act *unfreeze* will perform, for a freeze nobody can end before it exists. A
-    stopped approval at the head is finished first, so the freeze it ends is never recorded as
-    unfrozen. `ValueError` when the document is not frozen."""
+def end_freeze(document: Document, reason: str = "", *, user: User | None = None) -> Freeze:
+    """End the document's open freeze, `unfrozen` (DL-0189): by `user`, a holder of *freeze* —
+    *unfreeze* — or, with no user, by the operator's command, for a freeze nobody can end
+    otherwise. Ordinary editing resumes at the accepted number. A person's reason is optional, an
+    operator's required, one line either way. A stopped approval at the head is finished first, so
+    the freeze it ends is never recorded as unfrozen. `FreezeRefused`: `not_permitted` for a person
+    without *freeze*, read under the locks; `held_unfreeze` while someone holds the document;
+    `made_canonical` when a stopped approval, settled first, ended the freeze; `reason_invalid`.
+    `NotFrozen`, a `ValueError`, when the document is not frozen; `ValueError` when an
+    operator's reason is empty or invalid."""
     reason = reason.strip()
-    if not reason or not valid_reason(reason):
+    if user is None and not reason:
         raise ValueError("an operator ends a freeze with a reason of one line")
+    if not valid_reason(reason):
+        if user is None:
+            raise ValueError("an operator ends a freeze with a reason of one line")
+        raise FreezeRefused("reason_invalid")
     number = holds.tenant_number()
     with document_lock(number, document.number, timeout=LOCK_WAIT_SECONDS):
+        was_frozen = open_freeze(document) is not None
         review.settle_head(document)
         with transaction.atomic():
             locked = Document.objects.select_for_update().get(pk=document.pk)
+            if user is not None and Right.FREEZE not in rights_on(user, locked):
+                raise FreezeRefused("not_permitted")
             frozen = open_freeze(locked)
             if frozen is None:
-                raise ValueError(f"document {locked.number} is not frozen")
+                # An approval that had stopped after its commit, settled just now, ended it.
+                if was_frozen and user is not None:
+                    raise FreezeRefused("made_canonical")
+                raise NotFrozen(f"document {locked.number} is not frozen")
+            # As freezing does, unfreezing waits for whoever holds the document (DL-0223).
+            if user is not None and holds.open_hold(locked) is not None:
+                raise FreezeRefused("held_unfreeze")
             frozen.ended_by_kind = FreezeEnd.UNFROZEN
             frozen.ended_at = timezone.now()
-            frozen.save(update_fields=["ended_by_kind", "ended_at"])
+            frozen.ended_by = user
+            frozen.save(update_fields=["ended_by_kind", "ended_at", "ended_by"])
             record(
-                actor=None,
+                actor=user,
                 action="document.unfrozen",
                 obj=locked,
                 before=None,
                 after={"number": locked.number, "freeze": str(frozen.pk), "reason": reason},
                 tenant=Tenant.objects.get(number=number),
             )
-            _tell_readers(locked, Event.UNFROZEN, None)
+            _tell_readers(locked, Event.UNFROZEN, user)
     return frozen

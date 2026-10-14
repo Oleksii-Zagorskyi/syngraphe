@@ -94,7 +94,7 @@ The member must hold *freeze* and *make canonical* on the document through a gro
 
 ### A freeze nobody can end
 
-Until *unfreeze* exists in the interface, a freeze is ended one of two ways: a holder of *make canonical* makes it canonical, or the operator ends the freeze:
+A holder of *freeze and unfreeze* ends a freeze with *Unfreeze*, and a holder of *make canonical* by making the document canonical. Where no member holds either right, the operator ends it:
 
 ```bash
 $C exec web python manage.py end_freeze --tenant N --document M --reason "…"

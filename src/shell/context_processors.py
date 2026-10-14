@@ -37,7 +37,9 @@ def _unread(request: HttpRequest, is_platform_admin: bool) -> int | None:
 class _Views:
     """Whether each of *In edit* and *In review* holds anything — `None` where its link is not
     drawn: no organisation, not a member, or the right on no document; read once a template
-    asks, at most once a request, and from the view's own answer on its page (DL-0197)."""
+    asks, at most once a request, and from the view's own answer on its page (DL-0197). And
+    whether *My reservations* is drawn: for every holder of *reserve for editing*, whether or not
+    they reserve now (DL-0241)."""
 
     def __init__(self, request: HttpRequest) -> None:
         self.request = request
@@ -51,6 +53,9 @@ class _Views:
         user = getattr(request, "user", None)
         if user is None or getattr(request, "tenant", None) is None or not is_member(request):
             return None
+        if view == "my_reservations":
+            # Drawn for a holder of the right on some document, whether or not they reserve now.
+            return True if holds_anywhere(user, Right.RESERVE_FOR_EDITING) else None
         right, holds = (
             (Right.EDIT, any_in_edit) if view == "in_edit" else (Right.ACCEPT, any_in_review)
         )

@@ -4,6 +4,7 @@ from editions import views
 
 urlpatterns = [
     path("document/<int:number>/freeze/", views.freeze, name="document_freeze"),
+    path("document/<int:number>/unfreeze/", views.unfreeze, name="document_unfreeze"),
     path(
         "document/<int:number>/make-canonical/",
         views.make_canonical,

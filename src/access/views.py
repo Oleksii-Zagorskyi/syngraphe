@@ -194,6 +194,9 @@ def _links_context(request: HttpRequest) -> dict[str, Any]:
                 # The holder's name goes to administrators only (ADR-0006, DL-0226).
                 "holder": person(hold.user) if hold is not None else "",
                 "reserved_at": hold.reserved_at if hold is not None else None,
+                # Whose hold it is, so an administrator is never offered to force their own.
+                "holder_id": hold.user_id if hold is not None else None,
+                "hold_id": hold.pk if hold is not None else None,
                 "archived": document.state == DocumentState.ARCHIVED,
                 "creator": (creator.display_name or creator.email) if creator else "",
             }

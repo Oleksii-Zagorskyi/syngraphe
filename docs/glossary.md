@@ -116,6 +116,14 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
 
+**kept draft** · збережена чернетка · *proposed* — the draft of a hold someone else ended — an administrator, the inactivity release, a block — kept for the person who was editing: offered back in the edit tab before any new editing begins. A finish and a discard keep nothing (DL-0225).
+
+**take the document back** · забрати документ назад · *proposed* — resume editing with the kept draft, offered while the document has not changed since the draft began (DL-0318).
+
+**discard this draft** · відкинути цю чернетку · *proposed* — throw a kept draft away, after confirming; *discard my edits* applied to a kept draft (DL-0381).
+
+**the person editing** · той, хто редагує · *proposed* — whoever has the document open for editing, and so holds it; in the interface never *holder* or *owner*.
+
 **discard my edits** · відкинути мої правки · *proposed* — a button in the edit tab and on the send-for-review screen (DL-0237): throws away the whole draft, text and file operations alike, after the user confirms. The document is left as it was.
 
 **finish editing** · завершити редагування · *proposed* — the control that closes an editing session and opens the send-for-review screen, for every holder (DL-0222).
@@ -133,6 +141,10 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 **reserved for editing** · зарезервовано для редагування · *proposed* — what others see on a reserved document, with the date it began; holders of *edit* or *accept* on it, and administrators, also see by whom.
 
 **cancel the reservation** · скасувати резервування · *proposed* — return a reserved hold to an ordinary one, released again after inactivity.
+
+**end the reservation** · завершити резервування · *proposed* — an administrator's act on someone else's reservation, with a reason the holder reads in their notifications: the hold ends, the holder's draft is kept for them (DL-0225, DL-0415).
+
+**force release** · звільнити документ примусово · *proposed* — an administrator's act on someone else's ordinary hold: the hold ends, the holder's draft is kept for them, and the document is free (ADR-0006). A reserved hold is not forced; its reservation is ended, with a reason.
 
 **accept the run** · погодити правки · *fixed* — make the current text the accepted baseline: every version of the run accepted in one act; the control's name (DL-0338).
 
@@ -153,6 +165,8 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 **correction notice** · сповіщення про виправлення · *proposed* — generated at acceptance for each author whose lines of the run a reviewer's version — or the acceptor's own — replaced or removed, or whose removal it undid; one per author, listing every such line (ADR-0014). Never authored, never optional.
 
 **freeze** · заморозити · *proposed* — lock a document nobody is editing against editors while something outside it is resolved; holders of *accept* may still edit (ADR-0016). Ends by *make canonical* or *unfreeze*.
+
+**unfreeze** · розморозити · *proposed* — end a freeze and return the document to ordinary editing at its current accepted number (DL-0189).
 
 **make canonical** · затвердити · *proposed* — end a freeze by making the latest accepted version the next edition.
 
@@ -176,7 +190,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **edit the whole document** · редагувати весь документ · *proposed* — open one editor over the whole body or appendix.
 
-**edit a section** · редагувати розділ · *proposed* — open an editor over one `#` section; several may be open at once. Every editor writes into the same draft.
+**edit a section** · редагувати розділ · *proposed* — open an editor over one section: a `#` heading at any depth and the lines it leads, its subsections included; several may be open at once. Every editor writes into the same draft.
+
+**inactivity prompt** · запитання про бездіяльність · *proposed* — *are you still working?*, asked in the editor of a hold idle past the organisation's timeout; unanswered, the hold is released ten minutes later, the draft kept (DL-0377). Never asked of a reserved hold.
 
 **source view** · вихідний текст · *proposed* — the editor showing and accepting Markdown instead of formatted text. An editor, not an import.
 
@@ -233,7 +249,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **active** · активна · *proposed* — the state of an organisation people can use; with *blocked* (заблокована) and *being set up* (налаштовується), the three an organisation shows. Of a membership, *активне*, beside *заблоковано*.
 
-**access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze, make canonical, reserve for editing; create or delete appendices; upload, replace or delete attachments. Held over a whole document. Some include others: each viewing right the ones below it; *accept*, *freeze* and *reserve for editing* include *edit* (ADR-0016); *make canonical* includes *view accepted* (DL-0234).
+**access right** · право доступу · *proposed* — something a group may do to the documents linked to it: view canonical, view accepted, view pending, edit, create and edit; view previous canonical versions, view all history; accept, freeze and unfreeze, make canonical, reserve for editing; create or delete appendices; upload, replace or delete attachments. Held over a whole document. Some include others: each viewing right the ones below it; *accept*, *freeze and unfreeze* and *reserve for editing* include *edit* (ADR-0016); *make canonical* includes *view accepted* (DL-0234).
 
 **group** · група · *proposed* — a set of people in one organisation holding a set of access rights, linked to the documents those rights apply to. The only way a person holds a right on a document.
 

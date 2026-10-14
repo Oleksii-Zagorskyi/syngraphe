@@ -1,7 +1,8 @@
 """Finishing an editing session (DL-0222, DL-0261): the screen with *my edits*, the summary and the
 number the version will carry; the choices — *send for review* for a holder of *edit* alone,
 *accept as N.M* and *create version N.M-X* for a holder of *accept* (ADR-0016) — each of which
-commits it; and the *My edits* tab."""
+commits it; *discard my edits*, from the screen and from the edit tab (DL-0237); and the *My edits*
+tab."""
 
 from __future__ import annotations
 
@@ -82,16 +83,24 @@ def _screen(
         run=_run(document) if reviewer else [],
         reviewer=reviewer,
         summary_max=summary.SUMMARY_MAX,
+        # The discard's box says a reservation ends with the draft (DL-0237).
+        reserved=_reserved(document),
         **more,
     )
     return render(request, "editing/finish.html", context, status=status)
 
 
-def _waiting(request: HttpRequest, document: Document) -> HttpResponse:
+def _reserved(document: Document) -> bool:
+    hold = holds.open_hold(document)
+    return hold is not None and hold.reserved_at is not None
+
+
+def _waiting(request: HttpRequest, document: Document, reason: str = "") -> HttpResponse:
     context = _context(
         document,
         "edit",
-        reason=_("Finishing waits until the other tabs editing this document are closed."),
+        reason=reason
+        or _("Finishing waits until the other tabs editing this document are closed."),
     )
     return render(request, "editing/finish_waits.html", context, status=409)
 
@@ -285,3 +294,52 @@ def my_edits(request: HttpRequest, number: int) -> HttpResponse:
     # Built from escaped text alone, as the finishing screen's changes are.
     context = _context(document, "my-edits", changes=mark_safe(changes))  # noqa: S308
     return render(request, "editing/my_edits.html", context)
+
+
+@never_cache
+@login_required
+def discard(request: HttpRequest, number: int) -> HttpResponse:
+    """*Discard my edits* (DL-0237): the draft thrown away, the hold released, to the document
+    page; `409` while an editor is open. A person who may edit but no longer holds — a second
+    click, a hold released meanwhile — goes back to the edit tab, which says what stands; `404`
+    for anyone else."""
+    if request.method != "POST":
+        return not_found(request)
+    found = _holders(request, number)
+    if found is None:
+        document = editable(request, number)
+        held_it = (
+            document is not None
+            and Hold.objects.filter(document=document, user_id=cast(User, request.user).pk).exists()
+        )
+        return HttpResponseRedirect(f"/document/{number}/edit/") if held_it else not_found(request)
+    document, hold = found
+    try:
+        kept = services.discard(hold, cast(User, request.user))
+    except services.EditorsOpen:
+        return _waiting(
+            request,
+            document,
+            _("Discarding waits until the other tabs editing this document are closed."),
+        )
+    except holds.NotEditable:
+        return HttpResponseRedirect(f"/document/{number}/edit/")
+    except LockTimeout:
+        reason = _("The document is busy. Try again in a moment.")
+        return render(
+            request,
+            "editing/finish_waits.html",
+            _context(document, "edit", reason=reason),
+            status=503,
+        )
+    if kept is not None:
+        messages.success(
+            request,
+            _(
+                "Your later edits were discarded; the version you had already made stands and "
+                "awaits review."
+            ),
+        )
+    else:
+        messages.success(request, _("Your edits were discarded."))
+    return HttpResponseRedirect(f"/document/{number}/")

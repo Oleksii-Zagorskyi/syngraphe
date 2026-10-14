@@ -14,7 +14,7 @@
   {% endif %}
   {% if entries %}
   <ul class="notifications-list">
-    {% timezone display_timezone %}{% for entry in entries %}<li class="notification{% if entry.unread %} unread{% endif %}" data-id="{{ entry.id }}"><a href="/notifications/{{ entry.id }}/">{{ entry.text }}</a>{% if entry.tag %}<span class="tag">{{ entry.tag }}</span>{% endif %} <span class="muted">{{ entry.at|date:"j M Y, H:i" }}</span></li>{% endfor %}{% endtimezone %}
+    {% timezone display_timezone %}{% for entry in entries %}<li class="notification{% if entry.unread %} unread{% endif %}" data-id="{{ entry.id }}"><a href="/notifications/{{ entry.id }}/">{{ entry.text }}</a>{% if entry.tag %}<span class="tag">{{ entry.tag }}</span>{% endif %} <span class="muted">{{ entry.at|date:"j M Y, H:i" }}</span>{% if entry.reason %}<div class="reason">{% blocktranslate with reason=entry.reason %}Reason: “{{ reason }}”{% endblocktranslate %}</div>{% endif %}</li>{% endfor %}{% endtimezone %}
   </ul>
   {% else %}
   <p class="muted">{% translate "No notifications." %}</p>

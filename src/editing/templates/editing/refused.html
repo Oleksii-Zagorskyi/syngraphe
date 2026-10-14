@@ -1,0 +1,9 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}#{{ number }} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content">
+  <p class="notice error" role="alert">{% if why == "frozen" %}{% translate "The document is frozen: it cannot be reserved until it is unfrozen." %}{% elif why == "changed" %}{% translate "Someone else holds the document now. Read its page again before forcing anything." %}{% else %}{% translate "The document is busy. Try again in a moment." %}{% endif %}</p>
+  <p><a class="btn" href="/document/{{ number }}/edit/">{% translate "Back to the edit tab" %}</a></p>
+</section>
+{% endblock %}

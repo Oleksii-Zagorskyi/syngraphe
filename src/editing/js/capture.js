@@ -1,7 +1,8 @@
 // Capture without a Save control (ASR-22): the editor's text is posted after a pause in typing, at
-// once when it loses focus or its page is hidden, and taken only while the draft still holds what
-// this editor last saw. The indicator says what happened — capturing, captured, not captured and
-// retrying, signed out, too large, or stopped because the draft changed elsewhere — and success is
+// once when it loses focus or its page is hidden, and taken only while its range of the draft still
+// holds what this editor last saw. The indicator says what happened — capturing, captured, not captured and
+// retrying, signed out, too large, stopped because the draft changed elsewhere, or stopped because
+// the hold was ended — and the heartbeat asks *are you still working?* of an idle hold; success is
 // shown only on the server's acceptance (DL-0320, DL-0328). The text is never cleared on a failure, and the
 // editor is never left for the finishing screen while text of its own is not captured.
 
@@ -32,6 +33,22 @@ export function capturing({ element, editor, words, disable }) {
   indicator.textContent = words.notices.captured;
   const urls = element.dataset;
 
+  // *Are you still working?* — shown while the server says the hold is idle; its button answers
+  // with an active heartbeat, which restarts the hold's clock (DL-0377).
+  const prompt = document.createElement("div");
+  prompt.className = "inactivity-prompt";
+  prompt.dataset.prompt = "inactivity";
+  prompt.setAttribute("role", "alertdialog");
+  prompt.hidden = true;
+  const asked = document.createElement("span");
+  asked.textContent = words.notices.still_working;
+  const answer = document.createElement("button");
+  answer.type = "button";
+  answer.className = "btn";
+  answer.textContent = words.notices.still_working_answer;
+  answer.addEventListener("click", () => beat(true));
+  prompt.append(asked, " ", answer);
+
   let base = editor.draft.base_hash;
   let sent = editor.markdown();
   let timer = null;
@@ -59,6 +76,8 @@ export function capturing({ element, editor, words, disable }) {
   // The editor was closed on the server — silent too long, a laptop asleep: open a new one on
   // the draft, and carry on only when the draft is still what this editor last captured.
   async function reopen() {
+    // A section editor's range moves with the draft; it is opened again from the tab.
+    if (editor.draft.range && editor.draft.range !== "whole") return false;
     let response;
     try {
       response = await post(urls.load, {});
@@ -77,8 +96,34 @@ export function capturing({ element, editor, words, disable }) {
   function stop() {
     stopped = true;
     clearTimeout(timer);
+    prompt.hidden = true;
     post(urls.close, { editor: editor.draft.editor }).catch(() => null);
     show("stale");
+    disable();
+    // The text it holds is never lost (ADR-0006): shown as changes against its range as it now
+    // stands, to carry over by hand, with the way to open the range again.
+    post(urls.changes, { editor: editor.draft.editor, body: editor.markdown() })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((answer) => {
+        if (!answer || !answer.html) return;
+        const holder = document.createElement("div");
+        holder.innerHTML = answer.html;
+        element.append(...holder.children);
+      })
+      .catch(() => null);
+  }
+
+  // The hold was released — by an administrator, by inactivity, by a block: the text stays in the
+  // editor, read-only, and the tab offers the kept draft back (DL-0225).
+  function released() {
+    stopped = true;
+    clearTimeout(timer);
+    prompt.hidden = true;
+    show("released");
+    const back = document.createElement("a");
+    back.href = window.location.pathname;
+    back.textContent = words.notices.take_back;
+    indicator.append(" ", back);
     disable();
   }
 
@@ -106,7 +151,13 @@ export function capturing({ element, editor, words, disable }) {
     }
     if (response.status === 409) {
       const reason = await response.json().catch(() => ({}));
+      if (reason.released) {
+        released();
+        return "stopped";
+      }
       if (reason.closed && !close && (await reopen())) return send(keepalive);
+      // A capture that met a released hold learns of it from the next beat; otherwise it stops.
+      if (reason.closed && !close && (await endedHow())) return "stopped";
       stop();
       return "stale";
     }
@@ -121,8 +172,22 @@ export function capturing({ element, editor, words, disable }) {
       retry();
       return "failed";
     }
-    base = (await response.json()).base_hash;
+    const answer = await response.json();
+    base = answer.base_hash;
     sent = text;
+    if (answer.sections_changed) element.dispatchEvent(new CustomEvent("sections-changed", { bubbles: true }));
+    if (answer.closed) {
+      // Its own heading is gone: the text is captured and the editor closed by the server.
+      stopped = true;
+      clearTimeout(timer);
+      prompt.hidden = true;
+      show("captured");
+      disable();
+      element.dispatchEvent(new CustomEvent("editor-closed", { bubbles: true }));
+      return "captured";
+    }
+    // Typing is activity: the hold is no longer idle.
+    prompt.hidden = true;
     retryIn = RETRY_FIRST_MS;
     if (editor.markdown() === sent) {
       show("captured");
@@ -157,24 +222,48 @@ export function capturing({ element, editor, words, disable }) {
     timer = setTimeout(flush, settings.pause_seconds * 1000);
   }
 
-  async function beat() {
+  async function beat(active = false) {
     if (stopped) return;
     try {
-      const response = await post(urls.heartbeat, { editor: editor.draft.editor });
+      const body = active ? { editor: editor.draft.editor, active: true } : { editor: editor.draft.editor };
+      const response = await post(urls.heartbeat, body);
       if (response.ok) {
-        editor.others = (await response.json()).others;
+        const answered = await response.json();
+        editor.others = answered.others;
+        prompt.hidden = !answered.prompt;
         element.dispatchEvent(new CustomEvent("editor-heartbeat", { detail: { others: editor.others } }));
       } else if (response.status === 409) {
-        if (!(await reopen())) stop();
+        const reason = await response.json().catch(() => ({}));
+        if (reason.released) released();
+        else if (!(await reopen())) stop();
+      } else if (response.status === 404) {
+        // The editor is gone with its draft — the hold ended and the draft went with it.
+        released();
       } else if (response.redirected) show("signed_out");
     } catch {
       // The next beat tries again; a capture failure is what the indicator reports.
     }
   }
 
+  // Whether the hold was released, asked of one heartbeat; the released notice when it was.
+  async function endedHow() {
+    try {
+      const response = await post(urls.heartbeat, { editor: editor.draft.editor });
+      const reason = response.status === 409 ? await response.json().catch(() => ({})) : {};
+      if (reason.released || response.status === 404) {
+        released();
+        return true;
+      }
+    } catch {
+      // Unknown: the caller stops as stale.
+    }
+    return false;
+  }
+
   function close(keepalive = false) {
     stopped = true;
     clearTimeout(timer);
+    prompt.hidden = true;
     return post(urls.close, { editor: editor.draft.editor }, keepalive).catch(() => null);
   }
 
@@ -203,6 +292,11 @@ export function capturing({ element, editor, words, disable }) {
 
   return {
     indicator,
+    prompt,
+    // Stopped with text the person still has to carry over: the page may not be drawn again.
+    get stopped() {
+      return stopped && indicator.dataset.state === "stale";
+    },
     changed: schedule,
     flush,
     async finish() {

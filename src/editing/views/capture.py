@@ -1,4 +1,4 @@
-"""Capture without a Save control (ASR-22, DL-0167): an open editor posts the text of its range
+"""Capture without a Save control (ASR-22, ADR-0006): an open editor posts the text of its range
 after a pause, and the server takes it only while the draft's range still hashes to what that
 editor last saw; a heartbeat keeps the editor known; the editor closes itself. Every route is the
 holder's alone, for an editor of the holder's own draft."""
@@ -6,8 +6,9 @@ holder's alone, for an editor of the holder's own draft."""
 from __future__ import annotations
 
 import json
+import re
 from datetime import timedelta
-from typing import Any
+from typing import Any, cast
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -17,11 +18,12 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 
 from documents.locks import LockTimeout, document_lock
-from editing import holds
+from editing import holds, sections
 from editing.markdown import load_spec
 from editing.models import Draft, Hold, OpenEditor
 from editing.views.draft import range_hash
 from editing.views.edit_tab import editable
+from identity.models import User
 from shell.views import not_found
 
 # The pause after the last keystroke before a capture, the heartbeat's period, and how long an
@@ -32,6 +34,8 @@ SILENT_AFTER = timedelta(minutes=3)
 # A capture waits this long for the document's writer lock — held through a commit of the draft —
 # then answers busy, which the editor retries.
 CAPTURE_LOCK_SECONDS = 5
+# Two line endings in a row at a text's end: the blank line before the next heading.
+BLANK_LINE_AT_END = re.compile(r"(?:\r\n|\r|\n){2}$")
 
 
 def _payload(request: HttpRequest) -> dict[str, Any]:
@@ -64,6 +68,43 @@ def _own_editor(request: HttpRequest, number: int) -> tuple[Hold, OpenEditor] | 
     return (hold, editor) if editor is not None else None
 
 
+def _released(request: HttpRequest, number: int) -> HttpResponse | None:
+    """The answer to the holder of a hold released since their editor opened — ended by an
+    administrator, by inactivity, by a block: `409` *closed* with how it was released, so the
+    editor says so and offers the document back (DL-0225); `None` for anyone else."""
+    document = editable(request, number)
+    if document is None or request.method != "POST":
+        return None
+    editor_id = _payload(request).get("editor")
+    if not isinstance(editor_id, str):
+        return None
+    try:
+        editor = (
+            OpenEditor.objects.filter(
+                pk=editor_id,
+                draft__hold__document=document,
+                draft__hold__user_id=cast(User, request.user).pk,
+                draft__hold__released_at__isnull=False,
+            )
+            .select_related("draft__hold")
+            .first()
+        )
+    except (ValueError, ValidationError):
+        return None
+    if editor is None:
+        return None
+    return JsonResponse({"closed": True, "released": editor.draft.hold.release_kind}, status=409)
+
+
+def idle(hold: Hold, tenant: Any) -> bool:
+    """Whether `hold` is idle: not reserved, and no activity for the organisation's timeout — the
+    prompt derived, never stored (DL-0377)."""
+    if hold.reserved_at is not None or tenant is None:
+        return False
+    timeout = timedelta(minutes=tenant.hold_inactivity_minutes)
+    return timezone.now() - hold.last_activity_at > timeout
+
+
 @never_cache
 @login_required
 def capture(request: HttpRequest, number: int) -> HttpResponse:
@@ -77,7 +118,7 @@ def capture(request: HttpRequest, number: int) -> HttpResponse:
     it checks the hold under the lock, not the right."""
     found = _own_editor(request, number)
     if found is None:
-        return not_found(request)
+        return _released(request, number) or not_found(request)
     hold, editor = found
     data = _payload(request)
     body, base = data.get("body"), data.get("base_hash")
@@ -103,55 +144,136 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
     """The capture itself; with `close`, the editor closed in the same write — what a closing
     page sends, since it never reads an answer before sending its close."""
     now = timezone.now()
+    gone = renumbered = False
     with transaction.atomic():
         draft = Draft.objects.select_for_update().filter(pk=editor.draft_id).first()
         locked = OpenEditor.objects.select_for_update().filter(pk=editor.pk).first()
-        still_held = Hold.objects.filter(pk=hold.pk, released_at__isnull=True).exists()
-        if draft is None or locked is None or locked.closed_at is not None or not still_held:
+        kind = Hold.objects.filter(pk=hold.pk).values_list("release_kind", flat=True).first()
+        if kind:
+            # Released while this capture waited for the lock: the editor says how.
+            return JsonResponse({"closed": True, "released": kind}, status=409)
+        if draft is None or locked is None or locked.closed_at is not None:
             return JsonResponse({"closed": True}, status=409)
-        current = range_hash(draft.content[holds.BODY])
-        new = range_hash(body)
+        whole: str = draft.content[holds.BODY]
+        span = sections.span_of(locked.range)
+        found = sections.extent(whole, *span) if span is not None else None
+        if span is not None and found is None:
+            # The headings this editor spans are gone — removed by another editor's text.
+            return _stale(locked, now, close)
+        current_text = sections.section_text(whole, found) if found is not None else whole
+        stored = _kept_apart(body, current_text) if found is not None else body
+        current, new = range_hash(current_text), range_hash(stored)
         # The same text again — a retry whose first answer was lost, or the flush a closing page
         # repeats — is accepted as it stands, whatever base the editor sent.
         if current != new:
             if current != base or locked.base_hash != base:
-                # A closing page's stale capture still closes its editor, so the holder's other
-                # tab is not kept from finishing until the silent-editor sweep.
-                if close:
-                    locked.closed_at = now
-                    locked.save(update_fields=["closed_at"])
-                return JsonResponse({"stale": True}, status=409)
-            draft.content = {**draft.content, holds.BODY: body}
+                return _stale(locked, now, close)
+            changed = sections.splice(whole, found, stored) if found is not None else stored
+            draft.content = {**draft.content, holds.BODY: changed}
             draft.save(update_fields=["content", "updated_at"])
             Hold.objects.filter(pk=hold.pk).update(last_activity_at=now)
+            if span is not None:
+                moved = sections.shift(whole, changed, span[0])
+                _renumber(locked, span, moved)
+                # The page's other *edit* buttons read the sections it drew before this capture:
+                # a heading added, removed or moved to another level changes them.
+                renumbered = moved != 0 or [r.level for r in sections.ranges(whole)] != [
+                    r.level for r in sections.ranges(changed)
+                ]
+                if not _leads_with_a_heading(stored):
+                    # Its own heading is gone: it names no section now, and must not name the
+                    # next one. Its text is captured; the editor closes, and the tab says so.
+                    close = True
+                    gone = True
         locked.base_hash = new
         locked.last_seen_at = now
         if close:
             locked.closed_at = now
-        locked.save(update_fields=["base_hash", "last_seen_at", "closed_at"])
-    return JsonResponse({"base_hash": new})
+        locked.save(update_fields=["range", "base_hash", "last_seen_at", "closed_at"])
+    answer: dict[str, Any] = {"base_hash": new}
+    if renumbered:
+        answer["sections_changed"] = True
+    if gone:
+        answer["closed"] = True
+    return JsonResponse(answer)
+
+
+def _leads_with_a_heading(text: str) -> bool:
+    found = sections.ranges(text)
+    return bool(found) and found[0].start == 0
+
+
+def _stale(locked: OpenEditor, now: Any, close: bool) -> HttpResponse:
+    """The range changed underneath the editor. A closing page's stale capture still closes its
+    editor, so the holder's other tab is not kept from finishing until the silent-editor sweep."""
+    if close:
+        locked.closed_at = now
+        locked.save(update_fields=["closed_at"])
+    return JsonResponse({"stale": True}, status=409)
+
+
+def _kept_apart(text: str, current: str) -> str:
+    """A section's captured text, the blank line that parted it from the next heading kept: the
+    editor's serialiser ends a text with one newline, and the section's lines end with two."""
+    ending = BLANK_LINE_AT_END.search(current)
+    if ending and text and not BLANK_LINE_AT_END.search(text):
+        return text.rstrip("\r\n") + ending.group(0)
+    return text
+
+
+def _renumber(editor: OpenEditor, span: tuple[int, int], shift: int) -> None:
+    """After a splice that added or removed `shift` headings inside `editor`'s span, in the same
+    write: its own span counts them, and every other open editor of the draft whose ordinal lies
+    after it still names its heading (ADR-0006)."""
+    if not shift:
+        return
+    ordinal, count = span
+    editor.range = sections.span_name(ordinal, max(1, count + shift))
+    others = (
+        OpenEditor.objects.select_for_update()
+        .filter(draft_id=editor.draft_id, closed_at__isnull=True)
+        .exclude(pk=editor.pk)
+    )
+    for other in others:
+        found = sections.span_of(other.range)
+        if found is not None and found[0] > ordinal:
+            other.range = sections.span_name(found[0] + shift, found[1])
+            other.save(update_fields=["range"])
 
 
 @never_cache
 @login_required
 def heartbeat(request: HttpRequest, number: int) -> HttpResponse:
     """The editor is still open: `200` with how many *other* editors are open on the draft, which
-    decides whether *finish editing* is offered; `409` when it was closed."""
+    decides whether *finish editing* is offered, and whether the hold is idle — the editor then
+    asks *are you still working?*; `"active": true` is the answer, which restarts the hold's
+    clock as a capture does (DL-0377). `409` when the editor was closed, with how the hold was
+    released when it was."""
     found = _own_editor(request, number)
     if found is None:
-        return not_found(request)
-    _, editor = found
+        return _released(request, number) or not_found(request)
+    hold, editor = found
+    now = timezone.now()
     updated = OpenEditor.objects.filter(pk=editor.pk, closed_at__isnull=True).update(
-        last_seen_at=timezone.now()
+        last_seen_at=now
     )
     if not updated:
         return JsonResponse({"closed": True}, status=409)
+    tenant = getattr(request, "tenant", None)
+    # The answer to the prompt, and only while it is asked: no client keeps an ordinary hold
+    # for good by answering what was never asked (ADR-0009).
+    if _payload(request).get("active") is True and idle(hold, tenant):
+        if not Hold.objects.filter(pk=hold.pk, released_at__isnull=True).update(
+            last_activity_at=now
+        ):
+            return _released(request, number) or JsonResponse({"closed": True}, status=409)
+        hold.last_activity_at = now
     others = (
         OpenEditor.objects.filter(draft_id=editor.draft_id, closed_at__isnull=True)
         .exclude(pk=editor.pk)
         .count()
     )
-    return JsonResponse({"others": others})
+    return JsonResponse({"others": others, "prompt": idle(hold, tenant)})
 
 
 @never_cache
@@ -169,3 +291,51 @@ def close(request: HttpRequest, number: int) -> HttpResponse:
 def settings_for_the_editor() -> dict[str, float]:
     """The capture timings the page hands the editor."""
     return {"pause_seconds": CAPTURE_PAUSE_SECONDS, "heartbeat_seconds": HEARTBEAT_SECONDS}
+
+
+@never_cache
+@login_required
+def changes(request: HttpRequest, number: int) -> HttpResponse:
+    """What a stopped editor shows (ADR-0006): the person's unsaved text as changes against its
+    range of the draft as it now stands, to carry over by hand, and the way to open the range
+    again; the editor's own holder alone. The text is shown as typed where the whitelist refuses
+    it."""
+    from django.shortcuts import render
+    from django.utils.safestring import mark_safe
+
+    from editing.diffview import render_changes
+    from editing.markdown.validator import validate
+
+    found = _own_editor(request, number)
+    if found is None:
+        return not_found(request)
+    _, editor = found
+    body = _payload(request).get("body")
+    # What capture refuses, this refuses: no NUL or lone surrogate, nothing over the size allowed.
+    if not isinstance(body, str) or "\x00" in body:
+        return JsonResponse({"refused": True}, status=400)
+    try:
+        size = len(body.encode("utf-8"))
+    except UnicodeEncodeError:
+        return JsonResponse({"refused": True}, status=400)
+    if size > load_spec().max_bytes:
+        return JsonResponse({"too_large": True}, status=413)
+    whole: str = Draft.objects.get(pk=editor.draft_id).content[holds.BODY]
+    span = sections.span_of(editor.range)
+    found_range = sections.extent(whole, *span) if span is not None else None
+    context: dict[str, Any] = {"number": number}
+    if span is not None and found_range is None:
+        # Its lines are gone from the draft: the text alone, nothing to compare it with.
+        context["typed"] = body
+        html = render(request, "editing/stopped_editor.html", context).content.decode("utf-8")
+        return JsonResponse({"html": html})
+    current = sections.section_text(whole, found_range) if found_range is not None else whole
+    if validate(body) or validate(current):
+        context["typed"] = body
+    else:
+        # Built from text the whitelist accepted, by the renderer that escapes it.
+        context["changes"] = mark_safe(  # noqa: S308
+            render_changes(current.encode("utf-8"), body.encode("utf-8"))
+        )
+    html = render(request, "editing/stopped_editor.html", context).content.decode("utf-8")
+    return JsonResponse({"html": html})

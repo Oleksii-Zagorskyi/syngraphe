@@ -1,5 +1,5 @@
-// The editor's bundle: the whole-document editor the edit tab mounts, and the conformance check
-// the test page runs.
+// The editor's bundle: the edit tab's editors — the whole document's, or one section's, opened from
+// the draft drawn as text — and the conformance check the test page runs.
 import { baseKeymap, toggleMark } from "prosemirror-commands";
 import { history, redo, undo } from "prosemirror-history";
 import { inputRules, textblockTypeInputRule } from "prosemirror-inputrules";
@@ -124,9 +124,10 @@ function button(label, name, run) {
   return element;
 }
 
-// The editor over one draft: the rich view and the source view, one shown at a time. A draft the
-// validator refuses opens in the source view, with the refusal named and nothing discarded.
-function editorFor(element, draft, words, report) {
+// The editor over one range of the draft — the whole of it, or a section: the rich view and the
+// source view, one shown at a time. A text the validator refuses opens in the source view, with
+// the refusal named and nothing discarded.
+function editorFor(element, draft, words, report, { onClose = null } = {}) {
   const surface = document.createElement("div");
   surface.className = "editor-surface";
   const bar = document.createElement("div");
@@ -233,6 +234,17 @@ function editorFor(element, draft, words, report) {
       source.field.readOnly = true;
     },
   });
+  if (onClose) {
+    // A section editor closes itself: its text captured and the editor closed, then the tab
+    // drawn again, where a heading typed into it has become a section of its own (ADR-0006).
+    const done = button(words.labels.close_section, "close-section", async () => {
+      done.disabled = true;
+      if (await editor.capture.finish()) onClose(editor);
+      else done.disabled = false;
+    });
+    bar.append(done, editor.capture.indicator, editor.capture.prompt);
+    return editor;
+  }
   // *Finish editing*: the last text captured and this editor closed, then the finishing screen;
   // offered only while no other editor is open on the draft. While any text is not captured the
   // editor stays, and the indicator says why.
@@ -246,7 +258,7 @@ function editorFor(element, draft, words, report) {
     finish.disabled = others > 0;
     finish.title = others > 0 ? words.notices.others : "";
   });
-  bar.append(finish, editor.capture.indicator);
+  bar.append(finish, editor.capture.indicator, editor.capture.prompt);
   return editor;
 }
 
@@ -271,14 +283,201 @@ export async function mount(element) {
     report({ kind: "busy" });
     return null;
   }
-  const loaded = await post(element.dataset.load, element);
-  if (loaded.status !== 200 || !loaded.data) {
-    report({ kind: loaded.redirected ? "signed_out" : "busy" });
-    return null;
+  return offer(element, words, report);
+}
+
+const HEADING = /^H[1-6]$/;
+
+// The drawn elements a section's heading leads: the heading and every element after it up to the
+// next heading of the same or a shallower depth — the lines the server's span holds.
+function sectionNodes(heading) {
+  const level = +heading.tagName[1];
+  const nodes = [heading];
+  for (let node = heading.nextElementSibling; node; node = node.nextElementSibling) {
+    if (HEADING.test(node.tagName) && +node.tagName[1] <= level) break;
+    nodes.push(node);
   }
-  element.editor = editorFor(element, loaded.data, words, report);
-  element.dispatchEvent(new CustomEvent("editor-ready", { bubbles: true }));
-  return element.editor;
+  return nodes;
+}
+
+// The tab as it opens (ADR-0006): the draft drawn as the View tab draws a version, *edit* beside
+// each heading and *edit whole document* above it; no editor until one is chosen. Section editors
+// may be open several at once; the whole one only while none is, and finishing only once every
+// one is closed.
+function offer(element, words, report) {
+  const view = element.parentElement.querySelector("[data-draft-view]");
+  const open = new Set();
+  const actions = document.createElement("div");
+  actions.className = "edit-actions";
+  const whole = button(words.labels.edit_whole, "edit-whole", () => openWhole());
+  const finishAll = button(words.labels.finish, "finish-all", () => window.location.assign(element.dataset.finish));
+  actions.append(whole, finishAll);
+  element.before(actions);
+
+  function update() {
+    const busy = open.size > 0;
+    whole.disabled = busy;
+    whole.title = busy ? words.notices.sections_open : "";
+    finishAll.disabled = busy;
+    finishAll.title = busy ? words.notices.close_sections : "";
+  }
+
+  async function openWhole() {
+    whole.disabled = true;
+    const loaded = await post(element.dataset.load, element, { range: "whole" });
+    if (loaded.status === 409) {
+      report({ kind: "sections_open" });
+      update();
+      return null;
+    }
+    // The hold was released since the tab was drawn: drawn again, it says how and offers the draft.
+    if (loaded.status === 404) {
+      redraw();
+      return null;
+    }
+    if (loaded.status !== 200 || !loaded.data) {
+      report({ kind: loaded.redirected ? "signed_out" : "busy" });
+      update();
+      return null;
+    }
+    actions.hidden = true;
+    if (view) view.hidden = true;
+    element.editor = editorFor(element, loaded.data, words, report);
+    element.dispatchEvent(new CustomEvent("editor-ready", { bubbles: true }));
+    return element.editor;
+  }
+
+  // The tab is drawn again only once nothing on it holds text of its own: every other editor
+  // captured and closed first, and none stopped with text still to carry over (ADR-0006).
+  async function redraw() {
+    const editors = [...open, element.editor].filter(Boolean);
+    if (editors.some((editor) => editor.capture.stopped)) {
+      report({ kind: "stopped_open" });
+      return false;
+    }
+    const finished = await Promise.all(editors.map((editor) => editor.capture.finish()));
+    if (finished.some((done) => !done)) {
+      report({ kind: "failed" });
+      return false;
+    }
+    window.location.reload();
+    return true;
+  }
+
+  // A section editor closed: the tab is drawn again when it was the last; otherwise its place
+  // says so, and the others carry on.
+  function closed(editor, container) {
+    if (!open.delete(editor)) return;
+    update();
+    if (open.size === 0) {
+      redraw();
+      return;
+    }
+    const note = document.createElement("p");
+    note.className = "muted section-closed";
+    note.textContent = words.notices.section_closed;
+    container.replaceChildren(note);
+  }
+
+  // After a capture added or removed a heading the page's ordinals no longer match the draft's:
+  // no other section opens until the tab is drawn again.
+  element.parentElement.addEventListener("sections-changed", () => {
+    view?.querySelectorAll("button[data-command=edit-section]").forEach((edit) => {
+      edit.disabled = true;
+      edit.title = words.notices.sections_changed;
+    });
+  });
+  // *Back to the edit tab* from a stopped editor: drawn again only when nothing else would be lost.
+  element.parentElement.addEventListener("click", (event) => {
+    const reopen = event.target.closest("[data-command=reopen]");
+    if (!reopen) return;
+    event.preventDefault();
+    const stoppedHere = reopen.closest(".section-editor, #editor")?.editor;
+    if (stoppedHere) open.delete(stoppedHere);
+    if (stoppedHere && element.editor === stoppedHere) element.editor = null;
+    redraw();
+  });
+
+  async function openSection(ordinal, heading, trigger) {
+    trigger.disabled = true;
+    const loaded = await post(element.dataset.load, element, { range: `section:${ordinal}` });
+    if (loaded.status === 404) {
+      // The section is gone, or the hold was released: the tab, drawn again, says which.
+      trigger.disabled = false;
+      redraw();
+      return null;
+    }
+    if (loaded.status !== 200 || !loaded.data) {
+      const refused = loaded.data || {};
+      const kind = refused.overlaps
+        ? "overlaps"
+        : refused.too_many
+          ? "too_many"
+          : refused.whole_open
+            ? "whole_open"
+            : loaded.redirected
+                ? "signed_out"
+                : "busy";
+      report({ kind });
+      trigger.disabled = false;
+      return null;
+    }
+    const nodes = sectionNodes(heading);
+    const container = document.createElement("div");
+    container.className = "section-editor";
+    Object.assign(container.dataset, element.dataset, { ordinal: String(ordinal) });
+    heading.before(container);
+    nodes.forEach((node) => {
+      node.hidden = true;
+    });
+    const editor = editorFor(container, loaded.data, words, report, {
+      onClose: () => closed(editor, container),
+    });
+    container.addEventListener("editor-closed", () => closed(editor, container));
+    container.editor = editor;
+    open.add(editor);
+    update();
+    container.dispatchEvent(new CustomEvent("editor-ready", { bubbles: true }));
+    return editor;
+  }
+
+  if (view) {
+    const headings = [...view.children].filter((node) => HEADING.test(node.tagName));
+    headings.forEach((heading, ordinal) => {
+      const edit = button(words.labels.edit_section, "edit-section", () => openSection(ordinal, heading, edit));
+      edit.dataset.ordinal = String(ordinal);
+      edit.className = "section-edit";
+      heading.append(" ", edit);
+    });
+  }
+  update();
+  // *Discard my edits* is refused while an editor is open: the page closes its own first.
+  const discard = element.parentElement.querySelector("form[data-discard]");
+  if (discard) {
+    // Drawn hidden until the hold is taken: there is nothing to discard before.
+    discard.closest("details").hidden = false;
+    let sending = false;
+    discard.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (sending) return;
+      sending = true;
+      const editors = [...open, element.editor].filter(Boolean);
+      const closed = await Promise.all(editors.map((editor) => editor.capture.finish().catch(() => false)));
+      // An editor that could not close still holds text: the page says why, and posts nothing.
+      if (closed.some((done) => !done)) {
+        report({ kind: "failed" });
+        sending = false;
+        return;
+      }
+      discard.submit();
+    });
+  }
+  element.offered = { openWhole, openSection: (ordinal) => {
+    const edit = view && view.querySelector(`[data-command=edit-section][data-ordinal="${ordinal}"]`);
+    return edit ? openSection(ordinal, edit.closest("h1,h2,h3,h4,h5,h6"), edit) : null;
+  } };
+  element.dispatchEvent(new CustomEvent("editor-offered", { bubbles: true }));
+  return null;
 }
 
 function throughEditor(text, element) {

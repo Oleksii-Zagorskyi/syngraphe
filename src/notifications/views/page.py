@@ -80,8 +80,17 @@ def page(request: HttpRequest) -> HttpResponse:
         "entries": [
             {
                 "id": row.pk,
-                "text": describe(row),
+                # Who reserved a document is told to administrators; a former one keeps the
+                # entry and the fact, not the name (DL-0226).
+                "text": describe(
+                    row, named=administrator or row.event != Event.RESERVATION_STARTED
+                ),
                 "tag": tag(row),
+                # A reason a person typed is read here, under the reader's own rights, never in
+                # the email the entry's sentence becomes (DL-0369).
+                "reason": (row.facts or {}).get("reason", "")
+                if row.event == Event.RESERVATION_ENDED_BY_ADMIN
+                else "",
                 "unread": row.read_at is None,
                 "at": row.created_at,
             }

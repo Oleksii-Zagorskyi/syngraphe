@@ -1,6 +1,7 @@
-"""The acts of editions on the document page: *Freeze* (ST-0038) and *Make canonical* (ST-0039),
-the second confirmed with the edition's number first. Each answers as an address that does not
-exist to anyone who may not perform it, and lands on the document page with a notice."""
+"""The acts of editions on the document page: *Freeze* (ST-0038), *Unfreeze* (ST-0040) and *Make
+canonical* (ST-0039), the last confirmed with the edition's number first. Each answers as an
+address that does not exist to anyone who may not perform it, and lands on the document page with
+a notice."""
 
 from __future__ import annotations
 
@@ -28,12 +29,15 @@ logger = logging.getLogger(__name__)
 REFUSALS = {
     "already_frozen": lambda: _("The document is already frozen."),
     "held": lambda: _("The document is held; freeze it once it is released."),
+    "held_unfreeze": lambda: _("The document is held; unfreeze it once it is released."),
+    "made_canonical": lambda: _("The document was made canonical meanwhile; its freeze has ended."),
     "reason_invalid": lambda: (
         _("The reason is one line of at most %(count)s characters.") % {"count": REASON_MAX}
     ),
 }
 CANONICAL_REFUSALS = {
     "not_frozen": lambda: _("Freeze the document first."),
+    "held": lambda: _("The document is held; make it canonical once it is released."),
     "nothing_accepted": lambda: _("Nothing new has been accepted to make canonical."),
     # Never the pending number: an approver may not see pending edits (DL-0234).
     "unaccepted_changes": lambda: _("Changes are waiting for review; they must be accepted first."),
@@ -90,6 +94,38 @@ def freeze(request: HttpRequest, number: int) -> HttpResponse:
         messages.error(request, _incomplete())
         return page
     messages.success(request, _("Frozen."))
+    return page
+
+
+@never_cache
+@login_required
+def unfreeze(request: HttpRequest, number: int) -> HttpResponse:
+    """POST: end the freeze, back to the document page (DL-0189); `404` for anyone without
+    *freeze*."""
+    from rendering.views import UNREADABLE
+
+    document = _document(request, number, Right.FREEZE)
+    if document is None:
+        return not_found(request)
+    page = HttpResponseRedirect(f"/document/{document.number}/")
+    try:
+        services.end_freeze(document, user=cast(User, request.user))
+    except services.FreezeRefused as refused:
+        if refused.reason not in REFUSALS:
+            return not_found(request)
+        messages.error(request, REFUSALS[refused.reason]())
+        return page
+    except services.NotFrozen:
+        messages.error(request, _("The document is not frozen."))
+        return page
+    except LockTimeout:
+        messages.error(request, _("The document is busy. Try again in a moment."))
+        return page
+    except (RecordIncomplete, *UNREADABLE):
+        logger.exception("a freeze's record could not be read", extra={"document": number})
+        messages.error(request, _incomplete())
+        return page
+    messages.success(request, _("Unfrozen."))
     return page
 
 

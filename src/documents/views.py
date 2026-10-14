@@ -25,6 +25,7 @@ from access.rights import (
     rights_on,
     rights_on_many,
 )
+from access.views import administers
 from audit.record import record
 from documents.forms import CreateForm
 from documents.holds import held_by
@@ -135,19 +136,26 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
     )
     allowed = readable(request.user, [d.pk for d in documents])
     shown = [d for d in documents if d.pk in allowed]
-    context = {**_rows(request.user, shown), "can_create": can_create(request.user, tenant)}
+    context = {
+        **_rows(request.user, shown, administrator=administers(request)),
+        "can_create": can_create(request.user, tenant),
+    }
     return render(request, "documents/list.html", context)
 
 
-def _rows(user: Any, shown: list[Document], seen: Any = None) -> dict[str, Any]:
+def _rows(
+    user: Any, shown: list[Document], seen: Any = None, *, administrator: bool = False
+) -> dict[str, Any]:
     """A list's rows — the numbers, the parts and the state tags of each document — and whether
-    the *Latest* column is drawn; shared by the folder and the two views."""
+    the *Latest* column is drawn; shared by the folder and the two views. `administrator` says
+    whether the reader administers the organisation, one of the facts that decide whether a
+    holder is named (`review.state.hold_tag`)."""
     seen = _versions(user, shown) if seen is None else seen
     parts = _parts({pk: s.version for pk, s in seen.items() if s is not None})
     # The state tags after the title, each to those it concerns (DL-0233, DL-0351).
-    from review.state import LABELS, tags
+    from review.state import tags
 
-    shown_tags = tags(user, shown)
+    shown_tags = tags(user, shown, administrator=administrator)
     rows = [
         {
             "document": document,
@@ -155,9 +163,7 @@ def _rows(user: Any, shown: list[Document], seen: Any = None) -> dict[str, Any]:
             "latest": _latest(seen.get(document.pk)),
             "appendices": PartKind.APPENDIX in parts.get(document.pk, set()),
             "attachments": PartKind.ATTACHMENT in parts.get(document.pk, set()),
-            "tags": [
-                {"state": tag, "label": LABELS[tag]} for tag in shown_tags.get(document.pk, [])
-            ],
+            "tags": shown_tags.get(document.pk, []),
         }
         for document in shown
     ]
@@ -191,7 +197,7 @@ def in_review_documents(user: Any) -> list[Document]:
 
     mine = _holding(user, Right.ACCEPT)
     shown = tags(user, mine)
-    return [d for d in mine if State.AWAITING_REVIEW in shown[d.pk]]
+    return [d for d in mine if any(tag.state is State.AWAITING_REVIEW for tag in shown[d.pk])]
 
 
 def in_edit_documents(user: Any) -> tuple[list[Document], dict[Any, Any]]:
@@ -250,7 +256,7 @@ def in_review(request: HttpRequest) -> HttpResponse:
     documents = in_review_documents(request.user)
     # The menu draws its link from this answer rather than reading the view again.
     cast(Any, request).views_found = {"in_review": bool(documents)}
-    listed = _rows(request.user, documents)
+    listed = _rows(request.user, documents, administrator=administers(request))
     context = {**listed, "groups": _grouped(listed["rows"]), "view": "in-review"}
     return render(request, "documents/view_list.html", context)
 
@@ -264,7 +270,7 @@ def in_edit(request: HttpRequest) -> HttpResponse:
         return refused
     documents, seen = in_edit_documents(request.user)
     cast(Any, request).views_found = {"in_edit": bool(documents)}
-    listed = _rows(request.user, documents, seen)
+    listed = _rows(request.user, documents, seen, administrator=administers(request))
     context = {**listed, "groups": _grouped(listed["rows"]), "view": "in-edit"}
     return render(request, "documents/view_list.html", context)
 

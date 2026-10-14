@@ -72,7 +72,7 @@ LABELS = {
     Right.VIEW_PREVIOUS_CANONICAL: _("view previous canonical versions"),
     Right.VIEW_ALL_HISTORY: _("view all history"),
     Right.ACCEPT: _("accept"),
-    Right.FREEZE: _("freeze"),
+    Right.FREEZE: _("freeze and unfreeze"),
     Right.MAKE_CANONICAL: _("make canonical"),
     Right.RESERVE_FOR_EDITING: _("reserve for editing"),
     Right.CREATE_APPENDIX: _("create appendix"),

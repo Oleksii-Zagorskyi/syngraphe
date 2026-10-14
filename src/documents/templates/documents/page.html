@@ -1,14 +1,15 @@
 {% extends "shell/base.html" %}
-{% load i18n static review editions %}
+{% load i18n static review editions editing %}
 {% block title %}#{{ document.number }} {{ document.title }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document">
   {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
   {% freeze_band document %}
+  {% hold_band document %}
   <nav class="breadcrumb"><a href="/folder/1/">{{ current_tenant.name }}</a> /</nav>
   <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% version_shown document as shown %}{% if shown %} <span class="version-number">{{ shown }}</span>{% endif %}{% state_tag document %}</h1>
   {% edition_controls document %}
-  <p class="document-actions"><a class="button" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a></p>
+  <p class="document-actions"><a class="button" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a>{% hold_acts document menu=True %}</p>
   {% if tab == "view" %}
   <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
     {% include "rendering/panes_outline.html" %}

@@ -11,8 +11,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.utils import timezone
-from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
@@ -32,6 +30,7 @@ def reason(document: Document, user: User, code: str) -> str:
     """What a refusal says to a holder of *accept*; the reservation names its holder (DL-0226)."""
     if code == "reserved":
         from editing.models import Hold
+        from review.state import reserved_since
 
         hold = Hold.objects.filter(
             document=document, released_at__isnull=True, reserved_at__isnull=False
@@ -40,7 +39,7 @@ def reason(document: Document, user: User, code: str) -> str:
             return ""
         return _("Reserved for editing by %(name)s since %(date)s.") % {
             "name": person(hold.user),
-            "date": date_format(timezone.localtime(hold.reserved_at), "DATE_FORMAT"),
+            "date": reserved_since(hold.reserved_at),
         }
     return {
         "no_reviewer": _("No reviewer is assigned to this document."),

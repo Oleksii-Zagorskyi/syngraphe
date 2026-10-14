@@ -117,7 +117,7 @@ This is an **accepted risk taken knowingly by the owner**, recorded here so a la
 
 **Answered by:** partially, and honestly not much. Export is per document and of a stated version, every export is an audit event, and nobody holds raw repository access. A person who may read a document may take that document; that is what read access means. Copying a document into a new one (ST-0067) takes nothing copy and paste could not; the copy starts reachable only by its author until an administrator links groups, and its source is recorded (ADR-0007).
 
-The same person may also leave documents **held or reserved**, so that nobody else can edit, freeze, review or re-link them. **Answered by:** the inactivity release for an ordinary hold (ADR-0006); a forced release, or break-the-glass for a reservation, by a tenant or platform administrator (ADR-0009); and the block itself, which ends every hold and reservation of the person on the documents it closes to them, drafts preserved (DL-0256).
+The same person may also leave documents **held or reserved**, so that nobody else can edit, freeze, review or re-link them. **Answered by:** the inactivity release for an ordinary hold (ADR-0006); a forced release, or break-the-glass for a reservation, by a tenant or platform administrator (ADR-0009); and the block itself, which ends every hold and reservation of the person on the documents it closes to them, drafts kept (DL-0256).
 
 ### T-10 — Model spend is driven up
 

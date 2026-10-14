@@ -57,8 +57,8 @@ msgid "accept"
 msgstr "погодження"
 
 #: access/rights.py:75
-msgid "freeze"
-msgstr "заморожування"
+msgid "freeze and unfreeze"
+msgstr "заморожування й розморожування"
 
 #: access/rights.py:76
 msgid "make canonical"
@@ -1520,7 +1520,7 @@ msgstr "Показувати авторів"
 msgid "Nothing awaits review."
 msgstr "Неприйнятих правок немає."
 
-#: review/views/accept.py:40
+#: review/views/accept.py:40 editing/templates/editing/band.html access/templates/access/document_links.html
 #, python-format
 msgid "Reserved for editing by %(name)s since %(date)s."
 msgstr "Зарезервовано для редагування з %(date)s: %(name)s."
@@ -2505,3 +2505,351 @@ msgstr "обліковий запис заблоковано власником"
 #: tenancy/forms.py
 msgid "This person has blocked their own account; the role cannot be granted to it."
 msgstr "Ця особа заблокувала власний обліковий запис; роль не можна надати."
+
+#: review/state.py
+msgid "held"
+msgstr "зайнятий"
+
+#: review/state.py
+#, python-format
+msgid "held by %(name)s"
+msgstr "зайнятий — %(name)s"
+
+#: review/state.py
+#, python-format
+msgid "reserved for editing by %(name)s, since %(date)s"
+msgstr "зарезервовано для редагування з %(date)s: %(name)s"
+
+#: review/state.py
+#, python-format
+msgid "reserved for editing, since %(date)s"
+msgstr "зарезервовано для редагування з %(date)s"
+
+#: editing/templates/editing/band.html
+#, python-format
+msgid "Reserved for editing by you since %(date)s."
+msgstr "Ви зарезервували документ для редагування з %(date)s."
+
+#: editing/templates/editing/band.html
+#, python-format
+msgid "Reserved for editing since %(date)s."
+msgstr "Зарезервовано для редагування з %(date)s."
+
+#: editing/templates/editing/band.html
+msgid "Until the reservation ends, review, freezing and changes to the document's groups wait."
+msgstr "Поки резервування триває, розгляд, заморожування й зміни груп документа чекають."
+
+#: shell/templates/shell/base.html editing/templates/editing/my_reservations.html
+msgid "My reservations"
+msgstr "Мої резервування"
+
+#: editing/templates/editing/my_reservations.html
+msgid "Reserved since"
+msgstr "Зарезервовано з"
+
+#: editing/templates/editing/my_reservations.html
+msgid "You have reserved no document for editing."
+msgstr "Ви не зарезервували для редагування жодного документа."
+
+#: editing/templates/editing/edit_tab.html
+msgid "Reserve for editing"
+msgstr "Зарезервувати для редагування"
+
+#: editing/templates/editing/edit_tab.html
+msgid "Cancel the reservation"
+msgstr "Скасувати резервування"
+
+#: editing/templates/editing/edit_tab.html
+#, python-format
+msgid "Frozen: “%(reason)s” — reserve once it is unfrozen"
+msgstr "Заморожено: «%(reason)s» — зарезервуйте, коли документ розморозять"
+
+#: editing/templates/editing/edit_tab.html
+msgid "Frozen — reserve once it is unfrozen"
+msgstr "Заморожено — зарезервуйте, коли документ розморозять"
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s was reserved for editing by %(name)s."
+msgstr "#%(number)s %(title)s зарезервовано для редагування: %(name)s."
+
+#: editing/templates/editing/hold_acts.html
+msgid "More ▾"
+msgstr "Більше ▾"
+
+#: editing/templates/editing/hold_acts.html editing/templates/editing/reservations.html
+#: access/templates/access/document_links.html
+msgid "End the reservation…"
+msgstr "Завершити резервування…"
+
+#: editing/templates/editing/end_reservation.html
+msgid "End the reservation"
+msgstr "Завершити резервування"
+
+#: editing/templates/editing/end_reservation.html
+#, python-format
+msgid "#%(number)s %(title)s is reserved for editing by %(name)s since %(date)s."
+msgstr "#%(number)s %(title)s зарезервовано для редагування з %(date)s: %(name)s."
+
+#: editing/templates/editing/end_reservation.html
+#, python-format
+msgid "The reason is required: one line of at most %(most)s characters, without control characters."
+msgstr "Причина обов'язкова: один рядок до %(most)s символів, без керівних символів."
+
+#: editing/templates/editing/reservations.html
+msgid "No document is reserved for editing."
+msgstr "Жоден документ не зарезервовано для редагування."
+
+#: notifications/templates/notifications/page.html
+#, python-format
+msgid "Reason: “%(reason)s”"
+msgstr "Причина: «%(reason)s»"
+
+#: editing/templates/editing/band.html
+msgid "Your editing of this document was ended, and your draft was kept."
+msgstr "Ваше редагування цього документа завершено, чернетку збережено."
+
+#: editing/templates/editing/band.html
+msgid "Open it in the edit tab"
+msgstr "Відкрити її у вкладці редагування"
+
+#: editing/templates/editing/draft_readonly.html
+#, python-format
+msgid "Your editing was ended for inactivity on %(date)s."
+msgstr "Ваше редагування завершено через бездіяльність %(date)s."
+
+#: editing/templates/editing/draft_readonly.html
+#, python-format
+msgid "Your editing was ended on %(date)s, when access was blocked."
+msgstr "Ваше редагування завершено %(date)s, коли доступ було заблоковано."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Your draft was kept."
+msgstr "Вашу чернетку збережено."
+
+#: editing/templates/editing/draft_readonly.html editing/messages.py
+msgid "Take the document back"
+msgstr "Забрати документ назад"
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Compare with"
+msgstr "Порівняти з"
+
+#: editing/templates/editing/draft_readonly.html
+msgid "the current text"
+msgstr "поточним текстом"
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Discard this draft…"
+msgstr "Відкинути цю чернетку…"
+
+#: editing/templates/editing/draft_readonly.html editing/templates/editing/discard.html
+msgid "The whole draft — its text and its files — is thrown away. This cannot be undone."
+msgstr "Усю чернетку — текст і файли — буде відкинуто. Це неможливо скасувати."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Discard this draft"
+msgstr "Відкинути цю чернетку"
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Compare"
+msgstr "Порівняти"
+
+#: editing/templates/editing/end_reservation.html
+msgid "Reason"
+msgstr "Причина"
+
+#: editing/messages.py
+msgid "This editor stopped: your editing of the document was ended."
+msgstr "Редактор зупинено: ваше редагування документа завершено."
+
+#: editing/messages.py
+msgid "I am still working"
+msgstr "Я ще працюю"
+
+#: editing/templates/editing/end_reservation.html
+msgid "Ending it frees the document for others. The holder's draft is kept, and the holder is told who ended it, when and why."
+msgstr "Завершення звільняє документ для інших. Чернетку власника резервування буде збережено, і йому повідомлять, хто, коли й чому завершив резервування."
+
+#: editing/templates/editing/end_reservation.html
+msgid "This reservation has changed since the page was opened. Read it again before ending it."
+msgstr "Відколи сторінку відкрито, резервування змінилося. Перегляньте його ще раз, перш ніж завершувати."
+
+#: editing/templates/editing/reservations.html
+msgid "Reserved by whom"
+msgstr "Ким зарезервовано"
+
+#: editing/templates/editing/draft_readonly.html
+#, python-format
+msgid "Your reservation was ended on %(date)s: %(name)s, “%(reason)s”."
+msgstr "Ваше резервування завершено %(date)s: %(name)s, «%(reason)s»."
+
+#: editing/templates/editing/draft_readonly.html
+#, python-format
+msgid "Your editing was ended on %(date)s: %(name)s."
+msgstr "Ваше редагування завершено %(date)s: %(name)s."
+
+#: editing/templates/editing/draft_readonly.html
+#, python-format
+msgid "Your editing was ended on %(date)s by the platform's operator."
+msgstr "Ваше редагування завершено %(date)s оператором платформи."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "The document has not changed since your draft began; you can take it back with your draft."
+msgstr "Відколи ви почали чернетку, документ не змінювався: ви можете забрати його назад разом із чернеткою."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "The document has changed since your draft began — a new version or an acceptance — so your draft can only be read: it is shown as changes against the text you choose. Carry over what you need by hand."
+msgstr "Відколи ви почали чернетку, документ змінився — з'явилася нова версія або погодження, — тож чернетку можна лише читати: її показано як зміни відносно вибраного тексту. Перенесіть потрібне вручну."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Your draft holds text the editor does not accept, so it is shown as it was typed."
+msgstr "Чернетка містить текст, якого редактор не приймає, тож її показано так, як її набрано."
+
+#: editing/templates/editing/refused.html
+msgid "The document is frozen: it cannot be reserved until it is unfrozen."
+msgstr "Документ заморожено: його не можна зарезервувати, доки його не розморозять."
+
+#: editing/templates/editing/refused.html editing/templates/editing/stopped_editor.html
+msgid "Back to the edit tab"
+msgstr "Назад до вкладки редагування"
+
+#: notifications/events.py
+msgid "Reservations started"
+msgstr "Розпочаті резервування"
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s: your reservation was ended by %(by)s."
+msgstr "#%(number)s %(title)s: ваше резервування завершено — %(by)s."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s was reserved for editing."
+msgstr "#%(number)s %(title)s зарезервовано для редагування."
+
+#: editing/templates/editing/hold_acts.html access/templates/access/document_links.html
+msgid "Force release"
+msgstr "Звільнити документ примусово"
+
+#: editing/messages.py
+msgid "Are you still working? Your editing will soon end for inactivity."
+msgstr "Ви ще працюєте? Ваше редагування незабаром буде завершено через бездіяльність."
+
+#: notifications/events.py
+#, python-format
+msgid "#%(number)s %(title)s: your editing will soon end for inactivity."
+msgstr "#%(number)s %(title)s: ваше редагування незабаром буде завершено через бездіяльність."
+
+#: editing/templates/editing/refused.html
+msgid "Someone else holds the document now. Read its page again before forcing anything."
+msgstr "Тепер документ зайнятий іншою особою. Перегляньте його сторінку ще раз, перш ніж щось робити примусово."
+
+#: editing/messages.py
+msgid "Close this editor"
+msgstr "Закрити цей редактор"
+
+#: editing/messages.py
+msgid "Close the section editors first to edit the whole document."
+msgstr "Щоб редагувати весь документ, спершу закрийте редактори розділів."
+
+#: editing/messages.py
+msgid "Close the whole-document editor first to edit a section."
+msgstr "Щоб редагувати розділ, спершу закрийте редактор усього документа."
+
+#: editing/messages.py
+msgid "Finishing waits until every section editor is closed."
+msgstr "Завершити можна, коли закриються всі редактори розділів."
+
+#: editing/messages.py
+msgctxt "open a section's editor"
+msgid "Edit"
+msgstr "Редагувати"
+
+#: editing/templates/editing/discard.html
+msgid "Discard my edits…"
+msgstr "Відкинути мої правки…"
+
+#: editing/templates/editing/discard.html
+msgid "Discard my edits"
+msgstr "Відкинути мої правки"
+
+#: editing/templates/editing/discard.html
+msgid "The whole draft — its text and its files — is thrown away, and your reservation ends. This cannot be undone."
+msgstr "Усю чернетку — текст і файли — буде відкинуто, а ваше резервування завершиться. Це неможливо скасувати."
+
+#: editing/views/finish.py
+msgid "Your edits were discarded."
+msgstr "Ваші правки відкинуто."
+
+#: editions/templates/editions/controls.html
+msgid "Unfreeze"
+msgstr "Розморозити"
+
+#: editions/views.py
+msgid "Unfrozen."
+msgstr "Розморожено."
+
+#: editions/views.py
+msgid "The document is not frozen."
+msgstr "Документ не заморожено."
+
+#: editing/messages.py
+msgid "Edit the whole document"
+msgstr "Редагувати весь документ"
+
+#: editing/templates/editing/stopped_editor.html
+msgid "Your unsaved text is below, as changes against the text as it now stands; carry it over by hand."
+msgstr "Ваш незбережений текст нижче — як зміни відносно тексту в його теперішньому вигляді; перенесіть його вручну."
+
+#: editing/messages.py
+msgid "Another editor is open on part of this section; close it first."
+msgstr "На частині цього розділу відкрито інший редактор; спершу закрийте його."
+
+#: editing/messages.py
+msgid "Close a section editor first: five are open."
+msgstr "Спершу закрийте один із редакторів розділів: відкрито п'ять."
+
+#: editing/messages.py
+msgid "The sections changed since the tab was drawn; close your editors to see them again."
+msgstr "Відколи вкладку показано, розділи змінилися; закрийте редактори, щоб побачити їх знову."
+
+#: editing/messages.py
+msgid "Closed. The section is drawn again once the other editors are closed."
+msgstr "Закрито. Розділ буде показано знову, щойно закриються інші редактори."
+
+#: editing/messages.py
+msgid "A stopped editor still holds your text; carry it over before the tab is drawn again."
+msgstr "Зупинений редактор досі містить ваш текст; перенесіть його, перш ніж вкладку буде показано знову."
+
+#: editing/views/finish.py
+msgid "Discarding waits until the other tabs editing this document are closed."
+msgstr "Відкинути можна, коли закриються інші вкладки, де редагують цей документ."
+
+#: editing/views/finish.py
+msgid "Your later edits were discarded; the version you had already made stands and awaits review."
+msgstr "Ваші пізніші правки відкинуто; уже створена вами версія залишається й очікує на розгляд."
+
+#: editing/messages.py
+msgid "Editing together"
+msgstr "Редагування разом"
+
+#: editions/views.py editions/templates/editions/controls.html
+msgid "The document is held; unfreeze it once it is released."
+msgstr "Документ зайнятий; розморозьте його, коли його звільнять."
+
+#: editions/views.py
+msgid "The document was made canonical meanwhile; its freeze has ended."
+msgstr "Тим часом документ затвердили; його заморожування завершено."
+
+#: editing/templates/editing/reservations.html shell/templates/shell/administration.html
+msgid "Reservations"
+msgstr "Резервування"
+
+#: editing/views/reservations.py
+msgid "The holder's finish that had stopped was completed: the version awaits review, and the document is free."
+msgstr "Завершення редагування, яке власник резервування не закінчив, доведено до кінця: версія очікує на розгляд, а документ вільний."
+
+#: editions/views.py
+msgid "The document is held; make it canonical once it is released."
+msgstr "Документ зайнятий; затвердьте його, коли його звільнять."

@@ -6,7 +6,7 @@ itself or typed in, and otherwise on a *Start editing* the person presses (DL-03
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -84,7 +84,124 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         return render(request, "editing/held_by_other.html", context)
     if hold is not None and hold.user_id != request.user.pk:
         return render(request, "editing/held_by_other.html", context)
+    if hold is None:
+        kept = holds.preserved_draft(document, request.user)
+        if kept is not None:
+            # The kept draft is offered back before any new hold is taken (DL-0225, DL-0318).
+            return render(
+                request,
+                "editing/draft_readonly.html",
+                context | returning(request, document, kept),
+            )
+    context["reservation"] = _reservation(request, document, hold, frozen, context)
+    context["draft_view"] = _draft_view(document, hold if holding else None)
     return render(request, "editing/edit_tab.html", context)
+
+
+def _draft_view(document: Document, hold: Any) -> Any:
+    """The text the tab opens on, rendered as the View tab renders a version, with no editor
+    until one is chosen (ADR-0006): the holder's draft, or the head's text the hold will start
+    from. `None` for a text the whitelist refuses, which only the whole editor opens — in its
+    source view, with the refusal named."""
+    from django.utils.safestring import mark_safe
+
+    from documents import gitstore
+    from editing.markdown.validator import validate
+    from rendering.renderer import labelled, render_tokens
+
+    if hold is not None:
+        body: str = hold.draft.content[holds.BODY]
+    else:
+        repo = gitstore.open_repository(holds.tenant_number(), document.number)
+        head = gitstore.head(repo)
+        if head is None:
+            return None
+        _, body = holds.split(gitstore.read(repo, holds.BODY, head).decode("utf-8"))
+    if validate(body):
+        return None
+    return mark_safe(render_tokens(labelled(body)))  # noqa: S308 — raw HTML is off, every value escaped
+
+
+def ended_how(released: Any) -> str:
+    """How a kept draft's hold ended, as its holder is told: their reservation ended by an
+    administrator; their editing ended by an administrator; by the platform's operator, whose
+    note is for the audit trail alone; for inactivity; or by a block."""
+    from editing.models import ReleaseKind
+
+    if released.release_kind == ReleaseKind.FORCED:
+        if released.released_by_id is None:
+            return "operator"
+        return "reservation" if released.reserved_at is not None else "administrator"
+    if released.release_kind == ReleaseKind.INACTIVITY:
+        return "inactivity"
+    return "blocked"
+
+
+def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, Any]:
+    """What the holder of a kept draft is shown on their return (DL-0225): who released it, when
+    and why; *take the document back* while nobody has committed since; otherwise the draft as
+    changes against the current text, or a version they choose (DL-0379), and *discard this
+    draft* (DL-0381). Nothing here takes a hold."""
+    from django.utils.safestring import mark_safe
+
+    from documents import gitstore
+    from editing.diffview import render_changes
+    from editing.markdown.validator import validate
+    from editing.services import comparison_choices
+    from identity.naming import person
+
+    released = kept.hold
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    head = gitstore.head(repo)
+    if head is None:
+        raise RuntimeError(f"document {document.number} has no commit")
+    shown: dict[str, Any] = {
+        "kept": kept,
+        "released": released,
+        "ended_how": ended_how(released),
+        "released_by": person(released.released_by) if released.released_by else "",
+        "moved": kept.base_commit != head,
+        # The edit tab is where the kept draft is shown: the page's band does not point here.
+        "returning": True,
+    }
+    if not shown["moved"]:
+        return shown
+    try:
+        choices = comparison_choices(document)
+    except LookupError:
+        # A head that no longer follows the accepted version: the current text alone.
+        choices = []
+    chosen = request.GET.get("against", "")
+    against = dict(choices).get(chosen)
+    if against is None:
+        chosen, against = "", head
+    body: str = kept.content[holds.BODY]
+    shown |= {"choices": [number for number, _ in choices], "chosen": chosen}
+    if validate(body):
+        # A capture takes any text under the size limit, so a kept draft may hold what the
+        # whitelist refuses; it is shown as plain text, never rendered (ADR-0010).
+        return shown | {"refused_text": body}
+    _, old = holds.split(gitstore.read(repo, holds.BODY, against).decode("utf-8"))
+    # Built from text the whitelist accepted, by the renderer that escapes it.
+    changes = mark_safe(render_changes(old.encode("utf-8"), body.encode("utf-8")))  # noqa: S308
+    return shown | {"changes": changes}
+
+
+def _reservation(
+    request: HttpRequest, document: Document, hold: Any, frozen: Any, context: dict[str, Any]
+) -> dict[str, Any] | None:
+    """The tab's reservation control (ADR-0009): *Cancel the reservation* on the person's own
+    reservation; *Reserve for editing* to a holder of the right in an editing session — the one
+    path in (DL-0219) — disabled with the freeze's reason while frozen (DL-0252); nothing
+    otherwise."""
+    if hold is not None and hold.reserved_at is not None:
+        return {"reserved": True}
+    if not (context["holding"] or context["take_on_mount"]):
+        return None
+    rights = rights_on_many(request.user, [document.pk]).get(document.pk, frozenset())
+    if Right.RESERVE_FOR_EDITING not in rights:
+        return None
+    return {"reserved": False, "frozen": frozen}
 
 
 @never_cache
@@ -97,6 +214,8 @@ def take(request: HttpRequest, number: int) -> HttpResponse:
         return not_found(request)
     try:
         holds.take(document, cast(User, request.user))
+    except holds.DraftPreserved:
+        return JsonResponse({"preserved": True}, status=409)
     except holds.NotEditable:
         return not_found(request)
     except holds.HeldByOther:

@@ -1,0 +1,20 @@
+{% extends "shell/base.html" %}
+{% load i18n tz %}
+{% block title %}{% translate "My reservations" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content documents">
+  <h1>{% translate "My reservations" %}</h1>
+  {% if reserved %}
+  <table class="list">
+    <thead><tr><th>#</th><th>{% translate "Title" %}</th><th>{% translate "Reserved since" %}</th></tr></thead>
+    <tbody>{% timezone display_timezone %}
+      {% for hold in reserved %}
+      <tr class="document" data-number="{{ hold.document.number }}"><td class="id">#{{ hold.document.number }}</td><td><a href="/document/{{ hold.document.number }}/">{{ hold.document.title }}</a></td><td>{{ hold.reserved_at|date:"DATE_FORMAT" }}</td></tr>
+      {% endfor %}
+    {% endtimezone %}</tbody>
+  </table>
+  {% else %}
+  <p class="muted">{% translate "You have reserved no document for editing." %}</p>
+  {% endif %}
+</section>
+{% endblock %}

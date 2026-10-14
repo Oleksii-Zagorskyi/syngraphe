@@ -34,6 +34,9 @@ class Event(models.TextChoices):
     EMAIL_FAILED = "email_failed", "email_failed"
     USER_PARTIALLY_BLOCKED = "user_partially_blocked", "user_partially_blocked"
     TENANT_WITHOUT_ADMIN = "tenant_without_admin", "tenant_without_admin"
+    RESERVATION_STARTED = "reservation_started", "reservation_started"
+    RESERVATION_ENDED_BY_ADMIN = "reservation_ended_by_admin", "reservation_ended_by_admin"
+    HOLD_EXPIRING = "hold_expiring", "hold_expiring"
 
 
 # What platform administrators are told in the shared schema (DL-0382); `email_failed` also

@@ -1,4 +1,4 @@
-"""`end_freeze`, the operator's way out of a freeze nobody can end before *unfreeze* exists: the
+"""`end_freeze`, the operator's way out of a freeze no holder of *freeze* is there to end: the
 freeze ended `unfrozen` with an audit event carrying the reason; the numbering unchanged.
 
 People and groups are synthetic examples; the text is invented.
@@ -92,3 +92,34 @@ def test_end_freeze_needs_a_reason(
         )
     with schema_context(migrated_tenant.number):
         assert open_freeze(people.document) is not None
+
+
+def test_the_command_names_no_actor(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    """The operator's command ends a freeze as the platform's act: no actor, and the reason it must
+    give."""
+    from editions import services as editions
+    from editions.models import Freeze
+
+    people = edition_cast()
+    commit_version(people.document, people["a"], BODY, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Синтетична причина")
+    call_command(
+        "end_freeze",
+        tenant=migrated_tenant.number,
+        document=people.document.number,
+        reason="Синтетичне рішення оператора",
+        stdout=StringIO(),
+    )
+    event = AuditEvent.objects.get(action="document.unfrozen")
+    assert event.actor_kind == "system" and event.actor_id is None
+    with schema_context(migrated_tenant.number):
+        assert Freeze.objects.get().ended_by is None
+        # A freeze still open: the operator's empty reason is refused, and the freeze stays.
+        editions.freeze(people.document, people["p"], "Синтетична причина")
+        with pytest.raises(ValueError, match="reason"):
+            editions.end_freeze(people.document, "")
+        assert Freeze.objects.filter(ended_at__isnull=True).count() == 1

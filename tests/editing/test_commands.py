@@ -41,7 +41,7 @@ def test_release_hold(migrated_tenant: Any, member_of: Any, new_document: Any) -
         assert hold.release_kind == "forced"
         assert hold.released_at is not None and hold.released_by is None
         assert Draft.objects.filter(hold=hold).exists()
-        base = Draft.objects.get(hold=hold).base_commit
+        draft = Draft.objects.get(hold=hold)
     events = AuditEvent.objects.filter(action="document.hold_released")
     assert events.count() == 1
     event = events.get()
@@ -50,7 +50,10 @@ def test_release_hold(migrated_tenant: Any, member_of: Any, new_document: Any) -
         "number": document.number,
         "release_kind": "forced",
         "reason": "the holder left",
-        "draft_base": base,
+        "holder": str(hold.user_id),
+        "draft_base": draft.base_commit,
+        "draft_updated_at": draft.updated_at.isoformat(),
+        "open_editors": 0,
     }
 
 
@@ -72,3 +75,35 @@ def test_inspect_draft(migrated_tenant: Any, member_of: Any, new_document: Any) 
     assert printed["hold"]["released_at"] is None
     assert len(printed["base_commit"]) == 40
     assert set(printed["content"]) == {"document.md", "frontmatter"}
+
+
+def test_release_hold_says_when_it_completed_a_stopped_finish(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """A stopped finish under the hold is completed, not kept (DL-0414), and the command says so."""
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    from editing import services
+    from editing.models import Draft, Hold
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document)
+        draft = Draft.objects.get(hold=hold)
+        draft.content = {**draft.content, "document.md": "# Синтетичний розділ\n\nНове.\n"}
+        draft.save()
+        with pytest.raises(services.InjectedFault):
+            services.commit_draft(hold, author, "Синтетична правка", fault_at=2)
+    out = StringIO()
+    call_command(
+        "release_hold",
+        f"--tenant={migrated_tenant.number}",
+        f"--document={document.number}",
+        "--reason=the holder left",
+        stdout=out,
+    )
+    assert "the stopped finish was completed" in out.getvalue()

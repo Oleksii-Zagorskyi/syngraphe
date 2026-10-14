@@ -11,8 +11,12 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterable
 from enum import StrEnum
-from typing import Any
+from typing import Any, NamedTuple
+from zoneinfo import ZoneInfo
 
+from django.conf import settings
+from django.utils import formats, timezone
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from access.rights import Right, rights_on_many
@@ -34,15 +38,30 @@ class State(StrEnum):
     FROZEN = "frozen"
     # Nothing accepted or pending beyond the latest edition.
     CANONICAL = "canonical"
+    # Someone holds the document (ADR-0006), or has reserved it (ADR-0009): the hold's own facts,
+    # shown as tags beside the review state, never instead of it.
+    HELD = "held"
+    RESERVED = "reserved"
 
 
 LABELS = {
     State.FROZEN: _("frozen"),
+    State.HELD: _("held"),
     State.AWAITING_REVIEW: _("awaiting review"),
     State.NO_REVIEWER_ASSIGNED: _("no reviewer assigned"),
 }
 # The states a tag shows, and to whom: pending work only to those who may see it (DL-0233).
 PENDING_TAGS = frozenset({State.AWAITING_REVIEW, State.NO_REVIEWER_ASSIGNED})
+# Who may learn who reserved a document: those it keeps from editing or reviewing (DL-0226).
+NAMED_ON_A_RESERVATION = frozenset({Right.EDIT, Right.ACCEPT})
+
+
+class Tag(NamedTuple):
+    """One state tag as a list or the document page draws it: the state, and its words for this
+    reader — the date and the name, where the reader may see them, folded in."""
+
+    state: State
+    label: str
 
 
 def with_reviewer(document_ids: Iterable[Any]) -> set[Any]:
@@ -179,18 +198,59 @@ def state(document: Document) -> State:
     return states([document])[document.pk]
 
 
-def tags(user: Any, documents: Iterable[Document]) -> dict[Any, list[State]]:
-    """The state tags each document shows `user`, in order: *frozen* to every reader of it, then
-    a review state that speaks of pending work where the user holds *view pending*, which
-    administrators do, computed only there (DL-0351). A document whose record cannot be read
-    shows no review tag and is logged, never failing the page it appears on."""
+def reserved_since(moment: Any) -> str:
+    """The date a reservation began, in the display timezone and the active language's date
+    format: the one form every page shows it in, converted here because a tag's label is
+    already output."""
+    local = timezone.localtime(moment, ZoneInfo(settings.DISPLAY_TIMEZONE))
+    return formats.date_format(local, "DATE_FORMAT")
+
+
+def hold_tag(hold: Any, rights: frozenset[Right], *, administrator: bool) -> Tag:
+    """The tag an open hold shows a reader with `rights`: the fact to everyone; the holder's name,
+    on an ordinary hold, to a tenant administrator or a platform administrator acting in the
+    organisation (ADR-0006, ADR-0007), and on a reservation also to holders of *edit* or *accept*
+    (DL-0226)."""
+    from identity.naming import person
+
+    if hold.reserved_at is None:
+        if administrator:
+            return Tag(State.HELD, gettext("held by %(name)s") % {"name": person(hold.user)})
+        return Tag(State.HELD, str(LABELS[State.HELD]))
+    since = reserved_since(hold.reserved_at)
+    if administrator or rights & NAMED_ON_A_RESERVATION:
+        return Tag(
+            State.RESERVED,
+            gettext("reserved for editing by %(name)s, since %(date)s")
+            % {"name": person(hold.user), "date": since},
+        )
+    return Tag(State.RESERVED, gettext("reserved for editing, since %(date)s") % {"date": since})
+
+
+def tags(
+    user: Any, documents: Iterable[Document], *, administrator: bool = False
+) -> dict[Any, list[Tag]]:
+    """The state tags each document shows `user`, in order: *frozen* to every reader of it; *held*
+    or *reserved for editing* to every reader, named by `hold_tag`'s rule, `administrator` saying
+    whether the reader administers this organisation; then a review state that speaks of pending
+    work where the user holds *view pending*, which administrators do, computed only there
+    (DL-0351). The holds are read in one query whatever the number of documents. A document whose
+    record cannot be read shows no review tag and is logged, never failing the page it appears
+    on."""
+    from documents.holds import open_holds
+
     documents = list(documents)
     rights = rights_on_many(user, [d.pk for d in documents])
     seen = [d for d in documents if Right.VIEW_PENDING in rights.get(d.pk, frozenset())]
     held_still = frozen(d.pk for d in documents)
-    shown: dict[Any, list[State]] = {
-        d.pk: [State.FROZEN] if d.pk in held_still else [] for d in documents
-    }
+    held = open_holds(d.pk for d in documents)
+    shown: dict[Any, list[Tag]] = {}
+    for d in documents:
+        shown[d.pk] = [Tag(State.FROZEN, str(LABELS[State.FROZEN]))] if d.pk in held_still else []
+        if d.pk in held:
+            shown[d.pk].append(
+                hold_tag(held[d.pk], rights.get(d.pk, frozenset()), administrator=administrator)
+            )
     reviewed, latest, content = _rows(seen)
     for document in seen:
         try:
@@ -201,5 +261,5 @@ def tags(user: Any, documents: Iterable[Document]) -> dict[Any, list[State]]:
             )
             continue
         if found in PENDING_TAGS:
-            shown[document.pk].append(found)
+            shown[document.pk].append(Tag(found, str(LABELS[found])))
     return shown

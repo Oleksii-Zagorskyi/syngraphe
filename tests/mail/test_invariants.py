@@ -47,6 +47,7 @@ ADMINISTRATIVE = {
     "document_copied",
     "email_failed",
     "backup_condition",
+    "reservation_started",
 }
 # Written below through the paths that write them, not directly: the platform's own in the shared
 # schema, which `notify` refuses in an organisation's.

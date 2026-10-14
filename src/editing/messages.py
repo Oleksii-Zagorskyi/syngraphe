@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 CONSTRUCTS = {
     "heading-depth": _("a heading below depth four"),
@@ -65,6 +66,9 @@ LABELS = {
     "paste_converted": _("Paste converted"),
     "finish": _("Finish editing"),
     "start": _("Start editing"),
+    "edit_whole": _("Edit the whole document"),
+    "edit_section": pgettext_lazy("open a section's editor", "Edit"),
+    "close_section": _("Close this editor"),
 }
 
 NOTICES = {
@@ -81,8 +85,24 @@ NOTICES = {
         "Signed out — sign in again in another tab; your text stays here while this tab is open."
     ),
     "stale": _("This editor stopped: the draft changed elsewhere."),
+    "released": _("This editor stopped: your editing of the document was ended."),
+    "take_back": _("Take the document back"),
+    "still_working": _("Are you still working? Your editing will soon end for inactivity."),
+    "still_working_answer": _("I am still working"),
     "too_large": _("Not captured — the text is over the size allowed; shorten it to go on."),
     "others": _("Finishing waits until the other tabs editing this document are closed."),
+    "sections_open": _("Close the section editors first to edit the whole document."),
+    "whole_open": _("Close the whole-document editor first to edit a section."),
+    "close_sections": _("Finishing waits until every section editor is closed."),
+    "overlaps": _("Another editor is open on part of this section; close it first."),
+    "too_many": _("Close a section editor first: five are open."),
+    "sections_changed": _(
+        "The sections changed since the tab was drawn; close your editors to see them again."
+    ),
+    "section_closed": _("Closed. The section is drawn again once the other editors are closed."),
+    "stopped_open": _(
+        "A stopped editor still holds your text; carry it over before the tab is drawn again."
+    ),
     "line": _("line %(line)s: %(construct)s"),
 }
 
@@ -123,6 +143,7 @@ HELP_PAGES = {
     "review": _("Reviewing and accepting"),
     "editions": _("Freezing and editions"),
     "editing": _("Editing"),
+    "editing-together": _("Editing together"),
     "markdown": _("What the editor accepts"),
     "reading": _("Reading a document"),
     "exporting": _("Exporting"),

@@ -1,4 +1,5 @@
-"""`manage.py release_hold`: an operator ends a hold that will not release; the draft is kept."""
+"""`manage.py release_hold`: an operator ends a hold that will not release; the draft is kept,
+unless the holder's finish had stopped after its commit, which is completed instead (DL-0414)."""
 
 from __future__ import annotations
 
@@ -44,7 +45,15 @@ class Command(BaseCommand):
                 released = hold is not None and holds.release(
                     hold, ReleaseKind.FORCED, reason=reason
                 )
-        if released:
-            self.stdout.write(f"released: document {document.number}; the draft is kept")
+                if released and hold is not None:
+                    hold.refresh_from_db(fields=["release_kind"])
+        if released and hold is not None:
+            if hold.release_kind == ReleaseKind.FINISHED:
+                # The holder's finish had stopped after its commit: completed, nothing kept.
+                self.stdout.write(
+                    f"released: document {document.number}; the stopped finish was completed"
+                )
+            else:
+                self.stdout.write(f"released: document {document.number}; the draft is kept")
         else:
             self.stdout.write("nothing to release: the document is not held")

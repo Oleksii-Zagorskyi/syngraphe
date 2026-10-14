@@ -1,6 +1,6 @@
 """The freeze on the document page, the same on every tab: the band every reader sees, and the
-*Freeze* and *Make canonical* controls to holders of each right, disabled with the reason while
-they cannot be used (DL-0233, DL-0234, DL-0236); and the version the header names."""
+*Freeze*, *Unfreeze* and *Make canonical* controls to holders of each right, disabled with the
+reason while they cannot be used (DL-0233, DL-0234, DL-0236); and the version the header names."""
 
 from __future__ import annotations
 
@@ -41,7 +41,8 @@ def freeze_band(context: dict[str, Any], document: Any) -> dict[str, Any]:
 
 @register.inclusion_tag("editions/controls.html", takes_context=True)
 def edition_controls(context: dict[str, Any], document: Any) -> dict[str, Any]:
-    """*Freeze* to a holder of the right while the document is not frozen, disabled while anyone
+    """*Freeze* to a holder of the right while the document is not frozen, and *Unfreeze* while it
+    is (DL-0189); *Freeze* disabled while anyone
     holds it — naming the holder to an administrator (ADR-0006), and a reservation's holder to
     anyone who may edit, which *freeze* includes (ADR-0009); *Make canonical* to a holder of that
     right, disabled with the reason it may not be used now, or as incomplete where the record
@@ -55,10 +56,15 @@ def edition_controls(context: dict[str, Any], document: Any) -> dict[str, Any]:
     shown: dict[str, Any] = {
         "document": document,
         "freeze": None,
+        "unfreeze": False,
         "canonical": None,
         "reason_max": REASON_MAX,
         "csrf_token": context.get("csrf_token"),
     }
+    # *Unfreeze* to a holder of *freeze* while a freeze is open, disabled while someone holds the
+    # document — a holder of *accept* may (ADR-0016) — as *Freeze* is (DL-0223, DL-0233).
+    if Right.FREEZE in rights and open_freeze(document) is not None:
+        shown["unfreeze"] = {"held": holds.open_hold(document) is not None}
     if Right.FREEZE in rights and open_freeze(document) is None:
         hold = holds.open_hold(document)
         named = hold is not None and (_administrator(request) or hold.reserved_at is not None)

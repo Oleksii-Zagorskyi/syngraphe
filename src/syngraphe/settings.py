@@ -134,6 +134,12 @@ CELERY_BEAT_SCHEDULE = {
         "task": "editing.close_silent_editors",
         "schedule": crontab(minute="*"),
     },
+    # Each minute's visit, never a backlog of them run back to back after an outage.
+    "release-inactive-holds": {
+        "task": "editing.release_inactive_holds",
+        "schedule": crontab(minute="*"),
+        "options": {"expires": 50},
+    },
     "sweep-exports": {
         "task": "rendering.sweep_exports",
         "schedule": crontab(minute=40),

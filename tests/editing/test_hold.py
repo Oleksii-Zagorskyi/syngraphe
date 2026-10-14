@@ -220,7 +220,15 @@ def test_release_is_idempotent_and_names_no_releaser_for_a_finish(
         hold.refresh_from_db()
         assert hold.released_by is None
         assert not document_holds.is_held(document)
-    assert AuditEvent.objects.filter(action="document.hold_released").count() == 1
+        draft = hold.draft
+    events = AuditEvent.objects.filter(action="document.hold_released")
+    assert events.count() == 1
+    # What the release left behind (DL-0225): the draft's base, when it last changed, and how
+    # many editors were still open on it.
+    after = events.get().after
+    assert after["draft_base"] == draft.base_commit
+    assert after["draft_updated_at"] == draft.updated_at.isoformat()
+    assert after["open_editors"] == 0
 
 
 @pytest.mark.parametrize(
@@ -257,3 +265,23 @@ def test_the_holder_reopening_from_elsewhere_is_not_asked(
     headers = {"Sec-Fetch-Site": "cross-site"}
     body = client.get(f"/document/{document.number}/edit/", headers=headers).content.decode()
     assert 'data-take-on-mount="true"' in body
+
+
+def test_the_tab_draws_only_a_text_the_whitelist_accepts(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """A draft the whitelist refuses is not drawn as the tab's text: only the whole editor opens
+    it, in its source view, with the refusal named (ADR-0010)."""
+    from editing.models import Draft
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    page = client.get(f"/document/{document.number}/edit/").content.decode()
+    assert "data-draft-view" in page
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold__document=document)
+        draft.content = {**draft.content, "document.md": "Абзац.\n\n<b>ні</b>\n"}
+        draft.save()
+    page = client.get(f"/document/{document.number}/edit/").content.decode()
+    assert "data-draft-view" not in page and "<b>ні</b>" not in page

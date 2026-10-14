@@ -16,12 +16,12 @@ Three diagrams, each small enough to hold in one look. Written against the linea
 ```mermaid
 stateDiagram-v2
     [*] --> Available: create document
-    Available --> Held: open an editor
+    Available --> Held: open the edit tab (DL-0319)
     Held --> Held: reserve for editing, or cancel the reservation
     Held --> Available: discard my edits
     Held --> Pending: send for review, or create version (commits)
     Held --> Accepted: accept as N.M (commits and accepts)
-    Held --> Available: released — inactivity, forced, a reservation ended by an administrator, or the holder blocked; draft preserved
+    Held --> Available: released — inactivity, forced, a reservation ended by an administrator, or the holder blocked; draft kept, unless a stopped finish is completed instead (DL-0414)
     Pending --> Held: take again; a reviewer corrects or undoes in their own draft
     Pending --> Accepted: reviewer accepts the run
     Pending --> Pending: reviewer returns the run, with a reason
@@ -47,14 +47,17 @@ Disputes are stage 2 (DL-0076), so nothing gates `Frozen --> Canonical` in stage
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Drafting: open an editor
+    [*] --> Drafting: open the edit tab (DL-0319)
     Drafting --> Drafting: open and close editors, type, undo, add or change parts
     Drafting --> Reviewing: finish editing, every editor closed
     Reviewing --> Drafting: continue editing, when not reserved
     Reviewing --> Committed: send for review, create version, or accept as N.M
     Reviewing --> [*]: discard my edits, confirmed
     Drafting --> [*]: discard my edits, draft discarded
-    Drafting --> Released: inactive past the timeout, forced, or the holder blocked
+    Drafting --> Prompted: idle past the organisation's timeout
+    Prompted --> Drafting: I am still working, or typing
+    Prompted --> Released: still idle ten minutes later (DL-0377)
+    Drafting --> Released: forced, or the holder blocked
     Drafting --> Reserved: reserve for editing
     Reserved --> Drafting: cancel the reservation
     Reserved --> Reserved: sittings over days or weeks; no inactivity release
@@ -62,13 +65,15 @@ stateDiagram-v2
     Reserved --> Released: ended by an administrator with a reason, or the holder blocked
     Reserved --> [*]: discard my edits, draft discarded
     Reviewing --> Reserved: continue editing, when reserved
-    Released --> [*]: draft preserved, document freed
+    Released --> [*]: draft kept, document freed — unless a stopped finish is completed instead (DL-0414)
     Committed --> [*]
 ```
 
 There is no Save control. The draft persists server-side so a closed laptop loses nothing, but it is not a version and no one else can see it. Finishing produces exactly one version, carrying a change summary the editor writes, starting from a mechanical one that names the sections touched (DL-0261); from 0.2 the companion drafts it (DL-0035).
 
-**Editors are views over the one draft** (DL-0167). The holder opens the whole-document editor, or one editor per section — several at once, across tabs if they like — and each captures into the draft over its own range; an editor whose range changed underneath it stops and shows its unsaved text as changes. Adding, replacing, removing, renaming or reordering an appendix or attachment is part of the same draft (DL-0168). Finishing — any of its choices — needs every editor closed.
+**Editors are views over the one draft** (ADR-0006). The edit tab opens on the draft as text; the holder opens the whole-document editor, or one editor per section — several at once, across tabs if they like — and each captures into the draft over its own range; an editor whose range changed underneath it stops and shows its unsaved text as changes. A heading typed into a section editor becomes a section of its own once that editor is closed. Adding, replacing, removing, renaming or reordering an appendix or attachment is part of the same draft (DL-0168). Finishing — any of its choices — needs every editor closed.
+
+**A quiet hold is asked before it is released** (ADR-0006, DL-0377). A hold idle past the organisation's timeout, and not reserved, asks its holder *are you still working?* in an open editor and once by notification — a tab with no editor open is asked by the notification alone; an answer, or typing, restarts the clock; still idle ten minutes later, it is released for inactivity, the draft kept. **The draft kept by any release** — inactivity, forced, a reservation ended, a block — is offered back on the holder's return: taken back while the document has not changed since the draft began — no new version and no acceptance, the head unmoved (DL-0318) — otherwise shown read-only to be discarded (DL-0225, DL-0381).
 
 **A holder may reserve the document for editing** (ADR-0009). The reservation is the same hold with a different release: no inactivity timeout, ended only by finishing, discarding, cancelling, an administrator breaking the glass with a reason, or a block of the holder (DL-0256). As for any hold, freezing and link changes wait — but a reserved hold has no inactivity release to end the wait; what is new is that reviewing by anyone else waits too. Others see *reserved for editing, since* a date; holders of *edit* or *accept* on it, and administrators, also see by whom.
 
@@ -102,17 +107,19 @@ Entries arrive two ways: a reviewer marks a passage disputed, or an editor escal
 | accept as N.M | the holder, holding accept | as *send for review* | the commit — a version committed by a holder of *accept* — and the acceptance of the whole run since the last one, in one act, allowed while the holder's own reservation is set; correction notices at the acceptance (ADR-0014); document becomes Accepted; a reservation ends (DL-0222) |
 | reserve for editing | the holder, holding *reserve for editing* | holds the document; not frozen | the hold is exempt from the inactivity release; the tenant administrator is notified (ADR-0009) |
 | cancel the reservation | the holder | reserved | back to an ordinary hold; the inactivity clock restarts |
-| discard my edits | the holder | confirmed | draft discarded, staged file operations included; document Available |
-| force release | tenant administrator | holder inactive or unreachable; not reserved | draft preserved; document freed |
-| end a reservation | tenant or platform administrator | reserved; a reason given | draft preserved; document freed; the holder notified with who, when and why; an audit event (DL-0225) |
-| block a person | tenant administrator (a membership), the person (their account), platform administrator (a tenant) | — | every hold and reservation of the person on the documents the block closes to them is released; drafts preserved; an audit event naming the block (DL-0256) |
+| discard my edits | the holder | confirmed; no editor open | draft discarded, staged file operations included; a reservation ends with it; document Available — a version a stopped finish already made stands and is told to the reviewers |
+| take the document back | the holder of a kept draft | nobody has committed since the draft began | the hold taken again with the kept draft (DL-0318) |
+| discard this draft | the holder of a kept draft | confirmed | the kept draft and its files deleted (DL-0381) |
+| force release | tenant or platform administrator, not the holder | not reserved; for a holder inactive or unreachable | draft kept — unless a stopped finish is completed instead (DL-0414); document freed |
+| end a reservation | tenant or platform administrator, not the holder | reserved; a reason given, on a page naming the reservation (DL-0415) | draft kept — unless a stopped finish is completed instead, its reason audited with it (DL-0414); document freed; the holder notified with who, when and why — the reason in the application, never by email (DL-0369); an audit event (DL-0225) |
+| block a person | tenant administrator (a membership), the person (their account), platform administrator (a tenant) | — | every hold and reservation of the person on the documents the block closes to them is released; drafts kept, unless a stopped finish is completed instead (DL-0414); an audit event naming the block (DL-0256) |
 | correct before accepting | reviewer (holder of *accept*) | document Pending; nobody holds it | takes the hold; the reviewer edits in their own draft — reverting an appendix or attachment operation included — and finishes with *accept as N.M* or *create version N.M-X* (DL-0222); the version is marked as committed by a holder of *accept*, and correction notices go out at the acceptance that makes it authoritative (ADR-0014) |
 | accept the run | reviewer | a reviewer is assigned; versions exist since the last acceptance; not reserved | commit to the passport; document becomes Accepted; one correction notice per author whose lines of the run a version committed by a holder of *accept*, or by the acceptor, replaced or removed, or whose removal it undid (ADR-0014) |
 | return without accepting | reviewer | versions exist since the last acceptance; not reserved | a passport commit (DL-0114); run stays pending, shown as *returned*; authors notified with the reviewer's reason (ADR-0001) |
 | undo a contribution — *undo this edit*, *undo all of this author's edits* | reviewer | versions exist since the last acceptance; not reserved; nobody else holds the document | the reversal of one version, or of one author's versions in the run, applied to the reviewer's draft where it reverts cleanly; sentences a later version changed are listed for editing by hand; committed when the reviewer finishes; correction notices at the acceptance (ADR-0014); never a history rewrite (ADR-0015) |
-| freeze | holder of freeze, which includes *edit* (ADR-0016) | document not frozen, and nobody holds it | document Frozen; editors locked out, holders of *accept* may still edit (DL-0189, ADR-0016) |
-| unfreeze | holder of freeze | document Frozen | ordinary editing resumes at the current accepted number |
-| make canonical | holder of make canonical, which includes the accepted view (DL-0234) | document Frozen; an acceptance since the previous edition; no unaccepted content version since the latest acceptance (DL-0267); where the tenant has switched it on, the approver accepted none of the runs since the previous edition (DL-0115) | latest accepted version becomes the next edition, `N+1.0`, by a passport commit that is tagged (DL-0260); freeze ends |
+| freeze | holder of *freeze and unfreeze*, which includes *edit* (ADR-0016) | document not frozen, and nobody holds it | document Frozen; editors locked out, holders of *accept* may still edit (DL-0189, ADR-0016) |
+| unfreeze | holder of *freeze and unfreeze* | document Frozen, and nobody holds it (DL-0416) | the freeze ends with its actor, no reason asked; ordinary editing resumes at the current accepted number |
+| make canonical | holder of make canonical, which includes the accepted view (DL-0234) | document Frozen; nobody holds it (DL-0419); an acceptance since the previous edition; no unaccepted content version since the latest acceptance (DL-0267); where the tenant has switched it on, the approver accepted none of the runs since the previous edition (DL-0115) | latest accepted version becomes the next edition, `N+1.0`, by a passport commit that is tagged (DL-0260); freeze ends |
 | read | holder of a viewing right | — | *view canonical* sees Canonical; *view accepted* adds Accepted; *view pending* adds Pending; history rights add earlier versions (ADR-0007) |
 | follow a link to another document | any reader | the reader may access the target | otherwise the mention renders as plain text and is absent from *see also* (ASR-16) |
 | move a document between folders | tenant administrator | — | metadata only; no repository path changes, no access change (ASR-15) |

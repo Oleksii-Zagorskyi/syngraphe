@@ -125,6 +125,7 @@ def test_a_tab_from_elsewhere_waits_for_start_editing(
     with schema_context(migrated_tenant.number):
         assert not Hold.objects.filter(document=document).exists()
     page.click("button[data-command=start]")
+    page.click("button[data-command=edit-whole]")
     page.wait_for_function("() => document.getElementById('editor').editor !== undefined")
     with schema_context(migrated_tenant.number):
         assert Hold.objects.filter(document=document, released_at__isnull=True).count() == 1
