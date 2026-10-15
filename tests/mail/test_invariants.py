@@ -22,18 +22,18 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-SENTENCE = "Синтетичну заяву розглядає комісія з трьох осіб."
-WRITTEN = f"# Синтетичні положення\n\n{SENTENCE}\nСтрок розгляду становить десять днів.\n"
-CORRECTED = WRITTEN.replace("десять днів", "п'ять робочих днів")
-SUMMARY = "Уточнено склад синтетичної комісії"
-CORRECTION_SUMMARY = "Скорочено строк розгляду синтетичної заяви"
-REASON = "Синтетична причина: чекаємо рішення наглядової ради"
-END_REASON = "Синтетична причина зняття: рішення отримано"
+SENTENCE = "A synthetic request is considered by a board of three."
+WRITTEN = f"# Synthetic provisions\n\n{SENTENCE}\nA request is considered within ten days.\n"
+CORRECTED = WRITTEN.replace("ten days", "five working days")
+SUMMARY = "The synthetic board named in full"
+CORRECTION_SUMMARY = "The time for a synthetic request shortened"
+REASON = "Synthetic reason: waiting for the supervisory board to decide"
+END_REASON = "Synthetic reason for the end: the decision has arrived"
 
 FORBIDDEN = (
     SENTENCE,
-    "Строк розгляду становить десять днів.",
-    "Строк розгляду становить п'ять робочих днів.",
+    "A request is considered within ten days.",
+    "A request is considered within five working days.",
     SUMMARY,
     CORRECTION_SUMMARY,
     REASON,
