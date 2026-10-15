@@ -132,7 +132,7 @@ def sender(sink: Sink) -> Callable[..., Any]:
                 if schema is None
                 else f"tenant{schema}.sender@example.test"
             ),
-            "display_name": "Синтетична розсилка",
+            "display_name": "Synthetic mailing list",
             "username": "",
             "security": Security.NONE,
         }

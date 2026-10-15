@@ -75,7 +75,7 @@ def created(migrated_tenant: Any, member_of: Any, repo_root: Path) -> Any:
     with schema_context(migrated_tenant.number):
         document = services.create_document(
             user,
-            "Синтетичний приклад",
+            "Synthetic example",
             "uk",
             DocumentType.objects.get(code="document"),
             Folder.objects.get(number=1),
@@ -173,7 +173,7 @@ def test_orphan_recreated_fail_closed(migrated_tenant: Any, created: Any) -> Non
     with schema_context(migrated_tenant.number):
         row = Document.objects.get(number=document.number)
         assert (row.title, row.language_id, row.author_only, row.state) == (
-            "Синтетичний приклад",
+            "Synthetic example",
             "uk",
             False,
             "active",
@@ -290,7 +290,7 @@ def test_row_is_a_cache_of_the_file(migrated_tenant: Any, created: Any) -> None:
 
     assert [f.kind for f in report] == ["frontmatter_differs"]
     with schema_context(migrated_tenant.number):
-        assert Document.objects.get(pk=document.pk).title == "Синтетичний приклад"
+        assert Document.objects.get(pk=document.pk).title == "Synthetic example"
     event = AuditEvent.objects.get(action="reconcile.frontmatter_differs")
     # Numbers and what changed, never a title.
     assert event.after == {"number": document.number, "language": "uk", "changed": ["title"]}
@@ -311,7 +311,7 @@ def test_commits_without_rows_are_replayed(migrated_tenant: Any, created: Any) -
     with document_lock(migrated_tenant.number, document.number):
         sha = gitstore.commit(
             repo,
-            {"document.md": bundle.render(frontmatter, body + "\nНове речення.\n").encode()},
+            {"document.md": bundle.render(frontmatter, body + "\nA new sentence.\n").encode()},
             identity_for(user),
             "Edited",
             Kind.EDIT,
@@ -404,7 +404,7 @@ def test_creation_never_takes_over_an_existing_repository(
         with pytest.raises(services.CreationStopped):
             services.create_document(
                 user,
-                "Інший",
+                "Another",
                 "uk",
                 DocumentType.objects.get(code="document"),
                 Folder.objects.get(number=1),
@@ -474,7 +474,7 @@ def test_one_bad_repository_stops_nothing_else(
     with schema_context(other.number):
         Document.objects.create(
             number=1,
-            title="Інший",
+            title="Another",
             language_id="uk",
             document_type=DocumentType.objects.get(code="document"),
             folder=Folder.objects.get(number=1),
@@ -603,7 +603,7 @@ def test_replay_stops_at_the_first_commit_it_cannot_derive(
     document, user = created
     path = repo_root / f"tenant-{migrated_tenant.number}" / f"document-{document.number}"
     unknown = _commit_by_hand(path, "By hand")
-    later = _edit(migrated_tenant.number, document, user, "Пізніше речення.")
+    later = _edit(migrated_tenant.number, document, user, "A later sentence.")
 
     first = reconcile.run(tenant=migrated_tenant.number, repair=True)
     second = reconcile.run(tenant=migrated_tenant.number, repair=True)
@@ -632,7 +632,7 @@ def test_a_blocked_creators_stopped_creation_is_finished(
         with pytest.raises(services.InjectedFault):
             services.create_document(
                 user,
-                "Синтетичний приклад",
+                "Synthetic example",
                 "uk",
                 DocumentType.objects.get(code="document"),
                 Folder.objects.get(number=1),
@@ -660,7 +660,7 @@ def test_a_restored_repository_is_replayed_by_the_reconciler(
     from documents.models import Version
 
     document, user = created
-    edit = _edit(migrated_tenant.number, document, user, "Нове речення.")
+    edit = _edit(migrated_tenant.number, document, user, "A new sentence.")
     backup.run(store, start="20260929T100000Z")
     path = gitstore.repository_path(migrated_tenant.number, document.number)
     shutil.rmtree(path)
@@ -702,7 +702,7 @@ def test_a_head_of_any_kind_without_rows_is_asked_for(
     with schema_context(migrated_tenant.number):
         document = services.create_document(
             user,
-            "Синтетичний приклад",
+            "Synthetic example",
             "uk",
             DocumentType.objects.get(code="document"),
             Folder.objects.get(number=1),

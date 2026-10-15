@@ -45,7 +45,7 @@ def form(**changed: Any) -> dict[str, Any]:
         "host": "smtp.example.test",
         "port": "587",
         "address": "platform.sender@example.test",
-        "display_name": "Синтетична платформа",
+        "display_name": "Synthetic platform",
         "username": "platform.sender@example.test",
         "password": "",
         "security": "starttls",
@@ -62,7 +62,7 @@ def stored(**fields: Any) -> Any:
         "host": "smtp.example.test",
         "port": 587,
         "address": "platform.sender@example.test",
-        "display_name": "Синтетична платформа",
+        "display_name": "Synthetic platform",
         "username": "platform.sender@example.test",
         "password_encrypted": secrets.encrypt("stored-synthetic-password"),
         "security": Security.STARTTLS,
@@ -95,7 +95,7 @@ def test_the_stored_password_never_follows_a_new_server(
     assert secrets.decrypt(bytes(row.password_encrypted)) == "stored-synthetic-password"
 
     # Unchanged, the empty field keeps the stored password.
-    assert operator.post(PAGE, form(display_name="Інша назва")).status_code == 302
+    assert operator.post(PAGE, form(display_name="Another name")).status_code == 302
 
 
 def test_a_replaced_or_removed_password_is_audited_and_an_unchanged_save_is_not(
@@ -105,7 +105,7 @@ def test_a_replaced_or_removed_password_is_audited_and_an_unchanged_save_is_not(
 
     stored()
     operator.post(PAGE, form(password="new-synthetic-password"))
-    operator.post(PAGE, form(display_name="Синтетична платформа"))
+    operator.post(PAGE, form(display_name="Synthetic platform"))
     operator.post(PAGE, form(username="", password="", security="starttls"))
 
     events = list(AuditEvent.objects.filter(action="mail.sender_saved").order_by("at"))
@@ -153,7 +153,7 @@ def test_accepted_values_are_kept_as_the_mail_needs_them(
         ("host", "smtp.example.test:25"),
         ("username", "користувач"),
         ("address", "відправник@example.test"),
-        ("display_name", "Назва\x07"),
+        ("display_name", "Name\x07"),
         ("port", "0"),
     ],
 )
@@ -249,8 +249,8 @@ def test_the_outbox_shows_its_newest_two_hundred(operator: Any) -> None:
             EmailOutbox(
                 sender="platform.sender@example.test",
                 recipient=f"r{n}.synthetic@example.test",
-                subject="Синтетична тема",
-                body="Синтетичний лист.",
+                subject="Synthetic subject",
+                body="A synthetic letter.",
                 created_at=now - timedelta(seconds=n),
             )
             for n in range(201)
@@ -286,8 +286,8 @@ def test_errors_read_as_sentences_never_as_class_names(operator: Any) -> None:
         EmailOutbox.objects.create(
             sender=saved.address,
             recipient="r.synthetic@example.test",
-            subject="Синтетична тема",
-            body="Синтетичний лист.",
+            subject="Synthetic subject",
+            body="A synthetic letter.",
             last_error="name_not_found",
         )
     page = operator.get(PAGE).content.decode()

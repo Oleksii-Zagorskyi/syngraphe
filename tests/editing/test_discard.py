@@ -31,7 +31,7 @@ def reserved_with_a_file(tenant: Any, member_of: Any, new_document: Any, link_gr
     assert client.post(f"/document/{document.number}/edit/reserve/").status_code == 302
     with schema_context(tenant.number):
         draft = Draft.objects.get(hold__document=document)
-        draft.content = {**draft.content, "document.md": "# Синтетичний розділ\n\nНове.\n"}
+        draft.content = {**draft.content, "document.md": "# Synthetic section\n\nNew.\n"}
         draft.save()
         DraftFile.objects.create(
             draft=draft,
@@ -143,10 +143,10 @@ def test_a_discard_after_a_stopped_finish_leaves_the_version_told(
     with schema_context(migrated_tenant.number):
         hold = Hold.objects.get(document=document)
         draft = Draft.objects.get(hold=hold)
-        draft.content = {**draft.content, "document.md": "# Синтетичний розділ\n\nНове.\n"}
+        draft.content = {**draft.content, "document.md": "# Synthetic section\n\nNew.\n"}
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, author, "Синтетична правка", fault_at=step)
+            services.commit_draft(hold, author, "Synthetic edit", fault_at=step)
     response = client.post(f"/document/{document.number}/edit/discard/", follow=True)
     assert response.status_code == 200
     with schema_context(migrated_tenant.number):

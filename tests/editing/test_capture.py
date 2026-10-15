@@ -47,7 +47,7 @@ def test_capture_accepted_with_current_hash(
     from editing.models import Draft, Hold
 
     client, document, loaded = opened(member_of, new_document)
-    text = loaded["body"] + "\nНове речення.\n"
+    text = loaded["body"] + "\nA new sentence.\n"
     response = post(
         client,
         document,
@@ -69,7 +69,7 @@ def test_stale_capture_refused(migrated_tenant: Any, member_of: Any, new_documen
 
     client, document, first = opened(member_of, new_document)
     second = client.post(f"/document/{document.number}/edit/load/").json()
-    changed = first["body"] + "\nПерша вкладка.\n"
+    changed = first["body"] + "\nThe first tab.\n"
     accepted = post(
         client,
         document,
@@ -85,7 +85,7 @@ def test_stale_capture_refused(migrated_tenant: Any, member_of: Any, new_documen
         "capture",
         editor=second["editor"],
         base_hash=second["base_hash"],
-        body=first["body"] + "\nДруга вкладка.\n",
+        body=first["body"] + "\nThe second tab.\n",
     )
     assert stale.status_code == 409
     with schema_context(migrated_tenant.number):
@@ -140,7 +140,7 @@ def test_a_repeated_capture_is_accepted(
     """The same text again, from the base the editor last sent — its first answer lost — is
     accepted, not refused as stale."""
     client, document, loaded = opened(member_of, new_document)
-    text = loaded["body"] + "\nНове речення.\n"
+    text = loaded["body"] + "\nA new sentence.\n"
     assert send(client, document, loaded, text).status_code == 200
     again = send(client, document, loaded, text)
     assert again.status_code == 200
@@ -161,13 +161,13 @@ def test_a_capture_after_the_hold_ended_is_closed(
     client, document, loaded = opened(member_of, new_document)
     with schema_context(migrated_tenant.number), transaction.atomic():
         Document.objects.select_for_update().get(pk=document.pk)
-        holds.release(Hold.objects.get(document=document), ReleaseKind.FORCED, reason="тест")
+        holds.release(Hold.objects.get(document=document), ReleaseKind.FORCED, reason="Synthetic")
     # The holder's editor learns how its hold ended, so it can offer the kept draft back.
-    late = send(client, document, loaded, "Пізній текст.\n")
+    late = send(client, document, loaded, "Late text.\n")
     assert late.status_code == 409
     assert late.json() == {"closed": True, "released": "forced"}
     with schema_context(migrated_tenant.number):
-        assert "Пізній" not in Draft.objects.get(hold__document=document).content["document.md"]
+        assert "Late" not in Draft.objects.get(hold__document=document).content["document.md"]
 
 
 def test_a_capture_waits_for_a_commit_then_answers_busy(
@@ -193,17 +193,17 @@ def test_a_capture_waits_for_a_commit_then_answers_busy(
     committing.start()
     held.wait(10)
     try:
-        response = send(client, document, loaded, "Під час фіксації.\n")
+        response = send(client, document, loaded, "Typed while committing.\n")
     finally:
         done.set()
         committing.join()
 
     assert response.status_code == 503 and response.json() == {"busy": True}
     with schema_context(migrated_tenant.number):
-        assert "фіксації" not in Draft.objects.get(hold__document=document).content["document.md"]
+        assert "committing" not in Draft.objects.get(hold__document=document).content["document.md"]
 
 
-@pytest.mark.parametrize("body", ["Текст\x00з нулем.", "Текст \ud800 без пари."])
+@pytest.mark.parametrize("body", ["Text\x00with a null.", "Text \ud800 without a pair."])
 def test_a_capture_the_database_cannot_hold_is_refused(
     migrated_tenant: Any, member_of: Any, new_document: Any, body: str
 ) -> None:
@@ -299,7 +299,7 @@ def test_a_stale_capture_from_a_closing_page_closes_its_editor(
 
     client, document, first = opened(member_of, new_document)
     second = client.post(f"/document/{document.number}/edit/load/").json()
-    assert send(client, document, second, "Друга вкладка.\n").status_code == 200
+    assert send(client, document, second, "The second tab.\n").status_code == 200
 
     stale = post(
         client,
@@ -307,7 +307,7 @@ def test_a_stale_capture_from_a_closing_page_closes_its_editor(
         "capture",
         editor=first["editor"],
         base_hash=first["base_hash"],
-        body="Перша вкладка.\n",
+        body="The first tab.\n",
         close=True,
     )
 
@@ -317,10 +317,10 @@ def test_a_stale_capture_from_a_closing_page_closes_its_editor(
 
 
 SECTIONS = (
-    "Вступне речення.\n\n"
-    "# Перший розділ\n\nПерше речення першого розділу.\n\n"
-    "# Другий розділ\n\nПерше речення другого розділу.\n\n"
-    "# Третій розділ\n\nПерше речення третього розділу.\n"
+    "An introductory sentence.\n\n"
+    "# First section\n\nLead sentence of the first section.\n\n"
+    "# Second section\n\nLead sentence of the second section.\n\n"
+    "# Third section\n\nLead sentence of the third section.\n"
 )
 
 
@@ -359,16 +359,16 @@ def test_disjoint_ranges_both_capture(
     """Editors over two sections never conflict (DL-0167): each capture lands in its own range."""
     client, document = sectioned(migrated_tenant, member_of, new_document)
     first, second = section(client, document, 0), section(client, document, 1)
-    assert first["body"].startswith("# Перший розділ")
-    assert second["body"].startswith("# Другий розділ")
-    one = first["body"].replace("Перше речення першого", "Змінене речення першого")
-    two = second["body"].replace("Перше речення другого", "Змінене речення другого")
+    assert first["body"].startswith("# First section")
+    assert second["body"].startswith("# Second section")
+    one = first["body"].replace("Lead sentence of the first", "New sentence of the first")
+    two = second["body"].replace("Lead sentence of the second", "New sentence of the second")
     answered = [send(client, document, first, one), send(client, document, second, two)]
     assert [a.status_code for a in answered] == [200, 200]
     body = draft_body(migrated_tenant, document)
-    assert "Змінене речення першого" in body and "Змінене речення другого" in body
-    assert body.startswith("Вступне речення.\n\n# Перший розділ")
-    assert "Перше речення третього розділу." in body
+    assert "New sentence of the first" in body and "New sentence of the second" in body
+    assert body.startswith("An introductory sentence.\n\n# First section")
+    assert "Lead sentence of the third section." in body
     with schema_context(migrated_tenant.number):
         from editing.models import OpenEditor
 
@@ -386,11 +386,11 @@ def test_same_range_second_is_stale(
     """Two editors on one section: the second to capture finds its range changed (DL-0167)."""
     client, document = sectioned(migrated_tenant, member_of, new_document)
     first, second = section(client, document, 1), section(client, document, 1)
-    assert send(client, document, first, first["body"] + "\nПерше доповнення.\n").status_code == 200
-    late = send(client, document, second, second["body"] + "\nДруге доповнення.\n")
+    assert send(client, document, first, first["body"] + "\nAddition one.\n").status_code == 200
+    late = send(client, document, second, second["body"] + "\nAddition two.\n")
     assert late.status_code == 409 and late.json() == {"stale": True}
     body = draft_body(migrated_tenant, document)
-    assert "Перше доповнення." in body and "Друге доповнення." not in body
+    assert "Addition one." in body and "Addition two." not in body
 
 
 def test_a_later_section_captures_after_an_earlier_one_grew(
@@ -403,24 +403,24 @@ def test_a_later_section_captures_after_an_earlier_one_grew(
 
     client, document = sectioned(migrated_tenant, member_of, new_document)
     first, third = section(client, document, 0), section(client, document, 2)
-    grown = first["body"] + "".join(f"\nДодаткове речення {n}.\n" for n in range(10))
+    grown = first["body"] + "".join(f"\nAn additional sentence {n}.\n" for n in range(10))
     answered = send(client, document, first, grown)
     assert answered.status_code == 200
     first = {**first, "base_hash": answered.json()["base_hash"]}
-    with_heading = grown + "\n# Новий розділ\n\nРечення нового розділу.\n"
+    with_heading = grown + "\n# New section\n\nA sentence of the new section.\n"
     assert send(client, document, first, with_heading).status_code == 200
     with schema_context(migrated_tenant.number):
         assert OpenEditor.objects.get(pk=third["editor"]).range == "section:3"
-    changed = third["body"].replace("Перше речення третього", "Змінене речення третього")
+    changed = third["body"].replace("Lead sentence of the third", "New sentence of the third")
     assert send(client, document, third, changed).status_code == 200
     body = draft_body(migrated_tenant, document)
-    assert "Додаткове речення 9." in body and "# Новий розділ" in body
-    assert "Змінене речення третього розділу." in body
-    assert body.index("# Новий розділ") < body.index("# Другий розділ")
-    assert body.rstrip().endswith("Змінене речення третього розділу.")
+    assert "An additional sentence 9." in body and "# New section" in body
+    assert "New sentence of the third section." in body
+    assert body.index("# New section") < body.index("# Second section")
+    assert body.rstrip().endswith("New sentence of the third section.")
 
 
-ADJACENT = "# Перший розділ\n\nПерше речення.\n\n# Другий розділ\n\nДруге речення.\n"
+ADJACENT = "# First section\n\nThe first sentence.\n\n# Second section\n\nThe second sentence.\n"
 
 
 def test_a_section_keeps_the_blank_line_before_the_next(
@@ -436,10 +436,10 @@ def test_a_section_keeps_the_blank_line_before_the_next(
         draft.content = {**draft.content, "document.md": ADJACENT}
         draft.save()
     first = section(client, document, 0)
-    sent = "# Перший розділ\n\nЗмінене речення.\n"
+    sent = "# First section\n\nAn altered sentence.\n"
     assert send(client, document, first, sent).status_code == 200
     assert draft_body(migrated_tenant, document) == ADJACENT.replace(
-        "Перше речення.", "Змінене речення."
+        "The first sentence.", "An altered sentence."
     )
 
 
@@ -452,17 +452,17 @@ def test_a_typed_heading_keeps_the_editor_whole(
 
     client, document = sectioned(migrated_tenant, member_of, new_document)
     editor = section(client, document, 1)
-    grown = editor["body"] + "\n# Вставлений розділ\n\nРечення.\n\n"
+    grown = editor["body"] + "\n# Inserted section\n\nA sentence.\n\n"
     answered = send(client, document, editor, grown)
     assert answered.status_code == 200
     with schema_context(migrated_tenant.number):
         assert OpenEditor.objects.get(pk=editor["editor"]).range == "section:1:2"
     editor = {**editor, "base_hash": answered.json()["base_hash"]}
-    again = grown.replace("Вставлений", "Перейменований")
+    again = grown.replace("Inserted", "Renamed")
     assert send(client, document, editor, again).status_code == 200
     body = draft_body(migrated_tenant, document)
-    assert "# Перейменований розділ" in body and "# Вставлений розділ" not in body
-    assert body.index("# Перейменований розділ") < body.index("# Третій розділ")
+    assert "# Renamed section" in body and "# Inserted section" not in body
+    assert body.index("# Renamed section") < body.index("# Third section")
 
 
 def test_an_editor_that_removes_its_own_heading_is_closed(
@@ -474,14 +474,14 @@ def test_an_editor_that_removes_its_own_heading_is_closed(
 
     client, document = sectioned(migrated_tenant, member_of, new_document)
     second, third = section(client, document, 1), section(client, document, 2)
-    headless = second["body"].replace("# Другий розділ\n\n", "")
+    headless = second["body"].replace("# Second section\n\n", "")
     answered = send(client, document, second, headless)
     assert answered.status_code == 200 and answered.json().get("closed") is True
-    assert "Перше речення другого розділу." in draft_body(migrated_tenant, document)
+    assert "Lead sentence of the second section." in draft_body(migrated_tenant, document)
     with schema_context(migrated_tenant.number):
         assert OpenEditor.objects.get(pk=second["editor"]).closed_at is not None
         assert OpenEditor.objects.get(pk=third["editor"]).range == "section:1"
-    changed = third["body"].replace("Перше речення третього", "Змінене речення третього")
+    changed = third["body"].replace("Lead sentence of the third", "New sentence of the third")
     assert send(client, document, third, changed).status_code == 200
 
 
@@ -495,15 +495,15 @@ def test_changes_shows_the_stopped_text_to_its_holder_alone(
     client, document = sectioned(migrated_tenant, member_of, new_document)
     editor = section(client, document, 0)
     answer = post(
-        client, document, "changes", editor=editor["editor"], body=editor["body"] + "Нове.\n"
+        client, document, "changes", editor=editor["editor"], body=editor["body"] + "New.\n"
     )
-    assert answer.status_code == 200 and "Нове." in answer.json()["html"]
+    assert answer.status_code == 200 and "New." in answer.json()["html"]
     other, _, _ = member_of("another.member@example.test")
     assert post(other, document, "changes", editor=editor["editor"], body="x").status_code == 404
     assert (
         post(client, document, "changes", editor=editor["editor"], body="\ud800").status_code == 400
     )
-    too_big = "а" * (load_spec().max_bytes + 1)
+    too_big = "x" * (load_spec().max_bytes + 1)
     assert (
         post(client, document, "changes", editor=editor["editor"], body=too_big).status_code == 413
     )
@@ -517,13 +517,13 @@ def test_changes_shows_the_text_alone_once_its_heading_went(
     with nothing."""
     client, document = sectioned(migrated_tenant, member_of, new_document)
     second = section(client, document, 1)
-    headless = second["body"].replace("# Другий розділ\n\n", "")
+    headless = second["body"].replace("# Second section\n\n", "")
     assert send(client, document, second, headless).json().get("closed") is True
-    later = headless + "Набране потім.\n"
+    later = headless + "Typed later.\n"
     shown = post(client, document, "changes", editor=second["editor"], body=later, alone=True)
     assert shown.status_code == 200
     html = shown.json()["html"]
-    assert "Набране потім." in html and "<ins" not in html and "Третій розділ" not in html
+    assert "Typed later." in html and "<ins" not in html and "Third section" not in html
     # The sentence says what is shown: the text as typed, not changes.
     assert "як зміни" not in html and "так, як ви його набрали" in html
 
@@ -537,7 +537,7 @@ def test_section_captures_keep_the_draft_within_its_size(
 
     client, document = sectioned(migrated_tenant, member_of, new_document)
     first, second = section(client, document, 0), section(client, document, 1)
-    filler = "слово " * (load_spec().max_bytes * 6 // 10 // len("слово ".encode()))
+    filler = "word " * (load_spec().max_bytes * 6 // 10 // len(b"word "))
     assert send(client, document, first, first["body"] + filler + "\n").status_code == 200
     before = draft_body(migrated_tenant, document)
     refused = send(client, document, second, second["body"] + filler + "\n")
@@ -556,9 +556,9 @@ def test_a_heading_level_changed_tells_the_page(
     client, document = sectioned(migrated_tenant, member_of, new_document)
     with schema_context(migrated_tenant.number):
         draft = Draft.objects.get(hold__document=document)
-        body = "# А\n\nРечення.\n\n## Б\n\nРечення.\n\n# В\n\nРечення.\n"
+        body = "# A\n\nA sentence.\n\n## B\n\nA sentence.\n\n# C\n\nA sentence.\n"
         draft.content = {**draft.content, "document.md": body}
         draft.save()
     editor = section(client, document, 1)
-    answered = send(client, document, editor, editor["body"].replace("## Б", "# Б"))
+    answered = send(client, document, editor, editor["body"].replace("## B", "# B"))
     assert answered.status_code == 200 and answered.json().get("sections_changed") is True

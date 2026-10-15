@@ -42,7 +42,7 @@ def _form(migrated_tenant: Any) -> dict[str, str]:
         document_type = DocumentType.objects.get(code="document")
         folder = Folder.objects.get(number=1)
     return {
-        "title": "Синтетичний приклад",
+        "title": "Synthetic example",
         "language": "uk",
         "document_type": str(document_type.id),
         "folder": str(folder.id),
@@ -105,7 +105,7 @@ def test_created_commit_holds_the_initial_tree(
     sha = str(next(gitstore.history(repo)).id)
     frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", sha).decode())
     assert (frontmatter.title, frontmatter.language, frontmatter.title_page) == (
-        "Синтетичний приклад",
+        "Synthetic example",
         "uk",
         False,
     )
@@ -125,11 +125,11 @@ def test_numbers_never_reused(migrated_tenant: Any, author: Any, repo_root: Path
     with schema_context(migrated_tenant.number):
         kind = DocumentType.objects.get(code="document")
         root = Folder.objects.get(number=1)
-        first = services.create_document(user, "Перший", "uk", kind, root)
-        second = services.create_document(user, "Другий", "uk", kind, root)
+        first = services.create_document(user, "First", "uk", kind, root)
+        second = services.create_document(user, "Second", "uk", kind, root)
         with pytest.raises(services.InjectedFault):
-            services.create_document(user, "Третій", "uk", kind, root, fault_at=1)
-        fourth = services.create_document(user, "Четвертий", "uk", kind, root)
+            services.create_document(user, "Third", "uk", kind, root, fault_at=1)
+        fourth = services.create_document(user, "Fourth", "uk", kind, root)
         numbers = list(Document.objects.order_by("number").values_list("number", "state"))
 
     assert second.number == first.number + 1
@@ -231,8 +231,8 @@ def test_crash_states_are_the_documented_ones(
         root = Folder.objects.get(number=1)
         for step in (1, 2, 3, 4):
             with pytest.raises(services.InjectedFault):
-                services.create_document(user, f"Крок {step}", "uk", kind, root, fault_at=step)
-            document = Document.objects.get(title=f"Крок {step}")
+                services.create_document(user, f"Step {step}", "uk", kind, root, fault_at=step)
+            document = Document.objects.get(title=f"Step {step}")
             path = gitstore.repository_path(migrated_tenant.number, document.number)
             commits = (
                 len(list(gitstore.history(gitstore.open_repository(*_numbers(document)))))
@@ -278,7 +278,7 @@ def test_a_step_that_fails_leaves_a_documented_state(
     body = response.content.decode()
     alert = re.search(r'role="alert">([^<]*)<', body)
     assert alert and str(document.number) in alert.group(1)
-    assert 'value="Синтетичний приклад"' in body
+    assert 'value="Synthetic example"' in body
     assert services.CreationStopped
 
 

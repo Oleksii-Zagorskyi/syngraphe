@@ -172,7 +172,7 @@ def test_marked_export(
 
     people = edition_cast()
     kit.canonical(migrated_tenant.number, people, commit_version, kit.THIRD)
-    removed = "Реєстр заяв веде відповідальний виконавець."
+    removed = "The register of requests is kept by the officer in charge."
     commit_version(people.document, people["a"], kit.FOURTH.replace(removed + "\n\n", ""), "edit")
     client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_PENDING], "marked")
 
@@ -191,7 +191,7 @@ def test_marked_export(
             pk=job.pk
         )
         composed = compose.compose(stored, migrated_tenant.number, number="1.0-1")
-    assert "<ins>Строк розгляду заяви становить десять днів.</ins>" in composed.html
+    assert "<ins>A request is considered within ten days.</ins>" in composed.html
     assert f"<del>{removed}</del>" in composed.html
     produced = Path(settings.EXPORT_ROOT) / job.artifact_ref
     assert produced.is_file()
@@ -287,10 +287,10 @@ def test_a_formatting_change_prints_once(
     form, and marked as a change of formatting."""
     from pypdf import PdfReader
 
-    sentence = "Заяву на погодження подають письмово."
+    sentence = "A request for approval is made in writing."
     people = edition_cast()
     kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
-    bold = kit.FIRST.replace("подають письмово", "подають **письмово**")
+    bold = kit.FIRST.replace("made in writing", "made in **writing**")
     commit_version(people.document, people["a"], bold, "edit")
     client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_PENDING], "style")
     _export(

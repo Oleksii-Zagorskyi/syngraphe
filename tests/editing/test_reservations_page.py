@@ -67,21 +67,21 @@ def test_lists_each_with_its_end_link(
     admin_client, _, _ = member_of("admin.synthetic@example.test", is_tenant_admin=True)
     member_client, _, _ = member_of("member.synthetic@example.test")
     first_client, first, first_membership = member_of("first.holder.synthetic@example.test")
-    first.display_name = "Синтетична Перша Власниця"
+    first.display_name = "Synthetic First Owner"
     first.save(update_fields=["display_name"])
     second_client, second, second_membership = member_of("second.holder.synthetic@example.test")
-    second.display_name = "Синтетичний Другий Власник"
+    second.display_name = "Synthetic Second Owner"
     second.save(update_fields=["display_name"])
     reservations = [
         (
-            new_document(author, "Синтетичний порядок архівування"),
+            new_document(author, "Synthetic archiving procedure"),
             first,
             first_client,
             first_membership,
             datetime(2026, 9, 3, 10, 0, tzinfo=UTC),
         ),
         (
-            new_document(author, "Синтетичний порядок навчання"),
+            new_document(author, "Synthetic training procedure"),
             second,
             second_client,
             second_membership,

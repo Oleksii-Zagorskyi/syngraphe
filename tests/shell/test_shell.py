@@ -102,7 +102,7 @@ def test_selector_lists_blocked_organisations_marked(
     tenant.state = "blocked"
     tenant.save(update_fields=["state"])
     setting_up = Tenant.objects.create(
-        name="Синтетична, що налаштовується", state="migrating", actor_kind="system"
+        name="Synthetic, being set up", state="migrating", actor_kind="system"
     )
 
     page = client.get("/administration/").content.decode()

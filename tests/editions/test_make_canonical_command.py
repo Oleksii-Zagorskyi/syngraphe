@@ -21,7 +21,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-BODY = "Заяву на погодження подають письмово.\n"
+BODY = "A request for approval is made in writing.\n"
 
 
 def _run(tenant: int, document: int, member: Any, reason: str = "") -> str:
@@ -47,13 +47,13 @@ def test_command_freezes_and_makes_canonical(
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people["r"])
 
-    out = _run(migrated_tenant.number, people.document.number, people["p"], "Синтетична рада")
+    out = _run(migrated_tenant.number, people.document.number, people["p"], "Synthetic board")
 
     assert out.strip() == f"document {people.document.number} · edition 1.0"
     with schema_context(migrated_tenant.number):
         assert list(Edition.objects.values_list("number", flat=True)) == ["1.0"]
         freeze = Freeze.objects.get()
-        assert freeze.reason == "Синтетична рада" and freeze.ended_by_kind == "made_canonical"
+        assert freeze.reason == "Synthetic board" and freeze.ended_by_kind == "made_canonical"
         assert open_freeze(people.document) is None
 
 
@@ -92,7 +92,9 @@ def test_command_freezes_nothing_it_cannot_make_canonical(
         _run(migrated_tenant.number, people.document.number, people["p"])
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people["r"])
-    commit_version(people.document, people["a"], BODY + "\nДруге синтетичне речення.\n", "edit")
+    commit_version(
+        people.document, people["a"], BODY + "\nThe second synthetic sentence.\n", "edit"
+    )
     with pytest.raises(CommandError, match="unaccepted_changes"):
         _run(migrated_tenant.number, people.document.number, people["p"])
     with pytest.raises(CommandError, match="not_permitted"):
@@ -131,11 +133,11 @@ def test_command_on_a_frozen_document_keeps_its_freeze(
     commit_version(people.document, people["a"], BODY, "edit")
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people["r"])
-        editions.freeze(people.document, people["p"], "Синтетична перша причина")
+        editions.freeze(people.document, people["p"], "Synthetic first reason")
 
-    _run(migrated_tenant.number, people.document.number, people["p"], "Синтетична друга причина")
+    _run(migrated_tenant.number, people.document.number, people["p"], "Synthetic second reason")
 
     with schema_context(migrated_tenant.number):
         freeze = Freeze.objects.get()
-        assert freeze.reason == "Синтетична перша причина"
+        assert freeze.reason == "Synthetic first reason"
         assert freeze.ended_by_kind == "made_canonical"

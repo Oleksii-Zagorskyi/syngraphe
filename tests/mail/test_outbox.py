@@ -22,11 +22,11 @@ pytestmark = [
 ]
 
 WRITTEN = (
-    "# Синтетичні положення\n\n"
-    "Заяву на синтетичне погодження подають письмово.\n"
-    "Строк розгляду синтетичної заяви становить десять днів.\n"
+    "# Synthetic provisions\n\n"
+    "A request for synthetic approval is made in writing.\n"
+    "A synthetic request is considered within ten days.\n"
 )
-AUTHOR = "Авторка Синтетична"
+AUTHOR = "Synthetic Author"
 
 
 def committed(migrated_tenant: Any, cast: Any, commit_version: Any) -> tuple[Any, Any, str]:
@@ -207,14 +207,14 @@ def test_links_use_the_default_host(settings: Any) -> None:
     from mail import services as mail
     from tenancy.models import PlatformHost, Tenant, TenantDomain
 
-    with_domain = Tenant.objects.create(name="Перша синтетична організація", actor_kind="system")
+    with_domain = Tenant.objects.create(name="First synthetic organisation", actor_kind="system")
     TenantDomain.objects.create(
         tenant=with_domain, host="other.example.test", is_default=False, actor_kind="system"
     )
     TenantDomain.objects.create(
         tenant=with_domain, host="docs.example.test", is_default=True, actor_kind="system"
     )
-    without = Tenant.objects.create(name="Друга синтетична організація", actor_kind="system")
+    without = Tenant.objects.create(name="Second synthetic organisation", actor_kind="system")
     platform = PlatformHost.objects.filter(is_default=True).first()
     if platform is None:
         platform = PlatformHost.objects.create(
@@ -242,7 +242,7 @@ def test_no_email_names_a_document_its_recipient_cannot_open(
     sender(migrated_tenant.number)
     _, outsider, _ = member_of("outsider.synthetic@example.test")
     _, creator, _ = member_of("creator.synthetic@example.test")
-    document = make_document(title="Синтетичне закрите положення", created_by=creator)
+    document = make_document(title="Synthetic closed procedure", created_by=creator)
     with schema_context(migrated_tenant.number):
         notify(users=[outsider], category=Category.DOCUMENT, event=Event.FROZEN, document=document)
         notify(users=[creator], category=Category.DOCUMENT, event=Event.FROZEN, document=document)
@@ -286,7 +286,7 @@ def test_an_email_without_a_notification_is_sent_as_queued(
     sender(migrated_tenant.number)
     with schema_context(migrated_tenant.number):
         row = mail.queue(
-            migrated_tenant, "i.synthetic@example.test", "Синтетична тема", "Синтетичний лист.\n"
+            migrated_tenant, "i.synthetic@example.test", "Synthetic subject", "A letter.\n"
         )
         assert row is not None and row.notification_id is None
 

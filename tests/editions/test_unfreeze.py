@@ -17,8 +17,8 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-BODY = "Заяву на погодження подають письмово.\n"
-LATER = BODY + "Копію рішення надсилають заявникові.\n"
+BODY = "A request for approval is made in writing.\n"
+LATER = BODY + "A copy of the decision goes to the applicant.\n"
 
 
 def frozen(tenant: Any, edition_cast: Any, commit_version: Any) -> Any:
@@ -28,7 +28,7 @@ def frozen(tenant: Any, edition_cast: Any, commit_version: Any) -> Any:
     commit_version(people.document, people["a"], BODY, "edit")
     with schema_context(tenant.number):
         review.accept(people.document, people["r"])
-        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.freeze(people.document, people["p"], "Synthetic reason")
     return people
 
 
@@ -184,5 +184,5 @@ def test_make_canonical_waits_while_the_document_is_held(
     page = people.clients["p"].get(f"/document/{number}/").content.decode()
     assert "make it canonical once it is released" in page
     with schema_context(migrated_tenant.number):
-        editions.end_freeze(people.document, "Синтетичне рішення оператора")
+        editions.end_freeze(people.document, "Synthetic decision of the operator")
         assert open_freeze(people.document) is None

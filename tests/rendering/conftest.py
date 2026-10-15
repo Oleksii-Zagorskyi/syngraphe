@@ -43,10 +43,10 @@ def exports(
 # --- the export tests' documents, readers and jobs ----------------------------------------------
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "render"
-FIRST = "# Загальні положення\n\nЗаяву на погодження подають письмово.\n"
-SECOND = FIRST + "\nКопію рішення надсилають заявникові того ж дня.\n"
-THIRD = SECOND + "\nРеєстр заяв веде відповідальний виконавець.\n"
-FOURTH = THIRD + "\nСтрок розгляду заяви становить десять днів.\n"
+FIRST = "# General provisions\n\nA request for approval is made in writing.\n"
+SECOND = FIRST + "\nA copy of the decision goes to the applicant that day.\n"
+THIRD = SECOND + "\nThe register of requests is kept by the officer in charge.\n"
+FOURTH = THIRD + "\nA request is considered within ten days.\n"
 
 
 def canonical(tenant: int, people: Any, commit_version: Any, body: str) -> Any:
@@ -57,7 +57,7 @@ def canonical(tenant: int, people: Any, commit_version: Any, body: str) -> Any:
     commit_version(people.document, people["a"], body, "edit")
     with schema_context(tenant):
         review.accept(people.document, people["r"])
-        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.freeze(people.document, people["p"], "Synthetic reason")
         return editions.make_canonical(people.document, people["p"])
 
 
@@ -79,7 +79,7 @@ def run_job(tenant: int, job_id: Any) -> Any:
 
 
 def attach(tenant: int, people: Any, body: str, data: bytes, *, title_page: bool = False) -> Any:
-    """`body` committed with one attachment, `stroky.txt` holding `data` — and the title page
+    """`body` committed with one attachment, `time-limits.txt` holding `data` — and the title page
     switched on when asked — as the editor; the version."""
     import hashlib
 
@@ -98,8 +98,8 @@ def attach(tenant: int, people: Any, body: str, data: bytes, *, title_page: bool
             frontmatter.attachments = [
                 {
                     "number": 1,
-                    "title": "Таблиця строків",
-                    "file_name": "stroky.txt",
+                    "title": "List of time limits",
+                    "file_name": "time-limits.txt",
                     "sha256": hashlib.sha256(data).hexdigest(),
                     "bytes": len(data),
                 }
@@ -108,7 +108,7 @@ def attach(tenant: int, people: Any, body: str, data: bytes, *, title_page: bool
                 repo,
                 {"document.md": bundle.render(frontmatter, body).encode(), "attachments/1": data},
                 identity_for(people["a"]),
-                "Синтетичне вкладення",
+                "Synthetic edit with a file",
                 gitstore.Kind.EDIT,
             )
             return services.derive_version(document, gitstore.commit_at(repo, sha), people["a"])

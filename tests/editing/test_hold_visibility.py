@@ -19,7 +19,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-HOLDER = "Синтетична Редакторка"
+HOLDER = "Synthetic Holder H"
 ADDRESS = "the.holder@example.test"
 # Late on the 13th in UTC, already the 14th east of it: the date shown is the display zone's.
 RESERVED_AT = datetime(2026, 10, 13, 22, 30, tzinfo=UTC)
@@ -50,7 +50,7 @@ def _cast(
     editor, _, editing = member_of("another.editor@example.test")
     administrator, _, _ = member_of("the.admin@example.test", is_tenant_admin=True)
     platform, _, _ = member_of("the.platform.admin@example.test", is_platform_admin=True)
-    elsewhere = make_tenant_schema("Інша синтетична організація")
+    elsewhere = make_tenant_schema("Another synthetic organisation")
     Membership.objects.create(
         tenant=elsewhere, user=reader_user, is_tenant_admin=True, actor_kind="system"
     )

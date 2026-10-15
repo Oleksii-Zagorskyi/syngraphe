@@ -19,9 +19,9 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-BODY = "# Умови\n\nПерше синтетичне речення.\nДруге синтетичне речення.\n"
-CHANGED = BODY.replace("Друге синтетичне речення.", "Друге синтетичне речення, уточнене.")
-REASON = "Синтетична причина: чекаємо рішення"
+BODY = "# Conditions\n\nThe first synthetic sentence.\nThe second synthetic sentence.\n"
+CHANGED = BODY.replace("The second synthetic sentence.", "The second synthetic sentence, revised.")
+REASON = "Synthetic reason: waiting for a decision"
 
 
 def events_of(tenant: Any, user: Any) -> list[str]:
@@ -52,7 +52,7 @@ def send_for_review(
         draft.save()
     sent = client.post(
         f"/document/{document.number}/edit/send/",
-        {"summary": "Синтетична правка", "choice": choice},
+        {"summary": "Synthetic edit", "choice": choice},
     )
     assert sent.status_code == 302, sent.content[:300]
 
@@ -117,7 +117,7 @@ def test_frozen_unfrozen_and_canonical_go_to_the_documents_readers(
     _, platform, _ = member_of("p.admin@example.test", is_platform_admin=True)
     _, elsewhere, elsewhere_membership = member_of("elsewhere@example.test")
     document = new_document(creator)
-    other = new_document(creator, "Інший синтетичний документ")
+    other = new_document(creator, "Another synthetic procedure")
     link_group(document, [Right.VIEW_CANONICAL], [reader_membership], creator)
     link_group(document, [Right.EDIT], [editor_membership], creator)
     link_group(document, [Right.ACCEPT], [reviewer_membership], creator)
@@ -166,7 +166,7 @@ def test_access_granted_to_the_member(migrated_tenant: Any, member_of: Any) -> N
     _, member, membership = member_of("a.member@example.test")
     with schema_context(migrated_tenant.number):
         group = AccessGroup.objects.create(
-            name="Синтетична група", created_by=admin, actor_kind="user"
+            name="Synthetic group", created_by=admin, actor_kind="user"
         )
         group.add_member(membership, by=admin)
         group.add_member(membership, by=admin)
@@ -245,7 +245,7 @@ def stopped_finish(tenant: Any, client: Any, editor: Any, document: Any, step: i
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, editor, "Синтетична правка", fault_at=step)
+            services.commit_draft(hold, editor, "Synthetic edit", fault_at=step)
     return hold
 
 
@@ -277,7 +277,7 @@ def test_a_finish_resumed_after_its_version_was_accepted_tells_nobody(
     hold = stopped_finish(migrated_tenant, client, editor, document, 1)
     with schema_context(migrated_tenant.number):
         services.accept(document, first)
-        editing.commit_draft(hold, editor, "Синтетична правка")
+        editing.commit_draft(hold, editor, "Synthetic edit")
 
     for reviewer in (first, second):
         assert acts(migrated_tenant, reviewer, "version_committed") == []
@@ -296,7 +296,7 @@ def test_accept_as_tells_no_other_reviewer_that_a_version_awaits(
         draft = Draft.objects.get(hold=hold)
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
-        services.accept_as(hold, first, "Синтетична правка")
+        services.accept_as(hold, first, "Synthetic edit")
 
     assert acts(migrated_tenant, second, "version_committed") == []
 
@@ -309,8 +309,8 @@ def test_accepted_reaches_only_authors_who_can_open_the_document(
 
     people = cast(editors=("a", "b", "c", "d"), reviewers=("r",))
     document = people.document
-    texts = [BODY, CHANGED, CHANGED + "\nТретє синтетичне речення.\n"]
-    texts.append(texts[-1] + "\nЧетверте синтетичне речення.\n")
+    texts = [BODY, CHANGED, CHANGED + "\nThe third synthetic sentence.\n"]
+    texts.append(texts[-1] + "\nThe fourth synthetic sentence.\n")
     for author, text in zip(("a", "b", "c", "d"), texts, strict=True):
         commit_version(document, people[author], text, "edit")
     people["a"].self_blocked = True
@@ -354,7 +354,7 @@ def test_people_who_hold_no_viewing_right_are_never_told(
     with schema_context(migrated_tenant.number):
         services.accept(document, creator)
         editions.freeze(document, creator, REASON)
-    new_document(creator, "Ще один синтетичний документ")
+    new_document(creator, "One more synthetic procedure")
 
     for person in (historian, appender, gone, absent_admin):
         assert [e for e in events_of(migrated_tenant, person) if e != "access_granted"] == [], (
@@ -368,7 +368,7 @@ def test_a_member_who_adds_themselves_is_not_told(migrated_tenant: Any, member_o
     _, admin, membership = member_of("the.admin@example.test", is_tenant_admin=True)
     with schema_context(migrated_tenant.number):
         group = AccessGroup.objects.create(
-            name="Синтетична група", created_by=admin, actor_kind="user"
+            name="Synthetic group", created_by=admin, actor_kind="user"
         )
         group.add_member(membership, by=admin)
 
@@ -390,7 +390,7 @@ def test_the_holders_are_the_organisations_members_of_an_active_document(
     _, creator, creator_membership = member_of("the.creator@example.test")
     document = new_document(creator)
     group = link_group(document, [Right.VIEW_ACCEPTED], [creator_membership], creator)
-    elsewhere = make_tenant_schema("Інша синтетична організація")
+    elsewhere = make_tenant_schema("Another synthetic organisation")
     stranger = Membership.objects.create(
         tenant=elsewhere, user=member_of("a.stranger@example.test")[1], actor_kind="system"
     )
@@ -417,7 +417,7 @@ def test_a_finish_resumed_with_new_text_tells_both_versions(
         draft = Draft.objects.get(hold=hold)
         draft.content = {**draft.content, "document.md": CHANGED}
         draft.save()
-        editing.commit_draft(hold, editor, "Синтетична правка")
+        editing.commit_draft(hold, editor, "Synthetic edit")
 
     for reviewer in (first, second):
         told = sorted(
@@ -447,7 +447,7 @@ def test_accept_as_failing_after_its_version_tells_the_reviewers(
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
         with pytest.raises(RuntimeError):
-            services.accept_as(hold, first, "Синтетична правка")
+            services.accept_as(hold, first, "Synthetic edit")
 
     [told] = acts(migrated_tenant, second, "version_committed")
     assert told.facts == {"version": "0.0-1"}
@@ -475,7 +475,7 @@ def test_an_accept_as_stopped_before_its_acceptance_is_told_by_the_reconciler(
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
         with pytest.raises(SystemExit):
-            services.accept_as(hold, first, "Синтетична правка")
+            services.accept_as(hold, first, "Synthetic edit")
         hold.refresh_from_db()
     assert hold.release_kind == ReleaseKind.ACCEPTING
     assert acts(migrated_tenant, second, "version_committed") == []
@@ -506,7 +506,7 @@ def test_a_completed_accept_as_leaves_its_hold_finished(
         draft = Draft.objects.get(hold=hold)
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
-        services.accept_as(hold, first, "Синтетична правка")
+        services.accept_as(hold, first, "Synthetic edit")
         hold.refresh_from_db()
     assert hold.release_kind == ReleaseKind.FINISHED
     reconcile.run(tenant=migrated_tenant.number, repair=True)

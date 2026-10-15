@@ -27,14 +27,14 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-REASON = "Синтетична причина: потрібна термінова правка бюджету"
-BODY = "# Синтетичні умови\n\nПерше синтетичне речення.\nДруге синтетичне речення.\n"
-DRAFT_SENTENCE = "Власниця чернетки дописала зовсім нове речення про строки."
+REASON = "Synthetic reason: an urgent budget correction is needed"
+BODY = "# Synthetic terms\n\nThe first synthetic sentence.\nThe second synthetic sentence.\n"
+DRAFT_SENTENCE = "The draft's owner added a wholly new sentence on time limits."
 DRAFT = BODY + "\n" + DRAFT_SENTENCE + "\n"
 LATER = BODY.replace(
-    "Друге синтетичне речення.", "Друге синтетичне речення, уточнене іншим редактором."
+    "The second synthetic sentence.", "The second synthetic sentence, clarified by another editor."
 )
-LATEST = LATER.replace("Перше синтетичне речення.", "Перше синтетичне речення, теж уточнене.")
+LATEST = LATER.replace("The first synthetic sentence.", "The first synthetic sentence, edited too.")
 SAME_ORIGIN = {"Sec-Fetch-Site": "same-origin"}
 
 
@@ -105,7 +105,7 @@ def commit_version(tenant: Any, document: Any, user: Any, body: str) -> Any:
                 repo,
                 {holds.BODY: holds.join(frontmatter, body).encode("utf-8")},
                 identity_for(user),
-                "Синтетична правка",
+                "Synthetic edit",
                 gitstore.Kind("edit"),
             )
             return services.derive_version(document, gitstore.commit_at(repo, sha), user)
@@ -139,12 +139,12 @@ def scene(member_of: Any, new_document: Any, link_group: Any) -> Scene:
     tenant administrator; nobody holds it yet."""
     _, author, _ = member_of("author.synthetic@example.test")
     holder_client, holder, holder_membership = member_of("holder.synthetic@example.test")
-    holder.display_name = "Синтетична Власниця"
+    holder.display_name = "Synthetic Owner"
     holder.save(update_fields=["display_name"])
     other_client, other, other_membership = member_of("other.synthetic@example.test")
     _, reviewer, reviewer_membership = member_of("reviewer.synthetic@example.test")
     admin_client, admin, _ = member_of("admin.synthetic@example.test", is_tenant_admin=True)
-    admin.display_name = "Синтетичний Адміністратор"
+    admin.display_name = "Synthetic Administrator"
     admin.save(update_fields=["display_name"])
     document = new_document(author)
     link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [holder_membership], author)
@@ -420,7 +420,7 @@ def test_a_stopped_finish_is_not_a_kept_draft(migrated_tenant: Any, scene: Scene
     hold, _ = take_with_draft(migrated_tenant, scene)
     with schema_context(migrated_tenant.number), pytest.raises(services.InjectedFault):
         services.commit_draft(
-            Hold.objects.get(pk=hold.pk), scene.holder, "Синтетична правка", fault_at=3
+            Hold.objects.get(pk=hold.pk), scene.holder, "Synthetic edit", fault_at=3
         )
     number = scene.document.number
     page = scene.holder_client.get(f"/document/{number}/edit/", headers=SAME_ORIGIN)
@@ -437,7 +437,7 @@ def test_the_operators_release_is_told_without_its_note(
 
     settings.LANGUAGE_CODE = "en"
     take_with_draft(migrated_tenant, scene)
-    note = "Синтетична нотатка оператора"
+    note = "Synthetic operator's note"
     call_command(
         "release_hold",
         f"--tenant={migrated_tenant.number}",

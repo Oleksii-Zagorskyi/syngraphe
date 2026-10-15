@@ -95,7 +95,7 @@ def operator(migrated_tenant: Any, member_of: Any, repo_root: Path) -> Any:
     client, user, membership = member_of(OPERATOR)
     with schema_context(migrated_tenant.number):
         group = AccessGroup.objects.create(
-            name="Оператори (синтетичний приклад)", created_by=user, actor_kind="user"
+            name="Operators (synthetic example)", created_by=user, actor_kind="user"
         )
         group.grant(Right.CREATE_AND_EDIT, by=user)
         group.grant(Right.ACCEPT, by=user)
@@ -117,7 +117,7 @@ def reader_in(migrated_tenant: Any, member_of: Any) -> Any:
         client, user, membership = member_of(f"reader{n}.synthetic@example.test")
         with schema_context(migrated_tenant.number):
             group = AccessGroup.objects.create(
-                name=f"Читачі {n} (синтетичний приклад)", actor_kind="system"
+                name=f"Readers {n} (synthetic example)", actor_kind="system"
             )
             group.grant(right, by=None)
             group.add_member(membership, by=None)
@@ -176,7 +176,7 @@ def commit_parts(migrated_tenant: Any) -> Any:
                     repo,
                     files,
                     identity_for(user),
-                    "Синтетична правка",
+                    "Synthetic edit",
                     gitstore.Kind.REVIEWER_EDIT,
                 )
                 return services.derive_version(document, gitstore.commit_at(repo, sha), user)

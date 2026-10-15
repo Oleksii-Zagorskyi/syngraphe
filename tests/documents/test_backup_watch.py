@@ -229,7 +229,7 @@ def test_a_garbled_failure_carries_no_value_but_numbers(
     state_dir: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     calls = _recording(monkeypatch, delivered=True)
-    failing = [{"tenant": "Синтетична назва", "document": [1], "since": "broken"}]
+    failing = [{"tenant": "Synthetic name", "document": [1], "since": "broken"}]
     _marker(age_minutes=5, failures=failing)
     backup_watch.check(NOW)
 

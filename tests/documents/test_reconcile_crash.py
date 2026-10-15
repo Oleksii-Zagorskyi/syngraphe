@@ -41,7 +41,7 @@ def test_each_crash_state_repaired(
         kind = DocumentType.objects.get(code="document")
         root = Folder.objects.get(number=1)
         with pytest.raises(services.InjectedFault):
-            services.create_document(user, "Синтетичний приклад", "uk", kind, root, fault_at=step)
+            services.create_document(user, "Synthetic example", "uk", kind, root, fault_at=step)
         document = Document.objects.get()
         # Leave nothing for the grace period to protect: the creation stopped an hour ago.
         Document.objects.filter(pk=document.pk).update(
@@ -86,7 +86,7 @@ def test_a_young_creation_is_left_to_finish(
         kind = DocumentType.objects.get(code="document")
         root = Folder.objects.get(number=1)
         with pytest.raises(services.InjectedFault):
-            services.create_document(user, "Синтетичний приклад", "uk", kind, root, fault_at=1)
+            services.create_document(user, "Synthetic example", "uk", kind, root, fault_at=1)
 
     assert reconcile.run(tenant=migrated_tenant.number, repair=True) == []
     with schema_context(migrated_tenant.number):

@@ -301,7 +301,7 @@ def test_attachment_at_a_version(
     assert at_v1.status_code == 200
     assert at_v1.content == bytes_a
     assert at_v1["Content-Disposition"].startswith("attachment")
-    assert 'filename="stroky.txt"' in at_v1["Content-Disposition"]
+    assert 'filename="time-limits.txt"' in at_v1["Content-Disposition"]
     assert at_v2.status_code == 200 and at_v2.content == bytes_b
     assert beyond.status_code == 404
     assert edition.status_code == 200 and edition.content == bytes_b

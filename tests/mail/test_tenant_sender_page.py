@@ -29,7 +29,7 @@ def values(**changed: Any) -> dict[str, Any]:
         "host": "smtp.example.test",
         "port": "587",
         "address": "own.sender@example.test",
-        "display_name": "Синтетична організація",
+        "display_name": "Synthetic organisation",
         "username": "",
         "password": "",
         "security": "starttls",
@@ -81,13 +81,13 @@ def test_fallback_per_organisation(
 ) -> None:
     from mail import services as mail
 
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     sender(None)
     sender(migrated_tenant.number)
     with schema_context(migrated_tenant.number):
-        own = mail.queue(migrated_tenant, "r1.synthetic@example.test", "Тема", "Лист.")
+        own = mail.queue(migrated_tenant, "r1.synthetic@example.test", "Subject", "A letter.")
     with schema_context(other.number):
-        fallback = mail.queue(other, "r2.synthetic@example.test", "Тема", "Лист.")
+        fallback = mail.queue(other, "r2.synthetic@example.test", "Subject", "A letter.")
     assert own is not None and own.sender == f"tenant{migrated_tenant.number}.sender@example.test"
     assert fallback is not None and fallback.sender == "platform.sender@example.test"
 
@@ -150,7 +150,7 @@ def test_the_organisations_outbox_lists_its_own_mail(
     from mail.models import EmailOutbox
 
     admin, _, _ = member_of("t.synthetic@example.test", is_tenant_admin=True)
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     rows = []
     with schema_context(migrated_tenant.number):
         for n in (1, 2):
@@ -159,8 +159,8 @@ def test_the_organisations_outbox_lists_its_own_mail(
                     tenant=migrated_tenant,
                     sender="own.sender@example.test",
                     recipient=f"own{n}.synthetic@example.test",
-                    subject="Синтетична тема",
-                    body="Синтетичний лист.",
+                    subject="Synthetic subject",
+                    body="A synthetic letter.",
                 )
             )
     with schema_context(other.number):
@@ -168,15 +168,15 @@ def test_the_organisations_outbox_lists_its_own_mail(
             tenant=other,
             sender="other.sender@example.test",
             recipient="other.synthetic@example.test",
-            subject="Синтетична тема",
-            body="Синтетичний лист.",
+            subject="Synthetic subject",
+            body="A synthetic letter.",
         )
     with schema_context(None):
         EmailOutbox.objects.create(
             sender="platform.sender@example.test",
             recipient="platform.synthetic@example.test",
-            subject="Синтетична тема",
-            body="Синтетичний лист.",
+            subject="Synthetic subject",
+            body="A synthetic letter.",
         )
 
     page = admin.get(PAGE).content.decode()

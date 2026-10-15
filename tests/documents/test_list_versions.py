@@ -39,9 +39,9 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FIRST = "Заяву на погодження подають письмово.\n"
-SECOND = FIRST + "\nКопію рішення надсилають заявникові того ж дня.\n"
-THIRD = SECOND + "\nРеєстр заяв веде відповідальний виконавець.\n"
+FIRST = "A request for approval is made in writing.\n"
+SECOND = FIRST + "\nA copy of the decision goes to the applicant that day.\n"
+THIRD = SECOND + "\nThe register of requests is kept by the officer in charge.\n"
 
 
 def _cells(body: str, number: int) -> dict[str, str]:

@@ -28,12 +28,12 @@ def test_header_and_info(
 
     settings.DISPLAY_TIMEZONE = "Europe/Kyiv"
     client, creator, _ = member_of("the.creator@example.test")
-    creator.display_name = "Авторка Приклад"
+    creator.display_name = "Synthetic Author"
     creator.save()
     Language.objects.update_or_create(
         code="uk", defaults={"label": "Українська", "actor_kind": "system"}
     )
-    document = make_document(title="Синтетичний приклад", created_by=creator)
+    document = make_document(title="Synthetic example", created_by=creator)
     with schema_context(migrated_tenant.number):
         # Late in the evening in UTC is the next day in Kyiv.
         Document.objects.filter(pk=document.pk).update(
@@ -48,11 +48,11 @@ def test_header_and_info(
     assert info.status_code == 200
     assert f'<a href="/folder/1/">{migrated_tenant.name}</a> /' in body
     assert f"#{document.number}" in body
-    assert "Синтетичний приклад" in body
+    assert "Synthetic example" in body
     assert "<dd>Українська</dd>" in body
     assert "<dd>Документ</dd>" in body
     assert f"<dd>{migrated_tenant.name}</dd>" in body
-    assert "29 вересня 2026" in body and "Авторка Приклад" in body
+    assert "29 вересня 2026" in body and "Synthetic Author" in body
     # Only administrators are told a document is author-only.
     assert "author-only" not in body
 
@@ -74,8 +74,8 @@ def test_unreadable_and_missing_identical(
 ) -> None:
     client, _, _ = member_of("a.stranger@example.test")
     _, creator, _ = member_of("the.creator@example.test")
-    hidden = make_document(title="Прихований", created_by=creator, author_only=True)
-    being_created = make_document(title="Незавершений", created_by=creator, state="creating")
+    hidden = make_document(title="Synthetic concealed", created_by=creator, author_only=True)
+    being_created = make_document(title="Unfinished", created_by=creator, state="creating")
 
     responses = [
         client.get(path)
@@ -91,7 +91,7 @@ def test_unreadable_and_missing_identical(
     # The sign-out form's token is masked afresh in every response.
     token = re.compile(rb'name="csrfmiddlewaretoken" value="[^"]+"')
     assert len({token.sub(b"", r.content) for r in responses}) == 1
-    assert "Прихований" not in responses[0].content.decode()
+    assert "Synthetic concealed" not in responses[0].content.decode()
 
 
 def test_another_organisations_document_is_missing(
@@ -100,7 +100,7 @@ def test_another_organisations_document_is_missing(
     from identity.models import Membership
 
     client, user, _ = member_of("the.creator@example.test")
-    document = make_document(title="Синтетичний приклад", created_by=user)
+    document = make_document(title="Synthetic example", created_by=user)
     other = make_tenant_schema("Other Org")
     Membership.objects.create(tenant=other, user=user, actor_kind="system")
     session = client.session

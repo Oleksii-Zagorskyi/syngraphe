@@ -11,7 +11,11 @@ import pytest
 pytestmark = pytest.mark.browser
 
 EDITOR = "document.getElementById('editor').editor"
-STORED = "Перше речення абзацу.\nДруге речення абзацу.\nТретє речення абзацу.\n"
+STORED = (
+    "The first sentence of the paragraph.\n"
+    "The second sentence of the paragraph.\n"
+    "The third sentence of the paragraph.\n"
+)
 
 
 def position_of(page: Any, text: str) -> int:
@@ -28,32 +32,35 @@ def position_of(page: Any, text: str) -> int:
 
 def test_boundary_behaviour(editing: Any, markdown: Any, page: Any) -> None:
     editing(STORED)
-    at = position_of(page, "Друге")
+    at = position_of(page, "second")
     # Focused first: focusing an editor that lacks it may put the cursor at the start, over a
     # selection set before.
     page.focus(".ProseMirror")
-    page.evaluate(f"{EDITOR}.select({at}, {at + len('Друге')})")
-    page.keyboard.type("Інше")
-    assert markdown() == STORED.replace("Друге", "Інше")
+    page.evaluate(f"{EDITOR}.select({at}, {at + len('second')})")
+    page.keyboard.type("other")
+    assert markdown() == STORED.replace("second", "other")
 
     page.evaluate(f"{EDITOR}.replace({STORED!r})")
-    at = position_of(page, "Третє")
+    at = position_of(page, "The third")
     page.focus(".ProseMirror")
     page.evaluate(f"{EDITOR}.select({at})")
     page.keyboard.press("Backspace")
-    assert markdown() == "Перше речення абзацу.\nДруге речення абзацу.Третє речення абзацу.\n"
+    assert markdown() == (
+        "The first sentence of the paragraph.\n"
+        "The second sentence of the paragraph.The third sentence of the paragraph.\n"
+    )
 
     page.evaluate(f"{EDITOR}.replace({STORED!r})")
-    at = position_of(page, "Друге")
+    at = position_of(page, "The second")
     page.focus(".ProseMirror")
-    page.evaluate(f"{EDITOR}.select({at + len('Друге')})")
+    page.evaluate(f"{EDITOR}.select({at + len('The second')})")
     page.keyboard.press("Enter")
     # The spaces at the new paragraphs' edges are the normalizer's to drop at commit.
     assert [line.strip() for line in markdown().split("\n")] == [
-        "Перше речення абзацу.",
-        "Друге",
+        "The first sentence of the paragraph.",
+        "The second",
         "",
-        "речення абзацу.",
-        "Третє речення абзацу.",
+        "sentence of the paragraph.",
+        "The third sentence of the paragraph.",
         "",
     ]

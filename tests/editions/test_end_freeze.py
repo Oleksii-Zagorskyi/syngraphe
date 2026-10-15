@@ -21,7 +21,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-BODY = "Заяву на погодження подають письмово.\n"
+BODY = "A request for approval is made in writing.\n"
 
 
 def test_end_freeze_ends_it_unfrozen(
@@ -35,14 +35,14 @@ def test_end_freeze_ends_it_unfrozen(
     commit_version(people.document, people["a"], BODY, "edit")
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people["r"])
-        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.freeze(people.document, people["p"], "Synthetic reason")
     out = StringIO()
 
     call_command(
         "end_freeze",
         tenant=migrated_tenant.number,
         document=people.document.number,
-        reason="Синтетичне рішення оператора",
+        reason="Synthetic decision of the operator",
         stdout=out,
     )
 
@@ -54,7 +54,7 @@ def test_end_freeze_ends_it_unfrozen(
         assert open_freeze(people.document) is None
         assert numbering.accepted(people.document) == "0.1"
     event = AuditEvent.objects.get(action="document.unfrozen")
-    assert event.actor_id is None and event.after["reason"] == "Синтетичне рішення оператора"
+    assert event.actor_id is None and event.after["reason"] == "Synthetic decision of the operator"
     # Ordinary editing resumes: an editor without *accept* takes the document.
     from editing import holds
 
@@ -69,7 +69,7 @@ def test_end_freeze_on_a_document_not_frozen(migrated_tenant: Any, edition_cast:
             "end_freeze",
             tenant=migrated_tenant.number,
             document=people.document.number,
-            reason="Синтетичне рішення",
+            reason="Synthetic decision",
         )
     assert not AuditEvent.objects.filter(action="document.unfrozen").exists()
 
@@ -106,12 +106,12 @@ def test_the_command_names_no_actor(
     commit_version(people.document, people["a"], BODY, "edit")
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people["r"])
-        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.freeze(people.document, people["p"], "Synthetic reason")
     call_command(
         "end_freeze",
         tenant=migrated_tenant.number,
         document=people.document.number,
-        reason="Синтетичне рішення оператора",
+        reason="Synthetic decision of the operator",
         stdout=StringIO(),
     )
     event = AuditEvent.objects.get(action="document.unfrozen")
@@ -119,7 +119,7 @@ def test_the_command_names_no_actor(
     with schema_context(migrated_tenant.number):
         assert Freeze.objects.get().ended_by is None
         # A freeze still open: the operator's empty reason is refused, and the freeze stays.
-        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.freeze(people.document, people["p"], "Synthetic reason")
         with pytest.raises(ValueError, match="reason"):
             editions.end_freeze(people.document, "")
         assert Freeze.objects.filter(ended_at__isnull=True).count() == 1

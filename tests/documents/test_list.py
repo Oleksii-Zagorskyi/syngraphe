@@ -40,9 +40,9 @@ def _readers(
 def test_list_shows_only_readable(migrated_tenant: Any, member_of: Any, make_document: Any) -> None:
     _, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
     client, _, membership = member_of("a.reader@example.test")
-    b = make_document(title="Бета", created_by=admin, author_only=False)
-    a = make_document(title="Альфа", created_by=admin, author_only=False)
-    hidden = make_document(title="Гамма", created_by=admin, author_only=False)
+    b = make_document(title="Beta", created_by=admin, author_only=False)
+    a = make_document(title="Alpha", created_by=admin, author_only=False)
+    hidden = make_document(title="Gamma", created_by=admin, author_only=False)
     _readers(migrated_tenant, admin, membership, a, b)
 
     response = client.get(ROOT)
@@ -50,7 +50,7 @@ def test_list_shows_only_readable(migrated_tenant: Any, member_of: Any, make_doc
 
     assert response.status_code == 200
     assert _rows(body) == [str(a.number), str(b.number)]
-    assert "Гамма" not in body and f"#{hidden.number}" not in body
+    assert "Gamma" not in body and f"#{hidden.number}" not in body
     assert body.count('class="part appendices absent"') == 2
     assert "Документ" in body
 
@@ -82,7 +82,7 @@ def test_no_edition_no_document_for_canonical_or_history_readers(
 ) -> None:
     _, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
     client, _, membership = member_of("a.reader@example.test")
-    document = make_document(title="Без редакції", created_by=admin, author_only=False)
+    document = make_document(title="Without an edition", created_by=admin, author_only=False)
     _readers(migrated_tenant, admin, membership, document, right=right)
 
     assert _rows(client.get(ROOT).content.decode()) == []
@@ -103,7 +103,7 @@ def test_part_markers_follow_the_version_shown(
     with schema_context(migrated_tenant.number):
         document = services.create_document(
             operator.user,
-            "З додатком",
+            "With a part",
             "uk",
             DocumentType.objects.get(code="document"),
             Folder.objects.get(number=1),
@@ -111,8 +111,8 @@ def test_part_markers_follow_the_version_shown(
     commit_parts(
         document,
         operator.user,
-        "Синтетичний текст.\n",
-        [("Синтетична схема", "scheme.txt", "Синтетичний файл.\n".encode())],
+        "Synthetic text.\n",
+        [("Synthetic scheme", "scheme.txt", b"Synthetic file.\n")],
     )
     pending_client, _ = reader_in(Right.VIEW_PENDING, document)
     accepted_client, _ = reader_in(Right.VIEW_ACCEPTED, document)
@@ -129,7 +129,7 @@ def test_author_only_visibility(migrated_tenant: Any, member_of: Any, make_docum
     creator_client, creator, _ = member_of("the.creator@example.test")
     other_client, _, _ = member_of("a.member@example.test")
     admin_client, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
-    document = make_document(title="Чернетка", created_by=creator, author_only=True)
+    document = make_document(title="Draft", created_by=creator, author_only=True)
 
     seen = [
         str(document.number) in _rows(client.get(ROOT).content.decode())
@@ -143,7 +143,7 @@ def test_documents_being_created_are_not_listed(
     migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:
     client, creator, _ = member_of("the.creator@example.test")
-    make_document(title="Незавершений", created_by=creator, state="creating")
+    make_document(title="Unfinished", created_by=creator, state="creating")
 
     assert _rows(client.get(ROOT).content.decode()) == []
 

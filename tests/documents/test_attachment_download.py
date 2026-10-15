@@ -23,7 +23,7 @@ pytestmark = [
 ]
 
 TOKEN = re.compile(rb'name="csrfmiddlewaretoken" value="[^"]+"')
-ORDER = ("Порядок видачі доступу", "order.txt", "Синтетичний наказ про видачу доступу.\n".encode())
+ORDER = ("Access procedure", "order.txt", b"Synthetic order granting access.\n")
 
 
 def directives(response: Any) -> set[str]:
@@ -146,8 +146,8 @@ def test_hash_mismatch_not_served(
 
 def test_non_ascii_file_name(accepted_with_parts: Any, reader_in: Any) -> None:
     name = "схема погодження.txt"
-    data = "Синтетична схема погодження.\n".encode()
-    made = accepted_with_parts([("Схема погодження", name, data)])
+    data = b"Synthetic approval scheme.\n"
+    made = accepted_with_parts([("Approval scheme", name, data)])
     client, _ = reader_in(Right.VIEW_ACCEPTED, made.document)
 
     response = client.get(f"/document/{made.document.number}/attachment/1/")
@@ -216,7 +216,7 @@ def test_created_text_is_not_called_accepted(
     with schema_context(migrated_tenant.number):
         document = services.create_document(
             operator.user,
-            "Синтетичний неприйнятий документ",
+            "Synthetic unaccepted document",
             "uk",
             DocumentType.objects.get(code="document"),
             Folder.objects.get(number=1),

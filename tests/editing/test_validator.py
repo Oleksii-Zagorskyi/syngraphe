@@ -18,23 +18,23 @@ def codes(text: str) -> list[tuple[str, int]]:
 
 def test_refusals_name_construct_and_line() -> None:
     text = (
-        "# Порядок погодження\n"
+        "# Approval procedure\n"
         "\n"
         "<script>alert(1)</script>\n"
         "\n"
-        "![схема](https://example.test/схема.png)\n"
+        "![scheme](https://example.test/scheme.png)\n"
         "\n"
-        "[посилання](javascript:alert(1))\n"
+        "[link](javascript:alert(1))\n"
         "\n"
-        "##### Надто глибоко\n"
+        "##### Too deep\n"
         "\n"
-        "- пункт\n"
+        "- item\n"
         "\n"
         "  | a | b |\n"
         "  | --- | --- |\n"
         "  | 1 | 2 |\n"
         "\n"
-        "Речення перед зображенням. ![схема](images/schema.png)\n"
+        "A sentence before an image. ![scheme](images/schema.png)\n"
     )
     assert codes(text) == [
         ("html", 3),
@@ -47,16 +47,16 @@ def test_refusals_name_construct_and_line() -> None:
 
 
 def test_constructs_easily_misread() -> None:
-    assert validate("[[Відповідальний]{.role}](https://example.test/r)\n") == []
-    assert validate("0. нульовий\n1. перший\n") == []
-    assert codes('[посилання](https://example.test "підказка")\n') == [("title", 1)]
-    assert codes("[[вкладена]{.role}]{.term}\n") == [("span-nested", 1)]
+    assert validate("[[Responsible]{.role}](https://example.test/r)\n") == []
+    assert validate("0. zeroth\n1. first\n") == []
+    assert codes('[link](https://example.test "hint")\n') == [("title", 1)]
+    assert codes("[[nested]{.role}]{.term}\n") == [("span-nested", 1)]
     assert codes("[]{.term}\n") == [("span-empty", 1)]
     assert codes("| a | b |\n| --- | --- |\n| 1 | 2 | 3 |\n") == [("table-row-cells", 3)]
 
 
 def test_refusals_sort_by_line_then_code() -> None:
-    assert validate("##### Глибоко `код`\n") == [
+    assert validate("##### Deep `code`\n") == [
         Refusal(1, "heading-depth"),
         Refusal(1, "inline-code"),
     ]

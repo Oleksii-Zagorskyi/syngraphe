@@ -31,7 +31,7 @@ def test_load_records_an_open_editor_and_returns_the_verdict(
         editor = OpenEditor.objects.get(pk=loaded["editor"])
         body = draft.content["document.md"]
         assert editor.draft == draft and editor.closed_at is None and editor.range == "whole"
-        draft.content = {**draft.content, "document.md": "Абзац.\n\n<b>ні</b>\n"}
+        draft.content = {**draft.content, "document.md": "A paragraph.\n\n<b>no</b>\n"}
         draft.save()
     assert loaded["body"] == body
     assert loaded["verdict"] == {"state": "ok"}
@@ -94,7 +94,7 @@ def test_every_editing_post_needs_the_csrf_token(
 
     response = strict.post(
         f"/document/{document.number}/edit/{route}/",
-        data='{"body": "Змінений абзац.\\n"}',
+        data='{"body": "A reworded paragraph.\\n"}',
         content_type="application/json",
     )
 
@@ -153,7 +153,7 @@ def test_another_tenants_editing_is_not_found(
     document = new_document(author)
     holder.post(f"/document/{document.number}/edit/take/")
     loaded = holder.post(f"/document/{document.number}/edit/load/").json()
-    elsewhere = make_tenant_schema("Інша організація (синтетичний приклад)")
+    elsewhere = make_tenant_schema("Another organisation (synthetic example)")
     outsider = User.objects.create_user("an.outsider@example.test", "test-only-not-a-password")
     Membership.objects.create(tenant=elsewhere, user=outsider, actor_kind="system")
     client = Client(headers={"host": "127.0.0.1"})
@@ -162,7 +162,7 @@ def test_another_tenants_editing_is_not_found(
     session["tenant_number"] = elsewhere.number
     session.save()
     base = f"/document/{document.number}"
-    payload = {"editor": loaded["editor"], "base_hash": loaded["base_hash"], "body": "Чуже.\n"}
+    payload = {"editor": loaded["editor"], "base_hash": loaded["base_hash"], "body": "Foreign.\n"}
 
     for path in (f"{base}/edit/", f"{base}/edit/finish/", f"{base}/my-edits/"):
         assert client.get(path).status_code == 404, path
@@ -174,7 +174,7 @@ def test_another_tenants_editing_is_not_found(
     with schema_context(migrated_tenant.number):
         from editing.models import Draft, OpenEditor
 
-        assert "Чуже" not in Draft.objects.get(hold__document=document).content["document.md"]
+        assert "Foreign" not in Draft.objects.get(hold__document=document).content["document.md"]
         assert OpenEditor.objects.get(pk=loaded["editor"]).closed_at is None
 
 
@@ -192,7 +192,7 @@ def test_whole_and_section_editors_exclude_each_other(
     client.post(f"/document/{document.number}/edit/take/")
     with schema_context(migrated_tenant.number):
         draft = Draft.objects.get(hold__document=document)
-        draft.content = {**draft.content, "document.md": "# Розділ\n\nРечення.\n"}
+        draft.content = {**draft.content, "document.md": "# Section\n\nA sentence.\n"}
         draft.save()
 
     def load(range_: str) -> Any:
@@ -203,7 +203,7 @@ def test_whole_and_section_editors_exclude_each_other(
         )
 
     opened = load("section:0")
-    assert opened.status_code == 200 and opened.json()["body"] == "# Розділ\n\nРечення.\n"
+    assert opened.status_code == 200 and opened.json()["body"] == "# Section\n\nA sentence.\n"
     refused = load("whole")
     assert refused.status_code == 409 and refused.json() == {"sections_open": 1}
     client.post(
@@ -231,7 +231,7 @@ def test_overlapping_sections_and_too_many_are_refused(
     client, author, _ = member_of("the.author@example.test")
     document = new_document(author)
     client.post(f"/document/{document.number}/edit/take/")
-    body = "".join(f"# Розділ {n}\n\n## Підрозділ {n}\n\nРечення.\n\n" for n in range(8))
+    body = "".join(f"# Section {n}\n\n## Subsection {n}\n\nA sentence.\n\n" for n in range(8))
     with schema_context(migrated_tenant.number):
         draft = Draft.objects.get(hold__document=document)
         draft.content = {**draft.content, "document.md": body}

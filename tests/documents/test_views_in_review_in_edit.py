@@ -38,7 +38,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-BODY = "# Умови\n\nПерше синтетичне речення.\n"
+BODY = "# Conditions\n\nThe first synthetic sentence.\n"
 LISTED = re.compile(r'class="document" data-number="(\d+)"')
 
 
@@ -52,8 +52,8 @@ def test_in_review_lists_pending_runs_the_person_may_accept(
     from review import services
 
     client, reviewer, membership = member_of("the.reviewer@example.test")
-    pending = new_document(reviewer, "Синтетичний документ на розгляді")
-    accepted = new_document(reviewer, "Синтетичний погоджений документ")
+    pending = new_document(reviewer, "Synthetic document under review")
+    accepted = new_document(reviewer, "Synthetic accepted document")
     for document in (pending, accepted):
         link_group(document, [Right.ACCEPT], [membership], reviewer)
         commit_version(document, reviewer, BODY, "edit")
@@ -77,7 +77,7 @@ def test_a_frozen_document_with_a_pending_run_is_in_review(
     link_group(document, [Right.ACCEPT, Right.FREEZE], [membership], reviewer)
     commit_version(document, reviewer, BODY, "edit")
     with schema_context(migrated_tenant.number):
-        editions.freeze(document, reviewer, "Синтетична причина")
+        editions.freeze(document, reviewer, "Synthetic reason")
 
     body = client.get("/in-review/").content.decode()
     assert listed(body) == [document.number]
@@ -106,8 +106,8 @@ def test_in_review_lists_only_the_documents_the_person_may_accept(
     alone stays out of it, though it awaits review."""
     client, reviewer, membership = member_of("the.reviewer@example.test")
     _, author, author_membership = member_of("the.author@example.test")
-    mine = new_document(author, "Синтетичний документ для погодження")
-    theirs = new_document(author, "Синтетичний документ лише для перегляду")
+    mine = new_document(author, "Synthetic document to accept")
+    theirs = new_document(author, "Synthetic document to view only")
     link_group(mine, [Right.ACCEPT], [membership, author_membership], author)
     link_group(theirs, [Right.ACCEPT], [author_membership], author)
     link_group(theirs, [Right.VIEW_PENDING], [membership], author)
@@ -131,7 +131,7 @@ def test_an_editors_empty_in_edit_draws_its_link_disabled(
     commit_version(document, editor, BODY, "edit")
     with schema_context(migrated_tenant.number):
         services.accept(document, editor)
-        editions.freeze(document, editor, "Синтетична причина")
+        editions.freeze(document, editor, "Synthetic reason")
         editions.make_canonical(document, editor)
 
     page = client.get("/folder/1/").content.decode()
@@ -148,8 +148,8 @@ def test_in_edit_lists_versions_after_the_edition(
     from review import services
 
     client, editor, membership = member_of("the.editor@example.test")
-    still = new_document(editor, "Синтетичний документ без змін")
-    moved = new_document(editor, "Синтетичний документ зі змінами")
+    still = new_document(editor, "Synthetic document without changes")
+    moved = new_document(editor, "Synthetic document with changes")
     for document in (still, moved):
         link_group(
             document, [Right.ACCEPT, Right.FREEZE, Right.MAKE_CANONICAL], [membership], editor
@@ -157,9 +157,9 @@ def test_in_edit_lists_versions_after_the_edition(
         commit_version(document, editor, BODY, "edit")
         with schema_context(migrated_tenant.number):
             services.accept(document, editor)
-            editions.freeze(document, editor, "Синтетична причина")
+            editions.freeze(document, editor, "Synthetic reason")
             editions.make_canonical(document, editor)
-    commit_version(moved, editor, BODY + "\nДруге синтетичне речення.\n", "edit")
+    commit_version(moved, editor, BODY + "\nThe second synthetic sentence.\n", "edit")
 
     assert listed(client.get("/in-edit/").content.decode()) == [moved.number]
 
@@ -300,7 +300,7 @@ def test_closed_to_a_member_of_another_organisation(
     document = new_document(author)
     group = link_group(document, [Right.ACCEPT], [membership], author)
     commit_version(document, author, BODY, "edit")
-    elsewhere = make_tenant_schema("Інша синтетична організація")
+    elsewhere = make_tenant_schema("Another synthetic organisation")
     stranger = User.objects.create_user("a.stranger@example.test", "test-only-not-a-password")
     theirs = Membership.objects.create(tenant=elsewhere, user=stranger, actor_kind="system")
     with schema_context(migrated_tenant.number):
@@ -336,8 +336,8 @@ def test_an_unreadable_repository_fails_no_page(
 ) -> None:
     """The menu and the views leave out a document whose record cannot be read, and log it."""
     client, reviewer, membership = member_of("the.reviewer@example.test")
-    broken = new_document(reviewer, "Синтетичний пошкоджений документ")
-    whole = new_document(reviewer, "Синтетичний цілий документ")
+    broken = new_document(reviewer, "Synthetic damaged document")
+    whole = new_document(reviewer, "Synthetic whole document")
     for document in (broken, whole):
         link_group(document, [Right.ACCEPT], [membership], reviewer)
         commit_version(document, reviewer, BODY, "edit")
@@ -356,7 +356,7 @@ def _pending_for(
 ) -> Any:
     client, person, membership = member_of(email)
     for n in range(count):
-        document = new_document(person, f"Синтетичний порядок {email} {n}")
+        document = new_document(person, f"Synthetic procedure {email} {n}")
         link_group(document, [Right.ACCEPT], [membership], person)
         commit_version(document, person, BODY, "edit")
     return client

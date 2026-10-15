@@ -17,7 +17,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-BODY = "# Загальні положення\n\nЗаяву подають письмово.\n"
+BODY = "# General provisions\n\nA request is made in writing.\n"
 
 
 def test_state_from_rows_and_rights(
@@ -107,7 +107,7 @@ def test_the_lists_tags_cost_a_fixed_number_of_queries(
     _, author, membership = member_of("the.author@example.test")
     documents = []
     for n in range(5):
-        document = new_document(author, f"Синтетичний порядок {n}")
+        document = new_document(author, f"Synthetic procedure {n}")
         link_group(document, [Right.ACCEPT], [membership], author)
         commit_version(document, author, BODY, "edit")
         documents.append(document)
@@ -134,7 +134,7 @@ def test_hold_tags_cost_one_query(
     from review.state import tags
 
     client, author, _ = member_of("the.author@example.test")
-    documents = [new_document(author, f"Синтетичний порядок {n}") for n in range(30)]
+    documents = [new_document(author, f"Synthetic procedure {n}") for n in range(30)]
 
     def hold_reads(queries: list[dict[str, Any]]) -> int:
         return sum('"editing_hold"' in query["sql"] for query in queries)

@@ -24,10 +24,10 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FIRST = "Заяву на погодження подають письмово.\n"
-SECOND = FIRST + "\nСтрок розгляду заяви становить десять днів.\n"
-THIRD = SECOND.replace("десять днів", "п'ять робочих днів")
-REASON = "Синтетична причина: чекаємо рішення ради"
+FIRST = "A request for approval is made in writing.\n"
+SECOND = FIRST + "\nA request is considered within ten days.\n"
+THIRD = SECOND.replace("ten days", "five working days")
+REASON = "Synthetic reason: waiting for the board to decide"
 
 
 def _accepted(migrated_tenant: Any, people: Any, commit_version: Any) -> None:
@@ -91,7 +91,7 @@ def test_freeze_refused_while_held(
     link_group(
         people.document, [Right.FREEZE], [admin_membership], people["a"]
     )  # an administrator who may freeze
-    people["a"].display_name = "Синтетичний редактор"
+    people["a"].display_name = "Synthetic Editor E"
     people["a"].save(update_fields=["display_name"])
 
     with schema_context(migrated_tenant.number):
@@ -105,7 +105,7 @@ def test_freeze_refused_while_held(
         page = client.get(f"/document/{number}/").content.decode()
         assert 'data-command="freeze"' in page
         assert "disabled" in page.split('data-command="freeze"')[1].split(">")[0]
-        assert ("Синтетичний редактор" in page) is named
+        assert ("Synthetic Editor E" in page) is named
 
 
 def test_band_by_rights(
@@ -121,7 +121,7 @@ def test_band_by_rights(
     settings.LANGUAGE_CODE = "en"
     people = edition_cast()
     _accepted(migrated_tenant, people, commit_version)
-    people["p"].display_name = "Синтетичний затверджувач"
+    people["p"].display_name = "Synthetic Approver P"
     people["p"].save(update_fields=["display_name"])
     reader, _, reader_membership = member_of("reader.synthetic@example.test")
     historian, _, historian_membership = member_of("history.synthetic@example.test")
@@ -139,10 +139,10 @@ def test_band_by_rights(
     shown = reader.get(f"/document/{number}/").content.decode()
     assert 'class="band frozen"' in shown
     assert REASON in shown
-    assert "Синтетичний затверджувач" not in shown
+    assert "Synthetic Approver P" not in shown
     named = historian.get(f"/document/{number}/").content.decode()
     assert REASON in named
-    assert "Синтетичний затверджувач" in named
+    assert "Synthetic Approver P" in named
     # Every reader sees the *frozen* tag, beside the title (DL-0351).
     assert 'data-state="frozen"' in shown
 

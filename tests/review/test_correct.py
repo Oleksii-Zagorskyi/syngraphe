@@ -20,12 +20,12 @@ pytestmark = [
 ]
 
 FIRST = (
-    "# Загальні положення\n\n"
-    "Заяву на погодження подають письмово.\n"
-    "Строк розгляду заяви становить десять днів.\n"
+    "# General provisions\n\n"
+    "A request for approval is made in writing.\n"
+    "A request is considered within ten days.\n"
 )
-SECOND = FIRST + "\nКопію рішення надсилають заявникові того ж дня.\n"
-CORRECTED = SECOND.replace("десять днів", "п'ять робочих днів")
+SECOND = FIRST + "\nA copy of the decision goes to the applicant that day.\n"
+CORRECTED = SECOND.replace("ten days", "five working days")
 
 
 def signed_in(tenant: Any, user: Any) -> Client:
@@ -105,7 +105,7 @@ def test_create_version_is_a_reviewer_edit(
     client = signed_in(migrated_tenant, reviewer)
     take_and_change(migrated_tenant, client, document, CORRECTED)
     sent = client.post(
-        f"/document/{document.number}/edit/send/", {"summary": "Строк", "choice": "create"}
+        f"/document/{document.number}/edit/send/", {"summary": "Terms", "choice": "create"}
     )
     assert sent.status_code == 302 and sent["Location"] == f"/document/{document.number}/"
     assert repository.kinds(document) == ["created", "edit", "edit", "reviewer_edit"]
@@ -127,7 +127,7 @@ def test_accept_as_commits_and_accepts_in_one_act(
     client = signed_in(migrated_tenant, reviewer)
     take_and_change(migrated_tenant, client, document, CORRECTED)
     sent = client.post(
-        f"/document/{document.number}/edit/send/", {"summary": "Строк", "choice": "accept"}
+        f"/document/{document.number}/edit/send/", {"summary": "Terms", "choice": "accept"}
     )
     assert sent.status_code == 302 and sent["Location"] == f"/document/{document.number}/"
     assert repository.kinds(document) == ["created", "edit", "edit", "reviewer_edit", "acceptance"]
@@ -157,7 +157,7 @@ def test_editor_sees_send_for_review_only(
     assert 'data-command="create"' not in screen and 'data-command="accept"' not in screen
     # A choice the editor is not offered is not taken.
     refused = editor.post(
-        f"/document/{document.number}/edit/send/", {"summary": "Строк", "choice": "accept"}
+        f"/document/{document.number}/edit/send/", {"summary": "Terms", "choice": "accept"}
     )
     assert refused.status_code == 404
 
@@ -188,7 +188,7 @@ def stopped_after_the_commit(tenant: Any, people: Any) -> tuple[Any, Any]:
     with schema_context(tenant.number):
         hold = Hold.objects.get(document=document, released_at__isnull=True)
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, reviewer, "Строк", fault_at=1)
+            services.commit_draft(hold, reviewer, "Terms", fault_at=1)
     return client, hold
 
 
@@ -220,7 +220,7 @@ def test_a_reviewers_stopped_finish_is_resumed_by_the_next_send(
     client, _ = stopped_after_the_commit(migrated_tenant, people)
     head = repository.head(document)
     sent = client.post(
-        f"/document/{document.number}/edit/send/", {"summary": "Строк", "choice": "create"}
+        f"/document/{document.number}/edit/send/", {"summary": "Terms", "choice": "create"}
     )
     assert sent.status_code == 302
     assert repository.head(document) == head
@@ -250,7 +250,7 @@ def test_a_head_moved_back_by_a_restore_is_not_the_holders_finish(
 
         assert _stopped(repo, earlier.commit_sha, draft, author) is None
     # Sent after the restore, the draft is a new version on the restored head, not a resume.
-    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Строк"})
+    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Terms"})
     assert sent.status_code == 302
     assert repository.kinds(document)[-1] == "edit"
     assert repository.parent(document, repository.head(document)) == earlier.commit_sha
@@ -292,10 +292,10 @@ def test_a_finish_stopped_under_an_acceptance_is_resumed(
     with schema_context(migrated_tenant.number):
         hold = Hold.objects.get(document=document, released_at__isnull=True)
         with pytest.raises(editing.InjectedFault):
-            editing.commit_draft(hold, reviewer, "Строк", fault_at=2)
+            editing.commit_draft(hold, reviewer, "Terms", fault_at=2)
         services.accept(document, reviewer)
     sent = client.post(
-        f"/document/{document.number}/edit/send/", {"summary": "Строк", "choice": "create"}
+        f"/document/{document.number}/edit/send/", {"summary": "Terms", "choice": "create"}
     )
     assert sent.status_code == 302
     with schema_context(migrated_tenant.number):
@@ -315,7 +315,7 @@ def test_a_resumed_finish_ends_the_hold(
     people = pending_with_two_versions(cast, commit_version)
     client, hold = stopped_after_the_commit(migrated_tenant, people)
     client.post(
-        f"/document/{people.document.number}/edit/send/", {"summary": "Строк", "choice": "create"}
+        f"/document/{people.document.number}/edit/send/", {"summary": "Terms", "choice": "create"}
     )
     with schema_context(migrated_tenant.number):
         assert Hold.objects.get(pk=hold.pk).release_kind == "finished"
@@ -334,7 +334,7 @@ def test_a_head_moved_since_the_screen_is_not_accepted(
     stale = repository.parent(document, repository.head(document))
     refused = client.post(
         f"/document/{document.number}/edit/send/",
-        {"summary": "Строк", "choice": "accept", "head": stale},
+        {"summary": "Terms", "choice": "accept", "head": stale},
     )
     assert refused.status_code == 409
     assert repository.kinds(document) == ["created", "edit", "edit"]
@@ -365,7 +365,7 @@ def test_a_refusal_after_the_versions_commit_leaves_it_pending(
     monkeypatch.setattr(services, "accept_locked", withdrawn)
     queued_authorship.clear()
     sent = client.post(
-        f"/document/{document.number}/edit/send/", {"summary": "Строк", "choice": "accept"}
+        f"/document/{document.number}/edit/send/", {"summary": "Terms", "choice": "accept"}
     )
     assert sent.status_code == 302 and sent["Location"] == f"/document/{document.number}/"
     head = repository.head(document)
@@ -391,7 +391,7 @@ def test_accept_as_takes_the_lock_once(
         return real(tenant, number, **kwargs)
 
     monkeypatch.setattr(services, "document_lock", counted)
-    client.post(f"/document/{document.number}/edit/send/", {"summary": "Строк", "choice": "accept"})
+    client.post(f"/document/{document.number}/edit/send/", {"summary": "Terms", "choice": "accept"})
     assert taken == [document.number]
 
 
@@ -402,7 +402,7 @@ def test_choices_not_offered_are_refused(
     document = people.document
     reviewer = signed_in(migrated_tenant, people["r"])
     take_and_change(migrated_tenant, reviewer, document, CORRECTED)
-    for posted in ({"summary": "Строк", "choice": "send"}, {"summary": "Строк"}):
+    for posted in ({"summary": "Terms", "choice": "send"}, {"summary": "Terms"}):
         assert reviewer.post(f"/document/{document.number}/edit/send/", posted).status_code == 404
 
 

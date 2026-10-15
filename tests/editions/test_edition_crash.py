@@ -24,12 +24,12 @@ pytestmark = [
 ]
 
 WRITTEN = (
-    "# Загальні положення\n\n"
-    "Заяву на погодження подають письмово.\n"
-    "Строк розгляду заяви становить десять днів.\n"
+    "# General provisions\n\n"
+    "A request for approval is made in writing.\n"
+    "A request is considered within ten days.\n"
 )
-LATER = WRITTEN + "\nКопію рішення надсилають заявникові того ж дня.\n"
-REASON = "Синтетична причина: чекаємо висновку комісії"
+LATER = WRITTEN + "\nA copy of the decision goes to the applicant that day.\n"
+REASON = "Synthetic reason: waiting for the committee to report"
 # The worker does not run in the suite (`queued_authorship` records its jobs), so the authorship
 # of the kept versions is always missing to a report; it is not what these tests are about.
 NOT_OURS = {reconcile.AUTHORSHIP_MISSING}
@@ -188,7 +188,7 @@ def test_a_version_after_a_stop_settles_the_approval_first(
         draft = Draft.objects.get(hold=hold)
         draft.content = {**draft.content, "document.md": LATER}
         draft.save()
-        editing.commit_draft(hold, reviewer, "Синтетична правка")
+        editing.commit_draft(hold, reviewer, "Synthetic edit")
 
         assert list(Edition.objects.values_list("number", flat=True)) == ["1.0"]
         assert numbering.latest(document) == "1.0-1"
@@ -211,7 +211,7 @@ def test_tag_without_passport_reported(
     head = repository.head(document)
     passport = repository.read(document, "passport.md", head)
     repo = gitstore.open_repository(migrated_tenant.number, document.number)
-    gitstore.tag(repo, "1.0", head, identity_for(people["p"]), "Синтетична мітка без розділу")
+    gitstore.tag(repo, "1.0", head, identity_for(people["p"]), "Synthetic tag without a section")
 
     findings = reconcile.run(migrated_tenant.number, document.number)
 

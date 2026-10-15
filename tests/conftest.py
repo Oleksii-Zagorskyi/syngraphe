@@ -341,7 +341,7 @@ def make_document(migrated_tenant: Any) -> Callable[..., Any]:
 
     def make(
         *,
-        title: str = "Документ",
+        title: str = "Synthetic document",
         created_by: Any = None,
         author_only: bool = True,
         state: str = "active",

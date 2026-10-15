@@ -18,63 +18,63 @@ from editing.sections import (
 
 pytestmark = pytest.mark.fast
 
-# Lines: 0 preamble, 2 `# Перший розділ`, 6 `## Перший підрозділ`, 10 `# Другий розділ`, 12 last.
+# Lines: 0 preamble, 2 `# First section`, 6 `## First subsection`, 10 `# Second section`, 12 last.
 NESTED = (
-    "Вступний абзац.\n"
+    "An introductory paragraph.\n"
     "\n"
-    "# Перший розділ\n"
+    "# First section\n"
     "\n"
-    "Текст розділу.\n"
+    "Section text.\n"
     "\n"
-    "## Перший підрозділ\n"
+    "## First subsection\n"
     "\n"
-    "Текст підрозділу.\n"
+    "Subsection text.\n"
     "\n"
-    "# Другий розділ\n"
+    "# Second section\n"
     "\n"
-    "Останній абзац.\n"
+    "The last paragraph.\n"
 )
 
-FIRST_LINE = "# Заголовок\n\nТекст.\n"
+FIRST_LINE = "# Heading\n\nText.\n"
 
-NO_HEADING = "Перший абзац.\n\nДругий абзац.\n"
+NO_HEADING = "The first paragraph.\n\nThe second paragraph.\n"
 
-DEPTHS = "## А\n\n### А.1\n\n# Б\n\n#### Б.1\n\n## В\n\nТекст.\n"
+DEPTHS = "## A\n\n### A.1\n\n# B\n\n#### B.1\n\n## C\n\nText.\n"
 
 NOT_HEADINGS = (
-    "> # не заголовок\n"
+    "> # not a heading\n"
     "\n"
-    "- # не заголовок\n"
+    "- # not a heading\n"
     "\n"
-    "#хештег\n"
+    "#hashtag\n"
     "\n"
-    "Рядок із # посередині.\n"
+    "A line with # in the middle.\n"
     "\n"
     "```\n"
-    "# код\n"
+    "# code\n"
     "```\n"
     "\n"
-    "# Справжній заголовок\n"
+    "# A real heading\n"
     "\n"
-    "Текст.\n"
+    "Text.\n"
 )
 
-SHORT = "# Перший\n# Другий\n# Останній"
+SHORT = "# First\n# Second\n# Last"
 
 FLAT = (
-    "Вступ.\n"
+    "Introduction.\n"
     "\n"
-    "# Перший\n"
+    "# First\n"
     "\n"
-    "Текст першого.\n"
+    "Text of the first.\n"
     "\n"
-    "# Другий\n"
+    "# Second\n"
     "\n"
-    "Текст другого.\n"
+    "Text of the second.\n"
     "\n"
-    "# Третій\n"
+    "# Third\n"
     "\n"
-    "Текст третього.\n"
+    "Text of the third.\n"
 )
 
 BODIES = [NESTED, FIRST_LINE, "", NO_HEADING, DEPTHS, NOT_HEADINGS, SHORT, FLAT]
@@ -82,7 +82,7 @@ BODIES = [NESTED, FIRST_LINE, "", NO_HEADING, DEPTHS, NOT_HEADINGS, SHORT, FLAT]
 
 def test_ranges() -> None:
     assert ranges(NESTED) == [Range(2, 10, 1), Range(6, 10, 2), Range(10, 13, 1)]
-    assert section_text(NESTED, ranges(NESTED)[1]).startswith("## Перший підрозділ\n")
+    assert section_text(NESTED, ranges(NESTED)[1]).startswith("## First subsection\n")
 
 
 def test_a_heading_on_the_first_line() -> None:
@@ -111,9 +111,9 @@ def test_only_top_level_headings() -> None:
 def test_short_sections() -> None:
     found = ranges(SHORT)
     assert found == [Range(0, 1, 1), Range(1, 2, 1), Range(2, 3, 1)]
-    assert section_text(SHORT, found[0]) == "# Перший\n"
-    assert section_text(SHORT, found[1]) == "# Другий\n"
-    assert section_text(SHORT, found[2]) == "# Останній"
+    assert section_text(SHORT, found[0]) == "# First\n"
+    assert section_text(SHORT, found[1]) == "# Second\n"
+    assert section_text(SHORT, found[2]) == "# Last"
 
 
 def test_text_and_splice_round_trip() -> None:
@@ -129,7 +129,7 @@ def test_text_and_splice_round_trip() -> None:
 def test_splice_replaces_only_its_lines() -> None:
     last = ranges(NESTED)[2]
     before = "".join(NESTED.splitlines(keepends=True)[: last.start])
-    text = "# Другий розділ\n\nНовий абзац.\n"
+    text = "# Second section\n\nA new paragraph.\n"
     spliced = splice(NESTED, last, text)
     assert spliced == before + text
     assert spliced[: len(before)] == NESTED[: len(before)]
@@ -137,31 +137,31 @@ def test_splice_replaces_only_its_lines() -> None:
 
 def test_splice_keeps_lines_apart() -> None:
     first, second, third = ranges(FLAT)
-    spliced = splice(FLAT, second, "# Другий\n\nЗмінений текст.")
-    assert "Змінений текст.\n# Третій\n" in spliced
+    spliced = splice(FLAT, second, "# Second\n\nChanged text.")
+    assert "Changed text.\n# Third\n" in spliced
     assert ranges(spliced)[2] == Range(9, 12, 1)
     emptied = splice(FLAT, second, "")
-    assert emptied == FLAT.replace("# Другий\n\nТекст другого.\n\n", "")
+    assert emptied == FLAT.replace("# Second\n\nText of the second.\n\n", "")
     assert [r.start for r in ranges(emptied)] == [first.start, first.end]
     # Nothing follows the last section, so nothing is added after its text.
-    assert splice(FLAT, third, "# Третій\n\nКінець.").endswith("Кінець.")
+    assert splice(FLAT, third, "# Third\n\nThe end.").endswith("The end.")
 
 
 def test_shift_after_a_heading_is_added() -> None:
     old = FLAT
     second = ranges(old)[1]
-    new = splice(old, second, section_text(old, second) + "# Новий\n\nНовий абзац.\n\n")
+    new = splice(old, second, section_text(old, second) + "# New\n\nA new paragraph.\n\n")
     assert shift(old, new, 1) == 1
     assert section_text(new, ranges(new)[3]) == section_text(old, ranges(old)[2])
 
 
 def test_shift_after_a_heading_is_removed_or_none() -> None:
-    old = "# Перший\n\nТекст.\n\n## Підрозділ\n\nТекст підрозділу.\n\n# Другий\n\nТекст другого.\n"
+    old = "# First\n\nText.\n\n## Subsection\n\nIts text.\n\n# Second\n\nText of the second.\n"
     first = ranges(old)[0]
     text = section_text(old, first)
-    removed = splice(old, first, text.replace("## Підрозділ\n\n", ""))
+    removed = splice(old, first, text.replace("## Subsection\n\n", ""))
     assert shift(old, removed, 0) == -1
-    reworded = splice(old, first, text.replace("Текст.", "Інший текст."))
+    reworded = splice(old, first, text.replace("Text.", "Other text."))
     assert reworded != old
     assert shift(old, reworded, 0) == 0
 
@@ -192,9 +192,9 @@ def test_ordinal_of(value: str, expected: int | None) -> None:
 def test_lines_are_counted_as_splitlines_counts_them() -> None:
     # A line separator inside a paragraph is a line to `splitlines`
     # and none to the parser, and the indices must still be `splitlines`' own.
-    body = "Вступ\u2028з розділювачем.\n\n# Перший\n\nТекст.\n"
+    body = "Intro\u2028with a separator.\n\n# First\n\nText.\n"
     assert ranges(body) == [Range(3, 6, 1)]
-    assert section_text(body, ranges(body)[0]) == "# Перший\n\nТекст.\n"
+    assert section_text(body, ranges(body)[0]) == "# First\n\nText.\n"
 
 
 def test_a_span_holds_its_subsections_and_typed_headings() -> None:
@@ -202,14 +202,14 @@ def test_a_span_holds_its_subsections_and_typed_headings() -> None:
     it does not cut it short (DL-0167)."""
     from editing import sections
 
-    body = "# А\n\nРечення.\n\n## А.1\n\nРечення.\n\n# Б\n\nРечення.\n"
+    body = "# A\n\nA sentence.\n\n## A.1\n\nA sentence.\n\n# B\n\nA sentence.\n"
     first = sections.ranges(body)[0]
     text = sections.section_text(body, first)
     assert sections.headings_in(text) == 2
     assert sections.extent(body, 0, 2) == first
-    grown = sections.splice(body, first, text + "# Нове\n\nРечення.\n\n")
+    grown = sections.splice(body, first, text + "# New\n\nA sentence.\n\n")
     assert sections.section_text(grown, sections.extent(grown, 0, 3)).endswith(
-        "# Нове\n\nРечення.\n\n"
+        "# New\n\nA sentence.\n\n"
     )
     assert sections.extent(grown, 3, 1) == sections.ranges(grown)[3]
     assert sections.extent(grown, 3, 2) is None
@@ -236,7 +236,7 @@ def test_ends_follow_the_rule_for_any_sequence_of_levels() -> None:
     chance = random.Random(9)
     for _ in range(300):
         levels = [chance.randint(1, 6) for _ in range(chance.randint(1, 40))]
-        body = "".join("#" * level + " Розділ\n" for level in levels)
+        body = "".join("#" * level + " Section\n" for level in levels)
         assert [r.end for r in ranges(body)] == _ends_by_scanning(levels)
         assert [r.level for r in ranges(body)] == levels
 
@@ -249,7 +249,7 @@ def test_ranges_cost_about_what_the_parse_costs() -> None:
 
     from editing.markdown.parser import parser
 
-    body = "# а\n" * 60_000
+    body = "# aa\n" * 60_000
     started = time.perf_counter()
     parser().parse(body)
     parsed = time.perf_counter() - started

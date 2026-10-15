@@ -14,7 +14,7 @@ from tenancy.schemas import schema_context
 pytestmark = pytest.mark.browser
 
 EDITOR = "document.getElementById('editor').editor"
-WRITTEN = "# Загальні положення\n\nЗаяву подають письмово.\n"
+WRITTEN = "# General provisions\n\nA request is made in writing.\n"
 
 
 def test_end_to_end(
@@ -49,7 +49,7 @@ def test_end_to_end(
                 repo,
                 {"document.md": bundle.render(frontmatter, WRITTEN).encode()},
                 identity_for(author),
-                "Заява",
+                "Synthetic request",
                 gitstore.Kind.EDIT,
             )
         services.derive_version(document, gitstore.commit_at(repo, sha), author)
@@ -64,7 +64,7 @@ def test_end_to_end(
     assert "your changes become a version of your own" in (page.text_content(".correcting") or "")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
-    page.keyboard.type(" Копію надсилають заявникові.", delay=10)
+    page.keyboard.type(" A copy goes to the applicant.", delay=10)
     page.click("button[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     assert "Accept as 0.1" in (page.text_content("button[data-command=accept]") or "")
@@ -107,7 +107,7 @@ def test_enter_in_the_summary_accepts_nothing(
     page.wait_for_function(f"() => {EDITOR} !== undefined && {EDITOR}.view !== undefined")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
-    page.keyboard.type(" Нове речення.", delay=10)
+    page.keyboard.type(" A new sentence.", delay=10)
     page.click("button[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     page.focus("#summary")

@@ -63,7 +63,7 @@ def test_block_is_one_transaction(
     )
     Membership.objects.create(tenant=elsewhere, user=editor, actor_kind="system")
     User.objects.create_user("platform.one@example.test", PASSWORD, is_platform_admin=True)
-    document = new_document(admin_user, "Синтетичний порядок відпусток")
+    document = new_document(admin_user, "Synthetic leave procedure")
     link_group(document, [Right.EDIT], [membership], admin_user)
     with schema_context(migrated_tenant.number):
         hold = holds.take(document, editor)

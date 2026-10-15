@@ -96,10 +96,10 @@ def test_a_marked_docx_carries_its_changes_in_styles_of_their_own(
     people = edition_cast()
     kit.canonical(migrated_tenant.number, people, commit_version, kit.SECOND)
     changed = (
-        kit.SECOND.replace("подають письмово", "подають **письмово**").replace(
-            "\nКопію рішення надсилають заявникові того ж дня.\n", ""
+        kit.SECOND.replace("made in writing", "made in **writing**").replace(
+            "\nA copy of the decision goes to the applicant that day.\n", ""
         )
-        + "\nРеєстр заяв веде відповідальний виконавець.\n"
+        + "\nThe register of requests is kept by the officer in charge.\n"
     )
     commit_version(people.document, people["a"], changed, "edit")
     client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_PENDING], "marks")

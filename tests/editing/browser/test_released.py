@@ -37,7 +37,7 @@ def test_an_open_editor_is_told_its_editing_was_ended(
 
     settings.LANGUAGE_CODE = "en"
     monkeypatch.setattr(capture, "HEARTBEAT_SECONDS", 1)
-    document = editing("Перше речення.\n")
+    document = editing("The first sentence.\n")
     force(migrated_tenant, document)
     page.wait_for_function(
         f"() => {EDITOR}.capture.indicator.dataset.state === 'released'", timeout=10000

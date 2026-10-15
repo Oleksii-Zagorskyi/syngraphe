@@ -32,6 +32,6 @@ def test_lines_are_counted_at_line_feeds_only() -> None:
 
 def test_a_heading_reads_as_its_reader_reads_it() -> None:
     """Marks and spans leave their words, never their syntax (the role is a synthetic example)."""
-    text = "## Звіт [Бухгалтера]{.role #b} за **квартал**\n\n### Строки\n"
+    text = "## The [Accountant]{.role #b} report for **Q1**\n\n### Time limits\n"
 
-    assert headings(text) == [(2, "Звіт Бухгалтера за квартал", 1), (3, "Строки", 3)]
+    assert headings(text) == [(2, "The Accountant report for Q1", 1), (3, "Time limits", 3)]

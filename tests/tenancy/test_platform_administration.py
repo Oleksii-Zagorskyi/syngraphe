@@ -100,7 +100,7 @@ def test_closed_to_everyone_else(make_tenant_schema: Any) -> None:
 
     from identity.models import Membership, User
 
-    tenant = make_tenant_schema("Синтетична організація")
+    tenant = make_tenant_schema("Synthetic organisation")
     admin = User.objects.create_user("t.admin@example.test", "Tr4vel-Plan-Ok")
     Membership.objects.create(tenant=tenant, user=admin, is_tenant_admin=True, actor_kind="system")
     platform = User.objects.create_user(

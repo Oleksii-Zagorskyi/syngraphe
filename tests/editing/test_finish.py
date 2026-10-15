@@ -20,8 +20,8 @@ pytestmark = [
 
 CORPUS = Path(__file__).resolve().parents[1] / "fixtures" / "corpus" / "document-ukr.md"
 BODY = (
-    "# Умови\n\nПерше речення умов.\nДруге речення умов.\n\n"
-    "# Погодження\n\nПерше речення погодження.\nДруге речення погодження.\n"
+    "# Terms\n\nThe first term.\nThe second term.\n\n"
+    "# Approval\n\nThe first approval rule.\nThe second approval rule.\n"
 )
 
 
@@ -43,7 +43,7 @@ def holding(migrated_tenant: Any, member_of: Any, new_document: Any, body: str) 
                 repo,
                 {"document.md": bundle.render(frontmatter, body).encode()},
                 identity_for(author),
-                "Текст",
+                "Text",
                 gitstore.Kind.EDIT,
             )
         services.derive_version(document, gitstore.commit_at(repo, sha), author)
@@ -65,16 +65,16 @@ def test_screen_shows_changes_summary_and_number(
 ) -> None:
     settings.LANGUAGE_CODE = "en"
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
-    edited = BODY.replace("Друге речення умов.", "Друге змінене речення умов.").replace(
-        "Перше речення погодження.", "Перше нове речення погодження."
+    edited = BODY.replace("The second term.", "The second changed term.").replace(
+        "The first approval rule.", "The first new approval rule."
     )
     set_draft(migrated_tenant, document, edited)
 
     page = client.get(f"/document/{document.number}/edit/finish/")
     body = page.content.decode()
     assert page.status_code == 200
-    assert "Друге <ins>змінене </ins>речення" in body and "Перше <ins>нове </ins>" in body
-    assert 'value="Sections touched: Умови; Погодження"' in body
+    assert "The second <ins>changed </ins>term" in body and "The first <ins>new </ins>" in body
+    assert 'value="Sections touched: Terms; Approval"' in body
     assert "the version waits as 0.0-2" in body
 
 
@@ -84,7 +84,7 @@ def test_finish_refused_while_an_editor_is_open(
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
     client.post(f"/document/{document.number}/edit/load/")
     assert client.get(f"/document/{document.number}/edit/finish/").status_code == 409
-    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"})
+    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Changes"})
     assert sent.status_code == 409
 
 
@@ -103,10 +103,10 @@ def test_send_for_review_commits_one_version(
     settings.LANGUAGE_CODE = "en"
     client, author, document = holding(migrated_tenant, member_of, new_document, BODY)
     set_draft(
-        migrated_tenant, document, BODY.replace("Друге речення умов.", "Друге речення. Нове.")
+        migrated_tenant, document, BODY.replace("The second term.", "The second term. A new one.")
     )
 
-    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Уточнено умови"})
+    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Terms clarified"})
     assert sent.status_code == 302 and sent["Location"] == f"/document/{document.number}/"
     with schema_context(migrated_tenant.number):
         repo = gitstore.open_repository(migrated_tenant.number, document.number)
@@ -119,12 +119,12 @@ def test_send_for_review_commits_one_version(
         stored = gitstore.read(repo, "document.md", head).decode()
     trailers = commit.message.strip().split("\n\n")[-1].splitlines()
     assert trailers[0].startswith("Normalizer: 1@") and trailers[-1] == "Kind: edit"
-    assert commit.message.splitlines()[0] == "Уточнено умови"
-    assert "Друге речення.\nНове." in stored
+    assert commit.message.splitlines()[0] == "Terms clarified"
+    assert "The second term.\nA new one." in stored
     assert (version.kind, version.author_id, version.summary) == (
         "edit",
         author.pk,
-        "Уточнено умови",
+        "Terms clarified",
     )
     assert (hold.release_kind, hold.released_by) == ("finished", None)
     assert queued_authorship == [(migrated_tenant.number, document.number, head)]
@@ -145,7 +145,7 @@ def test_empty_version_refused(
     set_draft(migrated_tenant, document, BODY.replace("\n\n", "\n\n\n", 1))
     with schema_context(migrated_tenant.number):
         before = gitstore.head(gitstore.open_repository(migrated_tenant.number, document.number))
-    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Нічого"})
+    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Nothing"})
     assert sent.status_code == 400
     assert "Nothing changed" in sent.content.decode()
     with schema_context(migrated_tenant.number):
@@ -157,19 +157,19 @@ def test_a_summary_a_commit_cannot_carry_is_refused(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
-    set_draft(migrated_tenant, document, BODY.replace("Перше речення умов.", "Змінене речення."))
+    set_draft(migrated_tenant, document, BODY.replace("The first term.", "An altered term."))
     # Every character a line splits on, and every control character git refuses, is refused on
     # the form, never by the commit.
     for summary in (
         "",
         "Kind: edit",
-        "рядок\nдругий",
-        "а" * 501,
-        "рядок\x0bдругий",
-        "рядок\x00",
-        "рядок\x85Kind: approval",
-        "Перше\u2028друге",
-        "рядок\x1bз керуванням",
+        "line\nsecond",
+        "x" * 501,
+        "line\x0bsecond",
+        "line\x00",
+        "line\x85Kind: approval",
+        "first\u2028second",
+        "line\x1bwith a control",
     ):
         sent = client.post(f"/document/{document.number}/edit/send/", {"summary": summary})
         assert sent.status_code == 400, summary
@@ -184,7 +184,7 @@ def test_finish_within_budget(migrated_tenant: Any, member_of: Any, new_document
     original = "Керівник напряму надає реєстр наданих доступів."
     set_draft(migrated_tenant, document, body.replace(original, original.replace("надає", "веде")))
     started = time.perf_counter()
-    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Уточнення"})
+    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "A clarification"})
     elapsed = time.perf_counter() - started
     assert sent.status_code == 302
     assert elapsed < 5.0, elapsed
@@ -194,7 +194,7 @@ def test_my_edits_tab_shows_the_draft_to_its_holder(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
-    set_draft(migrated_tenant, document, BODY.replace("Друге речення умов.", "Друге інше речення."))
+    set_draft(migrated_tenant, document, BODY.replace("The second term.", "Another second term."))
     body = client.get(f"/document/{document.number}/my-edits/").content.decode()
     assert "<ins>" in body and f'href="/document/{document.number}/my-edits/"' in body
     other, _, _ = member_of("another.editor@example.test")
@@ -205,15 +205,15 @@ def test_marked_text_renders_in_the_changes(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
     """A span of either kind in the text: the changes render, the span as its class."""
-    marked = BODY.replace("Перше речення умов.", "Перше [речення]{.underline} [умов]{.term}.")
+    marked = BODY.replace("The first term.", "The [first]{.underline} [term]{.term}.")
     client, _, document = holding(migrated_tenant, member_of, new_document, marked)
-    set_draft(migrated_tenant, document, marked.replace("Друге речення умов.", "Друге інше."))
+    set_draft(migrated_tenant, document, marked.replace("The second term.", "Another second one."))
     for route in ("edit/finish/", "my-edits/"):
         page = client.get(f"/document/{document.number}/{route}")
         body = page.content.decode()
         assert page.status_code == 200, route
-        assert '<span class="underline">речення</span>' in body
-        assert '<span class="entity entity-term">умов</span>' in body
+        assert '<span class="underline">first</span>' in body
+        assert '<span class="entity entity-term">term</span>' in body
 
 
 def test_a_draft_the_whitelist_refuses_is_named_not_committed(
@@ -223,13 +223,13 @@ def test_a_draft_the_whitelist_refuses_is_named_not_committed(
 
     settings.LANGUAGE_CODE = "en"
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
-    set_draft(migrated_tenant, document, BODY + "\n##### Надто глибокий заголовок\n")
+    set_draft(migrated_tenant, document, BODY + "\n##### A heading too deep\n")
     with schema_context(migrated_tenant.number):
         before = gitstore.head(gitstore.open_repository(migrated_tenant.number, document.number))
     for response in (
         client.get(f"/document/{document.number}/edit/finish/"),
         client.get(f"/document/{document.number}/my-edits/"),
-        client.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"}),
+        client.post(f"/document/{document.number}/edit/send/", {"summary": "Changes"}),
     ):
         body = response.content.decode()
         assert response.status_code == 409
@@ -244,9 +244,9 @@ def test_a_second_send_lands_on_the_document(
 ) -> None:
     """A double click: the second request finds the hold finished and follows the first."""
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
-    set_draft(migrated_tenant, document, BODY.replace("Друге речення умов.", "Друге нове."))
-    first = client.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"})
-    second = client.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"})
+    set_draft(migrated_tenant, document, BODY.replace("The second term.", "A second, new one."))
+    first = client.post(f"/document/{document.number}/edit/send/", {"summary": "Changes"})
+    second = client.post(f"/document/{document.number}/edit/send/", {"summary": "Changes"})
     assert first.status_code == second.status_code == 302
     assert second["Location"] == f"/document/{document.number}/"
 
@@ -268,7 +268,7 @@ def test_send_decides_the_right_under_the_lock(
     document = new_document(author)
     group = link_group(document, [Right.EDIT], [own, membership], author)
     assert editor.post(f"/document/{document.number}/edit/take/").status_code == 200
-    set_draft(migrated_tenant, document, "Текст, якого не буде.\n")
+    set_draft(migrated_tenant, document, "A text that will not be.\n")
     with schema_context(migrated_tenant.number):
         before = gitstore.head(gitstore.open_repository(migrated_tenant.number, document.number))
     real_lock = services.document_lock
@@ -279,7 +279,7 @@ def test_send_decides_the_right_under_the_lock(
         return real_lock(*args, **kwargs)
 
     monkeypatch.setattr(services, "document_lock", removed_first)
-    sent = editor.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"})
+    sent = editor.post(f"/document/{document.number}/edit/send/", {"summary": "Changes"})
 
     assert sent.status_code == 404
     with schema_context(migrated_tenant.number):
@@ -298,9 +298,9 @@ def test_a_broker_failure_after_the_commit_still_reports_the_version(
 
     monkeypatch.setattr(tasks, "queue_authorship", unreachable)
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
-    set_draft(migrated_tenant, document, BODY.replace("Друге речення умов.", "Друге нове."))
+    set_draft(migrated_tenant, document, BODY.replace("The second term.", "A second, new one."))
 
-    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"})
+    sent = client.post(f"/document/{document.number}/edit/send/", {"summary": "Changes"})
 
     assert sent.status_code == 302
     with schema_context(migrated_tenant.number):
@@ -312,8 +312,8 @@ def test_the_drafted_summary_fits_its_limit(
 ) -> None:
     from editing import summary
 
-    old = "".join(f"# Розділ з довгою назвою номер {n}\n\nРечення {n}.\n\n" for n in range(40))
-    new = old.replace("Речення", "Інше речення")
+    old = "".join(f"# Section with a long name, number {n}\n\nSentence {n}.\n\n" for n in range(40))
+    new = old.replace("Sentence", "Another sentence")
     drafted = summary.drafted(old, new)
     assert len(drafted) <= summary.SUMMARY_MAX
     assert summary.problem(drafted) is None and drafted.endswith("…")
@@ -329,7 +329,7 @@ def test_a_draft_typography_carries_over_the_ceiling_is_refused_as_too_large(
     settings.LANGUAGE_CODE = "en"
     ceiling = load_spec().max_bytes
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
-    paragraph = 'Він сказав "так" і пішов далі.\n\n'
+    paragraph = 'He said "yes" and went on.\n\n'
     body = BODY + "\n"
     while len((body + paragraph).encode("utf-8")) <= ceiling:
         body += paragraph
@@ -338,7 +338,7 @@ def test_a_draft_typography_carries_over_the_ceiling_is_refused_as_too_large(
 
     for response in (
         client.get(f"/document/{document.number}/edit/finish/"),
-        client.post(f"/document/{document.number}/edit/send/", {"summary": "Зміни"}),
+        client.post(f"/document/{document.number}/edit/send/", {"summary": "Changes"}),
     ):
         assert response.status_code == 409
         assert "a text longer than the platform accepts" in response.content.decode()

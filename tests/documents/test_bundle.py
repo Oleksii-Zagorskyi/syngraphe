@@ -13,32 +13,32 @@ from documents.bundle import Frontmatter
 pytestmark = pytest.mark.fast
 
 TWO_APPENDICES = """---
-title: "Порядок ведення реєстру (синтетичний приклад)"
+title: "Register procedure (synthetic example)"
 language: "uk"
 title_page: true
 appendices:
   - number: 1
-    title: "Форма запиту"
+    title: "Request form"
   - number: 3
-    title: "Перелік \\"умов\\""
+    title: "List of \\"conditions\\""
 attachments:
   - number: 1
-    title: "Схема"
+    title: "Scheme"
     file_name: "scheme.pdf"
     sha256: "0000000000000000000000000000000000000000000000000000000000000000"
     bytes: 2048
 ---
 
-# Загальні положення
+# General provisions
 
-Текст.
+Text.
 """
 
 
 def test_frontmatter_round_trips() -> None:
     frontmatter, body = bundle.parse(TWO_APPENDICES)
 
-    assert frontmatter.title == "Порядок ведення реєстру (синтетичний приклад)"
+    assert frontmatter.title == "Register procedure (synthetic example)"
     assert [a["number"] for a in frontmatter.appendices] == [1, 3]
     assert frontmatter.attachments[0]["bytes"] == 2048
     assert bundle.render(frontmatter, body) == TWO_APPENDICES
@@ -77,16 +77,16 @@ def test_initial_tree() -> None:
     tree = bundle.initial_tree(
         tenant=3,
         document=12,
-        title="Синтетичний приклад",
+        title="Synthetic example",
         language="uk",
         title_page=False,
-        outline="# Загальні положення\n",
+        outline="# General provisions\n",
     )
 
     assert set(tree) == {"document.md", "passport.md", "entities.yaml"}
     frontmatter, body = bundle.parse(tree["document.md"].decode("utf-8"))
-    assert frontmatter == Frontmatter(title="Синтетичний приклад", language="uk")
-    assert body == "# Загальні положення\n"
+    assert frontmatter == Frontmatter(title="Synthetic example", language="uk")
+    assert body == "# General provisions\n"
     assert tree["passport.md"].decode() == bundle.passport_header(tenant=3, document=12)
     assert tree["entities.yaml"] == b"[]\n"
 

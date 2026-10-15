@@ -152,7 +152,7 @@ def holding(
     from access.rights import Right
     from editing import holds
 
-    document = new_document(admin, "Синтетичний порядок відпусток")
+    document = new_document(admin, "Synthetic leave procedure")
     link_group(document, [Right.EDIT], [membership], admin)
     with schema_context(tenant.number):
         hold = holds.take(document, user)
@@ -317,8 +317,8 @@ def test_lift_restores_the_groups(
 
     admin, admin_user, _ = member_of("t.admin@example.test", is_tenant_admin=True)
     _, someone, membership = member_of("some.one@example.test")
-    read = new_document(admin_user, "Синтетичне положення про архів")
-    edited = new_document(admin_user, "Синтетичний порядок погодження")
+    read = new_document(admin_user, "Synthetic archive regulation")
+    edited = new_document(admin_user, "Synthetic approval procedure")
     link_group(read, [Right.VIEW_PENDING], [membership], admin_user)
     link_group(edited, [Right.EDIT, Right.ACCEPT], [membership], admin_user)
     documents = (read, edited)
@@ -645,7 +645,7 @@ def test_a_hold_cannot_be_taken_while_a_block_is_written(
 
     _, admin_user, _ = member_of("t.admin@example.test", is_tenant_admin=True)
     _, editor, membership = member_of("the.editor@example.test")
-    document = new_document(admin_user, "Синтетичний порядок відпусток")
+    document = new_document(admin_user, "Synthetic leave procedure")
     link_group(document, [Right.EDIT], [membership], admin_user)
     locked = threading.Event()
     release = threading.Event()

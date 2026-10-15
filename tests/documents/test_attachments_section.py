@@ -22,7 +22,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FORM = ("Форма заявки", "form.csv", "номер,дата\n1,2026-01-15\n".encode())
+FORM = ("Request form", "form.csv", b"number,date\n1,2026-01-15\n")
 
 
 def section(body: str) -> str:
@@ -92,6 +92,6 @@ def test_section_follows_the_version_shown(
 
 def _two() -> list[tuple[str, str, bytes]]:
     return [
-        ("Схема погодження", "scheme.txt", "Синтетична схема погодження.\n".encode()),
+        ("Approval scheme", "scheme.txt", b"Synthetic approval scheme.\n"),
         FORM,
     ]

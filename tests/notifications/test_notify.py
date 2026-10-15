@@ -26,7 +26,7 @@ def test_one_row_per_user_never_the_actor(
     _, a, _ = member_of("a.reader@example.test")
     _, b, _ = member_of("b.reader@example.test")
     _, actor, _ = member_of("the.actor@example.test")
-    document = make_document(title="Синтетичний документ", created_by=actor)
+    document = make_document(title="Synthetic procedure", created_by=actor)
     with schema_context(migrated_tenant.number):
         rows = notify(
             users=[a, b],

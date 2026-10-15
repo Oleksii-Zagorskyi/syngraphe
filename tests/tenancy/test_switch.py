@@ -74,10 +74,10 @@ def _platform_host() -> str:
 def test_switch_on_the_platform_host(
     migrated_tenant: Any, make_tenant_schema: Any, repo_root: Any
 ) -> None:
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     person = _member_of_both(migrated_tenant, other)
-    _document(migrated_tenant, person, "Синтетичний документ першої")
-    _document(other, person, "Синтетичний документ другої")
+    _document(migrated_tenant, person, "Synthetic document of the first")
+    _document(other, person, "Synthetic document of the second")
     client = Client(headers={"host": "127.0.0.1"})
     client.force_login(person)
 
@@ -91,10 +91,10 @@ def test_switch_on_the_platform_host(
     assert second.status_code == 302 and second["Location"] == "/"
     assert NAMED.findall(first_page) == [migrated_tenant.name]
     assert NAMED.findall(second_page) == [other.name]
-    assert "Синтетичний документ першої" in first_page
-    assert "Синтетичний документ другої" not in first_page
-    assert "Синтетичний документ другої" in second_page
-    assert "Синтетичний документ першої" not in second_page
+    assert "Synthetic document of the first" in first_page
+    assert "Synthetic document of the second" not in first_page
+    assert "Synthetic document of the second" in second_page
+    assert "Synthetic document of the first" not in second_page
     assert client.session["tenant_number"] == other.number
 
 
@@ -103,8 +103,8 @@ def test_switch_on_a_domain_redirects(
 ) -> None:
     from identity.models import Membership
 
-    with_domain = make_tenant_schema("Синтетична з адресою")
-    without = make_tenant_schema("Синтетична без адреси")
+    with_domain = make_tenant_schema("Synthetic with an address")
+    without = make_tenant_schema("Synthetic without an address")
     person = _member_of_both(migrated_tenant, with_domain)
     Membership.objects.create(tenant=without, user=person, actor_kind="system")
     _domain(migrated_tenant, "first.example.test")
@@ -129,7 +129,7 @@ def test_switch_on_a_domain_redirects(
 def test_the_choice_is_confirmed_on_the_platform_host(
     migrated_tenant: Any, make_tenant_schema: Any
 ) -> None:
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     person = _member_of_both(migrated_tenant, other)
     client = Client(headers={"host": "127.0.0.1"})
     client.force_login(person)
@@ -164,7 +164,7 @@ def test_only_active_memberships(migrated_tenant: Any, make_tenant_schema: Any, 
     from identity.models import Membership, User
     from tenancy.models import Tenant
 
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     person = _member_of_both(migrated_tenant, other)
     client = Client(headers={"host": "127.0.0.1"})
     client.force_login(person)
@@ -180,9 +180,9 @@ def test_only_active_memberships(migrated_tenant: Any, make_tenant_schema: Any, 
         User.objects.filter(pk=person.pk).update(self_blocked=True)
     elif case == "platform administrator without membership":
         User.objects.filter(pk=person.pk).update(is_platform_admin=True)
-        target = make_tenant_schema("Третя синтетична організація").number
+        target = make_tenant_schema("Third synthetic organisation").number
     elif case == "stranger":
-        target = make_tenant_schema("Третя синтетична організація").number
+        target = make_tenant_schema("Third synthetic organisation").number
     elif case == "not a number":
         target = "not-a-number"
     elif case == "out of range":
@@ -199,7 +199,7 @@ def test_only_active_memberships(migrated_tenant: Any, make_tenant_schema: Any, 
 
 
 def test_switch_needs_its_csrf_token(migrated_tenant: Any, make_tenant_schema: Any) -> None:
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     client = Client(headers={"host": "127.0.0.1"}, enforce_csrf_checks=True)
     client.force_login(_member_of_both(migrated_tenant, other))
 
@@ -213,8 +213,8 @@ def test_the_switcher_never_names_another_organisation(
     of: the switcher shows that organisation as current, never one of their own."""
     from identity.models import User
 
-    first = make_tenant_schema("Перша синтетична")
-    second = make_tenant_schema("Друга синтетична")
+    first = make_tenant_schema("First synthetic")
+    second = make_tenant_schema("Second synthetic")
     person = _member_of_both(first, second)
     User.objects.filter(pk=person.pk).update(is_platform_admin=True)
     client = Client(headers={"host": "127.0.0.1"})
@@ -246,7 +246,7 @@ def test_the_switcher_reads_in_ukrainian(
     migrated_tenant: Any, make_tenant_schema: Any, settings: Any
 ) -> None:
     settings.LANGUAGE_CODE = "uk"
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     client = Client(headers={"host": "127.0.0.1"})
     client.force_login(_member_of_both(migrated_tenant, other))
     client.post(SWITCH, {"organisation": migrated_tenant.number})

@@ -54,7 +54,7 @@ def group_holding(migrated_tenant: Any, member_of: Any, repo_root: Path, languag
     def make(*rights: Right, member: bool = True) -> Any:
         with schema_context(migrated_tenant.number):
             group = AccessGroup.objects.create(
-                name=f"Оператори {next(made)} (синтетичний приклад)",
+                name=f"Operators {next(made)} (synthetic example)",
                 created_by=loader,
                 actor_kind="user",
             )
@@ -249,7 +249,7 @@ def test_reader_downloads_loaded_files(
     client, _, membership = member_of("reader.synthetic@example.test")
     with schema_context(migrated_tenant.number):
         readers = AccessGroup.objects.create(
-            name="Читачі (синтетичний приклад)", actor_kind="system"
+            name="Readers (synthetic example)", actor_kind="system"
         )
         readers.grant(Right.VIEW_ACCEPTED, by=None)
         readers.add_member(membership, by=None)
@@ -269,11 +269,11 @@ def test_folder_refusals_all_at_once(
     yaml_text = (folder / "document.yaml").read_text(encoding="utf-8")
     (folder / "document.yaml").write_text(
         yaml_text
-        + '  - file: "absent-plan.txt"\n    title: "Відсутній план"\n'
-        + 'author: "Синтетичний автор"\n',
+        + '  - file: "absent-plan.txt"\n    title: "Absent plan"\n'
+        + 'author: "Synthetic author"\n',
         encoding="utf-8",
     )
-    (folder / "unnamed-note.txt").write_text("Синтетична примітка.\n", encoding="utf-8")
+    (folder / "unnamed-note.txt").write_text("A synthetic note.\n", encoding="utf-8")
     # A name beginning with a dot is ignored, as a Mac's `.DS_Store` is.
     (folder / ".DS_Store").write_bytes(b"\x00")
 
@@ -297,7 +297,7 @@ def test_whitelist_and_cap_refuse_before_writing(
     remote = copy(PROCEDURE, tmp_path, "remote-image")
     # The image on line 5 of the body.
     (remote / "document.md").write_text(
-        "# Загальні положення\n\nТекст розділу.\n\n![Схема](https://example.test/scheme.png)\n",
+        "# General provisions\n\nThe section's text.\n\n![Scheme](https://example.test/scheme.png)\n",
         encoding="utf-8",
     )
     message = refused(migrated_tenant, operators, remote)
@@ -341,7 +341,7 @@ def test_frontmatter_refused(
     folder = copy(PROCEDURE, tmp_path, "with-frontmatter")
     body = (folder / "document.md").read_text(encoding="utf-8")
     (folder / "document.md").write_text(
-        '---\ntitle: "Синтетичний заголовок"\n---\n\n' + body, encoding="utf-8"
+        '---\ntitle: "Synthetic title"\n---\n\n' + body, encoding="utf-8"
     )
 
     message = refused(migrated_tenant, operators, folder)
@@ -441,7 +441,7 @@ def test_links_are_refused_not_followed(
     migrated_tenant: Any, operators: Any, tmp_path: Path, repo_root: Path
 ) -> None:
     outside = tmp_path / "outside.txt"
-    outside.write_text("Синтетичний файл поза текою.\n", encoding="utf-8")
+    outside.write_text("A synthetic file outside the folder.\n", encoding="utf-8")
     folder = copy(PROCEDURE, tmp_path)
     (folder / "scheme.txt").unlink()
     (folder / "scheme.txt").symlink_to(outside)
@@ -456,7 +456,7 @@ def test_linked_body_refused(
     migrated_tenant: Any, operators: Any, tmp_path: Path, repo_root: Path
 ) -> None:
     outside = tmp_path / "outside.md"
-    outside.write_text("# Синтетичний розділ\n\nСинтетичний текст.\n", encoding="utf-8")
+    outside.write_text("# Synthetic section\n\nSynthetic text.\n", encoding="utf-8")
     folder = copy(PROCEDURE, tmp_path)
     (folder / "document.md").unlink()
     (folder / "document.md").symlink_to(outside)
@@ -475,7 +475,7 @@ def test_template_body_without_attachments_refused_before_writing(
     folder = copy(PROCEDURE, tmp_path)
     (folder / "scheme.txt").unlink()
     (folder / "document.yaml").write_text(
-        'title: "Порожній синтетичний документ"\nlanguage: "uk"\n', encoding="utf-8"
+        'title: "Empty synthetic document"\nlanguage: "uk"\n', encoding="utf-8"
     )
     (folder / "document.md").write_text(outline, encoding="utf-8")
 
@@ -493,31 +493,31 @@ def test_subfolder_refused(
     assert_nothing_written(migrated_tenant, repo_root)
 
 
-BASE_YAML = 'title: "Синтетичний приклад"\nlanguage: "uk"\n'
+BASE_YAML = 'title: "Synthetic example"\nlanguage: "uk"\n'
 
 
 @pytest.mark.parametrize(
     ("description", "expected"),
     [
-        (BASE_YAML + 'title: "Двічі"\n', "document.yaml"),
-        ('title: "Синтетичний приклад"\nlanguage: "xx"\n', "language"),
-        ('title: "Два\\nрядки"\nlanguage: "uk"\n', "title"),
+        (BASE_YAML + 'title: "Twice"\n', "document.yaml"),
+        ('title: "Synthetic example"\nlanguage: "xx"\n', "language"),
+        ('title: "Two\\nlines"\nlanguage: "uk"\n', "title"),
         (
-            BASE_YAML + 'attachments:\n  - file: "../scheme.txt"\n    title: "Схема"\n',
+            BASE_YAML + 'attachments:\n  - file: "../scheme.txt"\n    title: "Scheme"\n',
             "../scheme.txt",
         ),
         (
-            BASE_YAML + 'attachments:\n  - file: "sub\\\\scheme.txt"\n    title: "Схема"\n',
+            BASE_YAML + 'attachments:\n  - file: "sub\\\\scheme.txt"\n    title: "Scheme"\n',
             "scheme.txt",
         ),
-        (BASE_YAML + 'attachments:\n  - file: ".scheme.txt"\n    title: "Схема"\n', ".scheme.txt"),
+        (BASE_YAML + 'attachments:\n  - file: ".scheme.txt"\n    title: "Scheme"\n', ".scheme.txt"),
         (
             BASE_YAML
-            + 'attachments:\n  - file: "scheme.txt"\n    title: "Схема"\n'
-            + '  - file: "scheme.txt"\n    title: "Знову"\n',
+            + 'attachments:\n  - file: "scheme.txt"\n    title: "Scheme"\n'
+            + '  - file: "scheme.txt"\n    title: "Again"\n',
             "named twice",
         ),
-        (BASE_YAML + 'attachments:\n  - file: "scheme.txt"\n    title: "Два\\nрядки"\n', "title"),
+        (BASE_YAML + 'attachments:\n  - file: "scheme.txt"\n    title: "Two\\nlines"\n', "title"),
         (BASE_YAML + "1: x\nzz: y\n", "unknown keys"),
     ],
 )
@@ -549,7 +549,7 @@ def test_nfd_name_matches_its_nfc_description(
     (folder / "scheme.txt").rename(folder / unicodedata.normalize("NFD", name))
     (folder / "document.yaml").write_text(
         BASE_YAML
-        + f'attachments:\n  - file: "{unicodedata.normalize("NFC", name)}"\n    title: "Схема"\n',
+        + f'attachments:\n  - file: "{unicodedata.normalize("NFC", name)}"\n    title: "Scheme"\n',
         encoding="utf-8",
     )
 

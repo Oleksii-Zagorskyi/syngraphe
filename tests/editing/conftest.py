@@ -33,7 +33,7 @@ def new_document(migrated_tenant: Any, repo_root: Path) -> Callable[..., Any]:
     """A document created through the service — repository, `created` commit, rows — in the
     migrated tenant's root folder, reaching only its creator until a group is linked."""
 
-    def make(user: Any, title: str = "Синтетичний порядок погодження") -> Any:
+    def make(user: Any, title: str = "Synthetic approval procedure") -> Any:
         from documents import services
         from documents.models import DocumentType, Folder
         from identity.models import Language
@@ -64,7 +64,7 @@ def link_group(migrated_tenant: Any) -> Callable[..., Any]:
 
         with schema_context(migrated_tenant.number):
             group = AccessGroup.objects.create(
-                name=f"Редактори {next(made)}", created_by=by, actor_kind="user"
+                name=f"Editors {next(made)}", created_by=by, actor_kind="user"
             )
             for right in rights:
                 group.grant(right, by=by)

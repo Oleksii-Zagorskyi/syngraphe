@@ -12,7 +12,7 @@ import pytest
 pytestmark = pytest.mark.browser
 
 EDITOR = "document.getElementById('editor').editor"
-START = "Перше речення.\n"
+START = "The first sentence.\n"
 
 
 def type_at_end(page: Any, text: str) -> None:
@@ -27,14 +27,14 @@ def test_typing_survives_a_closed_page(
     """Closed within the pause, before any capture: what the closing page sends is the text and
     the close together, so the reopened tab has the text and no other editor holds finishing."""
     editing(START)
-    type_at_end(page, " Друге речення.")
+    type_at_end(page, " The second sentence.")
     url = page.url
     page.close()
     reopened = page.context.new_page()
     reopened.goto(url)
     reopened.click("button[data-command=edit-whole]")
     reopened.wait_for_function("() => document.getElementById('editor').editor !== undefined")
-    assert "Друге речення." in reopened.evaluate(f"{EDITOR}.markdown()")
+    assert "The second sentence." in reopened.evaluate(f"{EDITOR}.markdown()")
     reopened.wait_for_function(f"() => {EDITOR}.others === 0", timeout=5000)
 
 
@@ -56,7 +56,7 @@ def test_capture_on_pause_not_per_keystroke(editing: Any, page: Any) -> None:
     )
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
-    words = " Кожне слово цього речення набране без паузи довше за мить" * 3
+    words = " Every word of this sentence is typed with no pause longer than a moment" * 3
     page.keyboard.type(words[:100], delay=100)
     assert captures == []
     page.wait_for_selector(".capture-indicator[data-state=captured]", timeout=5000)
@@ -68,7 +68,7 @@ def test_capture_on_pause_not_per_keystroke(editing: Any, page: Any) -> None:
 def test_a_large_text_is_captured_as_the_tab_hides(editing: Any, page: Any) -> None:
     """Over a `keepalive` request's limit, the flush on hiding is sent as a plain request."""
     editing(START)
-    big = "".join(f"Речення номер {n} великого тексту.\n" for n in range(4000))
+    big = "".join(f"Sentence number {n} of a large text.\n" for n in range(4000))
     page.evaluate(f"(text) => {EDITOR}.replace(text)", big)
     outcome = page.evaluate(f"() => {EDITOR}.capture.flush(true)")
     assert outcome == "captured"
@@ -82,18 +82,18 @@ def test_finish_waits_while_text_is_not_captured(
     settings.LANGUAGE_CODE = "en"
     document = editing(START)
     page.route(re.compile(r".*/edit/capture/$"), lambda r: r.fulfill(status=500, body=""))
-    type_at_end(page, " Друге речення.")
+    type_at_end(page, " The second sentence.")
     page.click("button[data-command=finish]")
     page.wait_for_selector(".capture-indicator[data-state=failed]", timeout=5000)
     assert page.url.endswith(f"/document/{document.number}/edit/")
-    assert "Друге речення." in page.evaluate(f"{EDITOR}.markdown()")
+    assert "The second sentence." in page.evaluate(f"{EDITOR}.markdown()")
     page.wait_for_function(
         "() => !document.querySelector('button[data-command=finish]').disabled", timeout=5000
     )
     page.unroute(re.compile(r".*/edit/capture/$"))
     page.click("button[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
-    assert "Друге речення." in (page.text_content(".finish") or "")
+    assert "The second sentence." in (page.text_content(".finish") or "")
 
 
 def test_no_save_control(editing: Any, page: Any) -> None:
@@ -118,10 +118,10 @@ def test_failed_capture_is_said_and_kept(editing: Any, page: Any, settings: Any)
             request_route.continue_()
 
     page.route(re.compile(r".*/edit/capture/$"), route)
-    type_at_end(page, " Друге речення.")
+    type_at_end(page, " The second sentence.")
     page.wait_for_selector(".capture-indicator[data-state=failed]", timeout=5000)
     assert "Not captured" in (page.text_content(".capture-indicator") or "")
-    assert "Друге речення." in page.evaluate(f"{EDITOR}.markdown()")
+    assert "The second sentence." in page.evaluate(f"{EDITOR}.markdown()")
     failing["on"] = False
     page.wait_for_selector(".capture-indicator[data-state=captured]", timeout=10000)
 
@@ -130,7 +130,7 @@ def test_failed_capture_is_said_and_kept(editing: Any, page: Any, settings: Any)
         re.compile(r".*/edit/capture/$"),
         lambda r: r.fulfill(status=302, headers={"Location": "/signin/"}),
     )
-    type_at_end(page, " Третє.")
+    type_at_end(page, " The third.")
     page.wait_for_selector(".capture-indicator[data-state=signed_out]", timeout=5000)
     assert "Signed out" in (page.text_content(".capture-indicator") or "")
 
@@ -148,8 +148,8 @@ def test_an_editor_closed_while_silent_reopens_itself(
     editing(START)
     with schema_context(migrated_tenant.number):
         OpenEditor.objects.update(closed_at=timezone.now())
-    type_at_end(page, " Після сну.")
+    type_at_end(page, " After sleep.")
     page.wait_for_selector(".capture-indicator[data-state=captured]", timeout=5000)
     with schema_context(migrated_tenant.number):
         assert OpenEditor.objects.filter(closed_at__isnull=True).count() == 1
-    assert "Після сну." in page.evaluate(f"{EDITOR}.markdown()")
+    assert "After sleep." in page.evaluate(f"{EDITOR}.markdown()")

@@ -123,7 +123,7 @@ def test_no_act_on_a_migrating_organisation(migrated_tenant: Any) -> None:
     from tenancy.models import Tenant
 
     setting_up = Tenant.objects.create(
-        name="Синтетична, що налаштовується", state="migrating", actor_kind="system"
+        name="Synthetic, being set up", state="migrating", actor_kind="system"
     )
     client, _ = _platform()
 
@@ -287,7 +287,7 @@ def test_the_acts_are_closed_to_everyone_else(
     from tenancy.middleware import invalidate_host_cache
     from tenancy.models import Tenant, TenantDomain
 
-    blocked = make_tenant_schema("Синтетична заблокована")
+    blocked = make_tenant_schema("Synthetic blocked")
     Tenant.objects.filter(pk=blocked.pk).update(state="blocked")
     admin, _, _ = member_of("t.admin@example.test", is_tenant_admin=True)
     platform = User.objects.create_user(

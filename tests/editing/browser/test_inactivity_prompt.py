@@ -15,7 +15,7 @@ from tenancy.schemas import schema_context
 pytestmark = pytest.mark.browser
 
 PROMPT = '[data-prompt="inactivity"]'
-START = "Синтетичне перше речення.\n"
+START = "The first synthetic sentence.\n"
 
 
 def test_the_prompt_restarts_the_clock(

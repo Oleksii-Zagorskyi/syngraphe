@@ -26,10 +26,10 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FIRST = "Заяву на погодження подають письмово.\n"
-SECOND = FIRST + "\nКопію рішення надсилають заявникові того ж дня.\n"
-THIRD = SECOND + "\nРеєстр заяв веде відповідальний виконавець.\n"
-REASON = "Синтетична причина: чекаємо рішення ради"
+FIRST = "A request for approval is made in writing.\n"
+SECOND = FIRST + "\nA copy of the decision goes to the applicant that day.\n"
+THIRD = SECOND + "\nThe register of requests is kept by the officer in charge.\n"
+REASON = "Synthetic reason: waiting for the board to decide"
 
 
 def _accepted_and_frozen(migrated_tenant: Any, people: Any, commit_version: Any) -> Any:
@@ -158,7 +158,7 @@ def test_end_freeze_after_a_stopped_approval_finishes_the_approval(
             editions.make_canonical(people.document, people["p"], fault_at=1)
         # The operator's end meets the approval settled first: the freeze it ended is not open.
         with pytest.raises(ValueError, match="not frozen"):
-            editions.end_freeze(people.document, "Синтетичне рішення оператора")
+            editions.end_freeze(people.document, "Synthetic decision of the operator")
         assert list(Edition.objects.values_list("number", flat=True)) == ["1.0"]
         assert Freeze.objects.get().ended_by_kind == "made_canonical"
 
@@ -173,7 +173,7 @@ def test_a_tag_in_the_way_stops_before_the_commit(
     _accepted_and_frozen(migrated_tenant, people, commit_version)
     head = repository.head(people.document)
     repo = gitstore.open_repository(migrated_tenant.number, people.document.number)
-    gitstore.tag(repo, "1.0", head, identity_for(people["p"]), "Синтетична мітка")
+    gitstore.tag(repo, "1.0", head, identity_for(people["p"]), "Synthetic tag")
 
     with schema_context(migrated_tenant.number):
         with pytest.raises(review.RecordIncomplete):
@@ -273,7 +273,7 @@ def test_a_right_lost_mid_hold_during_a_freeze(
         group.revoke(Right.ACCEPT, by=people["a"])
         group.grant(Right.EDIT, by=people["a"])
         with pytest.raises(holds.Frozen):
-            editing.commit_draft(hold, people["r"], "Синтетична правка")
+            editing.commit_draft(hold, people["r"], "Synthetic edit")
         assert Draft.objects.filter(hold=hold).exists()
 
 
@@ -286,7 +286,7 @@ def test_a_reason_that_reorders_the_band_is_refused(
     commit_version(people.document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
         with pytest.raises(editions.FreezeRefused) as refused:
-            editions.freeze(people.document, people["p"], "причина ‮дзеркально")
+            editions.freeze(people.document, people["p"], "reason ‮mirrored")
         assert refused.value.reason == "reason_invalid"
 
 
@@ -299,7 +299,7 @@ def test_a_reservations_holder_is_named_to_who_may_freeze(
 
     people = edition_cast()
     commit_version(people.document, people["a"], FIRST, "edit")
-    people["a"].display_name = "Синтетична редакторка"
+    people["a"].display_name = "Synthetic Editor E"
     people["a"].save(update_fields=["display_name"])
     with schema_context(migrated_tenant.number):
         hold = holds.take(people.document, people["a"])
@@ -308,7 +308,7 @@ def test_a_reservations_holder_is_named_to_who_may_freeze(
 
     page = people.clients["p"].get(f"/document/{people.document.number}/").content.decode()
 
-    assert "Синтетична редакторка" in page
+    assert "Synthetic Editor E" in page
 
 
 def test_make_canonical_asks_for_the_new_heads_authorship(
@@ -348,7 +348,7 @@ def test_the_list_costs_a_fixed_number_of_queries(
     people = edition_cast()
     documents = [people.document]
     for n in range(4):
-        document = new_document(people["a"], f"Синтетичний порядок {n}")
+        document = new_document(people["a"], f"Synthetic procedure {n}")
         link_group(document, [Right.VIEW_PENDING], [people.memberships["p"]], people["a"])
         documents.append(document)
     for document in documents:
@@ -398,7 +398,7 @@ def test_a_reviewer_commits_through_the_service_while_frozen(
         draft = Draft.objects.get(hold=hold)
         draft.content = {**draft.content, "document.md": SECOND}
         draft.save()
-        version = editing.commit_draft(hold, people["r"], "Синтетична правка")
+        version = editing.commit_draft(hold, people["r"], "Synthetic edit")
         assert version.kind == "reviewer_edit"
         assert review.accept(people.document, people["r"]).number == "0.2"
 

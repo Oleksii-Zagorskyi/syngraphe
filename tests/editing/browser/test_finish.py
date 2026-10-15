@@ -22,10 +22,10 @@ def test_finish_end_to_end(
     from editing.models import Hold
 
     settings.LANGUAGE_CODE = "en"
-    document = editing("Перше речення.\n")
+    document = editing("The first sentence.\n")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
-    page.keyboard.type(" Друге речення.", delay=10)
+    page.keyboard.type(" The second sentence.", delay=10)
     page.click("button[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     assert "the version waits as 0.0-1" in (page.text_content(".finish") or "")

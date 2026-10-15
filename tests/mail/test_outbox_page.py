@@ -33,8 +33,8 @@ def test_the_platform_outbox_lists_platform_mail_only(member_of: Any, migrated_t
         older = EmailOutbox.objects.create(
             sender="platform.sender@example.test",
             recipient="first.synthetic@example.test",
-            subject="Синтетична тема перша",
-            body="Синтетичний лист.",
+            subject="Synthetic subject one",
+            body="A synthetic letter.",
             status=Status.SENT,
             created_at=now - timedelta(minutes=2),
             sent_at=now - timedelta(minutes=2),
@@ -42,8 +42,8 @@ def test_the_platform_outbox_lists_platform_mail_only(member_of: Any, migrated_t
         newer = EmailOutbox.objects.create(
             sender="platform.sender@example.test",
             recipient="second.synthetic@example.test",
-            subject="Синтетична тема друга",
-            body="Синтетичний лист.",
+            subject="Synthetic subject two",
+            body="A synthetic letter.",
             status=Status.QUEUED,
             attempts=2,
             last_error="smtp:451 4.3.0 Synthetic refusal",
@@ -54,8 +54,8 @@ def test_the_platform_outbox_lists_platform_mail_only(member_of: Any, migrated_t
             tenant=migrated_tenant,
             sender="tenant.sender@example.test",
             recipient="tenant.reader@example.test",
-            subject="Синтетична тема організації",
-            body="Синтетичний лист.",
+            subject="Synthetic organisation subject",
+            body="A synthetic letter.",
         )
 
     page = client.get("/administration/platform/mail/").content.decode()

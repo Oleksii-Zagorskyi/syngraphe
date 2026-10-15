@@ -187,7 +187,7 @@ def test_attachments_go_in_one_zip(
     people = edition_cast()
     document = people.document
     commit_version(document, people["a"], kit.FIRST, "edit")
-    data = "Синтетична таблиця строків.\n".encode()
+    data = b"Synthetic list of time limits.\n"
     import hashlib
 
     with schema_context(number):
@@ -199,8 +199,8 @@ def test_attachments_go_in_one_zip(
             frontmatter.attachments = [
                 {
                     "number": 1,
-                    "title": "Таблиця строків",
-                    "file_name": "stroky.txt",
+                    "title": "List of time limits",
+                    "file_name": "time-limits.txt",
                     "sha256": hashlib.sha256(data).hexdigest(),
                     "bytes": len(data),
                 }
@@ -212,12 +212,12 @@ def test_attachments_go_in_one_zip(
                     "attachments/1": data,
                 },
                 identity_for(people["a"]),
-                "Синтетичне вкладення",
+                "Synthetic edit with a file",
                 gitstore.Kind.EDIT,
             )
             services.derive_version(document, gitstore.commit_at(repo, sha), people["a"])
         review.accept(document, people["r"])
-        editions.freeze(document, people["p"], "Синтетична причина")
+        editions.freeze(document, people["p"], "Synthetic reason")
         editions.make_canonical(document, people["p"])
     client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "zip")
 
@@ -233,11 +233,11 @@ def test_attachments_go_in_one_zip(
     assert path.name.endswith("_—_1.0_—_канонічна_версія.zip"), path.name
     with zipfile.ZipFile(path) as bundle_file:
         assert sorted(bundle_file.namelist()) == [
-            "вкладений_файл-1_—_stroky.txt",
+            "вкладений_файл-1_—_time-limits.txt",
             "документ.md",
         ]
-        assert bundle_file.read("вкладений_файл-1_—_stroky.txt") == data
-        assert "stroky.txt" in bundle_file.read("документ.md").decode()
+        assert bundle_file.read("вкладений_файл-1_—_time-limits.txt") == data
+        assert "time-limits.txt" in bundle_file.read("документ.md").decode()
 
 
 def test_a_right_lost_before_the_run_fails_the_job(
@@ -369,10 +369,10 @@ def test_the_attachment_list_goes_with_the_document_even_without_the_files(
 
     number = migrated_tenant.number
     people = edition_cast()
-    kit.attach(number, people, kit.FIRST, "Синтетична таблиця.\n".encode())
+    kit.attach(number, people, kit.FIRST, b"Synthetic list.\n")
     with schema_context(number):
         review.accept(people.document, people["r"])
-        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.freeze(people.document, people["p"], "Synthetic reason")
         editions.make_canonical(people.document, people["p"])
     client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "list")
 
@@ -385,7 +385,7 @@ def test_the_attachment_list_goes_with_the_document_even_without_the_files(
     assert job.state == "done", job.failure_reason
     produced = Path(settings.EXPORT_ROOT) / job.artifact_ref
     assert produced.suffix == ".md"
-    assert "stroky.txt" in produced.read_text(encoding="utf-8")
+    assert "time-limits.txt" in produced.read_text(encoding="utf-8")
 
 
 def test_attachments_asked_of_a_version_without_them_are_refused(
@@ -519,7 +519,7 @@ def test_attachments_alone_are_exported_as_the_dialog_posts_them(
     number = migrated_tenant.number
     people = edition_cast()
     kit.canonical(number, people, commit_version, kit.FIRST)
-    data = "Синтетичний рядок таблиці.\n".encode()
+    data = b"A synthetic row of the list.\n"
     kit.attach(number, people, kit.SECOND, data)
 
     response = people.clients["r"].post(
@@ -531,8 +531,8 @@ def test_attachments_alone_are_exported_as_the_dialog_posts_them(
     job = kit.run_job(number, exports[0][1])
     assert job.state == "done", job.failure_reason
     with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as bundle_file:
-        assert bundle_file.namelist() == ["вкладений_файл-1_—_stroky.txt"]
-        assert bundle_file.read("вкладений_файл-1_—_stroky.txt") == data
+        assert bundle_file.namelist() == ["вкладений_файл-1_—_time-limits.txt"]
+        assert bundle_file.read("вкладений_файл-1_—_time-limits.txt") == data
 
 
 @pytest.mark.budget

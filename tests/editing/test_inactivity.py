@@ -20,7 +20,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-TEXT = "\nСинтетичне речення, вигадане для перевірки.\n"
+TEXT = "\nA synthetic sentence, invented for the check.\n"
 
 
 def post(client: Any, document: Any, route: str, **body: Any) -> Any:
@@ -205,7 +205,7 @@ def document_in(tenant: Any, user: Any) -> Any:
     with schema_context(tenant.number):
         return services.create_document(
             user,
-            "Синтетичний порядок чергувань",
+            "Synthetic duty rota procedure",
             "uk",
             DocumentType.objects.get(code="document"),
             Folder.objects.get(number=1),
@@ -217,8 +217,8 @@ def test_timeout_per_organisation(make_tenant_schema: Any, repo_root: Any) -> No
 
     prompts = {}
     for name, minutes, email in (
-        ("Синтетична організація перша", 10, "first.author@example.test"),
-        ("Синтетична організація друга", 30, "second.author@example.test"),
+        ("Synthetic organisation one", 10, "first.author@example.test"),
+        ("Synthetic organisation two", 30, "second.author@example.test"),
     ):
         tenant = make_tenant_schema(name)
         Tenant.objects.filter(pk=tenant.pk).update(hold_inactivity_minutes=minutes)
@@ -294,7 +294,7 @@ def test_one_organisation_that_fails_leaves_the_others_visited(
 
     _, _, document, _ = opened(member_of, new_document)
     idle_for(migrated_tenant, document, 41)
-    failing = Tenant.objects.create(name="Синтетична несправна організація", actor_kind="system")
+    failing = Tenant.objects.create(name="Synthetic faulty organisation", actor_kind="system")
     real = tasks._quiet_holds
 
     def quiet_holds(tenant: Any) -> int:

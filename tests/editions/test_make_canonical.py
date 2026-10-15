@@ -25,11 +25,11 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FIRST = "# Загальні положення\n\nЗаяву на погодження подають письмово.\n"
-SECOND = FIRST + "\nСтрок розгляду заяви становить десять днів.\n"
-THIRD = SECOND.replace("десять днів", "п'ять робочих днів")
-FOURTH = THIRD + "\nКопію рішення надсилають заявникові того ж дня.\n"
-REASON = "Синтетична причина: чекаємо рішення ради"
+FIRST = "# General provisions\n\nA request for approval is made in writing.\n"
+SECOND = FIRST + "\nA request is considered within ten days.\n"
+THIRD = SECOND.replace("ten days", "five working days")
+FOURTH = THIRD + "\nA copy of the decision goes to the applicant that day.\n"
+REASON = "Synthetic reason: waiting for the board to decide"
 
 
 def _tag(migrated_tenant: Any, document: Any, name: str) -> pygit2.Tag | None:

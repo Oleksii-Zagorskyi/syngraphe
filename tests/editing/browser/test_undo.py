@@ -12,7 +12,7 @@ from tenancy.schemas import schema_context
 pytestmark = pytest.mark.browser
 
 EDITOR = "document.getElementById('editor').editor"
-START = "Перше речення.\nДруге речення.\n"
+START = "The first sentence.\nThe second sentence.\n"
 
 
 def stored(tenant: Any, document: Any) -> str:
@@ -31,7 +31,7 @@ def test_undo_redo_returns_text_and_boundaries(
     first_stored = stored(migrated_tenant, document)
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
-    page.keyboard.type(" Третє речення.", delay=10)
+    page.keyboard.type(" The third sentence.", delay=10)
     assert page.evaluate(f"{EDITOR}.capture.flush()") == "captured"
     typed_text = page.evaluate(f"{EDITOR}.markdown()")
     typed_stored = stored(migrated_tenant, document)

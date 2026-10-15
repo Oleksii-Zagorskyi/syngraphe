@@ -37,11 +37,11 @@ def test_each_crash_state_repaired(
         draft = Draft.objects.get(hold=hold)
         draft.content = {
             **draft.content,
-            "document.md": draft.content["document.md"] + "\nНове речення.\n",
+            "document.md": draft.content["document.md"] + "\nA new sentence.\n",
         }
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, author, "Доповнено", fault_at=step)
+            services.commit_draft(hold, author, "Extended", fault_at=step)
 
     reconcile.run(tenant=migrated_tenant.number, repair=True)
 
@@ -74,11 +74,11 @@ def stopped_at_the_commit(
         draft = Draft.objects.get(hold=hold)
         draft.content = {
             **draft.content,
-            "document.md": draft.content["document.md"] + "\nНове речення.\n",
+            "document.md": draft.content["document.md"] + "\nA new sentence.\n",
         }
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, author, "Доповнено", fault_at=1)
+            services.commit_draft(hold, author, "Extended", fault_at=1)
     return author, document, hold
 
 
@@ -102,7 +102,7 @@ def test_a_second_send_resumes_a_stopped_finish(
 
     author, document, hold = stopped_at_the_commit(migrated_tenant, member_of, new_document)
     with schema_context(migrated_tenant.number):
-        version = services.commit_draft(hold, author, "Доповнено")
+        version = services.commit_draft(hold, author, "Extended")
         head = gitstore.head(gitstore.open_repository(migrated_tenant.number, document.number))
         hold.refresh_from_db()
         assert version.commit_sha == head
@@ -119,12 +119,12 @@ def test_a_second_send_commits_what_was_typed_after_the_stop(
     from editing import services
 
     author, document, hold = stopped_at_the_commit(migrated_tenant, member_of, new_document)
-    add_to_draft(migrated_tenant, hold, "\nПізніше речення.\n")
+    add_to_draft(migrated_tenant, hold, "\nA later sentence.\n")
     with schema_context(migrated_tenant.number):
-        version = services.commit_draft(hold, author, "Ще доповнено")
+        version = services.commit_draft(hold, author, "Extended again")
         repo = gitstore.open_repository(migrated_tenant.number, document.number)
         _, body = bundle.parse(gitstore.read(repo, "document.md", version.commit_sha).decode())
-        assert "Нове речення." in body and "Пізніше речення." in body
+        assert "A new sentence." in body and "A later sentence." in body
         assert Version.objects.filter(document=document, kind="edit").count() == 2
 
 
@@ -135,7 +135,7 @@ def test_the_repair_leaves_text_typed_after_the_stop(
     from editing.models import Draft
 
     _, document, hold = stopped_at_the_commit(migrated_tenant, member_of, new_document)
-    add_to_draft(migrated_tenant, hold, "\nПізніше речення.\n")
+    add_to_draft(migrated_tenant, hold, "\nA later sentence.\n")
 
     findings = reconcile.run(tenant=migrated_tenant.number, repair=True)
 
@@ -144,7 +144,7 @@ def test_the_repair_leaves_text_typed_after_the_stop(
     with schema_context(migrated_tenant.number):
         hold.refresh_from_db()
         assert hold.released_at is None
-        assert "Пізніше речення." in Draft.objects.get(hold=hold).content["document.md"]
+        assert "A later sentence." in Draft.objects.get(hold=hold).content["document.md"]
 
 
 def test_the_repair_leaves_a_holder_no_longer_a_member(
@@ -179,6 +179,6 @@ def test_the_screen_numbers_the_version_after_a_stopped_one(
     _, _, hold = stopped_at_the_commit(migrated_tenant, member_of, new_document)
     with schema_context(migrated_tenant.number):
         assert services.finish(hold).number == "0.0-1"
-    add_to_draft(migrated_tenant, hold, "\nПізніше речення.\n")
+    add_to_draft(migrated_tenant, hold, "\nA later sentence.\n")
     with schema_context(migrated_tenant.number):
         assert services.finish(hold).number == "0.0-2"

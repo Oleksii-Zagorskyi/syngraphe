@@ -44,13 +44,13 @@ def test_numbers_come_from_the_tenants_sequence(migrated_tenant: Any) -> None:
 def test_document_number_is_unique(migrated_tenant: Any, make_document: Any) -> None:
     from documents.models import Document
 
-    document = make_document(title="Перший")
+    document = make_document(title="First")
 
     with schema_context(migrated_tenant.number):
         with pytest.raises(IntegrityError), transaction.atomic():
             Document.objects.create(
                 number=document.number,
-                title="Другий",
+                title="Second",
                 language_id="uk",
                 document_type=document.document_type,
                 folder=document.folder,
@@ -76,12 +76,12 @@ def test_caches_rebuild_from_the_commit(
     frontmatter = Frontmatter(
         title="T",
         language="uk",
-        appendices=[{"number": 1, "title": "Додаток"}],
+        appendices=[{"number": 1, "title": "Appendix"}],
         attachments=[
-            {"number": 1, "title": "Схема", "file_name": "a.pdf", "sha256": "0" * 64, "bytes": 5}
+            {"number": 1, "title": "Scheme", "file_name": "a.pdf", "sha256": "0" * 64, "bytes": 5}
         ],
     )
-    text = render(frontmatter, "# Перший\n\nТекст.\n\n## Другий ##\n\n```\n# not a heading\n```\n")
+    text = render(frontmatter, "# First\n\nText.\n\n## Second ##\n\n```\n# not a heading\n```\n")
     sha = gitstore.commit(
         repo,
         {"document.md": text.encode(), "appendices/1.md": b"# Appendix\n"},
@@ -115,10 +115,10 @@ def test_caches_rebuild_from_the_commit(
 
     assert rows == [
         ("appendices/1.md", 1, 1, "Appendix", 1),
-        ("document.md", 1, 1, "Перший", 16),
-        ("document.md", 2, 2, "Другий", 20),
+        ("document.md", 1, 1, "First", 16),
+        ("document.md", 2, 2, "Second", 20),
     ]
-    assert part_rows == [("appendix", 1, 1, "Додаток"), ("attachment", 1, 1, "Схема")]
+    assert part_rows == [("appendix", 1, 1, "Appendix"), ("attachment", 1, 1, "Scheme")]
 
 
 def test_the_sequence_is_each_tenants_own(migrated_tenant: Any, make_tenant_schema: Any) -> None:

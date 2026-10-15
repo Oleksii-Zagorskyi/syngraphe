@@ -24,15 +24,15 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-REASON = "Синтетична причина: потрібна термінова правка бюджету"
-CHANGED = "# Синтетичні умови\n\nВласниця чернетки переписала перше речення.\n"
+REASON = "Synthetic reason: an urgent budget correction is needed"
+CHANGED = "# Synthetic terms\n\nThe draft's owner rewrote the first sentence.\n"
 BIDI = "‮"
 REFUSED = (
-    "я" * 600,
+    "x" * 600,
     "",
     "   ",
-    f"Синтетична причина {BIDI}з керуванням напрямком",
-    "Синтетичний перший рядок\nСинтетичний другий рядок",
+    f"Synthetic reason {BIDI}with a direction control",
+    "Synthetic first line\nSynthetic second line",
 )
 
 
@@ -128,11 +128,11 @@ def reserved(migrated_tenant: Any, member_of: Any, new_document: Any, link_group
 
     _, author, _ = member_of("author.synthetic@example.test")
     holder_client, holder, holder_membership = member_of("holder.synthetic@example.test")
-    holder.display_name = "Синтетична Власниця"
+    holder.display_name = "Synthetic Owner"
     holder.save(update_fields=["display_name"])
     editor_client, _, editor_membership = member_of("editor.synthetic@example.test")
     admin_client, admin, _ = member_of("admin.synthetic@example.test", is_tenant_admin=True)
-    admin.display_name = "Синтетичний Адміністратор"
+    admin.display_name = "Synthetic Administrator"
     admin.save(update_fields=["display_name"])
     document = new_document(author)
     link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [holder_membership], author)
@@ -259,7 +259,7 @@ def test_end_is_for_administrators_of_a_reservation(
 
     member_client, _, member_membership = member_of("member.synthetic@example.test")
     _, author, _ = member_of("second.author.synthetic@example.test")
-    held = new_document(author, "Синтетичний порядок звітування")
+    held = new_document(author, "Synthetic reporting procedure")
     link_group(held, [Right.EDIT], [member_membership], author)
     assert member_client.post(f"/document/{held.number}/edit/take/").status_code == 200
     events = AuditEvent.objects.count()
@@ -340,10 +340,10 @@ def test_the_end_names_its_people_as_every_page_does(
         told = Notification.objects.get(event="reservation_ended_by_admin")
         assert told.facts["by"] == str(reserved.admin.pk)
     listed = reserved.holder_client.get("/notifications/?tab=document").content.decode()
-    assert "Синтетичний Адміністратор" in listed
+    assert "Synthetic Administrator" in listed
     with schema_context(migrated_tenant.number):
         email = EmailOutbox.objects.get(notification_id=told.pk)
-    assert "Синтетичний Адміністратор" in email.body and REASON not in email.body
+    assert "Synthetic Administrator" in email.body and REASON not in email.body
 
 
 def test_the_end_is_of_the_reservation_confirmed(

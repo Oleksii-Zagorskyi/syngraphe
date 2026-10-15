@@ -25,7 +25,7 @@ PEOPLE = {
     1: User(
         id=uuid.UUID("11111111-1111-4111-8111-111111111111"),
         email="first.author@example.test",
-        display_name="Перша Авторка",
+        display_name="First Author",
     ),
     2: User(
         id=uuid.UUID("22222222-2222-4222-8222-222222222222"),
@@ -35,7 +35,7 @@ PEOPLE = {
     3: User(
         id=uuid.UUID("33333333-3333-4333-8333-333333333333"),
         email="third.author@example.test",
-        display_name="Третій Автор",
+        display_name="Third Author",
     ),
 }
 

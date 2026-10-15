@@ -20,14 +20,14 @@ pytestmark = [
 ]
 
 DEEP = (
-    "# Загальні положення\n\n"
-    "Вступне речення порядку.\n\n"
-    "## Сфера застосування\n\n"
-    "### Підрозділи\n\n"
-    "#### Відокремлені підрозділи\n\n"
-    "Порядок поширюється на відокремлені підрозділи.\n\n"
-    "## Терміни\n\n"
-    "# Відповідальність\n"
+    "# General provisions\n\n"
+    "An opening sentence of the procedure.\n\n"
+    "## Scope\n\n"
+    "### Units\n\n"
+    "#### Separate units\n\n"
+    "The procedure covers separate units.\n\n"
+    "## Terms\n\n"
+    "# Responsibility\n"
 )
 
 
@@ -57,12 +57,12 @@ def test_outline_and_width(migrated_tenant: Any, edition_cast: Any, commit_versi
     pane = _pane(body)
     labels = re.findall(r'<a href="#h-([0-9.]+)"><span class="num">\1</span> ([^<]+)</a>', pane)
     assert labels == [
-        ("1", "Загальні положення"),
-        ("1.1", "Сфера застосування"),
-        ("1.1.1", "Підрозділи"),
-        ("1.1.1.1", "Відокремлені підрозділи"),
-        ("1.2", "Терміни"),
-        ("2", "Відповідальність"),
+        ("1", "General provisions"),
+        ("1.1", "Scope"),
+        ("1.1.1", "Units"),
+        ("1.1.1.1", "Separate units"),
+        ("1.2", "Terms"),
+        ("2", "Responsibility"),
     ]
     # Nested: 1.1.1.1 sits three lists deep inside 1.
     nested = pane[pane.index('href="#h-1"') : pane.index('href="#h-1.2"')]
@@ -110,9 +110,9 @@ def test_heading_rows_kept_for_the_versions_shown(
 
     people = _accepted(migrated_tenant, edition_cast, commit_version, DEEP)
     document = people.document
-    middle = commit_version(document, people["a"], DEEP + "\n## Додаток\n", "edit")
-    commit_version(document, people["a"], DEEP + "\n## Другий додаток\n", "edit")
-    head = commit_version(document, people["a"], DEEP + "\n## Третій додаток\n", "edit")
+    middle = commit_version(document, people["a"], DEEP + "\n## Annex\n", "edit")
+    commit_version(document, people["a"], DEEP + "\n## Second annex\n", "edit")
+    head = commit_version(document, people["a"], DEEP + "\n## Third annex\n", "edit")
 
     with schema_context(migrated_tenant.number):
         versions = set(

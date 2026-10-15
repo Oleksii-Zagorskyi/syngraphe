@@ -11,7 +11,7 @@ import pytest
 pytestmark = pytest.mark.browser
 
 EDITOR = "document.getElementById('editor').editor"
-START = "Текст до вставки.\n"
+START = "Text before the paste.\n"
 
 PASTE = """([html, text, image]) => {
   const data = new DataTransfer();
@@ -37,10 +37,10 @@ def paste(page: Any, html: str | None = None, text: str | None = None, image: bo
 REFUSED = [
     ("<table><tr><td><table><tr><td>x</td></tr></table></td></tr></table>", "a table inside"),
     ("<table><tr><td colspan='2'>x</td></tr></table>", "a merged table cell"),
-    ("<h5>Заголовок</h5>", "a heading below depth four"),
-    ("<p>до</p><script>alert(1)</script>", "HTML"),
-    ("<p>до</p><hr><p>після</p>", "a horizontal rule"),
-    ("<pre>код</pre>", "a code block"),
+    ("<h5>Heading</h5>", "a heading below depth four"),
+    ("<p>before</p><script>alert(1)</script>", "HTML"),
+    ("<p>before</p><hr><p>after</p>", "a horizontal rule"),
+    ("<pre>code</pre>", "a code block"),
 ]
 
 
@@ -58,18 +58,18 @@ def test_rich_refusals(editing: Any, markdown: Any, page: Any, settings: Any) ->
 def test_plain_text_is_literal(editing: Any, markdown: Any, page: Any) -> None:
     editing(START)
     page.evaluate(f"{EDITOR}.select(1)")
-    paste(page, text="`код` і **не жирне**")
-    assert markdown() == "\\`код\\` і \\*\\*не жирне\\*\\*Текст до вставки.\n"
+    paste(page, text="`code` and **not bold**")
+    assert markdown() == "\\`code\\` and \\*\\*not bold\\*\\*Text before the paste.\n"
 
 
 def test_images_left_out_with_notice(editing: Any, markdown: Any, page: Any, settings: Any) -> None:
     settings.LANGUAGE_CODE = "en"
     editing(START)
     page.evaluate(f"{EDITOR}.select(1)")
-    html = "<p>Слова <img src='https://example.org/a.png'> далі</p>"
-    status = paste(page, html=html, text="Слова далі")
+    html = "<p>Words <img src='https://example.org/a.png'> further</p>"
+    status = paste(page, html=html, text="Words further")
     assert "Images were left out" in status
     assert "images/" not in markdown() and "example.org" not in markdown()
-    assert "Слова" in markdown()
+    assert "Words" in markdown()
     status = paste(page, image=True)
     assert "Images were left out" in status

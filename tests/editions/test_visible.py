@@ -29,13 +29,13 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FIRST = "# Загальні положення\n\nЗаяву на погодження подають письмово.\n"
-SECOND = FIRST + "\nКопію рішення надсилають заявникові того ж дня.\n"
-THIRD = SECOND + "\nРеєстр заяв веде відповідальний виконавець.\n"
-REASON = "Синтетична причина: чекаємо рішення ради"
+FIRST = "# General provisions\n\nA request for approval is made in writing.\n"
+SECOND = FIRST + "\nA copy of the decision goes to the applicant that day.\n"
+THIRD = SECOND + "\nThe register of requests is kept by the officer in charge.\n"
+REASON = "Synthetic reason: waiting for the board to decide"
 ROOT = "/folder/1/"
-SCHEME = ("Схема погодження", "scheme.txt", "Синтетична схема погодження.\n".encode())
-ORDER = ("Порядок видачі доступу", "order.txt", "Синтетичний наказ про доступ.\n".encode())
+SCHEME = ("Approval scheme", "scheme.txt", b"Synthetic approval scheme.\n")
+ORDER = ("Access granting procedure", "order.txt", b"Synthetic order on access.\n")
 
 
 def _reader(
@@ -446,7 +446,7 @@ def _commit_with_attachments(
             for n, (_, _, data) in enumerate(attachments, 1):
                 files[f"attachments/{n}"] = data
             sha = gitstore.commit(
-                repo, files, identity_for(user), "Синтетична правка", gitstore.Kind.EDIT
+                repo, files, identity_for(user), "Synthetic edit", gitstore.Kind.EDIT
             )
             return services.derive_version(document, gitstore.commit_at(repo, sha), user)
 
@@ -483,8 +483,8 @@ def test_canonical_reader_reads_the_edition(
     page = client.get(f"/document/{document.number}/")
     assert page.status_code == 200
     body = page.content.decode()
-    assert "Заяву на погодження подають письмово." in body
-    assert "Копію рішення надсилають заявникові того ж дня." not in body
+    assert "A request for approval is made in writing." in body
+    assert "A copy of the decision goes to the applicant that day." not in body
 
     served = client.get(f"/document/{document.number}/attachment/1/")
     assert served.status_code == 200

@@ -20,14 +20,14 @@ pytestmark = [
 ]
 
 WRITTEN = (
-    "# Загальні положення\n\n"
-    "Заяву на погодження подають письмово.\n"
-    "Строк розгляду заяви становить десять днів, якщо інше не встановлено.\n"
+    "# General provisions\n\n"
+    "A request for approval is made in writing.\n"
+    "A request is considered within ten days, unless set otherwise.\n"
 )
 # A comma: the run a colleague accepts after the substantive one (DL-0115's case).
-COMMA = WRITTEN.replace("десять днів, якщо", "десять днів якщо")
-LATER = COMMA + "\nКопію рішення надсилають заявникові того ж дня.\n"
-REASON = "Синтетична причина: погодження з юридичним відділом"
+COMMA = WRITTEN.replace("ten days, unless", "ten days unless")
+LATER = COMMA + "\nA copy of the decision goes to the applicant that day.\n"
+REASON = "Synthetic reason: agreeing it with the legal department"
 
 
 def _check(tenant: Any, on: bool) -> None:

@@ -106,7 +106,7 @@ def test_links_locked_while_held(
     document = new_document(author)
     client.post(f"/document/{document.number}/edit/take/")
     with schema_context(migrated_tenant.number):
-        group = AccessGroup.objects.create(name="Читачі", created_by=author, actor_kind="user")
+        group = AccessGroup.objects.create(name="Readers", created_by=author, actor_kind="user")
         with pytest.raises(DocumentHeld):
             DocumentGroup.link(document, group, by=author)
 
@@ -281,7 +281,7 @@ def test_the_tab_draws_only_a_text_the_whitelist_accepts(
     assert "data-draft-view" in page
     with schema_context(migrated_tenant.number):
         draft = Draft.objects.get(hold__document=document)
-        draft.content = {**draft.content, "document.md": "Абзац.\n\n<b>ні</b>\n"}
+        draft.content = {**draft.content, "document.md": "A paragraph.\n\n<b>no</b>\n"}
         draft.save()
     page = client.get(f"/document/{document.number}/edit/").content.decode()
-    assert "data-draft-view" not in page and "<b>ні</b>" not in page
+    assert "data-draft-view" not in page and "<b>no</b>" not in page

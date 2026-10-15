@@ -20,10 +20,10 @@ def test_discard_from_the_finishing_screen(
     from editing.models import Draft, Hold
 
     settings.LANGUAGE_CODE = "en"
-    document = editing("Перше речення.\n")
+    document = editing("The first sentence.\n")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
-    page.keyboard.type(" Друге речення.", delay=10)
+    page.keyboard.type(" The second sentence.", delay=10)
     page.click("button[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     page.click("summary[data-command=discard]")
@@ -42,10 +42,10 @@ def test_discard_from_the_edit_tab_closes_the_editor_first(
     the page's own editor."""
     from editing.models import Draft, Hold
 
-    document = editing("Перше речення.\n")
+    document = editing("The first sentence.\n")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
-    page.keyboard.type(" Ще не збережене речення.", delay=10)
+    page.keyboard.type(" A sentence not yet captured.", delay=10)
     page.click("summary[data-command=discard]")
     page.click("button[data-command=discard-confirmed]")
     page.wait_for_url(f"**/document/{document.number}/")

@@ -17,9 +17,9 @@ from tenancy.schemas import schema_context
 pytestmark = pytest.mark.browser
 
 BODY = (
-    "Вступне речення.\n\n"
-    "# Перший розділ\n\nПерше речення першого розділу.\n\n"
-    "# Другий розділ\n\nПерше речення другого розділу.\n"
+    "An introductory sentence.\n\n"
+    "# First section\n\nThe first sentence of the first section.\n\n"
+    "# Second section\n\nThe first sentence of the second section.\n"
 )
 CORPUS = Path(__file__).resolve().parents[2] / "fixtures" / "corpus" / "document-ukr.md"
 OFFERED = "() => document.getElementById('editor').offered !== undefined"
@@ -102,18 +102,18 @@ def test_the_stopped_editor_keeps_its_text(tab: Any, page: Any) -> None:
     other.goto(url)
     other.wait_for_function(OFFERED)
     open_section(other, 0)
-    type_into(page, 0, " Перша вкладка дописала.")
+    type_into(page, 0, " One tab added this.")
     assert page.evaluate(f"{section(0)}.capture.flush()") == "captured"
-    type_into(other, 0, " Друга вкладка дописала.")
+    type_into(other, 0, " Another tab added this.")
     assert other.evaluate(f"{section(0)}.capture.flush()") == "stale"
     other.wait_for_selector(".stopped-editor")
     stopped = other.text_content(".stopped-editor") or ""
-    assert "Друга вкладка дописала." in stopped
+    assert "Another tab added this." in stopped
     # As changes: the unsaved words marked as added against the section as it now stands.
     assert other.locator(".stopped-editor .changes ins").count() >= 1
     assert other.locator(".stopped-editor [data-command=reopen]").count() == 1
     assert other.evaluate(f"{section(0)}.view.editable") is False
-    assert "Друга вкладка дописала." in other.evaluate(f"{section(0)}.markdown()")
+    assert "Another tab added this." in other.evaluate(f"{section(0)}.markdown()")
 
 
 def test_a_heading_makes_a_section(tab: Any, page: Any) -> None:
@@ -122,7 +122,7 @@ def test_a_heading_makes_a_section(tab: Any, page: Any) -> None:
     tab(BODY)
     open_section(page, 1)
     page.evaluate(
-        f"{section(1)}.replace({section(1)}.markdown() + '\\n# Новий розділ\\n\\nРечення.\\n')"
+        f"{section(1)}.replace({section(1)}.markdown() + '\\n# New section\\n\\nA sentence.\\n')"
     )
     assert page.evaluate(f"{section(1)}.capture.flush()") == "captured"
     with page.expect_navigation():
@@ -130,7 +130,7 @@ def test_a_heading_makes_a_section(tab: Any, page: Any) -> None:
     page.wait_for_function(
         "() => document.querySelectorAll('button[data-command=edit-section]').length === 3"
     )
-    assert "Новий розділ" in (page.text_content("[data-draft-view]") or "")
+    assert "New section" in (page.text_content("[data-draft-view]") or "")
 
 
 def test_finish_waits_for_editors(tab: Any, page: Any) -> None:
@@ -162,12 +162,12 @@ def test_closing_one_editor_keeps_the_others_text(
     page.on("framenavigated", lambda frame: navigations.append(frame.url))
     open_section(page, 0)
     open_section(page, 1)
-    type_into(page, 1, " Ще не збережений текст.")
+    type_into(page, 1, " Text not yet captured.")
     page.click(".section-editor[data-ordinal='0'] button[data-command=close-section]")
     page.wait_for_selector(".section-closed")
     page.wait_for_load_state("networkidle")
     assert navigations == []
-    assert "Ще не збережений текст." in page.evaluate(f"{section(1)}.markdown()")
+    assert "Text not yet captured." in page.evaluate(f"{section(1)}.markdown()")
     with page.expect_navigation():
         page.click(".section-editor[data-ordinal='1'] button[data-command=close-section]")
     page.wait_for_function(
@@ -176,7 +176,7 @@ def test_closing_one_editor_keeps_the_others_text(
     page.wait_for_load_state("networkidle")
     with schema_context(migrated_tenant.number):
         body = Draft.objects.get(hold__document=document).content["document.md"]
-    assert "Ще не збережений текст." in body
+    assert "Text not yet captured." in body
 
 
 def test_a_heading_added_stops_the_other_sections_opening(tab: Any, page: Any) -> None:
@@ -185,7 +185,7 @@ def test_a_heading_added_stops_the_other_sections_opening(tab: Any, page: Any) -
     tab(BODY)
     open_section(page, 0)
     page.evaluate(
-        f"{section(0)}.replace({section(0)}.markdown() + '\\n# Доданий розділ\\n\\nРечення.\\n')"
+        f"{section(0)}.replace({section(0)}.markdown() + '\\n# Added section\\n\\nA sentence.\\n')"
     )
     assert page.evaluate(f"{section(0)}.capture.flush()") == "captured"
     later = page.locator("button[data-command=edit-section][data-ordinal='1']")
@@ -211,21 +211,21 @@ def test_text_typed_while_its_heading_goes_is_kept(tab: Any, page: Any) -> None:
             held.append(route)
 
     page.route("**/edit/capture/", hold_the_first)
-    page.evaluate(f"{section(1)}.replace('Перше речення другого розділу.\\n')")
+    page.evaluate(f"{section(1)}.replace('The first sentence of the second section.\\n')")
     page.evaluate(f"() => {{ window.firstCapture = {section(1)}.capture.flush(); }}")
     while not held:
         page.wait_for_timeout(20)
     page.evaluate(
-        f"{section(1)}.replace({section(1)}.markdown() + '\\nНабране під час збереження.\\n')"
+        f"{section(1)}.replace({section(1)}.markdown() + '\\nTyped during the capture.\\n')"
     )
     held[0].continue_()
     assert page.evaluate("window.firstCapture") == "stale"
     page.wait_for_selector(".stopped-editor")
-    assert "Набране під час збереження." in (page.text_content(".stopped-editor") or "")
+    assert "Typed during the capture." in (page.text_content(".stopped-editor") or "")
     assert page.locator(".stopped-editor [data-command=reopen]").count() == 1
     page.wait_for_load_state("networkidle")
     assert navigations == []
-    assert "Набране під час збереження." in page.evaluate(f"{section(1)}.markdown()")
+    assert "Typed during the capture." in page.evaluate(f"{section(1)}.markdown()")
 
 
 MEASURE = """async ([ordinal, keys]) => {
@@ -256,7 +256,7 @@ def test_two_editors_keystroke_measurement(tab: Any, page: Any) -> None:
     open_section(page, 1)
     open_section(page, 5)
     page.evaluate(f"{section(5)}.select(1)")
-    times = sorted(page.evaluate(MEASURE, [5, list("абвгдежзик" * 6)]))
+    times = sorted(page.evaluate(MEASURE, [5, list("abcdefghik" * 6)]))
     p95 = times[int(len(times) * 0.95) - 1]
     print(f"two section editors, forty pages: p95 {p95:.1f} ms over {len(times)} keystrokes")
     assert p95 <= 50

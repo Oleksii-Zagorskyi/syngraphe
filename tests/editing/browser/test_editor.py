@@ -19,59 +19,59 @@ def test_load_serialise_round_trip(editing: Any, markdown: Any, conformance_body
 
 
 CONTROLS = [
-    ("strong", "**слово**\n"),
-    ("em", "*слово*\n"),
-    ("underline", "[слово]{.underline}\n"),
-    ("heading2", "## слово\n"),
-    ("heading4", "#### слово\n"),
-    ("bullet_list", "- слово\n"),
-    ("ordered_list", "1. слово\n"),
-    ("quote", "> слово\n"),
-    ("note", "> [!note]\n> слово\n"),
-    ("warning", "> [!warning]\n> слово\n"),
-    ("example", "> [!example]\n> слово\n"),
+    ("strong", "**word**\n"),
+    ("em", "*word*\n"),
+    ("underline", "[word]{.underline}\n"),
+    ("heading2", "## word\n"),
+    ("heading4", "#### word\n"),
+    ("bullet_list", "- word\n"),
+    ("ordered_list", "1. word\n"),
+    ("quote", "> word\n"),
+    ("note", "> [!note]\n> word\n"),
+    ("warning", "> [!warning]\n> word\n"),
+    ("example", "> [!example]\n> word\n"),
 ]
 
 
 def test_toolbar_constructs_serialise_canonically(editing: Any, markdown: Any, page: Any) -> None:
-    editing("слово\n")
+    editing("word\n")
     for command, expected in CONTROLS:
-        page.evaluate(f"{EDITOR}.replace('слово\\n')")
+        page.evaluate(f"{EDITOR}.replace('word\\n')")
         page.evaluate(f"{EDITOR}.select(1, 6)")
         page.click(f"button[data-command={command}]")
         assert markdown() == expected, command
 
-    page.evaluate(f"{EDITOR}.replace('слово\\n')")
+    page.evaluate(f"{EDITOR}.replace('word\\n')")
     page.evaluate(f"{EDITOR}.select(1, 6)")
     page.click("button[data-command=link]")
-    page.fill("input[data-field=link]", "https://example.org/poriadok")
+    page.fill("input[data-field=link]", "https://example.org/procedure")
     page.press("input[data-field=link]", "Enter")
-    assert markdown() == "[слово](https://example.org/poriadok)\n"
+    assert markdown() == "[word](https://example.org/procedure)\n"
 
-    page.evaluate(f"{EDITOR}.replace('слово\\n')")
+    page.evaluate(f"{EDITOR}.replace('word\\n')")
     page.evaluate(f"{EDITOR}.select(1, 6)")
     page.click("button[data-command=link]")
     page.fill("input[data-field=link]", "javascript:alert(1)")
     page.press("input[data-field=link]", "Enter")
-    assert markdown() == "слово\n"
+    assert markdown() == "word\n"
 
-    page.evaluate(f"{EDITOR}.replace('слово\\n')")
+    page.evaluate(f"{EDITOR}.replace('word\\n')")
     page.evaluate(f"{EDITOR}.select(6)")
     page.click("button[data-command=table]")
     page.click("button[data-command=add_row]")
-    assert markdown().startswith("слово\n\n|  |  |\n| --- | --- |\n|  |  |\n")
+    assert markdown().startswith("word\n\n|  |  |\n| --- | --- |\n|  |  |\n")
 
-    page.evaluate(f"{EDITOR}.replace('слово\\n')")
+    page.evaluate(f"{EDITOR}.replace('word\\n')")
     page.evaluate(f"{EDITOR}.select(1, 6)")
     page.click("button[data-command=strong]")
     page.click("button[data-command=undo]")
-    assert markdown() == "слово\n"
+    assert markdown() == "word\n"
     page.click("button[data-command=redo]")
-    assert markdown() == "**слово**\n"
+    assert markdown() == "**word**\n"
 
 
 def test_the_toolbar_offers_only_whitelisted_controls(editing: Any, page: Any) -> None:
-    editing("слово\n")
+    editing("word\n")
     commands = page.eval_on_selector_all(
         ".editor-controls button[data-command]", "buttons => buttons.map(b => b.dataset.command)"
     )
@@ -83,7 +83,7 @@ def test_the_toolbar_offers_only_whitelisted_controls(editing: Any, page: Any) -
 
 
 def test_gutter_numbers_follow_edits(editing: Any, page: Any) -> None:
-    editing("# Перший\n\nАбзац один.\n\nАбзац два.\n\n# Другий\n\nАбзац три.\n")
+    editing("# First\n\nParagraph one.\n\nParagraph two.\n\n# Second\n\nParagraph three.\n")
     clauses = "() => [...document.querySelectorAll('.clause')].map(c => c.textContent)"
     # Headings carry their number too, set in the heading, as the reading view shows them.
     assert page.evaluate(clauses) == ["1", "1-1", "1-2", "2", "2-1"]
@@ -94,7 +94,7 @@ def test_gutter_numbers_follow_edits(editing: Any, page: Any) -> None:
     page.evaluate(f"{EDITOR}.select({end_of_first})")
     page.focus(".ProseMirror")
     page.keyboard.press("Enter")
-    page.keyboard.type("Новий абзац.")
+    page.keyboard.type("A new paragraph.")
     assert page.evaluate(clauses) == ["1", "1-1", "1-2", "1-3", "2", "2-1"]
     assert page.eval_on_selector(".clause", "c => c.isContentEditable") is False
 
@@ -139,7 +139,7 @@ def test_a_tab_from_elsewhere_waits_for_start_editing(
 def test_the_toolbar_shows_icons_named_by_their_words(editing: Any, page: Any) -> None:
     """Each formatting control is an icon (DL-0365): its word is its tooltip and its accessible
     name, never text on the button."""
-    editing("слово\n")
+    editing("word\n")
     buttons = page.eval_on_selector_all(
         ".toolbar button",
         "els => els.map(e => ({command: e.dataset.command, text: [...e.childNodes]"
@@ -155,7 +155,7 @@ def test_the_toolbar_shows_icons_named_by_their_words(editing: Any, page: Any) -
 
 def test_a_headings_number_stands_on_the_headings_line(editing: Any, page: Any) -> None:
     """The number opens the heading's own line, as in the reading view (DL-0363)."""
-    editing("# Загальні положення\n\nПерше речення.\n")
+    editing("# General provisions\n\nThe first sentence.\n")
     number, title = page.evaluate(
         "() => { const h = document.querySelector('.editor-surface h1');"
         " const c = h.querySelector('.clause').getBoundingClientRect();"

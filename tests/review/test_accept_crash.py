@@ -24,13 +24,13 @@ pytestmark = [
 ]
 
 WRITTEN = (
-    "# Загальні положення\n\n"
-    "Заяву на погодження подають письмово.\n"
-    "Строк розгляду заяви становить десять днів.\n"
+    "# General provisions\n\n"
+    "A request for approval is made in writing.\n"
+    "A request is considered within ten days.\n"
 )
 CORRECTED = WRITTEN.replace(
-    "Строк розгляду заяви становить десять днів.",
-    "Заяву розглядають протягом п'яти робочих днів.",
+    "A request is considered within ten days.",
+    "Requests are considered within five working days.",
 )
 
 
@@ -182,9 +182,9 @@ def test_a_version_after_a_stop_settles_the_stopped_acceptance_first(
             services.accept(document, reviewer, fault_at=1)
         hold = holds.take(document, author)
         draft = Draft.objects.get(hold=hold)
-        draft.content = {**draft.content, "document.md": CORRECTED + "\nНове речення.\n"}
+        draft.content = {**draft.content, "document.md": CORRECTED + "\nA new sentence.\n"}
         draft.save()
-        editing.commit_draft(hold, author, "Нове речення")
+        editing.commit_draft(hold, author, "A new sentence")
         acceptance = Acceptance.objects.get()
         assert acceptance.number == "0.1" and acceptance.notices_computed_at is not None
         assert CorrectionNotice.objects.get(acceptance=acceptance).author_id == author.pk
@@ -232,7 +232,7 @@ def test_an_acceptance_the_platform_would_not_write_is_not_derived(
         entry = bundle.PassportEntry(
             kind="acceptance", number="0.1", at=now, by=str(author.pk), version=written.commit_sha
         )
-        text = gitstore.read(repo, "document.md", head) + "Прихований рядок.\n".encode()
+        text = gitstore.read(repo, "document.md", head) + b"A hidden line.\n"
         with document_lock(migrated_tenant.number, document.number):
             forged = gitstore.commit(
                 repo,

@@ -26,15 +26,15 @@ pytestmark = [
 ]
 
 TOKEN = re.compile(rb'name="csrfmiddlewaretoken" value="[^"]+"')
-TITLE = "Порядок погодження заяв (синтетичний приклад)"
+TITLE = "Procedure for approving requests (synthetic example)"
 BODY = (
-    "# Загальні положення\n\n"
-    "Заяву на погодження подають письмово.\n"
-    "Строк розгляду заяви становить десять днів.\n\n"
-    "## Строки\n\n"
-    "Копію рішення надсилають заявникові того ж дня.\n"
+    "# General provisions\n\n"
+    "A request for approval is made in writing.\n"
+    "A request is considered within ten days.\n\n"
+    "## Time limits\n\n"
+    "A copy of the decision goes to the applicant that day.\n"
 )
-PENDING_SENTENCE = "Реєстр заяв веде відповідальний виконавець."
+PENDING_SENTENCE = "The register of requests is kept by the officer in charge."
 
 
 def _commit(tenant: int, document: Any, user: Any, body: str) -> Any:
@@ -53,7 +53,7 @@ def _commit(tenant: int, document: Any, user: Any, body: str) -> Any:
                 repo,
                 {"document.md": bundle.render(frontmatter, body).encode("utf-8")},
                 identity_for(user),
-                "Синтетична правка",
+                "Synthetic edit",
                 gitstore.Kind.REVIEWER_EDIT,
             )
             return services.derive_version(document, gitstore.commit_at(repo, sha), user)
@@ -74,7 +74,7 @@ def accepted(migrated_tenant: Any, member_of: Any, repo_root: Path) -> Any:
     Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
     with schema_context(number):
         group = AccessGroup.objects.create(
-            name="Оператори (синтетичний приклад)", created_by=operator, actor_kind="user"
+            name="Operators (synthetic example)", created_by=operator, actor_kind="user"
         )
         group.grant(Right.CREATE_AND_EDIT, by=operator)
         group.grant(Right.ACCEPT, by=operator)
@@ -106,7 +106,7 @@ def reader(migrated_tenant: Any, member_of: Any) -> Any:
         client, _, membership = member_of(f"reader{n}.synthetic@example.test")
         with schema_context(migrated_tenant.number):
             group = AccessGroup.objects.create(
-                name=f"Читачі {n} (синтетичний приклад)", actor_kind="system"
+                name=f"Readers {n} (synthetic example)", actor_kind="system"
             )
             group.grant(right, by=None)
             group.add_member(membership, by=None)
@@ -145,15 +145,15 @@ def test_accepted_reader_sees_the_view_tab(accepted: Any, reader: Any) -> None:
     assert body.index(view) < body.index(tab(body, "Відомості"))
     assert "Перегляд версії 0.1" in body
     text = article(body)
-    assert re.search(r'<h1 id="h-1"><span class="num">1</span> Загальні положення</h1>', text)
-    assert re.search(r'<h2 id="h-1\.1"><span class="num">1\.1</span> Строки</h2>', text)
+    assert re.search(r'<h1 id="h-1"><span class="num">1</span> General provisions</h1>', text)
+    assert re.search(r'<h2 id="h-1\.1"><span class="num">1\.1</span> Time limits</h2>', text)
     # One paragraph, its sentences joined by a space; numbered within its section.
     assert re.search(
-        r'<p><span class="num">1-1</span> Заяву на погодження подають письмово\. '
-        r"Строк розгляду заяви становить десять днів\.</p>",
+        r'<p><span class="num">1-1</span> A request for approval is made in writing\. '
+        r"A request is considered within ten days\.</p>",
         text,
     )
-    assert re.search(r'<p><span class="num">1\.1-1</span> Копію рішення', text)
+    assert re.search(r'<p><span class="num">1\.1-1</span> A copy of the decision', text)
 
 
 def test_header_then_text_then_the_panels_attachments(accepted: Any, reader: Any) -> None:
@@ -267,9 +267,9 @@ def test_reader_sees_no_editing_tabs(accepted: Any, reader: Any) -> None:
 
 # --- by rights, at an edition, and the diff views ----------------------------------------------
 
-FIRST = "# Загальні положення\n\nЗаяву на погодження подають письмово.\n"
-SECOND = FIRST + "\nКопію рішення надсилають [заявникові]{.role #zaiavnyk} того ж дня.\n"
-THIRD = SECOND + "\n> [!note]\n> Реєстр заяв веде відповідальний виконавець.\n"
+FIRST = "# General provisions\n\nA request for approval is made in writing.\n"
+SECOND = FIRST + "\nA copy of the decision goes to [the applicant]{.role #applicant} that day.\n"
+THIRD = SECOND + "\n> [!note]\n> The register of requests is kept by the officer in charge.\n"
 
 
 def _at_edition(migrated_tenant: Any, edition_cast: Any, commit_version: Any) -> Any:
@@ -282,7 +282,7 @@ def _at_edition(migrated_tenant: Any, edition_cast: Any, commit_version: Any) ->
     commit_version(document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
         review.accept(document, people["r"])
-        editions.freeze(document, people["p"], "Синтетична причина")
+        editions.freeze(document, people["p"], "Synthetic reason")
         editions.make_canonical(document, people["p"])
     commit_version(document, people["a"], SECOND, "edit")
     with schema_context(migrated_tenant.number):
@@ -320,9 +320,9 @@ def test_view_by_rights(
         assert "відкрити канонічну версію 1.0" in pages[name], name
     pending, accepted, canonical = (article(pages[n]) for n in ("pending", "accepted", "canonical"))
     assert '<div class="callout callout-note">' in pending
-    assert "Реєстр заяв" not in accepted
-    assert 'data-id="zaiavnyk"' in accepted and "заявникові" not in canonical
-    assert re.search(r'<p><span class="num">1-1</span> Заяву на погодження', canonical)
+    assert "The register of requests" not in accepted
+    assert 'data-id="applicant"' in accepted and "the applicant" not in canonical
+    assert re.search(r'<p><span class="num">1-1</span> A request for approval', canonical)
 
 
 def test_diff_views_use_the_renderer(
@@ -338,7 +338,7 @@ def test_diff_views_use_the_renderer(
     html = body[start:]
     assert '<div class="callout callout-note">' in html
     assert '<span class="num">1-3</span>' in html
-    assert "<ins>Реєстр заяв веде відповідальний виконавець.</ins>" in html
+    assert "<ins>The register of requests is kept by the officer in charge.</ins>" in html
 
 
 def test_info_names_the_canonical_version_and_the_state(
@@ -369,7 +369,7 @@ def test_info_names_canonical_when_nothing_is_beyond_it(
     commit_version(people.document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people["r"])
-        editions.freeze(people.document, people["p"], "Синтетична причина")
+        editions.freeze(people.document, people["p"], "Synthetic reason")
         editions.make_canonical(people.document, people["p"])
     readers = _readers(member_of, link_group, people)
 

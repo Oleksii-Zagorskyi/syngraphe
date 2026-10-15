@@ -20,8 +20,8 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-TEXT = "\nСинтетичне речення, яке ніхто не встиг надіслати.\n"
-BODY = "# Умови\n\nПерше синтетичне речення.\nДруге синтетичне речення.\n"
+TEXT = "\nA synthetic sentence nobody managed to send.\n"
+BODY = "# Terms\n\nThe first synthetic sentence.\nThe second synthetic sentence.\n"
 
 
 def post(client: Any, document: Any, route: str, **body: Any) -> Any:
@@ -104,7 +104,7 @@ def test_force_release(migrated_tenant: Any, member_of: Any, new_document: Any) 
         "capture",
         editor=loaded["editor"],
         base_hash=captured.json()["base_hash"],
-        body=written + "Пізнє синтетичне речення.\n",
+        body=written + "A late synthetic sentence.\n",
     )
     for answer in (beat, late):
         assert answer.status_code == 409
@@ -194,7 +194,7 @@ def test_a_stopped_finish_is_finished_not_forced(
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, editor, "Синтетична правка", fault_at=step)
+            services.commit_draft(hold, editor, "Synthetic edit", fault_at=step)
         hold.refresh_from_db()
     assert hold.released_at is None
 
@@ -248,7 +248,7 @@ def test_every_release_that_keeps_a_draft_completes_a_stopped_finish(
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, editor, "Синтетична правка", fault_at=2)
+            services.commit_draft(hold, editor, "Synthetic edit", fault_at=2)
     if by == "block":
         with transaction.atomic():
             blocking.end_holds([migrated_tenant], by=admin, cause="blocked", user=editor)
@@ -336,7 +336,7 @@ def _stopped_finish(
         draft.content = {**draft.content, "document.md": BODY}
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, editor, "Синтетична правка", fault_at=2)
+            services.commit_draft(hold, editor, "Synthetic edit", fault_at=2)
     return document, hold, draft, editor, reviewer, admin, admin_client
 
 
@@ -352,7 +352,7 @@ def test_text_typed_after_the_stop_is_kept(
     )
     with schema_context(migrated_tenant.number):
         Draft.objects.filter(pk=draft.pk).update(
-            content={**draft.content, "document.md": BODY + "\nДописане після зупинки.\n"}
+            content={**draft.content, "document.md": BODY + "\nWritten after the stop.\n"}
         )
     assert force(admin_client, document).status_code == 302
     with schema_context(migrated_tenant.number):
@@ -373,7 +373,7 @@ def test_an_ended_reservation_whose_finish_had_stopped_tells_nobody(
     )
     ended = admin_client.post(
         f"/document/{document.number}/edit/end-reservation/",
-        {"reason": "Синтетична причина", "hold": str(hold.pk)},
+        {"reason": "Synthetic reason", "hold": str(hold.pk)},
     )
     assert ended.status_code == 302
     with schema_context(migrated_tenant.number):
@@ -419,7 +419,7 @@ def test_a_stopped_version_is_told_even_when_the_draft_is_kept(
     )
     with schema_context(migrated_tenant.number):
         Draft.objects.filter(pk=draft.pk).update(
-            content={**draft.content, "document.md": BODY + "\nДописане після зупинки.\n"}
+            content={**draft.content, "document.md": BODY + "\nWritten after the stop.\n"}
         )
     assert force(admin_client, document).status_code == 302
     with schema_context(migrated_tenant.number):
@@ -475,10 +475,10 @@ def test_ending_a_reservation_over_a_stopped_finish_keeps_its_reason(
     )
     page = admin_client.post(
         f"/document/{document.number}/edit/end-reservation/",
-        {"reason": "Синтетична причина", "hold": str(hold.pk)},
+        {"reason": "Synthetic reason", "hold": str(hold.pk)},
         follow=True,
     ).content.decode()
     event = AuditEvent.objects.filter(action="document.hold_released").latest("at")
     assert event.after["release_kind"] == "finished" and event.after["finish_completed"] is True
-    assert event.after["reason"] == "Синтетична причина"
+    assert event.after["reason"] == "Synthetic reason"
     assert "interrupted finish of this editing was completed" in page

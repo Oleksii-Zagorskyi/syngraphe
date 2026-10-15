@@ -94,7 +94,7 @@ def test_a_renamed_attachment_reads_as_changed(
     body_text = page.content.decode()
     assert 'data-change="changed"' in body_text
     assert "Renamed synthetic table" in body_text
-    assert "Таблиця строків" in body_text  # the earlier title, as the fixture names it
+    assert "List of time limits" in body_text  # the earlier title, as the fixture names it
 
 
 def test_the_banners_versions_open_in_a_window_of_their_own(

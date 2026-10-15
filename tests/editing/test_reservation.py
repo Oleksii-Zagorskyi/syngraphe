@@ -22,7 +22,7 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FREEZE_REASON = "Синтетична причина: чекаємо висновку комісії"
+FREEZE_REASON = "Synthetic reason: waiting for the board's conclusion"
 
 
 def redirected_to(response: Any, path: str) -> bool:
@@ -142,7 +142,7 @@ def test_refusals(
     _, freezer, freezer_membership = member_of("freezer.synthetic@example.test")
 
     # (a) a holder whose groups grant `edit` alone.
-    plain = new_document(author, "Синтетичний порядок чергувань")
+    plain = new_document(author, "Synthetic duty rota procedure")
     link_group(plain, [Right.EDIT], [editor_membership], author)
     link_group(plain, [Right.EDIT, Right.RESERVE_FOR_EDITING], [keeper_membership], author)
     assert editor_client.post(f"/document/{plain.number}/edit/take/").status_code == 200
@@ -152,7 +152,7 @@ def test_refusals(
 
     # (b) a member holding the right on a document someone else holds, and on one nobody holds.
     assert keeper_client.post(f"/document/{plain.number}/edit/reserve/").status_code == 404
-    free = new_document(author, "Синтетичний порядок відпусток")
+    free = new_document(author, "Synthetic leave procedure")
     link_group(free, [Right.EDIT, Right.RESERVE_FOR_EDITING], [keeper_membership], author)
     assert keeper_client.post(f"/document/{free.number}/edit/reserve/").status_code == 404
     assert open_hold(migrated_tenant, free) is None
@@ -167,7 +167,7 @@ def test_refusals(
     )
 
     # (c) a holder of the right on a frozen document, holding *accept* so they may edit it.
-    frozen = new_document(author, "Синтетичний порядок закупівель")
+    frozen = new_document(author, "Synthetic purchasing procedure")
     link_group(
         frozen,
         [Right.ACCEPT, Right.EDIT, Right.RESERVE_FOR_EDITING],
@@ -251,8 +251,8 @@ def test_my_reservations(
     _, author, _ = member_of("author.synthetic@example.test")
     holder_client, _, holder_membership = member_of("holder.synthetic@example.test")
     other_client, _, other_membership = member_of("other.synthetic@example.test")
-    first = new_document(author, "Синтетичний порядок архівування")
-    second = new_document(author, "Синтетичний порядок навчання")
+    first = new_document(author, "Synthetic archiving procedure")
+    second = new_document(author, "Synthetic training procedure")
     for document in (first, second):
         link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [holder_membership], author)
     # The other member edits, and reserves nowhere.
@@ -294,8 +294,8 @@ def test_my_reservations_lists_only_what_its_holder_may_read(
     no longer theirs to read: the list leaves it out, its number and its title."""
     _, author, _ = member_of("author.synthetic@example.test")
     holder_client, _, holder_membership = member_of("holder.synthetic@example.test")
-    revoked = new_document(author, "Синтетичний порядок відкликаного доступу")
-    kept = new_document(author, "Синтетичний порядок чинного доступу")
+    revoked = new_document(author, "Synthetic procedure of revoked access")
+    kept = new_document(author, "Synthetic procedure of current access")
     groups = {}
     for document in (revoked, kept):
         groups[document.pk] = link_group(
@@ -314,7 +314,7 @@ def test_my_reservations_lists_only_what_its_holder_may_read(
 
     assert f'href="/document/{kept.number}/"' in body
     assert f'href="/document/{revoked.number}/"' not in body
-    assert "відкликаного доступу" not in body
+    assert "revoked access" not in body
 
 
 def test_reserving_never_waits_for_the_person(
@@ -331,7 +331,7 @@ def test_reserving_never_waits_for_the_person(
 
     _, author, _ = member_of("author.synthetic@example.test")
     holder_client, holder, holder_membership = member_of("holder.synthetic@example.test")
-    document = new_document(author, "Синтетичний порядок резервування")
+    document = new_document(author, "Synthetic reservation procedure")
     link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [holder_membership], author)
     assert holder_client.post(f"/document/{document.number}/edit/take/").status_code == 200
     hold = open_hold(migrated_tenant, document)

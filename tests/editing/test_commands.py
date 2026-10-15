@@ -94,10 +94,10 @@ def test_release_hold_says_when_it_completed_a_stopped_finish(
     with schema_context(migrated_tenant.number):
         hold = Hold.objects.get(document=document)
         draft = Draft.objects.get(hold=hold)
-        draft.content = {**draft.content, "document.md": "# Синтетичний розділ\n\nНове.\n"}
+        draft.content = {**draft.content, "document.md": "# Synthetic section\n\nNew.\n"}
         draft.save()
         with pytest.raises(services.InjectedFault):
-            services.commit_draft(hold, author, "Синтетична правка", fault_at=2)
+            services.commit_draft(hold, author, "Synthetic edit", fault_at=2)
     out = StringIO()
     call_command(
         "release_hold",

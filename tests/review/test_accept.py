@@ -26,12 +26,12 @@ pytestmark = [
 ]
 
 FIRST = (
-    "# Загальні положення\n\n"
-    "Заяву на погодження подають письмово.\n"
-    "Строк розгляду заяви становить десять днів.\n"
+    "# General provisions\n\n"
+    "A request for approval is made in writing.\n"
+    "A request is considered within ten days.\n"
 )
-SECOND = FIRST + "\nКопію рішення надсилають заявникові того ж дня.\n"
-THIRD = SECOND.replace("десять днів", "п'ять робочих днів")
+SECOND = FIRST + "\nA copy of the decision goes to the applicant that day.\n"
+THIRD = SECOND.replace("ten days", "five working days")
 
 
 def test_acceptance_is_a_passport_commit(

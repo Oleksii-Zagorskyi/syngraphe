@@ -31,7 +31,7 @@ commit_version = _review.commit_version
 cast = _review.cast
 repository = _review.repository
 
-BODY = "Перше синтетичне речення.\n\nДруге синтетичне речення.\n"
+BODY = "The first synthetic sentence.\n\nThe second synthetic sentence.\n"
 
 
 @pytest.fixture

@@ -33,7 +33,7 @@ def values(**changed: Any) -> dict[str, Any]:
         "host": "smtp.example.test",
         "port": "587",
         "address": "platform.sender@example.test",
-        "display_name": "Синтетична платформа",
+        "display_name": "Synthetic platform",
         "username": "platform.sender@example.test",
         "password": PASSWORD,
         "security": "starttls",
@@ -74,7 +74,7 @@ def test_save_stores_the_password_encrypted_and_audits_without_it(operator: Any)
         "smtp.example.test",
         587,
         "platform.sender@example.test",
-        "Синтетична платформа",
+        "Synthetic platform",
         "starttls",
     )
     [event] = AuditEvent.objects.filter(action="mail.sender_saved")
@@ -103,10 +103,10 @@ def test_reopened_form_never_shows_the_password(operator: Any) -> None:
     assert 'value="smtp.example.test"' in page and 'value="587"' in page
 
     # Saved again with the password left empty, the stored one stays.
-    client.post(PAGE, values(password="", display_name="Інша назва"))
+    client.post(PAGE, values(password="", display_name="Another name"))
     with schema_context(None):
         row = MailSender.objects.get()
-    assert row.display_name == "Інша назва"
+    assert row.display_name == "Another name"
     assert secrets.decrypt(bytes(row.password_encrypted)) == PASSWORD
 
 
@@ -234,7 +234,7 @@ def test_platform_pages_closed_to_others(member_of: Any, make_tenant_schema: Any
     from tenancy.models import TenantDomain
 
     tenant_admin, _, _ = member_of("t.synthetic@example.test", is_tenant_admin=True)
-    elsewhere = make_tenant_schema("Інша синтетична організація")
+    elsewhere = make_tenant_schema("Another synthetic organisation")
     TenantDomain.objects.create(
         tenant=elsewhere, host="docs.example.test", is_default=True, actor_kind="system"
     )

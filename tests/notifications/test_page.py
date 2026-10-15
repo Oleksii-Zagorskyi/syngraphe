@@ -49,7 +49,7 @@ def test_tabs_count_and_opening_marks_read(
     member_of: Any, make_document: Any, written: Any
 ) -> None:
     client, person, _ = member_of("a.reader@example.test")
-    document = make_document(title="Синтетичне положення", created_by=person)
+    document = make_document(title="Synthetic regulation", created_by=person)
     first = written(person, "version_committed", document=document, at=1)
     second = written(person, "version_committed", document=document, at=2)
     third = written(person, "version_committed", document=document, at=3)
@@ -73,7 +73,7 @@ def test_read_all_marks_the_administrative_tab_alone(
     from notifications.models import Notification
 
     client, person, _ = member_of("a.reader@example.test", is_tenant_admin=True)
-    document = make_document(title="Синтетичне положення")
+    document = make_document(title="Synthetic regulation")
     one = written(person, "document_created", document=document, at=1)
     two = written(person, "access_granted", at=2, facts={"group": "synthetic"})
     kept = written(person, "version_committed", document=document, at=3)
@@ -91,7 +91,7 @@ def test_only_its_person_and_a_member_only_in_a_tenant(
 ) -> None:
     owner_client, owner, _ = member_of("the.owner@example.test")
     other_client, _, _ = member_of("another.member@example.test")
-    document = make_document(title="Синтетичне положення", created_by=owner)
+    document = make_document(title="Synthetic regulation", created_by=owner)
     row = written(owner, "version_committed", document=document)
 
     refused = other_client.get(f"/notifications/{row.pk}/")
@@ -111,7 +111,7 @@ def test_a_platform_administrator_reads_both_schemas_or_the_shared_alone(
     from tenancy.models import PlatformNotification
 
     client, admin, _ = member_of("p.admin@example.test", is_platform_admin=True)
-    document = make_document(title="Синтетичне положення")
+    document = make_document(title="Synthetic regulation")
     tenant_row = written(admin, "document_created", document=document, at=1)
     shared_row = written_platform(admin, "backup_condition", at=2, facts={"change": "began"})
 
@@ -155,7 +155,7 @@ def test_one_persons_count_and_read_all_leave_anothers_alone(
 
     client, person, _ = member_of("a.reader@example.test", is_tenant_admin=True)
     _, other, _ = member_of("another.reader@example.test", is_tenant_admin=True)
-    document = make_document(title="Синтетичне положення")
+    document = make_document(title="Synthetic regulation")
     written(person, "document_created", document=document, at=1)
     theirs = [
         written(other, "document_created", document=document, at=2),
@@ -192,7 +192,7 @@ def test_another_organisations_row_is_not_found_by_its_id(
     from notifications.models import Category, Event, Notification
 
     client, person, _ = member_of("both.places@example.test")
-    elsewhere = make_tenant_schema("Інша синтетична організація")
+    elsewhere = make_tenant_schema("Another synthetic organisation")
     Membership.objects.create(tenant=elsewhere, user=person, actor_kind="system")
     with schema_context(elsewhere.number):
         row = Notification.objects.create(
@@ -260,7 +260,7 @@ def test_a_member_is_led_to_the_list_and_an_administrator_to_the_group(
     admin_client, admin, _ = member_of("the.admin@example.test", is_tenant_admin=True)
     with schema_context(migrated_tenant.number):
         group = AccessGroup.objects.create(
-            name="Синтетична група", created_by=admin, actor_kind="user"
+            name="Synthetic group", created_by=admin, actor_kind="user"
         )
     for client, person, target in (
         (member_client, member, "/folder/1/"),
@@ -340,10 +340,10 @@ def test_an_entry_whose_document_its_reader_cannot_open_is_neither_drawn_nor_cou
 
     client, reader, membership = member_of("a.reader@example.test")
     _, admin, _ = member_of("the.admin@example.test", is_tenant_admin=True)
-    document = make_document(title="Синтетичне положення", author_only=False)
+    document = make_document(title="Synthetic regulation", author_only=False)
     with schema_context(migrated_tenant.number):
         group = AccessGroup.objects.create(
-            name="Синтетична група", created_by=admin, actor_kind="user"
+            name="Synthetic group", created_by=admin, actor_kind="user"
         )
         group.grant(Right.VIEW_ACCEPTED, by=admin)
         group.add_member(membership, by=admin)
@@ -357,7 +357,7 @@ def test_an_entry_whose_document_its_reader_cannot_open_is_neither_drawn_nor_cou
         DocumentGroup.unlink(document, group, by=admin)
     page = client.get("/notifications/").content.decode()
     assert entries(page) == [] and unread(page) == 1
-    assert "Синтетичне положення" not in page
+    assert "Synthetic regulation" not in page
     # Opened by its address, it answers as a missing entry, and stays unread.
     assert client.get(f"/notifications/{row.pk}/").status_code == 404
     with schema_context(migrated_tenant.number):

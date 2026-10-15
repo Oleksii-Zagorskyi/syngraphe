@@ -38,8 +38,8 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-FIRST = "# Синтетичні положення\n\nЗаяву на синтетичне погодження подають письмово.\n"
-SECOND = FIRST + "\nКопію синтетичного рішення надсилають того ж дня.\n"
+FIRST = "# Synthetic provisions\n\nA request for synthetic approval is made in writing.\n"
+SECOND = FIRST + "\nA copy of the synthetic decision goes out that day.\n"
 
 
 def test_the_window_is_one_act_wide(

@@ -321,7 +321,7 @@ def test_the_session_names_the_sole_organisation(
     migrated_tenant: Any, make_tenant_schema: Any, person: Any
 ) -> None:
     sole = person(P1, migrated_tenant.name)
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     both = person(P2, migrated_tenant.name, other.name)
     first = Client(headers={"host": PLATFORM})
     second = Client(headers={"host": PLATFORM})
@@ -392,7 +392,7 @@ def test_an_organisations_outbox_page_shows_no_reset(
 
     from mail.models import EmailOutbox
 
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     a_domain(migrated_tenant, "docs.example.test")
     sending_address(migrated_tenant.number)
     admin, _, _ = member_of("t.admin@example.test", is_tenant_admin=True)

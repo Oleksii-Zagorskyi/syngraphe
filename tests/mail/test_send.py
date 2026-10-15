@@ -23,7 +23,7 @@ pytestmark = [
 ]
 
 FIVE_MINUTES = timedelta(minutes=5)
-WRITTEN = "Синтетичне речення першої правки.\n"
+WRITTEN = "A synthetic sentence of the first edit.\n"
 RECIPIENT = "m.synthetic@example.test"
 # The password `tests/mail/conftest.py`'s signing sink accepts.
 SINK_PASSWORD = "synthetic-sink-password"
@@ -34,7 +34,7 @@ def queued_row(tenant: Any) -> Any:
     from mail import services as mail
 
     with schema_context(tenant.number):
-        row = mail.queue(tenant, RECIPIENT, "Синтетична тема", "Синтетичний лист без тексту.")
+        row = mail.queue(tenant, RECIPIENT, "Synthetic subject", "A synthetic letter without text.")
     assert row is not None
     return row
 
@@ -271,7 +271,7 @@ def test_a_failure_in_one_schema_stops_no_other_and_resends_nothing(
     from mail.models import Status
     from mail.tasks import send_outbox
 
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     sender(migrated_tenant.number)
     sender(other.number)
     first = queued_row(migrated_tenant)
@@ -557,8 +557,8 @@ def test_an_email_whose_notification_is_gone_is_never_sent(
         row = mail.queue(
             migrated_tenant,
             RECIPIENT,
-            "Синтетична тема",
-            "Синтетичний лист.",
+            "Synthetic subject",
+            "A synthetic letter.",
             notification_id=uuid.uuid4(),
         )
     assert row is not None
@@ -585,7 +585,7 @@ def test_every_schema_gets_its_turn_under_a_busy_one(
     sender(migrated_tenant.number)
     with schema_context(None):
         for n in range(3):
-            mail.queue(None, f"p{n}.synthetic@example.test", "Синтетична тема", "Синтетичний лист.")
+            mail.queue(None, f"p{n}.synthetic@example.test", "Synthetic subject", "A letter.")
     row = queued_row(migrated_tenant)
     real = mail.send
 
@@ -615,9 +615,9 @@ def test_a_credential_link_is_not_kept_once_sent(
     from mail.tasks import send_outbox
 
     sender(migrated_tenant.number)
-    body = f"Синтетичний лист.\nhttps://docs.example.test/{path}/{CREDENTIAL_TOKEN}/\n"
+    body = f"A synthetic letter.\nhttps://docs.example.test/{path}/{CREDENTIAL_TOKEN}/\n"
     with schema_context(migrated_tenant.number):
-        row = mail.queue(migrated_tenant, RECIPIENT, "Синтетична тема", body)
+        row = mail.queue(migrated_tenant, RECIPIENT, "Synthetic subject", body)
         assert row is not None
 
     send_outbox(now=row.next_attempt_at)
@@ -641,7 +641,7 @@ def test_a_credential_link_is_not_kept_once_failed(
     sink.always_refuse = True
     body = f"https://docs.example.test/reset/{CREDENTIAL_TOKEN}/\n"
     with schema_context(migrated_tenant.number):
-        row = mail.queue(migrated_tenant, RECIPIENT, "Синтетична тема", body)
+        row = mail.queue(migrated_tenant, RECIPIENT, "Synthetic subject", body)
         assert row is not None
     start = row.next_attempt_at
 

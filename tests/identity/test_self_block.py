@@ -59,7 +59,7 @@ def _document_held(tenant: Any, author: Any, user: Any, membership: Any, title: 
             Folder.objects.get(number=1),
         )
         group = AccessGroup.objects.create(
-            name=f"Редактори {title}", created_by=author, actor_kind="user"
+            name=f"Editors {title}", created_by=author, actor_kind="user"
         )
         group.grant(Right.EDIT, by=author)
         group.add_member(membership, by=author)
@@ -74,7 +74,7 @@ def test_self_block_closes_every_organisation(
     from editing.models import Draft, Hold
     from identity.models import AccountBlockHistory, Membership, User
 
-    other = make_tenant_schema("Інша синтетична організація")
+    other = make_tenant_schema("Another synthetic organisation")
     person = User.objects.create_user("the.person@example.test", PASSWORD)
     author = User.objects.create_user("the.author@example.test", PASSWORD)
     holds = []
@@ -82,7 +82,7 @@ def test_self_block_closes_every_organisation(
         mine = Membership.objects.create(tenant=tenant, user=person, actor_kind="system")
         Membership.objects.create(tenant=tenant, user=author, actor_kind="system")
         holds.append(
-            (tenant, _document_held(tenant, author, person, mine, f"Синтетичний {tenant.number}"))
+            (tenant, _document_held(tenant, author, person, mine, f"Synthetic {tenant.number}"))
         )
     client = Client(headers={"host": "127.0.0.1"})
     client.force_login(person)
@@ -175,7 +175,7 @@ def test_self_block_is_one_transaction(
     author = User.objects.create_user("the.author@example.test", PASSWORD)
     mine = Membership.objects.create(tenant=migrated_tenant, user=person, actor_kind="system")
     Membership.objects.create(tenant=migrated_tenant, user=author, actor_kind="system")
-    hold = _document_held(migrated_tenant, author, person, mine, "Синтетичний")
+    hold = _document_held(migrated_tenant, author, person, mine, "Synthetic")
 
     def refuse(*args: Any, **kwargs: Any) -> None:
         raise RuntimeError("a synthetic failure")
@@ -270,7 +270,7 @@ def test_a_hold_cannot_be_taken_while_the_self_block_is_written(
     author = User.objects.create_user("the.author@example.test", PASSWORD)
     mine = Membership.objects.create(tenant=migrated_tenant, user=person, actor_kind="system")
     Membership.objects.create(tenant=migrated_tenant, user=author, actor_kind="system")
-    held = _document_held(migrated_tenant, author, person, mine, "Синтетичний перший")
+    held = _document_held(migrated_tenant, author, person, mine, "Synthetic first")
     with schema_context(migrated_tenant.number):
         Hold.objects.filter(pk=held.pk).update(
             released_at=held.acquired_at, release_kind="discarded"
