@@ -1,9 +1,11 @@
 name: CI
 
+# Every push to every branch, and so the merge commit on main; a pull request
+# shows its branch's latest run, so the pull_request trigger would run each
+# push twice.
 on:
   push:
-    branches: [main]
-  pull_request:
+    branches: ['**']
 
 permissions:
   contents: read
