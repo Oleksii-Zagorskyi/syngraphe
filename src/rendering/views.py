@@ -37,6 +37,7 @@ from identity.views.preferences import (
     PANEL_WIDTH_MAX,
     PANEL_WIDTH_MIN,
 )
+from rendering import reading
 from rendering.outline import outline
 from rendering.renderer import labelled, render_tokens
 from shell.views import not_found
@@ -81,6 +82,9 @@ def view_context(
         return None
     tokens = labelled(body)
     headings = outline(tokens)
+    reader = reading.context(
+        request.user, document, body, images=reading.committed_images(document)
+    )
     return {
         "version_number": number,
         "version_stance": stance,
@@ -93,7 +97,8 @@ def view_context(
         "outline_bounds": (OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX),
         "panel_width": _kept(request, "panel_width", PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
         "panel_bounds": (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
-        "text": mark_safe(render_tokens(tokens)),  # noqa: S308 — raw HTML is off, every value escaped
+        # Raw HTML is off and every value escaped.
+        "text": mark_safe(render_tokens(tokens, context=reader)),  # noqa: S308
     }
 
 
@@ -260,12 +265,12 @@ def _version_link(document: Document, number: str) -> str:
 def _offers_and_parts(
     user: Any, document: Document, version: Version | None = None, past: Any = None
 ) -> tuple[list[Any], bool]:
-    """The views the person may export — the one at `version` from a historical page — and
-    whether any offered version has attachments."""
+    """The views the person may export — the one at `version` from a historical page — each
+    marked by whether its text shows images, and whether any offered version has attachments."""
     from documents.models import PartIndex, PartKind
-    from rendering.export.compose import offers
+    from rendering.export.compose import offers, with_images
 
-    offered = offers(user, document, version=version, past=past)
+    offered = with_images(offers(user, document, version=version, past=past), document, user)
     parts = PartIndex.objects.filter(
         version__in=[offer.version for offer in offered], kind=PartKind.ATTACHMENT
     ).exists()

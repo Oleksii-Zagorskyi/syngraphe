@@ -3,7 +3,8 @@ with the version each shows and the baseline its marks would be measured against
 job — the text, the document's HTML page, the Markdown, the header and the file's name.
 
 The text is validated before any renderer sees it: a construct the platform refuses fails the job
-by name. Images reach an export as their descriptions, as they reach the reading view.
+by name. The images a clean text shows go with it: embedded in PDF and DOCX, beside the Markdown in
+one zip; a mention is its words alone in PDF and DOCX (DL-0438).
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from access.rights import Right, rights_on
-from documents import bundle, gitstore
+from documents import bundle, gitstore, images
 from documents.models import Document, Version, VersionKind
 from editing.markdown.validator import validate
 from editing.numbering import BEFORE_ANY_ACCEPTANCE
@@ -26,7 +27,7 @@ from editions.models import Edition
 from rendering.export import furniture, names
 from rendering.export.markdown import join_paragraphs, number_headings
 from rendering.models import ExportChanges, ExportFormat, ExportView
-from rendering.renderer import render
+from rendering.renderer import RenderContext, render
 from review.services import accepted_content_version, latest_acceptance, number_key, run
 
 if TYPE_CHECKING:
@@ -64,6 +65,8 @@ class Offer:
     baseline: Version | None
     baseline_number: str
     marked_by_default: bool
+    # Whether the text it offers shows images: a Markdown export of it is then one zip.
+    images: bool = False
 
 
 @dataclass(frozen=True)
@@ -250,6 +253,29 @@ def offers(
     return found
 
 
+def with_images(offers: list[Offer], document: Document, user: Any) -> list[Offer]:
+    """Each offer marked by whether the text its export writes shows images — a version's body, or
+    the holder's draft's, whose first image may be in no commit yet — as the job decides it."""
+    from dataclasses import replace
+
+    from editing.holds import BODY, open_hold
+    from editing.models import Draft
+
+    marked = []
+    for offer in offers:
+        if offer.view == ExportView.MY_EDITS:
+            hold = open_hold(document)
+            draft = Draft.objects.filter(hold=hold).first() if hold is not None else None
+            mine = (
+                draft is not None and hold is not None and hold.user_id == getattr(user, "pk", None)
+            )
+            body = str(draft.content.get(BODY, "")) if mine and draft is not None else None
+        else:
+            body = _body(_tenant(), document, offer.version)[1]
+        marked.append(replace(offer, images=bool(shown_images(body))))
+    return marked
+
+
 def _offer_at(document: Document, version: Version, past: Any) -> list[Offer]:
     """The one offer at `version`, marked by DL-0241's chain for the stance it reached
     (DL-0426): an edition against the previous edition, accepted text against the edition before
@@ -313,6 +339,19 @@ class Composed:
     html: str = ""
     markdown: str = ""
     attachments: list[dict[str, Any]] = field(default_factory=list)
+    # The images the text shows — and, marked, the baseline's — by their paths.
+    images: list[str] = field(default_factory=list)
+
+
+# An export's text names its images by their paths: PDF reads them through its fetcher, DOCX from
+# its scratch folder. No mention links in a file that leaves the platform (DL-0438).
+EXPORT_CONTEXT = RenderContext(image_url=str, full_size=False)
+
+
+def shown_images(*texts: str | None) -> list[str]:
+    """The images the platform names that `texts` show, each once, in order."""
+    found = images.referenced({str(n): t for n, t in enumerate(texts) if t is not None})
+    return list(dict.fromkeys(r.src for r in found if images.is_image_path(r.src)))
 
 
 def _refusal(refusals: list[Any]) -> str:
@@ -454,6 +493,7 @@ def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
         name=names.file_name(frontmatter.title, number, shown, ext, marks=marks),
         header=header,
         attachments=list(frontmatter.attachments) if job.include_attachments else [],
+        images=shown_images(body, baseline),
     )
     if job.format == ExportFormat.MARKDOWN:
         text = number_headings(join_paragraphs(body))
@@ -473,6 +513,6 @@ def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
     if baseline is not None:
         rendered = render_changes(baseline.encode(), body.encode())
     else:
-        rendered = render(body)
+        rendered = render(body, context=EXPORT_CONTEXT)
     composed.html = _page(job, frontmatter, rendered, header, number)
     return composed

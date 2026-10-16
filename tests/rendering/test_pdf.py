@@ -1,6 +1,7 @@
 """The PDF export (ADR-0013, DL-0182): the conformance sample with its outline, every label, the
 header and the page numbers; a remote reference failing the job by name and writing nothing; the
-writer refusing every fetch but the document's own images; a marked export.
+writer refusing every fetch but the document's own images; a marked export; the images a version
+shows embedded, an oriented photograph upright.
 
 People, groups and titles are synthetic examples; every text is invented.
 """
@@ -107,7 +108,8 @@ def test_pdf_has_outline_labels_and_furniture(
         flat = re.sub(r"\s+", " ", " ".join(lines))
         assert f"{title} 1.0 — {stance}" not in flat, n
         assert str(n) in lines, n
-    # Images reach an export as their descriptions: nothing is fetched.
+    # The sample's image is no name the platform gives, so it stays its description: nothing is
+    # fetched.
     assert fetched == []
 
 
@@ -308,3 +310,112 @@ def test_a_formatting_change_prints_once(
     assert text.count(sentence) == 1
     # Marked by its colour alone: the words that name the change are the screen's (DL-0363).
     assert "лише форматування" not in text
+
+
+def exported(
+    tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+    shown: list[Any],
+    fmt: str,
+) -> Path:
+    """A canonical version showing `shown`, exported in `fmt` by a reader of it; the file."""
+    from django.conf import settings
+
+    people = edition_cast()
+    body = kit.FIRST + "".join(p.paragraph for p in shown)
+    pictures.canonical_with(
+        tenant.number, people, commit_version, body, {p.path: p.data for p in shown}
+    )
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], fmt)
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": fmt, "view": "canonical"},
+    )
+    assert response.status_code == 302
+    job = kit.run_job(tenant.number, exports[-1][1])
+    assert job.state == "done", job.failure_reason
+    return Path(settings.EXPORT_ROOT) / job.artifact_ref
+
+
+def placed_images(path: Path) -> list[tuple[float, float]]:
+    """Each image the PDF draws, as the width and height it is laid out at."""
+    from pypdf import PdfReader
+
+    found: list[tuple[float, float]] = []
+
+    def drawn(names: set[str]) -> Any:
+        matrix: list[float] = []
+
+        def visit(operator: bytes, operands: Any, *_: Any) -> None:
+            nonlocal matrix
+            if operator == b"cm":
+                matrix = [float(v) for v in operands]
+            elif operator == b"Do" and operands and operands[0] in names and matrix:
+                found.append((abs(matrix[0]) + abs(matrix[2]), abs(matrix[1]) + abs(matrix[3])))
+
+        return visit
+
+    for page in PdfReader(str(path)).pages:
+        names = set((page.get("/Resources") or {}).get("/XObject", {}).keys())
+        page.extract_text(visitor_operand_before=drawn(names))
+    return found
+
+
+def test_pdf_embeds_the_images(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+) -> None:
+    shown = [pictures.make(1), pictures.make(2)]
+    path = exported(
+        migrated_tenant,
+        edition_cast,
+        member_of,
+        link_group,
+        commit_version,
+        exports,
+        kit,
+        pictures,
+        shown,
+        "pdf",
+    )
+    assert len(placed_images(path)) == 2
+
+
+def test_an_oriented_photograph_in_a_pdf(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+) -> None:
+    """A JPEG keeps its orientation alone (DL-0472), and the PDF stands it upright."""
+    photo = pictures.make(3, "jpeg", width=40, height=20, orientation=6)
+    path = exported(
+        migrated_tenant,
+        edition_cast,
+        member_of,
+        link_group,
+        commit_version,
+        exports,
+        kit,
+        pictures,
+        [photo],
+        "pdf",
+    )
+    [(width, height)] = placed_images(path)
+    assert height > width

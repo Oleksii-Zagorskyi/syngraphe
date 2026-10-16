@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from documents import views
+from documents import image_views, views
 
 urlpatterns = [
     path("document/new/", views.create, name="document_create"),
@@ -18,4 +18,5 @@ urlpatterns = [
     path("", include("review.urls")),
     path("", include("editions.urls")),
     path("", include("rendering.urls")),
+    path("document/<int:number>/image/<str:name>/", image_views.image, name="document_image"),
 ]

@@ -110,19 +110,25 @@ def _draft_view(document: Document, hold: Any) -> Any:
 
     from documents import gitstore
     from editing.markdown.validator import validate
+    from rendering import reading
     from rendering.renderer import labelled, render_tokens
 
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
     if hold is not None:
         body: str = hold.draft.content[holds.BODY]
+        images = reading.draft_images(document, hold.draft, repo)
     else:
-        repo = gitstore.open_repository(holds.tenant_number(), document.number)
         head = gitstore.head(repo)
         if head is None:
             return None
         _, body = holds.split(gitstore.read(repo, holds.BODY, head).decode("utf-8"))
+        images = reading.committed_images(document)
     if validate(body):
         return None
-    return mark_safe(render_tokens(labelled(body)))  # noqa: S308 — raw HTML is off, every value escaped
+    user = hold.user if hold is not None else None
+    reader = reading.context(user, document, body, images=images)
+    # Raw HTML is off and every value escaped.
+    return mark_safe(render_tokens(labelled(body), context=reader))  # noqa: S308
 
 
 def ended_how(released: Any) -> str:

@@ -9,6 +9,8 @@ the validator can name them.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
 from html import escape
 from typing import Any
 
@@ -16,9 +18,28 @@ from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
 from markdown_it.token import Token
 
+from documents.images import is_image_path
 from editing.markdown import load_spec
 from editing.markdown.rules import attr_span, callout, tidy
 from rendering.numbering import labels
+
+
+@dataclass(frozen=True)
+class RenderContext:
+    """What a page renders text for: the documents a mention may link to, the address an image is
+    shown from, the names of a change's two sides, and whether a pair of images may be opened at
+    full size. With none, the output is the safe one — an image its description."""
+
+    reachable: frozenset[int] = frozenset()
+    image_url: Callable[[str], str] | None = None
+    sides: tuple[str, str] = ("", "")
+    full_size: bool = True
+
+
+def context_of(env: Any) -> RenderContext | None:
+    """The context a render was given, carried in markdown-it's `env`."""
+    found = env.get("context") if isinstance(env, dict) else None
+    return found if isinstance(found, RenderContext) else None
 
 
 def _span_open(_renderer: Any, tokens: list[Token], i: int, *_: Any) -> str:
@@ -37,9 +58,14 @@ def _callout_open(_renderer: Any, tokens: list[Token], i: int, *_: Any) -> str:
 
 
 def _image(renderer: Any, tokens: list[Token], i: int, options: Any, env: Any) -> str:
-    # An image reaches a reader as its description until the platform serves image files; nothing
-    # is fetched.
-    return escape(renderer.renderInlineAsText(tokens[i].children or [], options, env))
+    """An image the platform names, shown from the context's address; any other image — and every
+    image rendered with no context — its description alone, nothing fetched."""
+    description = renderer.renderInlineAsText(tokens[i].children or [], options, env)
+    context = context_of(env)
+    src = str(tokens[i].attrGet("src") or "")
+    if context is None or context.image_url is None or not is_image_path(src):
+        return escape(description)
+    return f'<img src="{escape(context.image_url(src))}" alt="{escape(description)}">'
 
 
 def _link_open(renderer: Any, tokens: list[Token], i: int, options: Any, env: Any) -> str:
@@ -106,16 +132,17 @@ def labelled(body: str) -> list[Token]:
     return tokens
 
 
-def render_tokens(tokens: list[Token]) -> str:
-    """Tokens from `labelled`, as HTML; tokens a caller spliced in render as they are."""
-    return str(RENDERER.renderer.render(tokens, RENDERER.options, {}))
+def render_tokens(tokens: list[Token], *, context: RenderContext | None = None) -> str:
+    """Tokens from `labelled`, as HTML for the reader `context` describes; tokens a caller spliced
+    in render as they are."""
+    return str(RENDERER.renderer.render(tokens, RENDERER.options, {"context": context}))
 
 
-def render_inline(text: str) -> str:
+def render_inline(text: str, *, context: RenderContext | None = None) -> str:
     """One line of inline text, rendered by the same rules and unlabelled."""
-    return str(RENDERER.renderInline(text)).strip()
+    return str(RENDERER.renderInline(text, {"context": context})).strip()
 
 
-def render(body: str) -> str:
+def render(body: str, *, context: RenderContext | None = None) -> str:
     """The body's HTML, each labelled block led by `<span class="num">LABEL</span> `."""
-    return render_tokens(labelled(body))
+    return render_tokens(labelled(body), context=context)

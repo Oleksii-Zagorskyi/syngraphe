@@ -1,7 +1,7 @@
 """The reading view's renderer (ADR-0013) against its oracle: the golden HTML for every accept case
 of the whitelist conformance list, byte for byte; the constructs of the conformance sample; and
-what a text may never make of the page — raw HTML, a `javascript:` link, an image fetched, an
-attribute value unescaped.
+what a text may never make of the page — raw HTML, a `javascript:` link, an image fetched from
+anywhere but the platform's own address, an attribute value unescaped.
 
 The golden files are written from the renderer's contract, never from its output
 (`tests/fixtures/whitelist/golden/README.md`). Every text is invented; the roles named are
@@ -143,3 +143,20 @@ def test_a_link_outside_the_whitelist_is_its_text() -> None:
     assert "data:" not in html and "search-ms" not in html
     assert "схему" in html and "пошук" in html
     assert 'href="https://example.org/pravyla"' in html
+
+
+def test_an_image_with_a_context_is_an_img() -> None:
+    """With a reader's context an image the platform names is an `img` from the context's
+    address, its description as `alt`, both escaped; any other image stays its description, as
+    it is with no context at all."""
+    from rendering.renderer import RenderContext
+
+    name = "a" * 64 + ".png"
+    body = f'![A plan & "notes"](images/{name})\n\n![A typed name](images/plan.png)\n'
+    context = RenderContext(image_url=lambda src: f"/shown/{src[7:]}?a=1&b=2")
+
+    assert "<img" not in render(body)
+    html = render(body, context=context)
+    assert f'<img src="/shown/{name}?a=1&amp;b=2" alt="A plan &amp; &quot;notes&quot;">' in html
+    assert "<p>A typed name</p>" in html
+    assert html.count("<img") == 1

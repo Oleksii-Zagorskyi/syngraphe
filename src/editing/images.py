@@ -2,7 +2,8 @@
 T-06): PNG, JPEG or GIF by its leading bytes, HEIC named in its own refusal, the platform's size
 and dimension limits read from the header before any library parses the data, and every metadata
 segment stripped — but for a JPEG's orientation tag — by chunk, marker and block. Nothing is ever
-decoded to pixels or converted.
+decoded to pixels or converted. A checked image's size and orientation are read here too, for the
+export that lays it out.
 """
 
 from __future__ import annotations
@@ -231,6 +232,29 @@ def _orientation_of(payload: bytes) -> tuple[bytes, int] | None:
     except struct.error:
         return None
     return None
+
+
+def size(data: bytes) -> tuple[int, int]:
+    """A checked image's stored width and height, from its header."""
+    read = {b"\x89P": _read_png, b"\xff\xd8": _read_jpeg, b"GI": _read_gif}[data[:2]]
+    width, height, _pixels, _stripped = read(data)
+    return width, height
+
+
+def orientation(data: bytes) -> int:
+    """A JPEG's EXIF orientation, 1 to 8; 1 for any other image, or a JPEG that carries none."""
+    if not data.startswith(JPEG_SIGNATURE):
+        return 1
+    try:
+        segments = _jpeg_segments(data)
+    except (_Unreadable, struct.error, IndexError):
+        return 1
+    for marker, _start, payload, end in segments:
+        if marker == 0xE1:
+            found = _orientation_of(data[payload:end])
+            if found is not None:
+                return found[1]
+    return 1
 
 
 def _minimal_app1(order: bytes, value: int) -> bytes:

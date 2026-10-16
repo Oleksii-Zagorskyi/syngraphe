@@ -98,3 +98,10 @@
 .compare-pair .steps { margin-left: auto; display: flex; gap: 8px; }
 .compare-panes { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
 @media (max-width: 800px) { .compare-panes { grid-template-columns: minmax(0, 1fr); } }
+
+/* An image stands alone in its paragraph, no wider than the text or the page. */
+.document-text img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}

@@ -1,12 +1,14 @@
 """The DOCX export (ADR-0013, DL-0182): the platform's classes as named Word styles, each carried
 by the text, the numbering definitions, the footer's page number and no header (DL-0362); a
-heading's number set as the heading (DL-0363).
+heading's number set as the heading (DL-0363); the images a version shows embedded, and an
+oriented photograph turned as its tag says, fitted to the text (DL-11-003).
 
 People, groups and titles are synthetic examples; every text is invented.
 """
 
 from __future__ import annotations
 
+import hashlib
 import re
 import zipfile
 from pathlib import Path
@@ -122,3 +124,159 @@ def test_a_marked_docx_carries_its_changes_in_styles_of_their_own(
     assert not re.search(r'<w:rStyle w:val="Underline"\s*/>', body)
     # The formatting change is marked by its colour alone (DL-0363).
     assert "лише форматування" not in body
+
+
+def exported_docx(
+    tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+    shown: list[Any],
+) -> str:
+    """A canonical version showing `shown`, exported as DOCX; its `word/document.xml`."""
+    from django.conf import settings
+
+    people = edition_cast()
+    body = kit.FIRST + "".join(p.paragraph for p in shown)
+    pictures.canonical_with(
+        tenant.number, people, commit_version, body, {p.path: p.data for p in shown}
+    )
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "word")
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "docx", "view": "canonical"},
+    )
+    assert response.status_code == 302
+    job = kit.run_job(tenant.number, exports[-1][1])
+    assert job.state == "done", job.failure_reason
+    with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as docx:
+        return docx.read("word/document.xml").decode()
+
+
+def test_docx_embeds_the_images(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+) -> None:
+    shown = [pictures.make(1), pictures.make(2)]
+    xml = exported_docx(
+        migrated_tenant,
+        edition_cast,
+        member_of,
+        link_group,
+        commit_version,
+        exports,
+        kit,
+        pictures,
+        shown,
+    )
+    assert xml.count("<pic:pic") == 2
+
+
+def laid_out(xml: str) -> list[tuple[int, int]]:
+    """Each picture's laid-out box, in EMU: its extent widened or narrowed by its effect extent."""
+    extents = [(int(a), int(b)) for a, b in re.findall(r'<wp:extent cx="(\d+)" cy="(\d+)"', xml)]
+    effects = re.findall(r'<wp:effectExtent b="(-?\d+)" l="(-?\d+)" r="(-?\d+)" t="(-?\d+)"', xml)
+    boxes = []
+    for (cx, cy), effect in zip(extents, effects, strict=True):
+        bottom, left, right, top = (int(v) for v in effect)
+        boxes.append((cx + left + right, cy + top + bottom))
+    return boxes
+
+
+def test_an_oriented_photograph_in_a_docx(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+) -> None:
+    """The picture takes its geometry from the JPEG's orientation tag (DL-11-003): a quarter turn,
+    its laid-out box taller than wide."""
+    photo = pictures.make(3, "jpeg", width=40, height=20, orientation=6)
+    xml = exported_docx(
+        migrated_tenant,
+        edition_cast,
+        member_of,
+        link_group,
+        commit_version,
+        exports,
+        kit,
+        pictures,
+        [photo],
+    )
+    [(width, height)] = laid_out(xml)
+    assert height > width
+    assert re.search(r'<a:xfrm[^>]*\brot="5400000"', xml)
+
+
+def image_name(data: bytes, ext: str) -> str:
+    return f"images/{hashlib.sha256(data).hexdigest()}.{ext}"
+
+
+@pytest.mark.parametrize(
+    ("orientation", "rotation", "flips"),
+    [
+        (2, None, ' flipH="1"'),
+        (3, "10800000", ""),
+        (4, None, ' flipV="1"'),
+        (5, "16200000", ' flipH="1"'),
+        (6, "5400000", ""),
+        (7, "5400000", ' flipH="1"'),
+        (8, "16200000", ""),
+    ],
+)
+def test_each_orientation_turns_the_picture(
+    orientation: int, rotation: str | None, flips: str, invented_image: Any, tmp_path: Path
+) -> None:
+    """Each EXIF orientation as Word's own geometry: the turn and the flips on the picture, its
+    extent the picture's own size, and a quarter turn's laid-out box changed by the effect extent
+    — taller than wide for a picture stored wider than tall."""
+    from editing import images
+    from rendering.export import docx
+
+    data = images.check(invented_image("jpeg", 40, 20, orientation=orientation)).data
+    name = image_name(data, "jpg")
+    path = tmp_path / "turned.docx"
+    docx.write(f'<p><img src="{name}" alt="A photograph"></p>', path, images={name: data})
+    with zipfile.ZipFile(path) as produced:
+        xml = produced.read("word/document.xml").decode()
+    transform = re.search(r"<a:xfrm([^>]*)>", xml)
+    assert transform is not None
+    assert (f' rot="{rotation}"' if rotation else "") + flips == transform.group(1)
+    [(cx, cy)] = [(int(a), int(b)) for a, b in re.findall(r'<wp:extent cx="(\d+)" cy="(\d+)"', xml)]
+    [(ax, ay)] = [(int(a), int(b)) for a, b in re.findall(r'<a:ext cx="(\d+)" cy="(\d+)"', xml)]
+    assert (cx, cy) == (ax, ay) and cx > cy
+    [(width, height)] = laid_out(xml)
+    assert (height > width) == (orientation >= 5)
+
+
+def test_a_turned_picture_fits_the_text(invented_image: Any, tmp_path: Path) -> None:
+    """A quarter-turned picture is laid out as the PDF lays it out: at its size, or the text's
+    width where it is wider, never past it."""
+    from editing import images
+    from rendering.export import docx
+
+    data = images.check(invented_image("jpeg", 2400, 600, orientation=6)).data
+    wide = images.check(invented_image("png", 4000, 10)).data
+    photo, banner = image_name(data, "jpg"), image_name(wide, "png")
+    path = tmp_path / "turned.docx"
+    html = f'<p><img src="{photo}" alt="A"></p><p><img src="{banner}" alt="B"></p>'
+    docx.write(html, path, images={photo: data, banner: wide})
+    with zipfile.ZipFile(path) as produced:
+        xml = produced.read("word/document.xml").decode()
+    (width, height), (text_width, _) = laid_out(xml)
+    assert width == text_width
+    assert abs(height / width - 4.0) < 0.01

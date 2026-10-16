@@ -67,7 +67,8 @@ def referenced(texts: Mapping[str, str]) -> list[Reference]:
 
 def served(data: bytes, name: str) -> HttpResponse:
     """An image's bytes as every image route answers them: the type its checked extension names,
-    never the client's or the bytes' guess, and never cached beyond the reader."""
+    never the client's or the bytes' guess, and private to the reader; the routes are `never_cache`
+    too, so a right lost is lost at the next request."""
     response = HttpResponse(data, content_type=CONTENT_TYPES[name.rsplit(".", 1)[1]])
     response["X-Content-Type-Options"] = "nosniff"
     response["Content-Disposition"] = "inline"

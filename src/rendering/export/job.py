@@ -1,7 +1,7 @@
 """Running an export job on the render worker: the content composed, the file written under the
-exports root at `<job id>/<file name>` — one file, or one zip when attachments go with it — and the
-row marked `done` with its file, or `failed` with the reason. A job that is not `queued` is left
-alone, so a job queued twice runs once.
+exports root at `<job id>/<file name>` — one file, or one zip when attachments go with it or a
+Markdown export's text shows images — and the row marked `done` with its file, or `failed` with the
+reason. A job that is not `queued` is left alone, so a job queued twice runs once.
 """
 
 from __future__ import annotations
@@ -32,22 +32,56 @@ KEPT = timedelta(hours=24)
 STYLESHEET = Path(__file__).resolve().parents[1] / "static" / "rendering" / "document.css"
 
 
-def _write_document(
-    composed: compose.Composed, fmt: str, path: Path, tenant: int, job: ExportJob
-) -> None:
+def _images(composed: compose.Composed, tenant: int, job: ExportJob) -> dict[str, bytes]:
+    """Every image the export shows, read before any writer runs: a *my edits* export's from the
+    draft's staged rows first, then the version's tree, then a marked export's baseline. An image
+    none of them holds — the draft discarded meanwhile — fails the job with its reason, which a
+    writer's own fetch could not say."""
+    if not composed.images:
+        return {}
+    from editing.models import DraftFile, DraftFileKind
+    from rendering.models import ExportView
+
     repo = gitstore.open_repository(tenant, job.document.number)
-    commit = job.version.commit_sha
+    found: dict[str, bytes] = {}
+    if job.view == ExportView.MY_EDITS:
+        rows = DraftFile.objects.filter(
+            draft__hold__document=job.document,
+            draft__hold__user_id=job.requested_by_id,
+            draft__hold__released_at__isnull=True,
+            kind=DraftFileKind.IMAGE,
+            path__in=composed.images,
+            content__isnull=False,
+        ).values_list("path", "content")
+        found.update((path, bytes(content)) for path, content in rows if content is not None)
+    commits = [job.version.commit_sha]
+    if job.baseline_version is not None:
+        commits.append(job.baseline_version.commit_sha)
+    for path in composed.images:
+        for commit in commits:
+            if path in found:
+                break
+            try:
+                found[path] = gitstore.read(repo, path, commit)
+            except KeyError:
+                continue
+        if path not in found:
+            raise compose.Refused(
+                _("An image the text shows has gone since you asked; export again.")
+            )
+    return found
 
-    def read_image(image: str) -> bytes:
-        return gitstore.read(repo, image, commit)
 
+def _write_document(
+    composed: compose.Composed, fmt: str, path: Path, pictures: dict[str, bytes]
+) -> None:
     if fmt == ExportFormat.MARKDOWN:
         path.write_text(composed.markdown, encoding="utf-8")
     elif fmt == ExportFormat.PDF:
         stylesheets = [STYLESHEET.read_text(encoding="utf-8"), furniture.pdf_css()]
-        pdf.write(composed.html, path, stylesheets=stylesheets, read_image=read_image)
+        pdf.write(composed.html, path, stylesheets=stylesheets, read_image=pictures.__getitem__)
     else:
-        docx.write(composed.html, path)
+        docx.write(composed.html, path, images=pictures)
 
 
 def _zip(
@@ -57,9 +91,10 @@ def _zip(
     scratch: Path,
     tenant: int,
     job: ExportJob,
+    pictures: dict[str, bytes],
 ) -> Path:
-    """The document, when chosen, and its attachments as stored, in one zip of the document's
-    name."""
+    """The document, when chosen, its images beside a Markdown text under the paths it names
+    them by, and its attachments as stored, in one zip of the document's name."""
     repo = gitstore.open_repository(tenant, job.document.number)
     word = pgettext("a part in an exported file's name", "attachment")
     inner = _("Document").lower() + Path(composed.name).suffix
@@ -68,6 +103,9 @@ def _zip(
     with zipfile.ZipFile(partial, "w", zipfile.ZIP_DEFLATED) as bundle:
         if document is not None:
             bundle.write(document, inner)
+            if job.format == ExportFormat.MARKDOWN:
+                for image, data in pictures.items():
+                    bundle.writestr(image, data)
         for item in composed.attachments:
             number = int(item["number"])
             data = gitstore.read(repo, f"attachments/{number}", job.version.commit_sha)
@@ -114,11 +152,15 @@ def _held(job: ExportJob, tenant: int) -> ExportState:
             os.utime(folder)
             with tempfile.TemporaryDirectory(dir=folder) as scratch:
                 document: Path | None = None
+                pictures = _images(composed, tenant, job) if job.include_document else {}
                 if job.include_document:
                     document = Path(scratch) / composed.name
-                    _write_document(composed, job.format, document, tenant, job)
-                if composed.attachments:
-                    produced = _zip(composed, document, folder, Path(scratch), tenant, job)
+                    _write_document(composed, job.format, document, pictures)
+                beside = job.format == ExportFormat.MARKDOWN and bool(pictures)
+                if composed.attachments or beside:
+                    produced = _zip(
+                        composed, document, folder, Path(scratch), tenant, job, pictures
+                    )
                 elif document is not None:
                     produced = folder / composed.name
                     document.replace(produced)

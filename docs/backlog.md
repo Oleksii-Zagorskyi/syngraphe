@@ -247,7 +247,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Idea.** The `render` service has no route off its network (ADR-0013), but it holds what every application process holds: the database role the stack was initialised with, the secret key and the whole broker. A flaw in a layout engine parsing a document could leave through those rather than through the network — a query run inside the database, a task put on another worker's queue. Give `render` a database role of its own that reads the tables an export reads and writes only the export's row, a broker user limited to its own queue and results, and no secret key.
 
-**Why it is parked.** The text a renderer parses is escaped and its images are read as their descriptions, so the path needs a flaw in a native parser first; the split touches the backup design, which uses the stack's role, and the configuration reader, which requires the secret key of every process.
+**Why it is parked.** The text a renderer parses is escaped, and the images it is given are PNG, JPEG or GIF that passed the platform's checks and stripping (DL-0242, T-06), so the path needs a flaw in a native image decoder first; the split touches the backup design, which uses the stack's role, and the configuration reader, which requires the secret key of every process.
 
 **What has to be true before it is taken up.** Before the first production deploy.
 

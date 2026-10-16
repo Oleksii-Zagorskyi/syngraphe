@@ -1278,10 +1278,12 @@ msgstr "Що можна експортувати"
 #: rendering/templates/rendering/export.html:12
 msgid ""
 "The document in the format chosen; attachments, when the document has them, "
-"as their own files. With attachments, the export is one zip."
+"as their own files. With attachments, or as Markdown with images, the export "
+"is one zip."
 msgstr ""
 "Документ у вибраному форматі; вкладені файли, якщо вони є, — окремими "
-"файлами. З вкладеними файлами експорт завантажується одним zip-архівом."
+"файлами. З вкладеними файлами, а також у Markdown із зображеннями, експорт "
+"завантажується одним zip-архівом."
 
 #: rendering/templates/rendering/export.html:17
 msgid "Format"
@@ -3141,3 +3143,7 @@ msgstr "Файл не вдалося прочитати як зображенн�
 #: editing/messages.py
 msgid "The image was not added. Try again."
 msgstr "Зображення не додано. Спробуйте ще раз."
+
+#: rendering/export/job.py
+msgid "An image the text shows has gone since you asked; export again."
+msgstr "Відколи ви замовили експорт, зображення, яке показує текст, зникло; експортуйте ще раз."
