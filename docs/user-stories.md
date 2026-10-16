@@ -94,7 +94,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0058** — As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page, so that every new document starts with the structure we expect.
 - One template per organisation. Editing it changes documents created afterwards, never existing ones.
-- The title page is generated at export from the document's metadata through a layout I configure; nobody types it (DL-0164).
+- The title page is generated at export from the document's metadata through a layout I configure; nobody types it as a page (DL-0164). One detail is the document's own title-page text — an internal code, a register entry — written by its holder as a draft change, as the title is (DL-0476).
 
 **ST-0051** — As a tenant administrator, I am notified when a document is created or copied, so that I link its groups while only its author can reach it.
 - Until a linked group holds accept, the document reads *no reviewer assigned* and acceptance is refused with that reason rather than failing quietly.
@@ -203,7 +203,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0023** — As an editor, I see a clause number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
 - The form is `1.1-3` and `4.3.2-6`: the heading path, then the clause within it — each paragraph of text is one clause.
-- Inside an appendix the same numbers carry the appendix in front of them, so *Appendix 2, 1.1-3* is unambiguous.
+- Inside an appendix the numbers start again from 1, under the appendix's title; a reference from elsewhere carries the appendix in front, so *Appendix 2, 1.1-3* is unambiguous (DL-0177, DL-0444).
 - The numbers are not part of the text and cannot be typed into: a heading's stands in the heading, a clause's in a gutter beside it (DL-0363).
 
 **ST-0024** — As any reader of a document, I navigate by an outline of its sections and subsections, so that a forty-page policy is usable.
@@ -329,7 +329,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - DOCX and PDF carry the page number in the footer and no header; the file's name carries the title, the version number and the stance exported (DL-0362).
 
 **ST-0046** — As a tenant administrator, I edit the stylesheet the exports are rendered with, so that documents look the way the organisation expects.
-- One stylesheet per organisation, selected per document.
+- One stylesheet per organisation, used by every document; the platform's default while it has none (DL-0465).
 
 ---
 

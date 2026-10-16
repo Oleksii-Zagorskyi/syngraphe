@@ -93,7 +93,7 @@ A second consequence worth stating: a development host that holds real tenant do
 
 ### T-06 — A malicious upload
 
-**Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export.
+**Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export; a JPEG keeps its orientation tag alone (DL-0472).
 
 ### T-07 — The record is altered
 
@@ -177,6 +177,10 @@ Failures are counted by client and by address typed with client, and a browser t
 
 **Who:** an organisation's administrator. **How:** the organisation's sending address is any server its administrator enters, and an invitation's email leaves through it, as does a reset asked for on the organisation's domain, or on the platform's host by a person whose one active membership is there; the link sets the password of a person already registered elsewhere, a platform administrator's too (DL-0374, DL-0383). Whoever runs that server can read the link and take the account. **Answered by:** nothing in release 0.1, by decision (DL-0404): one organisation operates an installation, and its administrators are trusted with it. The link is single-use and short-lived, and its token is not kept in the stored email once it has left (DL-0406). **Trigger to revisit:** a second organisation, unrelated to the operator, on one installation — B-045.
 
+### T-23 — The organisation's stylesheet changes what an export says, or reaches out
+
+**Who:** an organisation's administrator, or anyone holding their session. **How:** the stylesheet is CSS the administrator writes, applied to every reader's view of a document and to its exports. CSS can hide a clause, add words, hide a title page's *not approved*, or fetch from any host through `url()`, `@import` or a remote font. **Answered by:** an allowlist checked at save, each refusal named with its line — properties of type, colour, background, borders, spacing, alignment and page geometry; selectors limited to the platform's own elements and classes and confined to the document's text; nothing that fetches, and no `content`, `display`, `visibility`, `position` or `opacity`; fonts only from those installed (DL-0464, ASR-19); a platform sheet applied after the organisation's guards the change marks and the approval line. Every change audited. **Left open by choice** (DL-0477): text coloured like its background, and running text shaded in the change marks' colours — the record answers both.
+
 ## What this found
 
 Two changes, both cheap now:
@@ -189,6 +193,7 @@ Two changes, both cheap now:
 - **Content is sent to a third-party model** (T-03). The largest residual risk in the system; an owner decision, required before stage 2 ships.
 - **An operator with database and filesystem access can alter the record consistently** (T-07). Signing and off-site replication are the answers and neither is in stage 1.
 - **A reviewer may accept their own work** (T-08). Taken knowingly; the control is the record.
+- **An organisation's stylesheet may hide text in its background's colour, or shade text like a change mark** (T-23). Taken knowingly; every change to the stylesheet is audited with its text (DL-0477).
 - **An approver may approve text they wrote** (T-08, ADR-0016). A group holding *freeze* and *make canonical* can edit a run; the distinct-approver check covers acceptance, not authorship.
 - **A person with read access can take what they may read** (T-09).
 - **Administrators read everything in their scope** (T-16). Accepted while the platform serves one organisation; EP-0001 before it serves independent ones.

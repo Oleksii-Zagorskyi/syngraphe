@@ -88,9 +88,9 @@ Rights are held by groups and reach documents through the groups linked to them 
 
 *Forbids:* permissions encoded in code, in file layout, or anywhere a change leaves no trace. Confidential material is an ordinary document linked to few groups, not a separate mechanism.
 
-## ASR-09 — Generated views have exactly one author *(constraint)*
+## ASR-09 — Generated views have exactly one author, the system *(constraint)*
 
-The role directory, control directory, contradictions, ambiguities and blind-spot lists are written by the agent and by nobody else, recompiled on every commit (DL-0044).
+The role directory, control directory, contradictions, ambiguities and blind-spot lists are written by the system and by nobody else. Wherever a generated view's author is shown — the interface, and the MCP server later — it is *system*, never a person; the record beneath may carry the account a view was produced under (DL-0448). In stage 1 the role directory is derived from the version shown, each time it is rendered, with no store and no agent (DL-0073); from stage 2 the agent writes the other views, recompiled on every commit (DL-0044, DL-0063).
 
 *Forbids:* a human editing a generated view; a generated view being treated as **source text** — it is derived from the documents and never the other way round. Reading one to decide what to edit next, or to drive future work items, is exactly what it is for.
 
@@ -166,7 +166,7 @@ No document links, analyses or searches cross a tenant boundary. A user holding 
 - **Response**: The permission set at that moment is returned by query, with the actor and timestamp of each grant
 - **Response measure**: Answerable without replaying an event stream, for any past date, including for rights on an archived document
 
-Every row carries `created_at`, `created_by` and an `actor_kind` of user, system or agent; authorisation-bearing tables additionally carry typed append-only history (DL-0082). *Forbids:* updating a rights row in place without a history entry; deleting a rights row rather than archiving it; attributing an agent-written or system-written row to a person.
+Every row carries `created_at`, `created_by` and an `actor_kind` of user, system or agent; authorisation-bearing tables additionally carry typed append-only history (DL-0082). Current-state rows are removed with their removal written to the typed history in the same transaction, and the history tables refuse update and delete in the database (DL-0459). *Forbids:* updating a rights row in place without a history entry; removing a rights row without its history entry; attributing an agent-written or system-written row to a person.
 
 ## ASR-19 — Stored content never executes *(constraint)*
 

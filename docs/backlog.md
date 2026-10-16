@@ -265,7 +265,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** The whitelist has no preformatted block, and a tree drawn with box characters was refused when a synthetic regulation was loaded; the author converted it to a nested list. Whether such a block belongs in a governed document is a product decision, and the whitelist is not opened again until marks and images are added to it.
 
-**What has to be true before it is taken up.** The whitelist is next opened — with marks and images.
+**What has to be true before it is taken up.** A design session on the stored form decides whether a block set as written can live beside one sentence per line and DL-0133's exclusion of code blocks. The whitelist's opening for the mention span did not take it up (DL-0441).
 
 ## B-040 — A list written `- 1.` read as a numbered list
 
@@ -275,6 +275,8 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
+**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+
 ## B-041 — Telling the author that single line breaks are joined
 
 **Idea.** Lines an author wrote one under another inside a paragraph are joined into one line — Markdown's rule, and what the one-sentence-per-line storage depends on — without a word to the author. The editor, or the loader, could say so where it happens.
@@ -283,6 +285,8 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
+**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+
 ## B-042 — A leading heading number stripped on load or paste
 
 **Idea.** A Markdown export carries heading numbers in its headings (DL-0363); loaded again or pasted back, they stay as text and gain a second number on the next export. The loader and the paste could strip a leading number equal to the heading's own.
@@ -290,6 +294,8 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** It is a normalizer rule on the whitelist's reading of a heading, decided with the whitelist.
 
 **What has to be true before it is taken up.** The whitelist is next opened.
+
+**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
 ## B-043 — Three controls drawn out of proportion
 
@@ -322,3 +328,43 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The controls on the link come first in release 0.1: single use, a short life, its token not kept once sent (DL-0405).
 
 **What has to be true before it is taken up.** B-045 taken up, or a person reporting an account changed without them.
+
+## B-047 — Moving a folder
+
+**Idea.** An administrator moves a folder, with everything beneath it, under another folder.
+
+**Why it is parked.** Release 0.1 moves documents between folders only (DL-0453); moving a folder changes every path beneath it, and the folder tree is presentation, so nothing yet needs it.
+
+**What has to be true before it is taken up.** An organisation reorganises its tree and moving documents one by one is the cost it names.
+
+## B-048 — Several stylesheets per organisation
+
+**Idea.** An organisation keeps more than one export stylesheet — a policy look and a form look — and each document selects one.
+
+**Why it is parked.** Release 0.1 has one stylesheet per organisation, used by every document (DL-0465); a selection needs a field the record does not have and a reviewer's view of the choice.
+
+**What has to be true before it is taken up.** An organisation asks for two looks for two kinds of document.
+
+## B-049 — The organisation's logo on the title page
+
+**Idea.** The title page carries the organisation's logo as its first detail, as the interface's drawing shows.
+
+**Why it is parked.** Release 0.1's title-page details need no file (DL-0462, DL-0467); a logo needs an upload, a store and the renderers reading it.
+
+**What has to be true before it is taken up.** Images are uploaded and checked in documents; the upload on the template page reuses those checks.
+
+## B-050 — Bringing a retired document type back into use
+
+**Idea.** A retired type offers *bring back into use*, audited, so a type retired by mistake returns under its own label.
+
+**Why it is parked.** Release 0.1 adds, renames, retires and deletes types (DL-0235); labels stay unique with retired ones included, so a type retired by mistake cannot be added again under its label until this exists.
+
+**What has to be true before it is taken up.** An organisation retires a type it still needs.
+
+## B-051 — Relabelling or removing an entity from the *Mark* picker
+
+**Idea.** The picker that declares an entity also relabels one, and removes one marked nowhere in the document.
+
+**Why it is parked.** Release 0.1's picker picks or declares (ST-0026); the review surface already lists an entity relabelled or removed, so adding the controls later redoes nothing.
+
+**What has to be true before it is taken up.** Authors meet entities declared with a wrong label, or left unused, often enough to ask for a way to correct them.

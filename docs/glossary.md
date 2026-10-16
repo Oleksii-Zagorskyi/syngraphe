@@ -40,7 +40,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **attachment list** · перелік вкладених файлів · *proposed* — the table an export generates of a document's attachments: title, file name, hash.
 
-**frontmatter** · заголовок файлу · *proposed* — the title, the language, the title-page switch and the lists of appendices and attachments at the top of `document.md`. Never shown in the editor and never exported; it is what a restored repository recovers its identity from.
+**frontmatter** · заголовок файлу · *proposed* — the title, the language, the title-page switch, the title-page text (DL-0476) and the lists of appendices and attachments at the top of `document.md`. Never shown in the editor and never exported; it is what a restored repository recovers its identity from.
 
 **section** · розділ · *proposed* — a top-level heading in a document.
 
@@ -62,7 +62,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **outline** · зміст · *proposed* — the navigable list of a document's sections and subsections.
 
-**see also** · див. також · *proposed* — the automatically maintained list of documents this one links to, filtered to what the reader may reach.
+**see also** · див. також · *proposed* — the automatically maintained list of documents this one mentions — a link where the reader may follow it, plain text in the mention's own words where they may not (DL-0071, DL-0437).
 
 **document type** · тип документа · *proposed* — each tenant's own classification of its documents; a new tenant starts with one, *document* (документ) (DL-0235). *Synthetic examples:* policy (політика), controls (контролі), technical instruction (технічна інструкція).
 
@@ -70,7 +70,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **style** · стиль · *proposed* — the organisation's rendering rules, authored by its tenant administrator and selected per document (DL-0230).
 
-**image** · зображення · *proposed* — an uploaded PNG, JPEG or GIF. HEIC is refused; metadata is stripped.
+**image** · зображення · *proposed* — an uploaded PNG, JPEG or GIF. HEIC is refused; metadata is stripped, but for a JPEG's orientation tag (DL-0472).
 
 ---
 

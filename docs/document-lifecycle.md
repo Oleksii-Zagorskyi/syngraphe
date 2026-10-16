@@ -121,9 +121,11 @@ Entries arrive two ways: a reviewer marks a passage disputed, or an editor escal
 | unfreeze | holder of *freeze and unfreeze* | document Frozen, and nobody holds it (DL-0416) | the freeze ends with its actor, no reason asked; ordinary editing resumes at the current accepted number |
 | make canonical | holder of make canonical, which includes the accepted view (DL-0234) | document Frozen; nobody holds it (DL-0419); an acceptance since the previous edition; no unaccepted content version since the latest acceptance (DL-0267); where the tenant has switched it on, the approver accepted none of the runs since the previous edition (DL-0115) | latest accepted version becomes the next edition, `N+1.0`, by a passport commit that is tagged (DL-0260); freeze ends |
 | read | holder of a viewing right | — | *view canonical* sees Canonical; *view accepted* adds Accepted; *view pending* adds Pending; history rights add earlier versions (ADR-0007) |
-| follow a link to another document | any reader | the reader may access the target | otherwise the mention renders as plain text and is absent from *see also* (ASR-16) |
+| follow a link to another document | any reader | the reader may access the target | otherwise the mention renders as plain text, and *see also* lists it as plain text (ASR-16, DL-0071, DL-0437) |
 | move a document between folders | tenant administrator | — | metadata only; no repository path changes, no access change (ASR-15) |
 | copy a document | holder of create and edit | may see the chosen version | new author-only document with that text, chosen appendices, no attachments, no history (ADR-0007) |
+| archive | tenant administrator | the document is active | off every list and search; mentions of it render as plain text for everyone; a hold is released as a force release does and a reservation ended, drafts kept; a freeze and a pending run kept as they stand; administrators open its read-only pages with an *archived* tag, every act refused (DL-0084, DL-0449, DL-0450) |
+| restore | tenant administrator | the document is archived | active again exactly as it was; its group links apply as they stand (DL-0084) |
 | set a document's type | tenant administrator | the type is on the organisation's list (DL-0235) | changes list filtering only |
 | toggle show author | anyone who can see a diff | — | attribution shown or hidden (DL-0040) |
 | download an attachment | anyone who may read the version it belongs to | — | the stored file, under its original name |
