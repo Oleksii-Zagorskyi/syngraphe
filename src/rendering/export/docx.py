@@ -122,10 +122,9 @@ EXTENT = re.compile(r'<wp:extent cx="(\d+)" cy="(\d+)"')
 GRAPHIC_EXTENT = re.compile(r'<a:ext cx="(\d+)" cy="(\d+)"')
 EFFECT = re.compile(r"<wp:effectExtent[^>]*/>")
 EFFECT_SIDES = re.compile(r'<wp:effectExtent b="(-?\d+)" l="(-?\d+)" r="(-?\d+)" t="(-?\d+)"')
-TABLE = re.compile(r"<w:tbl>.*?</w:tbl>", re.DOTALL)
+GRID = re.compile(r"<w:tblGrid>.*?</w:tblGrid>", re.DOTALL)
 GRID_COLUMN = re.compile(r'<w:gridCol w:w="(\d+)"')
-ROW = re.compile(r"<w:tr\b.*?</w:tr>", re.DOTALL)
-CELL = re.compile(r"<w:tc>.*?</w:tc>", re.DOTALL)
+CELL_PROPERTIES = re.compile(r"<w:tc>\s*<w:tcPr>(.*?)</w:tcPr>", re.DOTALL)
 SPAN = re.compile(r'<w:gridSpan w:val="(\d+)"')
 RELATION = re.compile(r'<Relationship\b[^>]*\bId="([^"]+)"[^>]*\bTarget="([^"]+)"')
 # Pandoc's size for a picture without a resolution of its own: 72 dots an inch, in EMU a pixel.
@@ -241,35 +240,70 @@ def _fitted(drawing: str, width: int) -> str:
     return drawing
 
 
+def _outermost(xml: str, tag: str) -> list[tuple[int, int]]:
+    """Where `xml`'s outermost `tag` elements start and end; one of the same tag nested inside
+    another — a table in a table's cell — belongs to the outer one."""
+    spans: list[tuple[int, int]] = []
+    depth = start = 0
+    for found in re.finditer(rf"<{tag}\b[^>]*?(/?)>|</{tag}>", xml):
+        if found.group(0).startswith("</"):
+            depth -= 1
+            if depth == 0:
+                spans.append((start, found.end()))
+        elif not found.group(1):
+            if depth == 0:
+                start = found.start()
+            depth += 1
+    return spans
+
+
+def _table(table: str, width: int) -> str:
+    """One table whose text is `width` EMU wide, each cell's content fitted to its columns' share
+    of it."""
+    grid = GRID.search(table)
+    columns = [int(column) for column in GRID_COLUMN.findall(grid.group(0))] if grid else []
+    total = sum(columns)
+    if not total:
+        return table
+    out, at = [], 0
+    for row_start, row_end in _outermost(table, "w:tr"):
+        row = table[row_start:row_end]
+        cells, column, inside = [], 0, 0
+        for cell_start, cell_end in _outermost(row, "w:tc"):
+            cell = row[cell_start:cell_end]
+            properties = CELL_PROPERTIES.match(cell)
+            span = SPAN.search(properties.group(1)) if properties else None
+            spanned = int(span.group(1)) if span else 1
+            share = width * sum(columns[column : column + spanned]) // total
+            column += spanned
+            cells += [row[inside:cell_start], _within(cell, share)]
+            inside = cell_end
+        out += [table[at:row_start], "".join(cells), row[inside:]]
+        at = row_end
+    out.append(table[at:])
+    return "".join(out)
+
+
+def _within(xml: str, width: int) -> str:
+    """`xml`'s pictures fitted to `width` EMU, and its tables' to their cells within it."""
+    out, at = [], 0
+
+    def fitted(part: str) -> str:
+        return DRAWING.sub(lambda drawing: _fitted(drawing.group(0), width), part)
+
+    for start, end in _outermost(xml, "w:tbl"):
+        out += [fitted(xml[at:start]), _table(xml[start:end], width)]
+        at = end
+    out.append(fitted(xml[at:]))
+    return "".join(out)
+
+
 def _columned(document: str) -> str:
-    """`document`'s pictures in a table's cells — an image pair's sides among them — each fitted
-    to its column's share of the text width, as the page fits a picture to its cell; Pandoc lays
-    one out at the text's width wherever it stands."""
-
-    def table(found: re.Match[str]) -> str:
-        columns = [int(width) for width in GRID_COLUMN.findall(found.group(0))]
-        total = sum(columns)
-        if not total:
-            return found.group(0)
-
-        def row(found_row: re.Match[str]) -> str:
-            at = 0
-
-            def cell(found_cell: re.Match[str]) -> str:
-                nonlocal at
-                span = SPAN.search(found_cell.group(0))
-                spanned = int(span.group(1)) if span else 1
-                width = text_width() * sum(columns[at : at + spanned]) // total
-                at += spanned
-                return DRAWING.sub(
-                    lambda drawing: _fitted(drawing.group(0), width), found_cell.group(0)
-                )
-
-            return CELL.sub(cell, found_row.group(0))
-
-        return ROW.sub(row, found.group(0))
-
-    return TABLE.sub(table, document)
+    """`document`'s pictures in a table's cells — an image pair's sides among them, and a pair in
+    a cell of the document's own table — each fitted to its cell's share of the text width, as
+    the page fits a picture to its cell; Pandoc lays one out at the text's width wherever it
+    stands."""
+    return _within(document, text_width())
 
 
 def _furnished(produced: Path, target: Path) -> None:

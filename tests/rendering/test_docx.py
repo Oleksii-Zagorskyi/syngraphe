@@ -369,3 +369,32 @@ def test_a_pair_stands_side_by_side_within_its_column(invented_image: Any, tmp_p
     assert before <= docx.text_width() // 2
     assert abs(before / before_height - 4.0) < 0.01
     assert after == 40 * docx.EMU_PER_PIXEL
+
+
+def test_pairs_in_table_cells_fit_their_cells(invented_image: Any, tmp_path: Path) -> None:
+    """A table cell's image replaced has its pair inside the cell (DL-11-008): a table within the
+    cell's table, each picture fitted to its own cell — in every row, not only the first."""
+    from editing import images
+    from editing.diffview import render_changes
+    from rendering.export import docx
+    from rendering.renderer import RenderContext
+
+    data = [images.check(invented_image("png", 4000 + n, 1000)).data for n in range(4)]
+    names = [image_name(each, "png") for each in data]
+    table = "| Plan | Note |\n| --- | --- |\n| ![A]({}) | A note. |\n| ![B]({}) | Another. |\n"
+    context = RenderContext(image_url=str, sides=("0.1", "0.2"), full_size=False)
+    html = render_changes(
+        table.format(names[0], names[1]).encode(),
+        table.format(names[2], names[3]).encode(),
+        context=context,
+    )
+    path = tmp_path / "cells.docx"
+    docx.write(html, path, images=dict(zip(names, data, strict=True)))
+    with zipfile.ZipFile(path) as produced:
+        xml = produced.read("word/document.xml").decode()
+
+    boxes = laid_out(xml)
+    assert len(boxes) == 4
+    for width, height in boxes:
+        assert width <= docx.text_width() // 4
+        assert abs(width / height - 4.0) < 0.01

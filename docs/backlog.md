@@ -368,3 +368,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** Release 0.1's picker picks or declares (ST-0026); the review surface already lists an entity relabelled or removed, so adding the controls later redoes nothing.
 
 **What has to be true before it is taken up.** Authors meet entities declared with a wrong label, or left unused, often enough to ask for a way to correct them.
+
+## B-11-001 — An export's images, or a draft's, held to a budget
+
+**Idea.** An export reads every image it shows before any writer runs, and holds them in memory together; a draft stages images each under the upload maximum, with no cap on how many. Either the images could be read to disk in the export's scratch folder as they are found, so a worker holds one at a time, or a draft and a document could carry an image budget — a total size, named in configuration — refused at the upload that would pass it.
+
+**Why it is parked.** Reading every image first is what lets a job fail with its reason when a draft's image is gone, which a writer's own fetch could not say; the documents the platform is built for hold few images, and no measurement yet shows an export near a worker's memory.
+
+**What has to be true before it is taken up.** An export comes near a worker's memory limit, or a document's images together pass a size an installation names as its ceiling.
