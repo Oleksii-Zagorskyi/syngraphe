@@ -170,6 +170,9 @@ DISPLAY_TIMEZONE = _CONFIG.display_timezone
 # The editor's conformance page, for the browser tests only; off unless set.
 EDITING_CONFORMANCE_PAGE = _CONFIG.editing_conformance_page
 
+# The largest upload, in bytes: one platform maximum, which the front's limit follows (DL-0432).
+UPLOAD_MAX_BYTES = _CONFIG.upload_max_bytes
+
 # Every help page reads *work in progress* until its text is agreed (DL-0344).
 HELP_WORK_IN_PROGRESS = _CONFIG.help_work_in_progress
 

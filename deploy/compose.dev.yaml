@@ -25,7 +25,7 @@ services:
 
   redis:
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
 
   # The test suite's database server, beside the stack's: it archives nothing, so a test run never
   # reaches the backup store, and it keeps nothing a crash must not lose.

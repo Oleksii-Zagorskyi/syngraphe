@@ -15,9 +15,11 @@ services:
     environment:
       FRONT_SERVER_NAME: ${FRONT_SERVER_NAME:-_}
       FRONT_CLIENT_IP_HEADER: ${FRONT_CLIENT_IP_HEADER:?name the header carrying the client's address in .env}
+      UPLOAD_MAX_MB: ${UPLOAD_MAX_MB:-20}
     volumes:
       - ./deploy/front/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - ./deploy/front/client-ip.envsh:/docker-entrypoint.d/15-client-ip.envsh:ro
+      - ./deploy/front/body-size.envsh:/docker-entrypoint.d/15-body-size.envsh:ro
       - ${FRONT_CERT_FILE:?name the front's certificate in .env}:/etc/nginx/tls/server.crt:ro
       - ${FRONT_KEY_FILE:?name the front's key in .env}:/etc/nginx/tls/server.key:ro
     depends_on:

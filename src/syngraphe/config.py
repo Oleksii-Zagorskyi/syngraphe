@@ -62,6 +62,7 @@ class Config:
     editing_conformance_page: bool
     help_work_in_progress: bool
     export_root: Path
+    upload_max_bytes: int
 
 
 class _Reader:
@@ -90,13 +91,17 @@ class _Reader:
         self.malformed.append(key)
         return False
 
-    def integer(self, key: str, default: str) -> int:
+    def integer(self, key: str, default: str, minimum: int | None = None) -> int:
+        """Plain ASCII digits, with a sign only when negative: Python's `int` also takes `+5`,
+        `1_000` and other scripts' digits, which a shell reading the same key refuses."""
         value = self.string(key, default)
-        try:
-            return int(value)
-        except ValueError:
+        if re.fullmatch(r"-?[0-9]+", value) is None:
             self.malformed.append(key)
             return 0
+        number = int(value)
+        if minimum is not None and number < minimum:
+            self.malformed.append(key)
+        return number
 
     def networks(self, key: str) -> tuple[IPNetwork, ...]:
         """A comma-separated list of addresses or CIDR networks, or `none`.
@@ -194,6 +199,9 @@ def load(environ: Mapping[str, str] | None = None) -> Config:
         editing_conformance_page=reader.boolean("EDITING_CONFORMANCE_PAGE", "false"),
         help_work_in_progress=reader.boolean("HELP_WORK_IN_PROGRESS", "false"),
         export_root=reader.directory("EXPORT_ROOT", "/srv/exports"),
+        # Whole megabytes of 1024 × 1024 bytes, as the front's `client_max_body_size` reads its `m`
+        # (DL-0432).
+        upload_max_bytes=reader.integer("UPLOAD_MAX_MB", "20", minimum=1) * 1024 * 1024,
     )
     if reader.missing or reader.malformed:
         raise ConfigurationError(reader.missing, reader.malformed)

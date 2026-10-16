@@ -136,6 +136,28 @@ def test_a_network_of_every_address_is_refused() -> None:
     assert "TRUSTED_PROXIES" in str(refused.value)
 
 
+def test_upload_maximum() -> None:
+    """One platform maximum for an upload, in megabytes, 20 unless set (DL-0432)."""
+    assert config.load(COMPLETE).upload_max_bytes == 20 * 1024 * 1024
+    assert config.load(dict(COMPLETE, UPLOAD_MAX_MB="50")).upload_max_bytes == 50 * 1024 * 1024
+    assert config.load(dict(COMPLETE, UPLOAD_MAX_MB="???")).upload_max_bytes == 20 * 1024 * 1024
+
+
+# The front's helper reads plain ASCII digits; the application refuses what the helper refuses.
+@pytest.mark.parametrize("value", ["twenty", "0", "-5", "20MB", "+5", "1_000", "٢٠"])
+def test_upload_maximum_malformed(value: str) -> None:
+    with pytest.raises(config.ConfigurationError) as caught:
+        config.load(dict(COMPLETE, UPLOAD_MAX_MB=value))
+
+    assert caught.value.malformed == ["UPLOAD_MAX_MB"]
+
+
+def test_settings_expose_the_upload_maximum() -> None:
+    from django.conf import settings
+
+    assert settings.UPLOAD_MAX_BYTES == config.load().upload_max_bytes
+
+
 def test_help_work_in_progress_malformed() -> None:
     assert config.load(COMPLETE).help_work_in_progress is False
     assert config.load(dict(COMPLETE, HELP_WORK_IN_PROGRESS="true")).help_work_in_progress is True

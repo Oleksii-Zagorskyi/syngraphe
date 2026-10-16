@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -27,6 +28,7 @@ REQUIRED = (
 )
 DOCKER = shutil.which("docker")
 TEMPLATE = "/etc/nginx/templates/default.conf.template"
+BODY_SIZE = "/docker-entrypoint.d/15-body-size.envsh"
 needs_docker = pytest.mark.skipif(DOCKER is None, reason="docker is not installed here")
 
 
@@ -98,6 +100,22 @@ def test_override_resolves(tmp_path: Path) -> None:
     assert services["web"]["environment"]["TRUSTED_PROXIES"] == "172.30.250.0/24"
     subnets = [c["subnet"] for c in config["networks"]["default"]["ipam"]["config"]]
     assert subnets == ["172.30.250.0/24"]
+    assert targets(services["front"])[BODY_SIZE] == str(FRONT / "body-size.envsh")
+
+
+@needs_docker
+@pytest.mark.parametrize(("values", "given"), [({}, "20"), ({"UPLOAD_MAX_MB": "50"}, "50")])
+def test_front_receives_the_upload_maximum(
+    tmp_path: Path, values: dict[str, str], given: str
+) -> None:
+    """The front reads the platform's upload maximum from the same key as the application
+    (DL-0432), with the same default."""
+    made = compose_config(tmp_path, {**environment(tmp_path), **values})
+    assert made.returncode == 0, made.stderr
+    services = json.loads(made.stdout)["services"]
+
+    for name in ("front", "web", "worker", "render"):
+        assert services[name]["environment"]["UPLOAD_MAX_MB"] == given, name
 
 
 @needs_docker
@@ -251,51 +269,93 @@ server {
     assert lines[-1] == '"GET /folder/1/?tab=shared HTTP/1.1"'
 
 
-@needs_docker
-def test_front_renders(tmp_path: Path) -> None:
+def render_front(folder: Path, *environment: str) -> subprocess.CompletedProcess[str]:
+    """The front's configuration as its image's entrypoint renders it, printed by `nginx -T`."""
     subprocess.run(
         [
             "openssl", "req", "-x509", "-newkey", "rsa:2048", "-days", "1", "-nodes",
             "-subj", "/CN=front.test",
-            "-keyout", str(tmp_path / "tls.key"), "-out", str(tmp_path / "tls.crt"),
+            "-keyout", str(folder / "tls.key"), "-out", str(folder / "tls.crt"),
         ],
         check=True,
         capture_output=True,
     )  # fmt: skip
-    made = subprocess.run(
+    given = [arg for value in environment for arg in ("-e", value)]
+    return subprocess.run(
         [
             str(DOCKER), "run", "--rm",
             "-e", "FRONT_CLIENT_IP_HEADER=CF-Connecting-IP",
             "-e", "FRONT_SERVER_NAME=_",
+            *given,
             "-v", f"{FRONT / 'default.conf.template'}:{TEMPLATE}:ro",
             "-v", f"{FRONT / 'client-ip.envsh'}:/docker-entrypoint.d/15-client-ip.envsh:ro",
-            "-v", f"{tmp_path / 'tls.crt'}:/etc/nginx/tls/server.crt:ro",
-            "-v", f"{tmp_path / 'tls.key'}:/etc/nginx/tls/server.key:ro",
+            "-v", f"{FRONT / 'body-size.envsh'}:{BODY_SIZE}:ro",
+            "-v", f"{folder / 'tls.crt'}:/etc/nginx/tls/server.crt:ro",
+            "-v", f"{folder / 'tls.key'}:/etc/nginx/tls/server.key:ro",
             "nginx:1.27-alpine", "nginx", "-T",
         ],
         capture_output=True,
         text=True,
     )  # fmt: skip
+
+
+@needs_docker
+def test_front_renders(tmp_path: Path) -> None:
+    made = render_front(tmp_path)
     assert made.returncode == 0, made.stderr
     assert "proxy_set_header X-Forwarded-For $http_cf_connecting_ip;" in made.stdout
     assert "proxy_set_header Host $http_host;" in made.stdout
     assert "$logged_request" in made.stdout
+    # Unset, the application's default maximum (DL-0432), 20 MB, and a megabyte for the form's
+    # other fields.
+    assert "client_max_body_size 21m;" in made.stdout
 
 
-def test_front_helper_executable_and_keys_documented() -> None:
+@needs_docker
+# `020` is twenty to the application; the shell's own arithmetic would read it as octal.
+@pytest.mark.parametrize(
+    ("given", "admitted"), [("50", "51m"), ("020", "21m"), ("???", "21m"), ("", "21m")]
+)
+def test_front_admits_the_upload_maximum_and_a_megabyte(
+    tmp_path: Path, given: str, admitted: str
+) -> None:
+    made = render_front(tmp_path, f"UPLOAD_MAX_MB={given}")
+    assert made.returncode == 0, made.stderr
+    assert f"client_max_body_size {admitted};" in made.stdout
+
+
+@needs_docker
+@pytest.mark.parametrize("given", ["twenty", "0", "-5", "20MB", "+5", "1_000"])
+def test_front_refuses_a_malformed_upload_maximum(tmp_path: Path, given: str) -> None:
+    """A value the application refuses stops the front too, never a limit nobody chose."""
+    made = render_front(tmp_path, f"UPLOAD_MAX_MB={given}")
+    assert made.returncode != 0
+    assert "UPLOAD_MAX_MB" in made.stderr
+
+
+@pytest.mark.parametrize("helper", ["client-ip.envsh", "body-size.envsh"])
+def test_front_helper_executable(helper: str) -> None:
+    """The image's entrypoint sources an executable helper and ignores any other."""
+    path = FRONT / helper
     staged = subprocess.run(
-        ["git", "ls-files", "-s", "deploy/front/client-ip.envsh"],
+        ["git", "ls-files", "-s", str(path.relative_to(ROOT))],
         cwd=ROOT,
         capture_output=True,
         text=True,
         check=True,
     ).stdout
-    assert staged.startswith("100755")
+    # Before its first commit a helper has no mode in the index; `git add` records the file's.
+    assert path.is_file()
+    assert staged.startswith("100755") if staged else os.access(path, os.X_OK)
+
+
+def test_front_keys_documented() -> None:
     example = (ROOT / ".env.example").read_text()
     keys = dict(re.findall(r"^([A-Z_]+)=(.*)$", example, re.MULTILINE))
     for key in REQUIRED:
         assert keys[key] == "???", key
     assert keys["FRONT_SERVER_NAME"] == "_"
+    assert keys["UPLOAD_MAX_MB"] == "20"
     assert "COMPOSE_PROJECT_NAME" not in keys
     assert re.search(r"^# COMPOSE_PROJECT_NAME=", example, re.MULTILINE)
 

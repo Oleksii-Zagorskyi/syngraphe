@@ -1,0 +1,17 @@
+#!/bin/sh
+# The largest request body the front admits: the platform's upload maximum (DL-0432), and a
+# megabyte for the form's other fields. The template step substitutes and cannot add, so the sum
+# is made here. `???` or nothing means the application's default; a value the application would
+# refuse stops the front as well. The image's entrypoint sources it before the templates are
+# rendered, and only if it is executable.
+upload_max_mb=${UPLOAD_MAX_MB:-20}
+[ "$upload_max_mb" = "???" ] && upload_max_mb=20
+case "$upload_max_mb" in
+    *[!0-9]*) upload_max_mb=0 ;;
+esac
+if [ "$upload_max_mb" -lt 1 ]; then
+    echo "UPLOAD_MAX_MB is not a whole number of megabytes above zero: ${UPLOAD_MAX_MB}" >&2
+    exit 1
+fi
+# `expr` reads `020` as twenty, as the application does; the shell's arithmetic reads it as octal.
+export FRONT_BODY_MAX_MB="$(expr "$upload_max_mb" + 1)"

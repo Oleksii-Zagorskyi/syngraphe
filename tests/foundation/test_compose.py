@@ -58,6 +58,14 @@ def test_each_service_holds_its_own_secrets() -> None:
         }
 
 
+def test_the_application_reads_the_upload_maximum() -> None:
+    """Every application container reads the key the front reads, with its default (DL-0432)."""
+    services = _services()
+
+    for name in ("web", "worker", "render"):
+        assert services[name]["environment"]["UPLOAD_MAX_MB"] == "${UPLOAD_MAX_MB:-20}", name
+
+
 def test_web_reads_the_backup_state_only() -> None:
     web = _services()["web"]
 
