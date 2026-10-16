@@ -7,8 +7,9 @@
   <div class="panes list-panes" style="--tree-width: {{ tree_width }}px">
     {% include "documents/tree.html" %}
     <div class="list-main">
+  <h1>{% if folder.parent_id %}{{ folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</h1>
   <div class="toolbar">
-    <h1>{% if folder.parent_id %}{{ folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</h1>
+    {% include "documents/type_filter.html" %}
     {% if can_create %}<a class="btn primary" href="/document/new/">+ {% translate "Create document" %}</a>{% endif %}
     {% if administrator %}<details class="menu-actions"><summary class="btn">{% translate "Folders ▾" %}</summary><ul>
       <li><a href="/administration/tenant/folders/?folder={{ folder.number }}">{% translate "New folder" %}</a></li>

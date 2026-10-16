@@ -12,7 +12,7 @@ from django.db.models.functions import Collate
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.cache import patch_cache_control
-from django.utils.http import content_disposition_header
+from django.utils.http import content_disposition_header, urlencode
 from django.utils.translation import gettext_lazy, pgettext_lazy
 from django.views.decorators.cache import never_cache
 
@@ -157,6 +157,7 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
     if request.method != "GET" or tenant is None or not is_member(request):
         return not_found(request)
     administrator = administers(request)
+    from documents.search import filter_types
     from documents.tree import Tree, visible_folders
 
     seen = visible_folders(request.user, administrator=administrator)
@@ -181,6 +182,8 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
         "can_create": can_create(request.user, tenant),
         "administrator": administrator,
         "folder": selected,
+        # Epic 10: the type filter's choices beside the search box (DL-0236).
+        "types": filter_types(request.user),
     }
     return render(request, "documents/list.html", context)
 
@@ -206,15 +209,17 @@ def _sorted(request: HttpRequest, documents: list[Document]) -> list[Document]:
     return list(reversed(ordered)) if direction == "desc" else ordered
 
 
-def _sorting(request: HttpRequest) -> dict[str, Any]:
-    """The `#` and *Title* headers: each a link to its other direction, the active one marked."""
+def _sorting(request: HttpRequest, keep: dict[str, str] | None = None) -> dict[str, Any]:
+    """The `#` and *Title* headers: each a link to its other direction, the active one marked;
+    `keep` the page's own parameters — search's words and type — carried into each link."""
     sort, direction = _sort(request)
+    kept = urlencode({k: v for k, v in (keep or {}).items() if v})
     headers = {}
     for key in SORTS:
         active = key == sort
         to = "desc" if active and direction == "asc" else "asc"
         headers[key] = {
-            "href": f"?sort={key}&dir={to}",
+            "href": f"?{kept + '&' if kept else ''}sort={key}&dir={to}",
             "mark": ("▲" if direction == "asc" else "▼") if active else "",
         }
     return {"sort_headers": headers}
@@ -268,8 +273,8 @@ def _rows(
     user: Any, shown: list[Document], seen: Any = None, *, administrator: bool = False
 ) -> dict[str, Any]:
     """A list's rows — the numbers, the parts, the state tags of each document and whether its
-    reader may edit it — and whether the *Latest* and ✎ columns are drawn; shared by the folder
-    and the two views. `administrator` says
+    reader may edit it — and whether the *Latest* and ✎ columns are drawn; shared by the folder,
+    the two views and search. `administrator` says
     whether the reader administers the organisation, one of the facts that decide whether a
     holder is named (`review.state.hold_tag`)."""
     seen = _versions(user, shown) if seen is None else seen

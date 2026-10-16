@@ -13,25 +13,25 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 
 **Derived by `scripts/derive_coverage.py`** from the *Stories* column of each region table in `pages.md` and its *not yet drawn* marks, and from the stories of [`user-stories.md`](../user-stories.md) in their order — a withdrawn story and one outside release 0.1 left out; run it whenever either file changes. A region is named by its section — `› The tabs` or `› The edit tab` for those subsections — then the region cell up to its first ` — ` or `; `, emphasis removed, cut at 58 characters; a region named as its section is the section alone. A story's title stops before its *so that* or at its sentence's end. A story is **drawn** when every region carrying it is drawn, **partly drawn** when some are, **not yet drawn** when none are. A region for a later release carries no 0.1 story (DL-0228).
 
-**73 stories:** 64 drawn · 3 partly drawn · 3 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
+**73 stories:** 65 drawn · 2 partly drawn · 3 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
 
 | # | Story | Where | Drawn |
 |---|---|---|---|
 | ST-0057 | As the person standing the platform up, I create the first platform administrator | Sign-in pages — the first-run page | drawn |
 | ST-0001 | As a platform administrator, I create a tenant | Administration — organisations | drawn |
-| ST-0065 | As a platform administrator, I block a tenant | Administration — organisations | drawn |
+| ST-0065 | As a platform administrator, I block a tenant | Help — People and access; Administration — organisations | drawn |
 | ST-0071 | As a platform administrator, I lift a tenant's block | Administration — organisations | drawn |
-| ST-0002 | As a platform administrator, I grant platform administration to another user | Administration — platform administrators | drawn |
-| ST-0003 | As a tenant administrator, I add a user to my tenant by email address | Administration — users | drawn |
-| ST-0004 | As a tenant administrator, I block a user | Notifications — both tabs; Administration — users | drawn |
+| ST-0002 | As a platform administrator, I grant platform administration to another user | Help — People and access; Administration — platform administrators | drawn |
+| ST-0003 | As a tenant administrator, I add a user to my tenant by email address | Help — People and access; Administration — users | drawn |
+| ST-0004 | As a tenant administrator, I block a user | Notifications — both tabs; Help — People and access; Administration — users | drawn |
 | ST-0072 | As a tenant administrator, I lift the block on a person's membership in my tenant | Administration — users | drawn |
-| ST-0066 | As any user, I block my own account | Shell — user menu; Administration — users | drawn |
+| ST-0066 | As any user, I block my own account | Shell — user menu; Help — People and access; Administration — users | drawn |
 | ST-0005 | As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to | Document page — Groups; Administration — groups; Administration — document links | drawn |
 | ST-0006 | As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links | Administration — access history | drawn |
-| ST-0007 | As a user with memberships in several tenants, I switch between them | Shell — tenant switcher | drawn |
+| ST-0007 | As a user with memberships in several tenants, I switch between them | Shell — tenant switcher; Help — People and access | drawn |
 | ST-0008 | As a user, I sign in with an email address and a password | Sign-in pages — the three forms | drawn |
-| ST-0054 | As an invited person, I accept an invitation and set a password | Sign-in pages — the three forms | drawn |
-| ST-0055 | As a user, I reset a forgotten password | Sign-in pages — the three forms | drawn |
+| ST-0054 | As an invited person, I accept an invitation and set a password | Sign-in pages — the three forms; Help — People and access | drawn |
+| ST-0055 | As a user, I reset a forgotten password | Sign-in pages — the three forms; Help — People and access | drawn |
 | ST-0009 | As a user holding *create and edit*, I create a document by giving it a title, a language, a type and a folder | Document list — create; Create or copy a document — create | drawn |
 | ST-0058 | As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page | Administration — template | drawn |
 | ST-0051 | As a tenant administrator, I am notified when a document is created or copied | Document list — state tags after the title; Document page — state tags, as in the list; Notifications — both tabs; Administration — document links | drawn |
@@ -39,17 +39,17 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0011 | As a tenant administrator, I maintain my organisation's list of document types | Administration — document types | drawn |
 | ST-0012 | As a tenant administrator, I create, rename and delete folders and move documents between them | Document list — folder tree; Document list — folder visibility; Document list — Folders ▾; Administration — folders | drawn |
 | ST-0067 | As a user holding *create and edit*, I copy a document I can read into a new one | Document page — Export, Copy; Create or copy a document — copy | partly drawn |
-| ST-0013 | As a user, I browse the document list and filter it by type and by folder | Shell — All documents; Shell — In edit; Document list — folder tree; Document list — search box; Document list — filter by type; Document list — #; Document list — title; Document list — sorting; Document list — Canonical; Document list — Latest; Document list — part markers; Document list — ✎; In edit, In review — grouped list, filtered tree; Search results — grouped results, filtered tree | partly drawn |
+| ST-0013 | As a user, I browse the document list and filter it by type and by folder | Shell — All documents; Shell — In edit; Document list — folder tree; Document list — search box; Document list — filter by type; Document list — #; Document list — title; Document list — sorting; Document list — Canonical; Document list — Latest; Document list — part markers; Document list — ✎; In edit, In review — grouped list, filtered tree; Search results — grouped results, filtered tree; Search results — search box; Search results — filter by type; Search results — nothing found | drawn |
 | ST-0014 | As a reviewer, I see each document's current state in the list | Shell — In review; Document list — state tags after the title; Document list — Latest; In edit, In review — grouped list, filtered tree; Document page — state tags, as in the list | drawn |
 | ST-0015 | As a tenant administrator, I archive a document | Document page — state tags, as in the list; Document page — Archive / Restore; Nothing to show here — the page; Administration — document links; Administration — archive | drawn |
 | ST-0016 | As a tenant administrator, I restore an archived document | Document page — Archive / Restore; Administration — archive | drawn |
 | ST-0017 | As an editor, I open an editor on a document and hold it | Document page › The tabs — Edit; Document page › The edit tab — Start editing; Document page › The edit tab — inactivity prompt; Document page › The edit tab — the tab while someone else holds or has reserved the docum… | drawn |
 | ST-0018 | As any user of a document, I see that it is *held* · *зайнятий* — someone is editing it — in the document list and on the document | Document list — state tags after the title; Document page — bands across the top; Document page — state tags, as in the list | drawn |
 | ST-0069 | As an editor holding *reserve for editing*, which includes *edit* (ADR-0016), I reserve a document I am editing | Shell — user menu; Document page — bands across the top; Document page › The tabs — Edit; Document page › The edit tab — Reserve for editing, to a holder with the right | drawn |
-| ST-0070 | As an editor whose reservation an administrator ended, I learn who ended it, when and why, and keep my work | Document page — bands across the top; Document page › The tabs — Edit; Document page › The edit tab — the holder's draft after an administrator ended their rese…; Notifications — both tabs | drawn |
+| ST-0070 | As an editor whose reservation an administrator ended, I learn who ended it, when and why, and keep my work | Document page — bands across the top; Document page › The tabs — Edit; Document page › The edit tab — the holder's kept draft; Notifications — both tabs | drawn |
 | ST-0019 | As an editor, I write and format text with headings, lists, bold, underline, italics, quotes, callouts and tables | Shell — Help; Document page › The tabs — Edit; Document page › The edit tab — a section editor opened in place, the rest rendered around…; Document page › The edit tab — paste refusal; Document page › The edit tab — image refusal; Help — the pages and the allowed-Markdown list | drawn |
 | ST-0020 | As an editor, I never need a Save button, because my work is captured as I type | Document page › The tabs — Edit; Document page › The edit tab — capture indicator | drawn |
-| ST-0059 | As an editor, I open an editor on just one section | Document page › The tabs — Edit; Document page › The edit tab — edit beside each # section, several open at once; Document page › The edit tab — a stopped editor | drawn |
+| ST-0059 | As an editor, I open an editor on just one section | Document page › The tabs — Edit; Document page › The edit tab — the draft drawn as text, no editor until one is chosen; Document page › The edit tab — a stopped editor | drawn |
 | ST-0060 | As an editor, I switch an editor to Markdown source and type or paste Markdown there | Document page › The tabs — Edit; Document page › The edit tab — a section editor opened in place, the rest rendered around…; Help — the pages and the allowed-Markdown list | drawn |
 | ST-0061 | As an editor, I add, rename, reorder and delete a document's appendices, as my groups' part rights allow | Document page — parts; Appendix page — the page | drawn |
 | ST-0062 | As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, as my groups' part rights allow | Document page — parts; Administration — settings | drawn |
@@ -64,7 +64,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0030 | As a tenant administrator, I release a document held by someone who has gone quiet | Document page — Archive / Restore; Document page › The edit tab — inactivity prompt; Notifications — both tabs; Administration — document links; Administration — reservations; Administration — settings | drawn |
 | ST-0031 | As a reviewer, I read everything committed since the last acceptance, in order, with each change attributed to its author | Document page › The tabs — My edits; Document page › The tabs — Pending edits | drawn |
 | ST-0032 | As a holder of a history right on a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not | Document page › The tabs — History; Historical page — the page | drawn |
-| ST-0033 | As a reviewer, I compare any two versions directly | Document page › The tabs — History; Compare — version comparison, appendix comparison, attachment list | drawn |
+| ST-0033 | As a reviewer, I compare any two versions directly | Document page › The tabs — History; Compare — version comparison, previous and next, attachment list | drawn |
 | ST-0034 | As a reviewer, I see that an image changed and view the old and new side by side | Document page › The tabs — Pending edits | drawn |
 | ST-0063 | As a reviewer, I see every appendix and attachment that was added, replaced, renamed, reordered or removed, and can download each version of an attachment and revert the operation before accepting | Document page › The tabs — Pending edits | drawn |
 | ST-0035 | As a reviewer, I correct wording I find unacceptable and accept the result | Document page › The tabs — Edit; Document page › The tabs — Pending edits; Document page › The edit tab — to a reviewer correcting a pending run: that their changes…; Send-for-review screen — the screen; Notifications — both tabs | drawn |
@@ -76,7 +76,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0039 | As a holder of the make-canonical right, I make a frozen document canonical | Document page — Make canonical | drawn |
 | ST-0064 | As any reader, I compare two different documents — a version of each that I may read | Document page › The tabs — History; Compare — comparing two documents | partly drawn |
 | ST-0040 | As a holder of the freeze right, I unfreeze a document | Document page — Freeze / Unfreeze | drawn |
-| ST-0041 | As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two | Document page › The tabs — History; Historical page — the page; Compare — version comparison, appendix comparison, attachment list | drawn |
+| ST-0041 | As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two | Document page › The tabs — History; Historical page — the page; Compare — version comparison, previous and next, attachment list | drawn |
 | ST-0042 | As a reader, I read a document, with its numbering and outline, and always know which version I am reading | Document page — breadcrumb, #12, title, the latest version the reader may …; Document page — the text; Document page › The tabs — View | drawn |
 | ST-0043 | As a reader, I follow a mention of another document as a link when I have access to it | Document page › The tabs — View, mentions | not yet drawn |
 | ST-0044 | As any reader of a document, I see an automatically maintained *see also* listing the documents it links to, filtered the same way | Document page — generated views | not yet drawn |

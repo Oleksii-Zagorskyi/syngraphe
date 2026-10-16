@@ -15,6 +15,7 @@ urlpatterns = [
         name="document_attachment",
     ),
     # Epic 10
+    path("search/", corpus_views.search, name="search"),
     path("administration/tenant/folders/", administration.folders, name="folders"),
     path("administration/tenant/folders/new/", administration.folder_new, name="folder_new"),
     path(

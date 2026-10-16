@@ -139,6 +139,8 @@ def test_catalogue_covers_epic_10_pages(
             Folder.objects.get(number=1), "Політики (synthetic example)", by=admin_user
         )
     make_document(title="Архівний документ", folder=policies, state="archived")
+    # A second type on an active document, so the type filter is drawn.
+    make_document(title="Синтетичний наказ", document_type=retired)
     pages = [
         (admin, "/administration/tenant/document-types/"),
         (admin, f"/document/{document.number}/info/"),
@@ -147,6 +149,9 @@ def test_catalogue_covers_epic_10_pages(
         (admin, f"/administration/tenant/folders/{policies.number}/move/"),
         (admin, "/folder/1/"),
         (admin, f"/folder/{policies.number}/"),
+        (admin, "/search/?q=Синтетичний"),
+        (admin, f"/search/?type={retired.code}"),
+        (admin, "/search/?q=nothing-at-all"),
     ]
 
     for client, path in pages:
@@ -155,6 +160,8 @@ def test_catalogue_covers_epic_10_pages(
         body = text_of(response.content.decode())
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
+        if path == "/folder/1/":
+            assert "Усі типи" in body, path
         if path.endswith("/folders/"):
             # The glossary's *тека*, and a count in its Ukrainian plural form.
             assert "Теки" in body and "1 документ" in body, path

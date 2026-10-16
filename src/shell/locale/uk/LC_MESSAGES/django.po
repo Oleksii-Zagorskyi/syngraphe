@@ -3292,3 +3292,23 @@ msgstr "Теки ▾"
 msgctxt "open the edit tab"
 msgid "edit"
 msgstr "Редагувати"
+
+#: documents/templates/documents/type_filter.html
+msgid "Search titles of documents and appendices"
+msgstr "Пошук у назвах документів і додатків"
+
+#: documents/templates/documents/type_filter.html
+msgid "Filter by type"
+msgstr "Фільтр за типом документа"
+
+#: documents/templates/documents/type_filter.html
+msgid "All types"
+msgstr "Усі типи"
+
+#: documents/templates/documents/type_filter.html
+msgid "Search"
+msgstr "Пошук"
+
+#: documents/templates/documents/search.html
+msgid "Searched in titles of documents and of their appendices — not in text."
+msgstr "Пошук у назвах документів і їхніх додатків — не в тексті."

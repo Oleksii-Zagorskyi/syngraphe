@@ -246,3 +246,6 @@ nav.menu a.disabled{color:var(--muted);cursor:default;text-decoration:none}
 .menu-actions ul{position:absolute;right:0;list-style:none;margin:2px 0 0;padding:4px 0;background:var(--panel);border:1px solid var(--line);z-index:2;white-space:nowrap}
 .menu-actions li a{display:block;padding:3px 12px;text-decoration:none}
 th a.sort{text-decoration:none;color:inherit}
+/* Epic 10: the search box and the type filter */
+.search-box{display:flex;gap:6px;flex:1}
+.search-box input[type="search"]{flex:1;padding:5px 8px;border:1px solid var(--line)}

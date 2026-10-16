@@ -37,7 +37,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | [Sign-in pages](#sign-in-pages) | — | ST-0008, ST-0054, ST-0055, ST-0057 | **0.1** |
 | [Document list](#document-list) | `/folder/7/`; `/` opens the root, `/folder/1/` | ST-0009, ST-0012, ST-0013, ST-0014, ST-0018, ST-0051, ST-0052 | **0.1** |
 | [In edit, In review](#in-edit-in-review) | `/in-edit/`, `/in-review/` | ST-0013, ST-0014 | **0.1** |
-| [Search results](#search-results) | `/search/?q=…` | ST-0013 | **0.1** |
+| [Search results](#search-results) | `/search/?q=…&type=…` | ST-0013 | **0.1** |
 | [Document page](#document-page) | `/document/12/` and one segment per tab | ST-0005, ST-0010, ST-0014, ST-0015, ST-0016, ST-0017, ST-0018, ST-0019, ST-0020, ST-0021, ST-0022, ST-0023, ST-0024, ST-0026, ST-0027, ST-0028, ST-0029, ST-0030, ST-0031, ST-0032, ST-0033, ST-0034, ST-0035, ST-0036, ST-0037, ST-0038, ST-0039, ST-0040, ST-0041, ST-0042, ST-0043, ST-0044, ST-0045, ST-0051, ST-0052, ST-0053, ST-0059, ST-0060, ST-0061, ST-0062, ST-0063, ST-0064, ST-0067, ST-0069, ST-0070 | **0.1** |
 | [Appendix page](#appendix-page) | `/document/12/appendix/3/` | ST-0023, ST-0061 | **0.1** |
 | [Historical page](#historical-page) | `/document/12/version/2.0/` | ST-0032, ST-0041 | **0.1** |
@@ -85,7 +85,7 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 
 ```
 +--------------+---+-----------------------------------------------------------------+
-| ▾ Example Org|   | [ search titles of documents and appendices ] [+ create] [Folders ▾] |
+| ▾ Example Org|   | [ search titles of documents and appendices ] [All types ▾] [+ create] [Folders ▾] |
 |  ▾ Policies  | ↔ | #   Title ▲                        Type    Canonical  Latest  Parts  ✎ |
 |   ▸ **HR**   |   | 12  Annual leave, sick leave and…  policy  2.0        2.3-1   A  F   ✎ |
 |   ▸ Finance  |   |     [reserved for editing, since 12 Sep] [awaiting review]       |
@@ -102,7 +102,7 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 | draggable pane edge; the width kept in the user's preferences (DL-0195) | **0.1** | — | — | Epic 10 |
 | *Folders ▾* — new, rename, delete an empty folder, move documents | **0.1** | tenant administrator | ST-0012 | Epic 10 |
 | search box — titles of documents and appendices only, never text | **0.1** | — | ST-0013 | Epic 10 |
-| filter by type | **0.1** — not yet drawn | — | ST-0013 | Epic 10 |
+| filter by type — beside the search box: *All types*, then the types of the active documents the user may open, retired ones included; **not drawn when those documents carry fewer than two types** (DL-0236); choosing one opens search results for that type across every folder, with the words in the box (DL-0197) | **0.1** | — | ST-0013 | Epic 10 |
 | *create* | **0.1** | *create and edit* | ST-0009 | Epic 3 |
 | `#` — the document's number (ADR-0008) | **0.1** | — | ST-0013 | Epic 3 |
 | title — takes the free width; opens the reading view | **0.1** | — | ST-0013 | Epics 3, 4 |
@@ -117,7 +117,7 @@ An archived document leaves the list for everyone, administrators included; they
 
 ## In edit, In review
 
-The document list's shape, each a page of its own reached from the menu: matching documents grouped under a heading per folder path, the groups alphabetical, sorting within each group; the folder tree shows only folders holding matches (DL-0197, DL-0207). An empty view reads *No documents here.*; to anyone the menu does not offer it, its address answers *Nothing to show here*.
+The document list's shape, each a page of its own reached from the menu, without the type filter — choosing a type opens search across every folder, which would leave the view: matching documents grouped under a heading per folder path, the groups alphabetical, sorting within each group; the folder tree shows only folders holding matches (DL-0197, DL-0207). An empty view reads *No documents here.*; to anyone the menu does not offer it, its address answers *Nothing to show here*.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
@@ -130,6 +130,9 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | grouped results, filtered tree | **0.1** | ST-0013 | Epic 10 |
+| search box — keeps the words searched; the note *Searched in titles of documents and of their appendices, not in text.* | **0.1** | ST-0013 | Epic 10 |
+| filter by type — as on the document list; alone it lists every document of the type the user may open, with words it narrows them | **0.1** | ST-0013 | Epic 10 |
+| nothing found — *No documents here.* | **0.1** | ST-0013 | Epic 10 |
 
 ## Document page
 

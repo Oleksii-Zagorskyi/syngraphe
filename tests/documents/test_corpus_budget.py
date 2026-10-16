@@ -88,3 +88,31 @@ def test_a_folder_of_two_hundred_meets_the_page_budget(
     assert len(ROWS.findall(answer.content.decode())) == 200
     print(f"folder of 200: slowest of ten {slowest:.3f} s")
     assert slowest < PAGE_BUDGET_SECONDS, f"slowest of ten {slowest:.3f} s"
+
+
+def test_a_search_matching_two_hundred_meets_the_page_budget(
+    migrated_tenant: Any, member_of: Any, reader_of: Callable[..., Any]
+) -> None:
+    from documents import folders
+    from documents.models import Folder
+
+    _, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    # Twelve folders three deep: four at the first level, each with a child and a grandchild.
+    placed = []
+    with schema_context(migrated_tenant.number):
+        root = Folder.objects.get(number=1)
+        for i in range(4):
+            first = folders.create_folder(root, f"Level one {i} (synthetic)", by=admin)
+            second = folders.create_folder(first, f"Level two {i} (synthetic)", by=admin)
+            third = folders.create_folder(second, f"Level three {i} (synthetic)", by=admin)
+            placed += [first, second, third]
+    client = reader_of(200, placed)
+
+    slowest, answer = slowest_of_ten(lambda: client.get("/search/?q=budget"))
+
+    body = answer.content.decode()
+    assert answer.status_code == 200
+    assert len(ROWS.findall(body)) == 200
+    assert body.count('<h2 class="folder-path">') == 12
+    print(f"search of 200: slowest of ten {slowest:.3f} s")
+    assert slowest < PAGE_BUDGET_SECONDS, f"slowest of ten {slowest:.3f} s"
