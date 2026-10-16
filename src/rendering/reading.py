@@ -29,6 +29,13 @@ def committed_images(document: Any) -> Callable[[str], str]:
     return lambda src: f"/document/{number}/image/{src.removeprefix(images.FOLDER + '/')}/"
 
 
+def notice_images(notification: Any) -> Callable[[str], str]:
+    """Each image's address on the correction notice's own route, which serves its recipient the
+    images of the notice's passages alone."""
+    base = f"/notifications/{notification.pk}/image/"
+    return lambda src: f"{base}{src.removeprefix(images.FOLDER + '/')}/"
+
+
 def draft_images(document: Any, draft: Any, repo: Any = None) -> Callable[[str], str]:
     """Each image the draft's route serves to the draft's owner — staged in it, or held by the
     commit it was taken from — on that route; any other, an older version's in a comparison, on

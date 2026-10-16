@@ -38,7 +38,26 @@ end
 -- attachment list begins one.
 local PAGE = pandoc.RawBlock("openxml", '<w:p><w:r><w:br w:type="page"/></w:r></w:p>')
 
+-- An image pair stands side by side, as on the page: a row of two equal cells, each holding one
+-- side's figure; `docx.py` fits each picture to its cell.
+local function pair(div)
+  local cells = {}
+  for _, block in ipairs(div.content) do
+    cells[#cells + 1] = { block }
+  end
+  local widths = {}
+  local aligns = {}
+  for i = 1, #cells do
+    widths[i] = 1 / #cells
+    aligns[i] = "AlignDefault"
+  end
+  return pandoc.utils.from_simple_table(pandoc.SimpleTable({}, aligns, widths, {}, { cells }))
+end
+
 function Div(div)
+  if div.classes:includes("imgpair") then
+    return pair(div)
+  end
   for _, class in ipairs(div.classes) do
     local style = CALLOUTS[class]
     if style then

@@ -105,3 +105,13 @@
   max-width: 100%;
   height: auto;
 }
+
+/* A changed image: its row flagged, the two images side by side below it, each captioned; both
+   again at full size where the page can open them. */
+.document-text .image-changed { color: #8a5a00; font-size: 0.9em; }
+.document-text .imgpair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0 12px; }
+.document-text .imgpair figure { margin: 0; }
+.document-text .imgpair figcaption { color: #666; font-size: 0.85em; margin-top: 4px; }
+.document-text .imgpair .full-size { grid-column: 1 / -1; }
+.document-text .imgpair .full-size img { max-width: none; margin-top: 8px; }
+.document-text .image-description { display: block; font-size: 0.9em; }

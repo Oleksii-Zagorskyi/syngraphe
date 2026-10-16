@@ -1,7 +1,8 @@
 """The DOCX export (ADR-0013, DL-0182): the platform's classes as named Word styles, each carried
 by the text, the numbering definitions, the footer's page number and no header (DL-0362); a
 heading's number set as the heading (DL-0363); the images a version shows embedded, and an
-oriented photograph turned as its tag says, fitted to the text (DL-11-003).
+oriented photograph turned as its tag says, fitted to the text (DL-11-003); a marked export's
+changed image as its pair, both images embedded.
 
 People, groups and titles are synthetic examples; every text is invented.
 """
@@ -280,3 +281,91 @@ def test_a_turned_picture_fits_the_text(invented_image: Any, tmp_path: Path) -> 
     (width, height), (text_width, _) = laid_out(xml)
     assert width == text_width
     assert abs(height / width - 4.0) < 0.01
+
+
+def test_a_marked_export_carries_both_images(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+    settings: Any,
+) -> None:
+    """The pair's before side read at the baseline, the image the version no longer holds; no
+    full-size copy in a file."""
+    people = edition_cast()
+    old, new = pictures.make(7), pictures.make(8)
+    pictures.canonical_with(
+        migrated_tenant.number,
+        people,
+        commit_version,
+        kit.FIRST + old.paragraph,
+        {old.path: old.data},
+    )
+    commit_version(
+        people.document,
+        people["a"],
+        kit.FIRST + new.paragraph,
+        "edit",
+        files={old.path: None, new.path: new.data},
+    )
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_PENDING], "marked-word")
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {
+            "document": "on",
+            "format": "docx",
+            "view": "pending_edits",
+            "changes-pending_edits": "marked",
+        },
+    )
+    assert response.status_code == 302
+    job = kit.run_job(migrated_tenant.number, exports[-1][1])
+    assert job.state == "done", job.failure_reason
+    with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as docx:
+        xml = docx.read("word/document.xml").decode()
+    assert xml.count("<pic:pic") == 2
+    side_by_side(xml)
+
+
+def side_by_side(xml: str) -> list[str]:
+    """The pair as one row of two cells, each holding one picture and its caption; the cells."""
+    rows = re.findall(r"<w:tr\b.*?</w:tr>", xml, re.S)
+    [row] = [row for row in rows if "<pic:pic" in row]
+    cells = re.findall(r"<w:tc>.*?</w:tc>", row, re.S)
+    assert len(cells) == 2
+    for cell in cells:
+        assert cell.count("<pic:pic") == 1 and 'w:val="ImageCaption"' in cell
+    return cells
+
+
+def test_a_pair_stands_side_by_side_within_its_column(invented_image: Any, tmp_path: Path) -> None:
+    """A marked export's pair is two pictures beside each other, as on the page: a row of two
+    cells, each picture laid out no wider than its cell; a small one at its own size."""
+    from editing import images
+    from editing.diffview import render_changes
+    from rendering.export import docx
+    from rendering.renderer import RenderContext
+
+    wide = images.check(invented_image("png", 4000, 1000)).data
+    small = images.check(invented_image("png", 40, 30)).data
+    old, new = image_name(wide, "png"), image_name(small, "png")
+    context = RenderContext(image_url=str, sides=("0.1", "0.2"), full_size=False)
+    html = render_changes(
+        f"A sentence.\n\n![A plan]({old})\n".encode(),
+        f"A sentence.\n\n![A map]({new})\n".encode(),
+        context=context,
+    )
+    path = tmp_path / "pair.docx"
+    docx.write(html, path, images={old: wide, new: small})
+    with zipfile.ZipFile(path) as produced:
+        xml = produced.read("word/document.xml").decode()
+
+    side_by_side(xml)
+    (before, before_height), (after, _) = laid_out(xml)
+    assert before <= docx.text_width() // 2
+    assert abs(before / before_height - 4.0) < 0.01
+    assert after == 40 * docx.EMU_PER_PIXEL

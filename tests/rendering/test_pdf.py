@@ -419,3 +419,72 @@ def test_an_oriented_photograph_in_a_pdf(
     )
     [(width, height)] = placed_images(path)
     assert height > width
+
+
+def marked_with_a_changed_image(
+    tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+    fmt: str,
+) -> Path:
+    """An edition showing one image, pending edits replacing it — the old one gone from the
+    version's tree — exported marked; the file."""
+    from django.conf import settings
+
+    people = edition_cast()
+    old, new = pictures.make(7), pictures.make(8)
+    pictures.canonical_with(
+        tenant.number, people, commit_version, kit.FIRST + old.paragraph, {old.path: old.data}
+    )
+    commit_version(
+        people.document,
+        people["a"],
+        kit.FIRST + new.paragraph,
+        "edit",
+        files={old.path: None, new.path: new.data},
+    )
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_PENDING], "marked-image")
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {
+            "document": "on",
+            "format": fmt,
+            "view": "pending_edits",
+            "changes-pending_edits": "marked",
+        },
+    )
+    assert response.status_code == 302
+    job = kit.run_job(tenant.number, exports[-1][1])
+    assert job.state == "done", job.failure_reason
+    return Path(settings.EXPORT_ROOT) / job.artifact_ref
+
+
+def test_a_marked_pdf_carries_both_images(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+) -> None:
+    """The pair's before side read at the baseline, the image the version no longer holds; no
+    full-size copy in a file."""
+    path = marked_with_a_changed_image(
+        migrated_tenant,
+        edition_cast,
+        member_of,
+        link_group,
+        commit_version,
+        exports,
+        kit,
+        pictures,
+        "pdf",
+    )
+    assert len(placed_images(path)) == 2

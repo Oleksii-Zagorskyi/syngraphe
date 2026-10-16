@@ -139,8 +139,21 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         }
         for n, version in enumerate(run, 1)
     ]
+    from rendering import reading
+
+    head_number = f"{accepted}-{len(run)}" if run else accepted
+    reader = reading.context(
+        request.user,
+        document,
+        base_body,
+        head_body,
+        images=reading.committed_images(document),
+        sides=(accepted, head_number),
+    )
     # Raw HTML in the text is escaped by the renderer, and every name is escaped: safe to mark.
-    changes = render_changes(base_body.encode(), head_body.encode(), authors=authors)
+    changes = render_changes(
+        base_body.encode(), head_body.encode(), authors=authors, context=reader
+    )
     rights = rights_on_many(request.user, [document.pk])[document.pk]
     acts = None
     if Right.ACCEPT in rights:

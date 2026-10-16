@@ -194,8 +194,23 @@ def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, 
         # whitelist refuses; it is shown as plain text, never rendered (ADR-0010).
         return shown | {"refused_text": body}
     _, old = holds.split(gitstore.read(repo, holds.BODY, against).decode("utf-8"))
+    from django.utils.translation import gettext
+
+    from rendering import reading
+
+    reader = reading.context(
+        request.user,
+        document,
+        old,
+        body,
+        images=reading.draft_images(document, kept, repo),
+        # The side compared with is named by its number, the head's when none was chosen.
+        sides=(chosen or {sha: n for n, sha in choices}.get(head, ""), gettext("your draft")),
+    )
     # Built from text the whitelist accepted, by the renderer that escapes it.
-    changes = mark_safe(render_changes(old.encode("utf-8"), body.encode("utf-8")))  # noqa: S308
+    changes = mark_safe(  # noqa: S308
+        render_changes(old.encode("utf-8"), body.encode("utf-8"), context=reader)
+    )
     return shown | {"changes": changes}
 
 

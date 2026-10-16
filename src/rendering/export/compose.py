@@ -3,8 +3,9 @@ with the version each shows and the baseline its marks would be measured against
 job — the text, the document's HTML page, the Markdown, the header and the file's name.
 
 The text is validated before any renderer sees it: a construct the platform refuses fails the job
-by name. The images a clean text shows go with it: embedded in PDF and DOCX, beside the Markdown in
-one zip; a mention is its words alone in PDF and DOCX (DL-0438).
+by name. The images the text shows go with it: embedded in PDF and DOCX — a marked export's
+changed image as its pair — beside the Markdown in one zip; a mention is its words alone in PDF and
+DOCX (DL-0438).
 """
 
 from __future__ import annotations
@@ -510,8 +511,18 @@ def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
             )
         composed.markdown = text
         return composed
-    if baseline is not None:
-        rendered = render_changes(baseline.encode(), body.encode())
+    if baseline is not None and job.baseline_version is not None:
+        from dataclasses import replace
+
+        from editing.numbering import number_of as shown_number
+
+        try:
+            baseline_number = shown_number(job.document, job.baseline_version)
+        except LookupError:
+            # A baseline the numbering does not reach: its side is named without a number.
+            baseline_number = ""
+        marked = replace(EXPORT_CONTEXT, sides=(baseline_number, number))
+        rendered = render_changes(baseline.encode(), body.encode(), context=marked)
     else:
         rendered = render(body, context=EXPORT_CONTEXT)
     composed.html = _page(job, frontmatter, rendered, header, number)

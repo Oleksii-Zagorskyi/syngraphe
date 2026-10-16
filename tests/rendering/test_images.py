@@ -155,3 +155,52 @@ def test_the_drawn_text_shows_images_from_its_own_route(
     with schema_context(migrated_tenant.number):
         held = client.get(f"/document/{number}/edit/").content.decode()
     assert f'<img src="/document/{number}/edit/image/{plan.name}/"' in held
+
+
+def test_a_reader_of_canonical_text_alone_reaches_no_notice_image(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    pictures: Any,
+    kit: Any,
+) -> None:
+    """A notice's images are its passages', which only a reader of accepted text is shown: once
+    the recipient holds *view canonical* alone, the notice opens without them and its route
+    serves none."""
+    from access.models import DocumentGroup
+    from editions import services as editions
+    from notifications.models import Notification
+    from review import services as review
+
+    people = edition_cast()
+    old, new = pictures.make(9), pictures.make(10)
+    commit_version(
+        people.document, people["a"], kit.FIRST + old.paragraph, "edit", files={old.path: old.data}
+    )
+    commit_version(
+        people.document,
+        people["r"],
+        kit.FIRST + new.paragraph,
+        "reviewer_edit",
+        files={old.path: None, new.path: new.data},
+    )
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        editions.make_canonical(people.document, people["p"])
+        notification = Notification.objects.get(user=people["a"], event="correction_notice")
+    author = people.clients["a"]
+    address = f"/notifications/{notification.pk}/image/{old.name}/"
+    assert author.get(address).status_code == 200
+
+    with schema_context(migrated_tenant.number):
+        DocumentGroup.objects.filter(
+            document=people.document, group=people.groups["editors"]
+        ).delete()
+    link_group(people.document, [Right.VIEW_CANONICAL], [people.memberships["a"]], people["p"])
+
+    assert author.get(address).status_code == 404
+    page = author.get(f"/notifications/{notification.pk}/").content.decode()
+    assert "<img" not in page

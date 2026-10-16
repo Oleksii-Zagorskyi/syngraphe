@@ -1,7 +1,8 @@
 """DOCX by Pandoc (ADR-0013): the same HTML the PDF is made from, the platform's classes mapped to
 named Word styles by `styles.lua`, their look carried by a reference document; in the produced
 file the footer's page number rewritten, no header (DL-0182, DL-0362), and an oriented
-photograph's picture turned as its tag says (DL-11-003).
+photograph's picture turned as its tag says (DL-11-003), and a picture in a table's cell fitted to
+its column — an image pair's two sides stand in one row (DL-0059).
 
 The reference document is built from Pandoc's own default, once per process: its eight named
 styles and an empty footer are added to it. Pandoc never gates an export: it cannot fail on a
@@ -13,6 +14,7 @@ from __future__ import annotations
 
 import functools
 import io
+import math
 import re
 import subprocess
 import tempfile
@@ -119,6 +121,12 @@ EMBED = re.compile(r'r:embed="([^"]+)"')
 EXTENT = re.compile(r'<wp:extent cx="(\d+)" cy="(\d+)"')
 GRAPHIC_EXTENT = re.compile(r'<a:ext cx="(\d+)" cy="(\d+)"')
 EFFECT = re.compile(r"<wp:effectExtent[^>]*/>")
+EFFECT_SIDES = re.compile(r'<wp:effectExtent b="(-?\d+)" l="(-?\d+)" r="(-?\d+)" t="(-?\d+)"')
+TABLE = re.compile(r"<w:tbl>.*?</w:tbl>", re.DOTALL)
+GRID_COLUMN = re.compile(r'<w:gridCol w:w="(\d+)"')
+ROW = re.compile(r"<w:tr\b.*?</w:tr>", re.DOTALL)
+CELL = re.compile(r"<w:tc>.*?</w:tc>", re.DOTALL)
+SPAN = re.compile(r'<w:gridSpan w:val="(\d+)"')
 RELATION = re.compile(r'<Relationship\b[^>]*\bId="([^"]+)"[^>]*\bTarget="([^"]+)"')
 # Pandoc's size for a picture without a resolution of its own: 72 dots an inch, in EMU a pixel.
 EMU_PER_PIXEL = 12700
@@ -205,9 +213,68 @@ def _oriented(source: zipfile.ZipFile, document: str) -> str:
     return DRAWING.sub(turn, document)
 
 
+def _fitted(drawing: str, width: int) -> str:
+    """`drawing` scaled down whole until its laid-out box — its extent with its effect extent —
+    is no wider than `width` EMU; a narrower one as it is."""
+    extent = EXTENT.search(drawing)
+    if extent is None:
+        return drawing
+    effect = EFFECT_SIDES.search(drawing)
+    bottom, left, right, top = (int(v) for v in effect.groups()) if effect else (0, 0, 0, 0)
+    cx, cy = int(extent.group(1)), int(extent.group(2))
+    if cx + left + right <= width:
+        return drawing
+    scale = width / (cx + left + right)
+
+    def scaled(value: int) -> int:
+        # Rounded down, so the parts never sum past the width.
+        return math.floor(value * scale)
+
+    drawing = EXTENT.sub(f'<wp:extent cx="{scaled(cx)}" cy="{scaled(cy)}"', drawing, 1)
+    drawing = GRAPHIC_EXTENT.sub(f'<a:ext cx="{scaled(cx)}" cy="{scaled(cy)}"', drawing, 1)
+    if effect:
+        sides = (
+            f'<wp:effectExtent b="{scaled(bottom)}" l="{scaled(left)}" '
+            f'r="{scaled(right)}" t="{scaled(top)}"'
+        )
+        drawing = EFFECT_SIDES.sub(sides, drawing, 1)
+    return drawing
+
+
+def _columned(document: str) -> str:
+    """`document`'s pictures in a table's cells — an image pair's sides among them — each fitted
+    to its column's share of the text width, as the page fits a picture to its cell; Pandoc lays
+    one out at the text's width wherever it stands."""
+
+    def table(found: re.Match[str]) -> str:
+        columns = [int(width) for width in GRID_COLUMN.findall(found.group(0))]
+        total = sum(columns)
+        if not total:
+            return found.group(0)
+
+        def row(found_row: re.Match[str]) -> str:
+            at = 0
+
+            def cell(found_cell: re.Match[str]) -> str:
+                nonlocal at
+                span = SPAN.search(found_cell.group(0))
+                spanned = int(span.group(1)) if span else 1
+                width = text_width() * sum(columns[at : at + spanned]) // total
+                at += spanned
+                return DRAWING.sub(
+                    lambda drawing: _fitted(drawing.group(0), width), found_cell.group(0)
+                )
+
+            return CELL.sub(cell, found_row.group(0))
+
+        return ROW.sub(row, found.group(0))
+
+    return TABLE.sub(table, document)
+
+
 def _furnished(produced: Path, target: Path) -> None:
-    """`produced` copied to `target` with its footer part rewritten and its oriented pictures
-    turned."""
+    """`produced` copied to `target` with its footer part rewritten, its oriented pictures turned
+    and its pictures in table cells fitted to their columns."""
     with (
         zipfile.ZipFile(produced) as source,
         zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as out,
@@ -218,8 +285,11 @@ def _furnished(produced: Path, target: Path) -> None:
             data = source.read(item.filename)
             if item.filename == FOOTER:
                 data = furniture.docx_footer()
-            elif item.filename == DOCUMENT and RELATIONS in source.namelist():
-                data = _oriented(source, data.decode("utf-8")).encode("utf-8")
+            elif item.filename == DOCUMENT:
+                text = data.decode("utf-8")
+                if RELATIONS in source.namelist():
+                    text = _oriented(source, text)
+                data = _columned(text).encode("utf-8")
             out.writestr(item, data)
 
 

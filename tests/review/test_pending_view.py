@@ -282,3 +282,49 @@ def test_names_are_escaped_and_addresses_kept_from_readers(
     admin_page = admin_client.get(f"/document/{document.number}/pending/").content.decode()
     assert author_b.email not in admin_page and 'data-author="анонімний редактор"' in admin_page
     assert Right.VIEW_PENDING  # the administrator reads pending edits without a group
+
+
+def test_a_changed_image_before_and_after(
+    migrated_tenant: Any, cast: Any, commit_version: Any
+) -> None:
+    """A pending run that replaced an image draws the pair, captioned with the accepted number and
+    the run's, both images from the committed route (DL-0439, DL-11-002)."""
+    import hashlib
+
+    from django.test import Client
+
+    from review import services
+
+    old, new = b"the accepted image", b"the run's image"
+    paths = [f"images/{hashlib.sha256(d).hexdigest()}.png" for d in (old, new)]
+    body = "# General provisions\n\nA request for approval is made in writing.\n"
+    people = cast(editors=("a",), reviewers=("r",))
+    commit_version(
+        people.document,
+        people["a"],
+        body + f"\n![A plan]({paths[0]})\n",
+        "edit",
+        files={paths[0]: old},
+    )
+    with schema_context(migrated_tenant.number):
+        services.accept(people.document, people["r"])
+    commit_version(
+        people.document,
+        people["a"],
+        body + f"\n![A plan]({paths[1]})\n",
+        "edit",
+        files={paths[0]: None, paths[1]: new},
+    )
+    client = Client(headers={"host": "127.0.0.1"})
+    client.force_login(people["r"])
+    session = client.session
+    session["tenant_number"] = migrated_tenant.number
+    session.save()
+
+    page = client.get(f"/document/{people.document.number}/pending/").content.decode()
+
+    pair = page[page.index('<div class="imgpair">') :]
+    for data_path in paths:
+        assert f'src="/document/{people.document.number}/image/{data_path[7:]}/"' in pair
+    assert "0.1 —" in pair and "0.1-1 —" in pair
+    assert "image changed" in page or "зображення змінено" in page

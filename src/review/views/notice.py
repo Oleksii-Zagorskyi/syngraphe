@@ -21,7 +21,7 @@ from editing import holds
 from editing.diffview import render_changes
 from identity.naming import person
 from review import services
-from review.models import Acceptance, CorrectionLine, Entry
+from review.models import Acceptance
 from shell.views import not_found
 
 RANGE = re.compile(r"([1-9][0-9]{0,9})(?:-([1-9][0-9]{0,9}))?")
@@ -125,48 +125,26 @@ def page(request: HttpRequest, notification: Any) -> HttpResponse:
     document = notification.document
     if acceptance.version.document_id != document.pk or notice.author_id != notification.user_id:
         return not_found(request)
-    # Only the lines of this document's notice, in the order the versions came and the lines stand.
+    from rendering import reading
+    from review.views.notice_images import notice_lines, selected_lines
+
+    # Only the lines of this document's notice, in the order the versions came and the lines
+    # stand: the run's order, which commit times cannot give.
     numbers = _numbers(acceptance)
-    # The versions in the order the run has them, which commit times cannot give.
-    order = {sha: n for n, sha in enumerate(numbers)}
-    lines = sorted(
-        (
-            line
-            for line in CorrectionLine.objects.filter(notice=notice).select_related(
-                "changing_version__author", "author_version"
-            )
-            if line.changing_version.document_id == line.author_version.document_id == document.pk
-        ),
-        key=lambda line: (
-            order.get(line.changing_version.commit_sha, len(order)),
-            (_span(line.range_before) or (0,))[0],
-        ),
-    )
+    lines = selected_lines(notice, document, numbers)
     readable = Right.VIEW_ACCEPTED in rights_on(request.user, document)
     changers = sorted({person(line.changing_version.author) for line in lines})
     entries: list[dict[str, Any]] = []
     if readable:
-        repo = gitstore.open_repository(holds.tenant_number(), document.number)
-        accepted = services.accepted_content_version(acceptance)
-        texts: dict[str, bytes] = {}
-
-        def text_at(sha: str) -> bytes:
-            if sha not in texts:
-                texts[sha] = gitstore.read(repo, "document.md", sha)
-            return texts[sha]
-
-        for line in lines:
-            if line.entry == Entry.PART_OPERATION:
-                # A part's operation is named, never read through the line path.
-                continue
-            if line.entry == Entry.RESTORED:
-                parents = gitstore.commit_at(repo, line.author_version.commit_sha).parents
-                if not parents:
-                    continue
-                before = _lines(text_at(str(parents[0].id)), line.range_before)
-            else:
-                before = _lines(text_at(line.author_version.commit_sha), line.range_before)
-            after = _lines(text_at(accepted.commit_sha), line.range_after)
+        # Read through `notice_lines`, as the notice's image route reads them, so every image
+        # shown here is one that route serves.
+        shown = notice_lines(notice, document)
+        bodies = [part.decode("utf-8") for e in shown for part in (e.before, e.after)]
+        reader = reading.context(
+            request.user, document, *bodies, images=reading.notice_images(notification)
+        )
+        for entry in shown:
+            line = entry.line
             entries.append(
                 {
                     "kind": line.entry,
@@ -174,7 +152,9 @@ def page(request: HttpRequest, notification: Any) -> HttpResponse:
                     "changing": numbers.get(line.changing_version.commit_sha, ""),
                     "author_version": numbers.get(line.author_version.commit_sha, ""),
                     # Rendered from escaped text by the one diff presentation.
-                    "changes": mark_safe(render_changes(before, after)),  # noqa: S308
+                    "changes": mark_safe(  # noqa: S308
+                        render_changes(entry.before, entry.after, context=reader)
+                    ),
                 }
             )
     context = {

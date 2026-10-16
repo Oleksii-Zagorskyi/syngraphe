@@ -313,11 +313,36 @@ def draft_text(hold: Hold) -> tuple[str, str, str]:
     return head, head_body, normalised.decode("utf-8")
 
 
+def _holders_reading(hold: Hold, document: Document, head: str, *bodies: str) -> Any:
+    """The holder's context for their draft's changes: the draft's images through its own route,
+    the two sides the head's number and *your draft*."""
+    from django.utils.translation import gettext
+
+    from rendering import reading
+
+    try:
+        version = Version.objects.get(document=document, commit_sha=head)
+        head_number = numbering.number_of(document, version)
+    except (Version.DoesNotExist, LookupError):
+        # A head a stopped finish left underived: its side is named without a number.
+        head_number = ""
+    draft = Draft.objects.get(hold=hold)
+    return reading.context(
+        hold.user,
+        document,
+        *bodies,
+        images=reading.draft_images(document, draft),
+        sides=(head_number, gettext("your draft")),
+    )
+
+
 def my_edits(hold: Hold) -> tuple[str, str]:
     """The draft normalised against the head, and its changes rendered; `DraftRefused` for a
     draft the whitelist refuses."""
-    _, head_body, normalised = draft_text(hold)
-    changes = render_changes(head_body.encode(), normalised.encode())
+    head, head_body, normalised = draft_text(hold)
+    document = Document.objects.get(pk=hold.document_id)
+    reader = _holders_reading(hold, document, head, head_body, normalised)
+    changes = render_changes(head_body.encode(), normalised.encode(), context=reader)
     return head_body, changes
 
 
@@ -334,8 +359,9 @@ def finish(hold: Hold) -> Finishing:
     repo = gitstore.open_repository(tenant_number, document.number)
     staged_changes(draft, repo, head, lists)
     normalised = _normalised(head_body, draft.content[holds.BODY], lists)
+    reader = _holders_reading(hold, document, head, head_body, normalised.decode("utf-8"))
     return Finishing(
-        changes=render_changes(head_body.encode(), normalised),
+        changes=render_changes(head_body.encode(), normalised, context=reader),
         summary=summary.drafted(head_body, normalised.decode("utf-8")),
         number=_number(document, repo, head, draft, lists),
     )

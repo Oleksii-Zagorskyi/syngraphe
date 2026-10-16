@@ -177,7 +177,7 @@ def test_each_line_carries_its_author() -> None:
 
 
 def test_an_image_inserted_or_removed_shows() -> None:
-    """While images reach a reader as their descriptions, a change to an image is marked on its
+    """With no reader's context an image is its description, and a change to it is marked on its
     description, inserted or struck; nothing is fetched."""
     html = render_changes("Текст.\n".encode(), "Текст.\n\n![Схема](images/a.png)\n".encode())
     assert "<ins>Схема</ins>" in html and "<img" not in html

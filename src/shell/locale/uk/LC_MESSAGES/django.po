@@ -3147,3 +3147,25 @@ msgstr "Зображення не додано. Спробуйте ще раз."
 #: rendering/export/job.py
 msgid "An image the text shows has gone since you asked; export again."
 msgstr "Відколи ви замовили експорт, зображення, яке показує текст, зникло; експортуйте ще раз."
+
+#: editing/diffview.py
+msgid "image changed"
+msgstr "зображення змінено"
+
+#: editing/diffview.py
+msgctxt "an image pair"
+msgid "before"
+msgstr "до"
+
+#: editing/diffview.py
+msgctxt "an image pair"
+msgid "after"
+msgstr "після"
+
+#: editing/diffview.py
+msgid "open both full size"
+msgstr "відкрити обидва в повному розмірі"
+
+#: editing/services.py
+msgid "your draft"
+msgstr "ваша чернетка"

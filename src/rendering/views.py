@@ -242,7 +242,18 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
         "parts": changed_between(older, newer),
         # Rendered from text the whitelist accepted, by the renderer that escapes it.
         "changes": mark_safe(  # noqa: S308
-            render_changes(older_body.encode("utf-8"), newer_body.encode("utf-8"))
+            render_changes(
+                older_body.encode("utf-8"),
+                newer_body.encode("utf-8"),
+                context=reading.context(
+                    request.user,
+                    document,
+                    older_body,
+                    newer_body,
+                    images=reading.committed_images(document),
+                    sides=(older_number, newer_number),
+                ),
+            )
         ),
     }
     return render(request, "rendering/compare.html", context)
