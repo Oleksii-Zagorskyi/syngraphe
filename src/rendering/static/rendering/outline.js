@@ -1,5 +1,6 @@
-// The document page's side panes (DL-0195): each outline node collapses, each pane collapses, and
-// a pane's edge drags to a width the person keeps.
+// The side panes of the document page and the document list (DL-0195): each node of the outline
+// or the folder tree collapses, each pane collapses, and a pane's edge drags to a width the person
+// keeps.
 // Without this script the outline is a list of links and the panes stand at their widths.
 (() => {
   const csrf = () => {
@@ -8,7 +9,7 @@
   };
 
   document.addEventListener("click", (event) => {
-    const toggle = event.target.closest(".outline .toggle");
+    const toggle = event.target.closest(".outline .toggle, .folder-tree .toggle");
     if (toggle) {
       const open = toggle.getAttribute("aria-expanded") === "true";
       toggle.setAttribute("aria-expanded", String(!open));

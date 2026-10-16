@@ -24,6 +24,10 @@ OUTLINE_WIDTH_MAX = 600
 PANEL_WIDTH = 280
 PANEL_WIDTH_MIN = 200
 PANEL_WIDTH_MAX = 600
+# Epic 10: the folder tree beside the document list (DL-0195).
+FOLDER_TREE_WIDTH = 220
+FOLDER_TREE_WIDTH_MIN = 160
+FOLDER_TREE_WIDTH_MAX = 480
 
 
 def _back(request: HttpRequest) -> HttpResponseRedirect:
@@ -78,3 +82,10 @@ def outline_width(request: HttpRequest) -> HttpResponse:
 def panel_width(request: HttpRequest) -> HttpResponse:
     """The right panel's width, in pixels, within the bounds the page allows (DL-0195)."""
     return _width(request, "panel_width", PANEL_WIDTH_MIN, PANEL_WIDTH_MAX)
+
+
+# Epic 10
+@login_required
+def folder_tree_width(request: HttpRequest) -> HttpResponse:
+    """The folder tree's width beside the document list, in pixels, within its bounds."""
+    return _width(request, "folder_tree_width", FOLDER_TREE_WIDTH_MIN, FOLDER_TREE_WIDTH_MAX)

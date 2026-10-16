@@ -31,7 +31,6 @@ from audit.record import record
 from documents.forms import CreateForm
 from documents.holds import held_by
 from documents.models import (
-    ROOT_FOLDER,
     Document,
     DocumentState,
     DocumentType,
@@ -64,9 +63,14 @@ def create(request: HttpRequest) -> HttpResponse:
         or not can_create(request.user, tenant)
     ):
         return not_found(request)
-    organisation = tenant.name
+    # Epic 10: the folders offered are those the person sees.
+    seen = {
+        "organisation": tenant.name,
+        "user": request.user,
+        "administrator": administers(request),
+    }
     if request.method == "POST":
-        form = CreateForm(request.POST, organisation=organisation)
+        form = CreateForm(request.POST, **seen)
         if form.is_valid():
             try:
                 document = create_document(
@@ -88,7 +92,7 @@ def create(request: HttpRequest) -> HttpResponse:
                 return render(request, "documents/create.html", context, status=503)
             return HttpResponseRedirect(f"/document/{document.number}/")
         return render(request, "documents/create.html", {"form": form}, status=400)
-    return render(request, "documents/create.html", {"form": CreateForm(organisation=organisation)})
+    return render(request, "documents/create.html", {"form": CreateForm(**seen)})
 
 
 def is_member(request: HttpRequest) -> bool:
@@ -147,29 +151,125 @@ def _latest(seen: Any) -> str:
 @never_cache
 @login_required
 def folder(request: HttpRequest, number: int) -> HttpResponse:
-    """A folder's documents the person may open, by title; the root alone until folders exist."""
+    """A folder's documents the person may open, those directly in it; any folder they see, one
+    they may not answering as a missing one (ADR-0008, DL-0206)."""
     tenant = getattr(request, "tenant", None)
-    if request.method != "GET" or tenant is None or number != ROOT_FOLDER or not is_member(request):
+    if request.method != "GET" or tenant is None or not is_member(request):
+        return not_found(request)
+    administrator = administers(request)
+    from documents.tree import Tree, visible_folders
+
+    seen = visible_folders(request.user, administrator=administrator)
+    if number not in seen:
         return not_found(request)
     documents = list(
         Document.objects.filter(folder__number=number, state=DocumentState.ACTIVE)
-        .select_related("document_type")
+        .select_related("document_type", "folder")
         .order_by(Collate("title", "uk-x-icu"), "number")
     )
     allowed = readable(request.user, [d.pk for d in documents])
-    shown = [d for d in documents if d.pk in allowed]
+    shown = _sorted(request, [d for d in documents if d.pk in allowed])
+    tree = Tree(tenant.name, seen)
+    # A folder deleted since `seen` was read answers as a missing one.
+    selected = next((n.folder for n in tree.flat() if n.folder.number == number), None)
+    if selected is None:
+        return not_found(request)
     context = {
-        **_rows(request.user, shown, administrator=administers(request)),
+        **_rows(request.user, shown, administrator=administrator),
+        **_pane(request, tree, selected),
+        **_sorting(request),
         "can_create": can_create(request.user, tenant),
+        "administrator": administrator,
+        "folder": selected,
     }
     return render(request, "documents/list.html", context)
+
+
+# Epic 10: a list's order — title A to Z by default (DL-0207).
+SORTS = ("number", "title")
+DIRECTIONS = ("asc", "desc")
+
+
+def _sort(request: HttpRequest) -> tuple[str, str]:
+    """The asked order, or the default for anything else."""
+    sort, direction = request.GET.get("sort", ""), request.GET.get("dir", "")
+    return (
+        sort if sort in SORTS else "title",
+        direction if direction in DIRECTIONS else "asc",
+    )
+
+
+def _sorted(request: HttpRequest, documents: list[Document]) -> list[Document]:
+    """`documents` — given by title as Ukrainian is read, then number — in the asked order."""
+    sort, direction = _sort(request)
+    ordered = sorted(documents, key=lambda d: d.number) if sort == "number" else list(documents)
+    return list(reversed(ordered)) if direction == "desc" else ordered
+
+
+def _sorting(request: HttpRequest) -> dict[str, Any]:
+    """The `#` and *Title* headers: each a link to its other direction, the active one marked."""
+    sort, direction = _sort(request)
+    headers = {}
+    for key in SORTS:
+        active = key == sort
+        to = "desc" if active and direction == "asc" else "asc"
+        headers[key] = {
+            "href": f"?sort={key}&dir={to}",
+            "mark": ("▲" if direction == "asc" else "▼") if active else "",
+        }
+    return {"sort_headers": headers}
+
+
+def _pane(
+    request: HttpRequest, tree: Any, selected: Any = None, *, open_all: bool = False
+) -> dict[str, Any]:
+    """The folder tree beside a list, flattened for the template: each node, whether it opens,
+    and how many levels close after it. On a folder, it and its ancestors open; beside a view,
+    cut to the folders holding its rows, every folder open — the cut is what it shows."""
+    from identity.views.preferences import (
+        FOLDER_TREE_WIDTH,
+        FOLDER_TREE_WIDTH_MAX,
+        FOLDER_TREE_WIDTH_MIN,
+    )
+    from rendering.views import _kept
+
+    flat = tree.flat()
+    opened = {f.pk for f in tree.ancestry(selected)} if selected is not None else set()
+    opened.add(tree.root.pk)
+    if open_all:
+        opened = {node.folder.pk for node in flat}
+    items = []
+    for i, node in enumerate(flat):
+        following = flat[i + 1].depth if i + 1 < len(flat) else 0
+        items.append(
+            {
+                "node": node,
+                "branch": bool(node.children),
+                "open": node.folder.pk in opened,
+                "selected": selected is not None and node.folder.pk == selected.pk,
+                "closes": range(max(0, node.depth - following)),
+            }
+        )
+    width = _kept(
+        request,
+        "folder_tree_width",
+        FOLDER_TREE_WIDTH,
+        FOLDER_TREE_WIDTH_MIN,
+        FOLDER_TREE_WIDTH_MAX,
+    )
+    return {
+        "tree_items": items,
+        "tree_width": width,
+        "tree_bounds": (FOLDER_TREE_WIDTH_MIN, FOLDER_TREE_WIDTH_MAX),
+    }
 
 
 def _rows(
     user: Any, shown: list[Document], seen: Any = None, *, administrator: bool = False
 ) -> dict[str, Any]:
-    """A list's rows — the numbers, the parts and the state tags of each document — and whether
-    the *Latest* column is drawn; shared by the folder and the two views. `administrator` says
+    """A list's rows — the numbers, the parts, the state tags of each document and whether its
+    reader may edit it — and whether the *Latest* and ✎ columns are drawn; shared by the folder
+    and the two views. `administrator` says
     whether the reader administers the organisation, one of the facts that decide whether a
     holder is named (`review.state.hold_tag`)."""
     seen = _versions(user, shown) if seen is None else seen
@@ -178,6 +278,7 @@ def _rows(
     from review.state import tags
 
     shown_tags = tags(user, shown, administrator=administrator)
+    beyond = rights_on_many(user, [d.pk for d in shown])
     rows = [
         {
             "document": document,
@@ -186,14 +287,17 @@ def _rows(
             "appendices": PartKind.APPENDIX in parts.get(document.pk, set()),
             "attachments": PartKind.ATTACHMENT in parts.get(document.pk, set()),
             "tags": shown_tags.get(document.pk, []),
+            # Epic 10: the ✎ cell, for a holder of *edit* on this row alone.
+            "editable": Right.EDIT in beyond.get(document.pk, frozenset()),
         }
         for document in shown
     ]
-    # Drawn only for someone who may see beyond canonical text on a listed document (DL-0233).
-    beyond = rights_on_many(user, [d.pk for d in shown])
     return {
         "rows": rows,
+        # Drawn only for someone who may see beyond canonical text on a listed document
+        # (DL-0233); the ✎ column only where a listed row is editable (DL-0236).
         "latest_column": any(held & BEYOND_CANONICAL for held in beyond.values()),
+        "pencil_column": any(row["editable"] for row in rows),
     }
 
 
@@ -258,14 +362,33 @@ def _view(request: HttpRequest, right: Right) -> HttpResponse | None:
     return None
 
 
-def _grouped(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """The rows under one heading per folder: the root alone until folders exist, when the
-    groups take their folder's path as heading and its alphabetical order (DL-0207)."""
+def _grouped(rows: list[dict[str, Any]], tree: Any) -> list[dict[str, Any]]:
+    """The rows under one heading per folder, the folder's full path; the groups in path order,
+    the root's first (DL-0207). The rows keep their order inside each group."""
     groups: dict[Any, dict[str, Any]] = {}
     for row in rows:
         folder = row["document"].folder
-        groups.setdefault(folder.pk, {"folder": folder, "rows": []})["rows"].append(row)
-    return sorted(groups.values(), key=lambda group: group["folder"].number)
+        group = groups.setdefault(
+            folder.pk, {"folder": folder, "path": tree.path_of(folder), "rows": []}
+        )
+        group["rows"].append(row)
+    return sorted(groups.values(), key=lambda group: tree.path_key(group["folder"]))
+
+
+def _view_context(request: HttpRequest, listed: dict[str, Any]) -> dict[str, Any]:
+    """A view's groups and its pane, cut to the folders holding a listed row."""
+    from documents.tree import Tree
+
+    tenant = getattr(request, "tenant", None)
+    tree = Tree(
+        tenant.name if tenant is not None else "",
+        {row["document"].folder.number for row in listed["rows"]},
+    )
+    return {
+        "groups": _grouped(listed["rows"], tree),
+        **_pane(request, tree, open_all=True),
+        **_sorting(request),
+    }
 
 
 @never_cache
@@ -278,8 +401,8 @@ def in_review(request: HttpRequest) -> HttpResponse:
     documents = in_review_documents(request.user)
     # The menu draws its link from this answer rather than reading the view again.
     cast(Any, request).views_found = {"in_review": bool(documents)}
-    listed = _rows(request.user, documents, administrator=administers(request))
-    context = {**listed, "groups": _grouped(listed["rows"]), "view": "in-review"}
+    listed = _rows(request.user, _sorted(request, documents), administrator=administers(request))
+    context = {**listed, **_view_context(request, listed), "view": "in-review"}
     return render(request, "documents/view_list.html", context)
 
 
@@ -292,8 +415,10 @@ def in_edit(request: HttpRequest) -> HttpResponse:
         return refused
     documents, seen = in_edit_documents(request.user)
     cast(Any, request).views_found = {"in_edit": bool(documents)}
-    listed = _rows(request.user, documents, seen, administrator=administers(request))
-    context = {**listed, "groups": _grouped(listed["rows"]), "view": "in-edit"}
+    listed = _rows(
+        request.user, _sorted(request, documents), seen, administrator=administers(request)
+    )
+    context = {**listed, **_view_context(request, listed), "view": "in-edit"}
     return render(request, "documents/view_list.html", context)
 
 
@@ -345,12 +470,19 @@ def render_page(
 ) -> HttpResponse:
     """A tab of `document`'s page, which the caller's gate opened; `error` the refusal of an act
     posted from it, drawn above the tab."""
+    from documents.tree import Tree
+
+    tenant = getattr(request, "tenant", None)
+    # Epic 10: the folder's path on the *Info* tab — a reader of the document sees every folder
+    # above it (DL-0206); the breadcrumb draws its own, for every tab.
+    tree = Tree(tenant.name if tenant is not None else "")
     context: dict[str, Any] = {
         "document": document,
         "can_edit": Right.EDIT in rights_on(request.user, document),
         "holding": held_by(document, request.user),
         "tab": tab,
         "error": error,
+        "folder_path": tree.path_of(document.folder),
     }
     if tab == "view":
         from rendering.views import view_context

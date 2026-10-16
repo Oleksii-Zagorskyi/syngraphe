@@ -3283,3 +3283,12 @@ msgstr "Видалити можна лише порожню теку."
 #: documents/templates/documents/folders_move.html
 msgid "Create another folder to move documents into."
 msgstr "Створіть іншу теку, до якої можна перемістити документи."
+
+#: documents/templates/documents/list.html
+msgid "Folders ▾"
+msgstr "Теки ▾"
+
+#: documents/templates/documents/list.html
+msgctxt "open the edit tab"
+msgid "edit"
+msgstr "Редагувати"

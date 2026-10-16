@@ -136,3 +136,60 @@ def test_a_reader_never_sees_the_creators_address(
     assert "the.creator@example.test" not in as_admin
     assert "by anonymous editor" in as_reader and "by anonymous editor" in as_admin
     assert "Readers" in as_admin and "Readers" not in as_reader
+
+
+# Epic 10
+def test_the_breadcrumb_and_info_name_the_folders_path(
+    migrated_tenant: Any, member_of: Any, make_document: Any
+) -> None:
+    """The breadcrumb links each folder of the path below the root; *Info* names the path, the
+    organisation's name for a document in the root."""
+    from documents import folders
+    from documents.models import Folder
+
+    client, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        a = folders.create_folder(Folder.objects.get(number=1), "A (synthetic example)", by=admin)
+        b = folders.create_folder(a, "B (synthetic example)", by=admin)
+    deep = make_document(title="Synthetic deep", folder=b)
+    rooted = make_document(title="Synthetic rooted")
+
+    deep_info = client.get(f"/document/{deep.number}/info/").content.decode()
+    root_info = client.get(f"/document/{rooted.number}/info/").content.decode()
+
+    crumb = deep_info.split('<nav class="breadcrumb">', 1)[1].split("</nav>", 1)[0]
+    assert crumb == (
+        f'<a href="/folder/{a.number}/">A (synthetic example)</a> / '
+        f'<a href="/folder/{b.number}/">B (synthetic example)</a> /'
+    )
+    assert migrated_tenant.name not in crumb
+    assert "<dd>A (synthetic example) / B (synthetic example)</dd>" in deep_info
+    assert f'<nav class="breadcrumb"><a href="/folder/1/">{migrated_tenant.name}</a> /</nav>' in (
+        root_info
+    )
+    assert f"<dd>{migrated_tenant.name}</dd>" in root_info
+
+
+def test_every_tab_draws_the_folders_path(
+    migrated_tenant: Any, member_of: Any, repo_root: Any
+) -> None:
+    """The breadcrumb is the page's header, so *History* and *Pending edits* draw the same path
+    as *View* and *Info*."""
+    from documents import folders, services
+    from documents.models import DocumentType, Folder
+    from identity.models import Language
+
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
+    client, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        a = folders.create_folder(Folder.objects.get(number=1), "A (synthetic example)", by=admin)
+        document = services.create_document(
+            admin, "Synthetic tabbed", "uk", DocumentType.objects.get(code="document"), a
+        )
+    crumb = (
+        f'<nav class="breadcrumb"><a href="/folder/{a.number}/">A (synthetic example)</a> /</nav>'
+    )
+
+    for tab in ("", "info/", "history/", "pending/"):
+        body = client.get(f"/document/{document.number}/{tab}").content.decode()
+        assert crumb in body, tab

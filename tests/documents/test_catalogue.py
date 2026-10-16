@@ -145,6 +145,8 @@ def test_catalogue_covers_epic_10_pages(
         (admin, "/administration/tenant/folders/"),
         (admin, f"/administration/tenant/folders/?folder={policies.number}"),
         (admin, f"/administration/tenant/folders/{policies.number}/move/"),
+        (admin, "/folder/1/"),
+        (admin, f"/folder/{policies.number}/"),
     ]
 
     for client, path in pages:

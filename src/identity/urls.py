@@ -10,6 +10,12 @@ urlpatterns = [
     path("preferences/show-author/", preferences.show_author, name="preference_show_author"),
     path("preferences/outline-width/", preferences.outline_width, name="preference_outline_width"),
     path("preferences/panel-width/", preferences.panel_width, name="preference_panel_width"),
+    # Epic 10
+    path(
+        "preferences/folder-tree-width/",
+        preferences.folder_tree_width,
+        name="preference_folder_tree_width",
+    ),
     path("administration/tenant/users/", users.users, name="users"),
     path("administration/tenant/users/invite/", users.invite, name="invite"),
     path(

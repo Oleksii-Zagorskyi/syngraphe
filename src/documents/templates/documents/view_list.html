@@ -1,15 +1,19 @@
 {% extends "shell/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{% if view == "in-review" %}{% translate "In review" %}{% else %}{% translate "In edit" %}{% endif %} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content documents">
+  {# Epic 10: the tree cut to the folders holding a listed row; groups headed by full path #}
+  <div class="panes list-panes" style="--tree-width: {{ tree_width }}px">
+    {% include "documents/tree.html" %}
+    <div class="list-main">
   <h1>{% if view == "in-review" %}{% translate "In review" %}{% else %}{% translate "In edit" %}{% endif %}</h1>
   {% for group in groups %}
   <section class="folder-group">
-    <h2>{% if group.folder.name %}{{ group.folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</h2>
+    <h2 class="folder-path">{{ group.path }}</h2>
     <table class="list">
       <thead>
-        <tr><th>#</th><th>{% translate "Title" %}</th><th>{% translate "Type" %}</th><th>{% translate "Canonical" %}</th>{% if latest_column %}<th>{% translate "Latest" %}</th>{% endif %}<th>{% translate "Parts" %}</th></tr>
+        <tr><th>{% include "documents/sort_header.html" with header=sort_headers.number label="#" %}</th><th>{% translate "Title" as title_label %}{% include "documents/sort_header.html" with header=sort_headers.title label=title_label %}</th><th>{% translate "Type" %}</th><th>{% translate "Canonical" %}</th>{% if latest_column %}<th>{% translate "Latest" %}</th>{% endif %}<th>{% translate "Parts" %}</th>{% if pencil_column %}<th class="edit"><span aria-hidden="true">✎</span><span class="visually-hidden">{% translate "edit" context "open the edit tab" %}</span></th>{% endif %}</tr>
       </thead>
       <tbody>
         {% for row in group.rows %}
@@ -22,7 +26,8 @@
           <td class="parts">
             <span class="part appendices{% if not row.appendices %} absent{% endif %}" title="{% translate 'appendices' %}">▤</span>
             <span class="part attachments{% if not row.attachments %} absent{% endif %}" title="{% translate 'attachments' %}">📎</span>
-          </td>
+          </td>{% if pencil_column %}
+          <td class="edit">{% if row.editable %}<a class="icon" href="/document/{{ row.document.number }}/edit/" title="{% translate 'edit' context 'open the edit tab' %}">✎</a>{% endif %}</td>{% endif %}
         </tr>
         {% endfor %}
       </tbody>
@@ -31,5 +36,8 @@
   {% empty %}
   <p class="muted">{% translate "No documents here." %}</p>
   {% endfor %}
+    </div>
+  </div>
+  <script src="{% static 'rendering/outline.js' %}" defer></script>
 </section>
 {% endblock %}

@@ -222,6 +222,52 @@ def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) 
     assert re.search(r'<option value="en" selected>', body)
 
 
+# Epic 10
+def test_the_dialog_offers_the_folders_the_person_sees(
+    migrated_tenant: Any, author: Any, member_of: Any, make_document: Any
+) -> None:
+    """The folder choice is the person's visible folders by path, the root first; a posted
+    folder they may not see is refused as an unknown one (DL-0206)."""
+    from access.models import AccessGroup, DocumentGroup
+    from access.rights import Right
+    from documents import folders
+    from documents.models import Document, Folder
+    from identity.models import Membership
+
+    client, user = author
+    _, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        root = Folder.objects.get(number=1)
+        seen = folders.create_folder(root, "Seen (synthetic example)", by=admin)
+        inner = folders.create_folder(seen, "Inner (synthetic example)", by=admin)
+        hidden = folders.create_folder(root, "Hidden (synthetic example)", by=admin)
+    readable = make_document(title="Synthetic readable", folder=inner, author_only=False)
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(name="Readers", actor_kind="system")
+        group.grant(Right.VIEW_ACCEPTED, by=None)
+        group.add_member(Membership.objects.get(user=user), by=None)
+        DocumentGroup.link(readable, group, by=admin)
+    form = _form(migrated_tenant)
+
+    body = client.get("/document/new/").content.decode()
+    refused = client.post("/document/new/", {**form, "folder": str(hidden.id)})
+
+    options = re.findall(r'<option value="([^"]+)"[^>]*>([^<]*)</option>', body)
+    folder_options = [
+        label
+        for value, label in options
+        if value in {str(root.id), str(seen.id), str(inner.id), str(hidden.id)}
+    ]
+    assert folder_options == [
+        migrated_tenant.name,
+        "Seen (synthetic example)",
+        "Seen (synthetic example) / Inner (synthetic example)",
+    ]
+    assert refused.status_code == 400
+    with schema_context(migrated_tenant.number):
+        assert not Document.objects.filter(title="Synthetic example").exists()
+
+
 def test_crash_states_are_the_documented_ones(
     migrated_tenant: Any, author: Any, repo_root: Path
 ) -> None:

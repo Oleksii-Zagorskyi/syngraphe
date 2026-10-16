@@ -13,7 +13,7 @@ from typing import Any
 
 from django.db.models.functions import Collate
 
-from documents.models import ROOT_FOLDER, Folder
+from documents.models import ROOT_FOLDER, Document, DocumentState, Folder
 
 PATH_SEPARATOR = " / "
 
@@ -34,6 +34,7 @@ class Tree:
         everything = list(Folder.objects.order_by(Collate("name", "uk-x-icu"), "number"))
         self.by_pk: dict[Any, Folder] = {f.pk: f for f in everything}
         kept = {f.pk for f in everything} if numbers is None else self._with_ancestors(numbers)
+        self.kept = kept
         self.children: dict[Any, list[Folder]] = {}
         for folder in everything:
             if folder.pk in kept and folder.parent_id is not None:
@@ -46,7 +47,8 @@ class Tree:
 
     def _with_ancestors(self, numbers: Iterable[int]) -> set[Any]:
         by_number = {f.number: f for f in self.by_pk.values()}
-        kept: set[Any] = set()
+        # The root always: a tree cut to nothing is the root alone.
+        kept: set[Any] = {f.pk for f in self.by_pk.values() if f.number == ROOT_FOLDER}
         for number in numbers:
             folder = by_number.get(number)
             while folder is not None and folder.pk not in kept:
@@ -98,3 +100,20 @@ class Tree:
         """The sibling ranks from the root down to `folder`, so paths sort alphabetically
         component by component, the root's first."""
         return tuple(self.rank.get(f.pk, 0) for f in self.ancestry(folder))
+
+
+def visible_folders(user: Any, *, administrator: bool) -> set[int]:
+    """The numbers of the folders `user` sees (DL-0206): every folder to an administrator; to
+    anyone else the root and every ancestor of a folder directly holding an active document they
+    may read. A fixed number of queries whatever the corpus; no repository is opened."""
+    from access.rights import readable
+
+    if administrator:
+        return set(Folder.objects.values_list("number", flat=True))
+    held = list(
+        Document.objects.filter(state=DocumentState.ACTIVE).values_list("pk", "folder__number")
+    )
+    allowed = readable(user, [pk for pk, _number in held])
+    holding = {number for pk, number in held if pk in allowed}
+    tree = Tree("", holding | {ROOT_FOLDER})
+    return {folder.number for folder in tree.by_pk.values() if folder.pk in tree.kept}

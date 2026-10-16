@@ -460,3 +460,71 @@ def test_catalogue_covers_the_views_and_their_links(
         shown = review.text_of(response.content.decode())
         leaked = [message for message in ids if message in shown]
         assert leaked == [], (view, leaked)
+
+
+# Epic 10
+def test_groups_are_headed_by_full_path(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+) -> None:
+    """Runs in *A / B* and the root: groups headed by the organisation's name, then *A / B*; the
+    pane cut to the folders holding them."""
+    from documents import folders
+    from documents.models import Document, Folder
+
+    client, reviewer, membership = member_of("the.reviewer@example.test")
+    _, author, author_membership = member_of("the.author@example.test")
+    _, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        root = Folder.objects.get(number=1)
+        a = folders.create_folder(root, "A (synthetic example)", by=admin)
+        b = folders.create_folder(a, "B (synthetic example)", by=admin)
+        folders.create_folder(root, "Elsewhere (synthetic example)", by=admin)
+    deep = new_document(author, "Synthetic deep")
+    rooted = new_document(author, "Synthetic rooted")
+    with schema_context(migrated_tenant.number):
+        Document.objects.filter(pk=deep.pk).update(folder=b)
+    for document in (deep, rooted):
+        link_group(document, [Right.ACCEPT], [membership, author_membership], author)
+        commit_version(document, author, BODY, "edit")
+
+    body = client.get("/in-review/").content.decode()
+
+    headings = re.findall(r'<h2 class="folder-path">([^<]+)</h2>', body)
+    assert headings == [migrated_tenant.name, "A (synthetic example) / B (synthetic example)"]
+    pane = body.split('class="folder-tree"', 1)[1].split("</nav>", 1)[0]
+    assert "Elsewhere" not in pane and "B (synthetic example)" in pane
+    assert listed(body) == [rooted.number, deep.number]
+
+
+def test_groups_follow_their_paths_alphabetically_and_the_cut_tree_is_open(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+) -> None:
+    """Groups in `uk-x-icu` path order, component by component (the collation is the subject);
+    the pane beside a view opens every folder it holds."""
+    from documents import folders
+    from documents.models import Document, Folder
+
+    client, _, membership = member_of("the.reviewer@example.test")
+    _, author, author_membership = member_of("the.author@example.test")
+    _, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        root = Folder.objects.get(number=1)
+        ye = folders.create_folder(root, "Євро", by=admin)
+        be = folders.create_folder(root, "Бета", by=admin)
+        inner = folders.create_folder(be, "Явка", by=admin)
+        orange = folders.create_folder(be, "апельсин", by=admin)
+    placed = []
+    for folder in (ye, inner, orange, be):
+        document = new_document(author, f"Synthetic in {folder.name}")
+        with schema_context(migrated_tenant.number):
+            Document.objects.filter(pk=document.pk).update(folder=folder)
+        link_group(document, [Right.ACCEPT], [membership, author_membership], author)
+        commit_version(document, author, BODY, "edit")
+        placed.append(document)
+
+    body = client.get("/in-review/").content.decode()
+
+    headings = re.findall(r'<h2 class="folder-path">([^<]+)</h2>', body)
+    assert headings == ["Бета", "Бета / апельсин", "Бета / Явка", "Євро"]
+    pane = body.split('class="folder-tree"', 1)[1].split("</nav>", 1)[0]
+    assert 'class="shut"' not in pane

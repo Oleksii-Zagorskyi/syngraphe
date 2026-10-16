@@ -1,12 +1,13 @@
 {% extends "shell/base.html" %}
-{% load i18n static review editions editing %}
+{% load i18n static review editions editing corpus %}
 {% block title %}#{{ document.number }} {{ document.title }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document">
   {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
   {% freeze_band document %}
   {% hold_band document %}
-  <nav class="breadcrumb"><a href="/folder/1/">{{ current_tenant.name }}</a> /</nav>
+  {# Epic 10: the folder's path, each folder linked; the organisation's name for the root #}
+  {% folder_crumbs document as crumbs %}<nav class="breadcrumb">{% for folder in crumbs %}<a href="/folder/{{ folder.number }}/">{{ folder.name }}</a> /{% if not forloop.last %} {% endif %}{% empty %}<a href="/folder/1/">{{ current_tenant.name }}</a> /{% endfor %}</nav>
   <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% version_shown document as shown %}{% if shown %} <span class="version-number">{{ shown }}</span>{% endif %}{% state_tag document %}</h1>
   {% edition_controls document %}
   <p class="document-actions"><a class="button" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a>{% hold_acts document menu=True %}</p>

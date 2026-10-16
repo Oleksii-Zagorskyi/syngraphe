@@ -1,0 +1,7 @@
+{% load i18n %}<nav class="folder-tree" id="folder-tree" aria-label="{% translate 'Folders' %}">
+  <ul>
+    {% for item in tree_items %}{% with folder=item.node.folder %}<li{% if item.branch and not item.open %} class="shut"{% endif %}>{% if item.branch %}<button type="button" class="toggle" aria-expanded="{% if item.open %}true{% else %}false{% endif %}" aria-label="{% if item.open %}{% translate 'Collapse' %}{% else %}{% translate 'Expand' %}{% endif %}" data-expand="{% translate 'Expand' %}" data-collapse="{% translate 'Collapse' %}">{% if item.open %}▾{% else %}▸{% endif %}</button>{% endif %}<a href="/folder/{{ folder.number }}/"{% if item.selected %} aria-current="page"{% endif %}>{% if folder.parent_id %}{{ folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</a>{% if item.branch %}<ul>{% else %}</li>{% endif %}{% for _ in item.closes %}</ul></li>{% endfor %}
+    {% endwith %}{% endfor %}
+  </ul>
+</nav>
+<div class="edge" role="separator" aria-orientation="vertical" data-drag="--tree-width" data-pane="folder-tree" data-min="{{ tree_bounds.0 }}" data-max="{{ tree_bounds.1 }}" data-keep="/preferences/folder-tree-width/"></div>
