@@ -24,6 +24,7 @@ from documents.models import (
     DocumentState,
     DocumentTemplate,
     DocumentType,
+    Folder,
     Version,
     VersionKind,
     next_document_number,
@@ -35,7 +36,6 @@ from tenancy.schemas import current_tenant
 if TYPE_CHECKING:
     import pygit2
 
-    from documents.models import Folder
     from identity.models import User
 
 # The summary of every first commit; a commit message never carries a title or a name.
@@ -56,8 +56,8 @@ class CreationStopped(Exception):
 
 # Epic 10
 class ChoiceGone(Exception):
-    """A creation's chosen type was deleted or retired after the form offered it; `field` names
-    the choice. Nothing is written."""
+    """A creation's chosen type or folder was deleted, or the type retired, after the form offered
+    it; `field` names the choice. Nothing is written."""
 
     def __init__(self, field: str) -> None:
         super().__init__(f"the chosen {field} is no longer offered")
@@ -97,8 +97,13 @@ def create_document(
 
     # (1) The row, with the next number, committed before anything leaves the database.
     with transaction.atomic():
-        # Epic 10: the type read again and held, so a delete or a retire since the form offered it
-        # refuses the creation rather than failing its row (DL-10-001).
+        # Epic 10: the type and the folder read again and held, so a delete or a retire since the
+        # form offered them refuses the creation rather than failing its row.
+        # The folder first, then the type — the order a move and a type change take — so the
+        # three acts never wait on each other in a cycle.
+        rows = Folder.objects.select_for_update(no_key=True, of=("self",))
+        if rows.filter(pk=folder.pk).first() is None:
+            raise ChoiceGone("folder")
         held = (
             DocumentType.objects.select_for_update(no_key=True, of=("self",))
             .filter(pk=document_type.pk, retired_at__isnull=True)

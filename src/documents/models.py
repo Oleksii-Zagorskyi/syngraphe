@@ -29,6 +29,19 @@ def next_document_number() -> int:
     return int(row[0])
 
 
+# Epic 10: folder numbers from the tenant's own sequence, after the root's 1, never given again.
+FOLDER_NUMBER_SEQUENCE = "documents_folder_number"
+
+
+def next_folder_number() -> int:
+    """The next folder number of the tenant whose schema the connection is set to."""
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT nextval(%s)", [FOLDER_NUMBER_SEQUENCE])
+        row = cursor.fetchone()
+    assert row is not None
+    return int(row[0])
+
+
 class DocumentType(Mutable):
     """This organisation's own classification of documents, seeded with `document` (DL-0235)."""
 
@@ -64,6 +77,19 @@ class Folder(Mutable):
     class Meta(Mutable.Meta):
         abstract = False
         ordering = ["number"]
+        # Epic 10: a folder is known by its path, so siblings never share a name in any case
+        # (DL-0453); the root alone has no parent (ADR-0008).
+        constraints = [
+            *Mutable.Meta.constraints,
+            models.UniqueConstraint(
+                Lower("name"), "parent", name="documents_folder_name_unique_among_siblings"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(number=1, parent__isnull=True)
+                | models.Q(parent__isnull=False, number__gt=1),
+                name="documents_folder_only_the_root_has_no_parent",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"folder {self.number}"

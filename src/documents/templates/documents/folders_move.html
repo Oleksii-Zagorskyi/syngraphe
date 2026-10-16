@@ -1,0 +1,22 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Move documents" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="folders-move">
+  <h1>{% translate "Move documents" %}</h1>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  {% if documents %}
+  <form method="post" action="{{ page_url }}{{ folder.number }}/move/">{% csrf_token %}
+    <p class="note">{% blocktranslate with path=path %}From {{ path }}:{% endblocktranslate %}</p>
+    {% for document in documents %}<label><input type="checkbox" name="document" value="{{ document.number }}"{% if document.number|stringformat:"d" in ticked %} checked{% endif %}> #{{ document.number }} {{ document.title }}</label><br>{% endfor %}
+    <p><label for="move-to">{% translate "To" %}</label> <select id="move-to" name="to">{% for target in targets %}<option value="{{ target.folder.number }}"{% if target.folder.number == chosen_target %} selected{% endif %}>{{ target.path }}</option>{% endfor %}</select></p>
+    <p class="note">{% translate "Folders are presentation only: moving changes nothing about a document or who may read it." %}</p>
+    {% if not targets %}<p class="note">{% translate "Create another folder to move documents into." %}</p>{% endif %}
+    <button class="btn primary" type="submit"{% if not targets %} disabled{% endif %}>{% translate "Move" %}</button> <a class="btn" href="{{ page_url }}?folder={{ folder.number }}">{% translate "Cancel" %}</a>
+  </form>
+  {% else %}
+  <p class="muted">{% translate "No documents here." %}</p>
+  <p><a class="btn" href="{{ page_url }}?folder={{ folder.number }}">{% translate "Back to the folders" %}</a></p>
+  {% endif %}
+</div>
+{% endblock %}

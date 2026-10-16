@@ -161,13 +161,18 @@ def test_the_form_refuses_what_it_cannot_take(
     client, _ = author
     form = _form(migrated_tenant)
 
-    from documents.models import DocumentType, Folder
+    from documents.models import DocumentType, Folder, next_folder_number
 
     with schema_context(migrated_tenant.number):
         retired = DocumentType.objects.create(
             code="old", label="old", retired_at="2026-01-01T00:00:00Z", actor_kind="system"
         )
-        other_folder = Folder.objects.create(number=2, name="Sub", actor_kind="system")
+        other_folder = Folder.objects.create(
+            number=next_folder_number(),
+            parent=Folder.objects.get(number=1),
+            name="Sub",
+            actor_kind="system",
+        )
     bads = (
         {"title": "   "},
         {"title": "x" * 501},

@@ -15,6 +15,23 @@ urlpatterns = [
         name="document_attachment",
     ),
     # Epic 10
+    path("administration/tenant/folders/", administration.folders, name="folders"),
+    path("administration/tenant/folders/new/", administration.folder_new, name="folder_new"),
+    path(
+        "administration/tenant/folders/<int:number>/rename/",
+        administration.folder_rename,
+        name="folder_rename",
+    ),
+    path(
+        "administration/tenant/folders/<int:number>/delete/",
+        administration.folder_delete,
+        name="folder_delete",
+    ),
+    path(
+        "administration/tenant/folders/<int:number>/move/",
+        administration.folder_move,
+        name="folder_move",
+    ),
     path(
         "administration/tenant/document-types/",
         administration.document_types,

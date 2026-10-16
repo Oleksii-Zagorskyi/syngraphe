@@ -13,8 +13,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.cache import patch_cache_control
 from django.utils.http import content_disposition_header
-from django.utils.translation import gettext as _
-from django.utils.translation import pgettext_lazy
+from django.utils.translation import gettext_lazy, pgettext_lazy
 from django.views.decorators.cache import never_cache
 
 from access.models import DocumentGroup
@@ -48,6 +47,13 @@ from shell.views import not_found
 logger = logging.getLogger(__name__)
 
 
+# Epic 10: what the dialog says of a choice gone between its offer and the creation.
+CHOICE_GONE = {
+    "document_type": gettext_lazy("This type is no longer offered. Choose another."),
+    "folder": gettext_lazy("This folder no longer exists. Choose another."),
+}
+
+
 @login_required
 def create(request: HttpRequest) -> HttpResponse:
     """The create dialog; a valid POST creates the document and redirects to its address."""
@@ -70,11 +76,10 @@ def create(request: HttpRequest) -> HttpResponse:
                     form.cleaned_data["document_type"],
                     form.cleaned_data["folder"],
                 )
-            except ChoiceGone:
-                # Epic 10: the type was deleted or retired since the form offered it.
-                form.add_error(
-                    "document_type", _("This type is no longer offered. Choose another.")
-                )
+            except ChoiceGone as gone:
+                # Epic 10: the type or the folder was deleted, or the type retired, since the form
+                # offered it.
+                form.add_error(gone.field, str(CHOICE_GONE[gone.field]))
                 return render(request, "documents/create.html", {"form": form}, status=400)
             except CreationStopped as stopped:
                 # The row is kept and the reconciler finishes it; the person keeps what they typed.

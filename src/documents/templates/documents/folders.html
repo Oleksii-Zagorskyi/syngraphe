@@ -1,0 +1,33 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Folders" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="folders">
+  <h1>{% translate "Folders" %}</h1>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <ul class="folder-admin">
+    {% for row in rows %}{% with folder=row.node.folder %}
+    <li class="node" style="--depth: {{ row.node.depth }}"><a href="{{ page_url }}?folder={{ folder.number }}"{% if folder.pk == chosen.pk %} aria-current="page"{% endif %}>{% if folder.parent_id %}{{ folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</a> <span class="note">{% if row.documents %}{% blocktranslate count count=row.documents %}{{ count }} document{% plural %}{{ count }} documents{% endblocktranslate %}{% elif not row.folders %}{% translate "(empty)" context "folder" %}{% endif %}</span></li>{% endwith %}
+    {% endfor %}
+  </ul>
+  <div class="folder-acts">
+    <form method="post" action="{{ page_url }}new/" class="inline">{% csrf_token %}<input type="hidden" name="parent" value="{{ chosen.number }}"><label class="visually-hidden" for="new-folder">{% translate "New folder" %}</label><input type="text" id="new-folder" name="name" maxlength="200" required placeholder="{% translate 'New folder' %}"{% if attempt.act == "new" %} value="{{ attempt.name }}"{% endif %}> <button class="btn" type="submit">{% translate "New folder" %}</button></form>
+    {% if not is_root %}
+    <form method="post" action="{{ page_url }}{{ chosen.number }}/rename/" class="inline">{% csrf_token %}<label class="visually-hidden" for="folder-name">{% translate "Name" %}</label><input type="text" id="folder-name" name="name" maxlength="200" required value="{% if attempt.act == "rename" %}{{ attempt.name }}{% else %}{{ chosen.name }}{% endif %}"> <button class="btn" type="submit">{% translate "Rename" %}</button></form>
+    {% if empty %}<form method="post" action="{{ page_url }}{{ chosen.number }}/delete/" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Delete" %}</button></form>{% else %}<span class="act"><button class="btn" type="button" disabled>{% translate "Delete" %}</button> <span class="why">{{ holding }}</span></span>{% endif %}
+    {% endif %}
+    <a class="btn" href="{{ page_url }}{{ chosen.number }}/move/">{% translate "Move documents…" %}</a>
+  </div>
+  <h2>{{ chosen_name }}</h2>
+  {% if documents %}
+  <table class="list">
+    <thead><tr><th>#</th><th>{% translate "Title" %}</th></tr></thead>
+    <tbody>{% for document in documents %}
+      <tr data-number="{{ document.number }}"><td class="id">#{{ document.number }}</td><td>{{ document.title }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {% else %}
+  <p class="muted">{% translate "No documents here." %}</p>
+  {% endif %}
+</div>
+{% endblock %}

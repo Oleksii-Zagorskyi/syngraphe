@@ -24,24 +24,46 @@ CATALOGUE = LOCALE / "uk" / "LC_MESSAGES" / "django.po"
 
 
 def entries(catalogue: str) -> dict[tuple[str, str], str]:
-    """Every live `(context, message id)` and its translation, continuation lines joined."""
-    found: dict[tuple[str, str], str] = {}
+    """Every live `(context, message id)` and its translation, continuation lines joined; a
+    plural entry's translation is its first form, or empty when any of its forms is empty."""
+    return {key: value for key, (value, _plural, _forms) in _parsed(catalogue).items()}
+
+
+def plurals(catalogue: str) -> dict[tuple[str, str], tuple[str, list[str]]]:
+    """Every plural entry's `(context, message id)`, its plural message id and its forms."""
+    return {
+        key: (plural, forms)
+        for key, (_value, plural, forms) in _parsed(catalogue).items()
+        if plural
+    }
+
+
+def _parsed(catalogue: str) -> dict[tuple[str, str], tuple[str, str, list[str]]]:
+    found: dict[tuple[str, str], tuple[str, str, list[str]]] = {}
     for block in catalogue.split("\n\n"):
-        parts: dict[str, list[str]] = {"msgctxt": [], "msgid": [], "msgstr": []}
-        current = None
+        parts: dict[str, list[str]] = {"msgctxt": [], "msgid": [], "msgid_plural": []}
+        forms: dict[str, list[str]] = {}
+        current: list[str] | None = None
         for line in block.splitlines():
             if line.startswith("#"):
                 continue
             keyword = line.split(" ", 1)[0]
             if keyword in parts:
-                current = keyword
-                parts[current].append(line[len(keyword) + 1 :].strip('"'))
-            elif line.startswith('"') and current:
-                parts[current].append(line.strip('"'))
+                current = parts[keyword]
+            elif keyword.startswith("msgstr"):
+                current = forms.setdefault(keyword, [])
+            elif line.startswith('"') and current is not None:
+                current.append(line.strip('"'))
+                continue
+            else:
+                continue
+            current.append(line[len(keyword) + 1 :].strip('"'))
         message = "".join(parts["msgid"])
         if message:
             key = ("".join(parts["msgctxt"]), message)
-            found[key] = "".join(parts["msgstr"]).replace('\\"', '"')
+            texts = ["".join(f).replace('\\"', '"') for _k, f in sorted(forms.items())]
+            value = texts[0] if texts and all(texts) else ""
+            found[key] = (value, "".join(parts["msgid_plural"]), texts)
     return found
 
 
@@ -109,9 +131,20 @@ def test_catalogue_covers_epic_10_pages(
     ids = [
         message for _, message in entries(CATALOGUE.read_text(encoding="utf-8")) if len(message) > 2
     ]
+    from documents import folders
+    from documents.models import Folder
+
+    with schema_context(migrated_tenant.number):
+        policies = folders.create_folder(
+            Folder.objects.get(number=1), "Політики (synthetic example)", by=admin_user
+        )
+    make_document(title="Архівний документ", folder=policies, state="archived")
     pages = [
         (admin, "/administration/tenant/document-types/"),
         (admin, f"/document/{document.number}/info/"),
+        (admin, "/administration/tenant/folders/"),
+        (admin, f"/administration/tenant/folders/?folder={policies.number}"),
+        (admin, f"/administration/tenant/folders/{policies.number}/move/"),
     ]
 
     for client, path in pages:
@@ -120,8 +153,12 @@ def test_catalogue_covers_epic_10_pages(
         body = text_of(response.content.decode())
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
-        # The seeded type's label, as data: a cell or a choice of its own.
-        assert re.search(r">\s*Документ\s*<", response.content.decode()), path
+        if path.endswith("/folders/"):
+            # The glossary's *тека*, and a count in its Ukrainian plural form.
+            assert "Теки" in body and "1 документ" in body, path
+        if "document-types" in path or "/info/" in path:
+            # The seeded type's label, as data: a cell or a choice of its own.
+            assert re.search(r">\s*Документ\s*<", response.content.decode()), path
 
 
 @pytest.mark.integration
@@ -149,10 +186,23 @@ def test_makemessages_adds_no_entry(tmp_path: Path) -> None:
 def test_the_compiled_catalogue_is_the_catalogue() -> None:
     compiled = gettext.GNUTranslations((LOCALE / "uk" / "LC_MESSAGES" / "django.mo").open("rb"))
 
+    catalogue = CATALOGUE.read_text(encoding="utf-8")
+    plural = plurals(catalogue)
+    # One count per Ukrainian form: 1 takes the first, 2 the second, 5 the third.
+    counts = (1, 2, 5)
+
+    def compiled_forms(key: tuple[str, str]) -> list[str]:
+        other = plural[key][0]
+        if key[0]:
+            return [compiled.npgettext(key[0], key[1], other, n) for n in counts]
+        return [compiled.ngettext(key[1], other, n) for n in counts]
+
     stale = [
         key
-        for key, value in entries(CATALOGUE.read_text(encoding="utf-8")).items()
-        if (compiled.pgettext(*key) if key[0] else compiled.gettext(key[1])) != value
+        for key, value in entries(catalogue).items()
+        if key not in plural
+        and (compiled.pgettext(*key) if key[0] else compiled.gettext(key[1])) != value
     ]
+    stale += [key for key, (_other, forms) in plural.items() if compiled_forms(key) != forms]
 
     assert stale == []

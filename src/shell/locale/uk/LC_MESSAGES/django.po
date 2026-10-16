@@ -3180,3 +3180,106 @@ msgstr "Цей тип більше не пропонується. Оберіть
 #: documents/administration.py
 msgid "The type every organisation starts with is kept for documents the platform loads or recovers: it can be renamed or retired, not deleted."
 msgstr "Тип, з якого починає кожна організація, зберігається для документів, які платформа завантажує або відновлює: його можна перейменувати чи вивести з ужитку, але не видалити."
+
+#: documents/administration.py
+msgid "A folder's name is one line of text, at most 200 characters."
+msgstr "Назва теки — один рядок тексту, не довше 200 символів."
+
+#: documents/administration.py
+msgid "Another folder here already has this name, perhaps in different capitals."
+msgstr "Інша тека тут уже має цю назву, можливо, в іншому регістрі."
+
+#: documents/administration.py
+msgid "The folder named after the organisation cannot be renamed or deleted."
+msgstr "Теку, названу іменем організації, не можна перейменувати чи видалити."
+
+#: documents/administration.py
+msgid "An archived document cannot be moved: restore it first."
+msgstr "Заархівований документ не можна перемістити: спершу відновіть його."
+
+#: documents/administration.py
+msgid "These documents are already in that folder."
+msgstr "Ці документи вже в теці, до якої їх переміщують."
+
+#: documents/administration.py
+msgid "%(name)s holds %(documents)s and %(folders)s."
+msgstr "Тека «%(name)s» містить %(documents)s і %(folders)s."
+
+#: documents/administration.py
+msgid "%(count)s document"
+msgid_plural "%(count)s documents"
+msgstr[0] "%(count)s документ"
+msgstr[1] "%(count)s документи"
+msgstr[2] "%(count)s документів"
+
+#: documents/administration.py
+msgid "%(count)s folder"
+msgid_plural "%(count)s folders"
+msgstr[0] "%(count)s теку"
+msgstr[1] "%(count)s теки"
+msgstr[2] "%(count)s тек"
+
+#: documents/administration.py
+msgid "Choose documents of this folder to move."
+msgstr "Оберіть документи цієї теки, які слід перемістити."
+
+#: documents/views.py
+msgid "This folder no longer exists. Choose another."
+msgstr "Цієї теки більше немає. Оберіть іншу."
+
+#: shell/templates/shell/administration.html
+msgid "Folders"
+msgstr "Теки"
+
+#: documents/templates/documents/folders.html
+msgctxt "folder"
+msgid "(empty)"
+msgstr "(порожня)"
+
+#: documents/templates/documents/folders.html
+msgid "New folder"
+msgstr "Нова тека"
+
+#: documents/templates/documents/folders.html
+msgid "Move documents…"
+msgstr "Перемістити документи…"
+
+#: documents/templates/documents/folders_move.html
+msgid "Move documents"
+msgstr "Перемістити документи"
+
+#: documents/templates/documents/folders_move.html
+msgid "From %(path)s:"
+msgstr "З теки %(path)s:"
+
+#: documents/templates/documents/folders_move.html
+msgid "To"
+msgstr "До теки"
+
+#: documents/templates/documents/folders_move.html
+msgid "Folders are presentation only: moving changes nothing about a document or who may read it."
+msgstr "Теки лише впорядковують показ: переміщення нічого не змінює ні в документі, ні в тому, хто може його читати."
+
+#: documents/templates/documents/folders_move.html
+msgid "Move"
+msgstr "Перемістити"
+
+#: documents/templates/documents/folders_move.html
+msgid "Back to the folders"
+msgstr "Назад до тек"
+
+#: documents/administration.py
+msgid "%(name)s holds %(documents)s."
+msgstr "Тека «%(name)s» містить %(documents)s."
+
+#: documents/administration.py
+msgid "%(name)s holds %(folders)s."
+msgstr "Тека «%(name)s» містить %(folders)s."
+
+#: documents/administration.py
+msgid "Only an empty folder can be deleted."
+msgstr "Видалити можна лише порожню теку."
+
+#: documents/templates/documents/folders_move.html
+msgid "Create another folder to move documents into."
+msgstr "Створіть іншу теку, до якої можна перемістити документи."
