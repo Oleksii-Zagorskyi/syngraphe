@@ -19,6 +19,7 @@ import { serialize } from "./serializer.js";
 import { sourceField } from "./source.js";
 import { rawSpec, spec } from "./spec.js";
 import { capped, toolbar } from "./toolbar.js";
+import { addImages } from "./upload.js";
 
 import "./editor.css";
 
@@ -108,6 +109,8 @@ function reporter(status, words, helpUrl) {
       withHelp(format(words.notices.refused, { constructs: names }));
     } else if (event.kind === "lines") {
       if (event.text) withHelp(format(words.notices.lines, { lines: event.text }));
+    } else if (event.kind === "text") {
+      status.textContent = event.text;
     } else {
       status.textContent = words.notices[event.kind] || "";
     }
@@ -170,17 +173,31 @@ function editorFor(element, draft, words, report, { onClose = null } = {}) {
     toggle.textContent = mode === "rich" ? words.labels.source : words.labels.rich;
   }
 
+  // Images are added only where the page takes uploads: the edit tab, not a test page. Each batch
+  // in flight is kept, so closing the editor waits for it to be placed and captured.
+  editor.uploads = new Set();
+  const images = element.dataset.imageUpload
+    ? {
+        add: (files, pos = null) => {
+          const job = addImages(files, { schema, element, editor, report, pos });
+          editor.uploads.add(job);
+          job.finally(() => editor.uploads.delete(job));
+          return job;
+        },
+      }
+    : null;
+
   function richView(doc) {
     editor.view = new EditorView(surface, {
       state: EditorState.create({ doc, plugins: plugins() }),
-      ...pasteHandling(spec, report, (doc) => validate(serialize(doc), spec)),
+      ...pasteHandling(spec, report, (doc) => validate(serialize(doc), spec), images),
       dispatchTransaction(tr) {
         editor.view.updateState(editor.view.state.apply(tr));
         if (tr.docChanged && editor.capture) editor.capture.changed();
       },
     });
     editor.view.dom.addEventListener("focusout", () => editor.capture && editor.capture.flush());
-    tools = toolbar(editor.view, schema, words, report);
+    tools = toolbar(editor.view, schema, words, report, images);
     bar.insertBefore(tools, toggle);
   }
 

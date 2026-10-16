@@ -19,6 +19,8 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
+import pygit2
+
 from editing import authorship
 from editing.markdown import load_spec
 from review.notices import _applied, _body_start, _carry, _moves, _Step, _Written, _written
@@ -643,6 +645,56 @@ def _frontmatter_changed(document: Any, versions: list[Any]) -> bool:
     return False
 
 
+def _stage_images(repo: Any, draft: Any, head: str | None, undone: Collection[str]) -> None:
+    """Every image the draft's texts reference that neither the head's tree nor the draft's rows
+    hold, staged from the newest of the undone versions and the versions they were written on
+    that holds it — an image an undone edit had removed comes back with the text that shows it
+    (DL-0439), and nothing the undone run never showed is read."""
+    import hashlib
+
+    from django.utils import timezone
+
+    from documents import gitstore, images
+    from editing.models import DraftFile, DraftFileKind, DraftFileOperation
+    from editing.services import draft_texts
+
+    if head is None:
+        return
+    in_tree = {f"{images.FOLDER}/{name}" for name in gitstore.listing(repo, images.FOLDER, head)}
+    staged = set(draft.files.filter(kind=DraftFileKind.IMAGE).values_list("path", flat=True))
+    wanted = [
+        reference.src
+        for reference in images.referenced(draft_texts(draft, repo, head))
+        if images.is_image_path(reference.src)
+        and reference.src not in in_tree
+        and reference.src not in staged
+    ]
+    if not wanted:
+        return
+    sources = set(undone)
+    for sha in undone:
+        sources.update(str(parent.id) for parent in gitstore.commit_at(repo, sha).parents)
+    newest_first = [c for c in list(gitstore.history(repo))[::-1] if str(c.id) in sources]
+    for path in dict.fromkeys(wanted):
+        for commit in newest_first:
+            try:
+                entry = commit.tree[path]
+            except KeyError:
+                continue
+            data = entry.peel(pygit2.Blob).data
+            DraftFile.objects.create(
+                draft=draft,
+                kind=DraftFileKind.IMAGE,
+                path=path,
+                operation=DraftFileOperation.ADD,
+                content=data,
+                file_name=path.rsplit("/", 1)[-1],
+                sha256=hashlib.sha256(data).hexdigest(),
+                at=timezone.now(),
+            )
+            break
+
+
 def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = None) -> Any:
     """Undo `version`, or every version of `author`, into the reviewer's draft (ADR-0015,
     DL-0243): the one they have open, else one opened for it — and only then, in the transaction
@@ -651,7 +703,8 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
     document's, the hold's and the draft's rows: the reversal, computed against the head, is
     merged into the draft line by line — a line the draft changed is left and listed, never
     overwritten — and the places left for the reviewer's hand are kept beside the text in
-    `content["undo"]`, never in it (DL-0380). An open editor whose range changed is told it is
+    `content["undo"]`, never in it (DL-0380); the images the reversal brings back that the head
+    lacks are staged in the draft (DL-0439). An open editor whose range changed is told it is
     stale at its next capture. Nothing is committed; finishing does that. Audited. Returns the
     hold; `UndoRefused` with the reason otherwise.
 
@@ -739,6 +792,12 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
                     },
                 }
                 draft.save(update_fields=["content", "updated_at"])
+                _stage_images(
+                    gitstore.open_repository(number, document.number),
+                    draft,
+                    head,
+                    [v.commit_sha for v in undone],
+                )
                 Hold.objects.filter(pk=hold.pk).update(last_activity_at=timezone.now())
                 record(
                     actor=reviewer,

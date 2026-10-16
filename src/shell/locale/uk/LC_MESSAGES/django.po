@@ -582,8 +582,8 @@ msgid "What the editor accepts"
 msgstr "Що приймає редактор"
 
 #: editing/messages.py:73
-msgid "Images were left out of the paste."
-msgstr "Зображення до вставки не ввійшли."
+msgid "An image that is only a web address was not pasted; copy the image itself and paste it."
+msgstr "Зображення, яке є лише вебадресою, не вставлено; скопіюйте саме зображення і вставте його."
 
 #: editing/messages.py:74
 msgid "A link of this kind is not allowed."
@@ -3092,5 +3092,52 @@ msgstr "зображення, якого документ не містить"
 
 #: editing/messages.py
 #, python-format
-msgid "appendix %(number)s, line %(line)s: %(construct)s"
-msgstr "додаток %(number)s, рядок %(line)s: %(construct)s"
+msgid "appendix «%(title)s», line %(line)s: %(construct)s"
+msgstr "додаток «%(title)s», рядок %(line)s: %(construct)s"
+
+#: editing/views/finish.py
+msgid "The draft refers to an image the document does not hold; correct it in the editor."
+msgstr "Чернетка посилається на зображення, якого документ не містить; виправте це в редакторі."
+
+#: editing/messages.py
+msgid "Image"
+msgstr "Зображення"
+
+#: editing/messages.py
+msgid "Uploading the image…"
+msgstr "Зображення завантажується…"
+
+#: editing/messages.py
+msgid "Choose one image file."
+msgstr "Виберіть один файл зображення."
+
+#: editing/messages.py
+#, python-format
+msgid "The image is larger than %(limit_mb)s MB, the most the platform accepts."
+msgstr "Зображення більше за %(limit_mb)s МБ — найбільше, що приймає платформа."
+
+#: editing/messages.py
+msgid "HEIC images are not accepted; convert the photograph to JPEG or PNG and add it again."
+msgstr "Зображення HEIC не приймаються; перетворіть світлину на JPEG чи PNG і додайте знову."
+
+#: editing/messages.py
+msgid "Only PNG, JPEG and GIF images are accepted."
+msgstr "Приймаються лише зображення PNG, JPEG і GIF."
+
+#: editing/messages.py
+#, python-format
+msgid "The image is %(width)s × %(height)s pixels; at most %(max_side)s pixels a side and %(megapixels)s megapixels are accepted."
+msgstr "Зображення має %(width)s × %(height)s пікселів; приймається щонайбільше %(max_side)s пікселів на сторону і %(megapixels)s мегапікселів."
+
+#: editing/messages.py
+#, python-format
+msgid "The image is too large in pixels; at most %(max_side)s pixels a side and %(megapixels)s megapixels are accepted."
+msgstr "Зображення завелике в пікселях; приймається щонайбільше %(max_side)s пікселів на сторону і %(megapixels)s мегапікселів."
+
+#: editing/messages.py
+msgid "The file could not be read as an image."
+msgstr "Файл не вдалося прочитати як зображення."
+
+#: editing/messages.py
+msgid "The image was not added. Try again."
+msgstr "Зображення не додано. Спробуйте ще раз."

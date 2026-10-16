@@ -144,3 +144,10 @@
 .capture-indicator[data-state="stale"] {
   color: var(--del);
 }
+
+/* An image stands alone in its paragraph, no wider than the text. */
+.editor-surface span.image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}

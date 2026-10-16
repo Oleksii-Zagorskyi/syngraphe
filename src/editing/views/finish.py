@@ -21,7 +21,7 @@ from documents.locks import LockTimeout
 from documents.models import Document
 from editing import holds, numbering, services, summary
 from editing.messages import for_the_editor as messages_for_the_editor
-from editing.models import Hold, ReleaseKind
+from editing.models import Draft, Hold, ReleaseKind
 from editing.views.edit_tab import editable
 from identity.models import User
 from review.services import RecordIncomplete
@@ -105,12 +105,21 @@ def _waiting(request: HttpRequest, document: Document, reason: str = "") -> Http
     return render(request, "editing/finish_waits.html", context, status=409)
 
 
+def _appendix_titles(hold: Hold) -> dict[str, str]:
+    """Each appendix's title by its number, as the draft's frontmatter lists them."""
+    draft = Draft.objects.filter(hold=hold).first()
+    listed = draft.content.get(holds.FRONTMATTER, {}).get("appendices", []) if draft else []
+    return {str(item.get("number")): str(item.get("title", "")) for item in listed}
+
+
 def _refused(
-    request: HttpRequest, document: Document, refused: services.DraftRefused
+    request: HttpRequest, document: Document, hold: Hold, refused: services.DraftRefused
 ) -> HttpResponse:
-    """The draft holds text the editor does not accept: each line named, the way back to the
-    source view where it is corrected."""
+    """The draft holds what cannot be committed — text the editor does not accept, or a reference
+    to an image the document does not hold: each line named, an appendix's by its title, and the
+    way back to the editor where it is corrected."""
     words = messages_for_the_editor()
+    titles = _appendix_titles(hold)
     lines = []
     for r in refused.refusals:
         construct = words["constructs"][r.code]
@@ -121,14 +130,14 @@ def _refused(
             number = file.removeprefix("appendices/").removesuffix(".md")
             lines.append(
                 words["notices"]["line_in_appendix"]
-                % {"number": number, "line": r.line, "construct": construct}
+                % {"title": titles.get(number) or number, "line": r.line, "construct": construct}
             )
-    context = _context(
-        document,
-        "edit",
-        reason=_("The draft holds text the editor does not accept; correct it in the editor."),
-        refusals=lines,
+    reason = (
+        _("The draft refers to an image the document does not hold; correct it in the editor.")
+        if isinstance(refused, services.MissingImages)
+        else _("The draft holds text the editor does not accept; correct it in the editor.")
     )
+    context = _context(document, "edit", reason=reason, refusals=lines)
     return render(request, "editing/finish_waits.html", context, status=409)
 
 
@@ -141,7 +150,7 @@ def _screen_or_wait(
     except services.EditorsOpen:
         return _waiting(request, document)
     except services.DraftRefused as refused:
-        return _refused(request, document, refused)
+        return _refused(request, document, hold, refused)
     return _screen(request, document, finishing, **more)
 
 
@@ -240,7 +249,7 @@ def send(request: HttpRequest, number: int) -> HttpResponse:
     except services.EditorsOpen:
         return _waiting(request, document)
     except services.DraftRefused as refused:
-        return _refused(request, document, refused)
+        return _refused(request, document, hold, refused)
     except (LockTimeout, RecordIncomplete) as stopped:
         context = _context(
             document,
@@ -298,7 +307,7 @@ def my_edits(request: HttpRequest, number: int) -> HttpResponse:
     try:
         _, changes = services.my_edits(hold)
     except services.DraftRefused as refused:
-        return _refused(request, document, refused)
+        return _refused(request, document, hold, refused)
     # Built from escaped text alone, as the finishing screen's changes are.
     context = _context(document, "my-edits", changes=mark_safe(changes))  # noqa: S308
     return render(request, "editing/my_edits.html", context)

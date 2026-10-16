@@ -15,7 +15,7 @@ const KEEPALIVE_MOST_BYTES = 60 * 1024;
 
 // The CSRF token as it is now: signing in again in another tab replaces it, so the cookie is read
 // on every request and the page's own field is the fallback.
-function csrfToken(element) {
+export function csrfToken(element) {
   const cookie = document.cookie.split("; ").find((part) => part.startsWith("csrftoken="));
   if (cookie) return decodeURIComponent(cookie.slice("csrftoken=".length));
   const field = element.closest("section, body").querySelector("input[name=csrfmiddlewaretoken]");
@@ -307,7 +307,11 @@ export function capturing({ element, editor, words, disable }) {
     },
     changed: schedule,
     flush,
+    // Told by another of the editor's requests — an image's upload — that the hold has ended.
+    released,
     async finish() {
+      // An image still uploading is placed first, so its reference is captured with the text.
+      while (editor.uploads?.size) await Promise.allSettled([...editor.uploads]);
       const outcome = await flush();
       if (outcome !== "captured" || editor.markdown() !== sent) return false;
       clearInterval(heart);

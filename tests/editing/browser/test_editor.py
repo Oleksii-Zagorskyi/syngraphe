@@ -78,7 +78,7 @@ def test_the_toolbar_offers_only_whitelisted_controls(editing: Any, page: Any) -
     assert commands == [
         "paragraph", "heading1", "heading2", "heading3", "heading4", "bullet_list",
         "ordered_list", "strong", "em", "underline", "quote", "note", "warning", "example",
-        "table", "add_row", "undo", "redo", "link", "source", "finish",
+        "table", "add_row", "undo", "redo", "image", "link", "source", "finish",
     ]  # fmt: skip
 
 

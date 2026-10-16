@@ -8,6 +8,8 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 
+from django.http import HttpResponse
+
 from editing.markdown.parser import parser
 from editing.markdown.rules import lines_of
 
@@ -61,3 +63,13 @@ def referenced(texts: Mapping[str, str]) -> list[Reference]:
                 cursor = at
                 found.append(Reference(src, file, at + 1))
     return found
+
+
+def served(data: bytes, name: str) -> HttpResponse:
+    """An image's bytes as every image route answers them: the type its checked extension names,
+    never the client's or the bytes' guess, and never cached beyond the reader."""
+    response = HttpResponse(data, content_type=CONTENT_TYPES[name.rsplit(".", 1)[1]])
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Disposition"] = "inline"
+    response["Cache-Control"] = "private"
+    return response

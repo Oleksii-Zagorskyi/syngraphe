@@ -1,5 +1,5 @@
-// The toolbar: headings, lists, bold, italic, underline, quotes, callouts, tables and links, and
-// undo and redo. Buttons keep the selection through the click by refusing the mousedown's default.
+// The toolbar: headings, lists, bold, italic, underline, quotes, callouts, tables, images and links,
+// and undo and redo. Buttons keep the selection through the click by refusing the mousedown's default.
 import { setBlockType, toggleMark, wrapIn } from "prosemirror-commands";
 import { redo, undo } from "prosemirror-history";
 import { wrapInList } from "prosemirror-schema-list";
@@ -67,8 +67,8 @@ function button(label, name, run) {
 }
 
 // The toolbar for `view`; `words` are the page's translated labels and notices, `report` shows one
-// line under the editor.
-export function toolbar(view, schema, words, report) {
+// line under the editor; `images`, where the page takes uploads, adds the files it is given.
+export function toolbar(view, schema, words, report, images = null) {
   const bar = document.createElement("span");
   bar.className = "toolbar";
   bar.setAttribute("role", "toolbar");
@@ -98,6 +98,21 @@ export function toolbar(view, schema, words, report) {
   const label = (name) =>
     name.startsWith("heading") ? labels.heading.replace("%(level)s", name.slice("heading".length)) : labels[name];
   for (const [name, command] of blocks) bar.append(button(label(name), name, run(command)));
+
+  // An image: a file chosen from the person's computer, uploaded and placed alone (DL-0232).
+  if (images) {
+    const chooser = document.createElement("input");
+    chooser.type = "file";
+    chooser.accept = "image/png,image/jpeg,image/gif";
+    chooser.hidden = true;
+    chooser.dataset.field = "image";
+    chooser.addEventListener("change", () => {
+      const files = [...chooser.files];
+      chooser.value = "";
+      if (files.length) images.add(files);
+    });
+    bar.append(button(labels.image, "image", () => chooser.click()), chooser);
+  }
 
   // A link: its address typed into the toolbar, never asked for in a dialog.
   const address = document.createElement("input");

@@ -630,3 +630,37 @@ def browser_server(live_server: Any, settings: Any) -> str:
             connection_.creation.deserialize_db_from_string(contents)
     settings.EDITING_CONFORMANCE_PAGE = True
     return str(live_server.url)
+
+
+@pytest.fixture
+def invented_image() -> Callable[..., bytes]:
+    """Image bytes made here by Pillow, never a file from elsewhere: `kind` `png`, `jpeg` or
+    `gif`, of the size given, a JPEG with an EXIF orientation when one is given. Each call with
+    its own `shade` makes different bytes."""
+
+    def make(
+        kind: str = "png",
+        width: int = 40,
+        height: int = 20,
+        *,
+        orientation: int | None = None,
+        shade: int = 0,
+    ) -> bytes:
+        import io
+
+        from PIL import Image
+
+        picture = Image.new("RGB", (width, height), (200, 40 + shade % 200, 40))
+        buffer = io.BytesIO()
+        if kind == "jpeg":
+            exif = Image.Exif()
+            if orientation is not None:
+                exif[0x0112] = orientation
+            picture.save(buffer, "JPEG", exif=exif.tobytes(), quality=90)
+        elif kind == "gif":
+            picture.save(buffer, "GIF")
+        else:
+            picture.save(buffer, "PNG")
+        return buffer.getvalue()
+
+    return make

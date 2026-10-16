@@ -218,24 +218,9 @@ def staged_changes(
         else:
             changes[path] = _staged_bytes(draft, pk)
 
-    # The texts the committed tree will hold: the body as the draft holds it, so a refusal's line
-    # is the one the source view shows, then every appendix in its number's order.
-    appendices = {
-        path: gitstore.read(repo, path, against).decode("utf-8")
-        for path in (f"appendices/{name}" for name in gitstore.listing(repo, "appendices", against))
-        if APPENDIX.fullmatch(path) and path not in changes
-    }
-    appendices.update(
-        {
-            path: content.decode("utf-8")
-            for path, content in changes.items()
-            if APPENDIX.fullmatch(path) and content is not None
-        }
-    )
-    texts = {
-        holds.BODY: body,
-        **dict(sorted(appendices.items(), key=lambda i: _appendix_order(i[0]))),
-    }
+    # The texts the committed tree will hold, the body as the draft holds it, so a refusal's line
+    # is the one the source view shows.
+    texts = draft_texts(draft, repo, against)
 
     current = holds.entities_at(repo, against)
     held = draft.content.get(holds.ENTITIES, current)
@@ -281,6 +266,24 @@ def _staged_bytes(draft: Draft, pk: Any) -> bytes:
     if content is None:
         raise ValueError("a staged file without its bytes")
     return bytes(content)
+
+
+def draft_texts(draft: Draft, repo: pygit2.Repository, commit: str) -> dict[str, str]:
+    """The draft's texts as it holds them: its body, then every appendix — the draft's own key, else
+    the file at `commit` — in its number's order. What its images are read from."""
+    appendices = {
+        path: gitstore.read(repo, path, commit).decode("utf-8")
+        for path in (f"appendices/{name}" for name in gitstore.listing(repo, "appendices", commit))
+        if APPENDIX.fullmatch(path)
+    }
+    for key, text in draft.content.items():
+        if APPENDIX.fullmatch(key):
+            if text is None:
+                appendices.pop(key, None)
+            else:
+                appendices[key] = str(text)
+    ordered = sorted(appendices.items(), key=lambda item: _appendix_order(item[0]))
+    return {holds.BODY: str(draft.content.get(holds.BODY, "")), **dict(ordered)}
 
 
 def holds_later_work(draft: Draft, repo: pygit2.Repository, commit: str, lists: Lists) -> bool:

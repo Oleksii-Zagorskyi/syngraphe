@@ -20,6 +20,14 @@ function allowedEntity(spec, kind, id) {
   return { kind, id: id || null };
 }
 
+// The address an image of the draft is shown from: the edit tab names the draft's image route on
+// its editor element; read when the image is drawn, since the schema is built before any page is.
+function imageUrl(src) {
+  const base = typeof document !== "undefined" ? document.getElementById("editor")?.dataset.image : null;
+  const name = src.startsWith("images/") ? src.slice("images/".length) : "";
+  return base && /^[0-9a-f]{64}\.(png|jpg|gif)$/.test(name) ? `${base}${name}/` : null;
+}
+
 export function makeSchema(spec) {
   const table = tableNodes({
     tableGroup: "top",
@@ -108,7 +116,8 @@ export function makeSchema(spec) {
       table_row: table.table_row,
       table_cell: table.table_cell,
       table_header: table.table_header,
-      // An image stands in a paragraph of its own; the editor shows its place and never fetches it.
+      // An image stands in a paragraph of its own; the editor shows it through the address the edit
+      // tab gives for the draft's images, and its description where no page gives one.
       image: {
         inline: true,
         group: "inline",
@@ -124,11 +133,13 @@ export function makeSchema(spec) {
             },
           },
         ],
-        toDOM: (node) => [
-          "span",
-          { class: "image", "data-src": node.attrs.src, "data-alt": node.attrs.alt, contenteditable: "false" },
-          node.attrs.alt || node.attrs.src,
-        ],
+        toDOM: (node) => {
+          const attrs = { class: "image", "data-src": node.attrs.src, "data-alt": node.attrs.alt, contenteditable: "false" };
+          const url = imageUrl(node.attrs.src);
+          return url
+            ? ["span", attrs, ["img", { src: url, alt: node.attrs.alt }]]
+            : ["span", attrs, node.attrs.alt || node.attrs.src];
+        },
       },
       // A sentence boundary: the space between two sentences, which is not text (V-03).
       sb: {

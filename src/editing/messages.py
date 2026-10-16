@@ -70,12 +70,15 @@ LABELS = {
     "edit_whole": _("Edit the whole document"),
     "edit_section": pgettext_lazy("open a section's editor", "Edit"),
     "close_section": _("Close this editor"),
+    "image": _("Image"),
 }
 
 NOTICES = {
     "refused": _("Not pasted: it holds %(constructs)s."),
     "help": _("What the editor accepts"),
-    "images": _("Images were left out of the paste."),
+    "images": _(
+        "An image that is only a web address was not pasted; copy the image itself and paste it."
+    ),
     "link_refused": _("A link of this kind is not allowed."),
     "busy": _("The document is busy. Try again in a moment."),
     "lines": _("Not accepted — %(lines)s."),
@@ -105,7 +108,26 @@ NOTICES = {
         "A stopped editor still holds your text; carry it over before the tab is drawn again."
     ),
     "line": _("line %(line)s: %(construct)s"),
-    "line_in_appendix": _("appendix %(number)s, line %(line)s: %(construct)s"),
+    "line_in_appendix": _("appendix «%(title)s», line %(line)s: %(construct)s"),
+    "uploading": _("Uploading the image…"),
+    "image_refused_one": _("Choose one image file."),
+    "image_refused_too_large": _(
+        "The image is larger than %(limit_mb)s MB, the most the platform accepts."
+    ),
+    "image_refused_heic": _(
+        "HEIC images are not accepted; convert the photograph to JPEG or PNG and add it again."
+    ),
+    "image_refused_type": _("Only PNG, JPEG and GIF images are accepted."),
+    "image_refused_dimensions": _(
+        "The image is %(width)s × %(height)s pixels; at most %(max_side)s pixels a side and "
+        "%(megapixels)s megapixels are accepted."
+    ),
+    "image_refused_dimensions_unknown": _(
+        "The image is too large in pixels; at most %(max_side)s pixels a side and "
+        "%(megapixels)s megapixels are accepted."
+    ),
+    "image_refused_unreadable": _("The file could not be read as an image."),
+    "image_failed": _("The image was not added. Try again."),
 }
 
 
