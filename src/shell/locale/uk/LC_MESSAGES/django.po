@@ -3350,3 +3350,15 @@ msgstr "заархівований — спершу відновіть його"
 msgctxt "administration section"
 msgid "Archive"
 msgstr "Архів"
+
+#: notifications/events.py
+msgid "Document #%(number)s, which you were editing, was archived by %(by)s; your draft is kept."
+msgstr "Документ #%(number)s, який ви редагували, заархівовано — %(by)s; вашу чернетку збережено."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Your editing was ended on %(date)s when you archived the document."
+msgstr "Ваше редагування завершено %(date)s: ви заархівували документ."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Your editing was ended on %(date)s when %(name)s archived the document."
+msgstr "Ваше редагування завершено %(date)s: документ заархівовано — %(name)s."

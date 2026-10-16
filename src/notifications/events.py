@@ -35,6 +35,8 @@ EVENTS: dict[Event, EventSpec] = {
     Event.RESERVATION_ENDED_BY_ADMIN: EventSpec(Category.DOCUMENT),
     Event.HOLD_EXPIRING: EventSpec(Category.DOCUMENT),
     Event.RETURNED: EventSpec(Category.DOCUMENT),
+    # Epic 10
+    Event.DOCUMENT_ARCHIVED: EventSpec(Category.DOCUMENT),
 }
 
 # The events a tenant administrator can receive in the organisation's schema, and what a platform
@@ -141,6 +143,12 @@ def describe(row: Any, *, named: bool = True) -> str:
         return _("%(organisation)s has no active administrator.") % {
             "organisation": _organisation(facts)
         }
+    # Epic 10: no document attached — its number and who archived it, never its title (DL-0471).
+    if event == Event.DOCUMENT_ARCHIVED:
+        return _(
+            "Document #%(number)s, which you were editing, was archived by %(by)s; your draft is"
+            " kept."
+        ) % {"number": facts.get("number", ""), "by": _named(facts, "by")}
     if event == Event.ACCESS_GRANTED:
         group = _group(facts)
         if group:

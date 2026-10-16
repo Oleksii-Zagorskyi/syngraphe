@@ -38,6 +38,8 @@ class Event(models.TextChoices):
     RESERVATION_ENDED_BY_ADMIN = "reservation_ended_by_admin", "reservation_ended_by_admin"
     HOLD_EXPIRING = "hold_expiring", "hold_expiring"
     RETURNED = "returned", "returned"
+    # Epic 10: the holder of a hold or reservation archiving ended (DL-0471).
+    DOCUMENT_ARCHIVED = "document_archived", "document_archived"
 
 
 # What platform administrators are told in the shared schema (DL-0382); `email_failed` also
@@ -91,8 +93,12 @@ class Notification(models.Model):
                 condition=~Q(event=Event.CORRECTION_NOTICE) | Q(correction_notice__isnull=False),
                 name="notifications_correction_notice_names_its_notice",
             ),
+            # Epic 10: the archived holder's notice names no document they may no longer open,
+            # only its number in the facts (DL-0471).
             models.CheckConstraint(
-                condition=Q(category=Category.ADMINISTRATIVE) | Q(document__isnull=False),
+                condition=Q(category=Category.ADMINISTRATIVE)
+                | Q(document__isnull=False)
+                | Q(event=Event.DOCUMENT_ARCHIVED),
                 name="notifications_document_event_names_its_document",
             ),
         ]

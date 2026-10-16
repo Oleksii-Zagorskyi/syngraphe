@@ -6,6 +6,7 @@ itself or typed in, and otherwise on a *Start editing* the person presses (DL-03
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any, cast
 
 from django.contrib.auth.decorators import login_required
@@ -127,17 +128,47 @@ def _draft_view(document: Document, hold: Any) -> Any:
 
 def ended_how(released: Any) -> str:
     """How a kept draft's hold ended, as its holder is told: their reservation ended by an
-    administrator; their editing ended by an administrator; by the platform's operator, whose
+    administrator; their editing ended by an administrator, or by one archiving the document; by
+    the platform's operator, whose
     note is for the audit trail alone; for inactivity; or by a block."""
     from editing.models import ReleaseKind
 
     if released.release_kind == ReleaseKind.FORCED:
+        # Epic 10: ended by archiving (DL-0456) — tested before the reservation, which archiving
+        # ends too.
+        if _ended_by_archiving(released):
+            return "archived"
         if released.released_by_id is None:
             return "operator"
         return "reservation" if released.reserved_at is not None else "administrator"
     if released.release_kind == ReleaseKind.INACTIVITY:
         return "inactivity"
     return "blocked"
+
+
+def _ended_by_archiving(released: Any) -> bool:
+    """Whether archiving released the hold: the platform's reason, and the archive's own event by
+    the same administrator, written in the release's transaction. The audit trail is the record of
+    archiving (DL-0433); the reason alone is not — an administrator could type it as a
+    reservation's end before it was refused."""
+    from audit.models import AuditEvent
+    from documents.archive import ARCHIVED_REASON
+
+    if released.release_reason != ARCHIVED_REASON or released.released_by_id is None:
+        return False
+    return AuditEvent.objects.filter(
+        action="document.archived",
+        object_type="document",
+        object_id=released.document_id,
+        actor_id=released.released_by_id,
+        at__gte=released.released_at,
+        at__lte=released.released_at + ARCHIVE_AND_RELEASE,
+    ).exists()
+
+
+# The archive's event follows its release within the one transaction; a typed reason ended a
+# reservation alone, and no archive by the same administrator follows it this closely.
+ARCHIVE_AND_RELEASE = timedelta(minutes=1)
 
 
 def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, Any]:

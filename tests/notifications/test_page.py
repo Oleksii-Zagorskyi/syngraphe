@@ -325,6 +325,12 @@ def test_document_events_name_their_document(migrated_tenant: Any, member_of: An
     from notifications.models import Category, Event, Notification
 
     _, person, _ = member_of("a.reader@example.test")
+    with schema_context(migrated_tenant.number):
+        # Epic 10: the archived holder's notice names no document, which they may no longer
+        # open (DL-0471); it alone is exempt.
+        Notification.objects.create(
+            user=person, category=Category.DOCUMENT, event=Event.DOCUMENT_ARCHIVED
+        )
     with schema_context(migrated_tenant.number), pytest.raises(IntegrityError):
         with transaction.atomic():
             Notification.objects.create(user=person, category=Category.DOCUMENT, event=Event.FROZEN)

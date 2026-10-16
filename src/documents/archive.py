@@ -88,11 +88,30 @@ def _act(document: Document, by: User, to: str) -> bool:
 
 def _release_the_hold(document: Document, by: User) -> None:
     """The open hold released as a force release releases it — the draft kept for its holder, a
-    reservation ended — with the platform's reason, while the document is still active: a finish
-    that stopped after its commit is completed instead, its reviewers told (DL-0414)."""
+    reservation ended — with the platform's reason, while the document is still active, and the
+    holder told; a finish that stopped after its commit is completed instead, its reviewers told
+    (DL-0414)."""
     from editing.holds import open_hold, release
     from editing.models import ReleaseKind
 
     hold = open_hold(document)
-    if hold is not None:
-        release(hold, ReleaseKind.FORCED, actor=by, released_by=by, reason=ARCHIVED_REASON)
+    if hold is None:
+        return
+    release(hold, ReleaseKind.FORCED, actor=by, released_by=by, reason=ARCHIVED_REASON)
+    hold.refresh_from_db(fields=["release_kind"])
+    if hold.release_kind != ReleaseKind.FORCED:
+        # A stopped finish completed instead: the holder's version awaits review; nothing of
+        # theirs was ended.
+        return
+    from notifications.models import Category, Event
+    from notifications.services import notify, others
+
+    # No document attached: the holder may no longer open it, so the entry names its number
+    # and who archived it, never its title (DL-0471); nobody is told of their own act.
+    notify(
+        users=others([hold.user_id], by),
+        category=Category.DOCUMENT,
+        event=Event.DOCUMENT_ARCHIVED,
+        actor=by,
+        facts={"number": document.number, "by": str(by.pk)},
+    )
