@@ -575,7 +575,7 @@ class _Run:
         draft: Any,
     ) -> None:
         """A kept draft over its holder's own content commit: a release met a stopped finish it
-        could not complete — text typed after the stop — and kept the draft (DL-0414). The version
+        could not complete — work written after the stop — and kept the draft (DL-0414). The version
         stands and its reviewers were told; the draft is the holder's, so it is named, not
         repaired."""
         base = order.get(draft.base_commit)
@@ -599,23 +599,23 @@ class _Run:
             return "its holder is not of this tenant"
         if not Version.objects.filter(document=document, commit_sha=str(commit.id)).exists():
             return "its commit has no row"
+        from editing.services import holds_later_work
+
         body = draft.content["document.md"]
+        repo = gitstore.open_repository(self.tenant.number, document.number)
         _, committed = bundle.parse(
-            gitstore.read(
-                gitstore.open_repository(self.tenant.number, document.number),
-                "document.md",
-                str(commit.id),
-            ).decode("utf-8")
+            gitstore.read(repo, "document.md", str(commit.id)).decode("utf-8")
         )
         if validate(body):
-            return "the draft holds later text"
+            return "the draft holds later work"
         lists = Lists.of(document.language)
         try:
-            again = normalize(committed.encode(), body, lists).decode("utf-8")
+            normalize(committed.encode(), body, lists)
         except NormalizerDefect:
             return "the draft does not normalise"
-        if again != committed:
-            return "the draft holds later text"
+        # Text, entities, appendices or files written after the stop.
+        if holds_later_work(draft, repo, str(commit.id), lists):
+            return "the draft holds later work"
         return ""
 
     def authorship(self, document: Document, head: str) -> None:

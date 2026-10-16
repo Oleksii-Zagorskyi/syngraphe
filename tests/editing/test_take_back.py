@@ -486,3 +486,48 @@ def test_take_back_closes_the_old_editors_and_needs_a_kept_draft(
         with pytest.raises(holds.NothingKept):
             holds.take(scene.document, scene.other, take_back=True)
         assert not Hold.objects.filter(document=scene.document, released_at__isnull=True).exists()
+
+
+def test_a_taken_back_draft_keeps_its_files_and_entities(
+    migrated_tenant: Any, scene: Scene, queued_authorship: list[Any]
+) -> None:
+    """A kept draft's staged image and declared entity move with it, and its holder's finish
+    commits both."""
+    from django.utils import timezone
+
+    from documents import entities, gitstore
+    from editing import services
+    from editing.models import Draft, DraftFile
+
+    image = b"a synthetic image staged before the release"
+    path = f"images/{hashlib.sha256(image).hexdigest()}.png"
+    declared = entities.dump([entities.Declared("role", "approver", "the approver")])
+    _, draft = ended_reservation(migrated_tenant, scene)
+    with schema_context(migrated_tenant.number):
+        Draft.objects.filter(pk=draft.pk).update(
+            content={
+                **draft.content,
+                "document.md": DRAFT + f"\n![A synthetic plan]({path})\n",
+                "entities.yaml": declared,
+            }
+        )
+        DraftFile.objects.create(
+            draft_id=draft.pk,
+            kind="image",
+            path=path,
+            operation="add",
+            content=image,
+            file_name="plan.png",
+            sha256=hashlib.sha256(image).hexdigest(),
+            at=timezone.now(),
+        )
+    number = scene.document.number
+    taken = scene.holder_client.post(f"/document/{number}/edit/take-back/")
+    assert redirected_to(taken, f"/document/{number}/edit/"), taken.status_code
+    [hold] = open_holds(migrated_tenant, scene.document)
+
+    with schema_context(migrated_tenant.number):
+        version = services.commit_draft(hold, scene.holder, "Taken back and finished")
+        repo = gitstore.open_repository(migrated_tenant.number, number)
+        assert gitstore.read(repo, path, version.commit_sha) == image
+        assert gitstore.read(repo, "entities.yaml", version.commit_sha).decode() == declared

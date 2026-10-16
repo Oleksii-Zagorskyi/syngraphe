@@ -74,7 +74,7 @@ def test_inspect_draft(migrated_tenant: Any, member_of: Any, new_document: Any) 
     assert printed["document"] == document.number
     assert printed["hold"]["released_at"] is None
     assert len(printed["base_commit"]) == 40
-    assert set(printed["content"]) == {"document.md", "frontmatter"}
+    assert set(printed["content"]) == {"document.md", "frontmatter", "entities.yaml"}
 
 
 def test_release_hold_says_when_it_completed_a_stopped_finish(

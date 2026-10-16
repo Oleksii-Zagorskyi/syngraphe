@@ -40,6 +40,7 @@ CONSTRUCTS = {
     "control-character": _("an invisible control character"),
     "too-large": _("a text longer than the platform accepts"),
     "table-merged": _("a merged table cell"),
+    "image-missing": _("an image the document does not hold"),
 }
 
 LABELS = {
@@ -104,6 +105,7 @@ NOTICES = {
         "A stopped editor still holds your text; carry it over before the tab is drawn again."
     ),
     "line": _("line %(line)s: %(construct)s"),
+    "line_in_appendix": _("appendix %(number)s, line %(line)s: %(construct)s"),
 }
 
 

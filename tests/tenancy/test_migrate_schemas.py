@@ -105,6 +105,8 @@ def test_tenant_schema_holds_tenant_tables_only(
             "notifications_notification",
             "mail_mailsender",
             "mail_emailoutbox",
+            "documents_entity",
+            "documents_image",
         }
         assert migrations_recorded_in(tenant.schema_name) == every_migration
 

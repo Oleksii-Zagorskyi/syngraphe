@@ -592,3 +592,46 @@ def test_rerun_skips_what_is_loaded(migrated_tenant: Any, operators: Any) -> Non
     assert "already loaded" in output and "document 2 · version 0.1" in output
     with schema_context(migrated_tenant.number):
         assert Document.objects.count() == 2
+
+
+def test_loaded_spans_are_declared(migrated_tenant: Any, operators: Any, tmp_path: Path) -> None:
+    """A role the folder's body marks and nothing declares is declared in the loaded version's
+    `entities.yaml`, from its words (DL-0440)."""
+    from documents import entities
+
+    folder = copy(REGISTER, tmp_path)
+    body = folder / "document.md"
+    body.write_text(
+        body.read_text(encoding="utf-8") + "\n[The clerk]{.role #clerk} keeps the register.\n",
+        encoding="utf-8",
+    )
+
+    load(migrated_tenant, operators, folder)
+
+    document = the_document(migrated_tenant)
+    content_sha = kinds(migrated_tenant, document)[1][1]
+    declared = read(migrated_tenant, document, "entities.yaml", content_sha).decode("utf-8")
+    assert entities.parse(declared) == [entities.Declared("role", "clerk", "The clerk")]
+
+
+def test_declarations_over_the_cap_refuse_before_writing(
+    migrated_tenant: Any,
+    operators: Any,
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The declarations a body's spans would make are held to the cap a commit from the editor is
+    held to, and checked before anything is written."""
+    from documents import entities
+
+    monkeypatch.setattr(entities, "MAX_BYTES", 200)
+    folder = copy(REGISTER, tmp_path)
+    body = folder / "document.md"
+    marked = "".join(f"\n[Role {n}]{{.role #role-{n}}} keeps the register.\n" for n in range(8))
+    body.write_text(body.read_text(encoding="utf-8") + marked, encoding="utf-8")
+
+    message = refused(migrated_tenant, operators, folder)
+
+    assert "entities.yaml" in message
+    assert_nothing_written(migrated_tenant, repo_root)

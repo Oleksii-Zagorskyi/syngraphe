@@ -120,7 +120,7 @@ def open_repository(tenant: int, document: int) -> pygit2.Repository:
 
 def _checked_path(path: str) -> list[str]:
     parts = path.split("/")
-    if not all(COMPONENT.match(part) for part in parts):
+    if not all(COMPONENT.fullmatch(part) for part in parts):
         raise ValueError(f"not a path inside a document: {path!r}")
     return parts
 
@@ -248,6 +248,20 @@ def read(repo: pygit2.Repository, path: str, commit: str) -> bytes:
     if not isinstance(entry, pygit2.Blob):
         raise KeyError(path)
     return entry.data
+
+
+def listing(repo: pygit2.Repository, folder: str, commit: str) -> list[str]:
+    """The names of the files in the tree folder `folder` at `commit`, sorted; `[]` when the
+    folder is absent."""
+    tree = repo[_oid(commit)].peel(pygit2.Commit).tree
+    _checked_path(folder)
+    try:
+        entry = tree[folder]
+    except KeyError:
+        return []
+    if not isinstance(entry, pygit2.Tree):
+        return []
+    return sorted(str(item.name) for item in entry if isinstance(item, pygit2.Blob))
 
 
 def diff(repo: pygit2.Repository, a: str, b: str) -> pygit2.Diff:

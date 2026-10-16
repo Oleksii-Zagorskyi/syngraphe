@@ -3,7 +3,8 @@
 A hold is opened under the document's writer lock and, inside it, with the document's row locked by
 `select_for_update()` — the lock under which its group links change — and the right to edit is
 decided there, so a link removed while the taker waited is seen. The draft starts as the head's
-text: the frontmatter kept apart, the body what every editor, the validator and the normalizer see.
+text: the frontmatter kept apart, the body what every editor, the validator and the normalizer see,
+and the head's `entities.yaml` beside them.
 """
 
 from __future__ import annotations
@@ -29,6 +30,8 @@ if TYPE_CHECKING:
 
 BODY = "document.md"
 FRONTMATTER = "frontmatter"
+# The roles, actions and terms the draft declares, as the commit will write them (DL-0073).
+ENTITIES = "entities.yaml"
 # How long a request waits for a document's writer lock before it answers that the document is
 # busy; a commit or a backup holds it for seconds at most.
 LOCK_WAIT_SECONDS = 10.0
@@ -179,9 +182,19 @@ def hold_locked(locked: Document, user: User, number: int, *, take_back: bool = 
         return hold
     frontmatter, body = split(gitstore.read(repo, BODY, base).decode("utf-8"))
     Draft.objects.create(
-        hold=hold, base_commit=base, content={BODY: body, FRONTMATTER: frontmatter}
+        hold=hold,
+        base_commit=base,
+        content={BODY: body, FRONTMATTER: frontmatter, ENTITIES: entities_at(repo, base)},
     )
     return hold
+
+
+def entities_at(repo: Any, commit: str) -> str:
+    """`entities.yaml` at `commit`, as the draft holds it; an empty list where the tree has none."""
+    try:
+        return gitstore.read(repo, ENTITIES, commit).decode("utf-8")
+    except KeyError:
+        return "[]\n"
 
 
 def draft_state(hold: Hold) -> dict[str, Any]:

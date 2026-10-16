@@ -140,7 +140,7 @@ def test_the_repair_leaves_text_typed_after_the_stop(
     findings = reconcile.run(tenant=migrated_tenant.number, repair=True)
 
     stopped = [f for f in findings if f.kind == "finish_stopped"]
-    assert stopped and not stopped[0].repaired and "later text" in stopped[0].detail
+    assert stopped and not stopped[0].repaired and "later work" in stopped[0].detail
     with schema_context(migrated_tenant.number):
         hold.refresh_from_db()
         assert hold.released_at is None
@@ -182,3 +182,131 @@ def test_the_screen_numbers_the_version_after_a_stopped_one(
     add_to_draft(migrated_tenant, hold, "\nA later sentence.\n")
     with schema_context(migrated_tenant.number):
         assert services.finish(hold).number == "0.0-2"
+
+
+def image_paragraph(data: bytes) -> str:
+    import hashlib
+
+    return f"\n![A synthetic plan](images/{hashlib.sha256(data).hexdigest()}.png)\n"
+
+
+def stopped_with_an_image(
+    migrated_tenant: Any, member_of: Any, new_document: Any, data: bytes
+) -> tuple[Any, Any, Any]:
+    """A finish stopped right after its git commit, which wrote a staged image."""
+    import hashlib
+
+    from django.utils import timezone
+
+    from editing import services
+    from editing.models import Draft, DraftFile, Hold
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    path = f"images/{hashlib.sha256(data).hexdigest()}.png"
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document)
+        draft = Draft.objects.get(hold=hold)
+        draft.content = {
+            **draft.content,
+            "document.md": draft.content["document.md"] + image_paragraph(data),
+        }
+        draft.save()
+        DraftFile.objects.create(
+            draft=draft,
+            kind="image",
+            path=path,
+            operation="add",
+            content=data,
+            file_name="plan.png",
+            sha256=hashlib.sha256(data).hexdigest(),
+            at=timezone.now(),
+        )
+        with pytest.raises(services.InjectedFault):
+            services.commit_draft(hold, author, "An image", fault_at=1)
+    return author, document, hold
+
+
+def test_a_stopped_finish_with_files_resumes(
+    migrated_tenant: Any, member_of: Any, new_document: Any, queued_authorship: list[Any]
+) -> None:
+    """The image the stop committed is the head's now: sent again, the stopped version is the
+    finish's, and nothing is committed twice."""
+    from documents import gitstore
+    from documents.models import Version
+    from editing import services
+
+    data = b"a synthetic image committed by the stop"
+    author, document, hold = stopped_with_an_image(migrated_tenant, member_of, new_document, data)
+    with schema_context(migrated_tenant.number):
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        stopped = gitstore.head(repo)
+        version = services.commit_draft(hold, author, "An image")
+        assert version.commit_sha == stopped == gitstore.head(repo)
+        assert Version.objects.filter(document=document, kind="edit").count() == 1
+        hold.refresh_from_db()
+        assert hold.release_kind == "finished"
+
+
+def test_a_stop_with_later_entities_is_unfinishable(
+    migrated_tenant: Any, member_of: Any, new_document: Any, queued_authorship: list[Any]
+) -> None:
+    """An entity declared in the draft after the stop is later work: the reconciler names the
+    stop and leaves the hold and the draft to their holder."""
+    from documents import entities, reconcile
+    from editing.models import Draft
+
+    data = b"a synthetic image committed by the stop"
+    _, document, hold = stopped_with_an_image(migrated_tenant, member_of, new_document, data)
+    declared = entities.dump([entities.Declared("term", "record", "the record")])
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold=hold)
+        draft.content = {**draft.content, "entities.yaml": declared}
+        draft.save()
+
+    findings = reconcile.run(tenant=migrated_tenant.number, repair=True)
+
+    stopped = [f for f in findings if f.kind == "finish_stopped"]
+    assert stopped and not stopped[0].repaired and "later work" in stopped[0].detail
+    with schema_context(migrated_tenant.number):
+        hold.refresh_from_db()
+        assert hold.released_at is None
+        assert Draft.objects.get(hold=hold).content["entities.yaml"] == declared
+
+
+def test_a_file_staged_after_the_stop_is_the_next_version(
+    migrated_tenant: Any, member_of: Any, new_document: Any, queued_authorship: list[Any]
+) -> None:
+    """An attachment staged after the stop is later work: sent again, the stopped version is
+    derived and the attachment committed as the version after it."""
+    import hashlib
+
+    from django.utils import timezone
+
+    from documents import gitstore
+    from documents.models import Version
+    from editing import services
+    from editing.models import Draft, DraftFile
+
+    author, document, hold = stopped_at_the_commit(migrated_tenant, member_of, new_document)
+    data = b"an attachment staged after the stop"
+    with schema_context(migrated_tenant.number):
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        stopped = gitstore.head(repo)
+        DraftFile.objects.create(
+            draft=Draft.objects.get(hold=hold),
+            kind="attachment",
+            path="attachments/1",
+            operation="add",
+            content=data,
+            file_name="form.txt",
+            sha256=hashlib.sha256(data).hexdigest(),
+            at=timezone.now(),
+        )
+        version = services.commit_draft(hold, author, "An attachment")
+        assert [str(p.id) for p in gitstore.commit_at(repo, version.commit_sha).parents] == [
+            stopped
+        ]
+        assert gitstore.read(repo, "attachments/1", version.commit_sha) == data
+        assert Version.objects.filter(document=document, kind="edit").count() == 2

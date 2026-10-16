@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
+import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -226,3 +228,18 @@ def accepted_with_parts(migrated_tenant: Any, operator: Any, commit_parts: Any) 
         )
 
     return make
+
+
+# The review tests' `new_document` and `commit_version`, loaded from their conftest so documents
+# are built and versions committed alike, with further files beside the body.
+_spec = importlib.util.spec_from_file_location(
+    "review_fixtures", Path(__file__).resolve().parents[1] / "review" / "conftest.py"
+)
+assert _spec is not None and _spec.loader is not None
+_review = importlib.util.module_from_spec(_spec)
+# Registered before it runs: its dataclass looks its own module up by name.
+sys.modules[_spec.name] = _review
+_spec.loader.exec_module(_review)
+
+new_document = _review.new_document
+commit_version = _review.commit_version

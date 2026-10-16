@@ -45,7 +45,8 @@
     "span-nested": { "convert": "unwrap-text" },
     "unsupported": { "convert": "unwrap-text" },
     "control-character": { "convert": "remove" },
-    "too-large": { "convert": "none" }
+    "too-large": { "convert": "none" },
+    "image-missing": { "convert": "none" }
   },
   "maxBytes": 400000
 }

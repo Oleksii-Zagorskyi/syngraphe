@@ -1,5 +1,6 @@
 """Loading a prepared folder as a document (DL-0341, DL-0348): created as any other document, its
-text and attachments committed as one version, and that version accepted — each act by a named
+text, its attachments and the entities its text marks committed as one version, and that
+version accepted — each act by a named
 member through the services the interface calls.
 
 Every check runs before anything is written; a failure after the document exists names the step
@@ -21,7 +22,7 @@ from django.db import connection, transaction
 
 from access.models import AccessGroup, DocumentGroup, GroupMember
 from access.rights import Right, rights_on
-from documents import bundle, gitstore
+from documents import bundle, entities, gitstore
 from documents.identity import identity_for
 from documents.locks import document_lock
 from documents.models import (
@@ -298,10 +299,21 @@ def check(folder: Path, loader: User, group: AccessGroup) -> Prepared:
                 reasons.append(
                     "the text is the template's and there are no attachments; nothing to load"
                 )
+            if len(_declared(normalised).encode("utf-8")) > entities.MAX_BYTES:
+                reasons.append(
+                    f"{holds.ENTITIES} would be over the limit of {entities.MAX_BYTES} bytes: "
+                    "the text marks more roles, actions and terms than the platform accepts"
+                )
     if reasons:
         raise Refused(folder, reasons)
     assert language is not None
     return Prepared(title, language, body, normalised, files)
+
+
+def _declared(normalised: str) -> str:
+    """The `entities.yaml` the loaded version holds: every role, action and term the text marks,
+    declared from its words, as a commit from the editor declares it (DL-0440)."""
+    return entities.declared_with("[]\n", normalised)
 
 
 def _template_body(title: str, language: Language) -> str:
@@ -366,7 +378,7 @@ def load(folder: Path, loader: User, group: AccessGroup) -> Document:
         DocumentGroup.link(document, group, by=loader)
     except Exception as error:
         raise Stopped(document.number, 2, error) from error
-    # (3) The text and the attachments as one version, under the writer lock.
+    # (3) The text, the attachments and the entities as one version, under the writer lock.
     try:
         with document_lock(tenant_number, document.number, timeout=holds.LOCK_WAIT_SECONDS):
             settle_head(document)
@@ -394,6 +406,11 @@ def load(folder: Path, loader: User, group: AccessGroup) -> Document:
                 files = {BODY: bundle.render(stored, normalised).encode("utf-8")}
                 for number, (_, _, data) in enumerate(prepared.files, 1):
                     files[f"attachments/{number}"] = data
+                declared = _declared(normalised).encode("utf-8")
+                if len(declared) > entities.MAX_BYTES:
+                    raise ValueError(f"{holds.ENTITIES} is over the limit")
+                if declared != holds.entities_at(repo, head).encode("utf-8"):
+                    files[holds.ENTITIES] = declared
             sha = gitstore.commit(
                 repo,
                 files,

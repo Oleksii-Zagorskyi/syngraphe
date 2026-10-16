@@ -111,10 +111,18 @@ def _refused(
     """The draft holds text the editor does not accept: each line named, the way back to the
     source view where it is corrected."""
     words = messages_for_the_editor()
-    lines = [
-        words["notices"]["line"] % {"line": r.line, "construct": words["constructs"][r.code]}
-        for r in refused.refusals
-    ]
+    lines = []
+    for r in refused.refusals:
+        construct = words["constructs"][r.code]
+        file = getattr(r, "file", holds.BODY)
+        if file == holds.BODY:
+            lines.append(words["notices"]["line"] % {"line": r.line, "construct": construct})
+        else:
+            number = file.removeprefix("appendices/").removesuffix(".md")
+            lines.append(
+                words["notices"]["line_in_appendix"]
+                % {"number": number, "line": r.line, "construct": construct}
+            )
     context = _context(
         document,
         "edit",

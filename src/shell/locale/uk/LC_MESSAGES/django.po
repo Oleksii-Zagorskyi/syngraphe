@@ -3085,3 +3085,12 @@ msgstr "Назву чи частину, змінену скасованими п
 #: editing/messages.py
 msgid "History, comparing and undoing"
 msgstr "Історія, порівняння і скасування"
+
+#: editing/messages.py
+msgid "an image the document does not hold"
+msgstr "зображення, якого документ не містить"
+
+#: editing/messages.py
+#, python-format
+msgid "appendix %(number)s, line %(line)s: %(construct)s"
+msgstr "додаток %(number)s, рядок %(line)s: %(construct)s"

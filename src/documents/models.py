@@ -188,3 +188,60 @@ class PartIndex(Provenanced):
 
     def __str__(self) -> str:
         return f"{self.kind} {self.part_number}"
+
+
+class EntityKind(models.TextChoices):
+    ROLE = "role", "role"
+    ACTION = "action", "action"
+    TERM = "term", "term"
+
+
+class Entity(Provenanced):
+    """A role, action or term the head's `entities.yaml` declares; a cache rebuilt from git."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="+")
+    kind = models.CharField(max_length=6, choices=EntityKind.choices)
+    key = models.CharField(max_length=128)
+    label = models.CharField(max_length=200)
+
+    class Meta(Provenanced.Meta):
+        abstract = False
+        ordering = ["kind", "key"]
+        constraints = [
+            *Provenanced.Meta.constraints,
+            models.UniqueConstraint(
+                fields=["document", "kind", "key"], name="documents_entity_one_per_key"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.kind} {self.key}"
+
+
+class Image(Provenanced):
+    """An image a version of the document's tree holds, with who first committed it and when; a
+    record rebuilt from git, never pruned."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="+")
+    path = models.CharField(max_length=80)
+    content_type = models.CharField(max_length=10)
+    bytes = models.PositiveIntegerField()
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+"
+    )
+    uploaded_at = models.DateTimeField()
+
+    class Meta(Provenanced.Meta):
+        abstract = False
+        ordering = ["uploaded_at", "path"]
+        constraints = [
+            *Provenanced.Meta.constraints,
+            models.UniqueConstraint(
+                fields=["document", "path"], name="documents_image_one_per_path"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.path
