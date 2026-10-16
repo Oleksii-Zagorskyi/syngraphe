@@ -7,11 +7,13 @@ import uuid
 from typing import Any, cast
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.db.models.functions import Collate
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.cache import patch_cache_control
 from django.utils.http import content_disposition_header
+from django.utils.translation import gettext as _
 from django.utils.translation import pgettext_lazy
 from django.views.decorators.cache import never_cache
 
@@ -29,9 +31,18 @@ from access.views import administers
 from audit.record import record
 from documents.forms import CreateForm
 from documents.holds import held_by
-from documents.models import ROOT_FOLDER, Document, DocumentState, PartIndex, PartKind, Version
-from documents.services import CreationStopped, create_document
+from documents.models import (
+    ROOT_FOLDER,
+    Document,
+    DocumentState,
+    DocumentType,
+    PartIndex,
+    PartKind,
+    Version,
+)
+from documents.services import ChoiceGone, CreationStopped, create_document
 from identity.models import User
+from identity.naming import person
 from shell.views import not_found
 
 logger = logging.getLogger(__name__)
@@ -59,6 +70,12 @@ def create(request: HttpRequest) -> HttpResponse:
                     form.cleaned_data["document_type"],
                     form.cleaned_data["folder"],
                 )
+            except ChoiceGone:
+                # Epic 10: the type was deleted or retired since the form offered it.
+                form.add_error(
+                    "document_type", _("This type is no longer offered. Choose another.")
+                )
+                return render(request, "documents/create.html", {"form": form}, status=400)
             except CreationStopped as stopped:
                 # The row is kept and the reconciler finishes it; the person keeps what they typed.
                 logger.exception("a creation stopped", extra={"document": stopped.number})
@@ -315,11 +332,20 @@ def page(request: HttpRequest, number: int, tab: str = "view") -> HttpResponse:
     document = readable_document(request, number)
     if document is None:
         return not_found(request)
+    return render_page(request, document, tab)
+
+
+def render_page(
+    request: HttpRequest, document: Document, tab: str, *, error: str = "", status: int = 200
+) -> HttpResponse:
+    """A tab of `document`'s page, which the caller's gate opened; `error` the refusal of an act
+    posted from it, drawn above the tab."""
     context: dict[str, Any] = {
         "document": document,
         "can_edit": Right.EDIT in rights_on(request.user, document),
         "holding": held_by(document, request.user),
         "tab": tab,
+        "error": error,
     }
     if tab == "view":
         from rendering.views import view_context
@@ -328,16 +354,11 @@ def page(request: HttpRequest, number: int, tab: str = "view") -> HttpResponse:
         if shown is None:
             return not_found(request)
         context |= shown
-        return render(request, "documents/page.html", context)
+        return render(request, "documents/page.html", context, status=status)
     membership = getattr(request, "membership", None)
     administrator = bool(getattr(request.user, "acts_as_platform_admin", False)) or bool(
         membership and membership.is_tenant_admin
     )
-    creator = document.created_by
-    # A reader learns who created the document by name; an address only an administrator sees.
-    shown_name = ""
-    if creator is not None:
-        shown_name = creator.display_name or (creator.email if administrator else "")
     linked = (
         sorted(
             link.group.name
@@ -346,9 +367,25 @@ def page(request: HttpRequest, number: int, tab: str = "view") -> HttpResponse:
         if administrator
         else []
     )
-    context |= {"administrator": administrator, "creator": shown_name, "linked": linked}
+    # Epic 10: the creator named as every page of a document names a person, administrators
+    # included (DL-0434); the type a choice for administrators among those not retired.
+    context |= {
+        "administrator": administrator,
+        "creator": person(document.created_by),
+        "linked": linked,
+        # A document keeps a type retired after it was given, shown as its current choice.
+        "type_choices": (
+            list(
+                DocumentType.objects.filter(
+                    Q(retired_at__isnull=True) | Q(pk=document.document_type_id)
+                ).order_by(Collate("label", "uk-x-icu"), "code")
+            )
+            if administrator
+            else []
+        ),
+    }
     context |= _state_line(request, document)
-    return render(request, "documents/page.html", context)
+    return render(request, "documents/page.html", context, status=status)
 
 
 def _state_line(request: HttpRequest, document: Document) -> dict[str, Any]:

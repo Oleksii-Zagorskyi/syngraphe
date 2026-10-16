@@ -3085,3 +3085,98 @@ msgstr "Назву чи частину, змінену скасованими п
 #: editing/messages.py
 msgid "History, comparing and undoing"
 msgstr "Історія, порівняння і скасування"
+
+# Epic 10 — the corpus
+
+#: documents/administration.py
+msgid "A label is one line of text, at most 100 characters."
+msgstr "Назва — один рядок тексту, не довше 100 символів."
+
+#: documents/administration.py
+msgid "Another type already has this label, perhaps in different capitals."
+msgstr "Інший тип уже має цю назву, можливо, в іншому регістрі."
+
+#: documents/administration.py
+msgid "This type is in use: it can be retired, not deleted."
+msgstr "Цей тип використовується: його можна вивести з ужитку, але не видалити."
+
+#: documents/administration.py
+msgid "This type is retired."
+msgstr "Цей тип виведено з ужитку."
+
+#: documents/administration.py
+msgid "The organisation's last type not retired can be neither retired nor deleted."
+msgstr "Останній чинний тип організації не можна ні вивести з ужитку, ні видалити."
+
+#: documents/administration.py
+msgid "the organisation's last type not retired"
+msgstr "останній чинний тип організації"
+
+#: documents/corpus_views.py
+msgid "A retired type cannot be given to a document."
+msgstr "Тип, виведений з ужитку, не можна призначити документу."
+
+#: documents/corpus_views.py
+msgid "The document already has this type."
+msgstr "Документ уже має цей тип."
+
+#: documents/corpus_views.py
+msgid "This document is archived — restore it first."
+msgstr "Документ заархівовано — спершу відновіть його."
+
+#: documents/corpus_views.py
+msgid "No such type."
+msgstr "Такого типу немає."
+
+#: shell/templates/shell/administration.html
+msgid "Document types"
+msgstr "Типи документів"
+
+#: documents/templates/documents/document_types.html
+msgid "This organisation's own list. A type still given to a document can be retired, never deleted."
+msgstr "Власний перелік організації. Тип, призначений хоча б одному документу, можна вивести з ужитку, але не видалити."
+
+#: documents/templates/documents/document_types.html
+msgid "Documents"
+msgstr "Документи"
+
+#: documents/templates/documents/document_types.html
+msgctxt "document type"
+msgid "retired"
+msgstr "виведений з ужитку"
+
+#: documents/templates/documents/document_types.html
+msgid "Label"
+msgstr "Назва"
+
+#: documents/templates/documents/document_types.html
+msgid "Rename"
+msgstr "Перейменувати"
+
+#: documents/templates/documents/document_types.html
+msgid "Retire"
+msgstr "Вивести з ужитку"
+
+#: documents/templates/documents/document_types.html
+msgid "Delete"
+msgstr "Видалити"
+
+#: documents/templates/documents/document_types.html
+msgid "New type"
+msgstr "Новий тип"
+
+#: documents/templates/documents/document_types.html
+msgid "Add a type"
+msgstr "Додати тип"
+
+#: documents/templates/documents/info.html
+msgid "Change"
+msgstr "Змінити"
+
+#: documents/views.py
+msgid "This type is no longer offered. Choose another."
+msgstr "Цей тип більше не пропонується. Оберіть інший."
+
+#: documents/administration.py
+msgid "The type every organisation starts with is kept for documents the platform loads or recovers: it can be renamed or retired, not deleted."
+msgstr "Тип, з якого починає кожна організація, зберігається для документів, які платформа завантажує або відновлює: його можна перейменувати чи вивести з ужитку, але не видалити."

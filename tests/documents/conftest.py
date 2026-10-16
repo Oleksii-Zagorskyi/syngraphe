@@ -226,3 +226,30 @@ def accepted_with_parts(migrated_tenant: Any, operator: Any, commit_parts: Any) 
         )
 
     return make
+
+
+# Epic 10
+@pytest.fixture
+def waiting_on_a_lock() -> Callable[[], bool]:
+    """Whether another connection of this test's database is waiting on a row lock, polled for
+    up to ten seconds: a race test releases the lock holder only once its rival has reached the
+    lock, so a test that passes without the lock cannot."""
+    import time
+
+    from django.db import connection
+
+    def waiting() -> bool:
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT count(*) FROM pg_stat_activity"
+                    " WHERE datname = current_database() AND wait_event_type = 'Lock'"
+                    " AND pid <> pg_backend_pid()"
+                )
+                if cursor.fetchone()[0]:
+                    return True
+            time.sleep(0.05)
+        return False
+
+    return waiting

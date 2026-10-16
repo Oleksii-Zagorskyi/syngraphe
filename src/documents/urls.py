@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from documents import views
+from documents import administration, corpus_views, views
 
 urlpatterns = [
     path("document/new/", views.create, name="document_create"),
@@ -13,6 +13,17 @@ urlpatterns = [
         "document/<int:number>/attachment/<int:part>/",
         views.attachment,
         name="document_attachment",
+    ),
+    # Epic 10
+    path(
+        "administration/tenant/document-types/",
+        administration.document_types,
+        name="document_types",
+    ),
+    path(
+        "document/<int:number>/info/type/",
+        corpus_views.change_type,
+        name="document_type_change",
     ),
     path("", include("editing.urls")),
     path("", include("review.urls")),

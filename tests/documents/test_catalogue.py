@@ -1,4 +1,4 @@
-"""Every page the document store added renders in Ukrainian from the one catalogue, and the
+"""Every page of the documents app renders in Ukrainian from the one catalogue, and the
 catalogue is complete and compiled.
 
 Group names, people and titles are synthetic examples."""
@@ -88,6 +88,40 @@ def test_catalogue_covers_epic_3_pages(
         body = text_of(response.content.decode())
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
+
+
+# Epic 10
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_epic_10_pages(
+    migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any
+) -> None:
+    """The corpus's pages in `uk`: every string from the catalogue, a type's label as the
+    organisation stores it (DL-0310)."""
+    from documents import types
+
+    settings.LANGUAGE_CODE = "uk"
+    admin, admin_user, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    document = make_document(title="Синтетичний документ")
+    with schema_context(migrated_tenant.number):
+        retired = types.add_type("застарілий (synthetic example)", by=admin_user)
+        types.retire_type(retired, by=admin_user)
+    ids = [
+        message for _, message in entries(CATALOGUE.read_text(encoding="utf-8")) if len(message) > 2
+    ]
+    pages = [
+        (admin, "/administration/tenant/document-types/"),
+        (admin, f"/document/{document.number}/info/"),
+    ]
+
+    for client, path in pages:
+        response = client.get(path)
+        assert response.status_code == 200, path
+        body = text_of(response.content.decode())
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+        assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
+        # The seeded type's label, as data: a cell or a choice of its own.
+        assert re.search(r">\s*Документ\s*<", response.content.decode()), path
 
 
 @pytest.mark.integration

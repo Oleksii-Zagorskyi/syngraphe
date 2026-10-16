@@ -10,6 +10,7 @@ import uuid
 
 from django.conf import settings
 from django.db import connection, models
+from django.db.models.functions import Lower
 
 from syngraphe.provenance import Mutable, Provenanced
 
@@ -39,6 +40,11 @@ class DocumentType(Mutable):
     class Meta(Mutable.Meta):
         abstract = False
         ordering = ["label"]
+        # Epic 10: a label is unique among the organisation's types, in any case (DL-10-001).
+        constraints = [
+            *Mutable.Meta.constraints,
+            models.UniqueConstraint(Lower("label"), name="documents_documenttype_label_unique_ci"),
+        ]
 
     def __str__(self) -> str:
         return self.code

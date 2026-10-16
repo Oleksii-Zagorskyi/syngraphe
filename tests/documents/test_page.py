@@ -111,11 +111,14 @@ def test_another_organisations_document_is_missing(
 
 
 def test_a_reader_never_sees_the_creators_address(
-    migrated_tenant: Any, member_of: Any, make_document: Any
+    migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any
 ) -> None:
+    """The *Info* tab names a creator without a name *anonymous editor* to every reader,
+    administrators included (DL-0434)."""
     from access.models import AccessGroup, DocumentGroup
     from access.rights import Right
 
+    settings.LANGUAGE_CODE = "en"
     _, creator, _ = member_of("the.creator@example.test")
     reader, _, membership = member_of("a.reader@example.test")
     admin, admin_user, _ = member_of("an.admin@example.test", is_tenant_admin=True)
@@ -130,5 +133,6 @@ def test_a_reader_never_sees_the_creators_address(
     as_admin = admin.get(f"/document/{document.number}/info/").content.decode()
 
     assert "the.creator@example.test" not in as_reader
-    assert "the.creator@example.test" in as_admin
+    assert "the.creator@example.test" not in as_admin
+    assert "by anonymous editor" in as_reader and "by anonymous editor" in as_admin
     assert "Readers" in as_admin and "Readers" not in as_reader

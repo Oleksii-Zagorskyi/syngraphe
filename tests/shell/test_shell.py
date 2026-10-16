@@ -78,6 +78,8 @@ def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: An
     assert 'href="/administration/platform/mail/"' not in body
     assert 'href="/administration/tenant/sending-address/"' in body
     assert 'href="/administration/tenant/users/"' in body
+    # Epic 10
+    assert 'href="/administration/tenant/document-types/"' in body
 
 
 def test_organisation_selector_writes_the_session(signed_in: Any, tenant: Any) -> None:

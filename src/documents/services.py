@@ -23,6 +23,7 @@ from documents.models import (
     Document,
     DocumentState,
     DocumentTemplate,
+    DocumentType,
     Version,
     VersionKind,
     next_document_number,
@@ -34,7 +35,7 @@ from tenancy.schemas import current_tenant
 if TYPE_CHECKING:
     import pygit2
 
-    from documents.models import DocumentType, Folder
+    from documents.models import Folder
     from identity.models import User
 
 # The summary of every first commit; a commit message never carries a title or a name.
@@ -51,6 +52,16 @@ class CreationStopped(Exception):
     def __init__(self, number: int) -> None:
         super().__init__(f"document {number} was not finished")
         self.number = number
+
+
+# Epic 10
+class ChoiceGone(Exception):
+    """A creation's chosen type was deleted or retired after the form offered it; `field` names
+    the choice. Nothing is written."""
+
+    def __init__(self, field: str) -> None:
+        super().__init__(f"the chosen {field} is no longer offered")
+        self.field = field
 
 
 def commit_message(kind: Kind) -> str:
@@ -86,6 +97,15 @@ def create_document(
 
     # (1) The row, with the next number, committed before anything leaves the database.
     with transaction.atomic():
+        # Epic 10: the type read again and held, so a delete or a retire since the form offered it
+        # refuses the creation rather than failing its row (DL-10-001).
+        held = (
+            DocumentType.objects.select_for_update(no_key=True, of=("self",))
+            .filter(pk=document_type.pk, retired_at__isnull=True)
+            .first()
+        )
+        if held is None:
+            raise ChoiceGone("document_type")
         document = Document.objects.create(
             number=next_document_number(),
             title=title,

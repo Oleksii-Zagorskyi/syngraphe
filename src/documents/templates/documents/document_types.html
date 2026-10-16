@@ -1,0 +1,38 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Document types" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="document-types">
+  <h1>{% translate "Document types" %}</h1>
+  <p class="muted">{% translate "This organisation's own list. A type still given to a document can be retired, never deleted." %}</p>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <table class="list">
+    <thead><tr><th>{% translate "Type" %}</th><th>{% translate "Documents" %}</th><th></th></tr></thead>
+    <tbody>
+      {% for row in rows %}{% with kind=row.kind %}
+      <tr data-code="{{ kind.code }}">
+        <td>{{ kind.label }}{% if kind.retired_at %} <span class="tag retired">{% translate "retired" context "document type" %}</span>{% endif %}</td>
+        <td>{{ row.documents }}</td>
+        <td class="acts">
+          <form method="post" action="{{ page_url }}" class="inline">{% csrf_token %}<input type="hidden" name="act" value="rename"><input type="hidden" name="code" value="{{ kind.code }}"><label class="visually-hidden" for="label-{{ kind.code }}">{% translate "Label" %}</label><input type="text" id="label-{{ kind.code }}" name="label" maxlength="100" required value="{% if attempt.act == "rename" and attempt.code == kind.code %}{{ attempt.label }}{% else %}{{ kind.label }}{% endif %}"> <button class="btn" type="submit">{% translate "Rename" %}</button></form>
+          {% if row.last %}
+          <button class="btn" type="button" disabled title="{{ last_type }}">{% translate "Retire" %}</button>
+          <button class="btn" type="button" disabled title="{{ last_type }}">{% translate "Delete" %}</button>
+          <span class="muted">{{ last_type }}</span>
+          {% else %}
+          {% if not kind.retired_at %}<form method="post" action="{{ page_url }}" class="inline">{% csrf_token %}<input type="hidden" name="act" value="retire"><input type="hidden" name="code" value="{{ kind.code }}"><button class="btn" type="submit">{% translate "Retire" %}</button></form>{% endif %}
+          {% if row.deletable %}<form method="post" action="{{ page_url }}" class="inline">{% csrf_token %}<input type="hidden" name="act" value="delete"><input type="hidden" name="code" value="{{ kind.code }}"><button class="btn" type="submit">{% translate "Delete" %}</button></form>{% endif %}
+          {% endif %}
+        </td>
+      </tr>{% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
+  <form method="post" action="{{ page_url }}" class="toolbar">{% csrf_token %}
+    <input type="hidden" name="act" value="add">
+    <label class="visually-hidden" for="new-type">{% translate "New type" %}</label>
+    <input type="text" id="new-type" name="label" maxlength="100" required placeholder="{% translate 'New type' %}"{% if attempt.act == "add" %} value="{{ attempt.label }}"{% endif %}>
+    <button class="btn primary" type="submit">{% translate "Add a type" %}</button>
+  </form>
+</div>
+{% endblock %}
