@@ -237,9 +237,9 @@ erDiagram
     }
     DOCUMENT_TYPE {
         uuid id PK
-        string code UK "per tenant; seeded with document (DL-0235)"
-        datetime retired_at "set when retired; a type still assigned is retired, never deleted"
-        string label
+        string code UK "per tenant; seeded with document, which is renamed or retired, never deleted (DL-0235, DL-10-002)"
+        datetime retired_at "set when retired; a type still assigned is retired, never deleted; the last type not retired is neither (DL-10-001)"
+        string label "unique among the tenant's types in any case, retired ones included (DL-10-001)"
     }
     FOLDER {
         uuid id PK
