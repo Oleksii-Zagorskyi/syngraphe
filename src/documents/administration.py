@@ -1,6 +1,6 @@
 """The corpus's sections of Administration (`pages.md § Administration`): the organisation's
-folders and document types; an administrator's alone, every other person answered as for a
-missing page."""
+folders, document types and archived documents; an administrator's alone, every other person
+answered as for a missing page."""
 
 from __future__ import annotations
 
@@ -342,3 +342,36 @@ def _move_page(
         "page_url": FOLDERS_PAGE,
     }
     return render(request, "documents/folders_move.html", context, status=status)
+
+
+@never_cache
+@login_required
+def archived(request: HttpRequest) -> HttpResponse:
+    """Administration › archive: the archived documents, newest archived first, each with the
+    date it was archived — its latest `document.archived` event, read in one query — *Restore*
+    and *Export*."""
+    from django.db.models import Max
+
+    from audit.models import AuditEvent
+
+    if request.method != "GET" or not administers(request):
+        return not_found(request)
+    documents = list(Document.objects.filter(state=DocumentState.ARCHIVED))
+    when = dict(
+        AuditEvent.objects.filter(
+            action="document.archived",
+            object_type="document",
+            object_id__in=[d.pk for d in documents],
+        )
+        .values_list("object_id")
+        .annotate(at=Max("at"))
+        .order_by()
+    )
+    # Newest archived first; a document whose event is missing last.
+    ordered = sorted(
+        documents,
+        key=lambda d: (when.get(d.pk) is not None, when.get(d.pk) or 0, d.number),
+        reverse=True,
+    )
+    rows = [{"document": d, "at": when.get(d.pk)} for d in ordered]
+    return render(request, "documents/archive.html", {**frame(request), "rows": rows})

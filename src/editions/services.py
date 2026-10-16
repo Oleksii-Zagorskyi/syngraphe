@@ -585,6 +585,12 @@ def end_freeze(document: Document, reason: str = "", *, user: User | None = None
         review.settle_head(document)
         with transaction.atomic():
             locked = Document.objects.select_for_update().get(pk=document.pk)
+            # Epic 10: an archived document is read, never acted on (DL-0450) — decided on the
+            # locked row, so an archive that landed after the caller read the document refuses.
+            if locked.state == DocumentState.ARCHIVED:
+                if user is None:
+                    raise ValueError(f"document {locked.number} is archived; restore it first")
+                raise FreezeRefused("not_active")
             if user is not None and Right.FREEZE not in rights_on(user, locked):
                 raise FreezeRefused("not_permitted")
             frozen = open_freeze(locked)

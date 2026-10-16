@@ -152,8 +152,18 @@ def test_catalogue_covers_epic_10_pages(
         (admin, "/search/?q=Синтетичний"),
         (admin, f"/search/?type={retired.code}"),
         (admin, "/search/?q=nothing-at-all"),
+        (admin, "/administration/tenant/archive/"),
+        (admin, f"/document/{document.number}/info/?archived"),
     ]
 
+    with schema_context(migrated_tenant.number):
+        from documents.models import Document
+
+        # The archived document's own tab, its tag and disabled choice in `uk`: archived by row,
+        # the act being its own tests' subject.
+        archived_doc = make_document(title="Синтетичний архівний")
+        Document.objects.filter(pk=archived_doc.pk).update(state="archived")
+    pages[-1] = (admin, f"/document/{archived_doc.number}/info/")
     for client, path in pages:
         response = client.get(path)
         assert response.status_code == 200, path

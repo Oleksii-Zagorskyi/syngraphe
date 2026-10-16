@@ -407,8 +407,11 @@ def test_the_type_change_route_refuses_strangers_and_archived_documents(
         admin.post(f"/document/{archived.number}/info/type/", {"document_type": policy.code}),
     ]
 
-    assert [a.status_code for a in answers] == [404, 404]
-    assert all("Nothing to show here" in a.content.decode() for a in answers)
+    # A stranger finds nothing; an administrator reads the archived document (DL-0450), and the
+    # change is refused with its reason.
+    assert answers[0].status_code == 404 and "Nothing to show here" in answers[0].content.decode()
+    assert answers[1].status_code == 400
+    assert "This document is archived — restore it first." in answers[1].content.decode()
     with schema_context(migrated_tenant.number):
         assert set(Document.objects.values_list("document_type__code", flat=True)) == {"document"}
 

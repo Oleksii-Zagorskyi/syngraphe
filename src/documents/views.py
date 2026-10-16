@@ -444,12 +444,16 @@ def readable_document(
     request: HttpRequest, number: int, *, methods: tuple[str, ...] = ("GET",)
 ) -> Document | None:
     """The document page's gates, in their order: an organisation, the method, a member, the
-    document active and readable. `None` wherever the answer is *nothing to show*."""
+    document active — or archived, which `readable` opens to administrators alone (DL-0450) — and
+    readable. `None` wherever the answer is *nothing to show*. A caller that acts — the type
+    change, archive and restore — decides the document's state again under its own locks."""
     tenant = getattr(request, "tenant", None)
     if tenant is None or request.method not in methods or not is_member(request):
         return None
     document = (
-        Document.objects.filter(number=number, state=DocumentState.ACTIVE)
+        Document.objects.filter(
+            number=number, state__in=(DocumentState.ACTIVE, DocumentState.ARCHIVED)
+        )
         .select_related("document_type", "folder", "language", "created_by")
         .first()
     )

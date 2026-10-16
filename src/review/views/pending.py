@@ -99,12 +99,17 @@ def _correct_blocked(document: Document, user: User) -> str:
     return _("This document is held: someone is editing it.")
 
 
-def readable_pending(request: HttpRequest, number: int) -> Document | None:
+def readable_pending(
+    request: HttpRequest, number: int, *, archived: bool = False
+) -> Document | None:
     """The active document `number` when the person holds *view pending* on it; `None`
-    otherwise, a missing document costing what a forbidden one does (ADR-0008)."""
+    otherwise, a missing document costing what a forbidden one does (ADR-0008). With `archived`,
+    an archived one too, which only administrators hold a right on: the *Pending edits* page reads
+    it, the acts never pass it (DL-0450)."""
     if getattr(request, "tenant", None) is None or not is_member(request):
         return None
-    document = Document.objects.filter(number=number, state=DocumentState.ACTIVE).first()
+    states = (DocumentState.ACTIVE, DocumentState.ARCHIVED) if archived else (DocumentState.ACTIVE,)
+    document = Document.objects.filter(number=number, state__in=states).first()
     rights = rights_on_many(request.user, [document.pk if document is not None else ABSENT])
     if document is None or Right.VIEW_PENDING not in rights.get(document.pk, frozenset()):
         return None
@@ -115,7 +120,7 @@ def readable_pending(request: HttpRequest, number: int) -> Document | None:
 @login_required
 def page(request: HttpRequest, number: int) -> HttpResponse:
     """The tab: the head against the base, the run above it."""
-    document = readable_pending(request, number)
+    document = readable_pending(request, number, archived=True)
     if document is None or request.method != "GET":
         return not_found(request)
     tenant_number = holds.tenant_number()

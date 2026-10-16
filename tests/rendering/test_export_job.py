@@ -589,3 +589,39 @@ def test_the_reconciler_passes_over_an_abandoned_job_a_render_holds(
     assert [f.kind for f in found if f.kind.startswith("export")] == []
     with schema_context(migrated_tenant.number):
         assert ExportJob.objects.get(pk=job_id).state == "queued"
+
+
+# Epic 10
+def test_a_members_job_fails_once_the_document_is_archived(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+) -> None:
+    """A member's export queued before the document is archived fails when it runs and serves
+    nothing; an administrator's export of the archived document runs (DL-0450)."""
+    from documents import archive
+
+    people = edition_cast()
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "reader")
+    admin_client, admin, _ = member_of("the.archiver@example.test", is_tenant_admin=True)
+    client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "markdown", "view": "canonical"},
+    )
+    with schema_context(migrated_tenant.number):
+        archive.archive(people.document, admin)
+    admin_client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "markdown", "view": "canonical"},
+    )
+
+    members_job = kit.run_job(migrated_tenant.number, exports[0][1])
+    administrators_job = kit.run_job(migrated_tenant.number, exports[1][1])
+
+    assert members_job.state == "failed"
+    assert administrators_job.state == "done"

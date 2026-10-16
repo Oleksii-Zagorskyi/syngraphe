@@ -1,10 +1,11 @@
 """The corpus's pages and acts beyond the list: search and the type filter; the type changed on
-the *Info* tab."""
+the *Info* tab; archiving and restoring a document."""
 
 from __future__ import annotations
 
 from typing import cast
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -80,3 +81,46 @@ def search(request: HttpRequest) -> HttpResponse:
         "types": finding.filter_types(request.user),
     }
     return render(request, "documents/search.html", context)
+
+
+@never_cache
+@login_required
+def archive(request: HttpRequest, number: int) -> HttpResponse:
+    """`POST`: archive the document — back to its page, which an administrator still reaches."""
+    return _archive_act(request, number, restoring=False)
+
+
+@never_cache
+@login_required
+def restore(request: HttpRequest, number: int) -> HttpResponse:
+    """`POST`: restore the archived document — back to its page."""
+    return _archive_act(request, number, restoring=True)
+
+
+def _archive_act(request: HttpRequest, number: int, *, restoring: bool) -> HttpResponse:
+    from documents import archive as archiving
+    from documents.locks import LockTimeout
+    from review.services import RecordIncomplete
+
+    if not administers(request):
+        return not_found(request)
+    document = readable_document(request, number, methods=("POST",))
+    if document is None:
+        return not_found(request)
+    page = HttpResponseRedirect(f"/document/{document.number}/")
+    act = archiving.restore if restoring else archiving.archive
+    try:
+        act(document, cast(User, request.user))
+    except archiving.ArchiveRefused:
+        return not_found(request)
+    except LockTimeout:
+        messages.error(request, _("The document is busy. Try again in a moment."))
+        return page
+    except RecordIncomplete:
+        messages.error(
+            request,
+            _("The document's record is incomplete; it cannot be changed until it is repaired."),
+        )
+        return page
+    messages.success(request, _("Restored.") if restoring else _("Archived."))
+    return page

@@ -8,7 +8,7 @@ from typing import Any
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
 from documents.locks import LockTimeout
-from documents.models import Document
+from documents.models import Document, DocumentState
 from editions import services
 from review.services import RecordIncomplete
 from tenancy.models import Tenant, TenantState
@@ -33,6 +33,9 @@ class Command(BaseCommand):
             found = Document.objects.filter(number=document).first()
             if found is None:
                 raise CommandError(f"no document {document} in tenant {tenant}")
+            # Epic 10: an archived document is read, never acted on (DL-0450).
+            if found.state == DocumentState.ARCHIVED:
+                raise CommandError(f"document {document} is archived; restore it first")
             try:
                 services.end_freeze(found, reason)
             except ValueError as error:

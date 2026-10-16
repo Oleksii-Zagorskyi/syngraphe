@@ -10,7 +10,7 @@
   {% folder_crumbs document as crumbs %}<nav class="breadcrumb">{% for folder in crumbs %}<a href="/folder/{{ folder.number }}/">{{ folder.name }}</a> /{% if not forloop.last %} {% endif %}{% empty %}<a href="/folder/1/">{{ current_tenant.name }}</a> /{% endfor %}</nav>
   <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% version_shown document as shown %}{% if shown %} <span class="version-number">{{ shown }}</span>{% endif %}{% state_tag document %}</h1>
   {% edition_controls document %}
-  <p class="document-actions"><a class="button" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a>{% hold_acts document menu=True %}</p>
+  <p class="document-actions"><a class="button" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a>{# Epic 10 #}{% archive_act document %}{% hold_acts document menu=True %}</p>
   {% if tab == "view" %}
   <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
     {% include "rendering/panes_outline.html" %}

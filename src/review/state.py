@@ -21,7 +21,7 @@ from django.utils.translation import gettext_lazy as _
 
 from access.rights import Right, rights_on_many
 from documents import gitstore
-from documents.models import Document, Version, VersionKind
+from documents.models import Document, DocumentState, Version, VersionKind
 from editing import holds
 from review import services
 from review.models import Acceptance
@@ -44,9 +44,13 @@ class State(StrEnum):
     # shown as tags beside the review state, never instead of it.
     HELD = "held"
     RESERVED = "reserved"
+    # Epic 10: put away by an administrator; only administrators reach it (DL-0450).
+    ARCHIVED = "archived"
 
 
 LABELS = {
+    # Epic 10
+    State.ARCHIVED: _("archived"),
     State.FROZEN: _("frozen"),
     State.HELD: _("held"),
     State.AWAITING_REVIEW: _("awaiting review"),
@@ -256,7 +260,8 @@ def hold_tag(hold: Any, rights: frozenset[Right], *, administrator: bool) -> Tag
 def tags(
     user: Any, documents: Iterable[Document], *, administrator: bool = False
 ) -> dict[Any, list[Tag]]:
-    """The state tags each document shows `user`, in order: *frozen* to every reader of it; *held*
+    """The state tags each document shows `user`, in order: *archived* first, to the
+    administrators who alone reach an archived document; *frozen* to every reader of it; *held*
     or *reserved for editing* to every reader, named by `hold_tag`'s rule, `administrator` saying
     whether the reader administers this organisation; then a review state that speaks of pending
     work where the user holds *view pending*, which administrators do, computed only there
@@ -273,6 +278,9 @@ def tags(
     shown: dict[Any, list[Tag]] = {}
     for d in documents:
         shown[d.pk] = [Tag(State.FROZEN, str(LABELS[State.FROZEN]))] if d.pk in held_still else []
+        # Epic 10
+        if d.state == DocumentState.ARCHIVED:
+            shown[d.pk].insert(0, Tag(State.ARCHIVED, str(LABELS[State.ARCHIVED])))
         if d.pk in held:
             shown[d.pk].append(
                 hold_tag(held[d.pk], rights.get(d.pk, frozenset()), administrator=administrator)

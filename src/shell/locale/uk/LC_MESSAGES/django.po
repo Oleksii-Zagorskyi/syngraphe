@@ -3312,3 +3312,41 @@ msgstr "Пошук"
 #: documents/templates/documents/search.html
 msgid "Searched in titles of documents and of their appendices — not in text."
 msgstr "Пошук у назвах документів і їхніх додатків — не в тексті."
+
+#: review/state.py
+msgid "archived"
+msgstr "заархівований"
+
+#: documents/templates/documents/archive_act.html
+msgid "Archive"
+msgstr "Архівувати"
+
+#: documents/templates/documents/archive_act.html
+msgid "Restore"
+msgstr "Відновити"
+
+#: documents/corpus_views.py
+msgid "Archived."
+msgstr "Заархівовано."
+
+#: documents/corpus_views.py
+msgid "Restored."
+msgstr "Відновлено."
+
+#: documents/templates/documents/archive.html
+msgctxt "date"
+msgid "Archived"
+msgstr "Заархівовано"
+
+#: documents/templates/documents/archive.html
+msgid "No document is archived."
+msgstr "Заархівованих документів немає."
+
+#: documents/templates/documents/info.html
+msgid "archived — restore it first"
+msgstr "заархівований — спершу відновіть його"
+
+#: shell/templates/shell/administration.html
+msgctxt "administration section"
+msgid "Archive"
+msgstr "Архів"

@@ -123,3 +123,69 @@ def test_the_command_names_no_actor(
         with pytest.raises(ValueError, match="reason"):
             editions.end_freeze(people.document, "")
         assert Freeze.objects.filter(ended_at__isnull=True).count() == 1
+
+
+# Epic 10
+def test_an_archived_document_is_refused(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, member_of: Any
+) -> None:
+    from documents import archive
+    from editions import services as editions
+    from editions.models import open_freeze
+
+    people = edition_cast()
+    _, admin, _ = member_of("the.archiver@example.test", is_tenant_admin=True)
+    commit_version(people.document, people["a"], BODY, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        archive.archive(people.document, admin)
+
+    with pytest.raises(CommandError, match="archived; restore it first"):
+        call_command(
+            "end_freeze",
+            tenant=migrated_tenant.number,
+            document=people.document.number,
+            reason="Synthetic decision of the operator",
+        )
+    with schema_context(migrated_tenant.number):
+        assert open_freeze(people.document) is not None
+
+
+def test_a_document_archived_while_the_command_waits_is_refused(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The command read the document active; an administrator archives it before the service
+    takes its lock: the service, reading the locked row, refuses — the freeze stays, unaudited."""
+    from documents import archive
+    from editions import services as editions
+    from editions.models import open_freeze
+
+    people = edition_cast()
+    _, admin, _ = member_of("the.archiver@example.test", is_tenant_admin=True)
+    commit_version(people.document, people["a"], BODY, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+    end_freeze = editions.end_freeze
+
+    def archived_first(document: Any, *args: Any, **kwargs: Any) -> Any:
+        archive.archive(document, admin)
+        return end_freeze(document, *args, **kwargs)
+
+    monkeypatch.setattr(editions, "end_freeze", archived_first)
+
+    with pytest.raises(CommandError, match="archived; restore it first"):
+        call_command(
+            "end_freeze",
+            tenant=migrated_tenant.number,
+            document=people.document.number,
+            reason="Synthetic decision of the operator",
+        )
+    with schema_context(migrated_tenant.number):
+        assert open_freeze(people.document) is not None
+    assert not AuditEvent.objects.filter(action="document.unfrozen").exists()
