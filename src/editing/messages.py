@@ -207,6 +207,8 @@ HELP_PAGES = {
     "notifications": _("Notifications"),
     "mail": _("Mail"),
     "people": _("People and access"),
+    # Epic 10
+    "corpus": _("Finding and organising documents"),
 }
 
 

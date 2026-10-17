@@ -212,6 +212,7 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | Finding | Means | `--repair` | `--prune-rows` |
 |---|---|---|---|
 | `creating_without_repository`, `creating_without_commit`, `creating_without_version`, `creating_unfinished` | a creation stopped at that step (ten minutes or more ago) | finishes it: the document becomes active, reaching its creator alone — nobody while the creator is blocked. Left as found when the creator was never a member of the organisation; a repository at its number that names another document is reported as `identity_mismatch` instead | — |
+| `copy_stopped` | a copy stopped after its row and the record of its source were written (ten minutes or more ago): it stays invisible, reaching nobody, and its copier was told to copy again (DL-0455) | reports it; **never finished** — finishing it would make the template's document under the copy's title. Remove it with `remove_stopped_copy` (below) | — |
 | `commit_without_row` | git is ahead of the rows — normal after any restore | derives the version row, for a commit by a member of the organisation, of an ordinary kind — or an acceptance, a return or an approval, from the one passport section its commit appended, exactly as the platform writes one: an acceptance with its correction notices, a return with its authors told, an approval with its tag, its edition and its freeze's end — after the newest commit the rows know. It stops at the first commit it cannot derive, and derives nothing while the document has a `row_without_commit`: what follows is reported, never derived past a hole | — |
 | `row_without_commit` | a version row names a commit its repository does not hold — a repository restored from an older bundle | reports it | deletes the row, and with it the rows derived from it: an acceptance or a return it records or started from, a correction notice naming it, their notifications, the export jobs that exported it or marked against it — each counted in the audit |
 | `orphan_repository` | a repository with no row | recreates the row from `document.md`, in the root folder, type *document*, **with no groups and not author-only** — only administrators reach it until the tenant administrator links groups. Only when its first commit's author is a member of the organisation and its language is known; otherwise reported | — |
@@ -233,6 +234,14 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `export_stuck` | an export still queued ten minutes after it was asked for, at the next hourly run — `render` was down, or the broker lost the entry | queues it again; a job runs once however often it is queued. One that returns on every run means `render` fails it or is down: `docker compose ps render`, `docker compose logs render` | — |
 | `export_abandoned` | an export still queued an hour after it was asked for, at the next hourly run — `render` has been down that long | fails it, *not made in time*, so its person may ask again; a job a render is making is left alone | — |
 | `tag_without_section` | a tag names a commit that is not the approval of that number | reports it; **never repaired** — a person decides what the tag was | — |
+
+**A stopped copy** is removed by its number, once the report has named it:
+
+```bash
+docker compose exec web python manage.py remove_stopped_copy --tenant N --document M
+```
+
+It refuses anything but a copy still being created past the ten minutes, deciding under the document's writer lock — a copy that finished meanwhile is kept. It removes the repository first, then the version rows and the document's row, audited as `document.stopped_copy_removed`; run again after a stop between the two, it removes what is left, and with nothing left it says so. The number is never given again.
 
 A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Exports are the one task queued again from its row; the broker holds no other that matters.
 
@@ -265,6 +274,14 @@ A draft whose text the editor does not accept is never lost: the editor opens it
 ### Rolling back history, comparison, return and undo
 
 The return adds a table and a notification event, and an export job a column, in every organisation's schema. No command migrates a schema backward: going back to the code before them is a restore to before the update (§ Restore). A `return` commit already in a passport stays in its repository; code from before the return reports it as `commit_without_row` and stops its replay there, and refuses every write to that document — a finish, an acceptance, a freeze — until the code is updated again. An undo commits nothing until its reviewer finishes; a draft an undo left wrong is the reviewer's to discard.
+
+## The corpus
+
+Folders, document types, archive and restore are acts of the tenant administrator in the interface, audited each; none touches a repository. **An archived document** is opened by administrators alone, read only, and restored from its page or *Administration › Archive*; its group links apply again as they stand. A document nobody can find is first looked for there.
+
+### Rolling back folders, types, copying and archiving
+
+The update adds, in every organisation's schema, a sequence for folder numbers, the uniqueness of a folder's name among its siblings and of a type's label, the rule that only the root folder has no parent, and a notification event for the holder of an archived document's work. No command migrates a schema backward: going back to the code before them is a restore to before the update (§ Restore). That restore takes with the database every copy made since — its row and the record of its source — while its repository stays on disk: the reconciler then reports it `orphan_repository` and recreates its row in the root folder, reaching administrators alone, its creator taken from its first commit's author where that person is still a member, and its source no longer known. **Remove every stopped copy first** — `reconcile` names them `copy_stopped` — so that none comes back as a document its copier was told did not exist.
 
 ## Reading and export
 
@@ -374,10 +391,10 @@ Write down, before touching anything: **what happened, when it was noticed, and 
 6. **Run the reconciler in report mode** — `docker compose run --rm web python manage.py reconcile`, since `web` is not running (§ The reconciler) — and read its report before repairing anything. Expect:
    - **commits without rows** — git is ahead of the database; the reconciler replays them. Normal after any restore;
    - **rows whose commit is missing** — not expected here, since the database was restored no later than the repositories — unless you chose a newer run with `--marker` at step 4, in which case exactly the listed repositories appear here, as you decided: record them, then delete those rows with `reconcile --tenant N --document M --repair --prune-rows` for each. One that appears otherwise means a bundle is missing: stop and find it;
-   - **creations that stopped** — finished;
+   - **creations that stopped** — finished, except a copy, reported `copy_stopped` and left (DL-0455);
    - **repositories without a row** — recreated with no access at all; the tenant administrator grants access again;
    - **passport entries without their row** — reported; the passport is believed.
-7. **Run the reconciler in repair mode**, `docker compose run --rm web python manage.py reconcile --repair`, then again in report mode, and confirm it reports nothing it did not repair. What it leaves are the cases its table says it will not repair — a commit by someone the restored database does not hold as a member, a creation whose creator was never one, a repository that names another document. Record each with its numbers; a commit by a person whose membership the restore lost is derived once the tenant administrator has restored that membership and the reconciler runs again.
+7. **Run the reconciler in repair mode**, `docker compose run --rm web python manage.py reconcile --repair`, then again in report mode, and confirm it reports nothing it did not repair. What it leaves are the cases its table says it will not repair — a commit by someone the restored database does not hold as a member, a creation whose creator was never one, a repository that names another document, a stopped copy, which `remove_stopped_copy` removes (§ The reconciler). Record each with its numbers; a commit by a person whose membership the restore lost is derived once the tenant administrator has restored that membership and the reconciler runs again.
 8. **Start the rest:** `docker compose up -d`. The backup resumes on its own; take a full base backup at once (§ Backup, *The store is unreachable*), since the restored database starts a new timeline.
 9. **Verify as a user would.** Sign in; open a restored document; confirm its latest version matches its passport.
 10. **Tell the people who lost work.** Whatever was only in the database after the recovery point is gone — above all **drafts**. List the documents whose holds were open at the recovery point and tell each holder.

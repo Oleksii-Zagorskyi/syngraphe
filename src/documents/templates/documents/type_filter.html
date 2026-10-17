@@ -1,0 +1,8 @@
+{% load i18n static %}<form class="search-box" method="get" action="/search/" role="search">
+  <label class="visually-hidden" for="search-words">{% translate "Search titles of documents and appendices" %}</label>
+  <input type="search" id="search-words" name="q" maxlength="200" value="{{ words }}" placeholder="{% translate 'Search titles of documents and appendices' %}">
+  {% if types|length > 1 %}<label class="visually-hidden" for="type-filter">{% translate "Filter by type" %}</label>
+  <select id="type-filter" name="type"><option value="">{% translate "All types" %}</option>{% for kind in types %}<option value="{{ kind.code }}"{% if kind.code == type_code %} selected{% endif %}>{{ kind.label }}</option>{% endfor %}</select>{% endif %}
+  <button class="visually-hidden" type="submit">{% translate "Search" %}</button>
+</form>
+<script src="{% static 'documents/search.js' %}" defer></script>

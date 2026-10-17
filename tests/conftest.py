@@ -346,6 +346,9 @@ def make_document(migrated_tenant: Any) -> Callable[..., Any]:
         author_only: bool = True,
         state: str = "active",
         language: str = "uk",
+        # Epic 10: a folder and a type of the caller's, the root and `document` by default.
+        folder: Any = None,
+        document_type: Any = None,
     ) -> Any:
         from documents.models import Document, DocumentType, Folder, next_document_number
         from identity.models import Language
@@ -359,8 +362,8 @@ def make_document(migrated_tenant: Any) -> Callable[..., Any]:
                 number=next_document_number(),
                 title=title,
                 language_id=language,
-                document_type=DocumentType.objects.get(code="document"),
-                folder=Folder.objects.get(number=1),
+                document_type=document_type or DocumentType.objects.get(code="document"),
+                folder=folder or Folder.objects.get(number=1),
                 created_by=created_by,
                 actor_kind="system" if created_by is None else "user",
                 author_only=author_only,

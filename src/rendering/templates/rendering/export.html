@@ -1,9 +1,9 @@
 {% extends "shell/base.html" %}
-{% load i18n static %}
+{% load corpus i18n static %}
 {% block title %}{% translate "Export" %} — #{{ document.number }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content export">
-  <h1>{% blocktranslate with number=document.number %}Export — #{{ number }}{% endblocktranslate %}</h1>
+  <h1>{% blocktranslate with number=document.number %}Export — #{{ number }}{% endblocktranslate %}{# Epic 10 #}{% archived_tag document %}</h1>
   <p><a href="/document/{{ document.number }}/">{{ document.title }}</a></p>
   {% if refusal %}<p class="notice refusal" role="alert">{{ refusal }}</p>{% endif %}
   <form method="post" action="{{ action }}" class="export-dialog">

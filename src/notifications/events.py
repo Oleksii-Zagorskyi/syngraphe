@@ -35,14 +35,17 @@ EVENTS: dict[Event, EventSpec] = {
     Event.RESERVATION_ENDED_BY_ADMIN: EventSpec(Category.DOCUMENT),
     Event.HOLD_EXPIRING: EventSpec(Category.DOCUMENT),
     Event.RETURNED: EventSpec(Category.DOCUMENT),
+    # Epic 10
+    Event.DOCUMENT_ARCHIVED: EventSpec(Category.DOCUMENT),
 }
 
 # The events a tenant administrator can receive in the organisation's schema, and what a platform
 # administrator adds in the shared one; a member receives only `access_granted`, in the
 # organisation's schema. The filters follow these lists (DL-0236).
-# `document_copied` joins it with the act that writes it: no filter for an event nobody receives.
 TENANT_ADMINISTRATIVE = (
     Event.DOCUMENT_CREATED,
+    # Epic 10: a copy tells the administrators as a creation does (DL-0455).
+    Event.DOCUMENT_COPIED,
     Event.ACCESS_GRANTED,
     Event.EMAIL_FAILED,
     Event.RESERVATION_STARTED,
@@ -141,6 +144,12 @@ def describe(row: Any, *, named: bool = True) -> str:
         return _("%(organisation)s has no active administrator.") % {
             "organisation": _organisation(facts)
         }
+    # Epic 10: no document attached — its number and who archived it, never its title (DL-0471).
+    if event == Event.DOCUMENT_ARCHIVED:
+        return _(
+            "Document #%(number)s, which you were editing, was archived by %(by)s; your draft is"
+            " kept."
+        ) % {"number": facts.get("number", ""), "by": _named(facts, "by")}
     if event == Event.ACCESS_GRANTED:
         group = _group(facts)
         if group:

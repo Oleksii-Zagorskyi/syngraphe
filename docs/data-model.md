@@ -237,15 +237,15 @@ erDiagram
     }
     DOCUMENT_TYPE {
         uuid id PK
-        string code UK "per tenant; seeded with document (DL-0235)"
-        datetime retired_at "set when retired; a type still assigned is retired, never deleted"
-        string label
+        string code UK "per tenant; seeded with document, which is renamed or retired, never deleted (DL-0235, DL-10-002)"
+        datetime retired_at "set when retired; a type still assigned is retired, never deleted; the last type not retired is neither (DL-10-001)"
+        string label "one printable line of 1 to 100 characters, unique among the tenant's types in any case, retired ones included (DL-10-001)"
     }
     FOLDER {
         uuid id PK
-        int number "per tenant, root is 1; in URLs (ADR-0008)"
-        uuid parent FK "null at root"
-        string name
+        int number "per tenant, root is 1, the others from a sequence starting at 2; in URLs (ADR-0008)"
+        uuid parent FK "null at the root alone"
+        string name "one printable line of 1 to 200 characters, unique among its siblings in any case (DL-0453); the root's is empty, drawn as the tenant's name, never edited"
     }
     MAIL_SENDER {
         uuid id PK
@@ -309,7 +309,7 @@ erDiagram
 
 **`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from, whether it gets a title page, and the layout the title page renders through at export (DL-0164). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
 
-**A new or copied document is author-only** (ADR-0007): `author_only` is set, no group is linked, and only its creator reaches it, with edit. The tenant administrator is notified and links groups; the first link clears `author_only`, after which the author reaches the document through their groups. A copy records `copied_from`, and an `AUDIT_EVENT` holds the source version's number and commit, visible to administrators. A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
+**A new or copied document is author-only** (ADR-0007): `author_only` is set, no group is linked, and only its creator reaches it, with edit. The tenant administrator is notified and links groups; the first link clears `author_only`, after which the author reaches the document through their groups. A copy records `copied_from`, and its `document.copied` `AUDIT_EVENT` — written before its repository exists — holds the source's number, the version's number and commit and the appendices taken; the copy's *Info* tab shows administrators the source, the version and the commit, with when and by whom it was copied (DL-0455). A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
 
 **Two audit mechanisms, split by a single question: must the answer be reconstructible at a past date?** (DL-0082)
 

@@ -1,0 +1,1 @@
+{% load i18n %}{% if shown %}<form class="inline" method="post" action="/document/{{ document.number }}/{% if archived %}restore{% else %}archive{% endif %}/">{% csrf_token %}<button class="button" type="submit">{% if archived %}{% translate "Restore" %}{% else %}{% translate "Archive" %}{% endif %}</button></form>{% endif %}

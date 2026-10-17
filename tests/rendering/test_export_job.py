@@ -719,3 +719,47 @@ def test_markdown_without_images_is_one_file(
     )
     job = kit.run_job(migrated_tenant.number, exports[-1][1])
     assert job.state == "done" and job.artifact_ref.endswith(".md"), job.artifact_ref
+
+
+# Epic 10
+def test_a_members_job_fails_once_the_document_is_archived(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """A member's export queued before the document is archived fails when it runs and serves
+    nothing; an administrator's export of the archived document runs (DL-0450)."""
+    from documents import archive
+
+    people = edition_cast()
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "reader")
+    admin_client, admin, _ = member_of("the.archiver@example.test", is_tenant_admin=True)
+    client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "markdown", "view": "canonical"},
+    )
+    with schema_context(migrated_tenant.number):
+        archive.archive(people.document, admin)
+    admin_client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "markdown", "view": "canonical"},
+    )
+
+    members_job = kit.run_job(migrated_tenant.number, exports[0][1])
+    administrators_job = kit.run_job(migrated_tenant.number, exports[1][1])
+
+    assert members_job.state == "failed"
+    assert administrators_job.state == "done"
+    # The member's job serves nothing: its download is *nothing to show*, its folder empty.
+    number = people.document.number
+    download = client.get(f"/document/{number}/export/{members_job.pk}/download/")
+    assert download.status_code == 404
+    assert not list((Path(settings.EXPORT_ROOT) / str(members_job.pk)).glob("*"))
+    served = admin_client.get(f"/document/{number}/export/{administrators_job.pk}/download/")
+    assert served.status_code == 200

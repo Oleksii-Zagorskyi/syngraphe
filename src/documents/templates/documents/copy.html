@@ -1,0 +1,36 @@
+{% extends "shell/base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "Copy a document" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="dialog" id="copy-document">
+  <h1>{% blocktranslate with number=source.number title=source.title %}Copy #{{ number }} {{ title }}{% endblocktranslate %}</h1>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  {{ form.non_field_errors }}
+  <form method="post" action="/document/{{ source.number }}/copy/">{% csrf_token %}
+    <p><label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label> {{ form.title }} {{ form.title.errors }}</p>
+    <p><span class="label">{% translate "Language" %}</span> {{ source.language.label }} <span class="note">{% translate "— the source's, kept" %}</span></p>
+    <p><label for="{{ form.document_type.id_for_label }}">{{ form.document_type.label }}</label> {{ form.document_type }} {{ form.document_type.errors }}</p>
+    <p><label for="{{ form.folder.id_for_label }}">{{ form.folder.label }}</label> {{ form.folder }} {{ form.folder.errors }}</p>
+    <fieldset class="copy-version">
+      <legend>{% translate "Version" %}</legend>
+      {% if offers|length == 1 %}<input type="hidden" name="version" value="{{ chosen.view }}:{{ chosen.number }}">{% include "rendering/export_offer.html" with offer=chosen %}
+      {% else %}{% for offer in offers %}<label><input type="radio" name="version" value="{{ offer.view }}:{{ offer.number }}"{% if offer.view == chosen.view %} checked{% endif %}> {% include "rendering/export_offer.html" %}</label><br>
+      {% endfor %}{% endif %}
+    </fieldset>
+    <fieldset class="copy-appendices">
+      <legend>{% translate "Appendices" %}</legend>
+      {% if appendices %}
+      <label><input type="radio" name="appendices" value="none"{% if mode == "none" %} checked{% endif %}> {% translate "None" context "appendices to copy" %}</label>
+      <label><input type="radio" name="appendices" value="all"{% if mode == "all" %} checked{% endif %}> {% translate "All" context "appendices to copy" %}</label>
+      <label><input type="radio" name="appendices" value="chosen"{% if mode == "chosen" %} checked{% endif %}> {% translate "Chosen:" context "appendices to copy" %}</label><br>
+      {% for part, title in appendices %}<label class="indented"><input type="checkbox" name="appendix" value="{{ part }}"{% if part in ticked %} checked{% endif %}> {{ title }}</label><br>
+      {% endfor %}
+      {% else %}<input type="hidden" name="appendices" value="none"><span class="muted">{% translate "This version has no appendices." %}</span>{% endif %}
+    </fieldset>
+    <p class="note">{% translate "Attachments are not copied." %} {% translate "The copy starts from the chosen version's text, without its history; only you can reach it until an administrator links groups to it." %}</p>
+    <button class="btn primary" type="submit">{% translate "Copy" %}</button>
+    <a class="btn" href="/document/{{ source.number }}/">{% translate "Cancel" %}</a>
+  </form>
+</section>
+<script src="{% static 'documents/copy.js' %}" defer></script>
+{% endblock %}

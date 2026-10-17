@@ -1,15 +1,27 @@
 {% extends "shell/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{{ current_tenant.name }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content documents">
+  {# Epic 10: the folder tree beside the list (DL-0195, DL-0206) #}
+  <div class="panes list-panes" style="--tree-width: {{ tree_width }}px">
+    {% include "documents/tree.html" %}
+    <div class="list-main">
+  <h1>{% if folder.parent_id %}{{ folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</h1>
   <div class="toolbar">
-    <h1>{{ current_tenant.name }}</h1>
+    {% include "documents/type_filter.html" %}
     {% if can_create %}<a class="btn primary" href="/document/new/">+ {% translate "Create document" %}</a>{% endif %}
+    {# Epic 10 #}<details class="menu-actions compare-documents"><summary class="btn">{% translate "Compare documents…" %}</summary><form method="get" action="/compare/"><label>#<input type="text" name="first" inputmode="numeric" size="5" required></label> <label>{% translate "with #" %}<input type="text" name="second" inputmode="numeric" size="5" required></label> <button class="btn" type="submit">{% translate "Compare" %}</button></form></details>
+    {% if administrator %}<details class="menu-actions"><summary class="btn">{% translate "Folders ▾" %}</summary><ul>
+      <li><a href="/administration/tenant/folders/?folder={{ folder.number }}">{% translate "New folder" %}</a></li>
+      {% if folder.parent_id %}<li><a href="/administration/tenant/folders/?folder={{ folder.number }}">{% translate "Rename" %}</a></li>
+      <li><a href="/administration/tenant/folders/?folder={{ folder.number }}">{% translate "Delete" %}</a></li>{% endif %}
+      <li><a href="/administration/tenant/folders/{{ folder.number }}/move/">{% translate "Move documents…" %}</a></li>
+    </ul></details>{% endif %}
   </div>
   <table class="list">
     <thead>
-      <tr><th>#</th><th>{% translate "Title" %}</th><th>{% translate "Type" %}</th><th>{% translate "Canonical" %}</th>{% if latest_column %}<th>{% translate "Latest" %}</th>{% endif %}<th>{% translate "Parts" %}</th></tr>
+      <tr><th>{% include "documents/sort_header.html" with header=sort_headers.number label="#" %}</th><th>{% translate "Title" as title_label %}{% include "documents/sort_header.html" with header=sort_headers.title label=title_label %}</th><th>{% translate "Type" %}</th><th>{% translate "Canonical" %}</th>{% if latest_column %}<th>{% translate "Latest" %}</th>{% endif %}<th>{% translate "Parts" %}</th>{% if pencil_column %}<th class="edit"><span aria-hidden="true">✎</span><span class="visually-hidden">{% translate "edit" context "open the edit tab" %}</span></th>{% endif %}</tr>
     </thead>
     <tbody>
       {% for row in rows %}
@@ -22,10 +34,16 @@
         <td class="parts">
           <span class="part appendices{% if not row.appendices %} absent{% endif %}" title="{% translate 'appendices' %}">▤</span>
           <span class="part attachments{% if not row.attachments %} absent{% endif %}" title="{% translate 'attachments' %}">📎</span>
-        </td>
+        </td>{% if pencil_column %}
+        <td class="edit">{% if row.editable %}<a class="icon" href="/document/{{ row.document.number }}/edit/" title="{% translate 'edit' context 'open the edit tab' %}">✎</a>{% endif %}</td>{% endif %}
       </tr>
+      {% empty %}
+      <tr><td colspan="7" class="muted">{% translate "No documents here." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
+    </div>
+  </div>
+  <script src="{% static 'rendering/outline.js' %}" defer></script>
 </section>
 {% endblock %}

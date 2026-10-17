@@ -3347,3 +3347,400 @@ msgstr "більше ролей, дій і термінів, ніж прийма
 #, python-format
 msgid "The draft marks %(what)s; remove some in the editor."
 msgstr "Чернетка позначає %(what)s; вилучіть частину в редакторі."
+
+# Epic 10 — the corpus
+
+#: documents/administration.py
+msgid "A label is one line of text, at most 100 characters."
+msgstr "Назва — один рядок тексту, не довше 100 символів."
+
+#: documents/administration.py
+msgid "Another type already has this label, perhaps in different capitals."
+msgstr "Інший тип уже має цю назву, можливо, в іншому регістрі."
+
+#: documents/administration.py
+msgid "This type is in use: it can be retired, not deleted."
+msgstr "Цей тип використовується: його можна вивести з ужитку, але не видалити."
+
+#: documents/administration.py
+msgid "This type is retired."
+msgstr "Цей тип виведено з ужитку."
+
+#: documents/administration.py
+msgid "The organisation's last type not retired can be neither retired nor deleted."
+msgstr "Останній чинний тип організації не можна ні вивести з ужитку, ні видалити."
+
+#: documents/administration.py
+msgid "the organisation's last type not retired"
+msgstr "останній чинний тип організації"
+
+#: documents/corpus_views.py
+msgid "A retired type cannot be given to a document."
+msgstr "Тип, виведений з ужитку, не можна призначити документу."
+
+#: documents/corpus_views.py
+msgid "The document already has this type."
+msgstr "Документ уже має цей тип."
+
+#: documents/corpus_views.py
+msgid "This document is archived — restore it first."
+msgstr "Документ заархівовано — спершу відновіть його."
+
+#: documents/corpus_views.py
+msgid "No such type."
+msgstr "Такого типу немає."
+
+#: shell/templates/shell/administration.html
+msgid "Document types"
+msgstr "Типи документів"
+
+#: documents/templates/documents/document_types.html
+msgid "This organisation's own list. A type still given to a document can be retired, never deleted."
+msgstr "Власний перелік організації. Тип, призначений хоча б одному документу, можна вивести з ужитку, але не видалити."
+
+#: documents/templates/documents/document_types.html
+msgid "Documents"
+msgstr "Документи"
+
+#: documents/templates/documents/document_types.html
+msgctxt "document type"
+msgid "retired"
+msgstr "виведений з ужитку"
+
+#: documents/templates/documents/document_types.html
+msgctxt "document type"
+msgid "Label"
+msgstr "Назва"
+
+#: documents/templates/documents/document_types.html
+msgid "Rename"
+msgstr "Перейменувати"
+
+#: documents/templates/documents/document_types.html
+msgid "Retire"
+msgstr "Вивести з ужитку"
+
+#: documents/templates/documents/document_types.html
+msgid "Delete"
+msgstr "Видалити"
+
+#: documents/templates/documents/document_types.html
+msgid "New type"
+msgstr "Новий тип"
+
+#: documents/templates/documents/document_types.html
+msgid "Add a type"
+msgstr "Додати тип"
+
+#: documents/templates/documents/info.html
+msgid "Change"
+msgstr "Змінити"
+
+#: documents/views.py
+msgid "This type is no longer offered. Choose another."
+msgstr "Цей тип більше не пропонується. Оберіть інший."
+
+#: documents/administration.py
+msgid "The type every organisation starts with is kept for documents the platform loads or recovers: it can be renamed or retired, not deleted."
+msgstr "Тип, з якого починає кожна організація, зберігається для документів, які платформа завантажує або відновлює: його можна перейменувати чи вивести з ужитку, але не видалити."
+
+#: documents/administration.py
+msgid "A folder's name is one line of text, at most 200 characters."
+msgstr "Назва теки — один рядок тексту, не довше 200 символів."
+
+#: documents/administration.py
+msgid "Another folder here already has this name, perhaps in different capitals."
+msgstr "Інша тека тут уже має цю назву, можливо, в іншому регістрі."
+
+#: documents/administration.py
+msgid "The folder named after the organisation cannot be renamed or deleted."
+msgstr "Теку, названу іменем організації, не можна перейменувати чи видалити."
+
+#: documents/administration.py
+msgid "An archived document cannot be moved: restore it first."
+msgstr "Заархівований документ не можна перемістити: спершу відновіть його."
+
+#: documents/administration.py
+msgid "These documents are already in that folder."
+msgstr "Ці документи вже в теці, до якої їх переміщують."
+
+#: documents/administration.py
+msgid "%(name)s holds %(documents)s and %(folders)s."
+msgstr "Тека «%(name)s» містить %(documents)s і %(folders)s."
+
+#: documents/administration.py
+msgid "%(count)s document"
+msgid_plural "%(count)s documents"
+msgstr[0] "%(count)s документ"
+msgstr[1] "%(count)s документи"
+msgstr[2] "%(count)s документів"
+
+#: documents/administration.py
+msgid "%(count)s folder"
+msgid_plural "%(count)s folders"
+msgstr[0] "%(count)s теку"
+msgstr[1] "%(count)s теки"
+msgstr[2] "%(count)s тек"
+
+#: documents/administration.py
+msgid "Choose documents of this folder to move."
+msgstr "Оберіть документи цієї теки, які слід перемістити."
+
+#: documents/views.py
+msgid "This folder no longer exists. Choose another."
+msgstr "Цієї теки більше немає. Оберіть іншу."
+
+#: shell/templates/shell/administration.html
+msgid "Folders"
+msgstr "Теки"
+
+#: documents/templates/documents/folders.html
+msgctxt "folder"
+msgid "(empty)"
+msgstr "(порожня)"
+
+#: documents/templates/documents/folders.html
+msgid "New folder"
+msgstr "Нова тека"
+
+#: documents/templates/documents/folders.html
+msgid "Move documents…"
+msgstr "Перемістити документи…"
+
+#: documents/templates/documents/folders_move.html
+msgid "Move documents"
+msgstr "Перемістити документи"
+
+#: documents/templates/documents/folders_move.html
+msgid "From %(path)s:"
+msgstr "З теки %(path)s:"
+
+#: documents/templates/documents/folders_move.html
+msgid "To"
+msgstr "До теки"
+
+#: documents/templates/documents/folders_move.html
+msgid "Folders are presentation only: moving changes nothing about a document or who may read it."
+msgstr "Теки лише впорядковують показ: переміщення нічого не змінює ні в документі, ні в тому, хто може його читати."
+
+#: documents/templates/documents/folders_move.html
+msgid "Move"
+msgstr "Перемістити"
+
+#: documents/templates/documents/folders_move.html
+msgid "Back to the folders"
+msgstr "Назад до тек"
+
+#: documents/administration.py
+msgid "%(name)s holds %(documents)s."
+msgstr "Тека «%(name)s» містить %(documents)s."
+
+#: documents/administration.py
+msgid "%(name)s holds %(folders)s."
+msgstr "Тека «%(name)s» містить %(folders)s."
+
+#: documents/administration.py
+msgid "Only an empty folder can be deleted."
+msgstr "Видалити можна лише порожню теку."
+
+#: documents/templates/documents/folders_move.html
+msgid "Create another folder to move documents into."
+msgstr "Створіть іншу теку, до якої можна перемістити документи."
+
+#: documents/templates/documents/list.html
+msgid "Folders ▾"
+msgstr "Теки ▾"
+
+#: documents/templates/documents/list.html
+msgctxt "open the edit tab"
+msgid "edit"
+msgstr "Редагувати"
+
+#: documents/templates/documents/type_filter.html
+msgid "Search titles of documents and appendices"
+msgstr "Пошук у назвах документів і додатків"
+
+#: documents/templates/documents/type_filter.html
+msgid "Filter by type"
+msgstr "Фільтр за типом документа"
+
+#: documents/templates/documents/type_filter.html
+msgid "All types"
+msgstr "Усі типи"
+
+#: documents/templates/documents/type_filter.html
+msgid "Search"
+msgstr "Пошук"
+
+#: documents/templates/documents/search.html
+msgid "Searched in titles of documents and of their appendices — not in text."
+msgstr "Пошук у назвах документів і їхніх додатків — не в тексті."
+
+#: review/state.py
+msgid "archived"
+msgstr "заархівований"
+
+#: documents/templates/documents/archive_act.html
+msgid "Archive"
+msgstr "Архівувати"
+
+#: documents/templates/documents/archive_act.html
+msgid "Restore"
+msgstr "Відновити"
+
+#: documents/corpus_views.py
+msgid "Archived."
+msgstr "Заархівовано."
+
+#: documents/corpus_views.py
+msgid "Restored."
+msgstr "Відновлено."
+
+#: documents/templates/documents/archive.html
+msgctxt "date"
+msgid "Archived"
+msgstr "Заархівовано"
+
+#: documents/templates/documents/archive.html
+msgid "No document is archived."
+msgstr "Заархівованих документів немає."
+
+#: documents/templates/documents/info.html
+msgid "archived — restore it first"
+msgstr "заархівований — спершу відновіть його"
+
+#: shell/templates/shell/administration.html
+msgctxt "administration section"
+msgid "Archive"
+msgstr "Архів"
+
+#: notifications/events.py
+msgid "Document #%(number)s, which you were editing, was archived by %(by)s; your draft is kept."
+msgstr "Документ #%(number)s, який ви редагували, заархівовано — %(by)s; вашу чернетку збережено."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Your editing was ended on %(date)s when you archived the document."
+msgstr "Ваше редагування завершено %(date)s: ви заархівували документ."
+
+#: editing/templates/editing/draft_readonly.html
+msgid "Your editing was ended on %(date)s when %(name)s archived the document."
+msgstr "Ваше редагування завершено %(date)s: документ заархівовано — %(name)s."
+
+#: documents/templates/documents/copy_act.html
+msgid "Copy"
+msgstr "Копіювати"
+
+#: documents/templates/documents/copy.html
+msgid "Copy a document"
+msgstr "Копіювати документ"
+
+#: documents/templates/documents/copy.html
+msgid "Copy #%(number)s %(title)s"
+msgstr "Копіювати #%(number)s %(title)s"
+
+#: documents/templates/documents/copy.html
+msgid "— the source's, kept"
+msgstr "— мова джерела, без змін"
+
+#: documents/templates/documents/copy.html
+msgid "Appendices"
+msgstr "Додатки"
+
+#: documents/templates/documents/copy.html
+msgctxt "appendices to copy"
+msgid "None"
+msgstr "Жодного"
+
+#: documents/templates/documents/copy.html
+msgctxt "appendices to copy"
+msgid "All"
+msgstr "Усі"
+
+#: documents/templates/documents/copy.html
+msgctxt "appendices to copy"
+msgid "Chosen:"
+msgstr "Вибрані:"
+
+#: documents/templates/documents/copy.html
+msgid "This version has no appendices."
+msgstr "Ця версія не має додатків."
+
+#: documents/templates/documents/copy.html
+msgid "Attachments are not copied."
+msgstr "Вкладені файли не копіюються."
+
+#: documents/templates/documents/copy.html
+msgid "The copy starts from the chosen version's text, without its history; only you can reach it until an administrator links groups to it."
+msgstr "Копія починається з тексту вибраної версії, без її історії; лише ви маєте до неї доступ, доки адміністратор не пов’яже з нею групи."
+
+#: documents/forms.py
+msgid "Choose a version."
+msgstr "Виберіть версію."
+
+#: documents/forms.py
+msgid "Choose the appendices to copy."
+msgstr "Виберіть додатки, які слід скопіювати."
+
+#: documents/corpus_views.py
+msgid "The version changed since the dialog showed it. Check it and copy again."
+msgstr "Версія змінилася відтоді, як діалог її показав. Перевірте її та скопіюйте ще раз."
+
+#: documents/corpus_views.py
+msgid "This version cannot be read, so it cannot be copied."
+msgstr "Цю версію неможливо прочитати, тож її не можна скопіювати."
+
+#: documents/corpus_views.py
+msgid "An appendix chosen is no longer in this version. Choose again."
+msgstr "Вибраного додатка в цій версії вже немає. Виберіть ще раз."
+
+#: documents/corpus_views.py
+msgid "The copy was not finished, and nothing of it can be seen. Copy again."
+msgstr "Копіювання не завершено, і від копії нічого не видно. Скопіюйте ще раз."
+
+#: documents/templates/documents/info.html
+msgid "Copied from"
+msgstr "Скопійовано з"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid "Comparing %(first)s %(older)s with %(second)s %(newer)s — read only"
+msgstr "Порівняння %(first)s %(older)s з %(second)s %(newer)s — лише для читання"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid ""
+"Compare #%(first)s %(first_title)s%(first_tag)s with #%(second)s "
+"%(second_title)s%(second_tag)s"
+msgstr ""
+"Порівняти #%(first)s %(first_title)s%(first_tag)s з #%(second)s "
+"%(second_title)s%(second_tag)s"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid "Compare #%(first)s %(first_title)s%(first_tag)s with another document"
+msgstr "Порівняти #%(first)s %(first_title)s%(first_tag)s з іншим документом"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid "with document"
+msgstr "з документом"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid ""
+"Enter the number of the document to compare with: its newest version you "
+"may see is compared first, and you can then choose another."
+msgstr ""
+"Укажіть номер документа для порівняння: спершу порівнюється його найновіша "
+"доступна вам версія, потім можна вибрати іншу."
+
+#: documents/templates/documents/compare_act.html
+msgid "Compare with another document"
+msgstr "Порівняти з іншим документом"
+
+#: documents/templates/documents/list.html
+msgid "Compare documents…"
+msgstr "Порівняти документи…"
+
+#: documents/templates/documents/list.html
+msgid "with #"
+msgstr "з #"
+
+#: editing/messages.py
+msgid "Finding and organising documents"
+msgstr "Пошук і впорядкування документів"

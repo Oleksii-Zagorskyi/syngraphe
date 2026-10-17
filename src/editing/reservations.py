@@ -134,10 +134,12 @@ def checked_reason(reason: str) -> str:
     """`reason` stripped, or `ReasonRefused` — the freeze reason's rule, and required, since the
     act is defined by it (DL-0353, DL-0378). The text stays out of the exception: it may quote
     the document, and an exception reaches a log (DL-0369)."""
+    from documents.archive import ARCHIVED_REASON
     from editions.services import valid_reason
 
     reason = reason.strip()
-    if not reason or not valid_reason(reason):
+    # Epic 10: the reason archiving writes is the platform's alone, never typed (DL-0456).
+    if not reason or not valid_reason(reason) or reason.casefold() == ARCHIVED_REASON:
         raise ReasonRefused
     return reason
 

@@ -14,3 +14,7 @@ Each pane closes to a narrow strip with the button at its top, and opens again t
 A **mention** of another document reads as a link to it where you may read that document, and as its words alone where you may not.
 
 **Generated views**, the second button in the right pane, show the **role directory** — each role the document declares or marks, with every heading and clause marking it, linked to its place — and **see also**, each document this one mentions: its number and title where you may read it, the mention's words where not. A role marked without a key declares nothing: it is listed by its words, *not declared* beside them. The system works them out from the version shown.
+
+## Comparing two documents
+
+A document can be compared with another one: *Compare with another document* opens the comparison, which shows the second document's whole text marked against the first's. *Finding and organising documents* tells how.

@@ -190,7 +190,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **history** · історія · *proposed* — the tab listing a document's versions and events; how far back a reader sees depends on their history rights, and a holder of *accept* sees the pending run's versions there (DL-0251).
 
-**archive / restore** · архівувати / відновити · *proposed*
+**archive / restore** · архівувати / відновити · *proposed* — put a document away, reached by administrators alone and read only, every act refused; restore makes it active again as it was (DL-0084, DL-0450).
+
+**retire** (a document type) · вивести з ужитку · *proposed* — keep a type on the documents that carry it and stop offering it for a new document, a copy or a change of type (DL-0235, DL-10-001).
 
 **export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version, composed from a scope, formats and a view.
 

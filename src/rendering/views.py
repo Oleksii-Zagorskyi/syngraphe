@@ -3,7 +3,8 @@ numbers, headed by its number and the canonical edition's (DL-0352); beside it t
 that text, the attachments that version lists and its generated views — the role directory and
 *see also* — in the page's side panes (DL-0356, DL-0448). The
 historical page of any version the reader's ceiling reaches, with its attachments and its export,
-and the comparison of two (DL-0195, DL-0208); the export dialog and its jobs."""
+and the comparison of two (DL-0195, DL-0208) — of two versions, or of two documents and the list's
+start to it (DL-0452); the export dialog and its jobs."""
 
 from __future__ import annotations
 
@@ -209,7 +210,8 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     *next* on a pair consecutive among the content versions the reader may see (DL-0361). Both
     versions resolve through the reader's ceiling, read once; one version asked against itself, by
     one number or two, opens that version's page; a reader who may see one version is offered no
-    comparison."""
+    comparison. With `with`, two documents instead, in the reader's order (`_compare_documents`,
+    DL-0452)."""
     from documents.parts import changed_between
     from documents.views import readable_document
     from editing.diffview import render_changes
@@ -218,6 +220,14 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     document = readable_document(request, number)
     if document is None:
         return not_found(request)
+    # Epic 10: another document named, or the picker asked for (DL-0452). A `to` belongs to the
+    # second document the choosers showed, `was`: typed over or cleared, that `to` is dropped.
+    other = request.GET.get("with")
+    to = request.GET.get("to", "")
+    if other is not None and request.GET.get("was", other) != other:
+        to = ""
+    if other is not None and (other != "" or not to):
+        return _compare_documents(request, document, other, to)
     asked = request.GET.get("from", ""), request.GET.get("to", "")
     try:
         past = ceiling(request.user, document)
@@ -276,6 +286,148 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
         ),
     }
     return render(request, "rendering/compare.html", context)
+
+
+# Epic 10
+def _compare_documents(
+    request: HttpRequest, first: Document, other: str, asked_to: str
+) -> HttpResponse:
+    """Two documents compared (ST-0064, DL-0452): the second's whole text at `to` marked against
+    the first's at `from`, in the reader's order, each version resolved through its own document's
+    ceiling and missing ones taken as that document's newest the reader reaches; each document's
+    attachments at its version, unpaired. `other` empty: the picker, no text drawn. The same
+    document named twice: its own comparison."""
+    from urllib.parse import urlencode
+
+    from documents.views import readable_document
+    from editing.diffview import render_changes
+    from review.history import ceiling
+
+    asked_from = request.GET.get("from", "")
+    if other and not (other.isascii() and other.isdigit() and len(other) <= 9):
+        return not_found(request)
+    second = None
+    if other and int(other) != first.number:
+        second = readable_document(request, int(other))
+        if second is None:
+            return not_found(request)
+    try:
+        first_past = ceiling(request.user, first)
+        first_seen = first_past.reachable()
+        if other and second is None:
+            # The document named as its own second: its own comparison, a missing side its
+            # newest version the reader reaches.
+            newest = first_seen[-1][0] if first_seen else ""
+            pair = urlencode({"from": asked_from or newest, "to": asked_to or newest})
+            return HttpResponseRedirect(f"/document/{first.number}/compare/?{pair}")
+        older = first_past.version(asked_from) if asked_from else None
+        if not asked_from and first_seen:
+            older = first_seen[-1][1]
+        if older is None:
+            return not_found(request)
+        # Named by its number now, as the chooser and the historical page name it.
+        asked_from = first_past.number(older)
+        context: dict[str, Any] = {
+            "first": first,
+            "second": second,
+            "older": asked_from,
+            "first_numbers": [n for n, _v in first_seen],
+        }
+        if second is None:
+            return render(request, "rendering/compare_documents.html", context)
+        second_past = ceiling(request.user, second)
+        second_seen = second_past.reachable()
+        newer = second_past.version(asked_to) if asked_to else None
+        if not asked_to and second_seen:
+            newer = second_seen[-1][1]
+        if newer is None:
+            return not_found(request)
+        asked_to = second_past.number(newer)
+        tenant = request.tenant  # type: ignore[attr-defined]
+        older_body = _body(tenant.number, first, older)
+        newer_body = _body(tenant.number, second, newer)
+        context |= {
+            "newer": asked_to,
+            "first_link": _document_link(first),
+            "older_link": _version_link(first, asked_from),
+            "second_link": _document_link(second),
+            "newer_link": _version_link(second, asked_to),
+            "second_numbers": [n for n, _v in second_seen],
+            "first_attachments": attachments(older),
+            "second_attachments": attachments(newer),
+            # Rendered from text the whitelist accepted, by the renderer that escapes it.
+            "changes": mark_safe(  # noqa: S308
+                render_changes(
+                    older_body.encode("utf-8"),
+                    newer_body.encode("utf-8"),
+                    context=_two_documents_context(
+                        request.user,
+                        (first, asked_from, older_body),
+                        (second, asked_to, newer_body),
+                    ),
+                )
+            ),
+        }
+    except UNREADABLE:
+        logger.exception(
+            "two documents' history could not be read",
+            extra={"document": first.number, "with": other},
+        )
+        return not_found(request)
+    return render(request, "rendering/compare_documents.html", context)
+
+
+def _two_documents_context(
+    user: Any, first: tuple[Any, str, str], second: tuple[Any, str, str]
+) -> Any:
+    """The render context of two documents' text: each side's images from its own document — an
+    image the second's text shows from the second, any other from the first — and the mentions
+    followed where the reader may read their target, except the two documents compared: the
+    reader is on both, each linked in the banner, as a document's mention of itself is never
+    followed (DL-11-012)."""
+    from documents import images
+    from rendering import mentions, reading
+
+    (one, one_number, one_body), (other, other_number, other_body) = first, second
+    shown = {r.src for r in images.referenced({"document.md": other_body})}
+    from_one, from_other = reading.committed_images(one), reading.committed_images(other)
+    compared = {one.number, other.number}
+    found = [m for m in mentions.targets(one_body, other_body) if m.number not in compared]
+    return reading.context(
+        user,
+        other,
+        one_body,
+        other_body,
+        images=lambda src: from_other(src) if src in shown else from_one(src),
+        sides=(f"#{one.number} {one_number}", f"#{other.number} {other_number}"),
+        found=found,
+    )
+
+
+def _document_link(document: Document) -> str:
+    return format_html('<a href="/document/{}/">#{}</a>', document.number, document.number)
+
+
+def _body(tenant: int, document: Document, version: Version) -> str:
+    repo = gitstore.open_repository(tenant, document.number)
+    _, body = bundle.parse(gitstore.read(repo, "document.md", version.commit_sha).decode())
+    return body
+
+
+@never_cache
+@login_required
+def compare_start(request: HttpRequest) -> HttpResponse:
+    """`GET /compare/?first=a&second=b`, the list's *Compare documents…*: to the comparison's own
+    address, `/document/a/compare/?with=b`; *nothing to show* unless the reader may open both."""
+    from documents.views import readable_document
+
+    numbers = [request.GET.get("first", ""), request.GET.get("second", "")]
+    if not all(n.isascii() and n.isdigit() and len(n) <= 9 for n in numbers):
+        return not_found(request)
+    first, second = (readable_document(request, int(n)) for n in numbers)
+    if first is None or second is None:
+        return not_found(request)
+    return HttpResponseRedirect(f"/document/{first.number}/compare/?with={second.number}")
 
 
 def _version_link(document: Document, number: str) -> str:

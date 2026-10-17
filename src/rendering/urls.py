@@ -26,4 +26,6 @@ urlpatterns = [
         views.export_download,
         name="export_download",
     ),
+    # Epic 10
+    path("compare/", views.compare_start, name="compare_start"),
 ]

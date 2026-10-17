@@ -121,3 +121,9 @@
 .generated-views .role-directory > li { margin-bottom: 0.6rem; }
 .generated-views .role-directory ul li { font-size: 0.9rem; margin: 0.2rem 0 0 0.6rem; }
 .generated-views .system { margin-top: 0.8rem; font-size: 0.85rem; }
+
+/* Epic 10: two documents compared — each document's attachments listed apart; the historical
+   page's second form beside its first. */
+.document-attachments + .document-attachments { margin-top: 16px; }
+.document-attachments h2 { font-size: 1em; }
+.compare-with-document { display: inline-flex; gap: 6px; align-items: center; margin-left: 12px; }

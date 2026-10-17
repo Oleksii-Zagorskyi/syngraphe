@@ -1,0 +1,43 @@
+{% extends "shell/base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "Search" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content documents">
+  <div class="panes list-panes" style="--tree-width: {{ tree_width }}px">
+    {% include "documents/tree.html" %}
+    <div class="list-main">
+  <div class="toolbar">{% include "documents/type_filter.html" %}</div>
+  <p class="note">{% translate "Searched in titles of documents and of their appendices — not in text." %}</p>
+  {% for group in groups %}
+  <section class="folder-group">
+    <h2 class="folder-path">{{ group.path }}</h2>
+    <table class="list">
+      <thead>
+        <tr><th>{% include "documents/sort_header.html" with header=sort_headers.number label="#" %}</th><th>{% translate "Title" as title_label %}{% include "documents/sort_header.html" with header=sort_headers.title label=title_label %}</th><th>{% translate "Type" %}</th><th>{% translate "Canonical" %}</th>{% if latest_column %}<th>{% translate "Latest" %}</th>{% endif %}<th>{% translate "Parts" %}</th>{% if pencil_column %}<th class="edit"><span aria-hidden="true">✎</span><span class="visually-hidden">{% translate "edit" context "open the edit tab" %}</span></th>{% endif %}</tr>
+      </thead>
+      <tbody>
+        {% for row in group.rows %}
+        <tr class="document" data-number="{{ row.document.number }}">
+          <td class="id">#{{ row.document.number }}</td>
+          <td><a href="/document/{{ row.document.number }}/">{{ row.document.title }}</a>{% for tag in row.tags %}<span class="tag" data-state="{{ tag.state }}">{{ tag.label }}</span>{% endfor %}</td>
+          <td>{{ row.document.document_type.label }}</td>
+          <td class="canonical">{% if row.canonical %}<a href="/document/{{ row.document.number }}/version/{{ row.canonical }}/" target="_blank" rel="noopener">{{ row.canonical }}</a>{% endif %}</td>{% if latest_column %}
+          <td class="latest">{% if row.latest %}<a href="/document/{{ row.document.number }}/">{{ row.latest }}</a>{% endif %}</td>{% endif %}
+          <td class="parts">
+            <span class="part appendices{% if not row.appendices %} absent{% endif %}" title="{% translate 'appendices' %}">▤</span>
+            <span class="part attachments{% if not row.attachments %} absent{% endif %}" title="{% translate 'attachments' %}">📎</span>
+          </td>{% if pencil_column %}
+          <td class="edit">{% if row.editable %}<a class="icon" href="/document/{{ row.document.number }}/edit/" title="{% translate 'edit' context 'open the edit tab' %}">✎</a>{% endif %}</td>{% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% empty %}
+  <p class="muted">{% translate "No documents here." %}</p>
+  {% endfor %}
+    </div>
+  </div>
+  <script src="{% static 'rendering/outline.js' %}" defer></script>
+</section>
+{% endblock %}

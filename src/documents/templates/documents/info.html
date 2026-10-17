@@ -1,12 +1,16 @@
 {% load i18n tz %}
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 <dl class="kv">
   <dt>{% translate "Number" %}</dt><dd>#{{ document.number }}</dd>
   <dt>{% translate "Title" %}</dt><dd>{{ document.title }}</dd>
   <dt>{% translate "Language" %}</dt><dd>{{ document.language.label }}</dd>
-  <dt>{% translate "Type" %}</dt><dd>{{ document.document_type.label }}</dd>
+  {# Epic 10: the type a choice for administrators (DL-0235, ST-0010) #}
+  <dt>{% translate "Type" %}</dt>{% if administrator %}<dd><form method="post" action="/document/{{ document.number }}/info/type/" class="type-change">{% csrf_token %}<label class="visually-hidden" for="document-type">{% translate "Type" %}</label><select id="document-type" name="document_type"{% if document.state == "archived" %} disabled{% endif %}>{% for kind in type_choices %}<option value="{{ kind.code }}"{% if kind.pk == document.document_type_id %} selected{% endif %}>{{ kind.label }}{% if kind.retired_at %} — {% translate "retired" context "document type" %}{% endif %}</option>{% endfor %}</select> <button class="btn" type="submit"{% if document.state == "archived" %} disabled title="{% translate "archived — restore it first" %}"{% endif %}>{% translate "Change" %}</button>{% if document.state == "archived" %} <span class="muted">{% translate "archived — restore it first" %}</span>{% endif %}</form></dd>{% else %}<dd>{{ document.document_type.label }}</dd>{% endif %}
   <dt>{% translate "Canonical version" %}</dt><dd class="canonical">{{ canonical_number|default:"—" }}</dd>
   {% if state %}<dt>{% translate "State" %}</dt><dd class="state" data-state="{{ state }}">{{ state_label }}</dd>{% endif %}
-  <dt>{% translate "Folder" %}</dt><dd>{% if document.folder.parent_id %}{{ document.folder.name }}{% else %}{{ current_tenant.name }}{% endif %}</dd>
+  <dt>{% translate "Folder" %}</dt><dd>{{ folder_path }}</dd>
   {% if administrator %}<dt>{% translate "Linked groups" %}</dt><dd>{% if document.author_only %}<span class="tag author-only">{% translate "author-only" %}</span>{% else %}{{ linked|join:" · " }}{% endif %}</dd>{% endif %}
+  {# Epic 10: a copy's source, to administrators alone (DL-0455) #}
+  {% if copied_from %}<dt>{% translate "Copied from" %}</dt><dd class="copied-from">{% if copied_from_opens %}<a href="/document/{{ copied_from.source_number }}/">#{{ copied_from.source_number }}</a>{% else %}#{{ copied_from.source_number }}{% endif %} {{ copied_from.version }} · <code>{{ copied_from.commit|slice:":12" }}</code> · {% timezone display_timezone %}{% blocktranslate with date=copied_from.at|date:"j E Y" name=copier %}{{ date }}, by {{ name }}{% endblocktranslate %}{% endtimezone %}</dd>{% endif %}
   <dt>{% translate "Created" %}</dt><dd>{% timezone display_timezone %}{% if creator %}{% blocktranslate with date=document.created_at|date:"j E Y" name=creator %}{{ date }}, by {{ name }}{% endblocktranslate %}{% else %}{{ document.created_at|date:"j E Y" }}{% endif %}{% endtimezone %}</dd>
 </dl>

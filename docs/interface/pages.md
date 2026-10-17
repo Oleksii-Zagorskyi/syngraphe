@@ -35,18 +35,18 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 |---|---|---|---|
 | [Shell](#shell) | on every page | ST-0007, ST-0013, ST-0014, ST-0019, ST-0047, ST-0066, ST-0069 | **0.1** |
 | [Sign-in pages](#sign-in-pages) | — | ST-0008, ST-0054, ST-0055, ST-0057 | **0.1** |
-| [Document list](#document-list) | `/folder/7/`; `/` opens the root, `/folder/1/` | ST-0009, ST-0012, ST-0013, ST-0014, ST-0018, ST-0051, ST-0052 | **0.1** |
+| [Document list](#document-list) | `/folder/7/`; `/` opens the root, `/folder/1/` | ST-0009, ST-0012, ST-0013, ST-0014, ST-0018, ST-0051, ST-0052, ST-0064 | **0.1** |
 | [In edit, In review](#in-edit-in-review) | `/in-edit/`, `/in-review/` | ST-0013, ST-0014 | **0.1** |
-| [Search results](#search-results) | `/search/?q=…` | ST-0013 | **0.1** |
+| [Search results](#search-results) | `/search/?q=…&type=…` | ST-0013 | **0.1** |
 | [Document page](#document-page) | `/document/12/` and one segment per tab | ST-0005, ST-0010, ST-0014, ST-0015, ST-0016, ST-0017, ST-0018, ST-0019, ST-0020, ST-0021, ST-0022, ST-0023, ST-0024, ST-0026, ST-0027, ST-0028, ST-0029, ST-0030, ST-0031, ST-0032, ST-0033, ST-0034, ST-0035, ST-0036, ST-0037, ST-0038, ST-0039, ST-0040, ST-0041, ST-0042, ST-0043, ST-0044, ST-0045, ST-0051, ST-0052, ST-0053, ST-0059, ST-0060, ST-0061, ST-0062, ST-0063, ST-0064, ST-0067, ST-0069, ST-0070 | **0.1** |
 | [Appendix page](#appendix-page) | `/document/12/appendix/3/` | ST-0023, ST-0061 | **0.1** |
-| [Historical page](#historical-page) | `/document/12/version/2.0/` | ST-0027, ST-0032, ST-0041, ST-0044 | **0.1** |
+| [Historical page](#historical-page) | `/document/12/version/2.0/` | ST-0027, ST-0032, ST-0041, ST-0044, ST-0064 | **0.1** |
 | [Compare](#compare) | `/document/12/compare/?from=2.0&to=2.3-1` | ST-0033, ST-0041, ST-0064 | **0.1** |
 | [Send-for-review screen](#send-for-review-screen) | within the edit tab, opened by *finish editing* | ST-0022, ST-0029, ST-0035 | **0.1** |
 | [Export](#export) | a dialog | ST-0045 | **0.1** |
 | [Create or copy a document](#create-or-copy-a-document) | a dialog | ST-0009, ST-0067 | **0.1** |
 | [Notifications](#notifications) | `/notifications/` | ST-0004, ST-0030, ST-0035, ST-0036, ST-0047, ST-0048, ST-0051, ST-0052, ST-0070 | **0.1** |
-| [Help](#help) | `/help/…` | ST-0002, ST-0003, ST-0004, ST-0007, ST-0019, ST-0026, ST-0027, ST-0028, ST-0043, ST-0044, ST-0045, ST-0054, ST-0055, ST-0060, ST-0065, ST-0066 | **0.1** |
+| [Help](#help) | `/help/…` | ST-0002, ST-0003, ST-0004, ST-0007, ST-0012, ST-0013, ST-0015, ST-0016, ST-0019, ST-0026, ST-0027, ST-0028, ST-0043, ST-0044, ST-0045, ST-0054, ST-0055, ST-0060, ST-0064, ST-0065, ST-0066, ST-0067 | **0.1** |
 | [Nothing to show here](#nothing-to-show-here) | any address that may not be seen | ST-0015 | **0.1** |
 | [Administration](#administration) | `/administration/platform/…`, `/administration/tenant/…` | ST-0001, ST-0002, ST-0003, ST-0004, ST-0005, ST-0006, ST-0011, ST-0012, ST-0015, ST-0016, ST-0030, ST-0046, ST-0048, ST-0049, ST-0050, ST-0051, ST-0053, ST-0058, ST-0062, ST-0065, ST-0066, ST-0068, ST-0071, ST-0072 | **0.1** |
 | User profile | — | — | **later** — not yet designed; the user menu carries what 0.1 needs |
@@ -85,7 +85,7 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 
 ```
 +--------------+---+-----------------------------------------------------------------+
-| ▾ Example Org|   | [ search titles of documents and appendices ] [+ create] [Folders ▾] |
+| ▾ Example Org|   | [ search titles of documents and appendices ] [All types ▾] [+ create] [Folders ▾] |
 |  ▾ Policies  | ↔ | #   Title ▲                        Type    Canonical  Latest  Parts  ✎ |
 |   ▸ **HR**   |   | 12  Annual leave, sick leave and…  policy  2.0        2.3-1   A  F   ✎ |
 |   ▸ Finance  |   |     [reserved for editing, since 12 Sep] [awaiting review]       |
@@ -102,8 +102,9 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 | draggable pane edge; the width kept in the user's preferences (DL-0195) | **0.1** | — | — | Epic 10 |
 | *Folders ▾* — new, rename, delete an empty folder, move documents | **0.1** | tenant administrator | ST-0012 | Epic 10 |
 | search box — titles of documents and appendices only, never text | **0.1** | — | ST-0013 | Epic 10 |
-| filter by type | **0.1** — not yet drawn | — | ST-0013 | Epic 10 |
+| filter by type — beside the search box: *All types*, then the types of the active documents the user may open, retired ones included; **not drawn when those documents carry fewer than two types** (DL-0236); choosing one opens search results for that type across every folder, with the words in the box (DL-0197) | **0.1** | — | ST-0013 | Epic 10 |
 | *create* | **0.1** | *create and edit* | ST-0009 | Epic 3 |
+| *Compare documents…* — two document numbers, opening their comparison | **0.1** | a viewing right on each | ST-0064 | Epic 10 |
 | `#` — the document's number (ADR-0008) | **0.1** | — | ST-0013 | Epic 3 |
 | title — takes the free width; opens the reading view | **0.1** | — | ST-0013 | Epics 3, 4 |
 | state tags after the title — *held* (DL-0262), the fact and never the person except to administrators — a tenant administrator, or a platform administrator acting in the organisation (ADR-0006, DL-0079); *reserved for editing, since* its date, with who to holders of *edit* or *accept* and to administrators (DL-0226); *frozen* first, then the hold's tag; *awaiting review* and *returned* to those who may see pending edits (DL-0233); *no reviewer assigned* to those, and to administrators | **0.1** | — | ST-0014, ST-0018, ST-0051, ST-0052 | Epics 5, 6, 9, 15 |
@@ -111,13 +112,13 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 | *Canonical* — the canonical number, linking to the edition's historical page (DL-0208, DL-0352) | **0.1** | — | ST-0013 | Epics 6, 15 |
 | *Latest* — the latest version the user may see beyond canonical, else empty; links where the title does (DL-0208, DL-0209). **Drawn only for someone who may see beyond canonical text on at least one document** (DL-0233) | **0.1** | — | ST-0013, ST-0014 | Epic 6 |
 | part markers — presence, not count | **0.1** | — | ST-0013 | Epic 3 |
-| ✎ — opens the edit tab | **0.1** | *edit* | ST-0013 | Epic 4 |
+| ✎ — opens the edit tab | **0.1** | *edit* | ST-0013 | Epics 4, 10 |
 
 An archived document leaves the list for everyone, administrators included; they reach it through Administration › Archive (DL-0233).
 
 ## In edit, In review
 
-The document list's shape, each a page of its own reached from the menu: matching documents grouped under a heading per folder path, the groups alphabetical, sorting within each group; the folder tree shows only folders holding matches (DL-0197, DL-0207). An empty view reads *No documents here.*; to anyone the menu does not offer it, its address answers *Nothing to show here*.
+The document list's shape, each a page of its own reached from the menu, without the type filter — choosing a type opens search across every folder, which would leave the view: matching documents grouped under a heading per folder path, the groups alphabetical, sorting within each group; the folder tree shows only folders holding matches (DL-0197, DL-0207). An empty view reads *No documents here.*; to anyone the menu does not offer it, its address answers *Nothing to show here*.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
@@ -130,6 +131,9 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | grouped results, filtered tree | **0.1** | ST-0013 | Epic 10 |
+| search box — keeps the words searched; the note *Searched in titles of documents and of their appendices, not in text.* | **0.1** | ST-0013 | Epic 10 |
+| filter by type — as on the document list; alone it lists every document of the type the user may open, with words it narrows them | **0.1** | ST-0013 | Epic 10 |
+| nothing found — *No documents here.* | **0.1** | ST-0013 | Epic 10 |
 
 ## Document page
 
@@ -157,11 +161,12 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | the notice after *send for review* — *Sent for review — the version waits as 2.3-2*, to the one who sent it (DL-0322) | **0.1** | — | ST-0029 | Epic 4 |
 | breadcrumb, `#12`, title, the **latest version the reader may see** — never a version beyond their rights (DL-0209) | **0.1** | — | ST-0042 | Epics 3, 6 |
 | state tags, as in the list; *archived* to administrators only — to everyone else an archived document does not exist | **0.1** | — | ST-0014, ST-0015, ST-0018, ST-0051, ST-0052 | Epics 5, 6, 9, 10, 15 |
-| *Export*, *Copy* | **0.1** | any viewing right; *create and edit* | ST-0045, ST-0067 | Epics 7, 10 |
+| *Export*, *Copy* — *Copy* drawn disabled with *archived — restore it first* on an archived document (DL-0233) | **0.1** | any viewing right; *create and edit* | ST-0045, ST-0067 | Epics 7, 10 |
 | *Freeze* / *Unfreeze* — disabled with its reason while anyone holds or has reserved the document (DL-0223) | **0.1** | *freeze* | ST-0038, ST-0040 | Epic 6 |
 | *Make canonical* — disabled with its reason until the document is frozen, and while changes are unaccepted; to someone who may not see pending edits the reason names no pending number | **0.1** | *make canonical* | ST-0039, ST-0053 | Epic 6 |
 | *Groups* — locked, with who holds the document, while it is held or reserved | **0.1** | tenant administrator | ST-0005 | Epic 8 |
 | *Archive* / *Restore*; *More ▾* holds *force release* for an ordinary hold and *end the reservation…* for a reserved one, never offered to the holder; *end the reservation…* opens a page naming the reservation, its holder and its date, with the reason, required (DL-0225, DL-0415); *force release* names the hold the page showed, so a newer one is never forced | **0.1** | tenant or platform administrator | ST-0015, ST-0016, ST-0030 | Epics 10, 9 |
+| *Compare with another document* — opens the picker, *from* the version shown | **0.1** | any viewing right | ST-0064 | Epic 10 |
 | outline — every heading level, ▸ ▾, no appendices; collapsible and resizable; on the *View* tab (DL-0356) | **0.1** | — | ST-0024 | Epic 7 |
 | the text — a heading's number part of the heading, set as the heading is; each clause's number in the gutter beside it in a light grey, never selected with the text; the same in the editor and the exports (DL-0363) | **0.1** | — | ST-0042 | Epic 7 |
 | right panel — the icon row; collapsible and resizable; widths kept per user (DL-0194, DL-0195) | **0.1** — *parts* and *generated views*; comments **later** (B-013) and the agents' views **0.2**, not drawn until built (DL-0228, DL-0356) | — | — | Epics 3, 4, 7, 11 |
@@ -179,7 +184,7 @@ As *In edit*: results grouped under a heading per folder path, alphabetical grou
 | Pending edits | `pending/` | the whole document, every change since the last acceptance marked in place and attributed; formatting-only changes marked; **a changed image before and after, side by side**, each captioned with its side, its version's number and its description, *open both full size* below them (DL-0439, DL-11-002); the run's versions with their change summaries; **every part operation** — added, replaced, renamed, reordered, deleted — with each file's versions to download and, for a reviewer, *revert*, which takes the document and joins the correction; **the roles, actions and terms added, relabelled or removed in the run** (DL-0073); *show author* (DL-0040); *Correct*, *Accept the run* (confirmed, naming the versions accepted and the number that results), *Return without accepting* (confirmed, the reason required: one line of at most 500 characters, DL-0378, DL-0424) — each disabled with its reason while the document is reserved, the holder's own reservation included — a holder of *accept* accepts through *accept as* on the send-for-review screen (DL-0222, DL-0224); *Correct* also while an author holds the document | **0.1** | *view pending*; *accept* for the acts | ST-0031, ST-0034, ST-0035, ST-0036, ST-0052, ST-0063 |
 | History | `history/` | per version, newest first: number, event (edit, a reviewer's version, acceptance, return, canonisation), who, when — and the freezes and unfreezes between them; *open* — in a new window as a historical page; the accepted boundary, to a reader of accepted text (DL-0209); to a holder of *view previous canonical versions* only, the editions alone; to a holder of *accept* without a history right, the pending run alone (DL-0251); *compare* from each version's historical page. On the pending run, for a reviewer: **undo this edit** on each version and **undo all of this author's edits since N.M** on each author's newest — the reversal of the body goes into the reviewer's draft, which opens; a title or part the undone edits changed is listed, to be changed with the parts' own controls; what a later version or the draft changed is left as it stands and listed above the editor for editing by hand (ADR-0015, DL-0380); disabled with the reason while reserved, held by another, or a kept draft of the reviewer's waits; while the undo waits in the draft, *Accept the run* is disabled with its reason, and the reviewer accepts it with *Accept as* (DL-0427) | **0.1** | *view all history*; *view previous canonical versions* for editions only; *accept* for the pending run and to undo | ST-0032, ST-0033, ST-0037, ST-0041, ST-0064 |
 | Analysis | `analysis/` | the agents' analyses, drawn as a placeholder; release 0.1 has no analyses of its own (DL-0261) | **0.2**, drawn, not built (DL-0228) | *edit* | — |
-| Info | `info/` | number, title, language, type — a choice for administrators — folder, canonical version, state, title page, style, linked groups (administrators), created | **0.1** | any viewing right | ST-0010 |
+| Info | `info/` | number, title, language, type — a choice for administrators — folder, canonical version, state, title page, style, linked groups (administrators), created; *Copied from* (administrators, a copy alone) — the source's number, linked where the reader may open it, its version, the commit's first twelve characters, the date and who copied it (DL-0455) | **0.1** | any viewing right | ST-0010 |
 
 ### The edit tab
 
@@ -210,21 +215,24 @@ The document page's frame for one appendix. The title reads **#12 Annual leave�
 
 ## Historical page
 
-One version, opened in a new window: a **banner** across the top — *Historical version 2.0 — read only*, with a link to the current document; the reading view with a collapsible outline; the generated views of that version, as the View tab's; the attachments as that version listed them, each downloadable at that version — `/document/12/version/2.0/attachment/3/` (DL-0421); *Export* of that version alone, marked by the chain of the stance it reached where the reader may see its baseline (DL-0426), re-checked against the reader's ceiling when it runs (DL-0423); *compare with* any other version the reader may see, the latest included — not drawn when there is none. Never editable (DL-0195, DL-0208). The versions a reader may open: the current version of each stance their viewing right includes, every version of the pending run with *view pending*, every edition with *view previous canonical versions*, every version up to their highest stance with *view all history* (ADR-0007, DL-0286).
+One version, opened in a new window: a **banner** across the top — *Historical version 2.0 — read only*, with a link to the current document; the reading view with a collapsible outline; the generated views of that version, as the View tab's; the attachments as that version listed them, each downloadable at that version — `/document/12/version/2.0/attachment/3/` (DL-0421); *Export* of that version alone, marked by the chain of the stance it reached where the reader may see its baseline (DL-0426), re-checked against the reader's ceiling when it runs (DL-0423); *compare with* any other version the reader may see, the latest included — not drawn when there is none; beside it and drawn with it, *compare with another document*, a document's number, its newest version the reader may see compared with this one. Never editable (DL-0195, DL-0208). The versions a reader may open: the current version of each stance their viewing right includes, every version of the pending run with *view pending*, every edition with *view previous canonical versions*, every version up to their highest stance with *view all history* (ADR-0007, DL-0286).
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | the page | **0.1** | the reader's ceiling: a viewing right, widened by a history right | ST-0032, ST-0041 | Epic 15 |
 | the generated views of that version — the role directory and *see also*, as the View tab's | **0.1** | as the page | ST-0027, ST-0044 | Epic 11 |
+| *compare with another document* — a second form beside *compare with*, drawn with it: the document's number | **0.1** | a viewing right on each | ST-0064 | Epic 10 |
 
 ## Compare
 
-A **banner** across the top in the historical page's style — *Comparing 2.0 with 2.3-1 — read only* — each version a link to it (DL-0233). Below it, *from* and *to*, chosen among the versions the reader may see, and a *Compare* button that opens the chosen pair as a new page. The newer version in full, with the changes against the older marked in place. A side panel lists the parts in both versions: **appendices** — pick one from each side and *compare appendices*, which opens a page of the same shape for the pair; **attachments** — each with its file in both versions and whether it was added, changed — its file, title or file name — removed or unchanged; attachments are not compared (DL-0208). On two versions that follow each other among those the reader may see, *previous* and *next* move the pair one version back or forward, skipping the others, disabled at the ends (DL-0361). One version asked against itself opens its historical page. Comparing with another document works the same way. A reader who may see only one version is offered no comparison.
+A **banner** across the top in the historical page's style — *Comparing 2.0 with 2.3-1 — read only* — each version a link to it (DL-0233). Below it, *from* and *to*, chosen among the versions the reader may see, and a *Compare* button that opens the chosen pair as a new page. The newer version in full, with the changes against the older marked in place. A side panel lists the parts in both versions: **appendices** — pick one from each side and *compare appendices*, which opens a page of the same shape for the pair; **attachments** — each with its file in both versions and whether it was added, changed — its file, title or file name — removed or unchanged; attachments are not compared (DL-0208). On two versions that follow each other among those the reader may see, *previous* and *next* move the pair one version back or forward, skipping the others, disabled at the ends (DL-0361). One version asked against itself opens its historical page. A reader who may see only one version is offered no comparison.
+
+**Comparing two documents** has the same shape. The banner reads *Comparing #12 2.0 with #7 1.0 — read only*, each number linking to its document and each version to its historical page; the heading names both documents. Below it, *from* among the first document's versions the reader may see, *with document* — a number — and *to* among the second's, then *Compare*. The second document's whole text, with its changes against the first's marked in place; the order is the reader's. Each version is one its own document's reader may see; a document the reader may not open, or a version beyond their rights, answers *Nothing to show here*, and a document compared with itself opens its own comparison. Without a *to*, the second document's newest version the reader may see. **The picker**: *with document* empty and no text drawn, opened by *Compare with another document*. The side panel lists **each document's attachments** under its number and version, each downloadable at that version, the two lists not paired (DL-0452). No *previous* and *next* across documents. It starts from the document page, the historical page and the document list.
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | version comparison, *previous* and *next*, attachment list; appendix comparison | **0.1** | the viewing right for both versions | ST-0033, ST-0041 | Epic 15; appendix comparison Epic 13 |
-| comparing two documents — the document picker, and the start from the document list | **0.1** — not yet drawn | a viewing right on each | ST-0064 | Epic 10 |
+| comparing two documents — the banner, *from*, *with document* and *to*, the second document's text marked against the first's, each document's attachments; the picker (DL-0452) | **0.1** | a viewing right on each | ST-0064 | Epic 10 |
 
 ## Send-for-review screen
 
@@ -278,7 +286,7 @@ Title, language, type — each named in words, never by its code — folder (the
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | create | **0.1** | *create and edit* | ST-0009 | Epic 3 |
-| copy | **0.1** — not yet drawn | *create and edit*, and the source version's viewing right | ST-0067 | Epic 10 |
+| copy — opened by *Copy* on the document page: the title prefilled with the source's; the language the source's, shown as text; type and folder as in create; the version — *Pending edits*, *Accepted*, *Canonical* among those the user may see, pending by default, a single one named as text; the appendices — *None*, *All* or *Chosen*, renumbered from 1 in the source's order; *Attachments are not copied.* | **0.1** | *create and edit*, and the source version's viewing right | ST-0067 | Epic 10 |
 
 ## Notifications
 
@@ -291,13 +299,14 @@ Two tabs (DL-0204). **Document** — each entry linking to the document at the v
 
 ## Help
 
-Pages rendered from Markdown files shipped with the application (DL-0195), `/help/` opening on *reading a document* with the list beside it: how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, editing, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, exporting, and people and access. Linked from every paste refusal.
+Pages rendered from Markdown files shipped with the application (DL-0195), `/help/` opening on *reading a document* with the list beside it: how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, editing, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, exporting, people and access, and finding and organising documents. Linked from every paste refusal.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | the pages and the allowed-Markdown list — what is accepted and how it is written, and what is refused with the conversion each gets, built from the specification: its limits, entities and callout types, and every refusal with its conversion | **0.1**; the guide's full content B-016 | ST-0019, ST-0060 | Epic 4 |
 | *Reading a document* — the version shown, clause numbers, the outline, the parts, *Info*; *Exporting* — the dialog's choices, the file's name, delivery and failures | **0.1** | ST-0045 | Epic 7 |
 | *Editing* — *Images*, *Roles, actions and terms*, *Mentions*; *Reading a document* — *Mentions and generated views*; *Exporting* — *Images* | **0.1** | ST-0026, ST-0027, ST-0028, ST-0043, ST-0044 | Epic 11 |
+| *Finding and organising documents* — folders and the list, search and the type filter, copying, comparing two documents; for administrators, document types, folders, archive and restore; *Reading a document* — *Comparing two documents*, a pointer here | **0.1** | ST-0012, ST-0013, ST-0015, ST-0016, ST-0064, ST-0067 | Epic 10 |
 | *People and access* — inviting, a forgotten password, blocking a member and one's own account and lifting a block, several organisations, and the platform administrator's acts | **0.1** | ST-0002, ST-0003, ST-0004, ST-0007, ST-0054, ST-0055, ST-0065, ST-0066 | Epic 8 |
 
 ## Nothing to show here
@@ -326,11 +335,11 @@ One area with two parts in a left pane: **Platform**, for platform administrator
 | document links | `…/tenant/document-links/` | which groups reach which document, as removable chips and *link a group*; locked while held or reserved, with who, and *force the release* or *end the reservation…*; author-only documents with who created them; an archived document's links, which take effect on restore | **0.1** | ST-0005, ST-0015, ST-0030, ST-0051 | Epics 3, 8, 9; the holder Epic 8, the two acts Epic 9 |
 | reservations | `…/tenant/reservations/` | every reservation in the organisation: document, holder, since when; *end the reservation…*, to its page, a reason required and told to the holder in the application, never by email (DL-0225, DL-0227, DL-0369, DL-0415) | **0.1** | ST-0030 | Epic 9 |
 | folders | `…/tenant/folders/` | the tree with each folder's documents; new, rename; *delete* disabled with its reason when a folder holds anything; *move documents…* — which, and where to | **0.1** | ST-0012 | Epic 10 |
-| document types | `…/tenant/document-types/` | this organisation's own list, seeded with *document*; add, rename, retire; delete only a type no document uses (DL-0235) | **0.1** | ST-0011 | Epic 10 |
+| document types | `…/tenant/document-types/` | this organisation's own list, seeded with *document*; add, rename, retire; delete only a type no document uses, never the seeded one; the last type not retired is neither retired nor deleted (DL-0235, DL-10-001, DL-10-002) | **0.1** | ST-0011 | Epic 10 |
 | template | `…/tenant/template/` | the headings and starting text new documents start from; the title page switch and *title page layout…* — which details, in which order | **0.1** | ST-0058 | Epic 16 |
 | settings | `…/tenant/settings/` | attachment size cap, inactivity timeout, the distinct-approver check | **0.1** | ST-0030, ST-0053, ST-0062 | Epic 12 |
 | sending address | `…/tenant/sending-address/` | the tenant's own sender or none; the password write-only and asked for again when the server, port, connection or user name changes (DL-0390); a user name refused on an unencrypted connection but to the same machine (DL-0388); *Send a test email* — to the address itself, with the step results, one at a time; the DNS note; the organisation's outbox, its newest 200, with each email's status and attempts (DL-0385, DL-0392) — a reset's email listed to a platform administrator alone (DL-0410) | **0.1** | ST-0068 | Epics 14, 8 |
-| archive | `…/tenant/archive/` | archived documents: restore, export | **0.1** | ST-0015, ST-0016 | Epic 10 |
+| archive | `…/tenant/archive/` | archived documents, newest archived first, each with the date it was archived: *restore*, *export*; *No document is archived.* when there is none | **0.1** | ST-0015, ST-0016 | Epic 10 |
 | styles | `…/tenant/styles/` | the organisation's export stylesheet and which documents use it, *apply*, *export a sample PDF* (DL-0230) | **0.1** | ST-0046 | Epic 16 |
 | access history | `…/tenant/access-history/` | a document, or *any document* (every access change up to then, the newest 200), and a date: which groups could read it then, each with its members that day; the changes to access that led there | **0.1** | ST-0006 | Epic 12 |
 | actions and side-document types | `…/tenant/actions/` | which are attached to which documents | **0.2** — drawn as a placeholder | — | — |

@@ -168,3 +168,30 @@ def test_hold_tags_cost_one_query(
         if tag.state.value in ("held", "reserved")
     ]
     assert sorted(hold_states) == ["held"] * 5 + ["reserved"] * 5
+
+
+# Epic 10
+def test_an_archived_document_is_tagged_archived_first(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+) -> None:
+    """Only administrators reach an archived document; its tags open with *archived*."""
+    from access.rights import Right
+    from documents import archive
+    from review.state import tags
+
+    _, author, author_membership = member_of("the.author@example.test")
+    admin_client, admin, _ = member_of("the.admin@example.test", is_tenant_admin=True)
+    document = new_document(author)
+    link_group(document, [Right.EDIT], [author_membership], author)
+    commit_version(document, author, BODY, "edit")
+    with schema_context(migrated_tenant.number):
+        before = tags(admin, [document], administrator=True)[document.pk]
+        archive.archive(document, admin)
+        document.refresh_from_db()
+        after = tags(admin, [document], administrator=True)[document.pk]
+
+    assert State.ARCHIVED not in [tag.state for tag in before]
+    assert after[0].state is State.ARCHIVED
+    assert [tag.state for tag in after[1:]] == [tag.state for tag in before]
+    page = admin_client.get(f"/document/{document.number}/").content.decode()
+    assert page.index('data-state="archived"') < page.index('data-state="no_reviewer_assigned"')

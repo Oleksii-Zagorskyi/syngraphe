@@ -55,4 +55,6 @@ def test_the_context_manager_is_used_where_the_decisions_allow() -> None:
         "mail/views/platform.py",
         "identity/resets.py",
         "identity/blocking.py",
+        # Epic 10: the operator's removal of a stopped copy, in its organisation's schema.
+        "documents/management/commands/remove_stopped_copy.py",
     }

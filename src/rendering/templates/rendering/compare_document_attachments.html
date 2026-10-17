@@ -1,0 +1,4 @@
+{% load i18n %}<section class="attachments document-attachments">
+  <h2>#{{ document.number }} {{ number }}</h2>
+  {% if listed %}<ul>{% for part in listed %}<li><a href="/document/{{ document.number }}/version/{{ number }}/attachment/{{ part.number }}/">{{ part.title }} · {{ part.file_name }}</a></li>{% endfor %}</ul>{% else %}<p>{% translate "No attachments" %}</p>{% endif %}
+</section>

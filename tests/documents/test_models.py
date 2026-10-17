@@ -182,3 +182,23 @@ def test_a_missing_appendix_leaves_the_rest(
 
     assert headings == [("One",)]
     assert parts == 1
+
+
+# Epic 10
+def test_the_folder_sequence_is_the_tenants(migrated_tenant: Any) -> None:
+    """Folder numbers come from the organisation's own sequence, starting after the root's 1."""
+    from django.db import connection
+
+    from documents.models import next_folder_number
+
+    with schema_context(migrated_tenant.number):
+        first = next_folder_number()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT n.nspname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace"
+            " WHERE c.relname = 'documents_folder_number'"
+        )
+        schemas = [row[0] for row in cursor.fetchall()]
+
+    assert first == 2
+    assert schemas == [migrated_tenant.schema_name]

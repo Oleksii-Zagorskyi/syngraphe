@@ -1,0 +1,1 @@
+{% load i18n %}{% if shown %}{% if archived %}<button class="button" type="button" disabled title="{% translate "archived — restore it first" %}">{% translate "Copy" %}</button> <span class="muted">{% translate "archived — restore it first" %}</span>{% else %}<a class="button" href="/document/{{ document.number }}/copy/">{% translate "Copy" %}</a>{% endif %}{% endif %}

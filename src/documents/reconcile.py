@@ -79,6 +79,10 @@ CREATING_WITHOUT_REPOSITORY = "creating_without_repository"
 CREATING_WITHOUT_COMMIT = "creating_without_commit"
 CREATING_WITHOUT_VERSION = "creating_without_version"
 CREATING_UNFINISHED = "creating_unfinished"
+# Epic 10: a copy that stopped before it was made: its source is in the audit trail, so it is never
+# finished from the template; reported, and removed by an operator (`remove_stopped_copy`,
+# DL-0455).
+COPY_STOPPED = "copy_stopped"
 ORPHAN_REPOSITORY = "orphan_repository"
 REPOSITORY_MISSING = "repository_missing"
 COMMIT_WITHOUT_ROW = "commit_without_row"
@@ -251,6 +255,10 @@ class _Run:
 
     def creating(self, document: Document) -> None:
         if document.created_at > timezone.now() - CREATING_GRACE:
+            return
+        # Epic 10: a copy is never finished — in report and repair alike (DL-0455).
+        if is_a_copy(document):
+            self.found(COPY_STOPPED, document.number)
             return
         path = self.path(document.number)
         first = None
@@ -1073,3 +1081,14 @@ def _exports(one: _Run, only: int | None) -> None:
                 render_export.delay(one.tenant.number, str(job.pk))
             _audit(one.tenant, kind, job.document, None, {"export": str(job.pk)})
         one.found(kind, job.document.number, str(job.pk), repaired=one.repair)
+
+
+# Epic 10
+def is_a_copy(document: Document) -> bool:
+    """Whether `document`'s creation is a copy: its source written to the audit trail before any
+    repository (DL-0455)."""
+    from audit.models import AuditEvent
+
+    return AuditEvent.objects.filter(
+        action="document.copied", object_type="document", object_id=document.pk
+    ).exists()
