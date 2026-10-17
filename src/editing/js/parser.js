@@ -1,18 +1,20 @@
 // markdown-it configured to recognise everything the whitelist refuses — CommonMark, pipe tables,
 // raw HTML tokenised so that it can be refused by name, every link tokenised so that a refused scheme
-// is named, the span and callout rules, the tidying both sides share — and the validator over it
-// (ADR-0010). `src/editing/markdown/parser.py` and `validator.py` are its twin. This instance
-// recognises and never renders: the editor renders through its own document model.
+// is named, the span and callout rules, the `- 1.` respelling, the tidying both sides share — and
+// the validator over it (ADR-0010). `src/editing/markdown/parser.py` and `validator.py` are its
+// twin. This instance recognises and never renders: the editor renders through its own document
+// model.
 import MarkdownIt from "markdown-it";
 import { MarkdownParser } from "prosemirror-markdown";
 
-import { attrSpan, callout, linesOf, tidy, walk } from "./rules.js";
+import { attrSpan, callout, linesOf, numberedBullets, tidy, walk } from "./rules.js";
 
 export function makeMarkdownIt() {
   const md = MarkdownIt("commonmark", { html: true }).enable("table");
   md.validateLink = () => true;
   md.inline.ruler.before("link", "attr_span", attrSpan);
   md.core.ruler.after("block", "callout", callout);
+  md.core.ruler.after("callout", "numbered_bullets", numberedBullets);
   md.core.ruler.after("text_join", "tidy", tidy);
   return md;
 }

@@ -13,7 +13,7 @@ import dataclasses
 import hashlib
 import os
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -40,7 +40,16 @@ from editing.markdown import load_spec
 from editing.markdown.parser import parser
 from editing.markdown.validator import validate
 from editing.models import Hold
-from editing.normalizer import RULESET, Lists, NormalizerDefect, TooLarge, normalize, trailer
+from editing.normalizer import (
+    RULESET,
+    Lists,
+    NormalizerDefect,
+    TooLarge,
+    joined,
+    normalize,
+    trailer,
+)
+from editing.normalizer.headings import strip_own_numbers
 from editing.normalizer.spellings import OutsideWhitelist
 from identity.models import Language, Membership, MembershipState, User
 from tenancy.models import Tenant
@@ -95,6 +104,16 @@ class Prepared:
     body: str
     normalised: str
     files: list[tuple[str, str, bytes]]  # file name, title, bytes
+    # What the load changes and says so, never refusing for it: lines joined (DL-0441).
+    notices: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class Loaded:
+    """The loaded document, and the notices its load gave."""
+
+    document: Document
+    notices: list[str]
 
 
 def _nfc(name: str) -> str:
@@ -233,7 +252,7 @@ def _check_body(body: str, reasons: list[str]) -> None:
                 source = str(child.attrs.get("src", ""))
                 reasons.append(
                     f"line {(token.map or [0])[0] + 1}: the image reference {source!r}; "
-                    "images arrive later"
+                    "the loader takes no images; add them in the editor after loading"
                 )
 
 
@@ -263,6 +282,8 @@ def check(folder: Path, loader: User, group: AccessGroup) -> Prepared:
     if not folder.is_dir():
         raise Refused(folder, ["not a folder"])
     description, body, present = _read_folder(folder, reasons, load_spec().max_bytes)
+    # A heading's own number is the outline's to give, never stored (DL-0441).
+    body = strip_own_numbers(body) if body else body
     title, language, named = _check_description(description, present, reasons)
     if body:
         _check_body(body, reasons)
@@ -307,7 +328,13 @@ def check(folder: Path, loader: User, group: AccessGroup) -> Prepared:
     if reasons:
         raise Refused(folder, reasons)
     assert language is not None
-    return Prepared(title, language, body, normalised, files)
+    try:
+        found = joined(body, Lists.of(language))
+    except (NormalizerDefect, OutsideWhitelist):
+        # The notices say what the load changes, and never stop it.
+        found = []
+    notices = [f"line {line} is joined with the next" for line in found]
+    return Prepared(title, language, body, normalised, files, notices)
 
 
 def _declared(normalised: str) -> str:
@@ -344,8 +371,9 @@ def _frontmatter(
     return bundle.Frontmatter(title=title, language=language.code, attachments=_parts(files))
 
 
-def load(folder: Path, loader: User, group: AccessGroup) -> Document:
-    """The folder as a document whose one content version is accepted as `0.1`."""
+def load(folder: Path, loader: User, group: AccessGroup) -> Loaded:
+    """The folder as a document whose one content version is accepted as `0.1`, with the notices
+    its check gave."""
     from editing.services import ask_authorship, derive_committed
     from review.services import accept, settle_head
 
@@ -429,4 +457,4 @@ def load(folder: Path, loader: User, group: AccessGroup) -> Document:
         accept(document, loader, confirmed=sha)
     except Exception as error:
         raise Stopped(document.number, 4, error) from error
-    return document
+    return Loaded(document, prepared.notices)

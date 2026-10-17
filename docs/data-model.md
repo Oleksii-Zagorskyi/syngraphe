@@ -176,7 +176,7 @@ erDiagram
         uuid tenant FK "null for a platform-level action"
         uuid actor FK "null when the system acted"
         string actor_kind "user | system | agent"
-        string action "tenant.created | document.archived | image.uploaded | ..."
+        string action "tenant.created | document.archived | image.uploaded | entity.declared | ..."
         string object_type
         uuid object_id
         json before
@@ -419,7 +419,7 @@ erDiagram
         uuid id PK
         uuid hold FK
         string base_commit "the head's commit when the hold was taken (DL-0318)"
-        json content "per-file working text: body, appendices, frontmatter; after an undo, undo: the versions undone and the places left for the holder's hand, each with its wording before, what the undone versions wrote and what stands now, never in the text (DL-0380)"
+        json content "per-file working text: body, appendices, frontmatter, entities.yaml (the head's when the hold was taken, and every declaration made since); after an undo, undo: the versions undone and the places left for the holder's hand, each with its wording before, what the undone versions wrote and what stands now, and an entry naming a title, a part or the entities the undone versions changed — those stand — never in the text (DL-0380)"
         datetime updated_at
     }
     DRAFT ||--o{ DRAFT_FILE : stages
@@ -427,7 +427,7 @@ erDiagram
         uuid id PK
         uuid draft FK
         string kind "image | attachment"
-        string path "images/... or attachments/{id}"
+        string path "images/<sha256>.<ext> (DL-0439) or attachments/{id}"
         string operation "add | replace | remove"
         bytes content "null for remove"
         string file_name
@@ -490,8 +490,8 @@ erDiagram
         uuid id PK
         uuid document FK
         string kind "role | action | term"
-        string key "cmo"
-        string label "Chief Marketing Officer"
+        string key "role-1, or the key a span carried"
+        string label "the approver"
     }
     PART_INDEX {
         uuid id PK
@@ -508,11 +508,11 @@ erDiagram
     IMAGE {
         uuid id PK
         uuid document FK
-        string path "images/plan.png"
+        string path "images/<sha256>.<ext>, named by its content (DL-0439)"
         string content_type "png | jpeg | gif"
         int bytes
-        uuid uploaded_by FK
-        datetime uploaded_at
+        uuid uploaded_by FK "the author of the version that first held it"
+        datetime uploaded_at "that version's commit time"
     }
 ```
 
@@ -526,7 +526,9 @@ erDiagram
 
 **Comments are not here.** Threads, anchors and resolution are a surface rather than a field, and the whole of it is stage 2 (DL-0083).
 
-**`ENTITY` mirrors `entities.yaml` for lookup.** Occurrences are the attributed spans in the text and are not stored: the role directory is produced by parsing the sections at a version (DL-0073), which is why it ships in stage 1 without an agent.
+**`ENTITY` mirrors `entities.yaml` for lookup.** Occurrences are the attributed spans in the text and are not stored: the role directory is produced by parsing the sections at a version (DL-0073), which is why it ships in stage 1 without an agent. The rows are replaced from the head's `entities.yaml` whenever a version is derived; a role, action or term marked in the text without a declaration is declared at the commit, labelled with its words (DL-0440). A declaration made in the editor waits in the draft's `entities.yaml` until then, audited as `entity.declared`.
+
+**`IMAGE` records each image a version first held**, rebuilt from git when a version is derived and never pruned: an image is read from the repository at the version its reader may see. An upload waits in `DRAFT_FILE` until the commit, audited as `image.uploaded` (DL-0439).
 
 ## Notifications and export
 

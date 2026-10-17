@@ -1,7 +1,8 @@
-"""The rules written in both languages (ADR-0010): the attributed span, the callout, the tidying of
-inline text, and the validator's walk. `src/editing/js/rules.js` is this module's twin — the same
-functions in the same order, each named by its language's convention — and the conformance suite
-holds the two in step. A change here is a change there, in the same commit.
+"""The rules written in both languages (ADR-0010): the attributed span, the callout, the `- 1.`
+respelling, the tidying of inline text, and the validator's walk. `src/editing/js/rules.js` is this
+module's twin — the same functions in the same order, each named by its language's convention —
+and the conformance suite holds the two in step. A change here is a change there, in the same
+commit.
 
 Patterns use explicit ASCII classes only: Python's `\\w` and `\\s` match Unicode letters and spaces,
 JavaScript's do not. `\\Z` here is JavaScript's `$`: Python's `$` also matches before a final line
@@ -152,6 +153,86 @@ def _trim(children: list[Token], index: int, step: int, strip: Callable[[str], s
                 index -= 1
         else:
             return
+
+
+def _closing(tokens: list[Token], at: int) -> int:
+    """The index of the token closing the one opening at `at`."""
+    depth = 0
+    for index in range(at, len(tokens)):
+        depth += tokens[index].nesting
+        if depth == 0:
+            return index
+    return len(tokens) - 1
+
+
+def _numbered_items(tokens: list[Token], at: int) -> list[tuple[int, int]] | None:
+    """For the bullet list opening at `at`, each item's one numbered item — its open and close —
+    when every item holds one numbered list of one item and nothing else; `None` otherwise."""
+    close = _closing(tokens, at)
+    found: list[tuple[int, int]] = []
+    item = at + 1
+    while item < close:
+        item_close = _closing(tokens, item)
+        inner = item + 1
+        if (
+            tokens[item].type != "list_item_open"
+            or tokens[inner].type != "ordered_list_open"
+            or _closing(tokens, inner) != item_close - 1
+        ):
+            return None
+        numbered = inner + 1
+        numbered_close = _closing(tokens, numbered)
+        if numbered_close != item_close - 2:
+            return None
+        found.append((numbered, numbered_close))
+        item = item_close + 1
+    return found or None
+
+
+def numbered_bullets(state: StateCore) -> None:
+    """`- 1. Text`: a bullet list each item of which holds one numbered item and nothing else is the
+    numbered list its author meant (DL-0441) — one ordered list of those items, in order. Any other
+    shape is left for the validator to refuse."""
+    # A pass moves each such list it meets whole, and one nested in a moved list is met by the
+    # next: as many passes as these lists nest deep, each about the text's length.
+    while _numbered_pass(state):
+        pass
+
+
+def _numbered_pass(state: StateCore) -> bool:
+    """One pass of `numbered_bullets`, over the text in order; whether it moved any list."""
+    tokens = state.tokens
+    out: list[Token] = []
+    moved_any = False
+    at = 0
+    while at < len(tokens):
+        items = _numbered_items(tokens, at) if tokens[at].type == "bullet_list_open" else None
+        if items is None:
+            out.append(tokens[at])
+            at += 1
+            continue
+        close = _closing(tokens, at)
+        first = items[0][0] - 1
+        opening, closing = tokens[first], tokens[_closing(tokens, first)]
+        opening.level, closing.level = tokens[at].level, tokens[close].level
+        moved: list[Token] = []
+        for start, end in items:
+            for index in range(start, end + 1):
+                tokens[index].level -= 2
+                moved.append(tokens[index])
+        # One list is loose when any of its items is, as the stored form will read; a list
+        # nested in an item keeps its own.
+        own = [t for t in moved if t.level == opening.level + 2 and t.type.startswith("paragraph")]
+        if any(not t.hidden for t in own):
+            for token in own:
+                token.hidden = False
+        out.append(opening)
+        out.extend(moved)
+        out.append(closing)
+        moved_any = True
+        at = close + 1
+    state.tokens = out
+    return moved_any
 
 
 def tidy(state: StateCore) -> None:

@@ -645,6 +645,23 @@ def _frontmatter_changed(document: Any, versions: list[Any]) -> bool:
     return False
 
 
+def _entities_changed(document: Any, versions: list[Any]) -> bool:
+    """Whether any of `versions` changed `entities.yaml` — a role, an action or a term declared or
+    relabelled — which an undo of text leaves standing, as it leaves the frontmatter."""
+    from documents import gitstore
+    from editing.holds import entities_at, tenant_number
+
+    repo = gitstore.open_repository(tenant_number(), document.number)
+    for version in versions:
+        commit = gitstore.commit_at(repo, version.commit_sha)
+        if not commit.parents:
+            continue
+        parent = str(commit.parents[0].id)
+        if entities_at(repo, parent) != entities_at(repo, version.commit_sha):
+            return True
+    return False
+
+
 def _stage_images(repo: Any, draft: Any, head: str | None, undone: Collection[str]) -> None:
     """Every image the draft's texts reference that neither the head's tree nor the draft's rows
     hold, staged from the newest of the undone versions and the versions they were written on
@@ -777,6 +794,8 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
                 listed += conflicts
                 if _frontmatter_changed(locked, undone):
                     listed.append({"before": "", "after": "", "frontmatter": "kept"})
+                if _entities_changed(locked, undone):
+                    listed.append({"before": "", "after": "", "entities": "kept"})
                 # An earlier undo's places stay until the reviewer finishes or discards: a place
                 # the draft had changed is not seen again by a merge from the derived text.
                 earlier = (draft.content.get(UNDO) or {}).get("listed", [])

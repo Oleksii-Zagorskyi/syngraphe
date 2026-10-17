@@ -53,7 +53,7 @@ def _refusal(refused: checks.ImageRefused) -> str:
     return str(NOTICES[key]) % params
 
 
-def _released(document: Document, user: User, editor_id: object) -> HttpResponse | None:
+def closed_answer(document: Document, user: User, editor_id: object) -> HttpResponse | None:
     """`409` *closed* with how the hold was released, for the person whose hold ended under the
     editor the upload names — as a capture answers it (DL-11-001); `None` otherwise."""
     if not isinstance(editor_id, str):
@@ -99,10 +99,10 @@ def upload(request: HttpRequest, number: int) -> HttpResponse:
     hold = holds.open_hold(document)
     editor_id = request.POST.get("editor")
     if hold is None or hold.user_id != user.pk:
-        return _released(document, user, editor_id) or not_found(request)
+        return closed_answer(document, user, editor_id) or not_found(request)
     editor = _open_editor(hold, editor_id)
     if editor is None:
-        return _released(document, user, editor_id) or not_found(request)
+        return closed_answer(document, user, editor_id) or not_found(request)
     if editor.closed_at is not None:
         return JsonResponse({"closed": True}, status=409)
     files = request.FILES.getlist("file")

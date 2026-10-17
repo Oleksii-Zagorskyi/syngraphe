@@ -72,6 +72,16 @@ LABELS = {
     "edit_section": pgettext_lazy("open a section's editor", "Edit"),
     "close_section": _("Close this editor"),
     "image": _("Image"),
+    "mention": _("Mention"),
+    "mention_number": _("Document number"),
+    "mark": _("Mark"),
+    "mark_kind": _("Kind"),
+    "mark_role": pgettext_lazy("an entity", "Role"),
+    "mark_action": pgettext_lazy("an entity", "Action"),
+    "mark_term": pgettext_lazy("an entity", "Term"),
+    "mark_declare": _("Declare a new one"),
+    "mark_label": _("Label"),
+    "declare": _("Declare"),
 }
 
 NOTICES = {
@@ -129,6 +139,20 @@ NOTICES = {
     ),
     "image_refused_unreadable": _("The file could not be read as an image."),
     "image_failed": _("The image was not added. Try again."),
+    "mention_refused": _("A mention needs a document number."),
+    "mention_select": _("Select the words to mention first."),
+    "entity_kind": _("Only a role, an action or a term can be declared."),
+    "entity_label": _("A label is one line of 1 to 200 characters."),
+    "mark_select": _("Select the words to mark first."),
+    "mark_moved": _("The text changed meanwhile; select the words again and pick the new one."),
+    "joined": _(
+        "Lines %(first)s–%(last)s are one paragraph and will be joined; leave a blank line to "
+        "start a new one."
+    ),
+    "joined_more": _("Paragraphs after it to be joined too: %(count)s."),
+    "entities_full": _(
+        "This document declares as many roles, actions and terms as the platform accepts."
+    ),
 }
 
 

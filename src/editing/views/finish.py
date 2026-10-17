@@ -79,6 +79,7 @@ def _screen(
         changes=mark_safe(finishing.changes),  # noqa: S308 — built from escaped text alone
         summary=more.pop("summary", finishing.summary),
         number=finishing.number,
+        entity_changes=finishing.entities,
         accept_number=numbering.next_accepted(document) if reviewer else "",
         run=_run(document) if reviewer else [],
         reviewer=reviewer,
@@ -157,7 +158,8 @@ def _screen_or_wait(
 @never_cache
 @login_required
 def finish(request: HttpRequest, number: int) -> HttpResponse:
-    """The finishing screen: the holder's changes, the drafted summary, the number to come."""
+    """The finishing screen: the holder's changes, the drafted summary, the number to come, and
+    the roles, actions and terms the commit adds, relabels or removes."""
     found = _holders(request, number)
     if found is None or request.method != "GET":
         return not_found(request)
@@ -299,17 +301,23 @@ def _accepted_as(document: Document, version: Any) -> str | None:
 @never_cache
 @login_required
 def my_edits(request: HttpRequest, number: int) -> HttpResponse:
-    """The holder's draft: the whole document, its changes marked in place."""
+    """The holder's draft: the whole document, its changes marked in place, and the roles, actions
+    and terms it changes."""
     found = _holders(request, number)
     if found is None or request.method != "GET":
         return not_found(request)
     document, hold = found
     try:
-        _, changes = services.my_edits(hold)
+        _, changes, listed = services.my_edits(hold)
     except services.DraftRefused as refused:
         return _refused(request, document, hold, refused)
     # Built from escaped text alone, as the finishing screen's changes are.
-    context = _context(document, "my-edits", changes=mark_safe(changes))  # noqa: S308
+    context = _context(
+        document,
+        "my-edits",
+        changes=mark_safe(changes),  # noqa: S308
+        entity_changes=listed,
+    )
     return render(request, "editing/my_edits.html", context)
 
 

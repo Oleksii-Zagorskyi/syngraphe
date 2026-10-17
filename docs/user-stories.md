@@ -219,7 +219,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0028** — As an editor, I upload an image and place it in the text, so that a technical instruction can show a screen rather than describe it.
 - PNG, JPEG and GIF are accepted; HEIC is refused outright rather than converted (DL-0074).
-- Images above the size limit are refused with the limit stated.
+- Images above the size limit — 10 MB, or the platform's upload maximum where that is lower, and 40 megapixels or 10,000 pixels a side — are refused with the limit stated.
 - All metadata is removed on upload — no location, no device.
 - Pasting or dropping an image is an upload like any other: an image already on the clipboard — a screenshot, a copied image, an image inside copied text — is stored and always placed as a paragraph of its own (DL-0232).
 - An image typed inside a sentence in the source view is refused with its line named: an image always stands on its own line (DL-0253).

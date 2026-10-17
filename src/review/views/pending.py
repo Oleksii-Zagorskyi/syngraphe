@@ -1,5 +1,6 @@
 """The *Pending edits* tab (DL-0040, DL-0170): the whole document, every change since the last
-acceptance marked in place, the run's versions listed, each line's author behind *show author*.
+acceptance marked in place, the run's versions listed, each line's author behind *show author*, and
+the roles, actions and terms the run added, relabelled or removed.
 
 The run's lines are attributed at render from the run itself — a blame of the head bounded by the
 base, which costs the run's size — never by waiting for the worker (`technical-design.md
@@ -178,5 +179,18 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         "run": versions,
         "changes": mark_safe(changes),  # noqa: S308
         "show_author": attributed,
+        "entity_changes": _entity_changes(repo, base.commit_sha, head, document.number),
     }
     return render(request, "review/pending.html", context)
+
+
+def _entity_changes(repo: Any, base: str, head: str, number: int) -> list[Any]:
+    """The run's roles, actions and terms added, relabelled or removed: the base's
+    `entities.yaml` against the head's. Nothing for a file that does not read as one."""
+    from documents import entities
+
+    before = entities.readable(holds.entities_at(repo, base), number)
+    after = entities.readable(holds.entities_at(repo, head), number)
+    if before is None or after is None:
+        return []
+    return entities.compare(before, after)

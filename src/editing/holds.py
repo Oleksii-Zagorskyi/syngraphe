@@ -259,3 +259,12 @@ def release(
         tenant=Tenant.objects.get(number=tenant_number()),
     )
     return True
+
+
+def draft_entities(draft: Any, repo: Any, commit: str) -> str:
+    """The draft's `entities.yaml`; a draft kept from before it carried one reads it as `commit`
+    holds it — the head, wherever the draft is shown or committed, so the lists, the picker and
+    the commit read one file."""
+    if ENTITIES in draft.content:
+        return str(draft.content[ENTITIES])
+    return entities_at(repo, commit)

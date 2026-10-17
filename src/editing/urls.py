@@ -1,6 +1,6 @@
 from django.urls import path
 
-from editing.views import capture, draft, edit_tab, finish, images, reservations
+from editing.views import capture, draft, edit_tab, entities, finish, images, reservations
 
 urlpatterns = [
     path("document/<int:number>/edit/", edit_tab.page, name="document_edit"),
@@ -57,5 +57,10 @@ urlpatterns = [
         "document/<int:number>/edit/image/<str:name>/",
         images.draft_image,
         name="document_edit_image",
+    ),
+    path(
+        "document/<int:number>/edit/entities/",
+        entities.declare,
+        name="document_edit_entities",
     ),
 ]

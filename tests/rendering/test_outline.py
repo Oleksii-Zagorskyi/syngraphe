@@ -123,11 +123,12 @@ def test_heading_rows_kept_for_the_versions_shown(
     assert people.accepted_content.pk in versions
 
 
-def test_the_panel_holds_parts_alone_and_keeps_its_width(
+def test_the_panel_holds_parts_and_generated_views_and_keeps_its_width(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any
 ) -> None:
-    """Nothing is drawn for what is not built (DL-0228); the panel's width is kept as the
-    outline's is (DL-0195)."""
+    """The icon row holds parts and the generated views, nothing for what is not built (DL-0228);
+    the generated views are the system's (DL-0448); the panel's width is kept as the outline's is
+    (DL-0195)."""
     people = _accepted(migrated_tenant, edition_cast, commit_version, DEEP)
     client = people.clients["r"]
     route = f"/document/{people.document.number}/"
@@ -137,7 +138,11 @@ def test_the_panel_holds_parts_alone_and_keeps_its_width(
 
     panel = re.search(r'<aside class="panel"[^>]*>(.*?)</aside>', body, re.DOTALL)
     assert panel is not None
-    assert panel.group(1).count("<span") == 1 and "aria-disabled" not in panel.group(1)
+    row = re.search(r'<div class="iconrow">(.*?)</div>', panel.group(1), re.DOTALL)
+    assert row is not None
+    assert re.findall(r'data-panel-switch="([a-z]+)"', row.group(1)) == ["parts", "generated"]
+    assert "aria-disabled" not in panel.group(1)
+    assert 'class="muted system"' in panel.group(1)
     assert "--panel-width: 280px" in body
     assert kept.status_code == 204
     assert "--panel-width: 340px" in client.get(route).content.decode()

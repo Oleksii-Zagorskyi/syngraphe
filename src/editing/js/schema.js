@@ -163,6 +163,25 @@ export function makeSchema(spec) {
             tag: "span.entity[data-kind]",
             getAttrs: (dom) => allowedEntity(spec, dom.getAttribute("data-kind"), dom.getAttribute("data-id")),
           },
+          // The reading view draws a followed mention as a link; copied back, it is the mention
+          // again, never a link every reader could follow. Ahead of the link's own rule. A copy
+          // carries the address resolved, so it is read against this page; another host's stays
+          // a link.
+          {
+            tag: "a.mention[href]",
+            priority: 60,
+            getAttrs: (dom) => {
+              let url;
+              try {
+                url = new URL(dom.getAttribute("href") || "", location.href);
+              } catch {
+                return false;
+              }
+              if (url.origin !== location.origin) return false;
+              const found = /^\/document\/([^/]+)\/$/.exec(url.pathname);
+              return found ? allowedEntity(spec, "document", found[1]) : false;
+            },
+          },
         ],
         toDOM: (mark) => [
           "span",

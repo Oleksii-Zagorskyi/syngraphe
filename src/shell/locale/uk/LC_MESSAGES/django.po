@@ -2801,12 +2801,16 @@ msgid "Edit the whole document"
 msgstr "Редагувати весь документ"
 
 #: editing/templates/editing/stopped_editor.html
-msgid "Your unsaved text is below, as changes against the text as it now stands; carry it over by hand."
-msgstr "Ваш незбережений текст нижче — як зміни відносно тексту в його теперішньому вигляді; перенесіть його вручну."
+msgid ""
+"What you typed that was not captured is below, as changes against the text as it now stands; "
+"carry it over by hand."
+msgstr ""
+"Набране, що не було записано, — нижче, як зміни відносно тексту в його теперішньому вигляді; "
+"перенесіть його вручну."
 
 #: editing/templates/editing/stopped_editor.html
-msgid "Your unsaved text is below, as you typed it; carry it over by hand."
-msgstr "Ваш незбережений текст нижче — так, як ви його набрали; перенесіть його вручну."
+msgid "This editor's text is below, as you typed it; carry over by hand what the draft lacks."
+msgstr "Текст цього редактора — нижче, так, як ви його набрали; перенесіть вручну те, чого бракує в чернетці."
 
 #: editing/messages.py
 msgid "Another editor is open on part of this section; close it first."
@@ -3177,3 +3181,160 @@ msgstr "згадка без номера документа"
 #: editing/messages.py
 msgid "Mention of a document"
 msgstr "Згадка документа"
+
+#: editing/messages.py
+msgid "Mention"
+msgstr "Згадка"
+
+#: editing/messages.py
+msgid "Document number"
+msgstr "Номер документа"
+
+#: editing/messages.py
+msgid "A mention needs a document number."
+msgstr "Для згадки потрібен номер документа."
+
+#: editing/messages.py
+msgid "Select the words to mention first."
+msgstr "Спершу виділіть слова для згадки."
+
+#: editing/messages.py
+msgid "Mark"
+msgstr "Позначити"
+
+#: editing/messages.py
+msgid "Kind"
+msgstr "Вид"
+
+#: editing/messages.py editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "Role"
+msgstr "Роль"
+
+#: editing/messages.py editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "Action"
+msgstr "Дія"
+
+#: editing/messages.py editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "Term"
+msgstr "Термін"
+
+#: editing/messages.py
+msgid "Declare a new one"
+msgstr "Оголосити нову"
+
+#: editing/messages.py
+msgid "Label"
+msgstr "Найменування"
+
+#: editing/messages.py
+msgid "Declare"
+msgstr "Оголосити"
+
+#: editing/messages.py
+msgid "Only a role, an action or a term can be declared."
+msgstr "Оголосити можна лише роль, дію або термін."
+
+#: editing/messages.py
+msgid "A label is one line of 1 to 200 characters."
+msgstr "Найменування — один рядок від 1 до 200 символів."
+
+#: editing/messages.py
+msgid "Select the words to mark first."
+msgstr "Спершу виділіть слова для позначки."
+
+#: editing/templates/editing/finish.html editing/templates/editing/my_edits.html
+msgid "Roles, actions and terms this draft changes"
+msgstr "Ролі, дії й терміни, змінені в цій чернетці"
+
+#: review/templates/review/pending.html
+msgid "Roles, actions and terms changed in the run"
+msgstr "Ролі, дії й терміни, змінені в правках після останнього погодження"
+
+#: editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "added"
+msgstr "додано"
+
+#: editing/templates/editing/entity_changes.html
+msgid "declared with your version, from the words you marked"
+msgstr "буде оголошено разом із вашою версією — з позначених вами слів"
+
+#: editing/templates/editing/entity_changes.html
+#, python-format
+msgctxt "an entity"
+msgid "relabelled from %(before)s"
+msgstr "перейменовано з «%(before)s»"
+
+#: editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "removed"
+msgstr "вилучено"
+
+#: editing/templates/editing/edit_tab.html
+msgid "Roles, actions and terms the undone edits declared or relabelled stay as they stand."
+msgstr "Ролі, дії й терміни, які скасовані правки оголосили або перейменували, лишаються як є."
+
+#: editing/messages.py
+msgid "The text changed meanwhile; select the words again and pick the new one."
+msgstr "Текст тим часом змінився; виділіть слова знову й виберіть нову."
+
+#: editing/messages.py
+msgid "This document declares as many roles, actions and terms as the platform accepts."
+msgstr "Документ уже оголошує стільки ролей, дій і термінів, скільки приймає платформа."
+
+#: rendering/templates/rendering/panes_panel.html rendering/templates/rendering/generated_views.html
+msgid "Generated views"
+msgstr "Супровідні документи"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "Role directory"
+msgstr "Довідник ролей"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "See also"
+msgstr "Див. також"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "no clauses"
+msgstr "немає пунктів"
+
+#: rendering/directory.py
+msgid "(table)"
+msgstr "(таблиця)"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "No role is marked in this version."
+msgstr "У цій версії не позначено жодної ролі."
+
+#: rendering/templates/rendering/generated_views.html
+msgid "This version mentions no other document."
+msgstr "Ця версія не згадує інших документів."
+
+#: rendering/templates/rendering/generated_views.html
+msgid "Generated by the system from the version shown."
+msgstr "Створено системою з показаної версії."
+
+#: rendering/templates/rendering/panes_panel.html
+msgid "Panel"
+msgstr "Панель"
+
+#: editing/messages.py
+#, python-format
+msgid ""
+"Lines %(first)s–%(last)s are one paragraph and will be joined; leave a blank line to start a "
+"new one."
+msgstr ""
+"Рядки %(first)s–%(last)s — один пункт, їх буде з’єднано; щоб почати новий, залиште порожній "
+"рядок."
+
+#: editing/messages.py
+#, python-format
+msgid "Paragraphs after it to be joined too: %(count)s."
+msgstr "Ще пунктів, які буде з’єднано: %(count)s."
+
+#: rendering/templates/rendering/generated_views.html
+msgid "not declared"
+msgstr "не оголошено"

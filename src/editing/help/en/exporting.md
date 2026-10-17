@@ -9,6 +9,10 @@
 - **My edits** exports your draft's text with the attachments as they were last sent for review. A change to an attachment that is still in your draft is not in the file.
 - **A title page**, when the document has one switched on, opens the file. On the canonical version it names who approved the edition and when. On any other version it says the text is not approved.
 
-**Delivery.** One file, or one zip when attachments are included. The file is named after the document's title, the version's number and the view, in the platform's language: in English, for example, `Title_—_1.0_—_canonical_version.pdf`, with `-marked` added when changes are marked. The export is made in the background: the page shows *The file is being made…* until it is ready, then offers the download. The file is kept for a day; after that, export again. You can have one export of a document waiting at a time.
+**Delivery.** One file, or one zip when attachments are included or a Markdown export's text holds images. The file is named after the document's title, the version's number and the view, in the platform's language: in English, for example, `Title_—_1.0_—_canonical_version.pdf`, with `-marked` added when changes are marked. The export is made in the background: the page shows *The file is being made…* until it is ready, then offers the download. The file is kept for a day; after that, export again. You can have one export of a document waiting at a time.
 
 **When an export fails**, the page says why. If the version can no longer be exported by you, or a version you chose has no attachments, choose again. If your draft was sent for review or discarded after you asked, export another version. If the file was not made in time, export again. If it could not be made, try again; if it fails again, tell the platform's operator.
+
+## Images
+
+PDF and DOCX carry the document's images where its text holds them, a photograph standing as it was taken; a marked export shows a changed image before and after. A Markdown export whose text holds images is one zip: the `.md` file beside an `images` folder holding them.

@@ -17,7 +17,7 @@ import hashlib
 import json
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import pygit2
@@ -89,11 +89,83 @@ class InjectedFault(Exception):
 
 @dataclass(frozen=True)
 class Finishing:
-    """What the finishing screen shows: the changes, the drafted summary, the number to come."""
+    """What the finishing screen shows: the changes, the drafted summary, the number to come, and
+    the roles, actions and terms the commit adds, relabels or removes."""
 
     changes: str
     summary: str
     number: str
+    entities: list[ListedEntity] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ListedEntity:
+    """An entity the draft changes against the head; `from_words` when it is declared at the
+    commit from a span the draft marks without declaring it (DL-0440)."""
+
+    kind: str
+    key: str
+    change: str
+    before: str
+    after: str
+    from_words: bool = False
+
+
+@dataclass(frozen=True)
+class DraftDeclarations:
+    """What the commit of a draft will declare — its own declarations, then each span its texts
+    mark with a key they lack (DL-0440) — and every key a declaration or a span holds."""
+
+    committed: list[entities.Declared]
+    keys: set[str]
+
+
+def draft_declarations(
+    draft: Draft,
+    repo: pygit2.Repository,
+    head: str,
+    document: Document,
+    own: list[entities.Declared],
+) -> DraftDeclarations:
+    """The draft's declarations as the commit will write them, `own` its file's: the body read as
+    the commit normalises it, so a span's words are the label the commit writes; while the
+    whitelist refuses the body, as the draft holds it. Its texts are read once."""
+    texts = list(draft_texts(draft, repo, head).values())
+    body = texts[0]
+    if not validate(body):
+        _, head_body = holds.split(gitstore.read(repo, holds.BODY, head).decode("utf-8"))
+        try:
+            body = _normalised(head_body, body, _lists(document)).decode("utf-8")
+        except (DraftRefused, NormalizerDefect):
+            pass
+    found = list(entities.spans(body, *texts[1:]))
+    committed = entities.with_spans(own, found)
+    return DraftDeclarations(
+        committed, {e.key for e in committed} | {key for _, key, _ in found if key}
+    )
+
+
+def entity_changes(
+    draft: Draft, repo: pygit2.Repository, head: str, normalised: str
+) -> list[ListedEntity]:
+    """What the commit of `draft` would change in `entities.yaml` against `head`: the draft's own
+    declarations and those its spans will add, as the commit writes them (DL-0440)."""
+    current = holds.entities_at(repo, head)
+    held = holds.draft_entities(draft, repo, head)
+    texts = draft_texts(draft, repo, head)
+    declared = entities.declared_with(held, normalised, *list(texts.values())[1:])
+    own = {(e.kind, e.key) for e in entities.parse(held)}
+    return [
+        ListedEntity(
+            c.kind,
+            c.key,
+            c.change,
+            c.before,
+            c.after,
+            from_words=c.change == "added" and (c.kind, c.key) not in own,
+        )
+        for c in entities.changes(current, declared)
+    ]
 
 
 def _lists(document: Document) -> Lists:
@@ -223,7 +295,7 @@ def staged_changes(
     texts = draft_texts(draft, repo, against)
 
     current = holds.entities_at(repo, against)
-    held = draft.content.get(holds.ENTITIES, current)
+    held = holds.draft_entities(draft, repo, against)
     declared = entities.declared_with(held, normalised, *list(texts.values())[1:]).encode("utf-8")
     if len(declared) > entities.MAX_BYTES:
         raise DraftRefused([Refusal(1, "too-large")])
@@ -336,14 +408,16 @@ def _holders_reading(hold: Hold, document: Document, head: str, *bodies: str) ->
     )
 
 
-def my_edits(hold: Hold) -> tuple[str, str]:
-    """The draft normalised against the head, and its changes rendered; `DraftRefused` for a
-    draft the whitelist refuses."""
+def my_edits(hold: Hold) -> tuple[str, str, list[ListedEntity]]:
+    """The draft normalised against the head, its changes rendered, and the entities it changes;
+    `DraftRefused` for a draft the whitelist refuses."""
     head, head_body, normalised = draft_text(hold)
     document = Document.objects.get(pk=hold.document_id)
     reader = _holders_reading(hold, document, head, head_body, normalised)
     changes = render_changes(head_body.encode(), normalised.encode(), context=reader)
-    return head_body, changes
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    listed = entity_changes(Draft.objects.get(hold=hold), repo, head, normalised)
+    return head_body, changes, listed
 
 
 def finish(hold: Hold) -> Finishing:
@@ -364,6 +438,7 @@ def finish(hold: Hold) -> Finishing:
         changes=render_changes(head_body.encode(), normalised, context=reader),
         summary=summary.drafted(head_body, normalised.decode("utf-8")),
         number=_number(document, repo, head, draft, lists),
+        entities=entity_changes(draft, repo, head, normalised.decode("utf-8")),
     )
 
 

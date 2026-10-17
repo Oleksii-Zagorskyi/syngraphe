@@ -94,17 +94,17 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
                 context | returning(request, document, kept),
             )
     context["reservation"] = _reservation(request, document, hold, frozen, context)
-    context["draft_view"] = _draft_view(document, hold if holding else None)
+    context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     if holding and hold is not None:
         # What an undo left for the holder's hand, beside the text and never in it (DL-0380).
         context["undo"] = hold.draft.content.get("undo")
     return render(request, "editing/edit_tab.html", context)
 
 
-def _draft_view(document: Document, hold: Any) -> Any:
-    """The text the tab opens on, rendered as the View tab renders a version, with no editor
-    until one is chosen (ADR-0006): the holder's draft, or the head's text the hold will start
-    from. `None` for a text the whitelist refuses, which only the whole editor opens — in its
+def _draft_view(document: Document, hold: Any, user: Any) -> Any:
+    """The text the tab opens on, rendered for `user` as the View tab renders a version, with no
+    editor until one is chosen (ADR-0006): the holder's draft, or the head's text the hold will
+    start from. `None` for a text the whitelist refuses, which only the whole editor opens — in its
     source view, with the refusal named."""
     from django.utils.safestring import mark_safe
 
@@ -125,7 +125,6 @@ def _draft_view(document: Document, hold: Any) -> Any:
         images = reading.committed_images(document)
     if validate(body):
         return None
-    user = hold.user if hold is not None else None
     reader = reading.context(user, document, body, images=images)
     # Raw HTML is off and every value escaped.
     return mark_safe(render_tokens(labelled(body), context=reader))  # noqa: S308

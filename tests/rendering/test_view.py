@@ -149,11 +149,13 @@ def test_accepted_reader_sees_the_view_tab(accepted: Any, reader: Any) -> None:
     assert re.search(r'<h2 id="h-1\.1"><span class="num">1\.1</span> Time limits</h2>', text)
     # One paragraph, its sentences joined by a space; numbered within its section.
     assert re.search(
-        r'<p><span class="num">1-1</span> A request for approval is made in writing\. '
+        r'<p id="c-1-1"><span class="num">1-1</span> A request for approval is made in writing\. '
         r"A request is considered within ten days\.</p>",
         text,
     )
-    assert re.search(r'<p><span class="num">1\.1-1</span> A copy of the decision', text)
+    assert re.search(
+        r'<p id="c-1\.1-1"><span class="num">1\.1-1</span> A copy of the decision', text
+    )
 
 
 def test_header_then_text_then_the_panels_attachments(accepted: Any, reader: Any) -> None:
@@ -185,7 +187,7 @@ def test_pending_edit_is_not_the_accepted_readers(
     assert "Перегляд версії 0.1-1" in as_pending
     assert not re.search(r"Перегляд версії 0\.1(?![-\d])", as_pending)
     assert re.search(
-        rf'<p><span class="num">1\.1-2</span> {re.escape(PENDING_SENTENCE)}</p>',
+        rf'<p id="c-1\.1-2"><span class="num">1\.1-2</span> {re.escape(PENDING_SENTENCE)}</p>',
         article(as_pending),
     )
 
@@ -322,7 +324,9 @@ def test_view_by_rights(
     assert '<div class="callout callout-note">' in pending
     assert "The register of requests" not in accepted
     assert 'data-id="applicant"' in accepted and "the applicant" not in canonical
-    assert re.search(r'<p><span class="num">1-1</span> A request for approval', canonical)
+    assert re.search(
+        r'<p id="c-1-1"><span class="num">1-1</span> A request for approval', canonical
+    )
 
 
 def test_diff_views_use_the_renderer(

@@ -1,5 +1,5 @@
 {% load i18n %}<div class="stopped-editor" role="status">
-  <p>{% if typed %}{% translate "Your unsaved text is below, as you typed it; carry it over by hand." %}{% else %}{% translate "Your unsaved text is below, as changes against the text as it now stands; carry it over by hand." %}{% endif %}</p>
+  <p>{% if typed %}{% translate "This editor's text is below, as you typed it; carry over by hand what the draft lacks." %}{% else %}{% translate "What you typed that was not captured is below, as changes against the text as it now stands; carry it over by hand." %}{% endif %}</p>
   {% if typed %}<pre class="draft-text">{{ typed }}</pre>{% else %}<div class="changes document-text">{{ changes }}</div>{% endif %}
   <p><button class="btn" type="button" data-command="reopen">{% translate "Back to the edit tab" %}</button></p>
 </div>

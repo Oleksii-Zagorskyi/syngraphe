@@ -275,7 +275,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
-**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+**Done in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
 ## B-041 — Telling the author that single line breaks are joined
 
@@ -285,7 +285,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
-**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+**Done in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
 ## B-042 — A leading heading number stripped on load or paste
 
@@ -295,7 +295,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
-**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+**Done in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
 ## B-043 — Three controls drawn out of proportion
 

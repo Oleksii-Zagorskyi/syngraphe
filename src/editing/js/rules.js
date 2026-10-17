@@ -1,5 +1,5 @@
-// The rules written in both languages (ADR-0010): the attributed span, the callout, the tidying of
-// inline text, and the validator's walk. `src/editing/markdown/rules.py` is this module's twin — the
+// The rules written in both languages (ADR-0010): the attributed span, the callout, the `- 1.`
+// respelling, the tidying of inline text, and the validator's walk. `src/editing/markdown/rules.py` is this module's twin — the
 // same functions in the same order, each named by its language's convention — and the conformance
 // suite holds the two in step. A change here is a change there, in the same commit.
 //
@@ -137,6 +137,91 @@ function trim(children, index, step, strip) {
       return;
     }
   }
+}
+
+// The index of the token closing the one opening at `at`.
+function closing(tokens, at) {
+  let depth = 0;
+  for (let index = at; index < tokens.length; index += 1) {
+    depth += tokens[index].nesting;
+    if (depth === 0) return index;
+  }
+  return tokens.length - 1;
+}
+
+// For the bullet list opening at `at`, each item's one numbered item — its open and close — when
+// every item holds one numbered list of one item and nothing else; `null` otherwise.
+function numberedItems(tokens, at) {
+  const close = closing(tokens, at);
+  const found = [];
+  let item = at + 1;
+  while (item < close) {
+    const itemClose = closing(tokens, item);
+    const inner = item + 1;
+    if (
+      tokens[item].type !== "list_item_open" ||
+      tokens[inner].type !== "ordered_list_open" ||
+      closing(tokens, inner) !== itemClose - 1
+    ) {
+      return null;
+    }
+    const numbered = inner + 1;
+    const numberedClose = closing(tokens, numbered);
+    if (numberedClose !== itemClose - 2) return null;
+    found.push([numbered, numberedClose]);
+    item = itemClose + 1;
+  }
+  return found.length ? found : null;
+}
+
+// `- 1. Text`: a bullet list each item of which holds one numbered item and nothing else is the
+// numbered list its author meant (DL-0441) — one ordered list of those items, in order. Any other
+// shape is left for the validator to refuse.
+export function numberedBullets(state) {
+  // A pass moves each such list it meets whole, and one nested in a moved list is met by the
+  // next: as many passes as these lists nest deep, each about the text's length.
+  while (numberedPass(state));
+}
+
+// One pass of `numberedBullets`, over the text in order; whether it moved any list.
+function numberedPass(state) {
+  const tokens = state.tokens;
+  const out = [];
+  let movedAny = false;
+  let at = 0;
+  while (at < tokens.length) {
+    const items = tokens[at].type === "bullet_list_open" ? numberedItems(tokens, at) : null;
+    if (items === null) {
+      out.push(tokens[at]);
+      at += 1;
+      continue;
+    }
+    const close = closing(tokens, at);
+    const first = items[0][0] - 1;
+    const opening = tokens[first], closer = tokens[closing(tokens, first)];
+    opening.level = tokens[at].level;
+    closer.level = tokens[close].level;
+    const moved = [];
+    for (const [start, end] of items) {
+      for (let index = start; index <= end; index += 1) {
+        tokens[index].level -= 2;
+        moved.push(tokens[index]);
+      }
+    }
+    // One list is loose when any of its items is, as the stored form will read; a list
+    // nested in an item keeps its own.
+    const own = moved.filter((t) => t.level === opening.level + 2 && t.type.startsWith("paragraph"));
+    if (own.some((t) => !t.hidden)) {
+      for (const token of own) token.hidden = false;
+    }
+    out.push(opening);
+    for (const token of moved) out.push(token);
+    out.push(closer);
+    movedAny = true;
+    at = close + 1;
+  }
+  state.tokens = out;
+  return movedAny;
 }
 
 // What both sides store the same way whatever the text arrived as: a line break inside text (from a

@@ -6,6 +6,7 @@ Groups, people and texts are synthetic examples.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
@@ -328,3 +329,53 @@ def test_a_changed_image_before_and_after(
         assert f'src="/document/{people.document.number}/image/{data_path[7:]}/"' in pair
     assert "0.1 —" in pair and "0.1-1 —" in pair
     assert "image changed" in page or "зображення змінено" in page
+
+
+def test_entity_changes_are_listed(
+    migrated_tenant: Any, cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """The run's roles, actions and terms added, relabelled or removed, the base's
+    `entities.yaml` against the head's (DL-0073, ASR-04)."""
+    from django.test import Client
+
+    from review import services
+
+    settings.LANGUAGE_CODE = "en"
+    body = "# General provisions\n\nA request for approval is made in writing.\n"
+    clerk = '- kind: "role"\n  key: "role-1"\n  label: "the clerk"\n'
+    auditor = '- kind: "role"\n  key: "role-3"\n  label: "the auditor"\n'
+    people = cast(editors=("a",), reviewers=("r",))
+    commit_version(
+        people.document,
+        people["a"],
+        body,
+        "edit",
+        files={"entities.yaml": (clerk + auditor).encode()},
+    )
+    with schema_context(migrated_tenant.number):
+        services.accept(people.document, people["r"])
+    later = (
+        clerk.replace("the clerk", "the senior clerk")
+        + '- kind: "role"\n  key: "role-2"\n  label: "the treasurer"\n'
+    )
+    commit_version(
+        people.document, people["a"], body, "edit", files={"entities.yaml": later.encode()}
+    )
+    client = Client(headers={"host": "127.0.0.1"})
+    client.force_login(people["r"])
+    session = client.session
+    session["tenant_number"] = migrated_tenant.number
+    session.save()
+
+    page = client.get(f"/document/{people.document.number}/pending/").content.decode()
+
+    listed = page[page.index('class="entity-changes"') :]
+
+    def row(key: str) -> str:
+        found = re.search(rf'data-key="{key}">.*?</tr>', listed, re.S)
+        assert found, key
+        return found.group(0)
+
+    assert "the senior clerk" in row("role-1") and "relabelled from the clerk" in row("role-1")
+    assert "the treasurer" in row("role-2") and "added" in row("role-2")
+    assert "the auditor" in row("role-3") and "removed" in row("role-3")

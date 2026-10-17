@@ -1,5 +1,6 @@
-// The toolbar: headings, lists, bold, italic, underline, quotes, callouts, tables, images and links,
-// and undo and redo. Buttons keep the selection through the click by refusing the mousedown's default.
+// The toolbar: headings, lists, bold, italic, underline, quotes, callouts, tables, undo and redo,
+// images, links, roles, actions and terms, and mentions. Buttons keep the selection through the
+// click by refusing the mousedown's default.
 import { setBlockType, toggleMark, wrapIn } from "prosemirror-commands";
 import { redo, undo } from "prosemirror-history";
 import { wrapInList } from "prosemirror-schema-list";
@@ -7,6 +8,7 @@ import { addRowAfter } from "prosemirror-tables";
 import { insertPoint } from "prosemirror-transform";
 
 import { spec } from "./spec.js";
+import { picker } from "./entities.js";
 import { ICONS } from "./icons.js";
 
 // The deepest list nesting in `doc`.
@@ -68,7 +70,7 @@ function button(label, name, run) {
 
 // The toolbar for `view`; `words` are the page's translated labels and notices, `report` shows one
 // line under the editor; `images`, where the page takes uploads, adds the files it is given.
-export function toolbar(view, schema, words, report, images = null) {
+export function toolbar(view, schema, words, report, images = null, marking = null) {
   const bar = document.createElement("span");
   bar.className = "toolbar";
   bar.setAttribute("role", "toolbar");
@@ -143,6 +145,61 @@ export function toolbar(view, schema, words, report, images = null) {
       if (!address.hidden) address.focus();
     }),
     address,
+  );
+
+  // *Mark*: a role, an action or a term, picked from the draft's own or declared (DL-0073).
+  if (marking) {
+    const { panel, toggle } = picker({ view, schema, labels, report, marking });
+    bar.append(button(labels.mark, "mark", toggle));
+    // Beside the toolbar, not in it: its buttons are words — the declarations' labels.
+    bar.panels = [panel];
+  }
+
+  // A mention: another document's number typed into the toolbar as a link's address is. Only the
+  // number's form is checked; no title is looked up, and nothing checks a document has it.
+  const number = document.createElement("input");
+  number.type = "text";
+  number.inputMode = "numeric";
+  number.placeholder = labels.mention_number;
+  number.hidden = true;
+  number.dataset.field = "mention";
+  const mention = () => {
+    const id = number.value.trim();
+    if (!spec.mentionId.test(id)) {
+      report({ kind: "mention_refused" });
+      return;
+    }
+    const { from, to, empty } = view.state.selection;
+    if (empty) {
+      // Nothing to wrap: the field closes, and the words are chosen first.
+      report({ kind: "mention_select" });
+      number.value = "";
+      number.hidden = true;
+      return;
+    }
+    // Text alone takes the mark: an image stands alone and carries none.
+    const mark = schema.marks.entity.create({ kind: "document", id });
+    const tr = view.state.tr;
+    view.state.doc.nodesBetween(from, to, (node, pos) => {
+      if (node.isText) tr.addMark(Math.max(from, pos), Math.min(to, pos + node.nodeSize), mark);
+    });
+    view.dispatch(tr);
+    number.value = "";
+    number.hidden = true;
+    view.focus();
+  };
+  number.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      mention();
+    }
+  });
+  bar.append(
+    button(labels.mention, "mention", () => {
+      number.hidden = !number.hidden;
+      if (!number.hidden) number.focus();
+    }),
+    number,
   );
   return bar;
 }

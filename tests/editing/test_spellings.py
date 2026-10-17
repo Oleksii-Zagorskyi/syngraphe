@@ -58,3 +58,45 @@ def test_one_spelling_idempotent() -> None:
         assert first == stored.encode(), submitted
         assert normalize(first, first.decode(), uk) == first, submitted
         assert normalize(first, submitted, uk) == first, submitted
+
+
+def test_bullet_numbered_items_are_a_numbered_list() -> None:
+    """An author's `- 1. Text` is the numbered list they meant (DL-0441), stored as one."""
+    uk = lists_for("uk")
+    submitted = "- 1. The first item.\n- 2. The second item.\n"
+
+    stored = normalize(b"", submitted, uk)
+
+    assert stored == b"1. The first item.\n2. The second item.\n"
+    assert normalize(stored, stored.decode(), uk) == stored
+
+
+def test_joined_reads_every_line_break_and_trailing_space() -> None:
+    from editing.normalizer import joined
+
+    en = lists_for("en")
+
+    assert joined("A sentence broken\nacross two lines.\n\nAnother one.\n", en) == [1]
+    assert joined("A sentence broken\r\nacross two lines.\r\n\r\nAnother one.\r\n", en) == [1]
+    assert joined("A sentence broken \nacross two lines.\n\nOther. \n", en) == [1]
+
+
+def test_a_numbered_bullet_list_renders_as_it_is_stored() -> None:
+    """A draft not yet normalised renders as its stored form does, a loose item included."""
+    from rendering.renderer import render
+
+    uk = lists_for("uk")
+    submitted = "- 1. A one.\n\n     More.\n- 1. B two.\n"
+    stored = normalize(b"", submitted, uk).decode()
+
+    assert render(submitted) == render(stored)
+
+
+@pytest.mark.budget
+def test_numbered_bullets_are_rewritten_in_linear_time() -> None:
+    import time
+
+    body = "- 1. a\n\nb\n\n" * 28000
+    started = time.perf_counter()
+    parser().parse(body)
+    assert time.perf_counter() - started < 3.0

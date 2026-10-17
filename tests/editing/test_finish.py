@@ -1,10 +1,12 @@
 """Finishing an editing session (DL-0222, DL-0261, DL-0321, DL-0322): the screen shows the changes,
 the summary and the number to come; *send for review* commits one version of kind `edit` under the
-lock and ends the session; a draft equal to the head makes nothing. People and titles are synthetic
-examples; the text is invented."""
+lock and ends the session; a draft equal to the head makes nothing; the screen and *my edits* list
+the roles, actions and terms the commit changes. People and titles are synthetic examples; the
+text is invented."""
 
 from __future__ import annotations
 
+import re
 import time
 from pathlib import Path
 from typing import Any
@@ -342,3 +344,41 @@ def test_a_draft_typography_carries_over_the_ceiling_is_refused_as_too_large(
     ):
         assert response.status_code == 409
         assert "a text longer than the platform accepts" in response.content.decode()
+
+
+def test_the_finishing_screen_lists_entity_changes(
+    migrated_tenant: Any, member_of: Any, new_document: Any, settings: Any
+) -> None:
+    """The send-for-review screen and *my edits* list the roles, actions and terms the draft adds,
+    relabels or removes — a span typed with a key the draft does not declare listed *added* with
+    its words, as the commit will declare it (DL-0440)."""
+    from editing.models import Draft
+
+    settings.LANGUAGE_CODE = "en"
+    client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold__document=document)
+        draft.content = {
+            **draft.content,
+            "document.md": BODY.replace(
+                "The first term.", "The first term binds [the treasurer]{.role #treasurer}."
+            ),
+            "entities.yaml": '- kind: "term"\n  key: "term-1"\n  label: "ten days"\n',
+        }
+        draft.save()
+
+    for address in ("edit/finish/", "my-edits/"):
+        page = client.get(f"/document/{document.number}/{address}").content.decode()
+        treasurer = row(page, "treasurer")
+        days = row(page, "term-1")
+        assert "the treasurer" in treasurer and "added" in treasurer, address
+        assert "declared with your version" in treasurer, address
+        assert "ten days" in days and "added" in days, address
+        assert "declared with your version" not in days, address
+
+
+def row(page: str, key: str) -> str:
+    """The entity changes' row for `key`."""
+    found = re.search(rf'<tr data-kind="[a-z]+" data-key="{key}">.*?</tr>', page, re.S)
+    assert found, key
+    return found.group(0)

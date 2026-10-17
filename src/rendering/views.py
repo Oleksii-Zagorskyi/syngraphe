@@ -1,6 +1,7 @@
 """The *View* tab: the text of the version the reader may see (DL-0209), rendered with its clause
 numbers, headed by its number and the canonical edition's (DL-0352); beside it the outline of
-that text and the attachments that version lists, in the page's side panes (DL-0356). The
+that text, the attachments that version lists and its generated views — the role directory and
+*see also* — in the page's side panes (DL-0356, DL-0448). The
 historical page of any version the reader's ceiling reaches, with its attachments and its export,
 and the comparison of two (DL-0195, DL-0208); the export dialog and its jobs."""
 
@@ -37,8 +38,8 @@ from identity.views.preferences import (
     PANEL_WIDTH_MAX,
     PANEL_WIDTH_MIN,
 )
-from rendering import reading
-from rendering.outline import outline
+from rendering import directory, mentions, reading
+from rendering.outline import anchor_clauses, outline
 from rendering.renderer import labelled, render_tokens
 from shell.views import not_found
 
@@ -82,9 +83,13 @@ def view_context(
         return None
     tokens = labelled(body)
     headings = outline(tokens)
+    anchor_clauses(tokens)
+    # The mentions read once, from the tokens the page renders: the text's links and *see also*.
+    found = mentions.targets_in(tokens)
     reader = reading.context(
-        request.user, document, body, images=reading.committed_images(document)
+        request.user, document, images=reading.committed_images(document), found=found
     )
+    declared = _declared_at(repo, shown.commit_sha, document)
     return {
         "version_number": number,
         "version_stance": stance,
@@ -99,7 +104,21 @@ def view_context(
         "panel_bounds": (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
         # Raw HTML is off and every value escaped.
         "text": mark_safe(render_tokens(tokens, context=reader)),  # noqa: S308
+        # The generated views, derived from the version shown (DL-0448).
+        "roles": directory.roles([directory.Stream(tokens)], declared, context=reader),
+        "see_also": mentions.see_also(
+            request.user, found, own=document.number, reachable=reader.reachable
+        ),
     }
+
+
+def _declared_at(repo: Any, commit: str, document: Document) -> list[Any]:
+    """The roles, actions and terms `commit` declares; none where it holds no `entities.yaml`, or
+    one that does not read — logged, and every role span then listed as undeclared."""
+    from documents import entities
+    from editing.holds import entities_at
+
+    return entities.readable(entities_at(repo, commit), document.number) or []
 
 
 def _kept(request: HttpRequest, key: str, default: int, least: int, most: int) -> int:

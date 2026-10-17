@@ -2170,5 +2170,38 @@
       }
     ],
     "note": "An identifier holding a slash, punctuation no identifier holds, is refused as for every span and not as a mention identifier."
+  },
+  {
+    "id": "respell-bullet-numbered-items",
+    "kind": "respell",
+    "input": "- 1. перший пункт\n- 2. другий пункт\n",
+    "stored": "1. перший пункт\n2. другий пункт\n",
+    "note": "Bullets each holding one numbered item are one numbered list (DL-0441)."
+  },
+  {
+    "id": "respell-bullet-numbered-nested",
+    "kind": "respell",
+    "input": "- 1. перший пункт\n     - вкладений пункт\n- 2. другий пункт\n",
+    "stored": "1. перший пункт\n   - вкладений пункт\n2. другий пункт\n",
+    "note": "A numbered item's own nested list moves with it into the numbered list."
+  },
+  {
+    "id": "respell-bullet-numbered-nested-numbered",
+    "kind": "respell",
+    "input": "- 1. перший пункт\n     - 1. вкладений перший\n     - 2. вкладений другий\n- 2. другий пункт\n",
+    "stored": "1. перший пункт\n   1. вкладений перший\n   2. вкладений другий\n2. другий пункт\n",
+    "note": "A list numbered the same way inside one is respelled too, at every depth."
+  },
+  {
+    "id": "refuse-bullet-numbered-mixed",
+    "kind": "refuse",
+    "input": "- 1. перший пункт\n- другий пункт\n",
+    "refusals": [
+      {
+        "code": "list-item-empty",
+        "line": 1
+      }
+    ],
+    "note": "A list mixing numbered and plain items is refused: its numbered item's list does not begin with text."
   }
 ]

@@ -8,9 +8,10 @@ quoted, so that what the platform writes reads back to the same bytes, as the fr
 
 from __future__ import annotations
 
+import logging
 import re
 import unicodedata
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -19,6 +20,9 @@ import yaml
 from documents.bundle import UniqueKeyLoader, _string
 from editing.markdown import load_spec
 from editing.markdown.parser import parser
+from editing.markdown.words import span_words
+
+logger = logging.getLogger(__name__)
 
 # The span kinds that name an entity: the specification's spans, less the underline, which is
 # formatting, and the mention, which names a document.
@@ -26,7 +30,6 @@ KINDS = ("role", "action", "term")
 KEY = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
 LABEL_MAX = 200
 FIELDS = ("kind", "key", "label")
-SPACES = re.compile(r"\s+")
 # The file is held to the size the body is: a commit derived from a body at its limit stays a
 # commit of seconds under the writer lock.
 MAX_BYTES = load_spec().max_bytes
@@ -111,56 +114,67 @@ def dump(entries: list[Declared]) -> str:
     )
 
 
+def label(children: list[Any], start: int) -> str:
+    """The label a span declares: its words, cut where a label is."""
+    return span_words(children, start)[:LABEL_MAX].strip()
+
+
 def spans(*bodies: str) -> Iterator[tuple[str, str | None, str]]:
     """Every role, action or term span of `bodies`, in order: its kind, its id or `None`, and its
-    words as a reader reads them — markup removed, runs of space one."""
+    label (`label`)."""
     for body in bodies:
         for token in parser().parse(body):
             if token.type != "inline" or not token.children:
                 continue
             children = token.children
             for i, child in enumerate(children):
-                if child.type != "entity_open" or child.meta.get("kind") not in KINDS:
-                    continue
-                words: list[str] = []
-                depth = 0
-                # Read in place: a copy of the rest of the paragraph per span costs the square of
-                # the spans a paragraph holds.
-                for j in range(i + 1, len(children)):
-                    inner = children[j]
-                    if inner.type == "entity_open":
-                        depth += 1
-                    elif inner.type == "entity_close":
-                        if depth == 0:
-                            break
-                        depth -= 1
-                    elif inner.type == "text":
-                        words.append(inner.content)
-                    elif inner.type == "softbreak":
-                        words.append(" ")
-                label = SPACES.sub(" ", "".join(words)).strip()[:LABEL_MAX].strip()
-                yield child.meta["kind"], child.meta.get("id"), label
+                if child.type == "entity_open" and child.meta.get("kind") in KINDS:
+                    yield child.meta["kind"], child.meta.get("id"), label(children, i)
 
 
-def declared_with(text: str, *bodies: str) -> str:
-    """`text` with a declaration appended for each role, action or term span of `bodies` whose
-    kind and id it lacks, in the order of first occurrence, labelled with that span's words; `text`
-    itself when nothing is missing. A span without an id declares nothing."""
-    entries = parse(text)
+def with_spans(
+    entries: list[Declared], found: Iterable[tuple[str, str | None, str]]
+) -> list[Declared]:
+    """`entries` with a declaration appended for each span of `found` (`spans`) whose kind and id
+    they lack, in the order of first occurrence, labelled with that span's words. A span without
+    an id declares nothing."""
     known = {(e.kind, e.key) for e in entries}
     added = []
-    for kind, key, label in spans(*bodies):
+    for kind, key, label in found:
         if key is None or (kind, key) in known or not valid_label(label):
             continue
         known.add((kind, key))
         added.append(Declared(kind, key, label))
-    return text if not added else dump(entries + added)
+    return entries + added
+
+
+def declared_with(text: str, *bodies: str) -> str:
+    """`text` with the declarations `with_spans` adds for the spans of `bodies`; `text` itself
+    when nothing is missing."""
+    entries = parse(text)
+    found = with_spans(entries, spans(*bodies))
+    return text if len(found) == len(entries) else dump(found)
+
+
+def readable(text: str, document: int) -> list[Declared] | None:
+    """The declarations of `text`; `None` for a file that does not read, logged so the operator
+    learns of it — for a page that shows what it can rather than fail."""
+    try:
+        return parse(text)
+    except ValueError:
+        logger.warning("entities.yaml does not read", extra={"document": document})
+        return None
 
 
 def changes(old: str, new: str) -> list[EntityChange]:
+    """What changed from the file `old` to the file `new` (`compare`)."""
+    return compare(parse(old), parse(new))
+
+
+def compare(old: list[Declared], new: list[Declared]) -> list[EntityChange]:
     """What changed from `old` to `new`: in the new list's order, then the removed ones'."""
-    before = {(e.kind, e.key): e for e in parse(old)}
-    after = parse(new)
+    before = {(e.kind, e.key): e for e in old}
+    after = new
     found = []
     for entry in after:
         earlier = before.get((entry.kind, entry.key))

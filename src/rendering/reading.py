@@ -1,14 +1,18 @@
-"""The context a page renders a document's text for: who reads it, and so which images are shown
-from which address. The surfaces that render text for a person build their context here.
+"""The context a page renders a document's text for: who reads it, and so which documents its
+mentions link to and which images are shown from which address. The surfaces that render text
+for a person build their context here.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any
 
 from documents import gitstore, images
 from rendering.renderer import RenderContext
+
+if TYPE_CHECKING:
+    from rendering.mentions import Mention
 
 
 def context(
@@ -17,10 +21,17 @@ def context(
     *bodies: str,
     images: Callable[[str], str] | None,
     sides: tuple[str, str] = ("", ""),
+    found: Sequence[Mention] | None = None,
 ) -> RenderContext:
-    """The reader's context for `bodies` of `document`: images shown from `images`, a change's
-    sides named by `sides`."""
-    return RenderContext(image_url=images, sides=sides)
+    """The reader's context for `bodies` of `document`: the documents its mentions name that
+    `user` may follow, images shown from `images`, a change's sides named by `sides`. `found`,
+    where the page has read them, are the bodies' mentions."""
+    from rendering import mentions
+
+    if found is None:
+        found = mentions.targets(*bodies)
+    numbers = {mention.number for mention in found}
+    return RenderContext(reachable=mentions.reachable(user, numbers), image_url=images, sides=sides)
 
 
 def committed_images(document: Any) -> Callable[[str], str]:
