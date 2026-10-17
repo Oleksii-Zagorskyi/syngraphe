@@ -18,6 +18,7 @@ urlpatterns = [
     path("search/", corpus_views.search, name="search"),
     path("document/<int:number>/archive/", corpus_views.archive, name="document_archive"),
     path("document/<int:number>/restore/", corpus_views.restore, name="document_restore"),
+    path("document/<int:number>/copy/", corpus_views.copy, name="document_copy"),
     path("administration/tenant/archive/", administration.archived, name="archive"),
     path("administration/tenant/folders/", administration.folders, name="folders"),
     path("administration/tenant/folders/new/", administration.folder_new, name="folder_new"),

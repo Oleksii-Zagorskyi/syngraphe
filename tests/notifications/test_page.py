@@ -294,6 +294,8 @@ def test_filters_drawn_are_the_events_each_person_can_receive(
     assert filters.findall(page) == [
         "access_granted",
         "document_created",
+        # Epic 10
+        "document_copied",
         "email_failed",
         "reservation_started",
     ]
@@ -303,6 +305,8 @@ def test_filters_drawn_are_the_events_each_person_can_receive(
     assert filters.findall(page) == [
         "access_granted",
         "document_created",
+        # Epic 10
+        "document_copied",
         "backup_condition",
         "email_failed",
         "user_partially_blocked",

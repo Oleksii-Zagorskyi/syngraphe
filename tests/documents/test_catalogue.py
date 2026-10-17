@@ -116,14 +116,14 @@ def test_catalogue_covers_epic_3_pages(
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
 def test_catalogue_covers_epic_10_pages(
-    migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any
+    migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any, repo_root: Path
 ) -> None:
     """The corpus's pages in `uk`: every string from the catalogue, a type's label as the
     organisation stores it (DL-0310)."""
     from documents import types
 
     settings.LANGUAGE_CODE = "uk"
-    admin, admin_user, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    admin, admin_user, admin_membership = member_of("an.admin@example.test", is_tenant_admin=True)
     document = make_document(title="Синтетичний документ")
     with schema_context(migrated_tenant.number):
         retired = types.add_type("застарілий (synthetic example)", by=admin_user)
@@ -164,6 +164,38 @@ def test_catalogue_covers_epic_10_pages(
         archived_doc = make_document(title="Синтетичний архівний")
         Document.objects.filter(pk=archived_doc.pk).update(state="archived")
     pages[-1] = (admin, f"/document/{archived_doc.number}/info/")
+    # The copy dialog and a copy's *Info*, on a document with a repository.
+    from access.models import AccessGroup, DocumentGroup
+    from access.rights import Right
+    from documents import copying, services
+    from documents.models import DocumentType
+    from identity.models import Language
+
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(
+            name="Оператори (synthetic example)", created_by=admin_user, actor_kind="user"
+        )
+        for right in Right:
+            group.grant(right, by=admin_user)
+        group.add_member(admin_membership, by=admin_user)
+        kind, root = DocumentType.objects.get(code="document"), Folder.objects.get(number=1)
+        source = services.create_document(admin_user, "Синтетичне джерело", "uk", kind, root)
+        DocumentGroup.link(source, group, by=admin_user)
+        copied = copying.copy_document(
+            admin_user,
+            source,
+            title="Синтетична копія",
+            document_type=kind,
+            folder=root,
+            view="accepted",
+            number="0.0",
+            appendices=[],
+        )
+    pages += [
+        (admin, f"/document/{source.number}/copy/"),
+        (admin, f"/document/{copied.number}/info/"),
+    ]
     for client, path in pages:
         response = client.get(path)
         assert response.status_code == 200, path
@@ -172,6 +204,10 @@ def test_catalogue_covers_epic_10_pages(
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
         if path == "/folder/1/":
             assert "Усі типи" in body, path
+        if path.endswith("/copy/"):
+            assert "Копіювати документ" in response.content.decode(), path
+        if path == f"/document/{copied.number}/info/":
+            assert "Скопійовано з" in body, path
         if path.endswith("/folders/"):
             # The glossary's *тека*, and a count in its Ukrainian plural form.
             assert "Теки" in body and "1 документ" in body, path

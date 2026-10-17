@@ -1,8 +1,9 @@
 """The corpus's pages and acts beyond the list: search and the type filter; the type changed on
-the *Info* tab; archiving and restoring a document."""
+the *Info* tab; archiving and restoring a document; copying one."""
 
 from __future__ import annotations
 
+import logging
 from typing import cast
 
 from django.contrib import messages
@@ -14,10 +15,13 @@ from django.views.decorators.cache import never_cache
 
 from access.views import administers
 from documents import types
+from documents.forms import CopyForm
 from documents.models import DocumentType
 from documents.views import readable_document, render_page
 from identity.models import User
 from shell.views import not_found
+
+logger = logging.getLogger(__name__)
 
 # What each refusal of a type change tells the administrator on the *Info* tab.
 TYPE_CHANGE_REFUSALS = {
@@ -124,3 +128,108 @@ def _archive_act(request: HttpRequest, number: int, *, restoring: bool) -> HttpR
         return page
     messages.success(request, _("Restored.") if restoring else _("Archived."))
     return page
+
+
+# What each refusal of a copy tells the copier in the dialog; `not_allowed` and `archived` answer
+# *nothing to show* instead.
+COPY_REFUSALS = {
+    "changed": _("The version changed since the dialog showed it. Check it and copy again."),
+    "unreadable": _("This version cannot be read, so it cannot be copied."),
+    "no_such_appendix": _("An appendix chosen is no longer in this version. Choose again."),
+}
+
+
+@never_cache
+@login_required
+def copy(request: HttpRequest, number: int) -> HttpResponse:
+    """The copy dialog (`pages.md § Create or copy a document`): `GET`, its fields —
+    `?version=<view>` choosing the version whose appendices it lists; `POST`, the copy, then its
+    page. `404` for anyone but a holder of *create and edit* reading the active source with a
+    version to offer; `409` when the version moved, `503` when the copy stopped, the form kept."""
+    from access.rights import can_create
+    from documents import copying
+    from documents.locks import LockTimeout
+    from documents.services import ChoiceGone
+    from documents.views import CHOICE_GONE
+    from review.services import RecordIncomplete
+
+    tenant = getattr(request, "tenant", None)
+    source = readable_document(request, number, methods=("GET", "POST"))
+    if (
+        tenant is None
+        or source is None
+        or source.state != "active"
+        or not can_create(request.user, tenant)
+    ):
+        return not_found(request)
+    choices = copying.offered(cast(User, request.user), source)
+    if not choices:
+        return not_found(request)
+    seen = {
+        "organisation": tenant.name,
+        "user": request.user,
+        "administrator": administers(request),
+        "source": source,
+    }
+
+    def dialog(form: CopyForm, view: str, *, error: str = "", status: int = 200) -> HttpResponse:
+        chosen = copying.default_offer(choices, view)
+        listed = copying.listed_appendices(source, chosen)
+        posted = set(request.POST.getlist("appendix")) if request.method == "POST" else set()
+        context = {
+            "form": form,
+            "source": source,
+            "offers": choices,
+            "chosen": chosen,
+            "appendices": listed,
+            # Every appendix by default: a copy starts as the version it copies.
+            "mode": request.POST.get("appendices", "all") if request.method == "POST" else "all",
+            # Matched as text against the numbers listed: a posted value is never converted here.
+            "ticked": {part for part, _ in listed if str(part) in posted},
+            "error": error,
+        }
+        return render(request, "documents/copy.html", context, status=status)
+
+    if request.method == "GET":
+        return dialog(CopyForm(**seen), request.GET.get("version", ""))
+    form = CopyForm(request.POST, **seen)
+    posted_view = str(request.POST.get("version", "")).partition(":")[0]
+    if not form.is_valid():
+        return dialog(form, posted_view, status=400)
+    data = form.cleaned_data
+    try:
+        document = copying.copy_document(
+            cast(User, request.user),
+            source,
+            title=data["title"],
+            document_type=data["document_type"],
+            folder=data["folder"],
+            view=data["view"],
+            number=data["number"],
+            appendices=data["appendices"],
+        )
+    except copying.CopyRefused as refused:
+        if refused.reason in ("not_allowed", "archived"):
+            return not_found(request)
+        # The offers as they stand now, the posted stance still chosen where it is offered.
+        choices[:] = copying.offered(cast(User, request.user), source)
+        if not choices:
+            return not_found(request)
+        status = 409 if refused.reason == "changed" else 400
+        return dialog(form, posted_view, error=str(COPY_REFUSALS[refused.reason]), status=status)
+    except ChoiceGone as gone:
+        form.add_error(gone.field, str(CHOICE_GONE[gone.field]))
+        return dialog(form, posted_view, status=400)
+    except LockTimeout:
+        error = str(_("The document is busy. Try again in a moment."))
+        return dialog(form, posted_view, error=error, status=503)
+    except RecordIncomplete:
+        error = str(
+            _("The document's record is incomplete; it cannot be changed until it is repaired.")
+        )
+        return dialog(form, posted_view, error=error, status=503)
+    except copying.CopyStopped as stopped:
+        logger.exception("a copy stopped", extra={"document": stopped.number})
+        error = str(_("The copy was not finished, and nothing of it can be seen. Copy again."))
+        return dialog(form, posted_view, error=error, status=503)
+    return HttpResponseRedirect(f"/document/{document.number}/")

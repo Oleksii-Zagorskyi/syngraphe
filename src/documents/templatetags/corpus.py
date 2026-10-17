@@ -1,17 +1,20 @@
 """The corpus's pieces of a document's pages: the breadcrumb every tab draws, the *archived* tag
-on the pages that draw no state tags, and the act archiving or restoring the document."""
+on the pages that draw no state tags, the act archiving or restoring the document, and *Copy*."""
 
 from __future__ import annotations
 
-from typing import Any
+import logging
+from typing import Any, cast
 
 from django import template
 from django.utils.html import format_html
 from django.utils.safestring import SafeString
 
 from documents.models import Document, Folder
+from identity.models import User
 
 register = template.Library()
+logger = logging.getLogger(__name__)
 
 
 @register.simple_tag
@@ -49,3 +52,27 @@ def archive_act(context: dict[str, Any], document: Document) -> dict[str, Any]:
         "shown": administers(context["request"]),
         "archived": document.state == "archived",
     }
+
+
+@register.inclusion_tag("documents/copy_act.html", takes_context=True)
+def copy_act(context: dict[str, Any], document: Document) -> dict[str, Any]:
+    """*Copy*, to a holder of *create and edit* with a version of the document to offer; drawn
+    disabled with its reason on an archived document (DL-0233)."""
+    from access.rights import can_create
+    from documents.copying import offered
+    from rendering.views import UNREADABLE
+
+    request = context["request"]
+    tenant = getattr(request, "tenant", None)
+    archived = document.state == "archived"
+    shown = tenant is not None and can_create(request.user, tenant)
+    if shown and not archived:
+        try:
+            shown = bool(offered(cast(User, request.user), document))
+        except UNREADABLE:
+            # A record that cannot be read costs the act, never the page; logged for the operator.
+            logger.exception(
+                "a document's versions could not be read", extra={"document": document.number}
+            )
+            shown = False
+    return {"document": document, "shown": shown, "archived": archived}

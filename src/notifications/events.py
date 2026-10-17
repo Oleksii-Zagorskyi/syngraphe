@@ -42,9 +42,10 @@ EVENTS: dict[Event, EventSpec] = {
 # The events a tenant administrator can receive in the organisation's schema, and what a platform
 # administrator adds in the shared one; a member receives only `access_granted`, in the
 # organisation's schema. The filters follow these lists (DL-0236).
-# `document_copied` joins it with the act that writes it: no filter for an event nobody receives.
 TENANT_ADMINISTRATIVE = (
     Event.DOCUMENT_CREATED,
+    # Epic 10: a copy tells the administrators as a creation does (DL-0455).
+    Event.DOCUMENT_COPIED,
     Event.ACCESS_GRANTED,
     Event.EMAIL_FAILED,
     Event.RESERVATION_STARTED,

@@ -13,7 +13,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 
 **Derived by `scripts/derive_coverage.py`** from the *Stories* column of each region table in `pages.md` and its *not yet drawn* marks, and from the stories of [`user-stories.md`](../user-stories.md) in their order — a withdrawn story and one outside release 0.1 left out; run it whenever either file changes. A region is named by its section — `› The tabs` or `› The edit tab` for those subsections — then the region cell up to its first ` — ` or `; `, emphasis removed, cut at 58 characters; a region named as its section is the section alone. A story's title stops before its *so that* or at its sentence's end. A story is **drawn** when every region carrying it is drawn, **partly drawn** when some are, **not yet drawn** when none are. A region for a later release carries no 0.1 story (DL-0228).
 
-**73 stories:** 65 drawn · 2 partly drawn · 3 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
+**73 stories:** 66 drawn · 1 partly drawn · 3 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
 
 | # | Story | Where | Drawn |
 |---|---|---|---|
@@ -38,7 +38,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0010 | As a tenant administrator, I change a document's type | Document page › The tabs — Info | drawn |
 | ST-0011 | As a tenant administrator, I maintain my organisation's list of document types | Administration — document types | drawn |
 | ST-0012 | As a tenant administrator, I create, rename and delete folders and move documents between them | Document list — folder tree; Document list — folder visibility; Document list — Folders ▾; Administration — folders | drawn |
-| ST-0067 | As a user holding *create and edit*, I copy a document I can read into a new one | Document page — Export, Copy; Create or copy a document — copy | partly drawn |
+| ST-0067 | As a user holding *create and edit*, I copy a document I can read into a new one | Document page — Export, Copy; Create or copy a document — copy | drawn |
 | ST-0013 | As a user, I browse the document list and filter it by type and by folder | Shell — All documents; Shell — In edit; Document list — folder tree; Document list — search box; Document list — filter by type; Document list — #; Document list — title; Document list — sorting; Document list — Canonical; Document list — Latest; Document list — part markers; Document list — ✎; In edit, In review — grouped list, filtered tree; Search results — grouped results, filtered tree; Search results — search box; Search results — filter by type; Search results — nothing found | drawn |
 | ST-0014 | As a reviewer, I see each document's current state in the list | Shell — In review; Document list — state tags after the title; Document list — Latest; In edit, In review — grouped list, filtered tree; Document page — state tags, as in the list | drawn |
 | ST-0015 | As a tenant administrator, I archive a document | Document page — state tags, as in the list; Document page — Archive / Restore; Nothing to show here — the page; Administration — document links; Administration — archive | drawn |

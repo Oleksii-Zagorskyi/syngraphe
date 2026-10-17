@@ -1,0 +1,396 @@
+"""Copying a document (ST-0067, DL-0451, DL-0455, DL-0268): the copy's one `created` commit holds
+a version of the source the copier may see — its text, the chosen appendices renumbered from 1,
+the language and title page, the images it references and its entities, never an attachment — and
+its source is recorded before any repository exists.
+
+Titles, appendices, files, groups and people are synthetic examples."""
+
+from __future__ import annotations
+
+import dataclasses
+import hashlib
+import html
+import re
+from types import SimpleNamespace
+from typing import Any
+
+import pytest
+
+from tenancy.schemas import schema_context
+
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.django_db(transaction=True, serialized_rollback=True),
+]
+
+IMAGE = b"\x89PNG synthetic image bytes"
+IMAGE_PATH = f"images/{hashlib.sha256(IMAGE).hexdigest()}.png"
+ENTITIES = b"- kind: role\n  key: synthetic-head\n  name: Synthetic head of unit\n"
+SCHEME = b"synthetic attachment bytes\n"
+
+
+def _body(words: str) -> str:
+    return f"# Terms\n\n{words}\n\n![A synthetic picture]({IMAGE_PATH})\n"
+
+
+def _commit(
+    migrated_tenant: Any,
+    document: Any,
+    user: Any,
+    body: str,
+    *,
+    appendices: list[tuple[str, str]] | None = None,
+    attachments: bool = False,
+    files: dict[str, bytes] | None = None,
+) -> Any:
+    """A `reviewer_edit` version of `document` with `body`; `appendices` replace the listed ones,
+    `attachments` lists the one attachment, `files` added as they stand. The row derived."""
+    from documents import bundle, gitstore, services
+    from documents.identity import identity_for
+    from documents.locks import document_lock
+
+    number = migrated_tenant.number
+    with schema_context(number):
+        repo = gitstore.open_repository(number, document.number)
+        with document_lock(number, document.number):
+            head = gitstore.head(repo)
+            assert head is not None
+            frontmatter, _ = bundle.parse(gitstore.read(repo, "document.md", head).decode())
+            written = dict(files or {})
+            if appendices is not None:
+                listed = [{"number": n, "title": t} for n, (t, _) in enumerate(appendices, 1)]
+                frontmatter = dataclasses.replace(frontmatter, appendices=listed)
+                for n, (_, text) in enumerate(appendices, 1):
+                    written[f"appendices/{n}.md"] = text.encode()
+            if attachments:
+                entry = {
+                    "number": 1,
+                    "title": "Synthetic scheme",
+                    "file_name": "scheme.txt",
+                    "sha256": hashlib.sha256(SCHEME).hexdigest(),
+                    "bytes": len(SCHEME),
+                }
+                frontmatter = dataclasses.replace(frontmatter, attachments=[entry])
+                written["attachments/1"] = SCHEME
+            written["document.md"] = bundle.render(frontmatter, body).encode()
+            sha = gitstore.commit(
+                repo, written, identity_for(user), "Synthetic edit", gitstore.Kind.REVIEWER_EDIT
+            )
+            return services.derive_version(document, gitstore.commit_at(repo, sha), user)
+
+
+@pytest.fixture
+def source(migrated_tenant: Any, member_of: Any, repo_root: Any) -> SimpleNamespace:
+    """A document with an edition `1.0`, an acceptance `1.1` and a pending `1.1-2`: two
+    appendices, an attachment, an image its text references and a list of entities. Its author is
+    an administrator holding every right through *Operators*."""
+    from access.models import AccessGroup, DocumentGroup
+    from access.rights import Right
+    from documents import services
+    from documents.models import DocumentType, Folder
+    from editions import services as editions
+    from identity.models import Language
+    from review import services as review
+
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
+    client, user, membership = member_of("the.operator@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(
+            name="Operators (synthetic example)", created_by=user, actor_kind="user"
+        )
+        for right in Right:
+            group.grant(right, by=user)
+        group.add_member(membership, by=user)
+        document = services.create_document(
+            user,
+            "Synthetic travel policy",
+            "uk",
+            DocumentType.objects.get(code="document"),
+            Folder.objects.get(number=1),
+        )
+        DocumentGroup.link(document, group, by=user)
+    appendices = [
+        ("Rates", "# Rates\n\nSynthetic rates.\n"),
+        ("Forms", "# Forms\n\nSynthetic forms.\n"),
+    ]
+    _commit(
+        migrated_tenant,
+        document,
+        user,
+        _body("The first synthetic text."),
+        appendices=appendices,
+        attachments=True,
+        files={IMAGE_PATH: IMAGE, "entities.yaml": ENTITIES},
+    )
+    with schema_context(migrated_tenant.number):
+        review.accept(document, user)
+        editions.freeze(document, user, "Synthetic reason")
+        editions.make_canonical(document, user)
+    _commit(migrated_tenant, document, user, _body("The accepted synthetic text."))
+    with schema_context(migrated_tenant.number):
+        review.accept(document, user)
+    _commit(migrated_tenant, document, user, _body("The pending synthetic text, first."))
+    _commit(migrated_tenant, document, user, _body("The pending synthetic text, second."))
+    return SimpleNamespace(client=client, user=user, group=group, document=document)
+
+
+def _copy(migrated_tenant: Any, source: Any, view: str, number: str, **kwargs: Any) -> Any:
+    from documents import copying
+    from documents.models import DocumentType, Folder
+
+    with schema_context(migrated_tenant.number):
+        return copying.copy_document(
+            source.user,
+            source.document,
+            title=kwargs.pop("title", "Synthetic copy"),
+            document_type=DocumentType.objects.get(code="document"),
+            folder=Folder.objects.get(number=1),
+            view=view,
+            number=number,
+            appendices=kwargs.pop("appendices", None),
+            **kwargs,
+        )
+
+
+def test_the_first_commit_is_the_chosen_version(migrated_tenant: Any, source: Any) -> None:
+    from documents import bundle, gitstore
+    from documents.models import Version
+
+    copy = _copy(migrated_tenant, source, "accepted", "1.1", appendices=[2])
+
+    repo = gitstore.open_repository(migrated_tenant.number, copy.number)
+    history = list(gitstore.history(repo))
+    assert len(history) == 1 and gitstore.kind_of(history[0].message) is gitstore.Kind.CREATED
+    assert history[0].author.name == str(source.user.pk)
+    head = str(history[0].id)
+    frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", head).decode())
+    assert "The accepted synthetic text." in body
+    assert frontmatter.title == "Synthetic copy" and frontmatter.language == "uk"
+    assert frontmatter.appendices == [{"number": 1, "title": "Forms"}]
+    assert frontmatter.attachments == []
+    assert gitstore.read(repo, "appendices/1.md", head) == b"# Forms\n\nSynthetic forms.\n"
+    assert gitstore.read(repo, IMAGE_PATH, head) == IMAGE
+    assert gitstore.read(repo, "entities.yaml", head) == ENTITIES
+    for absent in ("attachments/1", "appendices/2.md"):
+        with pytest.raises(KeyError):
+            gitstore.read(repo, absent, head)
+    with schema_context(migrated_tenant.number):
+        assert list(Version.objects.filter(document=copy).values_list("kind", flat=True)) == [
+            "created"
+        ]
+
+
+def test_the_source_is_recorded_and_administrators_told(
+    migrated_tenant: Any, member_of: Any, source: Any
+) -> None:
+    from audit.models import AuditEvent
+    from documents.models import Document, Version
+    from notifications.models import Notification
+
+    _, other_admin, _ = member_of("another.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        accepted = Version.objects.filter(document=source.document, kind="reviewer_edit").order_by(
+            "committed_at"
+        )[1]
+
+    copy = _copy(migrated_tenant, source, "accepted", "1.1", appendices=[2])
+
+    with schema_context(migrated_tenant.number):
+        copy = Document.objects.get(pk=copy.pk)
+        told = list(Notification.objects.filter(event="document_copied"))
+    assert copy.author_only and copy.copied_from_id == source.document.pk
+    copied = AuditEvent.objects.get(action="document.copied")
+    assert copied.object_type == "document" and copied.object_id == copy.pk
+    assert copied.after == {
+        "number": copy.number,
+        "source_number": source.document.number,
+        "source_version": "1.1",
+        "source_commit": accepted.commit_sha,
+        "appendices": [2],
+    }
+    created = AuditEvent.objects.get(action="document.created", object_id=copy.pk)
+    assert created.after["copied_from"] == source.document.number
+    assert copied.at <= created.at
+    assert [n.user_id for n in told] == [other_admin.pk]
+    assert told[0].document_id == copy.pk
+
+
+def test_only_versions_the_copier_may_see(
+    migrated_tenant: Any, member_of: Any, source: Any, settings: Any
+) -> None:
+    from access.models import AccessGroup, DocumentGroup
+    from access.rights import Right
+
+    settings.LANGUAGE_CODE = "en"
+    reader, user, membership = member_of("a.reader@example.test")
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(
+            name="Readers", created_by=source.user, actor_kind="user"
+        )
+        group.grant(Right.VIEW_ACCEPTED, by=source.user)
+        group.add_member(membership, by=source.user)
+        DocumentGroup.link(source.document, group, by=source.user)
+        creators = AccessGroup.objects.create(
+            name="Creators", created_by=source.user, actor_kind="user"
+        )
+        creators.grant(Right.CREATE_AND_EDIT, by=source.user)
+        creators.add_member(membership, by=source.user)
+
+    dialog = html.unescape(reader.get(f"/document/{source.document.number}/copy/").content.decode())
+
+    offered = re.findall(
+        r'<input type="radio" name="version" value="([a-z_]+):([0-9.-]+)"([^>]*)>', dialog
+    )
+    assert [(view, number) for view, number, _ in offered] == [
+        ("accepted", "1.1"),
+        ("canonical", "1.0"),
+    ]
+    assert "checked" in offered[0][2]
+    assert "Attachments are not copied." in dialog
+
+
+def test_a_source_that_moved_is_refused(migrated_tenant: Any, source: Any, settings: Any) -> None:
+    from documents.models import Document
+
+    settings.LANGUAGE_CODE = "en"
+    client = source.client
+    dialog = client.get(f"/document/{source.document.number}/copy/").content.decode()
+    assert 'value="pending_edits:1.1-2" checked' in dialog
+    _commit(
+        migrated_tenant, source.document, source.user, _body("The pending synthetic text, third.")
+    )
+    with schema_context(migrated_tenant.number):
+        before = Document.objects.count()
+
+    answer = client.post(
+        f"/document/{source.document.number}/copy/",
+        {
+            "title": "Synthetic copy",
+            "document_type": "document",
+            "folder": "1",
+            "version": "pending_edits:1.1-2",
+            "appendices": "none",
+        },
+    )
+
+    body = html.unescape(answer.content.decode())
+    assert answer.status_code == 409
+    assert "The version changed since the dialog showed it" in body
+    assert 'value="pending_edits:1.1-3" checked' in body
+    with schema_context(migrated_tenant.number):
+        assert Document.objects.count() == before
+
+
+def test_refusals(migrated_tenant: Any, member_of: Any, source: Any, settings: Any) -> None:
+    from access.models import AccessGroup, DocumentGroup
+    from access.rights import Right
+    from documents import archive, copying
+    from documents.models import DocumentType, Folder
+
+    settings.LANGUAGE_CODE = "en"
+    reader, _, membership = member_of("a.reader@example.test")
+    stranger, _, stranger_membership = member_of("a.stranger@example.test")
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(
+            name="Readers", created_by=source.user, actor_kind="user"
+        )
+        group.grant(Right.VIEW_PENDING, by=source.user)
+        group.add_member(membership, by=source.user)
+        DocumentGroup.link(source.document, group, by=source.user)
+        creators = AccessGroup.objects.create(
+            name="Creators", created_by=source.user, actor_kind="user"
+        )
+        creators.grant(Right.CREATE_AND_EDIT, by=source.user)
+        creators.add_member(stranger_membership, by=source.user)
+
+    # A reader without *create and edit*; a creator who may not read the source.
+    assert reader.get(f"/document/{source.document.number}/copy/").status_code == 404
+    assert stranger.get(f"/document/{source.document.number}/copy/").status_code == 404
+    page = source.client.get(f"/document/{source.document.number}/").content.decode()
+    assert f'href="/document/{source.document.number}/copy/"' in page
+
+    with schema_context(migrated_tenant.number):
+        archive.archive(source.document, source.user)
+        source.document.refresh_from_db()
+        with pytest.raises(copying.CopyRefused) as refused:
+            copying.copy_document(
+                source.user,
+                source.document,
+                title="Synthetic copy",
+                document_type=DocumentType.objects.get(code="document"),
+                folder=Folder.objects.get(number=1),
+                view="accepted",
+                number="1.1",
+                appendices=[],
+            )
+        assert refused.value.reason == "archived"
+    archived_page = html.unescape(
+        source.client.get(f"/document/{source.document.number}/").content.decode()
+    )
+    assert source.client.get(f"/document/{source.document.number}/copy/").status_code == 404
+    act = archived_page.split('class="document-actions"', 1)[1].split("</p>", 1)[0]
+    assert "Copy" in act and "disabled" in act and "archived — restore it first" in act
+
+
+def test_administrators_read_the_source_on_info(
+    migrated_tenant: Any, member_of: Any, source: Any, settings: Any
+) -> None:
+    from access.models import AccessGroup, DocumentGroup
+    from access.rights import Right
+
+    settings.LANGUAGE_CODE = "en"
+    source.user.display_name = "Synthetic Copier"
+    source.user.save()
+    copy = _copy(migrated_tenant, source, "accepted", "1.1", appendices=[])
+    reader, _, membership = member_of("a.reader@example.test")
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(
+            name="Readers", created_by=source.user, actor_kind="user"
+        )
+        group.grant(Right.VIEW_PENDING, by=source.user)
+        group.add_member(membership, by=source.user)
+        DocumentGroup.link(copy, group, by=source.user)
+    from audit.models import AuditEvent
+
+    commit = AuditEvent.objects.get(action="document.copied").after["source_commit"]
+
+    as_admin = html.unescape(source.client.get(f"/document/{copy.number}/info/").content.decode())
+    as_reader = reader.get(f"/document/{copy.number}/info/").content.decode()
+
+    assert "Copied from" in as_admin and "Copied from" not in as_reader
+    copied = as_admin.split("Copied from", 1)[1].split("</dd>", 1)[0]
+    assert f'href="/document/{source.document.number}/"' in copied
+    assert "1.1" in copied and commit[:12] in copied and commit[:13] not in copied
+    assert "Synthetic Copier" in copied
+
+
+@pytest.mark.parametrize(
+    "appendix", ["²", "9" * 5000, "invalid"], ids=["superscript", "past-digit-limit", "letters"]
+)
+def test_a_malformed_appendix_is_refused_as_input(
+    migrated_tenant: Any, source: Any, settings: Any, appendix: str
+) -> None:
+    """A chosen appendix that is no number answers the dialog again with `400`, nothing written —
+    a superscript digit and a number past the interpreter's digit limit included."""
+    from documents.models import Document
+
+    settings.LANGUAGE_CODE = "en"
+    with schema_context(migrated_tenant.number):
+        before = Document.objects.count()
+
+    answer = source.client.post(
+        f"/document/{source.document.number}/copy/",
+        {
+            "title": "Synthetic copy",
+            "document_type": "document",
+            "folder": "1",
+            "version": "pending_edits:1.1-2",
+            "appendices": "chosen",
+            "appendix": appendix,
+        },
+    )
+
+    assert answer.status_code == 400
+    assert "Choose the appendices to copy." in html.unescape(answer.content.decode())
+    with schema_context(migrated_tenant.number):
+        assert Document.objects.count() == before

@@ -530,8 +530,30 @@ def render_page(
             else []
         ),
     }
+    # Epic 10: a copy's source, to administrators alone (DL-0455).
+    context |= _copied_from(request, document) if administrator else {}
     context |= _state_line(request, document)
     return render(request, "documents/page.html", context, status=status)
+
+
+def _copied_from(request: HttpRequest, document: Document) -> dict[str, Any]:
+    """The source `document.copied` names, linked when the reader may open it."""
+    from documents.copying import provenance
+
+    found = provenance(document)
+    if found is None:
+        return {}
+    source = found.source
+    opens = (
+        source is not None
+        and source.state in (DocumentState.ACTIVE, DocumentState.ARCHIVED)
+        and source.pk in readable(request.user, [source.pk])
+    )
+    return {
+        "copied_from": found,
+        "copied_from_opens": opens,
+        "copier": person(found.copier) if found.copier is not None else "",
+    }
 
 
 def _state_line(request: HttpRequest, document: Document) -> dict[str, Any]:

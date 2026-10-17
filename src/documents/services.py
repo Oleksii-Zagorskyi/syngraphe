@@ -177,9 +177,13 @@ def resume_creation(
     *,
     adopt: bool = True,
     fault_at: int | None = None,
+    # Epic 10: a copy's first tree and its administrators' event (DL-0451, DL-0455).
+    tree: dict[str, bytes] | None = None,
+    event: str | None = None,
 ) -> bool:
     """Steps 2 to 6 from wherever a creation stopped; the caller holds the document's lock.
-    Returns whether this call made the document `active`.
+    Returns whether this call made the document `active`. A copy passes `tree`, committed at step 3
+    instead of the template's, and `event`, what its administrators are told.
 
     Creation runs it with `adopt` false: step 2 then always creates the repository and refuses
     one already there. The reconciler runs it with `adopt` true, and a repository already there
@@ -200,7 +204,7 @@ def resume_creation(
     ):
         raise NotAdoptable(f"tenant-{tenant_number}/document-{document.number}")
     if first is None:
-        tree = bundle.initial_tree(
+        tree = tree or bundle.initial_tree(
             tenant=tenant_number,
             document=document.number,
             title=document.title,
@@ -237,14 +241,22 @@ def resume_creation(
                 "folder": document.folder.number,
                 "author_only": True,
                 "commit": str(first.id),
+                # Epic 10: a copy names its source.
+                **(
+                    {"copied_from": document.copied_from.number}
+                    if document.copied_from is not None
+                    else {}
+                ),
             },
             tenant=tenant,
         )
-        tell_administrators(document, user)
+        tell_administrators(document, user, event=event)
     return True
 
 
-def tell_administrators(document: Document, user: User | None, **facts: Any) -> None:
+def tell_administrators(
+    document: Document, user: User | None, *, event: str | None = None, **facts: Any
+) -> None:
     """The administrators of the organisation whose schema holds `document` told it exists —
     never its creator; the reconciler, recreating one, tells them with `recreated`."""
     from access.rights import administrators
@@ -257,7 +269,7 @@ def tell_administrators(document: Document, user: User | None, **facts: Any) -> 
     notify(
         users=others((admin.pk for admin in administrators(tenant_number)), user),
         category=Category.ADMINISTRATIVE,
-        event=Event.DOCUMENT_CREATED,
+        event=Event(event) if event is not None else Event.DOCUMENT_CREATED,
         actor=user,
         document=document,
         facts=facts or None,

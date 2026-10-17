@@ -1,11 +1,12 @@
-"""The create dialog's form (`pages.md § Create or copy a document`)."""
+"""The create and copy dialogs' forms (`pages.md § Create or copy a document`)."""
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from django import forms
 from django.db.models import Case, Value, When
+from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
 
 from documents.bundle import TITLE_MAX, valid_title
@@ -69,3 +70,45 @@ class CreateForm(forms.Form):
         if not valid_title(title):
             raise forms.ValidationError(_("A title is one line of text."))
         return title
+
+
+# Epic 10
+class CopyForm(CreateForm):
+    """The copy dialog's fields beside the version and the appendices it draws itself: the title
+    prefilled with the source's, the type and folder as in create, the language the source's and
+    never a choice (`pages.md § Create or copy a document`)."""
+
+    APPENDICES = ("none", "all", "chosen")
+
+    def __init__(self, *args: Any, source: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        del self.fields["language"]
+        self.fields["title"].initial = source.title
+        kind = self.fields["document_type"]
+        assert isinstance(kind, LabelledField)
+        # Posted by code and number, as every other page names a type and a folder.
+        kind.to_field_name = "code"
+        if source.document_type.retired_at is None:
+            kind.initial = source.document_type.code
+        folder = self.fields["folder"]
+        assert isinstance(folder, FolderField)
+        folder.to_field_name = "number"
+        if source.folder_id in folder.paths:
+            folder.initial = source.folder.number
+
+    def clean(self) -> dict[str, Any]:
+        cleaned = super().clean() or {}
+        view, colon, number = str(self.data.get("version", "")).partition(":")
+        if not view or not colon or not number:
+            raise forms.ValidationError(_("Choose a version."))
+        cleaned["view"], cleaned["number"] = view, number
+        mode = self.data.get("appendices", "none")
+        if mode not in self.APPENDICES:
+            raise forms.ValidationError(_("Choose the appendices to copy."))
+        posted = cast(QueryDict, self.data).getlist("appendix")
+        # An appendix number as the dialog posts it: ASCII digits, a few of them.
+        if any(not (n.isascii() and n.isdigit() and len(n) <= 6) for n in posted):
+            raise forms.ValidationError(_("Choose the appendices to copy."))
+        chosen = [int(n) for n in posted]
+        cleaned["appendices"] = {"none": [], "all": None, "chosen": chosen}[mode]
+        return cleaned

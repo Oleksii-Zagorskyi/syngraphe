@@ -3362,3 +3362,78 @@ msgstr "Ваше редагування завершено %(date)s: ви заа
 #: editing/templates/editing/draft_readonly.html
 msgid "Your editing was ended on %(date)s when %(name)s archived the document."
 msgstr "Ваше редагування завершено %(date)s: документ заархівовано — %(name)s."
+
+#: documents/templates/documents/copy_act.html
+msgid "Copy"
+msgstr "Копіювати"
+
+#: documents/templates/documents/copy.html
+msgid "Copy a document"
+msgstr "Копіювати документ"
+
+#: documents/templates/documents/copy.html
+msgid "Copy #%(number)s %(title)s"
+msgstr "Копіювати #%(number)s %(title)s"
+
+#: documents/templates/documents/copy.html
+msgid "— the source's, kept"
+msgstr "— мова джерела, без змін"
+
+#: documents/templates/documents/copy.html
+msgid "Appendices"
+msgstr "Додатки"
+
+#: documents/templates/documents/copy.html
+msgctxt "appendices to copy"
+msgid "None"
+msgstr "Жодного"
+
+#: documents/templates/documents/copy.html
+msgctxt "appendices to copy"
+msgid "All"
+msgstr "Усі"
+
+#: documents/templates/documents/copy.html
+msgctxt "appendices to copy"
+msgid "Chosen:"
+msgstr "Вибрані:"
+
+#: documents/templates/documents/copy.html
+msgid "This version has no appendices."
+msgstr "Ця версія не має додатків."
+
+#: documents/templates/documents/copy.html
+msgid "Attachments are not copied."
+msgstr "Вкладені файли не копіюються."
+
+#: documents/templates/documents/copy.html
+msgid "The copy starts from the chosen version's text, without its history; only you can reach it until an administrator links groups to it."
+msgstr "Копія починається з тексту вибраної версії, без її історії; лише ви маєте до неї доступ, доки адміністратор не пов’яже з нею групи."
+
+#: documents/forms.py
+msgid "Choose a version."
+msgstr "Виберіть версію."
+
+#: documents/forms.py
+msgid "Choose the appendices to copy."
+msgstr "Виберіть додатки, які слід скопіювати."
+
+#: documents/corpus_views.py
+msgid "The version changed since the dialog showed it. Check it and copy again."
+msgstr "Версія змінилася відтоді, як діалог її показав. Перевірте її та скопіюйте ще раз."
+
+#: documents/corpus_views.py
+msgid "This version cannot be read, so it cannot be copied."
+msgstr "Цю версію неможливо прочитати, тож її не можна скопіювати."
+
+#: documents/corpus_views.py
+msgid "An appendix chosen is no longer in this version. Choose again."
+msgstr "Вибраного додатка в цій версії вже немає. Виберіть ще раз."
+
+#: documents/corpus_views.py
+msgid "The copy was not finished, and nothing of it can be seen. Copy again."
+msgstr "Копіювання не завершено, і від копії нічого не видно. Скопіюйте ще раз."
+
+#: documents/templates/documents/info.html
+msgid "Copied from"
+msgstr "Скопійовано з"
