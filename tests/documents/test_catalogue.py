@@ -112,7 +112,6 @@ def test_catalogue_covers_epic_3_pages(
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
 
 
-# Epic 10
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
 def test_catalogue_covers_epic_10_pages(

@@ -233,7 +233,6 @@ def test_all_documents_in_the_navigation(migrated_tenant: Any, member_of: Any) -
     assert 'data-nav="in-edit"' not in body and 'data-nav="in-review"' not in body
 
 
-# Epic 10
 def test_sorting_by_number_or_title_both_ways(
     migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:

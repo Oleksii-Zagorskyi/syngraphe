@@ -222,7 +222,6 @@ def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) 
     assert re.search(r'<option value="en" selected>', body)
 
 
-# Epic 10
 def test_the_dialog_offers_the_folders_the_person_sees(
     migrated_tenant: Any, author: Any, member_of: Any, make_document: Any
 ) -> None:

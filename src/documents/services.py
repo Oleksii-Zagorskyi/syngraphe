@@ -54,7 +54,6 @@ class CreationStopped(Exception):
         self.number = number
 
 
-# Epic 10
 class ChoiceGone(Exception):
     """A creation's chosen type or folder was deleted, or the type retired, after the form offered
     it; `field` names the choice. Nothing is written."""
@@ -97,7 +96,7 @@ def create_document(
 
     # (1) The row, with the next number, committed before anything leaves the database.
     with transaction.atomic():
-        # Epic 10: the type and the folder read again and held, so a delete or a retire since the
+        # The type and the folder read again and held, so a delete or a retire since the
         # form offered them refuses the creation rather than failing its row.
         # The folder first, then the type — the order a move and a type change take — so the
         # three acts never wait on each other in a cycle.
@@ -177,7 +176,7 @@ def resume_creation(
     *,
     adopt: bool = True,
     fault_at: int | None = None,
-    # Epic 10: a copy's first tree and its administrators' event (DL-0451, DL-0455).
+    # A copy's first tree and its administrators' event (DL-0451, DL-0455).
     tree: dict[str, bytes] | None = None,
     event: str | None = None,
 ) -> bool:
@@ -241,7 +240,7 @@ def resume_creation(
                 "folder": document.folder.number,
                 "author_only": True,
                 "commit": str(first.id),
-                # Epic 10: a copy names its source.
+                # A copy names its source.
                 **(
                     {"copied_from": document.copied_from.number}
                     if document.copied_from is not None

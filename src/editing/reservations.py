@@ -138,7 +138,7 @@ def checked_reason(reason: str) -> str:
     from editions.services import valid_reason
 
     reason = reason.strip()
-    # Epic 10: the reason archiving writes is the platform's alone, never typed (DL-0456).
+    # The reason archiving writes is the platform's alone, never typed (DL-0456).
     if not reason or not valid_reason(reason) or reason.casefold() == ARCHIVED_REASON:
         raise ReasonRefused
     return reason

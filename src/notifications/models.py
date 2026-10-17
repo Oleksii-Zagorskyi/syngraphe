@@ -38,7 +38,7 @@ class Event(models.TextChoices):
     RESERVATION_ENDED_BY_ADMIN = "reservation_ended_by_admin", "reservation_ended_by_admin"
     HOLD_EXPIRING = "hold_expiring", "hold_expiring"
     RETURNED = "returned", "returned"
-    # Epic 10: the holder of a hold or reservation archiving ended (DL-0471).
+    # The holder of a hold or reservation archiving ended (DL-0471).
     DOCUMENT_ARCHIVED = "document_archived", "document_archived"
 
 
@@ -93,7 +93,7 @@ class Notification(models.Model):
                 condition=~Q(event=Event.CORRECTION_NOTICE) | Q(correction_notice__isnull=False),
                 name="notifications_correction_notice_names_its_notice",
             ),
-            # Epic 10: the archived holder's notice names no document they may no longer open,
+            # The archived holder's notice names no document they may no longer open,
             # only its number in the facts (DL-0471).
             models.CheckConstraint(
                 condition=Q(category=Category.ADMINISTRATIVE)

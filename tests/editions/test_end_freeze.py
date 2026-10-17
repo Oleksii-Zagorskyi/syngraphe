@@ -125,7 +125,6 @@ def test_the_command_names_no_actor(
         assert Freeze.objects.filter(ended_at__isnull=True).count() == 1
 
 
-# Epic 10
 def test_an_archived_document_is_refused(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any, member_of: Any
 ) -> None:

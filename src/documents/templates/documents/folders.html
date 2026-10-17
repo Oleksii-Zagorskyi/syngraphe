@@ -23,7 +23,7 @@
   <table class="list">
     <thead><tr><th>#</th><th>{% translate "Title" %}</th></tr></thead>
     <tbody>{% for document in documents %}
-      <tr data-number="{{ document.number }}"><td class="id">#{{ document.number }}</td><td>{{ document.title }}{# Epic 10 #}{% if document.state == "archived" %} <span class="tag" data-state="archived">{% translate "archived" %}</span>{% endif %}</td></tr>
+      <tr data-number="{{ document.number }}"><td class="id">#{{ document.number }}</td><td>{{ document.title }}{% if document.state == "archived" %} <span class="tag" data-state="archived">{% translate "archived" %}</span>{% endif %}</td></tr>
     {% endfor %}</tbody>
   </table>
   {% else %}

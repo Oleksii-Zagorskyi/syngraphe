@@ -35,7 +35,6 @@ EVENTS: dict[Event, EventSpec] = {
     Event.RESERVATION_ENDED_BY_ADMIN: EventSpec(Category.DOCUMENT),
     Event.HOLD_EXPIRING: EventSpec(Category.DOCUMENT),
     Event.RETURNED: EventSpec(Category.DOCUMENT),
-    # Epic 10
     Event.DOCUMENT_ARCHIVED: EventSpec(Category.DOCUMENT),
 }
 
@@ -44,7 +43,7 @@ EVENTS: dict[Event, EventSpec] = {
 # organisation's schema. The filters follow these lists (DL-0236).
 TENANT_ADMINISTRATIVE = (
     Event.DOCUMENT_CREATED,
-    # Epic 10: a copy tells the administrators as a creation does (DL-0455).
+    # A copy tells the administrators as a creation does (DL-0455).
     Event.DOCUMENT_COPIED,
     Event.ACCESS_GRANTED,
     Event.EMAIL_FAILED,
@@ -144,7 +143,7 @@ def describe(row: Any, *, named: bool = True) -> str:
         return _("%(organisation)s has no active administrator.") % {
             "organisation": _organisation(facts)
         }
-    # Epic 10: no document attached — its number and who archived it, never its title (DL-0471).
+    # No document attached — its number and who archived it, never its title (DL-0471).
     if event == Event.DOCUMENT_ARCHIVED:
         return _(
             "Document #%(number)s, which you were editing, was archived by %(by)s; your draft is"

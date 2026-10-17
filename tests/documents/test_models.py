@@ -184,7 +184,6 @@ def test_a_missing_appendix_leaves_the_rest(
     assert parts == 1
 
 
-# Epic 10
 def test_the_folder_sequence_is_the_tenants(migrated_tenant: Any) -> None:
     """Folder numbers come from the organisation's own sequence, starting after the root's 1."""
     from django.db import connection

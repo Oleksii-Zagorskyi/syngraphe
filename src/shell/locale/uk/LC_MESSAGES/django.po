@@ -3348,7 +3348,6 @@ msgstr "більше ролей, дій і термінів, ніж прийма
 msgid "The draft marks %(what)s; remove some in the editor."
 msgstr "Чернетка позначає %(what)s; вилучіть частину в редакторі."
 
-# Epic 10 — the corpus
 
 #: documents/administration.py
 msgid "A label is one line of text, at most 100 characters."

@@ -61,7 +61,7 @@ def _target(request: HttpRequest, row: Any) -> str:
         return reverse("tenants")
     if event == Event.ACCESS_GRANTED:
         return _group_page(facts) if administers(request) else reverse("folder", args=[ROOT_FOLDER])
-    # Epic 10: there is no document page to open; the document tab it is listed on.
+    # There is no document page to open; the document tab it is listed on.
     if event == Event.DOCUMENT_ARCHIVED:
         return reverse("notifications") + "?tab=document"
     if row.document is None:

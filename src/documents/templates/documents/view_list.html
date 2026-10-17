@@ -3,7 +3,7 @@
 {% block title %}{% if view == "in-review" %}{% translate "In review" %}{% else %}{% translate "In edit" %}{% endif %} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content documents">
-  {# Epic 10: the tree cut to the folders holding a listed row; groups headed by full path #}
+  {# The tree cut to the folders holding a listed row; groups headed by full path #}
   <div class="panes list-panes" style="--tree-width: {{ tree_width }}px">
     {% include "documents/tree.html" %}
     <div class="list-main">

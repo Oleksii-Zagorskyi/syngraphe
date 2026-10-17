@@ -44,12 +44,11 @@ class State(StrEnum):
     # shown as tags beside the review state, never instead of it.
     HELD = "held"
     RESERVED = "reserved"
-    # Epic 10: put away by an administrator; only administrators reach it (DL-0450).
+    # Put away by an administrator; only administrators reach it (DL-0450).
     ARCHIVED = "archived"
 
 
 LABELS = {
-    # Epic 10
     State.ARCHIVED: _("archived"),
     State.FROZEN: _("frozen"),
     State.HELD: _("held"),
@@ -278,7 +277,6 @@ def tags(
     shown: dict[Any, list[Tag]] = {}
     for d in documents:
         shown[d.pk] = [Tag(State.FROZEN, str(LABELS[State.FROZEN]))] if d.pk in held_still else []
-        # Epic 10
         if d.state == DocumentState.ARCHIVED:
             shown[d.pk].insert(0, Tag(State.ARCHIVED, str(LABELS[State.ARCHIVED])))
         if d.pk in held:

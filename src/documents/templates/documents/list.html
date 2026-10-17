@@ -3,7 +3,7 @@
 {% block title %}{{ current_tenant.name }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content documents">
-  {# Epic 10: the folder tree beside the list (DL-0195, DL-0206) #}
+  {# The folder tree beside the list (DL-0195, DL-0206) #}
   <div class="panes list-panes" style="--tree-width: {{ tree_width }}px">
     {% include "documents/tree.html" %}
     <div class="list-main">
@@ -11,7 +11,7 @@
   <div class="toolbar">
     {% include "documents/type_filter.html" %}
     {% if can_create %}<a class="btn primary" href="/document/new/">+ {% translate "Create document" %}</a>{% endif %}
-    {# Epic 10 #}<details class="menu-actions compare-documents"><summary class="btn">{% translate "Compare documents…" %}</summary><form method="get" action="/compare/"><label>#<input type="text" name="first" inputmode="numeric" size="5" required></label> <label>{% translate "with #" %}<input type="text" name="second" inputmode="numeric" size="5" required></label> <button class="btn" type="submit">{% translate "Compare" %}</button></form></details>
+    <details class="menu-actions compare-documents"><summary class="btn">{% translate "Compare documents…" %}</summary><form method="get" action="/compare/"><label>#<input type="text" name="first" inputmode="numeric" size="5" required></label> <label>{% translate "with #" %}<input type="text" name="second" inputmode="numeric" size="5" required></label> <button class="btn" type="submit">{% translate "Compare" %}</button></form></details>
     {% if administrator %}<details class="menu-actions"><summary class="btn">{% translate "Folders ▾" %}</summary><ul>
       <li><a href="/administration/tenant/folders/?folder={{ folder.number }}">{% translate "New folder" %}</a></li>
       {% if folder.parent_id %}<li><a href="/administration/tenant/folders/?folder={{ folder.number }}">{% translate "Rename" %}</a></li>

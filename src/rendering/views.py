@@ -220,7 +220,7 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     document = readable_document(request, number)
     if document is None:
         return not_found(request)
-    # Epic 10: another document named, or the picker asked for (DL-0452). A `to` belongs to the
+    # Another document named, or the picker asked for (DL-0452). A `to` belongs to the
     # second document the choosers showed, `was`: typed over or cleared, that `to` is dropped.
     other = request.GET.get("with")
     to = request.GET.get("to", "")
@@ -288,7 +288,6 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     return render(request, "rendering/compare.html", context)
 
 
-# Epic 10
 def _compare_documents(
     request: HttpRequest, first: Document, other: str, asked_to: str
 ) -> HttpResponse:

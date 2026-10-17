@@ -170,7 +170,6 @@ def test_hold_tags_cost_one_query(
     assert sorted(hold_states) == ["held"] * 5 + ["reserved"] * 5
 
 
-# Epic 10
 def test_an_archived_document_is_tagged_archived_first(
     migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
 ) -> None:

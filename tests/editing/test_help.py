@@ -223,7 +223,6 @@ def test_images_marks_and_mentions_help(member_of: Any, settings: Any) -> None:
                 assert leaked == [], (page, leaked)
 
 
-# Epic 10
 def test_corpus_help_page(member_of: Any, settings: Any) -> None:
     """*Finding and organising documents*: listed in the index and rendered in both languages,
     no message id shown."""

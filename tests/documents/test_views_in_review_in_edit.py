@@ -462,7 +462,6 @@ def test_catalogue_covers_the_views_and_their_links(
         assert leaked == [], (view, leaked)
 
 
-# Epic 10
 def test_groups_are_headed_by_full_path(
     migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
 ) -> None:

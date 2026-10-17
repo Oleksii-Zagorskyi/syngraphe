@@ -721,7 +721,6 @@ def test_markdown_without_images_is_one_file(
     assert job.state == "done" and job.artifact_ref.endswith(".md"), job.artifact_ref
 
 
-# Epic 10
 def test_a_members_job_fails_once_the_document_is_archived(
     migrated_tenant: Any,
     edition_cast: Any,

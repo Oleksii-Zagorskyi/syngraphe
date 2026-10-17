@@ -93,7 +93,6 @@ def test_a_young_creation_is_left_to_finish(
         assert Document.objects.get().state == "creating"
 
 
-# Epic 10
 def test_a_stopped_creation_is_finished_beside_a_stopped_copy(
     migrated_tenant: Any, member_of: Any, repo_root: Path
 ) -> None:

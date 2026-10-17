@@ -33,7 +33,7 @@ class Command(BaseCommand):
             found = Document.objects.filter(number=document).first()
             if found is None:
                 raise CommandError(f"no document {document} in tenant {tenant}")
-            # Epic 10: an archived document is read, never acted on (DL-0450).
+            # An archived document is read, never acted on (DL-0450).
             if found.state == DocumentState.ARCHIVED:
                 raise CommandError(f"document {document} is archived; restore it first")
             try:

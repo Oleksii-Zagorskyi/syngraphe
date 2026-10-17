@@ -139,7 +139,7 @@ def ended_how(released: Any) -> str:
     from editing.models import ReleaseKind
 
     if released.release_kind == ReleaseKind.FORCED:
-        # Epic 10: ended by archiving (DL-0456) — tested before the reservation, which archiving
+        # Ended by archiving (DL-0456) — tested before the reservation, which archiving
         # ends too.
         if _ended_by_archiving(released):
             return "archived"

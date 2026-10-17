@@ -44,7 +44,7 @@ class CreateForm(forms.Form):
         queryset=DocumentType.objects.filter(retired_at__isnull=True),
         empty_label=None,
     )
-    # Epic 10: the folders the person sees, by path, the root first — a person never chooses, or
+    # The folders the person sees, by path, the root first — a person never chooses, or
     # learns, a folder they cannot see; one posted outside them is refused as an unknown one.
     folder = FolderField(label=_("Folder"), queryset=Folder.objects.none(), empty_label=None)
 
@@ -72,7 +72,6 @@ class CreateForm(forms.Form):
         return title
 
 
-# Epic 10
 class CopyForm(CreateForm):
     """The copy dialog's fields beside the version and the appendices it draws itself: the title
     prefilled with the source's, the type and folder as in create, the language the source's and

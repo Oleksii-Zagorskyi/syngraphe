@@ -245,7 +245,6 @@ new_document = _review.new_document
 commit_version = _review.commit_version
 
 
-# Epic 10
 @pytest.fixture
 def waiting_on_a_lock() -> Callable[[], bool]:
     """Whether another connection of this test's database is waiting on a row lock, polled for

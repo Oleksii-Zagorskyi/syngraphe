@@ -294,7 +294,6 @@ def test_filters_drawn_are_the_events_each_person_can_receive(
     assert filters.findall(page) == [
         "access_granted",
         "document_created",
-        # Epic 10
         "document_copied",
         "email_failed",
         "reservation_started",
@@ -305,7 +304,6 @@ def test_filters_drawn_are_the_events_each_person_can_receive(
     assert filters.findall(page) == [
         "access_granted",
         "document_created",
-        # Epic 10
         "document_copied",
         "backup_condition",
         "email_failed",
@@ -330,7 +328,7 @@ def test_document_events_name_their_document(migrated_tenant: Any, member_of: An
 
     _, person, _ = member_of("a.reader@example.test")
     with schema_context(migrated_tenant.number):
-        # Epic 10: the archived holder's notice names no document, which they may no longer
+        # The archived holder's notice names no document, which they may no longer
         # open (DL-0471); it alone is exempt.
         Notification.objects.create(
             user=person, category=Category.DOCUMENT, event=Event.DOCUMENT_ARCHIVED

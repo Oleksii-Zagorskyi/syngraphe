@@ -136,7 +136,6 @@ def test_catalogue_covers_epic_7_pages(
     _assert_translated("job failed", reader.get(asked["Location"]).content.decode())
 
 
-# Epic 10
 def test_catalogue_covers_comparing_two_documents(
     migrated_tenant: Any,
     edition_cast: Any,

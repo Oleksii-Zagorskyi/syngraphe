@@ -346,7 +346,7 @@ def make_document(migrated_tenant: Any) -> Callable[..., Any]:
         author_only: bool = True,
         state: str = "active",
         language: str = "uk",
-        # Epic 10: a folder and a type of the caller's, the root and `document` by default.
+        # A folder and a type of the caller's, the root and `document` by default.
         folder: Any = None,
         document_type: Any = None,
     ) -> Any:

@@ -138,7 +138,6 @@ def test_a_reader_never_sees_the_creators_address(
     assert "Readers" in as_admin and "Readers" not in as_reader
 
 
-# Epic 10
 def test_the_breadcrumb_and_info_name_the_folders_path(
     migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:

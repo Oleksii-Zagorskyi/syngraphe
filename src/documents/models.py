@@ -29,7 +29,7 @@ def next_document_number() -> int:
     return int(row[0])
 
 
-# Epic 10: folder numbers from the tenant's own sequence, after the root's 1, never given again.
+# Folder numbers from the tenant's own sequence, after the root's 1, never given again.
 FOLDER_NUMBER_SEQUENCE = "documents_folder_number"
 
 
@@ -53,7 +53,7 @@ class DocumentType(Mutable):
     class Meta(Mutable.Meta):
         abstract = False
         ordering = ["label"]
-        # Epic 10: a label is unique among the organisation's types, in any case (DL-10-001).
+        # A label is unique among the organisation's types, in any case (DL-10-001).
         constraints = [
             *Mutable.Meta.constraints,
             models.UniqueConstraint(Lower("label"), name="documents_documenttype_label_unique_ci"),
@@ -77,7 +77,7 @@ class Folder(Mutable):
     class Meta(Mutable.Meta):
         abstract = False
         ordering = ["number"]
-        # Epic 10: a folder is known by its path, so siblings never share a name in any case
+        # A folder is known by its path, so siblings never share a name in any case
         # (DL-0453); the root alone has no parent (ADR-0008).
         constraints = [
             *Mutable.Meta.constraints,

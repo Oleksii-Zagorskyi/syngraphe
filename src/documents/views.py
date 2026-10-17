@@ -46,7 +46,7 @@ from shell.views import not_found
 logger = logging.getLogger(__name__)
 
 
-# Epic 10: what the dialog says of a choice gone between its offer and the creation.
+# What the dialog says of a choice gone between its offer and the creation.
 CHOICE_GONE = {
     "document_type": gettext_lazy("This type is no longer offered. Choose another."),
     "folder": gettext_lazy("This folder no longer exists. Choose another."),
@@ -63,7 +63,7 @@ def create(request: HttpRequest) -> HttpResponse:
         or not can_create(request.user, tenant)
     ):
         return not_found(request)
-    # Epic 10: the folders offered are those the person sees.
+    # The folders offered are those the person sees.
     seen = {
         "organisation": tenant.name,
         "user": request.user,
@@ -81,7 +81,7 @@ def create(request: HttpRequest) -> HttpResponse:
                     form.cleaned_data["folder"],
                 )
             except ChoiceGone as gone:
-                # Epic 10: the type or the folder was deleted, or the type retired, since the form
+                # The type or the folder was deleted, or the type retired, since the form
                 # offered it.
                 form.add_error(gone.field, str(CHOICE_GONE[gone.field]))
                 return render(request, "documents/create.html", {"form": form}, status=400)
@@ -182,13 +182,13 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
         "can_create": can_create(request.user, tenant),
         "administrator": administrator,
         "folder": selected,
-        # Epic 10: the type filter's choices beside the search box (DL-0236).
+        # The type filter's choices beside the search box (DL-0236).
         "types": filter_types(request.user),
     }
     return render(request, "documents/list.html", context)
 
 
-# Epic 10: a list's order — title A to Z by default (DL-0207).
+# A list's order — title A to Z by default (DL-0207).
 SORTS = ("number", "title")
 DIRECTIONS = ("asc", "desc")
 
@@ -292,7 +292,7 @@ def _rows(
             "appendices": PartKind.APPENDIX in parts.get(document.pk, set()),
             "attachments": PartKind.ATTACHMENT in parts.get(document.pk, set()),
             "tags": shown_tags.get(document.pk, []),
-            # Epic 10: the ✎ cell, for a holder of *edit* on this row alone.
+            # The ✎ cell, for a holder of *edit* on this row alone.
             "editable": Right.EDIT in beyond.get(document.pk, frozenset()),
         }
         for document in shown
@@ -482,7 +482,7 @@ def render_page(
     from documents.tree import Tree
 
     tenant = getattr(request, "tenant", None)
-    # Epic 10: the folder's path on the *Info* tab — a reader of the document sees every folder
+    # The folder's path on the *Info* tab — a reader of the document sees every folder
     # above it (DL-0206); the breadcrumb draws its own, for every tab.
     tree = Tree(tenant.name if tenant is not None else "")
     context: dict[str, Any] = {
@@ -513,7 +513,7 @@ def render_page(
         if administrator
         else []
     )
-    # Epic 10: the creator named as every page of a document names a person, administrators
+    # The creator named as every page of a document names a person, administrators
     # included (DL-0434); the type a choice for administrators among those not retired.
     context |= {
         "administrator": administrator,
@@ -530,7 +530,7 @@ def render_page(
             else []
         ),
     }
-    # Epic 10: a copy's source, to administrators alone (DL-0455).
+    # A copy's source, to administrators alone (DL-0455).
     context |= _copied_from(request, document) if administrator else {}
     context |= _state_line(request, document)
     return render(request, "documents/page.html", context, status=status)

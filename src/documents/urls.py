@@ -14,7 +14,6 @@ urlpatterns = [
         views.attachment,
         name="document_attachment",
     ),
-    # Epic 10
     path("search/", corpus_views.search, name="search"),
     path("document/<int:number>/archive/", corpus_views.archive, name="document_archive"),
     path("document/<int:number>/restore/", corpus_views.restore, name="document_restore"),
