@@ -66,6 +66,20 @@ def attachment_path(number: int) -> str:
     return f"{ATTACHMENTS}/{number}"
 
 
+APPENDIX_FILE = re.compile(r"appendices/([1-9][0-9]*)\.md")
+
+
+def number_of(file: str) -> int | None:
+    """The appendix a draft key or an editor's file names, or `None` for any other."""
+    found = APPENDIX_FILE.fullmatch(file)
+    return int(found.group(1)) if found else None
+
+
+def lists(draft: Draft, number: int) -> bool:
+    """Whether the draft's list holds appendix `number`."""
+    return number in _numbers(_lists(draft)[APPENDICES])
+
+
 def _repo(draft: Draft) -> Any:
     return gitstore.open_repository(holds.tenant_number(), draft.hold.document.number)
 

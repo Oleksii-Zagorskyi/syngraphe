@@ -3843,3 +3843,7 @@ msgstr "Ви не маєте права на %(right)s."
 #, python-format
 msgid "%(name)s is %(size)s; this organisation’s limit is %(limit)s."
 msgstr "%(name)s має розмір %(size)s; обмеження цієї організації — %(limit)s."
+
+#: editing/views/appendix.py
+msgid "Edit the whole appendix"
+msgstr "Редагувати весь додаток"

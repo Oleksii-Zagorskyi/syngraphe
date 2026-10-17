@@ -1,0 +1,4 @@
+{% load i18n %}<section class="appendices">
+  <h2>{% translate "Appendices" %}</h2>
+  {% if appendices %}<ul>{% for item in appendices %}<li><a href="{% if version_path %}{{ version_path }}{% else %}/document/{{ document.number }}/{% endif %}appendix/{{ item.number }}/">{{ item.title }}</a></li>{% endfor %}</ul>{% else %}<p>{% translate "No appendices" %}</p>{% endif %}
+</section>

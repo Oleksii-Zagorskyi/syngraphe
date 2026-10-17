@@ -1,0 +1,9 @@
+{% extends "rendering/appendix.html" %}
+{% load i18n static editions %}
+{% block number %}{% version_shown document as shown %}{% if shown %} <span class="version-number">{{ shown }}</span>{% endif %}{% endblock %}
+{% block text %}
+{% if correcting %}<p class="notice correcting" role="note">{% translate "You are correcting pending edits: your changes become a version of your own." %}</p>{% endif %}
+{% include "editing/editor_mount.html" %}
+{% if draft_view %}<div class="draft-view document-text" data-draft-view>{{ draft_view }}</div>{% endif %}
+{% endblock %}
+{% block panel %}{% include "editing/parts_panel.html" %}{% endblock %}

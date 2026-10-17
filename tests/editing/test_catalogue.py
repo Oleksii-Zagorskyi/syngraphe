@@ -4,6 +4,7 @@ People, groups and the document's text are synthetic examples."""
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -291,3 +292,37 @@ def test_catalogue_covers_the_parts_panel(
     assert leaked == [], f"the parts panel shows message ids verbatim: {leaked}"
     assert "Перемістити нижче" in refused.content.decode()
     assert "Таку назву файлу не можна зберегти" in body
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_appendix_pages(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """An appendix's page and its edit tab, in Ukrainian; the whole editor's control named for
+    the appendix."""
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    commit_version(
+        document,
+        author,
+        BODY,
+        files={"appendices/1.md": "# Синтетичний додаток\n\nПерше речення.\n".encode()},
+        appendices=[{"number": 1, "title": "Синтетичний додаток (приклад)"}],
+    )
+    m = document.number
+    shown = client.get(f"/document/{m}/appendix/1/").content.decode()
+    client.post(f"/document/{m}/edit/take/")
+    editing = client.get(f"/document/{m}/appendix/1/edit/").content.decode()
+    for name, body in (("the appendix page", shown), ("its edit tab", editing)):
+        text = text_of(body)
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", text)]
+        assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
+    # The page hands the editor its words as JSON, every letter beyond ASCII escaped.
+    assert json.dumps("Редагувати весь додаток")[1:-1] in editing

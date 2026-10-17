@@ -1,6 +1,7 @@
 from django.urls import path
 
 from editing.views import (
+    appendix,
     capture,
     draft,
     edit_tab,
@@ -71,6 +72,16 @@ urlpatterns = [
         "document/<int:number>/edit/entities/",
         entities.declare,
         name="document_edit_entities",
+    ),
+    path(
+        "document/<int:number>/appendix/<int:part>/edit/",
+        appendix.page,
+        name="document_appendix_edit",
+    ),
+    path(
+        "document/<int:number>/appendix/<int:part>/edit/load/",
+        appendix.load,
+        name="document_appendix_edit_load",
     ),
     path(
         "document/<int:number>/edit/parts/appendix/",

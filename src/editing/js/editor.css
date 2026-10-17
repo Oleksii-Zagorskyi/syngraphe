@@ -208,3 +208,17 @@
 .parts-panel .part-add input[name="title"] {
   width: 100%;
 }
+
+/* An appendix's edit tab: its outline, its text and the parts panel; the outline and the text
+   alone until the hold is taken, and the panel collapsed to its edge on demand. */
+.panes:not(.edit-panes):has(> .parts-panel[hidden]) {
+  grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr);
+}
+
+.panes:not(.edit-panes):has(> .parts-panel[hidden]) > .edge[data-pane="parts-panel"] {
+  display: none;
+}
+
+.panes:not(.edit-panes):has(#parts-panel.shut) {
+  grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr) 6px 36px;
+}

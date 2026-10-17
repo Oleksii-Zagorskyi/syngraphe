@@ -1,7 +1,7 @@
 """The *View* tab: the text of the version the reader may see (DL-0209), rendered with its clause
 numbers, headed by its number and the canonical edition's (DL-0352); beside it the outline of
-that text, the attachments that version lists and its generated views — the role directory and
-*see also* — in the page's side panes (DL-0356, DL-0448). The
+that text, the appendices and attachments that version lists and its generated views — the role
+directory and *see also* — in the page's side panes (DL-0356, DL-0448). The
 historical page of any version the reader's ceiling reaches, with its attachments and its export,
 and the comparison of two (DL-0195, DL-0208) — of two versions, or of two documents and the list's
 start to it (DL-0452); the export dialog and its jobs."""
@@ -27,7 +27,7 @@ from django.views.decorators.cache import never_cache
 from audit.record import record
 from documents import bundle, gitstore
 from documents.models import Document, Version
-from documents.parts import attachments
+from documents.parts import appendices, attachments
 from editing.numbering import number_of
 from editions.visible import visible as visible_to
 from identity.models import User, UserPreference
@@ -39,7 +39,7 @@ from identity.views.preferences import (
     PANEL_WIDTH_MAX,
     PANEL_WIDTH_MIN,
 )
-from rendering import directory, mentions, reading
+from rendering import appendix, mentions, reading
 from rendering.outline import anchor_clauses, outline
 from rendering.renderer import labelled, render_tokens
 from shell.views import not_found
@@ -79,37 +79,48 @@ def view_context(
         repo = gitstore.open_repository(tenant.number, document.number)
         text = gitstore.read(repo, "document.md", shown.commit_sha).decode("utf-8")
         _, body = bundle.parse(text)
+        listed = appendices(shown)
+        texts = appendix.read_at(repo, shown, listed)
     except UNREADABLE:
         logger.exception("a document's text could not be read", extra={"document": document.number})
         return None
     tokens = labelled(body)
     headings = outline(tokens)
     anchor_clauses(tokens)
-    # The mentions read once, from the tokens the page renders: the text's links and *see also*.
-    found = mentions.targets_in(tokens)
-    reader = reading.context(
-        request.user, document, images=reading.committed_images(document), found=found
+    # The mentions read once, from the tokens of every text, and the generated views over the
+    # body and each appendix, derived from the version shown (DL-0448).
+    reader, views = appendix.generated(
+        request,
+        document,
+        repo,
+        shown,
+        tokens,
+        texts,
+        at_version=number if version is not None else None,
     )
-    declared = _declared_at(repo, shown.commit_sha, document)
     return {
         "version_number": number,
         "version_stance": stance,
         "canonical_number": canonical,
+        "appendices": listed,
         "attachments": attachments(shown),
         "headings": headings,
+        **panes(request),
+        # Raw HTML is off and every value escaped.
+        "text": mark_safe(render_tokens(tokens, context=reader)),  # noqa: S308
+        **views,
+    }
+
+
+def panes(request: HttpRequest) -> dict[str, Any]:
+    """The widths the person keeps for the outline and the panel, and their bounds."""
+    return {
         "outline_width": _kept(
             request, "outline_width", OUTLINE_WIDTH, OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX
         ),
         "outline_bounds": (OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX),
         "panel_width": _kept(request, "panel_width", PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
         "panel_bounds": (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
-        # Raw HTML is off and every value escaped.
-        "text": mark_safe(render_tokens(tokens, context=reader)),  # noqa: S308
-        # The generated views, derived from the version shown (DL-0448).
-        "roles": directory.roles([directory.Stream(tokens)], declared, context=reader),
-        "see_also": mentions.see_also(
-            request.user, found, own=document.number, reachable=reader.reachable
-        ),
     }
 
 
@@ -162,8 +173,8 @@ def _version(
 @login_required
 def historical(request: HttpRequest, number: int, version_number: str) -> HttpResponse:
     """One version, read only, in a window of its own: the banner, the reading view and its
-    outline, the attachments at that version, *Export*, and *compare with* the other versions the
-    reader may see. Never editable."""
+    outline, the appendices and attachments at that version, *Export*, and *compare with* the
+    other versions the reader may see. Never editable."""
     if request.method != "GET":
         return not_found(request)
     found = _version(request, number, version_number)
@@ -385,7 +396,7 @@ def _two_documents_context(
     reader is on both, each linked in the banner, as a document's mention of itself is never
     followed (DL-11-012)."""
     from documents import images
-    from rendering import mentions, reading
+    from rendering import reading
 
     (one, one_number, one_body), (other, other_number, other_body) = first, second
     shown = {r.src for r in images.referenced({"document.md": other_body})}

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from rendering import views
+from rendering import appendix, views
 
 urlpatterns = [
     path("document/<int:number>/compare/", views.compare, name="document_compare"),
@@ -27,4 +27,9 @@ urlpatterns = [
         name="export_download",
     ),
     path("compare/", views.compare_start, name="compare_start"),
+    path(
+        "document/<int:number>/appendix/<int:part>/",
+        appendix.page,
+        name="document_appendix",
+    ),
 ]

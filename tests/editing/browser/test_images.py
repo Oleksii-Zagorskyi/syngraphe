@@ -313,3 +313,55 @@ def test_a_malformed_data_image_is_left_out_with_its_text_kept(
     page.wait_for_timeout(200)
     assert "Kept words" in markdown()
     assert "copy the image itself" in (page.text_content(".editor-status") or "")
+
+
+def test_an_image_in_an_appendix(
+    browser_server: str,
+    page: Any,
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    invented_image: Any,
+    queued_authorship: list[Any],
+) -> None:
+    """An appendix's editor offers *Image* as the body's does; the image is the document's, and
+    the appendix that shows it carries it into the version."""
+    import hashlib
+
+    from documents import gitstore
+    from editing import services
+    from editing.models import Hold
+    from tenancy.schemas import schema_context
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    commit_version(
+        document,
+        author,
+        "# Purpose\n\nThe body's sentence.\n",
+        files={"appendices/2.md": b"# Approval matrix\n\nThe appendix sentence.\n"},
+        appendices=[{"number": 2, "title": "Approval matrix (example)"}],
+    )
+    session = client.cookies["sessionid"].value
+    page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
+    page.goto(f"{browser_server}/document/{document.number}/appendix/2/edit/")
+    page.click("button[data-command=edit-whole]")
+    page.wait_for_function(f"() => {EDITOR} !== undefined")
+    page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
+    data = invented_image("png")
+    choose(page, data)
+    page.wait_for_function(f"{IMAGES} === 1")
+    assert page.evaluate(f"{EDITOR}.capture.finish()")
+
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document, released_at__isnull=True)
+        services.commit_draft(hold, author, "An image in the appendix")
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        head = gitstore.head(repo)
+        assert head is not None
+        name = f"images/{hashlib.sha256(data).hexdigest()}.png"
+        assert gitstore.read(repo, name, head) == data
+        appendix = gitstore.read(repo, "appendices/2.md", head).decode()
+    assert f"]({name})" in appendix
+    assert any(line.startswith("![") for line in appendix.splitlines())

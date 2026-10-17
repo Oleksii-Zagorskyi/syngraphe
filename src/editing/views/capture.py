@@ -96,6 +96,25 @@ def _released(request: HttpRequest, number: int) -> HttpResponse | None:
     return JsonResponse({"closed": True, "released": editor.draft.hold.release_kind}, status=409)
 
 
+def text_of(draft: Draft, file: str) -> str | None:
+    """The text an editor of `file` edits in `draft` — the body, or an appendix the draft lists;
+    `None` for an appendix it no longer lists, whose editor writes nothing more."""
+    from editing import parts
+
+    if file == holds.BODY:
+        return str(draft.content[holds.BODY])
+    number = parts.number_of(file)
+    if number is None or not parts.lists(draft, number):
+        return None
+    return parts.appendix_text(draft, number)
+
+
+def _gone(editor: OpenEditor, now: Any) -> HttpResponse:
+    """The editor's appendix is no longer in the draft: it is closed, and says so."""
+    OpenEditor.objects.filter(pk=editor.pk, closed_at__isnull=True).update(closed_at=now)
+    return JsonResponse({"closed": True}, status=409)
+
+
 def idle(hold: Hold, tenant: Any) -> bool:
     """Whether `hold` is idle: not reserved, and no activity for the organisation's timeout — the
     prompt derived, never stored (DL-0377)."""
@@ -154,7 +173,10 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
             return JsonResponse({"closed": True, "released": kind}, status=409)
         if draft is None or locked is None or locked.closed_at is not None:
             return JsonResponse({"closed": True}, status=409)
-        whole: str = draft.content[holds.BODY]
+        text = text_of(draft, locked.file)
+        if text is None:
+            return _gone(locked, now)
+        whole: str = text
         span = sections.span_of(locked.range)
         found = sections.extent(whole, *span) if span is not None else None
         if span is not None and found is None:
@@ -172,7 +194,7 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
             # Each section is within the size allowed; the draft its capture leaves must be too.
             if len(changed.encode("utf-8")) > load_spec().max_bytes:
                 return JsonResponse({"too_large": True}, status=413)
-            draft.content = {**draft.content, holds.BODY: changed}
+            draft.content = {**draft.content, locked.file: changed}
             draft.save(update_fields=["content", "updated_at"])
             Hold.objects.filter(pk=hold.pk).update(last_activity_at=now)
             if span is not None:
@@ -226,15 +248,15 @@ def _kept_apart(text: str, current: str) -> str:
 
 def _renumber(editor: OpenEditor, span: tuple[int, int], shift: int) -> None:
     """After a splice that added or removed `shift` headings inside `editor`'s span, in the same
-    write: its own span counts them, and every other open editor of the draft whose ordinal lies
-    after it still names its heading (ADR-0006)."""
+    write: its own span counts them, and every other open editor of the same file whose ordinal
+    lies after it still names its heading (ADR-0006)."""
     if not shift:
         return
     ordinal, count = span
     editor.range = sections.span_name(ordinal, max(1, count + shift))
     others = (
         OpenEditor.objects.select_for_update()
-        .filter(draft_id=editor.draft_id, closed_at__isnull=True)
+        .filter(draft_id=editor.draft_id, file=editor.file, closed_at__isnull=True)
         .exclude(pk=editor.pk)
     )
     for other in others:
@@ -257,6 +279,13 @@ def heartbeat(request: HttpRequest, number: int) -> HttpResponse:
         return _released(request, number) or not_found(request)
     hold, editor = found
     now = timezone.now()
+    if editor.file != holds.BODY:
+        from editing import parts
+
+        # The listing alone decides, and the heartbeat writes nothing in the draft: no lock.
+        appendix = parts.number_of(editor.file)
+        if appendix is None or not parts.lists(Draft.objects.get(pk=editor.draft_id), appendix):
+            return _gone(editor, now)
     updated = OpenEditor.objects.filter(pk=editor.pk, closed_at__isnull=True).update(
         last_seen_at=now
     )
@@ -324,7 +353,14 @@ def changes(request: HttpRequest, number: int) -> HttpResponse:
         return JsonResponse({"refused": True}, status=400)
     if size > load_spec().max_bytes:
         return JsonResponse({"too_large": True}, status=413)
-    whole: str = Draft.objects.get(pk=editor.draft_id).content[holds.BODY]
+    try:
+        with document_lock(holds.tenant_number(), number, timeout=CAPTURE_LOCK_SECONDS):
+            text = text_of(Draft.objects.get(pk=editor.draft_id), editor.file)
+            if text is None:
+                return _gone(editor, timezone.now())
+    except LockTimeout:
+        return JsonResponse({"busy": True}, status=503)
+    whole: str = text
     span = sections.span_of(editor.range)
     found_range = sections.extent(whole, *span) if span is not None else None
     context: dict[str, Any] = {"number": number}

@@ -5,6 +5,7 @@ at render from the version shown. People and titles are synthetic examples; text
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
@@ -322,3 +323,54 @@ def test_an_unreadable_declarations_file_groups_by_key(
     panel = panel[panel.index('class="role-directory"') :]
     assert "<strong>clerk</strong>" in panel
     assert "entities.yaml does not read" in caplog.text
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_appendices_join_the_generated_views(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """DL-0073 over every text: a role's places in an appendix follow the body's, named by the
+    appendix's title and linked to its clause on the appendix's page; a document mentioned only in
+    an appendix is in *see also*; the appendix's page carries the clause's anchor and the same
+    generated views."""
+    from documents import entities
+
+    settings.LANGUAGE_CODE = "en"
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author, "Synthetic leave rules")
+    other = new_document(author, "Synthetic travel rules")
+    body = (
+        "# One\n\nThe first synthetic sentence.\n\n"
+        "# Two\n\n[The approver]{.role #approver} signs the request.\n"
+    )
+    appendix = (
+        "# Approval matrix\n\n[The approver]{.role #approver} keeps the matrix, as "
+        f"[the travel rules]{{.document #{other.number}}} say.\n"
+    )
+    declared = entities.dump([entities.Declared("role", "approver", "the approver")])
+    commit_version(
+        document,
+        author,
+        body,
+        files={"appendices/2.md": appendix.encode(), "entities.yaml": declared.encode()},
+        appendices=[{"number": 2, "title": "Approval matrix (example)"}],
+    )
+    m = document.number
+
+    for path in (f"/document/{m}/", f"/document/{m}/appendix/2/"):
+        html = client.get(path).content.decode()
+        panel = html[html.index('class="generated-views"') :]
+        places = re.findall(r'<li><a href="([^"]+)">([^<]+)</a>', panel.split("See also")[0])
+        assert places == [
+            ("#c-2-1", "2-1"),
+            (f"/document/{m}/appendix/2/#c-1-1", "Approval matrix (example), 1-1"),
+        ], path
+        listed = panel[panel.index('class="see-also"') :]
+        assert listed.count(f'href="/document/{other.number}/"') == 1
+    page = client.get(f"/document/{m}/appendix/2/").content.decode()
+    assert 'id="c-1-1"' in page
