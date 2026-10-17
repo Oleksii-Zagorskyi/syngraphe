@@ -25,12 +25,36 @@ pytestmark = [
 
 IMAGE = b"\x89PNG synthetic image bytes"
 IMAGE_PATH = f"images/{hashlib.sha256(IMAGE).hexdigest()}.png"
-ENTITIES = b"- kind: role\n  key: synthetic-head\n  name: Synthetic head of unit\n"
+# An image only the appendix *Rates* shows; the copies take *Forms* alone, so it stays behind.
+RATES_IMAGE = b"\x89PNG synthetic rate table bytes"
+RATES_IMAGE_PATH = f"images/{hashlib.sha256(RATES_IMAGE).hexdigest()}.png"
+RATES = (
+    "# Rates\n\nSynthetic rates: [the synthetic rate]{.term #synthetic-rate}.\n\n"
+    f"![A synthetic rate table]({RATES_IMAGE_PATH})\n"
+)
+FORMS = "# Forms\n\nSynthetic forms: [the synthetic form]{.term #synthetic-form}.\n"
+# The source's declarations: the body marks the role, *Forms* the form; nothing marks the unused
+# term, the role's key under another kind, or — once *Rates* is left behind — the rate.
+ENTITIES = (
+    b"- kind: role\n  key: synthetic-head\n  label: Synthetic head of unit\n"
+    b"- kind: action\n  key: synthetic-head\n  label: Synthetic head's action\n"
+    b"- kind: term\n  key: synthetic-unused\n  label: Synthetic unused term\n"
+    b"- kind: term\n  key: synthetic-rate\n  label: Synthetic rate\n"
+    b"- kind: term\n  key: synthetic-form\n  label: Synthetic form\n"
+)
+MARKED = (
+    b"- kind: role\n  key: synthetic-head\n  label: Synthetic head of unit\n"
+    b"- kind: term\n  key: synthetic-form\n  label: Synthetic form\n"
+)
 SCHEME = b"synthetic attachment bytes\n"
 
 
 def _body(words: str) -> str:
-    return f"# Terms\n\n{words}\n\n![A synthetic picture]({IMAGE_PATH})\n"
+    return (
+        f"# Terms\n\n{words}\n\n[The synthetic head]{{.role #synthetic-head}} approves it; "
+        "[an unnamed clerk]{.role} records it.\n\n"
+        f"![A synthetic picture]({IMAGE_PATH})\n"
+    )
 
 
 def _commit(
@@ -113,8 +137,8 @@ def source(migrated_tenant: Any, member_of: Any, repo_root: Any) -> SimpleNamesp
         )
         DocumentGroup.link(document, group, by=user)
     appendices = [
-        ("Rates", "# Rates\n\nSynthetic rates.\n"),
-        ("Forms", "# Forms\n\nSynthetic forms.\n"),
+        ("Rates", RATES),
+        ("Forms", FORMS),
     ]
     _commit(
         migrated_tenant,
@@ -123,7 +147,7 @@ def source(migrated_tenant: Any, member_of: Any, repo_root: Any) -> SimpleNamesp
         _body("The first synthetic text."),
         appendices=appendices,
         attachments=True,
-        files={IMAGE_PATH: IMAGE, "entities.yaml": ENTITIES},
+        files={IMAGE_PATH: IMAGE, RATES_IMAGE_PATH: RATES_IMAGE, "entities.yaml": ENTITIES},
         title_page=True,
     )
     with schema_context(migrated_tenant.number):
@@ -157,7 +181,7 @@ def _copy(migrated_tenant: Any, source: Any, view: str, number: str, **kwargs: A
 
 
 def test_the_first_commit_is_the_chosen_version(migrated_tenant: Any, source: Any) -> None:
-    from documents import bundle, gitstore
+    from documents import bundle, entities, gitstore
     from documents.models import Version
 
     copy = _copy(migrated_tenant, source, "accepted", "1.1", appendices=[2])
@@ -174,10 +198,12 @@ def test_the_first_commit_is_the_chosen_version(migrated_tenant: Any, source: An
     assert frontmatter.title_page is True
     assert frontmatter.appendices == [{"number": 1, "title": "Forms"}]
     assert frontmatter.attachments == []
-    assert gitstore.read(repo, "appendices/1.md", head) == b"# Forms\n\nSynthetic forms.\n"
+    assert gitstore.read(repo, "appendices/1.md", head) == FORMS.encode()
     assert gitstore.read(repo, IMAGE_PATH, head) == IMAGE
-    assert gitstore.read(repo, "entities.yaml", head) == ENTITIES
-    for absent in ("attachments/1", "appendices/2.md"):
+    # The declarations the copied text marks, by kind and key; the unmarked one left behind.
+    carried = gitstore.read(repo, "entities.yaml", head).decode()
+    assert entities.parse(carried) == entities.parse(MARKED.decode())
+    for absent in ("attachments/1", "appendices/2.md", RATES_IMAGE_PATH):
         with pytest.raises(KeyError):
             gitstore.read(repo, absent, head)
     with schema_context(migrated_tenant.number):
@@ -449,3 +475,40 @@ def test_an_unreadable_source_is_nothing_to_show(
     with schema_context(migrated_tenant.number):
         assert Document.objects.count() == before
     assert client.get(f"/document/{number}/copy/").status_code == 200
+
+
+def test_a_source_whose_declarations_do_not_read_is_refused(
+    migrated_tenant: Any, source: Any, settings: Any
+) -> None:
+    """A source version whose `entities.yaml` does not read cannot be copied: the dialog again,
+    *cannot be read*, nothing written — never a server error."""
+    from documents.models import Document
+
+    settings.LANGUAGE_CODE = "en"
+    _commit(
+        migrated_tenant,
+        source.document,
+        source.user,
+        _body("The pending synthetic text, broken."),
+        files={"entities.yaml": b"- kind: [not a declaration\n"},
+    )
+    with schema_context(migrated_tenant.number):
+        before = Document.objects.count()
+
+    answer = source.client.post(
+        f"/document/{source.document.number}/copy/",
+        {
+            "title": "Synthetic copy",
+            "document_type": "document",
+            "folder": "1",
+            "version": "pending_edits:1.1-3",
+            "appendices": "none",
+        },
+    )
+
+    assert answer.status_code == 400
+    assert "This version cannot be read, so it cannot be copied." in html.unescape(
+        answer.content.decode()
+    )
+    with schema_context(migrated_tenant.number):
+        assert Document.objects.count() == before

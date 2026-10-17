@@ -482,3 +482,47 @@ def test_ending_a_reservation_over_a_stopped_finish_keeps_its_reason(
     assert event.after["release_kind"] == "finished" and event.after["finish_completed"] is True
     assert event.after["reason"] == "Synthetic reason"
     assert "interrupted finish of this editing was completed" in page
+
+
+@pytest.mark.parametrize("later", ["entity", "attachment", "appendix"])
+def test_a_stop_with_later_files_keeps_the_draft(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, later: str
+) -> None:
+    """An entity declared, an attachment staged or an appendix written after the stop is later
+    work, as typed text is: the force keeps the draft, and the hold is not released as
+    finished."""
+    import hashlib
+
+    from django.utils import timezone
+
+    from documents import entities
+    from editing.models import Draft, DraftFile
+
+    document, hold, draft, *_, admin_client = _stopped_finish(
+        migrated_tenant, member_of, new_document, link_group
+    )
+    with schema_context(migrated_tenant.number):
+        if later == "entity":
+            declared = entities.dump([entities.Declared("role", "approver", "the approver")])
+            content = {**draft.content, "entities.yaml": declared}
+            Draft.objects.filter(pk=draft.pk).update(content=content)
+        elif later == "appendix":
+            content = {**draft.content, "appendices/1.md": "An appendix sentence.\n"}
+            Draft.objects.filter(pk=draft.pk).update(content=content)
+        else:
+            data = b"an attachment staged after the stop"
+            DraftFile.objects.create(
+                draft=draft,
+                kind="attachment",
+                path="attachments/1",
+                operation="add",
+                content=data,
+                file_name="form.txt",
+                sha256=hashlib.sha256(data).hexdigest(),
+                at=timezone.now(),
+            )
+    assert force(admin_client, document).status_code == 302
+    with schema_context(migrated_tenant.number):
+        hold.refresh_from_db()
+        assert hold.release_kind == "forced"
+        assert Draft.objects.filter(pk=draft.pk).exists()

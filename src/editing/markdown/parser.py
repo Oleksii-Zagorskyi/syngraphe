@@ -1,6 +1,7 @@
 """markdown-it-py configured to recognise everything the whitelist refuses: CommonMark, pipe
 tables, raw HTML tokenised so that it can be refused by name, every link tokenised so that a refused
-scheme is named, the span and callout rules, and the tidying both sides share (ADR-0010).
+scheme is named, the span and callout rules, the `- 1.` respelling, and the tidying both sides
+share (ADR-0010).
 `src/editing/js/parser.js` is its twin.
 
 **This instance recognises; it never renders.** It passes raw HTML and any link through, so that
@@ -12,7 +13,7 @@ from __future__ import annotations
 
 from markdown_it import MarkdownIt
 
-from editing.markdown.rules import attr_span, callout, tidy
+from editing.markdown.rules import attr_span, callout, numbered_bullets, tidy
 
 
 def make_parser() -> MarkdownIt:
@@ -21,6 +22,7 @@ def make_parser() -> MarkdownIt:
     md.validateLink = lambda url: True  # type: ignore[method-assign]
     md.inline.ruler.before("link", "attr_span", attr_span)
     md.core.ruler.after("block", "callout", callout)
+    md.core.ruler.after("callout", "numbered_bullets", numbered_bullets)
     md.core.ruler.after("text_join", "tidy", tidy)
     return md
 

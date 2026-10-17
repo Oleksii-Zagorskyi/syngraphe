@@ -582,8 +582,8 @@ msgid "What the editor accepts"
 msgstr "Що приймає редактор"
 
 #: editing/messages.py:73
-msgid "Images were left out of the paste."
-msgstr "Зображення до вставки не ввійшли."
+msgid "An image that is only a web address was not pasted; copy the image itself and paste it."
+msgstr "Зображення, яке є лише вебадресою, не вставлено; скопіюйте саме зображення і вставте його."
 
 #: editing/messages.py:74
 msgid "A link of this kind is not allowed."
@@ -1278,10 +1278,12 @@ msgstr "Що можна експортувати"
 #: rendering/templates/rendering/export.html:12
 msgid ""
 "The document in the format chosen; attachments, when the document has them, "
-"as their own files. With attachments, the export is one zip."
+"as their own files. With attachments, or as Markdown with images, the export "
+"is one zip."
 msgstr ""
 "Документ у вибраному форматі; вкладені файли, якщо вони є, — окремими "
-"файлами. З вкладеними файлами експорт завантажується одним zip-архівом."
+"файлами. З вкладеними файлами, а також у Markdown із зображеннями, експорт "
+"завантажується одним zip-архівом."
 
 #: rendering/templates/rendering/export.html:17
 msgid "Format"
@@ -2799,12 +2801,16 @@ msgid "Edit the whole document"
 msgstr "Редагувати весь документ"
 
 #: editing/templates/editing/stopped_editor.html
-msgid "Your unsaved text is below, as changes against the text as it now stands; carry it over by hand."
-msgstr "Ваш незбережений текст нижче — як зміни відносно тексту в його теперішньому вигляді; перенесіть його вручну."
+msgid ""
+"What you typed that was not captured is below, as changes against the text as it now stands; "
+"carry it over by hand."
+msgstr ""
+"Набране, що не було записано, — нижче, як зміни відносно тексту в його теперішньому вигляді; "
+"перенесіть його вручну."
 
 #: editing/templates/editing/stopped_editor.html
-msgid "Your unsaved text is below, as you typed it; carry it over by hand."
-msgstr "Ваш незбережений текст нижче — так, як ви його набрали; перенесіть його вручну."
+msgid "This editor's text is below, as you typed it; carry over by hand what the draft lacks."
+msgstr "Текст цього редактора — нижче, так, як ви його набрали; перенесіть вручну те, чого бракує в чернетці."
 
 #: editing/messages.py
 msgid "Another editor is open on part of this section; close it first."
@@ -3086,6 +3092,262 @@ msgstr "Назву чи частину, змінену скасованими п
 msgid "History, comparing and undoing"
 msgstr "Історія, порівняння і скасування"
 
+#: editing/messages.py
+msgid "an image the document does not hold"
+msgstr "зображення, якого документ не містить"
+
+#: editing/messages.py
+#, python-format
+msgid "appendix «%(title)s», line %(line)s: %(construct)s"
+msgstr "додаток «%(title)s», рядок %(line)s: %(construct)s"
+
+#: editing/views/finish.py
+msgid "The draft refers to an image the document does not hold; correct it in the editor."
+msgstr "Чернетка посилається на зображення, якого документ не містить; виправте це в редакторі."
+
+#: editing/messages.py
+msgid "Image"
+msgstr "Зображення"
+
+#: editing/messages.py
+msgid "Uploading the image…"
+msgstr "Зображення завантажується…"
+
+#: editing/messages.py
+msgid "Choose one image file."
+msgstr "Виберіть один файл зображення."
+
+#: editing/messages.py
+#, python-format
+msgid "The image is larger than %(limit_mb)s MB, the most the platform accepts."
+msgstr "Зображення більше за %(limit_mb)s МБ — найбільше, що приймає платформа."
+
+#: editing/messages.py
+msgid "HEIC images are not accepted; convert the photograph to JPEG or PNG and add it again."
+msgstr "Зображення HEIC не приймаються; перетворіть світлину на JPEG чи PNG і додайте знову."
+
+#: editing/messages.py
+msgid "Only PNG, JPEG and GIF images are accepted."
+msgstr "Приймаються лише зображення PNG, JPEG і GIF."
+
+#: editing/messages.py
+#, python-format
+msgid "The image is %(width)s × %(height)s pixels; at most %(max_side)s pixels a side and %(megapixels)s megapixels are accepted."
+msgstr "Зображення має %(width)s × %(height)s пікселів; приймається щонайбільше %(max_side)s пікселів на сторону і %(megapixels)s мегапікселів."
+
+#: editing/messages.py
+#, python-format
+msgid "The image is too large in pixels; at most %(max_side)s pixels a side and %(megapixels)s megapixels are accepted."
+msgstr "Зображення завелике в пікселях; приймається щонайбільше %(max_side)s пікселів на сторону і %(megapixels)s мегапікселів."
+
+#: editing/messages.py
+msgid "The file could not be read as an image."
+msgstr "Файл не вдалося прочитати як зображення."
+
+#: editing/messages.py
+msgid "The image was not added. Try again."
+msgstr "Зображення не додано. Спробуйте ще раз."
+
+#: rendering/export/job.py
+msgid "An image the text shows has gone since you asked; export again."
+msgstr "Відколи ви замовили експорт, зображення, яке показує текст, зникло; експортуйте ще раз."
+
+#: editing/diffview.py
+msgid "image changed"
+msgstr "зображення змінено"
+
+#: editing/diffview.py
+msgctxt "an image pair"
+msgid "before"
+msgstr "до"
+
+#: editing/diffview.py
+msgctxt "an image pair"
+msgid "after"
+msgstr "після"
+
+#: editing/diffview.py
+msgid "open both full size"
+msgstr "відкрити обидва в повному розмірі"
+
+#: editing/services.py
+msgid "your draft"
+msgstr "ваша чернетка"
+
+#: editing/messages.py
+msgid "a mention without a document number"
+msgstr "згадка без номера документа"
+
+#: editing/messages.py
+msgid "Mention of a document"
+msgstr "Згадка документа"
+
+#: editing/messages.py
+msgid "Mention"
+msgstr "Згадка"
+
+#: editing/messages.py
+msgid "Document number"
+msgstr "Номер документа"
+
+#: editing/messages.py
+msgid "A mention needs a document number."
+msgstr "Для згадки потрібен номер документа."
+
+#: editing/messages.py
+msgid "Select the words to mention first."
+msgstr "Спершу виділіть слова для згадки."
+
+#: editing/messages.py
+msgid "Mark"
+msgstr "Позначити"
+
+#: editing/messages.py
+msgid "Kind"
+msgstr "Вид"
+
+#: editing/messages.py editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "Role"
+msgstr "Роль"
+
+#: editing/messages.py editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "Action"
+msgstr "Дія"
+
+#: editing/messages.py editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "Term"
+msgstr "Термін"
+
+#: editing/messages.py
+msgid "Declare a new one"
+msgstr "Оголосити нову"
+
+#: editing/messages.py
+msgid "Label"
+msgstr "Найменування"
+
+#: editing/messages.py
+msgid "Declare"
+msgstr "Оголосити"
+
+#: editing/messages.py
+msgid "Only a role, an action or a term can be declared."
+msgstr "Оголосити можна лише роль, дію або термін."
+
+#: editing/messages.py
+msgid "A label is one line of 1 to 200 characters."
+msgstr "Найменування — один рядок від 1 до 200 символів."
+
+#: editing/messages.py
+msgid "Select the words to mark first."
+msgstr "Спершу виділіть слова для позначки."
+
+#: editing/templates/editing/finish.html editing/templates/editing/my_edits.html
+msgid "Roles, actions and terms this draft changes"
+msgstr "Ролі, дії й терміни, змінені в цій чернетці"
+
+#: review/templates/review/pending.html
+msgid "Roles, actions and terms changed in the run"
+msgstr "Ролі, дії й терміни, змінені в правках після останнього погодження"
+
+#: editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "added"
+msgstr "додано"
+
+#: editing/templates/editing/entity_changes.html
+msgid "declared with your version, from the words you marked"
+msgstr "буде оголошено разом із вашою версією — з позначених вами слів"
+
+#: editing/templates/editing/entity_changes.html
+#, python-format
+msgctxt "an entity"
+msgid "relabelled from %(before)s"
+msgstr "перейменовано з «%(before)s»"
+
+#: editing/templates/editing/entity_changes.html
+msgctxt "an entity"
+msgid "removed"
+msgstr "вилучено"
+
+#: editing/templates/editing/edit_tab.html
+msgid "Roles, actions and terms the undone edits declared or relabelled stay as they stand."
+msgstr "Ролі, дії й терміни, які скасовані правки оголосили або перейменували, лишаються як є."
+
+#: editing/messages.py
+msgid "The text changed meanwhile; select the words again and pick the new one."
+msgstr "Текст тим часом змінився; виділіть слова знову й виберіть нову."
+
+#: editing/messages.py
+msgid "This document declares as many roles, actions and terms as the platform accepts."
+msgstr "Документ уже оголошує стільки ролей, дій і термінів, скільки приймає платформа."
+
+#: rendering/templates/rendering/panes_panel.html rendering/templates/rendering/generated_views.html
+msgid "Generated views"
+msgstr "Супровідні документи"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "Role directory"
+msgstr "Довідник ролей"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "See also"
+msgstr "Див. також"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "no clauses"
+msgstr "немає пунктів"
+
+#: rendering/directory.py
+msgid "(table)"
+msgstr "(таблиця)"
+
+#: rendering/templates/rendering/generated_views.html
+msgid "No role is marked in this version."
+msgstr "У цій версії не позначено жодної ролі."
+
+#: rendering/templates/rendering/generated_views.html
+msgid "This version mentions no other document."
+msgstr "Ця версія не згадує інших документів."
+
+#: rendering/templates/rendering/generated_views.html
+msgid "Generated by the system from the version shown."
+msgstr "Створено системою з показаної версії."
+
+#: rendering/templates/rendering/panes_panel.html
+msgid "Panel"
+msgstr "Панель"
+
+#: editing/messages.py
+#, python-format
+msgid ""
+"Lines %(first)s–%(last)s are one paragraph and will be joined; leave a blank line to start a "
+"new one."
+msgstr ""
+"Рядки %(first)s–%(last)s — один пункт, їх буде з’єднано; щоб почати новий, залиште порожній "
+"рядок."
+
+#: editing/messages.py
+#, python-format
+msgid "Paragraphs after it to be joined too: %(count)s."
+msgstr "Ще пунктів, які буде з’єднано: %(count)s."
+
+#: rendering/templates/rendering/generated_views.html
+msgid "not declared"
+msgstr "не оголошено"
+
+#: editing/messages.py
+msgid "more roles, actions and terms than the platform accepts"
+msgstr "більше ролей, дій і термінів, ніж приймає платформа"
+
+#: editing/views/finish.py
+#, python-format
+msgid "The draft marks %(what)s; remove some in the editor."
+msgstr "Чернетка позначає %(what)s; вилучіть частину в редакторі."
+
 # Epic 10 — the corpus
 
 #: documents/administration.py
@@ -3146,6 +3408,7 @@ msgid "retired"
 msgstr "виведений з ужитку"
 
 #: documents/templates/documents/document_types.html
+msgctxt "document type"
 msgid "Label"
 msgstr "Назва"
 

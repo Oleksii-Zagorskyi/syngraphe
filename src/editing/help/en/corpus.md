@@ -16,7 +16,7 @@ Beside the box, the type filter lists the types of the documents you may open. C
 
 ## Copying a document
 
-*Copy*, on a document's page, makes a new document from a version of it you may see — the pending edits, the accepted edits or the canonical version — under the title you give, in a folder you choose. The copy keeps the source's language and title page, its images and the entities defined in it. Choose which appendices go with it: none, all or some; they are numbered from 1 in the copy. Attachments are not copied, and nor is the history: the copy starts from one version. Only you and the administrators can reach it until an administrator links groups to it. You need *create and edit* to copy; an archived document is not copied.
+*Copy*, on a document's page, makes a new document from a version of it you may see — the pending edits, the accepted edits or the canonical version — under the title you give, in a folder you choose. The copy keeps the source's language and title page, its images, and the roles, actions and terms the copied text marks. Choose which appendices go with it: none, all or some; they are numbered from 1 in the copy. Attachments are not copied, and nor is the history: the copy starts from one version. Only you and the administrators can reach it until an administrator links groups to it. You need *create and edit* to copy; an archived document is not copied.
 
 If the version changes while the dialog is open, the copy is refused and the dialog shows the version as it now stands. If a copy stops before it is finished, nothing of it can be seen: copy again. Administrators are told of each copy, and the copy's *Info* tab shows them its source: the document, the version and when it was copied, and by whom.
 

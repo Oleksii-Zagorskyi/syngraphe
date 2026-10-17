@@ -254,3 +254,68 @@ def test_the_source_row_is_read_under_its_lock(
 
     assert waited
     assert "copy" in outcome
+
+
+def test_the_operator_removes_a_copys_entities_and_images(
+    migrated_tenant: Any, member_of: Any, source: Any
+) -> None:
+    """A copy stopped after its version was derived, from a source carrying an image and a marked
+    entity: the copy's `ENTITY` and `IMAGE` rows exist, and `remove_stopped_copy` removes them
+    with the rest."""
+    import hashlib
+
+    from documents import bundle, copying, gitstore, services
+    from documents.identity import identity_for
+    from documents.locks import document_lock
+    from documents.models import Document, DocumentType, Entity, Folder, Image
+
+    user, document = source
+    picture = b"\x89PNG synthetic removed picture"
+    path = f"images/{hashlib.sha256(picture).hexdigest()}.png"
+    body = (
+        "# Terms\n\n[The synthetic head]{.role #synthetic-head} approves it.\n\n"
+        f"![A synthetic picture]({path})\n"
+    )
+    declared = "- kind: role\n  key: synthetic-head\n  label: Synthetic head\n"
+    number = migrated_tenant.number
+    with schema_context(number):
+        repo = gitstore.open_repository(number, document.number)
+        with document_lock(number, document.number):
+            head = gitstore.head(repo)
+            assert head is not None
+            frontmatter, _ = bundle.parse(gitstore.read(repo, "document.md", head).decode())
+            sha = gitstore.commit(
+                repo,
+                {
+                    "document.md": bundle.render(frontmatter, body).encode(),
+                    path: picture,
+                    "entities.yaml": declared.encode(),
+                },
+                identity_for(user),
+                "Synthetic edit",
+                gitstore.Kind.EDIT,
+            )
+            services.derive_version(document, gitstore.commit_at(repo, sha), user)
+        with pytest.raises(copying.CopyStopped):
+            copying.copy_document(
+                user,
+                document,
+                title="Synthetic copy",
+                document_type=DocumentType.objects.get(code="document"),
+                folder=Folder.objects.get(number=1),
+                view="pending_edits",
+                number="0.0-1",
+                appendices=[],
+                fault_at=4,
+            )
+        copy = Document.objects.exclude(pk=document.pk).get()
+        Document.objects.filter(pk=copy.pk).update(created_at=timezone.now() - timedelta(hours=1))
+        assert Entity.objects.filter(document=copy).exists()
+        assert Image.objects.filter(document=copy).exists()
+
+    call_command("remove_stopped_copy", tenant=number, document=copy.number, stdout=StringIO())
+
+    with schema_context(number):
+        assert not Entity.objects.filter(document_id=copy.pk).exists()
+        assert not Image.objects.filter(document_id=copy.pk).exists()
+        assert Entity.objects.filter(document=document).exists()

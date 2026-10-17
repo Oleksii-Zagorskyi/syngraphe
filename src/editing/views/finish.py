@@ -20,8 +20,9 @@ from access.rights import Right, rights_on
 from documents.locks import LockTimeout
 from documents.models import Document
 from editing import holds, numbering, services, summary
+from editing.messages import DRAFT_LIMITS
 from editing.messages import for_the_editor as messages_for_the_editor
-from editing.models import Hold, ReleaseKind
+from editing.models import Draft, Hold, ReleaseKind
 from editing.views.edit_tab import editable
 from identity.models import User
 from review.services import RecordIncomplete
@@ -79,6 +80,7 @@ def _screen(
         changes=mark_safe(finishing.changes),  # noqa: S308 — built from escaped text alone
         summary=more.pop("summary", finishing.summary),
         number=finishing.number,
+        entity_changes=finishing.entities,
         accept_number=numbering.next_accepted(document) if reviewer else "",
         run=_run(document) if reviewer else [],
         reviewer=reviewer,
@@ -105,22 +107,46 @@ def _waiting(request: HttpRequest, document: Document, reason: str = "") -> Http
     return render(request, "editing/finish_waits.html", context, status=409)
 
 
+def _appendix_titles(hold: Hold) -> dict[str, str]:
+    """Each appendix's title by its number, as the draft's frontmatter lists them."""
+    draft = Draft.objects.filter(hold=hold).first()
+    listed = draft.content.get(holds.FRONTMATTER, {}).get("appendices", []) if draft else []
+    return {str(item.get("number")): str(item.get("title", "")) for item in listed}
+
+
 def _refused(
-    request: HttpRequest, document: Document, refused: services.DraftRefused
+    request: HttpRequest, document: Document, hold: Hold, refused: services.DraftRefused
 ) -> HttpResponse:
-    """The draft holds text the editor does not accept: each line named, the way back to the
-    source view where it is corrected."""
+    """The draft holds what cannot be committed — text the editor does not accept, or a reference
+    to an image the document does not hold: each line named, an appendix's by its title, and the
+    way back to the editor where it is corrected."""
     words = messages_for_the_editor()
-    lines = [
-        words["notices"]["line"] % {"line": r.line, "construct": words["constructs"][r.code]}
-        for r in refused.refusals
-    ]
-    context = _context(
-        document,
-        "edit",
-        reason=_("The draft holds text the editor does not accept; correct it in the editor."),
-        refusals=lines,
+    titles = _appendix_titles(hold)
+    if [r.code for r in refused.refusals] == ["entities-full"]:
+        # A limit of the whole draft, which no line of it holds.
+        reason = _("The draft marks %(what)s; remove some in the editor.") % {
+            "what": DRAFT_LIMITS["entities-full"]
+        }
+        context = _context(document, "edit", reason=reason, refusals=[])
+        return render(request, "editing/finish_waits.html", context, status=409)
+    lines = []
+    for r in refused.refusals:
+        construct = words["constructs"][r.code]
+        file = getattr(r, "file", holds.BODY)
+        if file == holds.BODY:
+            lines.append(words["notices"]["line"] % {"line": r.line, "construct": construct})
+        else:
+            number = file.removeprefix("appendices/").removesuffix(".md")
+            lines.append(
+                words["notices"]["line_in_appendix"]
+                % {"title": titles.get(number) or number, "line": r.line, "construct": construct}
+            )
+    reason = (
+        _("The draft refers to an image the document does not hold; correct it in the editor.")
+        if isinstance(refused, services.MissingImages)
+        else _("The draft holds text the editor does not accept; correct it in the editor.")
     )
+    context = _context(document, "edit", reason=reason, refusals=lines)
     return render(request, "editing/finish_waits.html", context, status=409)
 
 
@@ -133,14 +159,15 @@ def _screen_or_wait(
     except services.EditorsOpen:
         return _waiting(request, document)
     except services.DraftRefused as refused:
-        return _refused(request, document, refused)
+        return _refused(request, document, hold, refused)
     return _screen(request, document, finishing, **more)
 
 
 @never_cache
 @login_required
 def finish(request: HttpRequest, number: int) -> HttpResponse:
-    """The finishing screen: the holder's changes, the drafted summary, the number to come."""
+    """The finishing screen: the holder's changes, the drafted summary, the number to come, and
+    the roles, actions and terms the commit adds, relabels or removes."""
     found = _holders(request, number)
     if found is None or request.method != "GET":
         return not_found(request)
@@ -232,7 +259,7 @@ def send(request: HttpRequest, number: int) -> HttpResponse:
     except services.EditorsOpen:
         return _waiting(request, document)
     except services.DraftRefused as refused:
-        return _refused(request, document, refused)
+        return _refused(request, document, hold, refused)
     except (LockTimeout, RecordIncomplete) as stopped:
         context = _context(
             document,
@@ -282,17 +309,23 @@ def _accepted_as(document: Document, version: Any) -> str | None:
 @never_cache
 @login_required
 def my_edits(request: HttpRequest, number: int) -> HttpResponse:
-    """The holder's draft: the whole document, its changes marked in place."""
+    """The holder's draft: the whole document, its changes marked in place, and the roles, actions
+    and terms it changes."""
     found = _holders(request, number)
     if found is None or request.method != "GET":
         return not_found(request)
     document, hold = found
     try:
-        _, changes = services.my_edits(hold)
+        _, changes, listed = services.my_edits(hold)
     except services.DraftRefused as refused:
-        return _refused(request, document, refused)
+        return _refused(request, document, hold, refused)
     # Built from escaped text alone, as the finishing screen's changes are.
-    context = _context(document, "my-edits", changes=mark_safe(changes))  # noqa: S308
+    context = _context(
+        document,
+        "my-edits",
+        changes=mark_safe(changes),  # noqa: S308
+        entity_changes=listed,
+    )
     return render(request, "editing/my_edits.html", context)
 
 

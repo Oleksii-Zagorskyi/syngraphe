@@ -1,6 +1,7 @@
 """A paste into the formatted view (DL-0171): HTML carrying a construct outside the whitelist is
-refused whole with the construct named, plain text is literal text, and images are left out with a
-notice. The paste is a real `paste` event on the editor. Invented text."""
+refused whole with the construct named, plain text is literal text, and an image that is only a
+web address is left out with a notice. The paste is a real `paste` event on the editor. Invented
+text."""
 
 from __future__ import annotations
 
@@ -13,12 +14,10 @@ pytestmark = pytest.mark.browser
 EDITOR = "document.getElementById('editor').editor"
 START = "Text before the paste.\n"
 
-PASTE = """([html, text, image]) => {
+PASTE = """([html, text]) => {
   const data = new DataTransfer();
   if (html) data.setData("text/html", html);
   if (text) data.setData("text/plain", text);
-  const png = new Uint8Array([137, 80, 78, 71]);
-  if (image) data.items.add(new File([png], "x.png", { type: "image/png" }));
   const editor = document.getElementById("editor").editor;
   editor.view.focus();
   const init = { clipboardData: data, bubbles: true, cancelable: true };
@@ -27,9 +26,9 @@ PASTE = """([html, text, image]) => {
 }"""
 
 
-def paste(page: Any, html: str | None = None, text: str | None = None, image: bool = False) -> str:
+def paste(page: Any, html: str | None = None, text: str | None = None) -> str:
     page.evaluate("() => { document.querySelector('.editor-status').textContent = ''; }")
-    page.evaluate(PASTE, [html, text, image])
+    page.evaluate(PASTE, [html, text])
     page.wait_for_timeout(50)
     return str(page.text_content(".editor-status") or "")
 
@@ -68,8 +67,6 @@ def test_images_left_out_with_notice(editing: Any, markdown: Any, page: Any, set
     page.evaluate(f"{EDITOR}.select(1)")
     html = "<p>Words <img src='https://example.org/a.png'> further</p>"
     status = paste(page, html=html, text="Words further")
-    assert "Images were left out" in status
+    assert "only a web address was not pasted; copy the image itself and paste it" in status
     assert "images/" not in markdown() and "example.org" not in markdown()
     assert "Words" in markdown()
-    status = paste(page, image=True)
-    assert "Images were left out" in status

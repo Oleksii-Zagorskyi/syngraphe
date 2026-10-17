@@ -8,7 +8,7 @@ People, group names and titles are synthetic examples; every text is invented.
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -72,7 +72,9 @@ def commit_version(migrated_tenant: Any) -> Callable[..., Any]:
     """Commit `body` as the body of `document.md` on the document's head, as `user`, with the
     kind given — `edit` or `reviewer_edit` — rather than decided from the rights as a finish
     decides it; derive its `VERSION` row; return the row. `body` is in the normal form: one
-    sentence per line, a blank line between paragraphs."""
+    sentence per line, a blank line between paragraphs. `files` are further paths written, or
+    removed by `None`, in the same commit; `appendices`, when given, replaces the frontmatter's
+    list of them."""
 
     def commit(
         document: Any,
@@ -81,6 +83,8 @@ def commit_version(migrated_tenant: Any) -> Callable[..., Any]:
         kind: str = "edit",
         *,
         summary: str = "Synthetic edit",
+        files: Mapping[str, bytes | None] | None = None,
+        appendices: list[dict[str, Any]] | None = None,
     ) -> Any:
         from documents import gitstore, services
         from documents.identity import identity_for
@@ -95,9 +99,11 @@ def commit_version(migrated_tenant: Any) -> Callable[..., Any]:
                 head = gitstore.head(repo)
                 assert head is not None
                 frontmatter, _ = holds.split(gitstore.read(repo, holds.BODY, head).decode())
+                if appendices is not None:
+                    frontmatter["appendices"] = appendices
                 sha = gitstore.commit(
                     repo,
-                    {holds.BODY: holds.join(frontmatter, body).encode("utf-8")},
+                    {holds.BODY: holds.join(frontmatter, body).encode("utf-8"), **(files or {})},
                     identity_for(user),
                     summary,
                     gitstore.Kind(kind),

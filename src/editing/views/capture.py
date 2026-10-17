@@ -338,9 +338,20 @@ def changes(request: HttpRequest, number: int) -> HttpResponse:
     if validate(body) or validate(current):
         context["typed"] = body
     else:
+        from rendering import reading
+
+        draft = Draft.objects.get(pk=editor.draft_id)
+        document = draft.hold.document
+        reader = reading.context(
+            request.user,
+            document,
+            current,
+            body,
+            images=reading.draft_images(document, draft),
+        )
         # Built from text the whitelist accepted, by the renderer that escapes it.
         context["changes"] = mark_safe(  # noqa: S308
-            render_changes(current.encode("utf-8"), body.encode("utf-8"))
+            render_changes(current.encode("utf-8"), body.encode("utf-8"), context=reader)
         )
     html = render(request, "editing/stopped_editor.html", context).content.decode("utf-8")
     return JsonResponse({"html": html})

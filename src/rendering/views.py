@@ -1,6 +1,7 @@
 """The *View* tab: the text of the version the reader may see (DL-0209), rendered with its clause
 numbers, headed by its number and the canonical edition's (DL-0352); beside it the outline of
-that text and the attachments that version lists, in the page's side panes (DL-0356). The
+that text, the attachments that version lists and its generated views — the role directory and
+*see also* — in the page's side panes (DL-0356, DL-0448). The
 historical page of any version the reader's ceiling reaches, with its attachments and its export,
 and the comparison of two (DL-0195, DL-0208) — of two versions, or of two documents and the list's
 start to it (DL-0452); the export dialog and its jobs."""
@@ -38,7 +39,8 @@ from identity.views.preferences import (
     PANEL_WIDTH_MAX,
     PANEL_WIDTH_MIN,
 )
-from rendering.outline import outline
+from rendering import directory, mentions, reading
+from rendering.outline import anchor_clauses, outline
 from rendering.renderer import labelled, render_tokens
 from shell.views import not_found
 
@@ -82,6 +84,13 @@ def view_context(
         return None
     tokens = labelled(body)
     headings = outline(tokens)
+    anchor_clauses(tokens)
+    # The mentions read once, from the tokens the page renders: the text's links and *see also*.
+    found = mentions.targets_in(tokens)
+    reader = reading.context(
+        request.user, document, images=reading.committed_images(document), found=found
+    )
+    declared = _declared_at(repo, shown.commit_sha, document)
     return {
         "version_number": number,
         "version_stance": stance,
@@ -94,8 +103,23 @@ def view_context(
         "outline_bounds": (OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX),
         "panel_width": _kept(request, "panel_width", PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
         "panel_bounds": (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
-        "text": mark_safe(render_tokens(tokens)),  # noqa: S308 — raw HTML is off, every value escaped
+        # Raw HTML is off and every value escaped.
+        "text": mark_safe(render_tokens(tokens, context=reader)),  # noqa: S308
+        # The generated views, derived from the version shown (DL-0448).
+        "roles": directory.roles([directory.Stream(tokens)], declared, context=reader),
+        "see_also": mentions.see_also(
+            request.user, found, own=document.number, reachable=reader.reachable
+        ),
     }
+
+
+def _declared_at(repo: Any, commit: str, document: Document) -> list[Any]:
+    """The roles, actions and terms `commit` declares; none where it holds no `entities.yaml`, or
+    one that does not read — logged, and every role span then listed as undeclared."""
+    from documents import entities
+    from editing.holds import entities_at
+
+    return entities.readable(entities_at(repo, commit), document.number) or []
 
 
 def _kept(request: HttpRequest, key: str, default: int, least: int, most: int) -> int:
@@ -247,7 +271,18 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
         "parts": changed_between(older, newer),
         # Rendered from text the whitelist accepted, by the renderer that escapes it.
         "changes": mark_safe(  # noqa: S308
-            render_changes(older_body.encode("utf-8"), newer_body.encode("utf-8"))
+            render_changes(
+                older_body.encode("utf-8"),
+                newer_body.encode("utf-8"),
+                context=reading.context(
+                    request.user,
+                    document,
+                    older_body,
+                    newer_body,
+                    images=reading.committed_images(document),
+                    sides=(older_number, newer_number),
+                ),
+            )
         ),
     }
     return render(request, "rendering/compare.html", context)
@@ -322,7 +357,15 @@ def _compare_documents(
             "second_attachments": attachments(newer),
             # Rendered from text the whitelist accepted, by the renderer that escapes it.
             "changes": mark_safe(  # noqa: S308
-                render_changes(older_body.encode("utf-8"), newer_body.encode("utf-8"))
+                render_changes(
+                    older_body.encode("utf-8"),
+                    newer_body.encode("utf-8"),
+                    context=_two_documents_context(
+                        request.user,
+                        (first, asked_from, older_body),
+                        (second, asked_to, newer_body),
+                    ),
+                )
             ),
         }
     except UNREADABLE:
@@ -332,6 +375,33 @@ def _compare_documents(
         )
         return not_found(request)
     return render(request, "rendering/compare_documents.html", context)
+
+
+def _two_documents_context(
+    user: Any, first: tuple[Any, str, str], second: tuple[Any, str, str]
+) -> Any:
+    """The render context of two documents' text: each side's images from its own document — an
+    image the second's text shows from the second, any other from the first — and the mentions
+    followed where the reader may read their target, except the two documents compared: the
+    reader is on both, each linked in the banner, as a document's mention of itself is never
+    followed (DL-11-012)."""
+    from documents import images
+    from rendering import mentions, reading
+
+    (one, one_number, one_body), (other, other_number, other_body) = first, second
+    shown = {r.src for r in images.referenced({"document.md": other_body})}
+    from_one, from_other = reading.committed_images(one), reading.committed_images(other)
+    compared = {one.number, other.number}
+    found = [m for m in mentions.targets(one_body, other_body) if m.number not in compared]
+    return reading.context(
+        user,
+        other,
+        one_body,
+        other_body,
+        images=lambda src: from_other(src) if src in shown else from_one(src),
+        sides=(f"#{one.number} {one_number}", f"#{other.number} {other_number}"),
+        found=found,
+    )
 
 
 def _document_link(document: Document) -> str:
@@ -377,12 +447,12 @@ def _version_link(document: Document, number: str) -> str:
 def _offers_and_parts(
     user: Any, document: Document, version: Version | None = None, past: Any = None
 ) -> tuple[list[Any], bool]:
-    """The views the person may export — the one at `version` from a historical page — and
-    whether any offered version has attachments."""
+    """The views the person may export — the one at `version` from a historical page — each
+    marked by whether its text shows images, and whether any offered version has attachments."""
     from documents.models import PartIndex, PartKind
-    from rendering.export.compose import offers
+    from rendering.export.compose import offers, with_images
 
-    offered = offers(user, document, version=version, past=past)
+    offered = with_images(offers(user, document, version=version, past=past), document, user)
     parts = PartIndex.objects.filter(
         version__in=[offer.version for offer in offered], kind=PartKind.ATTACHMENT
     ).exists()

@@ -13,24 +13,34 @@ again for the head's authorship when it has none.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+import re
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 import pygit2
 from django.db import transaction
 
 from access.rights import Right, rights_on
 from audit.record import record
-from documents import gitstore, services
+from documents import entities, gitstore, images, services
 from documents.identity import identity_for
 from documents.locks import document_lock
 from documents.models import Document, DocumentState, Version
 from editing import holds, numbering, summary, tasks
 from editing.diffview import render_changes
 from editing.markdown.validator import Refusal, validate
-from editing.models import Draft, Hold, OpenEditor, ReleaseKind
-from editing.normalizer import RULESET, Lists, TooLarge, normalize, trailer
+from editing.models import (
+    Draft,
+    DraftFileKind,
+    DraftFileOperation,
+    Hold,
+    OpenEditor,
+    ReleaseKind,
+)
+from editing.normalizer import RULESET, Lists, NormalizerDefect, TooLarge, normalize, trailer
 from tenancy.models import Tenant
 
 if TYPE_CHECKING:
@@ -45,7 +55,7 @@ class EditorsOpen(Exception):
 
 
 class NothingChanged(Exception):
-    """The draft, normalised, is the head's text: there is no version to make."""
+    """No path of the draft differs from the head's tree: there is no version to make."""
 
 
 class InvalidSummary(ValueError):
@@ -61,17 +71,101 @@ class DraftRefused(Exception):
         self.refusals = refusals
 
 
+@dataclass(frozen=True, order=True)
+class MissingImage(Refusal):
+    """A reference to an image neither the tree nor the draft holds, in `file` at `line`."""
+
+    file: str = holds.BODY
+
+
+class MissingImages(DraftRefused):
+    """The draft's texts reference images the document does not hold (DL-0439): each one named
+    by its file and line, corrected in the source view before anything is committed."""
+
+
 class InjectedFault(Exception):
     """Raised by `commit_draft` after the step a crash test names; never set in production."""
 
 
 @dataclass(frozen=True)
 class Finishing:
-    """What the finishing screen shows: the changes, the drafted summary, the number to come."""
+    """What the finishing screen shows: the changes, the drafted summary, the number to come, and
+    the roles, actions and terms the commit adds, relabels or removes."""
 
     changes: str
     summary: str
     number: str
+    entities: list[ListedEntity] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ListedEntity:
+    """An entity the draft changes against the head; `from_words` when it is declared at the
+    commit from a span the draft marks without declaring it (DL-0440)."""
+
+    kind: str
+    key: str
+    change: str
+    before: str
+    after: str
+    from_words: bool = False
+
+
+@dataclass(frozen=True)
+class DraftDeclarations:
+    """What the commit of a draft will declare — its own declarations, then each span its texts
+    mark with a key they lack (DL-0440) — and every key a declaration or a span holds."""
+
+    committed: list[entities.Declared]
+    keys: set[str]
+
+
+def draft_declarations(
+    draft: Draft,
+    repo: pygit2.Repository,
+    head: str,
+    document: Document,
+    own: list[entities.Declared],
+) -> DraftDeclarations:
+    """The draft's declarations as the commit will write them, `own` its file's: the body read as
+    the commit normalises it, so a span's words are the label the commit writes; while the
+    whitelist refuses the body, as the draft holds it. Its texts are read once."""
+    texts = list(draft_texts(draft, repo, head).values())
+    body = texts[0]
+    if not validate(body):
+        _, head_body = holds.split(gitstore.read(repo, holds.BODY, head).decode("utf-8"))
+        try:
+            body = _normalised(head_body, body, _lists(document)).decode("utf-8")
+        except (DraftRefused, NormalizerDefect):
+            pass
+    found = list(entities.spans(body, *texts[1:]))
+    committed = entities.with_spans(own, found)
+    return DraftDeclarations(
+        committed, {e.key for e in committed} | {key for _, key, _ in found if key}
+    )
+
+
+def entity_changes(
+    draft: Draft, repo: pygit2.Repository, head: str, normalised: str
+) -> list[ListedEntity]:
+    """What the commit of `draft` would change in `entities.yaml` against `head`: the draft's own
+    declarations and those its spans will add, as the commit writes them (DL-0440)."""
+    current = holds.entities_at(repo, head)
+    held = holds.draft_entities(draft, repo, head)
+    texts = draft_texts(draft, repo, head)
+    declared = entities.declared_with(held, normalised, *list(texts.values())[1:])
+    own = {(e.kind, e.key) for e in entities.parse(held)}
+    return [
+        ListedEntity(
+            c.kind,
+            c.key,
+            c.change,
+            c.before,
+            c.after,
+            from_words=c.change == "added" and (c.kind, c.key) not in own,
+        )
+        for c in entities.changes(current, declared)
+    ]
 
 
 def _lists(document: Document) -> Lists:
@@ -134,23 +228,196 @@ def _stopped(repo: pygit2.Repository, head: str, draft: Draft, user: User) -> st
     return None
 
 
+APPENDIX = re.compile(r"appendices/[1-9][0-9]*\.md")
+# An attachment's place in the tree (ADR-0005): one name under `attachments/`.
+ATTACHMENT = re.compile(r"attachments/[A-Za-z0-9][A-Za-z0-9._-]{0,99}")
+
+
+def _data(value: Any) -> Any:
+    """`value` as the draft's JSON holds it, so a mapping read from git compares with it."""
+    return json.loads(json.dumps(value))
+
+
+def _differs(repo: pygit2.Repository, commit: str, path: str, content: bytes | None) -> bool:
+    try:
+        existing: bytes | None = gitstore.read(repo, path, commit)
+    except KeyError:
+        existing = None
+    return existing != content
+
+
+def _appendix_order(path: str) -> int:
+    return int(path.removeprefix("appendices/").removesuffix(".md"))
+
+
+def staged_changes(
+    draft: Draft, repo: pygit2.Repository, against: str, lists: Lists
+) -> dict[str, bytes | None]:
+    """Every path the draft changes against the tree of `against`, as `gitstore.commit` takes them:
+    `document.md` when the normalised body or the frontmatter (as data) differs; `entities.yaml`
+    with every undeclared span declared (DL-0440); each `appendices/<n>.md` the draft holds; the
+    staged attachments' operations; the images the texts reference and the tree lacks, and `None`
+    for each the tree holds and no text references (DL-0439). Only entries whose bytes, or absence,
+    differ from the tree; a change only to the declarations the commit adds for spans of text the
+    tree already holds is no change. `DraftRefused` for a body the whitelist refuses or
+    declarations past the size the platform accepts, `MissingImages` for a reference to an image
+    neither the tree nor the draft holds, `NormalizerDefect` for a body that does not normalise,
+    `ValueError` for a draft `entities.yaml` that does not read or a staged file out of its
+    place."""
+    body = _accepted(draft)
+    frontmatter, against_body = holds.split(
+        gitstore.read(repo, holds.BODY, against).decode("utf-8")
+    )
+    normalised = _normalised(against_body, body, lists).decode("utf-8")
+    changes: dict[str, bytes | None] = {}
+    held_frontmatter = draft.content[holds.FRONTMATTER]
+    if normalised != against_body or _data(held_frontmatter) != _data(frontmatter):
+        changes[holds.BODY] = holds.join(held_frontmatter, normalised).encode("utf-8")
+    for key, text in draft.content.items():
+        if APPENDIX.fullmatch(key):
+            changes[key] = None if text is None else str(text).encode("utf-8")
+    # Each staged row's path and kind are read first, and its bytes only where they are written.
+    rows = list(draft.files.order_by("at").values_list("pk", "kind", "path", "operation"))
+    attachments: dict[str, tuple[Any, str]] = {}
+    for pk, kind, path, operation in rows:
+        if kind == DraftFileKind.ATTACHMENT:
+            if not ATTACHMENT.fullmatch(path):
+                raise ValueError(f"a staged attachment outside attachments/: {path!r}")
+            attachments[path] = (pk, operation)
+    for path, (pk, operation) in attachments.items():
+        if operation == DraftFileOperation.REMOVE:
+            changes[path] = None
+        else:
+            changes[path] = _staged_bytes(draft, pk)
+
+    # The texts the committed tree will hold, the body as the draft holds it, so a refusal's line
+    # is the one the source view shows.
+    texts = draft_texts(draft, repo, against)
+
+    current = holds.entities_at(repo, against)
+    held = holds.draft_entities(draft, repo, against)
+    declared = entities.declared_with(held, normalised, *list(texts.values())[1:]).encode("utf-8")
+    if len(declared) > entities.MAX_BYTES:
+        raise DraftRefused([Refusal(1, "entities-full")])
+    changes[holds.ENTITIES] = declared
+
+    in_tree = {f"{images.FOLDER}/{name}" for name in gitstore.listing(repo, images.FOLDER, against)}
+    staged = {
+        path: pk
+        for pk, kind, path, operation in rows
+        if kind == DraftFileKind.IMAGE and operation != DraftFileOperation.REMOVE
+    }
+    wanted: set[str] = set()
+    missing: list[Refusal] = []
+    for reference in images.referenced(texts):
+        if reference.src in in_tree or reference.src in staged:
+            wanted.add(reference.src)
+        else:
+            missing.append(MissingImage(reference.line, "image-missing", reference.file))
+    if missing:
+        raise MissingImages(missing)
+    for path in sorted(wanted - in_tree):
+        content = _staged_bytes(draft, staged[path])
+        name = path.removeprefix(f"{images.FOLDER}/")
+        if not images.is_image_path(path) or hashlib.sha256(content).hexdigest() != name[:64]:
+            raise ValueError(f"a staged image not at its content's name: {path!r}")
+        changes[path] = content
+    for path in sorted(in_tree - wanted):
+        changes[path] = None
+    changed = {
+        path: content for path, content in changes.items() if _differs(repo, against, path, content)
+    }
+    if list(changed) == [holds.ENTITIES] and held == current:
+        # Declaring spans of text the tree already holds rides on a commit and never makes one.
+        return {}
+    return changed
+
+
+def _staged_bytes(draft: Draft, pk: Any) -> bytes:
+    content = draft.files.filter(pk=pk).values_list("content", flat=True).get()
+    if content is None:
+        raise ValueError("a staged file without its bytes")
+    return bytes(content)
+
+
+def draft_texts(draft: Draft, repo: pygit2.Repository, commit: str) -> dict[str, str]:
+    """The draft's texts as it holds them: its body, then every appendix — the draft's own key, else
+    the file at `commit` — in its number's order. What its images are read from."""
+    appendices = {
+        path: gitstore.read(repo, path, commit).decode("utf-8")
+        for path in (f"appendices/{name}" for name in gitstore.listing(repo, "appendices", commit))
+        if APPENDIX.fullmatch(path)
+    }
+    for key, text in draft.content.items():
+        if APPENDIX.fullmatch(key):
+            if text is None:
+                appendices.pop(key, None)
+            else:
+                appendices[key] = str(text)
+    ordered = sorted(appendices.items(), key=lambda item: _appendix_order(item[0]))
+    return {holds.BODY: str(draft.content.get(holds.BODY, "")), **dict(ordered)}
+
+
+def holds_later_work(draft: Draft, repo: pygit2.Repository, commit: str, lists: Lists) -> bool:
+    """Whether the draft holds anything `commit` does not — text, entities, appendices or files.
+    A draft that cannot be committed as it stands is later work too: it is kept, never released
+    as finished. Never raises: a release that asks must go ahead whatever the draft holds."""
+    try:
+        return bool(staged_changes(draft, repo, commit, lists))
+    except (DraftRefused, NormalizerDefect, ValueError):
+        return True
+    except Exception:  # noqa: BLE001 — a release never fails on what a draft holds
+        logger.exception("a draft that cannot be compared", extra={"draft": str(draft.pk)})
+        return True
+
+
 def draft_text(hold: Hold) -> tuple[str, str, str]:
     """The head's sha and body, and the draft normalised against it — the text *my edits* shows
-    and exports; `DraftRefused` for a draft the whitelist refuses."""
+    and exports; `DraftRefused` for a draft the whitelist refuses, `MissingImages` for one that
+    references an image the document does not hold."""
     document = Document.objects.select_related("language").get(pk=hold.document_id)
-    head, head_body = _head_body(holds.tenant_number(), document)
+    tenant_number = holds.tenant_number()
+    head, head_body = _head_body(tenant_number, document)
     draft = Draft.objects.get(hold=hold)
-    _accepted(draft)
-    normalised = _normalised(head_body, draft.content[holds.BODY], _lists(document))
+    lists = _lists(document)
+    staged_changes(draft, gitstore.open_repository(tenant_number, document.number), head, lists)
+    normalised = _normalised(head_body, draft.content[holds.BODY], lists)
     return head, head_body, normalised.decode("utf-8")
 
 
-def my_edits(hold: Hold) -> tuple[str, str]:
-    """The draft normalised against the head, and its changes rendered; `DraftRefused` for a
-    draft the whitelist refuses."""
-    _, head_body, normalised = draft_text(hold)
-    changes = render_changes(head_body.encode(), normalised.encode())
-    return head_body, changes
+def _holders_reading(hold: Hold, document: Document, head: str, *bodies: str) -> Any:
+    """The holder's context for their draft's changes: the draft's images through its own route,
+    the two sides the head's number and *your draft*."""
+    from django.utils.translation import gettext
+
+    from rendering import reading
+
+    try:
+        version = Version.objects.get(document=document, commit_sha=head)
+        head_number = numbering.number_of(document, version)
+    except (Version.DoesNotExist, LookupError):
+        # A head a stopped finish left underived: its side is named without a number.
+        head_number = ""
+    draft = Draft.objects.get(hold=hold)
+    return reading.context(
+        hold.user,
+        document,
+        *bodies,
+        images=reading.draft_images(document, draft),
+        sides=(head_number, gettext("your draft")),
+    )
+
+
+def my_edits(hold: Hold) -> tuple[str, str, list[ListedEntity]]:
+    """The draft normalised against the head, its changes rendered, and the entities it changes;
+    `DraftRefused` for a draft the whitelist refuses."""
+    head, head_body, normalised = draft_text(hold)
+    document = Document.objects.get(pk=hold.document_id)
+    reader = _holders_reading(hold, document, head, head_body, normalised)
+    changes = render_changes(head_body.encode(), normalised.encode(), context=reader)
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    listed = entity_changes(Draft.objects.get(hold=hold), repo, head, normalised)
+    return head_body, changes, listed
 
 
 def finish(hold: Hold) -> Finishing:
@@ -162,27 +429,30 @@ def finish(hold: Hold) -> Finishing:
     tenant_number = holds.tenant_number()
     head, head_body = _head_body(tenant_number, document)
     draft = Draft.objects.get(hold=hold)
-    _accepted(draft)
-    normalised = _normalised(head_body, draft.content[holds.BODY], _lists(document))
+    lists = _lists(document)
+    repo = gitstore.open_repository(tenant_number, document.number)
+    staged_changes(draft, repo, head, lists)
+    normalised = _normalised(head_body, draft.content[holds.BODY], lists)
+    reader = _holders_reading(hold, document, head, head_body, normalised.decode("utf-8"))
     return Finishing(
-        changes=render_changes(head_body.encode(), normalised),
+        changes=render_changes(head_body.encode(), normalised, context=reader),
         summary=summary.drafted(head_body, normalised.decode("utf-8")),
-        number=_number(
-            document, tenant_number, head, draft, normalised.decode("utf-8") == head_body
-        ),
+        number=_number(document, repo, head, draft, lists),
+        entities=entity_changes(draft, repo, head, normalised.decode("utf-8")),
     )
 
 
-def _number(document: Document, tenant_number: int, head: str, draft: Draft, same: bool) -> str:
+def _number(
+    document: Document, repo: pygit2.Repository, head: str, draft: Draft, lists: Lists
+) -> str:
     """The number *send for review* will give: after a finish that stopped past its commit, the
-    stopped version's own when nothing was typed since, else the one after it — counted whether
-    or not its row has been derived yet."""
-    repo = gitstore.open_repository(tenant_number, document.number)
+    stopped version's own when the draft holds nothing beyond it, else the one after it — counted
+    whether or not its row has been derived yet."""
     stopped = _stopped(repo, head, draft, draft.hold.user)
     if stopped is None:
         return numbering.pending(document)
     derived = Version.objects.filter(document=document, commit_sha=stopped).exists()
-    if same:
+    if not holds_later_work(draft, repo, stopped, lists):
         return numbering.latest(document) if derived else numbering.pending(document)
     return numbering.pending(document) if derived else numbering.pending(document, ahead=1)
 
@@ -246,7 +516,7 @@ def commit_draft(hold: Hold, user: User, message: str, *, fault_at: int | None =
     """Commit the draft of `hold` as one version, under the document's lock: of kind
     `reviewer_edit` when the holder holds *accept* at that moment, `edit` otherwise (ADR-0014). A
     finish that stopped after its commit is resumed first: its row derived, then whatever the
-    holder typed since committed as the next version, or nothing when they typed nothing."""
+    holder wrote since committed as the next version, or nothing when they wrote nothing."""
     problem = summary.problem(message)
     if problem is not None:
         raise InvalidSummary(problem)
@@ -302,33 +572,33 @@ def commit_draft_locked(
         if OpenEditor.objects.filter(draft__hold=locked, closed_at__isnull=True).exists():
             raise EditorsOpen(locked.pk)
         draft = Draft.objects.get(hold=locked)
-        body = _accepted(draft)
-        head, head_body = _head_body(tenant_number, document)
+        _accepted(draft)
+        head = gitstore.head(repo)
+        if head is None:
+            raise RuntimeError(f"document {document.number} has no commit")
         stopped = _stopped(repo, head, draft, user)
         lists = _lists(document)
-        normalised = _normalised(head_body, body, lists).decode("utf-8")
-        if normalised == head_body and stopped is None:
+        changes = staged_changes(draft, repo, head, lists)
+        if stopped is not None and (not changes or not staged_changes(draft, repo, stopped, lists)):
+            # Nothing beyond the stop: the version is the stopped commit.
+            changes = {}
+        elif not changes:
             raise NothingChanged(document.number)
-        text = (
-            None
-            if normalised == head_body
-            else holds.join(draft.content[holds.FRONTMATTER], normalised)
-        )
     if (
         stopped is not None
         and not Version.objects.filter(document=document, commit_sha=stopped).exists()
     ):
         _derive(document, repo, stopped, user)
-    if text is None:
-        # Nothing typed since the stop: the version is the stopped commit, whatever an acceptance
-        # has written above it since.
+    if not changes:
+        # Nothing written since the stop: the version is the stopped commit, whatever an
+        # acceptance has written above it since.
         assert stopped is not None
         sha = stopped
     else:
-        # (1) The commit point.
+        # (1) The commit point: the body and every path the draft stages, in one commit.
         sha = gitstore.commit(
             repo,
-            {holds.BODY: text.encode("utf-8")},
+            changes,
             identity_for(user),
             message.strip(),
             kind,
@@ -395,12 +665,11 @@ def finish_stopped(hold: Hold, *, actor: User | None, reason: str = "") -> bool:
     nothing beyond it. Then the hold is released `finished` by `actor`, who acted, with `reason`
     where they gave one, the audit saying the finish was completed; the reviewers are told the
     version awaits them, where it still does; and the draft is deleted. Whether it was. A version
-    found under a draft holding later text is committed all the same: its reviewers are told, and
+    found under a draft holding later work is committed all the same: its reviewers are told, and
     the draft is kept as asked. A record that cannot be settled, or a repository that cannot be
     read, leaves the release as asked and the stop to the reconciler's report: no release depends
     on git. The caller holds the document's writer lock and, in a transaction, its row and the
     hold's."""
-    from editing.normalizer import NormalizerDefect
     from rendering.views import UNREADABLE
     from review.services import RecordIncomplete, settle_head
 
@@ -416,23 +685,14 @@ def finish_stopped(hold: Hold, *, actor: User | None, reason: str = "") -> bool:
         stopped = _stopped(repo, head, draft, user) if head is not None else None
         if stopped is None:
             return False
-        _, committed = holds.split(gitstore.read(repo, holds.BODY, stopped).decode("utf-8"))
+        later = holds_later_work(draft, repo, stopped, _lists(document))
     except (RecordIncomplete, *UNREADABLE):
         logger.warning(
             "a release over a record that cannot be read", extra={"document": document.number}
         )
         return False
-    body: str = draft.content[holds.BODY]
-    try:
-        again = (
-            None
-            if validate(body)
-            else normalize(committed.encode("utf-8"), body, _lists(document)).decode("utf-8")
-        )
-    except NormalizerDefect:
-        again = None
-    if again != committed:
-        # Typed since the commit: that work is at risk and is kept as asked; the version the
+    if later:
+        # Written since the commit: that work is at risk and is kept as asked; the version the
         # stop made stands, and its reviewers are told it awaits them.
         tell_reviewers(document, stopped, user)
         return False

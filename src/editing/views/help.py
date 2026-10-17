@@ -47,6 +47,9 @@ def accepted(spec: Spec) -> list[tuple[str, str]]:
     for kind, takes_id in spec.spans.items():
         if kind == "underline":
             rows.append((_("Underline"), "[…]{.underline}"))
+        elif kind == "document":
+            # A mention names another document by its number (DL-0436).
+            rows.append((str(SPAN_NAMES[kind]), "[…]{.document #12}"))
         else:
             name = str(SPAN_NAMES.get(kind, kind))
             written = f"[…]{{.{kind} #…}}" if takes_id else f"[…]{{.{kind}}}"

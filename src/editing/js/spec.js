@@ -18,6 +18,7 @@ export function specFrom(data) {
     imageAlone: data.imageAlone,
     imageSrc: new RegExp(data.imageSrc),
     linkSchemes: new RegExp(data.linkSchemes, "i"),
+    mentionId: new RegExp(data.mentionId),
     refusals: data.refusals,
   };
 }

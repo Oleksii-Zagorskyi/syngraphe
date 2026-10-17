@@ -13,7 +13,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 
 **Derived by `scripts/derive_coverage.py`** from the *Stories* column of each region table in `pages.md` and its *not yet drawn* marks, and from the stories of [`user-stories.md`](../user-stories.md) in their order — a withdrawn story and one outside release 0.1 left out; run it whenever either file changes. A region is named by its section — `› The tabs` or `› The edit tab` for those subsections — then the region cell up to its first ` — ` or `; `, emphasis removed, cut at 58 characters; a region named as its section is the section alone. A story's title stops before its *so that* or at its sentence's end. A story is **drawn** when every region carrying it is drawn, **partly drawn** when some are, **not yet drawn** when none are. A region for a later release carries no 0.1 story (DL-0228).
 
-**73 stories:** 67 drawn · 0 partly drawn · 3 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
+**73 stories:** 70 drawn · 0 partly drawn · 0 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
 
 | # | Story | Where | Drawn |
 |---|---|---|---|
@@ -57,9 +57,9 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0022 | As an editor, I discard my edits | Document page › The tabs — Edit; Document page › The edit tab — Discard my edits whenever the user holds the document, con…; Send-for-review screen — the screen | drawn |
 | ST-0023 | As an editor, I see a clause number beside every paragraph | Document page › The tabs — View; Appendix page — the page | drawn |
 | ST-0024 | As any reader of a document, I navigate by an outline of its sections and subsections | Document page — outline | drawn |
-| ST-0026 | As an editor, I mark a piece of text as a role, an action or a term | Document page › The tabs — View; Document page › The edit tab — a section editor opened in place, the rest rendered around… | drawn |
-| ST-0027 | As any reader of a document, I see the directory of roles it declares, with each role's rights and obligations and the paragraphs they come from | Document page — generated views | not yet drawn |
-| ST-0028 | As an editor, I upload an image and place it in the text | Document page › The tabs — Edit; Document page › The edit tab — paste refusal; Document page › The edit tab — image refusal | drawn |
+| ST-0026 | As an editor, I mark a piece of text as a role, an action or a term | Document page › The tabs — View; Document page › The edit tab — a section editor opened in place, the rest rendered around…; Help — Editing | drawn |
+| ST-0027 | As any reader of a document, I see the directory of roles it declares, with each role's rights and obligations and the paragraphs they come from | Document page — generated views; Historical page — the generated views of that version; Help — Editing | drawn |
+| ST-0028 | As an editor, I upload an image and place it in the text | Document page › The tabs — Edit; Document page › The edit tab — paste refusal; Document page › The edit tab — image refusal; Help — Editing | drawn |
 | ST-0029 | As an editor, I press *finish editing*, see what my changes introduce, and either continue editing or commit | Document page — the notice after send for review; Document page › The edit tab — Finish editing; Send-for-review screen — the screen | drawn |
 | ST-0030 | As a tenant administrator, I release a document held by someone who has gone quiet | Document page — Archive / Restore; Document page › The edit tab — inactivity prompt; Notifications — both tabs; Administration — document links; Administration — reservations; Administration — settings | drawn |
 | ST-0031 | As a reviewer, I read everything committed since the last acceptance, in order, with each change attributed to its author | Document page › The tabs — My edits; Document page › The tabs — Pending edits | drawn |
@@ -78,8 +78,8 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0040 | As a holder of the freeze right, I unfreeze a document | Document page — Freeze / Unfreeze | drawn |
 | ST-0041 | As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two | Document page › The tabs — History; Historical page — the page; Compare — version comparison, previous and next, attachment list | drawn |
 | ST-0042 | As a reader, I read a document, with its numbering and outline, and always know which version I am reading | Document page — breadcrumb, #12, title, the latest version the reader may …; Document page — the text; Document page › The tabs — View | drawn |
-| ST-0043 | As a reader, I follow a mention of another document as a link when I have access to it | Document page › The tabs — View, mentions | not yet drawn |
-| ST-0044 | As any reader of a document, I see an automatically maintained *see also* listing the documents it links to, filtered the same way | Document page — generated views | not yet drawn |
+| ST-0043 | As a reader, I follow a mention of another document as a link when I have access to it | Document page › The tabs — View, mentions; Document page › The edit tab — a section editor opened in place, the rest rendered around…; Help — Editing | drawn |
+| ST-0044 | As any reader of a document, I see an automatically maintained *see also* listing the documents it links to, filtered the same way | Document page — generated views; Historical page — the generated views of that version; Help — Editing | drawn |
 | ST-0045 | As a reader, I export a stated version to PDF, to Word or to Markdown | Document page — Export, Copy; Export — What checkboxes, all checked by default; Export — embedded / separate; Export — View; Export — Changes; Export — what will be delivered; Export; Export — ? beside each section's heading; Export — file names; Export — the file's pages; Help — Reading a document | drawn |
 | ST-0046 | As a tenant administrator, I edit the stylesheet the exports are rendered with | Administration — styles | drawn |
 | ST-0047 | As any user, I see in the application what is waiting for me | Shell — notifications; Notifications — both tabs | drawn |

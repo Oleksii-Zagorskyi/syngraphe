@@ -1,14 +1,15 @@
 """Copying a document (ST-0067, DL-0451, DL-0455, DL-0268): a new document whose one `created`
 commit holds a version of the source the copier may see — its text under the title they give, the
 source's language and title page, the appendices they chose renumbered from 1 in the source's
-order, the images its texts reference and the source's entities — and never an attachment.
+order, the images its texts reference and the source's declarations they mark — and never an
+attachment.
 
 The source is recorded in `document.copied` before any repository exists (DL-0455), so a copy
 that stops is recognised as one: the reconciler reports it and never finishes it from the
 template; an operator removes it (`remove_stopped_copy`).
 
-The images are those the reading parser finds in the copied texts, and `entities.yaml` is carried
-as the source's bytes."""
+The images are those the copied texts reference, and `entities.yaml` keeps the source's
+declarations those texts mark."""
 
 from __future__ import annotations
 
@@ -34,8 +35,6 @@ from tenancy.schemas import current_tenant
 
 if TYPE_CHECKING:
     from identity.models import User
-
-IMAGES = "images/"
 
 
 class CopyRefused(Exception):
@@ -204,46 +203,48 @@ def _read_source(
                 chosen = [n for n in listed if n in appendices]
             titles = {int(e["number"]): str(e["title"]) for e in frontmatter.appendices}
             tree: dict[str, bytes] = {}
-            texts = [body]
+            texts = {"document.md": body}
             renumbered = []
             try:
                 for new, old in enumerate(chosen, 1):
                     text = gitstore.read(repo, f"appendices/{old}.md", sha)
                     tree[f"appendices/{new}.md"] = text
-                    texts.append(text.decode("utf-8"))
+                    texts[f"appendices/{new}.md"] = text.decode("utf-8")
                     renumbered.append({"number": new, "title": titles[old]})
-                for path in sorted({p for text in texts for p in _referenced_images(text)}):
+                for path in sorted(_referenced_images(texts)):
                     tree[path] = gitstore.read(repo, path, sha)
-            except (KeyError, UnicodeDecodeError):
+                tree["entities.yaml"] = _marked_entities(repo, sha, texts.values())
+            except (KeyError, UnicodeDecodeError, ValueError):
                 raise CopyRefused("unreadable") from None
-            try:
-                tree["entities.yaml"] = gitstore.read(repo, "entities.yaml", sha)
-            except KeyError:
-                tree["entities.yaml"] = b"[]\n"
             tree["document.md"] = bundle.render(
                 dataclasses.replace(frontmatter, appendices=renumbered, attachments=[]), body
             ).encode("utf-8")
             return tree, offered, chosen
 
 
-def _referenced_images(text: str) -> set[str]:
-    """The images a text references, as the reading parser finds them: `image` tokens whose
-    source is under `images/`."""
-    from rendering.renderer import labelled
+def _referenced_images(texts: dict[str, str]) -> set[str]:
+    """The images the copied texts reference that the document holds, under `images/`; a web
+    address is the text's own and is copied with it."""
+    from documents import images
 
-    found: set[str] = set()
+    return {
+        found.src for found in images.referenced(texts) if found.src.startswith(images.FOLDER + "/")
+    }
 
-    def walk(tokens: Any) -> None:
-        for token in tokens:
-            if token.type == "image":
-                src = str(token.attrs.get("src", ""))
-                if src.startswith(IMAGES):
-                    found.add(src)
-            if token.children:
-                walk(token.children)
 
-    walk(labelled(text))
-    return found
+def _marked_entities(repo: Any, sha: str, texts: Any) -> bytes:
+    """The source's declarations a span of the copied texts marks, by kind and key, in the
+    source's order — `[]` when it has none. A declaration only an appendix left behind marks is
+    not carried. `ValueError` when the source's file does not read."""
+    from documents import entities
+
+    try:
+        source = gitstore.read(repo, "entities.yaml", sha).decode("utf-8")
+    except KeyError:
+        return entities.dump([]).encode("utf-8")
+    marked = {(kind, key) for kind, key, _label in entities.spans(*texts) if key is not None}
+    kept = [e for e in entities.parse(source) if (e.kind, e.key) in marked]
+    return entities.dump(kept).encode("utf-8")
 
 
 def offered(user: User, source: Document) -> list[Any]:

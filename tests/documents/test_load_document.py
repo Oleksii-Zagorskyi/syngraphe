@@ -308,7 +308,8 @@ def test_whitelist_and_cap_refuse_before_writing(
     local = copy(PROCEDURE, tmp_path, "local-image")
     (local / "document.md").write_text(body + "\n![plan](images/plan.png)\n", encoding="utf-8")
     message = refused(migrated_tenant, operators, local)
-    assert "images/plan.png" in message and "images arrive later" in message
+    assert "line " in message and "images/plan.png" in message
+    assert "the loader takes no images; add them in the editor after loading" in message
     assert_nothing_written(migrated_tenant, repo_root)
 
     Tenant.objects.filter(pk=migrated_tenant.pk).update(attachment_max_bytes=100)
@@ -592,3 +593,89 @@ def test_rerun_skips_what_is_loaded(migrated_tenant: Any, operators: Any) -> Non
     assert "already loaded" in output and "document 2 · version 0.1" in output
     with schema_context(migrated_tenant.number):
         assert Document.objects.count() == 2
+
+
+def test_loaded_spans_are_declared(migrated_tenant: Any, operators: Any, tmp_path: Path) -> None:
+    """A role the folder's body marks and nothing declares is declared in the loaded version's
+    `entities.yaml`, from its words (DL-0440)."""
+    from documents import entities
+
+    folder = copy(REGISTER, tmp_path)
+    body = folder / "document.md"
+    body.write_text(
+        body.read_text(encoding="utf-8") + "\n[The clerk]{.role #clerk} keeps the register.\n",
+        encoding="utf-8",
+    )
+
+    load(migrated_tenant, operators, folder)
+
+    document = the_document(migrated_tenant)
+    content_sha = kinds(migrated_tenant, document)[1][1]
+    declared = read(migrated_tenant, document, "entities.yaml", content_sha).decode("utf-8")
+    assert entities.parse(declared) == [entities.Declared("role", "clerk", "The clerk")]
+
+
+def test_declarations_over_the_cap_refuse_before_writing(
+    migrated_tenant: Any,
+    operators: Any,
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The declarations a body's spans would make are held to the cap a commit from the editor is
+    held to, and checked before anything is written."""
+    from documents import entities
+
+    monkeypatch.setattr(entities, "MAX_BYTES", 200)
+    folder = copy(REGISTER, tmp_path)
+    body = folder / "document.md"
+    marked = "".join(f"\n[Role {n}]{{.role #role-{n}}} keeps the register.\n" for n in range(8))
+    body.write_text(body.read_text(encoding="utf-8") + marked, encoding="utf-8")
+
+    message = refused(migrated_tenant, operators, folder)
+
+    assert "entities.yaml" in message
+    assert_nothing_written(migrated_tenant, repo_root)
+
+
+def test_joined_lines_are_reported(migrated_tenant: Any, operators: Any, tmp_path: Path) -> None:
+    """A sentence the folder breaks across lines is joined, and the load says so — a notice,
+    never a refusal (DL-0441)."""
+    from documents import loading
+
+    folder = copy(PROCEDURE, tmp_path, "joined")
+    (folder / "document.md").write_text(
+        "# General provisions\n\nThe procedure applies to every\npurchase above the threshold.\n",
+        encoding="utf-8",
+    )
+
+    with schema_context(migrated_tenant.number):
+        from identity.models import User
+
+        prepared = loading.check(folder, User.objects.get(email=LOADER), operators)
+    out = load(migrated_tenant, operators, folder)
+
+    assert prepared.notices == ["line 3 is joined with the next"]
+    assert "line 3 is joined with the next" in out
+    document = the_document(migrated_tenant)
+    sha = content_version(migrated_tenant, document).commit_sha
+    body = read(migrated_tenant, document, "document.md", sha).decode()
+    assert "every purchase above the threshold." in body
+
+
+def test_heading_numbers_are_stripped_on_load(
+    migrated_tenant: Any, operators: Any, tmp_path: Path
+) -> None:
+    folder = copy(PROCEDURE, tmp_path, "numbered")
+    (folder / "document.md").write_text(
+        "# 1 General provisions\n\nThe first rule.\n\n## 1.1 Scope\n\nThe second rule.\n",
+        encoding="utf-8",
+    )
+
+    load(migrated_tenant, operators, folder)
+
+    document = the_document(migrated_tenant)
+    sha = content_version(migrated_tenant, document).commit_sha
+    body = read(migrated_tenant, document, "document.md", sha).decode()
+    assert "# General provisions\n" in body and "## Scope\n" in body
+    assert "# 1 General" not in body and "## 1.1 " not in body

@@ -73,17 +73,19 @@ class Hold(models.Model):
 
 
 class Draft(models.Model):
-    """The working text of one hold: a body per file and the frontmatter, never a version."""
+    """The working text of one hold: a body per file, the frontmatter and the declarations, never a
+    version."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     hold = models.OneToOneField(Hold, on_delete=models.PROTECT, related_name="draft")
     # The head the draft started from (DL-0318).
     base_commit = models.CharField(max_length=40)
-    # `document.md` — the body — and `frontmatter`, what the editors and the commit read; and,
-    # after an undo, `undo` — `{"version", "author", "undone", "listed": [{"before", "wrote",
-    # "after"}]}`: the versions undone so far, which a second undo merges from, and the places
-    # left for the holder's hand, a `{"frontmatter": "kept"}` entry for a title or part the undo
-    # left standing — kept beside the text and never in it (DL-0380).
+    # `document.md` — the body — `frontmatter` and `entities.yaml`, what the editors and the
+    # commit read; and, after an undo, `undo` — `{"version", "author", "undone", "listed":
+    # [{"before", "wrote", "after"}]}`: the versions undone so far, which a second undo merges
+    # from, and the places left for the holder's hand, a `{"frontmatter": "kept"}` entry for a
+    # title or part the undo left standing and an `{"entities": "kept"}` one for the roles,
+    # actions and terms — kept beside the text and never in it (DL-0380).
     content = models.JSONField()
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -18,6 +18,11 @@ table's alignment — is shown as that line, marked as a change of formatting. G
 the new text's lines, each line carries its author (DL-0040); lines a mark spans carry one only when
 they share it.
 
+Images are drawn for the reader the changes are rendered for: with a context that shows them, a
+line rewritten from one image to another is its row flagged *image changed* and the pair, before
+and after (DL-0439); the same image with a new description is a change of words (DL-11-002); with
+no context every image is its description.
+
 The comparison is bounded: the lines, and the words of a changed line, are aligned on what occurs
 once on each side (patience sorting), which is near-linear; only a stretch with no such anchor is
 aligned by `SequenceMatcher`, and one too large for that is shown as removed and inserted whole —
@@ -36,11 +41,11 @@ from enum import StrEnum
 from html import escape
 from typing import Any
 
-from django.utils.translation import gettext
+from django.utils.translation import gettext, pgettext
 from markdown_it.token import Token
 
 from editing.markdown import load_spec
-from rendering.renderer import RENDERER, labelled, render_inline, render_tokens
+from rendering.renderer import RENDERER, RenderContext, labelled, render_inline, render_tokens
 
 BLOCK_PREFIX = re.compile(r"^((?:[ \t]*>[ \t]?)*[ \t]*(?:[-+*][ \t]+|[0-9]+[.)][ \t]+)?)")
 HEADING = re.compile(r"^(#{1,6})[ \t]+(.*)$")
@@ -128,6 +133,9 @@ def _anchors(a: list[str], b: list[str], alo: int, ahi: int, blo: int, bhi: int)
 # What the diff being rendered may still spend on alignment; unset outside `render_changes`, where
 # each alignment has only its own bound.
 _BUDGET: ContextVar[list[int] | None] = ContextVar("_BUDGET", default=None)
+# The reader the changes are rendered for, carried to every render inside one diff as the budget
+# is.
+_CONTEXT: ContextVar[RenderContext | None] = ContextVar("_CONTEXT", default=None)
 
 
 def _charged(cost: int) -> bool:
@@ -218,7 +226,11 @@ def _structural(line: str) -> bool:
 
 
 def _inline(text: str) -> str:
-    return render_inline(text)
+    return render_inline(text, context=_CONTEXT.get())
+
+
+def _env() -> dict[str, Any]:
+    return {"context": _CONTEXT.get()}
 
 
 def _plain(text: str) -> str:
@@ -243,14 +255,15 @@ def _folded(text: str) -> str:
 
 def _references(text: str) -> list[tuple[str, ...]]:
     """What an inline text points at, beside its words: each link's target, each image's file and
-    description, each entity span's kind and identifier."""
+    description as it reads — emphasis in a draft's source is formatting — each entity span's
+    kind and identifier."""
     found: list[tuple[str, ...]] = []
     for token in RENDERER.parseInline(text):
         for child in token.children or []:
             if child.type == "link_open":
                 found.append(("link", str(child.attrs.get("href", ""))))
             elif child.type == "image":
-                found.append(("image", str(child.attrs.get("src", "")), child.content))
+                found.append(("image", str(child.attrs.get("src", "")), _description(child)))
             elif child.type == "entity_open":
                 meta = child.meta or {}
                 found.append(("entity", str(meta.get("kind")), str(meta.get("id"))))
@@ -334,13 +347,13 @@ def _marked(new_text: str, old_text: str) -> str:
             # Removed words stand before any formatting that opens where they were.
             if child.nesting >= 0:
                 removed_at(at)
-            html = str(RENDERER.renderer.renderInline([child], RENDERER.options, {}))  # type: ignore[attr-defined]
+            html = str(RENDERER.renderer.renderInline([child], RENDERER.options, _env()))  # type: ignore[attr-defined]
             added = child.type == "image" and str(child.attrs.get("src", "")) not in old_images
             out.append(f"<ins>{html}</ins>" if added else html)
     removed_at(len(new_plain))
     for image in _images(old_text):
         if str(image.attrs.get("src", "")) not in new_images:
-            html = str(RENDERER.renderer.renderInline([image], RENDERER.options, {}))  # type: ignore[attr-defined]
+            html = str(RENDERER.renderer.renderInline([image], RENDERER.options, _env()))  # type: ignore[attr-defined]
             out.append(f"<del>{html}</del>")
     return "".join(out).strip()
 
@@ -358,6 +371,66 @@ def _changed_text(old_text: str, new_text: str) -> str:
     if _folded(old_text) == _folded(new_text):
         return f"<del>{_inline(old_text)}</del><ins>{_inline(new_text)}</ins>"
     return _marked(new_text, old_text)
+
+
+def _sole_image(text: str) -> Token | None:
+    """The image a line holds when it holds that image and nothing else."""
+    children = [
+        child
+        for token in RENDERER.parseInline(text)
+        for child in token.children or []
+        if not (child.type == "text" and not child.content.strip())
+    ]
+    return children[0] if len(children) == 1 and children[0].type == "image" else None
+
+
+def _shown(image: Token) -> str:
+    return str(RENDERER.renderer.renderInline([image], RENDERER.options, _env()))  # type: ignore[attr-defined]
+
+
+def _description(image: Token) -> str:
+    return str(RENDERER.renderer.renderInlineAsText(image.children or [], RENDERER.options, {}))  # type: ignore[attr-defined]
+
+
+def _image_line(old: Token, new: Token, context: RenderContext) -> tuple[str, str] | None:
+    """One image line rewritten as another (DL-0439, DL-11-002): another image is the flag *image
+    changed* for the line, and the pair to stand after it — before and after, each captioned
+    with its side and its description, and both again at full size where the page can open
+    them; the same image with a new description, the image and its description's words changed,
+    no pair; the same image and description, moved or reformatted, `None` — a change of
+    formatting, as any line's."""
+    if old.attrGet("src") == new.attrGet("src"):
+        if _description(old) == _description(new):
+            return None
+        words = f"<del>{escape(_description(old))}</del> <ins>{escape(_description(new))}</ins>"
+        return f'{_shown(new)}<span class="image-description">{words}</span>', ""
+    flag = f'<span class="image-changed">{escape(gettext("image changed"))}</span>'
+
+    def figure(image: Token, kind: str, side: str, name: str) -> str:
+        caption = escape(side) + (f" · {escape(name)}" if name else "")
+        caption += f" — {escape(_description(image))}"
+        return f'<figure class="{kind}">{_shown(image)}<figcaption>{caption}</figcaption></figure>'
+
+    pair = figure(old, "before", pgettext("an image pair", "before"), context.sides[0]) + figure(
+        new, "after", pgettext("an image pair", "after"), context.sides[1]
+    )
+    if context.full_size:
+        summary = escape(gettext("open both full size"))
+        pair += (
+            f'<details class="full-size"><summary>{summary}</summary>'
+            f"{_shown(old)}{_shown(new)}</details>"
+        )
+    return flag, f'<div class="imgpair">{pair}</div>\n'
+
+
+def _image_change(old_text: str, new_text: str) -> tuple[str, str] | None:
+    """A rewritten line holding an image alone on both sides, as `_image_line` draws it for a
+    reader who sees images; `None` for any other line, or a reader who does not."""
+    context = _CONTEXT.get()
+    old_image, new_image = _sole_image(old_text), _sole_image(new_text)
+    if context is None or context.image_url is None or old_image is None or new_image is None:
+        return None
+    return _image_line(old_image, new_image, context)
 
 
 def _alike(old_text: str, new_text: str) -> bool:
@@ -435,12 +508,25 @@ class _Plan:
             if tag == "equal":
                 self.moved.update(zip(range(i1, i2), range(j1, j2), strict=True))
                 continue
-            pairs = min(i2 - i1, j2 - j1) if tag == "replace" else 0
-            for k in range(pairs):
-                self._pair(i1 + k, j1 + k)
-            for i in range(i1 + pairs, i2):
+            olds, news = list(range(i1, i2)), list(range(j1, j2))
+            if tag == "replace":
+                # An image line is paired with an image line before the rest are paired by
+                # position: words added or removed beside a replaced image leave its pair.
+                images_old = [i for i in olds if was[i] and _sole_image(was[i].text)]  # type: ignore[union-attr]
+                images_new = [j for j in news if now[j] and _sole_image(now[j].text)]  # type: ignore[union-attr]
+                paired = list(zip(images_old, images_new, strict=False))
+                for i, j in paired:
+                    self._pair(i, j)
+                # Filtered once, not removed one by one: a stretch of many images stays linear.
+                gone_old, gone_new = {i for i, _ in paired}, {j for _, j in paired}
+                olds = [i for i in olds if i not in gone_old]
+                news = [j for j in news if j not in gone_new]
+            pairs = min(len(olds), len(news)) if tag == "replace" else 0
+            for i, j in zip(olds[:pairs], news[:pairs], strict=True):
+                self._pair(i, j)
+            for i in olds[pairs:]:
                 self._gone(i)
-            for j in range(j1 + pairs, j2):
+            for j in news[pairs:]:
                 self._came(j)
         self._index(was)
 
@@ -531,14 +617,23 @@ def _closes(tokens: list[Token]) -> dict[int, int]:
     return found
 
 
-def render_changes(old: bytes, new: bytes, *, authors: Mapping[int, str] | None = None) -> str:
-    """The whole of `new` as the reading view renders it, its differences from `old` marked in
-    place. `authors` names the author of a line of `new` by its index from 0; a line it names
-    carries that author, a line it does not — or a removed one — none."""
+def render_changes(
+    old: bytes,
+    new: bytes,
+    *,
+    authors: Mapping[int, str] | None = None,
+    context: RenderContext | None = None,
+) -> str:
+    """The whole of `new` as the reading view renders it for the reader `context` describes, its
+    differences from `old` marked in place. `authors` names the author of a line of `new` by its
+    index from 0; a line it names carries that author, a line it does not — or a removed one —
+    none. With no context every image is its description."""
     spending = _BUDGET.set([ALIGN_BUDGET])
+    reading = _CONTEXT.set(context)
     try:
         return _render_changes(old, new, authors)
     finally:
+        _CONTEXT.reset(reading)
         _BUDGET.reset(spending)
 
 
@@ -579,13 +674,25 @@ def _render_changes(old: bytes, new: bytes, authors: Mapping[int, str] | None) -
             own = [now[j].text]  # type: ignore[union-attr]
         return before.get(j, []) + own + after.get(j, [])
 
+    # The image pairs to stand after a paragraph, by the index of the token they come before.
+    pairs: dict[int, list[Token]] = {}
+    current = [0]
+
     def one(j: int, piece: list[Token]) -> list[Token]:
         out: list[Token] = []
         if before.get(j):
             out.append(_html(struck(before[j]) + " "))
         if j in plan.rewritten:
             earlier = plan.was[plan.rewritten[j]].text  # type: ignore[union-attr]
-            out.extend(by([j], [_html(_changed_text(earlier, now[j].text))]))  # type: ignore[union-attr]
+            drawn = _image_change(earlier, now[j].text)  # type: ignore[union-attr]
+            if drawn is not None:
+                line, pair = drawn
+                out.extend(by([j], [_html(line)]))
+                if pair:
+                    # After the paragraph's close, never inside its `<p>`.
+                    pairs.setdefault(current[0] + 2, []).append(_html(pair, block=True))
+            else:
+                out.extend(by([j], [_html(_changed_text(earlier, now[j].text))]))  # type: ignore[union-attr]
         elif j in plan.inserted:
             out.extend(by([j], [_html("<ins>"), *piece, _html("</ins>")]))
         else:
@@ -615,6 +722,7 @@ def _render_changes(old: bytes, new: bytes, authors: Mapping[int, str] | None) -
             and tokens[position - 1].type != "tr_open"
         ):
             lines = by_block[position - 1]
+            current[0] = position
             children = token.children or []
             label = [c for c in children[:1] if (c.meta or {}).get("num")]
             pieces = _segments(children[len(label) :])
@@ -630,7 +738,7 @@ def _render_changes(old: bytes, new: bytes, authors: Mapping[int, str] | None) -
                 at += count
                 out.extend(one(span[0], piece) if count == 1 else several(span, piece))
             token.children = out
-    return render_tokens(_with_blocks(tokens, plan, blocks, now))
+    return render_tokens(_with_blocks(tokens, plan, blocks, now, pairs), context=_CONTEXT.get())
 
 
 def _placed(
@@ -734,7 +842,10 @@ def _row(tokens: list[Token], position: int, j: int, plan: _Plan, by: Any) -> No
         if earlier is None:
             pieces = [_html("<ins>"), *(cell.children or []), _html("</ins>")]
         elif earlier != cell.content:
-            pieces = [_html(_changed_text(earlier, cell.content))]
+            drawn = _image_change(earlier, cell.content)
+            # A cell's changed image keeps its pair in the cell: nothing stands between rows.
+            html = "".join(drawn) if drawn is not None else _changed_text(earlier, cell.content)
+            pieces = [_html(html)]
         else:
             pieces = cell.children or []
         cell.children = by([j], pieces)
@@ -747,12 +858,17 @@ def _row(tokens: list[Token], position: int, j: int, plan: _Plan, by: Any) -> No
 
 
 def _with_blocks(
-    tokens: list[Token], plan: _Plan, blocks: list[tuple[str, int, str]], now: list[_Line | None]
+    tokens: list[Token],
+    plan: _Plan,
+    blocks: list[tuple[str, int, str]],
+    now: list[_Line | None],
+    pairs: dict[int, list[Token]] | None = None,
 ) -> list[Token]:
     """The tokens with what stands between blocks spliced in: a formatting change's marker line
-    before the block it formats, and each block removed whole beside the block it stood by."""
+    before the block it formats, each block removed whole beside the block it stood by, and an
+    image pair after the paragraph whose image changed."""
     closes = _closes(tokens)
-    inserts: dict[int, list[Token]] = {}
+    inserts: dict[int, list[Token]] = {at: list(found) for at, found in (pairs or {}).items()}
     # The top-level blocks, by their first line: a marker line belongs to the one holding it, or
     # stands before the first that starts after it.
     tops = [

@@ -4,7 +4,9 @@ names are synthetic examples."""
 
 from __future__ import annotations
 
+import importlib.util
 import json
+import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -74,3 +76,17 @@ def link_group(migrated_tenant: Any) -> Callable[..., Any]:
         return group
 
     return link
+
+
+# The review tests' `commit_version`, loaded from their conftest so versions are committed alike,
+# with further files beside the body.
+_spec = importlib.util.spec_from_file_location(
+    "review_fixtures", Path(__file__).resolve().parents[1] / "review" / "conftest.py"
+)
+assert _spec is not None and _spec.loader is not None
+_review = importlib.util.module_from_spec(_spec)
+# Registered before it runs: its dataclass looks its own module up by name.
+sys.modules[_spec.name] = _review
+_spec.loader.exec_module(_review)
+
+commit_version = _review.commit_version

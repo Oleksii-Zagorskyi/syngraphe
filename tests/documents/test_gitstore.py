@@ -148,7 +148,19 @@ def test_a_file_never_replaces_a_directory(repo_root: Path) -> None:
 
 @pytest.mark.parametrize(
     "path",
-    ["../x", "/abs", ".git/config", ".GITMODULES", "a\\b", "a\nb", "a//b", " ", "..\u2215x", ""],
+    [
+        "../x",
+        "/abs",
+        ".git/config",
+        ".GITMODULES",
+        "a\\b",
+        "a\nb",
+        "a//b",
+        " ",
+        "..\u2215x",
+        "",
+        "a.pdf\n",
+    ],
 )
 def test_commit_refuses_a_path_outside_the_document(repo_root: Path, path: str) -> None:
     repo, _ = _repo_with_files({"document.md": b"a\n"})

@@ -288,3 +288,60 @@ def test_the_three_starts(two: Any, member_of: Any, link_group: Any, settings: A
     assert only_a.get(f"/compare/?first={a}&second={b}").status_code == 404
     assert only_a.get(f"/compare/?first={b}&second={a}").status_code == 404
     assert client.get(f"/compare/?first={a}&second=x").status_code == 404
+
+
+def test_each_side_reads_its_own_document(
+    two: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    new_document: Any,
+    pictures: Any,
+    settings: Any,
+) -> None:
+    """Each side's images come from its own document — one both texts show, as a copy shares its
+    source's, from the second — and the pair is captioned `#n version`. Neither compared document's
+    mention is followed, on either side: the reader is on both, each linked in the banner
+    (DL-11-012). A third document's mention is followed where its reader may read it."""
+    settings.LANGUAGE_CODE = "en"
+    client, _user, membership = member_of("h.synthetic@example.test")
+    third = new_document(two.people["a"], "Synthetic third rules")
+    for document in (two.a, two.b, third):
+        link_group(document, HISTORY, [membership], two.people["a"])
+    a, b, c = two.a.number, two.b.number, third.number
+    first, second, shared = pictures.make(1), pictures.make(2), pictures.make(3)
+    old = (
+        f"\nThese are [the general rules]{{.document #{a}}}, "
+        f"beside [the others]{{.document #{b}}}.\n" + shared.paragraph + first.paragraph
+    )
+    new = (
+        f"\nAs [the general rules]{{.document #{a}}} say, [these rules]{{.document #{b}}} apply, "
+        f"with [the third]{{.document #{c}}}.\n" + shared.paragraph + second.paragraph
+    )
+    commit_version(
+        two.a,
+        two.people["a"],
+        FIRST + old,
+        "edit",
+        files={shared.path: shared.data, first.path: first.data},
+    )
+    commit_version(
+        two.b,
+        two.people["a"],
+        SECOND + new,
+        "edit",
+        files={shared.path: shared.data, second.path: second.data},
+    )
+
+    page = client.get(f"/document/{a}/compare/?from=1.0-3&with={b}&to=1.0-2").content.decode()
+
+    changes = page.split('class="changes', 1)[1].split("</aside>", 1)[0].split("<aside", 1)[0]
+    assert f'src="/document/{a}/image/{first.name}/"' in changes
+    assert f'src="/document/{b}/image/{second.name}/"' in changes
+    assert f'src="/document/{b}/image/{shared.name}/"' in changes
+    assert f'src="/document/{a}/image/{shared.name}/"' not in changes
+    assert f"#{a} 1.0-3" in changes and f"#{b} 1.0-2" in changes
+    for number in (a, b):
+        assert f'href="/document/{number}/"' not in changes, number
+    assert "the general rules" in changes and "these rules" in changes
+    assert f'href="/document/{c}/"' in changes

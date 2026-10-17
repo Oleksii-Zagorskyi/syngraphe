@@ -1,4 +1,5 @@
-"""The caches a version's rows carry: its headings and its parts, rebuilt from git at that version
+"""The caches a version's rows carry: its headings and its parts, rebuilt from git at that version,
+with the document's entities from the head and a record of each image
 (`data-model.md § Content index, entities, images`).
 
 Headings are read through the platform's own parser, as the reader sees them: four levels deep,
@@ -13,8 +14,8 @@ from typing import TYPE_CHECKING, Any
 import pygit2
 from django.db import connection, transaction
 
-from documents import bundle, gitstore
-from documents.models import HeadingIndex, PartIndex, PartKind, Version
+from documents import bundle, entities, gitstore, images
+from documents.models import Entity, HeadingIndex, Image, PartIndex, PartKind, Version
 from editing.markdown.parser import parser
 from syngraphe.provenance import ActorKind
 from tenancy.schemas import current_tenant
@@ -90,7 +91,9 @@ def rebuild(document: Document, version: Version) -> None:
     connection is set to.
 
     The parts are the lists in `document.md`'s frontmatter at that commit. An appendix listed there
-    and missing from the commit is logged and left out; the rest is still written.
+    and missing from the commit is logged and left out; the rest is still written. When the version
+    is the head, the document's entity rows are replaced by its `entities.yaml`; each image of its
+    tree the document does not yet record gains a row.
     """
     tenant_number = current_tenant(connection)
     if tenant_number is None:
@@ -140,6 +143,58 @@ def rebuild(document: Document, version: Version) -> None:
             logger.exception("heading rows not pruned", extra={"document": document.number})
         else:
             HeadingIndex.objects.filter(document=document).exclude(version__in=kept).delete()
+        if gitstore.head(repo) == version.commit_sha:
+            _mirror_entities(repo, document, version)
+        _record_images(repo, document, version)
+
+
+def _mirror_entities(repo: pygit2.Repository, document: Document, version: Version) -> None:
+    """The document's entity rows replaced by the head's `entities.yaml`; a file that does not
+    read is logged and the rows left as they are."""
+    try:
+        data = gitstore.read(repo, "entities.yaml", version.commit_sha)
+    except KeyError:
+        data = b"[]\n"
+    try:
+        declared = entities.parse(data.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError):
+        logger.exception("entities.yaml does not read", extra={"document": document.number})
+        return
+    Entity.objects.filter(document=document).delete()
+    Entity.objects.bulk_create(
+        Entity(
+            document=document,
+            kind=entry.kind,
+            key=entry.key,
+            label=entry.label,
+            actor_kind=ActorKind.SYSTEM,
+        )
+        for entry in declared
+    )
+
+
+# The data model's content type for each image extension.
+STORED_TYPES = {"png": "png", "jpg": "jpeg", "gif": "gif"}
+
+
+def _record_images(repo: pygit2.Repository, document: Document, version: Version) -> None:
+    """A row for each image of the version's tree the document does not yet record: who
+    committed it first, and when."""
+    recorded = set(Image.objects.filter(document=document).values_list("path", flat=True))
+    for name in gitstore.listing(repo, images.FOLDER, version.commit_sha):
+        path = f"{images.FOLDER}/{name}"
+        match = images.NAME.fullmatch(name)
+        if match is None or path in recorded:
+            continue
+        Image.objects.create(
+            document=document,
+            path=path,
+            content_type=STORED_TYPES[match.group(1)],
+            bytes=len(gitstore.read(repo, path, version.commit_sha)),
+            uploaded_by_id=version.author_id,
+            uploaded_at=version.committed_at,
+            actor_kind=ActorKind.SYSTEM,
+        )
 
 
 def _kept(repo: pygit2.Repository, document: Document, version: Version) -> set[Any]:

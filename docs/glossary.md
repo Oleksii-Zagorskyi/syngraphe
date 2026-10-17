@@ -58,11 +58,17 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **footnote** · виноска · *proposed* — a note referred to from the text and printed apart from it. Not accepted in a document; the source view's conversion puts its text in brackets where it was referred to.
 
-**role directory** · довідник ролей · *proposed* — the list of roles a document declares, with their rights, obligations and the paragraphs each comes from. Derived by parsing the marks.
+**role directory** · довідник ролей · *proposed* — the list of roles a document declares or marks, each with every heading and clause marking it, linked to its place. Derived from the version shown each time it is read, with no store (DL-0073, DL-0448).
 
 **outline** · зміст · *proposed* — the navigable list of a document's sections and subsections.
 
 **see also** · див. також · *proposed* — the automatically maintained list of documents this one mentions — a link where the reader may follow it, plain text in the mention's own words where they may not (DL-0071, DL-0437).
+
+**generated view** · супровідний документ · *fixed* — a document no person writes, shown as the **system**'s (система, DL-0448). In the first release the **role directory** and **see also**, derived from the version shown each time they are read; from stage 2 also the agent's: contradictions (суперечності), ambiguities (неоднозначності), blind spots (прогалини), the control directory.
+
+**mention** · згадка · *proposed* — words in the text naming another document by its **document number** (номер документа), written `[words]{.document #12}`: a link where the reader may read that document, the words alone where not (DL-0436, ASR-16). Not an **entity**: a mention is never declared.
+
+**declare** · оголосити · *proposed* — to add a role, an action or a term to a document's own list of entities, by its **kind** (вид) and its **label** (найменування — the name it is listed by, never *назва*, which is a document's title); words marked with a key the document lacks are declared at the commit, labelled with their words (DL-0073, DL-0440).
 
 **document type** · тип документа · *proposed* — each tenant's own classification of its documents; a new tenant starts with one, *document* (документ) (DL-0235). *Synthetic examples:* policy (політика), controls (контролі), technical instruction (технічна інструкція).
 
@@ -70,7 +76,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **style** · стиль · *proposed* — the organisation's rendering rules, authored by its tenant administrator and selected per document (DL-0230).
 
-**image** · зображення · *proposed* — an uploaded PNG, JPEG or GIF. HEIC is refused; metadata is stripped, but for a JPEG's orientation tag (DL-0472).
+**image** · зображення · *proposed* — an uploaded PNG, JPEG or GIF, at most 40 megapixels and 10,000 pixels a side, named by its content. HEIC is refused; metadata is stripped, but for a JPEG's orientation tag (DL-0439, DL-0472).
 
 ---
 
@@ -288,8 +294,6 @@ Not in the first release. Listed so the vocabulary is settled before it is built
 **companion action** · дія помічника · *proposed* — a set of heuristics producing one analysis a user can ask for.
 
 **side-document type** · тип супровідного документа · *proposed* — a set of heuristics producing and maintaining a generated view.
-
-**generated view** · супровідний документ · *fixed* — a document written by the agent and by nobody else: contradictions (суперечності), ambiguities (неоднозначності), blind spots (прогалини), the role and control directories.
 
 **finding** · зауваження · *proposed* — one thing an agent reports, tagged with the material it was derived from.
 

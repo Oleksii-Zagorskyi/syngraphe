@@ -53,4 +53,12 @@ export const ICONS = {
     `<path d="M8.5 11.5a3.5 3.5 0 005 0l2.5-2.5a3.5 3.5 0 00-5-5l-1 1"/>` +
       `<path d="M11.5 8.5a3.5 3.5 0 00-5 0L4 11a3.5 3.5 0 005 5l1-1"/>`,
   ),
+  image: svg(
+    `<rect x="3" y="4" width="14" height="12" rx="1"/><circle cx="7.5" cy="8" r="1.3"/>` +
+      `<path d="M3.5 15l4.5-4.5 3 3 2-2 3.5 3.5"/>`,
+  ),
+  // A span of text marked as an entity.
+  mark: svg(`<rect x="3.5" y="5.5" width="13" height="9" rx="1.5"/><path d="M3.5 14.5L10 5.5"/>`),
+  // A document named by its number.
+  mention: svg(`<path d="M8 3.5L6.5 16.5M13.5 3.5L12 16.5M4 7.5h12.5M3.5 12.5H16"/>`),
 };

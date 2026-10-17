@@ -1,0 +1,10 @@
+{% load i18n %}{% comment %}The roles, actions and terms a change adds, relabels or removes (DL-0073): `entity_changes`, under `heading`.{% endcomment %}{% if entity_changes %}<section class="entity-changes">
+  <h3>{{ heading }}</h3>
+  <table class="ops">
+    {% for entity in entity_changes %}<tr data-kind="{{ entity.kind }}" data-key="{{ entity.key }}">
+      <td>{% if entity.kind == "role" %}{% translate "Role" context "an entity" %}{% elif entity.kind == "action" %}{% translate "Action" context "an entity" %}{% else %}{% translate "Term" context "an entity" %}{% endif %}</td>
+      <td>{% if entity.change == "removed" %}{{ entity.before }}{% else %}{{ entity.after }}{% endif %}</td>
+      <td>{% if entity.change == "added" %}{% translate "added" context "an entity" %}{% if entity.from_words %} — {% translate "declared with your version, from the words you marked" %}{% endif %}{% elif entity.change == "relabelled" %}{% blocktranslate with before=entity.before context "an entity" %}relabelled from {{ before }}{% endblocktranslate %}{% else %}{% translate "removed" context "an entity" %}{% endif %}</td>
+    </tr>{% endfor %}
+  </table>
+</section>{% endif %}

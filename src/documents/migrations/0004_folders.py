@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("documents", "0002_epic10_document_types"),
+        ("documents", "0003_document_types"),
     ]
 
     operations = [

@@ -1,7 +1,8 @@
 """An export job's life (DL-0172, DL-0193, `data-model.md` `EXPORT_JOB`): a done job's file
 downloaded under its name, then swept after a day with its row kept; the Markdown export's file;
-a zip with the attachments; a job delivered twice running once; a job left queued queued again by
-the reconciler; a right lost failing the job.
+a zip with the attachments; a Markdown export with images as one zip; a *my edits* export with the
+draft's own images; a job delivered twice running once; a job left queued queued again by the
+reconciler; a right lost failing the job.
 
 People, groups and titles are synthetic examples; every text is invented.
 """
@@ -589,6 +590,135 @@ def test_the_reconciler_passes_over_an_abandoned_job_a_render_holds(
     assert [f.kind for f in found if f.kind.startswith("export")] == []
     with schema_context(migrated_tenant.number):
         assert ExportJob.objects.get(pk=job_id).state == "queued"
+
+
+def test_markdown_with_images_is_a_zip(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+    settings: Any,
+) -> None:
+    """A Markdown export whose text shows images is one zip: the text beside `images/`; with the
+    attachments chosen too, one zip holds them all (DL-0193)."""
+    from editions import services as editions
+    from review import services as review
+
+    number = migrated_tenant.number
+    people = edition_cast()
+    shown = [pictures.make(1), pictures.make(2)]
+    kit.attach(number, people, kit.FIRST, b"Synthetic list of time limits.\n")
+    body = kit.FIRST + "".join(p.paragraph for p in shown)
+    commit_version(
+        people.document, people["a"], body, "edit", files={p.path: p.data for p in shown}
+    )
+    with schema_context(number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        editions.make_canonical(people.document, people["p"])
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "zip")
+
+    def export(**choice: str) -> zipfile.ZipFile:
+        response = client.post(
+            f"/document/{people.document.number}/export/",
+            {"document": "on", "format": "markdown", "view": "canonical", **choice},
+        )
+        assert response.status_code == 302
+        job = kit.run_job(number, exports[-1][1])
+        assert job.state == "done", job.failure_reason
+        path = Path(settings.EXPORT_ROOT) / job.artifact_ref
+        assert path.suffix == ".zip", path.name
+        return zipfile.ZipFile(path)
+
+    with export() as alone:
+        assert sorted(alone.namelist()) == sorted(["документ.md", *(p.path for p in shown)])
+        assert alone.read(shown[0].path) == shown[0].data
+        assert shown[1].path in alone.read("документ.md").decode()
+    with export(attachments="on") as everything:
+        assert sorted(everything.namelist()) == sorted(
+            ["документ.md", "вкладений_файл-1_—_time-limits.txt", *(p.path for p in shown)]
+        )
+
+
+def test_my_edits_export_reads_the_drafts_images(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    pictures: Any,
+    settings: Any,
+) -> None:
+    """A *my edits* PDF embeds an image staged in the holder's draft, which no commit holds yet."""
+    import hashlib
+
+    from django.utils import timezone
+
+    from editing.models import Draft, DraftFile
+
+    number = migrated_tenant.number
+    people = edition_cast()
+    kit.canonical(number, people, commit_version, kit.FIRST)
+    holder, user, membership = member_of("holder.synthetic@example.test")
+    link_group(people.document, [Right.EDIT, Right.VIEW_PENDING], [membership], people["a"])
+    assert holder.post(f"/document/{people.document.number}/edit/take/").status_code == 200
+    staged = pictures.make(4)
+    with schema_context(number):
+        draft = Draft.objects.get(hold__document=people.document, hold__released_at__isnull=True)
+        draft.content = {**draft.content, "document.md": kit.FIRST + staged.paragraph}
+        draft.save()
+        DraftFile.objects.create(
+            draft=draft,
+            kind="image",
+            path=staged.path,
+            operation="add",
+            content=staged.data,
+            file_name="plan.png",
+            sha256=hashlib.sha256(staged.data).hexdigest(),
+            at=timezone.now(),
+        )
+
+    response = holder.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "pdf", "view": "my_edits", "changes-my_edits": "clean"},
+    )
+    assert response.status_code == 302
+    job = kit.run_job(number, exports[-1][1])
+
+    assert job.state == "done", job.failure_reason
+    from pypdf import PdfReader
+
+    pages = PdfReader(str(Path(settings.EXPORT_ROOT) / job.artifact_ref)).pages
+    assert any((page.get("/Resources") or {}).get("/XObject") for page in pages)
+
+
+def test_markdown_without_images_is_one_file(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+) -> None:
+    people, _ = _asked(
+        migrated_tenant,
+        edition_cast,
+        member_of,
+        link_group,
+        commit_version,
+        kit,
+        kit.FIRST,
+        format="markdown",
+    )
+    job = kit.run_job(migrated_tenant.number, exports[-1][1])
+    assert job.state == "done" and job.artifact_ref.endswith(".md"), job.artifact_ref
 
 
 # Epic 10

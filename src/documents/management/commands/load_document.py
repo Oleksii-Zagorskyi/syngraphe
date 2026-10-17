@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 raise CommandError(f"no group {group} in tenant {tenant}")
             for folder in folders:
                 try:
-                    document = loading.load(Path(folder), user, access_group)
+                    loaded = loading.load(Path(folder), user, access_group)
                 except loading.AlreadyLoaded as skipped:
                     self.stdout.write(str(skipped))
                     continue
@@ -62,6 +62,9 @@ class Command(BaseCommand):
                     raise CommandError(f"refused, nothing written: {error}") from None
                 except loading.Stopped as error:
                     raise CommandError(str(error)) from None
+                document = loaded.document
+                for notice in loaded.notices:
+                    self.stdout.write(notice)
                 acceptance = latest_acceptance(document)
                 assert acceptance is not None
                 shown = accepted_content_version(acceptance)
