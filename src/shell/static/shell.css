@@ -249,3 +249,5 @@ th a.sort{text-decoration:none;color:inherit}
 /* Epic 10: the search box and the type filter */
 .search-box{display:flex;gap:6px;flex:1}
 .search-box input[type="search"]{flex:1;padding:5px 8px;border:1px solid var(--line)}
+/* Epic 10: the list's *Compare documents…* — two numbers in the menu's panel */
+.menu-actions form{position:absolute;right:0;display:flex;gap:6px;align-items:center;margin:2px 0 0;padding:6px 10px;background:var(--panel);border:1px solid var(--line);z-index:2;white-space:nowrap}

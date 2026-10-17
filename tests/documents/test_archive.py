@@ -165,8 +165,15 @@ def test_restored_exactly_as_it_was(
 
 
 def test_the_archive_page_lists_and_restores(
-    migrated_tenant: Any, member_of: Any, new_document: Any
+    migrated_tenant: Any, member_of: Any, new_document: Any, settings: Any
 ) -> None:
+    from zoneinfo import ZoneInfo
+
+    from django.utils import formats, translation
+
+    from audit.models import AuditEvent
+
+    settings.LANGUAGE_CODE = "en"
     admin_client, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
     first = new_document(admin, "Synthetic first archived")
     second = new_document(admin, "Synthetic second archived")
@@ -181,6 +188,14 @@ def test_the_archive_page_lists_and_restores(
     assert rows == [str(second.number), str(first.number)]
     assert f'action="/document/{first.number}/restore/"' in page
     assert f'href="/document/{first.number}/export/"' in page
+    # Each row's date is its newest `document.archived` event's, in the display timezone.
+    for document in (first, second):
+        at = AuditEvent.objects.filter(action="document.archived", object_id=document.pk)
+        when = at.latest("at").at.astimezone(ZoneInfo(settings.DISPLAY_TIMEZONE))
+        with translation.override("en"):
+            shown = formats.date_format(when, "DATE_FORMAT")
+        row = re.search(rf'<tr data-number="{document.number}">(.*?)</tr>', page, re.S)
+        assert row is not None and f"<td>{shown}</td>" in row.group(1)
     assert restored.status_code == 302 and _state(migrated_tenant, first) == "active"
     empty = admin_client.get("/administration/tenant/archive/").content.decode()
     assert re.findall(r'<tr data-number="(\d+)"', empty) == [str(second.number)]

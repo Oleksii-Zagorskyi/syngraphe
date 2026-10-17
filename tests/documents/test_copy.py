@@ -42,6 +42,7 @@ def _commit(
     appendices: list[tuple[str, str]] | None = None,
     attachments: bool = False,
     files: dict[str, bytes] | None = None,
+    title_page: bool | None = None,
 ) -> Any:
     """A `reviewer_edit` version of `document` with `body`; `appendices` replace the listed ones,
     `attachments` lists the one attachment, `files` added as they stand. The row derived."""
@@ -62,6 +63,8 @@ def _commit(
                 frontmatter = dataclasses.replace(frontmatter, appendices=listed)
                 for n, (_, text) in enumerate(appendices, 1):
                     written[f"appendices/{n}.md"] = text.encode()
+            if title_page is not None:
+                frontmatter = dataclasses.replace(frontmatter, title_page=title_page)
             if attachments:
                 entry = {
                     "number": 1,
@@ -121,6 +124,7 @@ def source(migrated_tenant: Any, member_of: Any, repo_root: Any) -> SimpleNamesp
         appendices=appendices,
         attachments=True,
         files={IMAGE_PATH: IMAGE, "entities.yaml": ENTITIES},
+        title_page=True,
     )
     with schema_context(migrated_tenant.number):
         review.accept(document, user)
@@ -166,6 +170,8 @@ def test_the_first_commit_is_the_chosen_version(migrated_tenant: Any, source: An
     frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", head).decode())
     assert "The accepted synthetic text." in body
     assert frontmatter.title == "Synthetic copy" and frontmatter.language == "uk"
+    # The source's title page switched on, against the template's default.
+    assert frontmatter.title_page is True
     assert frontmatter.appendices == [{"number": 1, "title": "Forms"}]
     assert frontmatter.attachments == []
     assert gitstore.read(repo, "appendices/1.md", head) == b"# Forms\n\nSynthetic forms.\n"
@@ -362,6 +368,15 @@ def test_administrators_read_the_source_on_info(
     assert f'href="/document/{source.document.number}/"' in copied
     assert "1.1" in copied and commit[:12] in copied and commit[:13] not in copied
     assert "Synthetic Copier" in copied
+    # The date of the copy, in the display timezone, as the tab writes its dates.
+    from zoneinfo import ZoneInfo
+
+    from django.utils import formats, translation
+
+    at = AuditEvent.objects.get(action="document.copied").at
+    with translation.override("en"):
+        day = formats.date_format(at.astimezone(ZoneInfo(settings.DISPLAY_TIMEZONE)), "j E Y")
+    assert f"{day}, by Synthetic Copier" in copied
 
 
 @pytest.mark.parametrize(
@@ -394,3 +409,43 @@ def test_a_malformed_appendix_is_refused_as_input(
     assert "Choose the appendices to copy." in html.unescape(answer.content.decode())
     with schema_context(migrated_tenant.number):
         assert Document.objects.count() == before
+
+
+def test_an_unreadable_source_is_nothing_to_show(
+    migrated_tenant: Any, source: Any, settings: Any, caplog: Any
+) -> None:
+    """A source whose repository cannot be read: the dialog and the copy answer *nothing to show*,
+    logged for the operator, never a server error; nothing written. The same source read again
+    once its repository is back."""
+    from documents import gitstore
+    from documents.models import Document
+
+    settings.LANGUAGE_CODE = "en"
+    client = source.client
+    client.raise_request_exception = False
+    number = source.document.number
+    path = gitstore.repository_path(migrated_tenant.number, number)
+    with schema_context(migrated_tenant.number):
+        before = Document.objects.count()
+    parked = path.with_name(path.name + ".parked")
+    path.rename(parked)
+    try:
+        dialog = client.get(f"/document/{number}/copy/")
+        posted = client.post(
+            f"/document/{number}/copy/",
+            {
+                "title": "Synthetic copy",
+                "document_type": "document",
+                "folder": "1",
+                "version": "pending_edits:1.1-2",
+                "appendices": "none",
+            },
+        )
+    finally:
+        parked.rename(path)
+
+    assert dialog.status_code == 404 and posted.status_code == 404
+    assert "could not be read" in caplog.text
+    with schema_context(migrated_tenant.number):
+        assert Document.objects.count() == before
+    assert client.get(f"/document/{number}/copy/").status_code == 200

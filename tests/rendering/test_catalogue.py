@@ -1,6 +1,7 @@
 """Every page and screen of reading and export renders in Ukrainian from the one catalogue: the view
 with its outline, panel and header, the *Info* state line, the export dialog with its offers and
-refusal, the job's page in each of its states, and the help pages for reading and exporting.
+refusal, the job's page in each of its states, the help pages for reading and exporting, and two
+documents compared, the picker, and the starts on the document page and the list.
 
 People, groups and titles are synthetic examples; every text is invented.
 """
@@ -133,3 +134,42 @@ def test_catalogue_covers_epic_7_pages(
     with schema_context(tenant):
         assert ExportJob.objects.get(pk=queued.pk).state == "failed"
     _assert_translated("job failed", reader.get(asked["Location"]).content.decode())
+
+
+# Epic 10
+def test_catalogue_covers_comparing_two_documents(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    new_document: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """Two documents compared, the picker, and the starts on the document page and the list, in
+    Ukrainian."""
+    settings.LANGUAGE_CODE = "uk"
+    tenant = migrated_tenant.number
+    people = edition_cast()
+    first = people.document
+    kit.canonical(tenant, people, commit_version, kit.FIRST)
+    second = new_document(people["a"], "Синтетичні правила для підрядників")
+    commit_version(second, people["a"], kit.SECOND, "edit")
+    client, _user, membership = member_of("reader.synthetic@example.test")
+    for document in (first, second):
+        link_group(
+            document, [Right.VIEW_ALL_HISTORY, Right.VIEW_PENDING], [membership], people["a"]
+        )
+
+    for name, path in (
+        ("two documents", f"/document/{first.number}/compare/?with={second.number}"),
+        ("the picker", f"/document/{first.number}/compare/?with="),
+        ("the document page", f"/document/{first.number}/"),
+        ("the list", "/folder/1/"),
+    ):
+        response = client.get(path)
+        assert response.status_code == 200, name
+        body = response.content.decode()
+        _assert_translated(name, body)
+        assert "Порівняти" in body or "Порівняння" in body, name

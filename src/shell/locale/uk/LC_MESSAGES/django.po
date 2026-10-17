@@ -3437,3 +3437,47 @@ msgstr "Копіювання не завершено, і від копії ні�
 #: documents/templates/documents/info.html
 msgid "Copied from"
 msgstr "Скопійовано з"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid "Comparing %(first)s %(older)s with %(second)s %(newer)s — read only"
+msgstr "Порівняння %(first)s %(older)s з %(second)s %(newer)s — лише для читання"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid ""
+"Compare #%(first)s %(first_title)s%(first_tag)s with #%(second)s "
+"%(second_title)s%(second_tag)s"
+msgstr ""
+"Порівняти #%(first)s %(first_title)s%(first_tag)s з #%(second)s "
+"%(second_title)s%(second_tag)s"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid "Compare #%(first)s %(first_title)s%(first_tag)s with another document"
+msgstr "Порівняти #%(first)s %(first_title)s%(first_tag)s з іншим документом"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid "with document"
+msgstr "з документом"
+
+#: rendering/templates/rendering/compare_documents.html
+msgid ""
+"Enter the number of the document to compare with: its newest version you "
+"may see is compared first, and you can then choose another."
+msgstr ""
+"Укажіть номер документа для порівняння: спершу порівнюється його найновіша "
+"доступна вам версія, потім можна вибрати іншу."
+
+#: documents/templates/documents/compare_act.html
+msgid "Compare with another document"
+msgstr "Порівняти з іншим документом"
+
+#: documents/templates/documents/list.html
+msgid "Compare documents…"
+msgstr "Порівняти документи…"
+
+#: documents/templates/documents/list.html
+msgid "with #"
+msgstr "з #"
+
+#: editing/messages.py
+msgid "Finding and organising documents"
+msgstr "Пошук і впорядкування документів"

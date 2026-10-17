@@ -158,9 +158,9 @@ def _read_source(
     number: str,
     appendices: list[int] | None,
 ) -> tuple[dict[str, bytes], Any, list[int]]:
-    """Under the source's writer lock, its head settled: the offer recomputed and matched, its
-    commit read once, the copy's first tree but its passport built in memory. The title in the
-    returned `document.md` is the source's; the caller puts the copy's own."""
+    """Under the source's writer lock, its head settled, then its row lock: the offer recomputed
+    and matched, its commit read once, the copy's first tree but its passport built in memory.
+    The title in the returned `document.md` is the source's; the caller puts the copy's own."""
     from access.rights import can_create, readable
     from editing.holds import LOCK_WAIT_SECONDS
     from rendering.export.compose import offers
@@ -169,54 +169,61 @@ def _read_source(
 
     with document_lock(tenant.number, source.number, timeout=LOCK_WAIT_SECONDS):
         settle_head(source)
-        locked = Document.objects.get(pk=source.pk)
-        if locked.state == DocumentState.ARCHIVED:
-            raise CopyRefused("archived")
-        if locked.state != DocumentState.ACTIVE:
-            raise CopyRefused("unreadable")
-        if not can_create(user, tenant) or locked.pk not in readable(user, [locked.pk]):
-            raise CopyRefused("not_allowed")
-        offered = next(
-            (o for o in offers(user, locked) if o.view == view and o.view != ExportView.MY_EDITS),
-            None,
-        )
-        if offered is None or offered.number != number:
-            raise CopyRefused("changed")
-        sha = offered.version.commit_sha
-        repo = gitstore.open_repository(tenant.number, locked.number)
-        try:
-            frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", sha).decode())
-        except (KeyError, ValueError, UnicodeDecodeError):
-            raise CopyRefused("unreadable") from None
-        listed = [int(entry["number"]) for entry in frontmatter.appendices]
-        if appendices is None:
-            chosen = listed
-        else:
-            if any(n not in listed for n in appendices):
-                raise CopyRefused("no_such_appendix")
-            chosen = [n for n in listed if n in appendices]
-        titles = {int(e["number"]): str(e["title"]) for e in frontmatter.appendices}
-        tree: dict[str, bytes] = {}
-        texts = [body]
-        renumbered = []
-        try:
-            for new, old in enumerate(chosen, 1):
-                text = gitstore.read(repo, f"appendices/{old}.md", sha)
-                tree[f"appendices/{new}.md"] = text
-                texts.append(text.decode("utf-8"))
-                renumbered.append({"number": new, "title": titles[old]})
-            for path in sorted({p for text in texts for p in _referenced_images(text)}):
-                tree[path] = gitstore.read(repo, path, sha)
-        except (KeyError, UnicodeDecodeError):
-            raise CopyRefused("unreadable") from None
-        try:
-            tree["entities.yaml"] = gitstore.read(repo, "entities.yaml", sha)
-        except KeyError:
-            tree["entities.yaml"] = b"[]\n"
-        tree["document.md"] = bundle.render(
-            dataclasses.replace(frontmatter, appendices=renumbered, attachments=[]), body
-        ).encode("utf-8")
-        return tree, offered, chosen
+        with transaction.atomic():
+            # The source's state and the copier's rights decided under its row lock, as archive and
+            # restore change them.
+            locked = Document.objects.select_for_update(of=("self",)).get(pk=source.pk)
+            if locked.state == DocumentState.ARCHIVED:
+                raise CopyRefused("archived")
+            if locked.state != DocumentState.ACTIVE:
+                raise CopyRefused("unreadable")
+            if not can_create(user, tenant) or locked.pk not in readable(user, [locked.pk]):
+                raise CopyRefused("not_allowed")
+            offered = next(
+                (
+                    o
+                    for o in offers(user, locked)
+                    if o.view == view and o.view != ExportView.MY_EDITS
+                ),
+                None,
+            )
+            if offered is None or offered.number != number:
+                raise CopyRefused("changed")
+            sha = offered.version.commit_sha
+            repo = gitstore.open_repository(tenant.number, locked.number)
+            try:
+                frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", sha).decode())
+            except (KeyError, ValueError, UnicodeDecodeError):
+                raise CopyRefused("unreadable") from None
+            listed = [int(entry["number"]) for entry in frontmatter.appendices]
+            if appendices is None:
+                chosen = listed
+            else:
+                if any(n not in listed for n in appendices):
+                    raise CopyRefused("no_such_appendix")
+                chosen = [n for n in listed if n in appendices]
+            titles = {int(e["number"]): str(e["title"]) for e in frontmatter.appendices}
+            tree: dict[str, bytes] = {}
+            texts = [body]
+            renumbered = []
+            try:
+                for new, old in enumerate(chosen, 1):
+                    text = gitstore.read(repo, f"appendices/{old}.md", sha)
+                    tree[f"appendices/{new}.md"] = text
+                    texts.append(text.decode("utf-8"))
+                    renumbered.append({"number": new, "title": titles[old]})
+                for path in sorted({p for text in texts for p in _referenced_images(text)}):
+                    tree[path] = gitstore.read(repo, path, sha)
+            except (KeyError, UnicodeDecodeError):
+                raise CopyRefused("unreadable") from None
+            try:
+                tree["entities.yaml"] = gitstore.read(repo, "entities.yaml", sha)
+            except KeyError:
+                tree["entities.yaml"] = b"[]\n"
+            tree["document.md"] = bundle.render(
+                dataclasses.replace(frontmatter, appendices=renumbered, attachments=[]), body
+            ).encode("utf-8")
+            return tree, offered, chosen
 
 
 def _referenced_images(text: str) -> set[str]:

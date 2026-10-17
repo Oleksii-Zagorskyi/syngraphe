@@ -1,5 +1,6 @@
 """The corpus's pieces of a document's pages: the breadcrumb every tab draws, the *archived* tag
-on the pages that draw no state tags, the act archiving or restoring the document, and *Copy*."""
+on the pages that draw no state tags, the act archiving or restoring the document, *Copy*, and
+*Compare with another document*."""
 
 from __future__ import annotations
 
@@ -76,3 +77,20 @@ def copy_act(context: dict[str, Any], document: Document) -> dict[str, Any]:
             )
             shown = False
     return {"document": document, "shown": shown, "archived": archived}
+
+
+@register.inclusion_tag("documents/compare_act.html", takes_context=True)
+def compare_act(context: dict[str, Any], document: Document) -> dict[str, Any]:
+    """*Compare with another document*: the picker, from the version the page shows (DL-0452);
+    from the first document's newest version the reader reaches when that cannot be read."""
+    from editions.visible import visible
+    from rendering.views import UNREADABLE
+
+    try:
+        seen = visible(context["request"].user, document)
+    except UNREADABLE:
+        logger.exception(
+            "a document's version could not be read", extra={"document": document.number}
+        )
+        seen = None
+    return {"document": document, "shown": seen.number if seen is not None else ""}

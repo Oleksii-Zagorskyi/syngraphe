@@ -90,6 +90,11 @@ def test_a_stopped_copy_is_never_finished(
     assert not any(f.repaired for f in repaired if f.document == copy.number)
     with schema_context(migrated_tenant.number):
         assert Document.objects.get(pk=copy.pk).state == "creating"
+    # Invisible in every list, to an administrator too, and its address is nothing to show.
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    for path in ("/folder/1/", "/search/?q=Synthetic", "/in-edit/", "/in-review/"):
+        assert f'href="/document/{copy.number}/"' not in admin.get(path).content.decode(), path
+    assert admin.get(f"/document/{copy.number}/").status_code == 404
 
 
 @pytest.mark.parametrize("step", [1, 4])
@@ -98,7 +103,7 @@ def test_the_operator_removes_a_stopped_copy(
 ) -> None:
     from audit.models import AuditEvent
     from documents import gitstore
-    from documents.models import Document, PartIndex, Version
+    from documents.models import Document, HeadingIndex, PartIndex, Version
 
     copy = _stopped(migrated_tenant, source, step)
 
@@ -116,6 +121,7 @@ def test_the_operator_removes_a_stopped_copy(
         assert not Document.objects.filter(pk=copy.pk).exists()
         assert not Version.objects.filter(document_id=copy.pk).exists()
         assert not PartIndex.objects.filter(document_id=copy.pk).exists()
+        assert not HeadingIndex.objects.filter(version__document_id=copy.pk).exists()
     (removed,) = AuditEvent.objects.filter(action="document.stopped_copy_removed")
     assert removed.after == {"number": copy.number} and removed.actor_id is None
     assert f"document {copy.number}" in out.getvalue()
@@ -191,3 +197,60 @@ def test_a_copy_finished_while_the_operator_waited_is_kept(
     with schema_context(migrated_tenant.number):
         assert Document.objects.get(pk=copy.pk).state == "active"
     assert not AuditEvent.objects.filter(action="document.stopped_copy_removed").exists()
+
+
+def test_the_source_row_is_read_under_its_lock(
+    migrated_tenant: Any, member_of: Any, source: Any, waiting_on_a_lock: Any
+) -> None:
+    """The copy reads its source's state and the copier's rights under the source's row lock, as
+    archive and restore change them: a transaction holding that row makes the copy wait."""
+    import threading
+
+    from django.db import connection, transaction
+
+    from documents import copying
+    from documents.models import Document, DocumentType, Folder
+
+    user, document = source
+    held, release = threading.Event(), threading.Event()
+    outcome: dict[str, Any] = {}
+
+    def hold_the_row() -> None:
+        try:
+            with schema_context(migrated_tenant.number), transaction.atomic():
+                # `NO KEY`: the copy's own row, naming its source, waits on nothing here; only
+                # the source's row lock does.
+                Document.objects.select_for_update(no_key=True, of=("self",)).get(pk=document.pk)
+                held.set()
+                release.wait(timeout=30)
+        finally:
+            connection.close()
+
+    def copy() -> None:
+        try:
+            with schema_context(migrated_tenant.number):
+                outcome["copy"] = copying.copy_document(
+                    user,
+                    document,
+                    title="Synthetic copy",
+                    document_type=DocumentType.objects.get(code="document"),
+                    folder=Folder.objects.get(number=1),
+                    view="accepted",
+                    number="0.0",
+                    appendices=[],
+                ).number
+        finally:
+            connection.close()
+
+    holder = threading.Thread(target=hold_the_row)
+    holder.start()
+    assert held.wait(timeout=10)
+    copier = threading.Thread(target=copy)
+    copier.start()
+    waited = waiting_on_a_lock()
+    release.set()
+    holder.join(timeout=30)
+    copier.join(timeout=30)
+
+    assert waited
+    assert "copy" in outcome

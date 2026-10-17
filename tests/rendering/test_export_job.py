@@ -600,6 +600,7 @@ def test_a_members_job_fails_once_the_document_is_archived(
     commit_version: Any,
     exports: Any,
     kit: Any,
+    settings: Any,
 ) -> None:
     """A member's export queued before the document is archived fails when it runs and serves
     nothing; an administrator's export of the archived document runs (DL-0450)."""
@@ -625,3 +626,10 @@ def test_a_members_job_fails_once_the_document_is_archived(
 
     assert members_job.state == "failed"
     assert administrators_job.state == "done"
+    # The member's job serves nothing: its download is *nothing to show*, its folder empty.
+    number = people.document.number
+    download = client.get(f"/document/{number}/export/{members_job.pk}/download/")
+    assert download.status_code == 404
+    assert not list((Path(settings.EXPORT_ROOT) / str(members_job.pk)).glob("*"))
+    served = admin_client.get(f"/document/{number}/export/{administrators_job.pk}/download/")
+    assert served.status_code == 200

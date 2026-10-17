@@ -121,10 +121,10 @@ def test_a_stopped_finish_is_completed_not_forced(
     from documents import archive
     from editing import services
     from notifications.models import Notification
-    from notifications.services import openable
+    from notifications.services import openable, unread_in_organisation
 
     editor_client, editor, editor_membership = member_of("the.editor@example.test")
-    _, reviewer, reviewer_membership = member_of("the.reviewer@example.test")
+    reviewer_client, reviewer, reviewer_membership = member_of("the.reviewer@example.test")
     _, admin, _ = member_of("the.admin@example.test", is_tenant_admin=True)
     document = new_document(editor)
     link_group(document, [Right.EDIT], [editor_membership], editor)
@@ -143,8 +143,19 @@ def test_a_stopped_finish_is_completed_not_forced(
         told = list(Notification.objects.filter(user=reviewer, event="version_committed"))
         assert len(told) == 1
         assert openable(reviewer, told) == []
+        # Unread, but not counted: the reviewer's other unread row is the access they were granted.
+        others = Notification.objects.filter(user=reviewer, read_at__isnull=True).exclude(
+            pk=told[0].pk
+        )
+        assert told[0].read_at is None
+        assert unread_in_organisation(reviewer) == others.count()
+    entry = f'href="/notifications/{told[0].pk}/"'
+    assert entry not in reviewer_client.get("/notifications/").content.decode()
+    with schema_context(migrated_tenant.number):
         archive.restore(document, admin)
         assert openable(reviewer, told) == told
+        assert unread_in_organisation(reviewer) == others.count() + 1
+    assert entry in reviewer_client.get("/notifications/").content.decode()
 
 
 def test_the_archivers_own_hold_is_released(
@@ -246,6 +257,9 @@ def test_no_take_back_once_someone_committed(
     tab = editor_client.get(f"/document/{document.number}/edit/").content.decode()
 
     assert f'action="/document/{document.number}/edit/take-back/"' not in tab
+    # The kept draft is still shown, read only, with the sentence of its end and its discard.
+    assert '<p class="band end" role="status">' in tab
+    assert f'action="/document/{document.number}/edit/discard-draft/"' in tab
 
 
 def test_the_holder_is_told(
@@ -260,6 +274,7 @@ def test_the_holder_is_told(
     from editing import services
     from editing.models import Hold
     from notifications.models import Notification
+    from notifications.services import unread_in_organisation
 
     settings.LANGUAGE_CODE = "en"
     held_client, held_user, held_membership = member_of("a.holder@example.test")
@@ -293,6 +308,9 @@ def test_the_holder_is_told(
 
     with schema_context(migrated_tenant.number):
         told = list(Notification.objects.filter(event="document_archived").order_by("user__email"))
+        # Counted unread: it names no document, so nothing the archive hides hides it.
+        unread = Notification.objects.filter(user=held_user, read_at__isnull=True)
+        assert told[0] in unread and unread_in_organisation(held_user) == unread.count()
     assert [n.user_id for n in told] == [held_user.pk, reserved_user.pk]
     for row, document in zip(told, (held_doc, reserved_doc), strict=True):
         assert row.category == "document" and row.document_id is None

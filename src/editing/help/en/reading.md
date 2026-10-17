@@ -8,3 +8,7 @@ The **View** tab shows a document's text as it reads, never as it is written. It
 - **Info** names the canonical version, if the document has one, and the document's state as the version you read shows it.
 
 Each pane closes to a narrow strip with the button at its top, and opens again the same way.
+
+## Comparing two documents
+
+A document can be compared with another one: *Compare with another document* opens the comparison, which shows the second document's whole text marked against the first's. *Finding and organising documents* tells how.

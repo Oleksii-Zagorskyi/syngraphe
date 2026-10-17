@@ -98,3 +98,8 @@
 .compare-pair .steps { margin-left: auto; display: flex; gap: 8px; }
 .compare-panes { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
 @media (max-width: 800px) { .compare-panes { grid-template-columns: minmax(0, 1fr); } }
+/* Epic 10: two documents compared — each document's attachments listed apart; the historical
+   page's second form beside its first. */
+.document-attachments + .document-attachments { margin-top: 16px; }
+.document-attachments h2 { font-size: 1em; }
+.compare-with-document { display: inline-flex; gap: 6px; align-items: center; margin-left: 12px; }

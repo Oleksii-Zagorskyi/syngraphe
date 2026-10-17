@@ -142,6 +142,18 @@ COPY_REFUSALS = {
 @never_cache
 @login_required
 def copy(request: HttpRequest, number: int) -> HttpResponse:
+    """The copy dialog, its record read through `_copy`: a source whose record cannot be read
+    answers *nothing to show*, logged for the operator, as every page of a document does."""
+    from rendering.views import UNREADABLE
+
+    try:
+        return _copy(request, number)
+    except UNREADABLE:
+        logger.exception("a copy's source could not be read", extra={"document": number})
+        return not_found(request)
+
+
+def _copy(request: HttpRequest, number: int) -> HttpResponse:
     """The copy dialog (`pages.md § Create or copy a document`): `GET`, its fields —
     `?version=<view>` choosing the version whose appendices it lists; `POST`, the copy, then its
     page. `404` for anyone but a holder of *create and edit* reading the active source with a
