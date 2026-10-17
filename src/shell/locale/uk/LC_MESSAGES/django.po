@@ -3753,3 +3753,93 @@ msgstr "з #"
 #: editing/messages.py
 msgid "Finding and organising documents"
 msgstr "Пошук і впорядкування документів"
+
+#: editing/templates/editing/parts_panel.html
+msgid "rename"
+msgstr "перейменувати"
+
+#: editing/templates/editing/parts_panel.html
+msgid "Move up"
+msgstr "Перемістити вище"
+
+#: editing/templates/editing/parts_panel.html
+msgid "Move down"
+msgstr "Перемістити нижче"
+
+#: editing/templates/editing/parts_panel.html
+msgid "delete"
+msgstr "видалити"
+
+#: editing/templates/editing/parts_panel.html
+msgid "The appendix and its text leave your draft; the document keeps it until you finish editing."
+msgstr "Додаток і його текст вилучаються з вашої чернетки; документ зберігає його, доки ви не завершите редагування."
+
+#: editing/templates/editing/parts_panel.html
+msgid "No appendices"
+msgstr "Додатків немає"
+
+#: editing/templates/editing/parts_panel.html
+msgid "Title of the new appendix"
+msgstr "Назва нового додатка"
+
+#: editing/templates/editing/parts_panel.html
+msgid "Download"
+msgstr "Завантажити"
+
+#: editing/templates/editing/parts_panel.html
+msgid "replace"
+msgstr "замінити"
+
+#: editing/templates/editing/parts_panel.html
+msgid "File"
+msgstr "Файл"
+
+#: editing/templates/editing/parts_panel.html
+msgid "Replace"
+msgstr "Замінити"
+
+#: editing/templates/editing/parts_panel.html
+msgid "The attachment leaves your draft; the document keeps it until you finish editing."
+msgstr "Вкладений файл вилучається з вашої чернетки; документ зберігає його, доки ви не завершите редагування."
+
+#: editing/templates/editing/parts_panel.html
+msgid "Title of the new attachment"
+msgstr "Назва нового вкладеного файлу"
+
+#: editing/views/parts.py
+msgid "You are not editing this document now; open it for editing to change its parts."
+msgstr "Зараз ви не редагуєте цей документ; відкрийте його для редагування, щоб змінити його частини."
+
+#: editing/views/parts.py
+msgid "This document cannot be edited now."
+msgstr "Цей документ зараз не можна редагувати."
+
+#: editing/views/parts.py
+msgid "A title is one line of text, at most 500 characters."
+msgstr "Назва — один рядок тексту, не довше 500 символів."
+
+#: editing/views/parts.py
+msgid "This file’s name cannot be kept: it must be one line, without slashes, and must not begin with a dot."
+msgstr "Таку назву файлу не можна зберегти: вона має бути одним рядком, без скісних рисок, і не починатися з крапки."
+
+#: editing/views/parts.py
+msgid "That part is no longer in your draft."
+msgstr "Цієї частини документа вже немає у вашій чернетці."
+
+#: editing/views/parts.py
+msgid "An editor is open on this appendix; close it first."
+msgstr "У цьому додатку відкрито редактор; спершу закрийте його."
+
+#: editing/views/parts.py
+msgid "The order no longer matches your draft; reload the page."
+msgstr "Порядок уже не відповідає вашій чернетці; перезавантажте сторінку."
+
+#: editing/views/parts.py
+#, python-format
+msgid "You do not hold the right to %(right)s."
+msgstr "Ви не маєте права на %(right)s."
+
+#: editing/views/parts.py
+#, python-format
+msgid "%(name)s is %(size)s; this organisation’s limit is %(limit)s."
+msgstr "%(name)s має розмір %(size)s; обмеження цієї організації — %(limit)s."

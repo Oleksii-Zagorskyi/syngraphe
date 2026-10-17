@@ -1,6 +1,15 @@
 from django.urls import path
 
-from editing.views import capture, draft, edit_tab, entities, finish, images, reservations
+from editing.views import (
+    capture,
+    draft,
+    edit_tab,
+    entities,
+    finish,
+    images,
+    parts,
+    reservations,
+)
 
 urlpatterns = [
     path("document/<int:number>/edit/", edit_tab.page, name="document_edit"),
@@ -62,5 +71,55 @@ urlpatterns = [
         "document/<int:number>/edit/entities/",
         entities.declare,
         name="document_edit_entities",
+    ),
+    path(
+        "document/<int:number>/edit/parts/appendix/",
+        parts.create_appendix,
+        name="document_parts_appendix_create",
+    ),
+    path(
+        "document/<int:number>/edit/parts/appendix/<int:part>/rename/",
+        parts.rename_appendix,
+        name="document_parts_appendix_rename",
+    ),
+    path(
+        "document/<int:number>/edit/parts/appendix/<int:part>/delete/",
+        parts.delete_appendix,
+        name="document_parts_appendix_delete",
+    ),
+    path(
+        "document/<int:number>/edit/parts/appendices/order/",
+        parts.reorder_appendices,
+        name="document_parts_appendices_order",
+    ),
+    path(
+        "document/<int:number>/edit/parts/attachment/",
+        parts.upload_attachment,
+        name="document_parts_attachment_upload",
+    ),
+    path(
+        "document/<int:number>/edit/parts/attachment/<int:part>/",
+        parts.attachment,
+        name="document_parts_attachment",
+    ),
+    path(
+        "document/<int:number>/edit/parts/attachment/<int:part>/replace/",
+        parts.replace_attachment,
+        name="document_parts_attachment_replace",
+    ),
+    path(
+        "document/<int:number>/edit/parts/attachment/<int:part>/rename/",
+        parts.rename_attachment,
+        name="document_parts_attachment_rename",
+    ),
+    path(
+        "document/<int:number>/edit/parts/attachment/<int:part>/delete/",
+        parts.delete_attachment,
+        name="document_parts_attachment_delete",
+    ),
+    path(
+        "document/<int:number>/edit/parts/attachments/order/",
+        parts.reorder_attachments,
+        name="document_parts_attachments_order",
     ),
 ]

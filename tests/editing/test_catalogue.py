@@ -248,3 +248,46 @@ def test_catalogue_covers_the_part_refusals_at_finish(
     heading = client.get(f"/document/{document.number}/edit/finish/")
     assert heading.status_code == 409
     assert "Додаток «Додаток (приклад)» має починатися" in heading.content.decode()
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_parts_panel(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    queued_authorship: list[Any],
+    settings: Any,
+) -> None:
+    """The edit tab's parts panel, every control drawn, and a refusal said there, in Ukrainian."""
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    from access.rights import PARTS, Right
+    from editing import holds, parts
+
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    _, author, _ = member_of("the.author@example.test")
+    client, holder, own = member_of("the.holder@example.test")
+    document = new_document(author)
+    link_group(document, [Right.EDIT, *PARTS], [own], author)
+    with schema_context(migrated_tenant.number):
+        holds.take(document, holder)
+        for title in ("Перший додаток (приклад)", "Другий додаток (приклад)"):
+            parts.create_appendix(document, holder, title=title)
+        for n in (1, 2):
+            parts.upload_attachment(
+                document, holder, title=f"Форма {n} (приклад)", file_name=f"f{n}.txt", data=b"x"
+            )
+    base = f"/document/{document.number}/edit/parts/"
+    refused = client.post(
+        base + "attachment/",
+        {"title": "Форма (приклад)", "file": SimpleUploadedFile(".hidden.txt", b"x")},
+        follow=True,
+    )
+    body = text_of(refused.content.decode())
+    leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+    assert leaked == [], f"the parts panel shows message ids verbatim: {leaked}"
+    assert "Перемістити нижче" in refused.content.decode()
+    assert "Таку назву файлу не можна зберегти" in body

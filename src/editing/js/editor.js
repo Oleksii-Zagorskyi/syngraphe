@@ -486,6 +486,22 @@ function offer(element, words, report) {
     });
   }
   update();
+  // Every open editor captured and closed before the page posts what changes the draft: a stopped
+  // editor still holds text to carry over, and one that cannot close holds text not yet captured
+  // — the page says which, and posts nothing.
+  async function closedEditors() {
+    const editors = [...open, element.editor].filter(Boolean);
+    if (editors.some((editor) => editor.capture.stopped)) {
+      report({ kind: "stopped_open" });
+      return false;
+    }
+    const closed = await Promise.all(editors.map((editor) => editor.capture.finish().catch(() => false)));
+    if (closed.some((done) => !done)) {
+      report({ kind: "failed" });
+      return false;
+    }
+    return true;
+  }
   // *Discard my edits* is refused while an editor is open: the page closes its own first.
   const discard = element.parentElement.querySelector("form[data-discard]");
   if (discard) {
@@ -496,16 +512,29 @@ function offer(element, words, report) {
       event.preventDefault();
       if (sending) return;
       sending = true;
-      const editors = [...open, element.editor].filter(Boolean);
-      const closed = await Promise.all(editors.map((editor) => editor.capture.finish().catch(() => false)));
-      // An editor that could not close still holds text: the page says why, and posts nothing.
-      if (closed.some((done) => !done)) {
-        report({ kind: "failed" });
+      if (!(await closedEditors())) {
         sending = false;
         return;
       }
       discard.submit();
     });
+  }
+  // The parts panel: drawn hidden until the hold is taken, and each of its forms posted only once
+  // every open editor has captured and closed, so the tab drawn again holds the typed text.
+  const parts = document.querySelector("[data-parts-panel]");
+  if (parts) {
+    parts.hidden = false;
+    let posting = false;
+    parts.querySelectorAll("form").forEach((form) => form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (posting) return;
+      posting = true;
+      if (!(await closedEditors())) {
+        posting = false;
+        return;
+      }
+      form.submit();
+    }));
   }
   element.offered = { openWhole, openSection: (ordinal) => {
     const edit = view && view.querySelector(`[data-command=edit-section][data-ordinal="${ordinal}"]`);

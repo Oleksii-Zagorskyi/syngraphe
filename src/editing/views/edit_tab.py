@@ -96,6 +96,17 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
             )
     context["reservation"] = _reservation(request, document, hold, frozen, context)
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
+    from editing.views.parts import panel
+    from identity.views.preferences import PANEL_WIDTH, PANEL_WIDTH_MAX, PANEL_WIDTH_MIN
+    from rendering.views import _kept
+
+    # The edit tab's own parts panel (DL-0442), as wide as the person keeps the View tab's; drawn
+    # hidden until a hold is taken — on mount or by *Start editing* — whose take reveals it.
+    context["parts_panel"] = panel(document, request.user, hold if holding else None)
+    context["panel_width"] = _kept(
+        request, "panel_width", PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX
+    )
+    context["panel_bounds"] = (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX)
     if holding and hold is not None:
         # What an undo left for the holder's hand, beside the text and never in it (DL-0380).
         context["undo"] = hold.draft.content.get("undo")
