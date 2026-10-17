@@ -83,7 +83,8 @@ function inlineChildren(children, spec, block) {
       const close = closeOf(children, i);
       const empty = close === i + 1;
       const nested = kind === "entity_open" && entities > 0;
-      if (span === null || !Object.hasOwn(spec.spans, span) || empty || nested) {
+      const unnumbered = span === "document" && !spec.mentionId.test(child.meta.id || "");
+      if (span === null || !Object.hasOwn(spec.spans, span) || empty || nested || unnumbered) {
         dropped.add(i), dropped.add(close);
         return;
       }

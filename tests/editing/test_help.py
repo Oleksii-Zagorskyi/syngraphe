@@ -26,6 +26,8 @@ def test_allowed_markdown_generated_from_spec(member_of: Any, settings: Any) -> 
         assert kind in body
     assert f"down to level {spec.heading_max_depth}" in body
     assert f"down to {spec.list_max_depth} levels" in body
+    # A mention is written with a document's number, not an entity's key.
+    assert "[…]{.document #12}" in body
     assert "<script" not in body.split("<main")[1]
     # Nothing else: the refusals table has one row per refusal and conversion, no more.
     from editing.views.help import refused
@@ -181,3 +183,41 @@ def test_history_help_page(member_of: Any, settings: Any) -> None:
         if language == "uk":
             leaked = [message for message in ids if message in catalogue.text_of(body)]
             assert leaked == [], leaked
+
+
+def test_images_marks_and_mentions_help(member_of: Any, settings: Any) -> None:
+    """*Editing*, *Reading a document* and *Exporting* say how images, roles, actions and terms,
+    and mentions work, in both languages, no message id shown."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "images_catalogue", Path(__file__).resolve().parents[1] / "review" / "test_catalogue.py"
+    )
+    assert spec is not None and spec.loader is not None
+    catalogue = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(catalogue)
+    ids = catalogue.message_ids(catalogue.CATALOGUE.read_text(encoding="utf-8"))
+    client, _, _ = member_of("a.reader@example.test")
+    sections = {
+        "en": {
+            "editing": ("Images", "Roles, actions and terms", "Mentions"),
+            "reading": ("Mentions and generated views", "role directory", "see also"),
+            "exporting": ("Images",),
+        },
+        "uk": {
+            "editing": ("Зображення", "Ролі, дії й терміни", "Згадки"),
+            "reading": ("Згадки й супровідні документи", "довідник ролей", "див. також"),
+            "exporting": ("Зображення",),
+        },
+    }
+
+    for language, pages in sections.items():
+        settings.LANGUAGE_CODE = language
+        for page, words in pages.items():
+            body = client.get(f"/help/{page}/").content.decode()
+            for word in words:
+                assert word in body, (language, page, word)
+            if language == "uk":
+                leaked = [message for message in ids if message in catalogue.text_of(body)]
+                assert leaked == [], (page, leaked)

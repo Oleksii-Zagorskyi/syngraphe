@@ -40,6 +40,14 @@ CONSTRUCTS = {
     "control-character": _("an invisible control character"),
     "too-large": _("a text longer than the platform accepts"),
     "table-merged": _("a merged table cell"),
+    "image-missing": _("an image the document does not hold"),
+    "mention-id": _("a mention without a document number"),
+}
+
+# A draft's limits outside the whitelist, refused as its constructs are: the declarations a commit
+# derives from the spans pass the size the platform holds them to.
+DRAFT_LIMITS = {
+    "entities-full": _("more roles, actions and terms than the platform accepts"),
 }
 
 LABELS = {
@@ -69,12 +77,25 @@ LABELS = {
     "edit_whole": _("Edit the whole document"),
     "edit_section": pgettext_lazy("open a section's editor", "Edit"),
     "close_section": _("Close this editor"),
+    "image": _("Image"),
+    "mention": _("Mention"),
+    "mention_number": _("Document number"),
+    "mark": _("Mark"),
+    "mark_kind": _("Kind"),
+    "mark_role": pgettext_lazy("an entity", "Role"),
+    "mark_action": pgettext_lazy("an entity", "Action"),
+    "mark_term": pgettext_lazy("an entity", "Term"),
+    "mark_declare": _("Declare a new one"),
+    "mark_label": _("Label"),
+    "declare": _("Declare"),
 }
 
 NOTICES = {
     "refused": _("Not pasted: it holds %(constructs)s."),
     "help": _("What the editor accepts"),
-    "images": _("Images were left out of the paste."),
+    "images": _(
+        "An image that is only a web address was not pasted; copy the image itself and paste it."
+    ),
     "link_refused": _("A link of this kind is not allowed."),
     "busy": _("The document is busy. Try again in a moment."),
     "lines": _("Not accepted — %(lines)s."),
@@ -104,6 +125,40 @@ NOTICES = {
         "A stopped editor still holds your text; carry it over before the tab is drawn again."
     ),
     "line": _("line %(line)s: %(construct)s"),
+    "line_in_appendix": _("appendix «%(title)s», line %(line)s: %(construct)s"),
+    "uploading": _("Uploading the image…"),
+    "image_refused_one": _("Choose one image file."),
+    "image_refused_too_large": _(
+        "The image is larger than %(limit_mb)s MB, the most the platform accepts."
+    ),
+    "image_refused_heic": _(
+        "HEIC images are not accepted; convert the photograph to JPEG or PNG and add it again."
+    ),
+    "image_refused_type": _("Only PNG, JPEG and GIF images are accepted."),
+    "image_refused_dimensions": _(
+        "The image is %(width)s × %(height)s pixels; at most %(max_side)s pixels a side and "
+        "%(megapixels)s megapixels are accepted."
+    ),
+    "image_refused_dimensions_unknown": _(
+        "The image is too large in pixels; at most %(max_side)s pixels a side and "
+        "%(megapixels)s megapixels are accepted."
+    ),
+    "image_refused_unreadable": _("The file could not be read as an image."),
+    "image_failed": _("The image was not added. Try again."),
+    "mention_refused": _("A mention needs a document number."),
+    "mention_select": _("Select the words to mention first."),
+    "entity_kind": _("Only a role, an action or a term can be declared."),
+    "entity_label": _("A label is one line of 1 to 200 characters."),
+    "mark_select": _("Select the words to mark first."),
+    "mark_moved": _("The text changed meanwhile; select the words again and pick the new one."),
+    "joined": _(
+        "Lines %(first)s–%(last)s are one paragraph and will be joined; leave a blank line to "
+        "start a new one."
+    ),
+    "joined_more": _("Paragraphs after it to be joined too: %(count)s."),
+    "entities_full": _(
+        "This document declares as many roles, actions and terms as the platform accepts."
+    ),
 }
 
 
@@ -134,6 +189,7 @@ SPAN_NAMES = {
     "role": _("Entity: role"),
     "action": _("Entity: action"),
     "term": _("Entity: term"),
+    "document": _("Mention of a document"),
 }
 
 # The help pages shipped with the application, by address, in their order.

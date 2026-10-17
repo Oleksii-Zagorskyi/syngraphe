@@ -38,12 +38,15 @@ __all__ = [
     "NormalizerDefect",
     "Normalised",
     "TooLarge",
+    "joined",
     "normalize",
     "run",
     "trailer",
 ]
 
 HEADING = re.compile(r"^(#{1,6}[ ])(.*)$")
+BREAKS = re.compile(r"\r\n?")
+TRAILING = re.compile(r"[ \t]+$", re.MULTILINE)
 
 
 class NormalizerDefect(Exception):
@@ -193,3 +196,30 @@ def _check(
         else:
             group.append(k + 1)
     return lines
+
+
+def joined(submitted: str, lists: Lists) -> list[int]:
+    """The submitted lines, from 1, after which the stored form keeps no line break although the
+    submission broke a paragraph there (DL-0441): a sentence carried over a line is joined into
+    one line, which the loader reports. Compared by words, so typography and escapes do not
+    move a break."""
+    stored = layout(run(b"", submitted, lists).text).paragraphs
+    # Laid out as stored text is — every break a newline, no trailing space — which keeps each
+    # line where it stands.
+    given = layout(TRAILING.sub("", BREAKS.sub("\n", submitted))).paragraphs
+    if len(stored) != len(given):
+        return []
+    found: list[int] = []
+    for before, after in zip(given, stored, strict=True):
+        if len(before.lines) < 2:
+            continue
+        kept, count = set(), 0
+        for line in after.lines:
+            count += len(line.split())
+            kept.add(count)
+        count = 0
+        for offset, line in enumerate(before.lines[:-1]):
+            count += len(line.split())
+            if count not in kept:
+                found.append(before.first + offset + 1)
+    return found

@@ -1,5 +1,5 @@
 """`load` opens an editor on the whole draft or on one section of it, for its holder alone, with
-the validator's verdict."""
+the validator's verdict and the draft's declarations."""
 
 from __future__ import annotations
 
@@ -255,3 +255,58 @@ def test_overlapping_sections_and_too_many_are_refused(
     with schema_context(migrated_tenant.number):
         assert OpenEditor.objects.filter(closed_at__isnull=True).count() == 5
     assert load("section:" + "1" * 5000).status_code == 404
+
+
+def test_load_returns_the_drafts_entities(
+    migrated_tenant: Any, member_of: Any, new_document: Any
+) -> None:
+    """The picker offers the draft's own declarations, as `load` answers them (DL-0073)."""
+    from editing.models import Draft
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold__document=document)
+        draft.content = {
+            **draft.content,
+            "entities.yaml": '- kind: "role"\n  key: "role-1"\n  label: "the approver"\n',
+        }
+        draft.save()
+
+    loaded = client.post(f"/document/{document.number}/edit/load/").json()
+
+    assert loaded["entities"] == [{"kind": "role", "key": "role-1", "label": "the approver"}]
+
+
+def test_load_offers_what_the_commit_will_declare(
+    migrated_tenant: Any, member_of: Any, new_document: Any, caplog: Any
+) -> None:
+    """`load` answers what declaring answers: the draft's declarations and each span it marks
+    with a key they lack, labelled with its words (DL-0440); none for a file that does not read,
+    which is logged."""
+    from editing.models import Draft
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    with schema_context(migrated_tenant.number):
+        draft = Draft.objects.get(hold__document=document)
+        draft.content = {
+            **draft.content,
+            "document.md": "[The clerk]{.role #clerk} files it.\n",
+            "entities.yaml": '- kind: "role"\n  key: "role-1"\n  label: "the approver"\n',
+        }
+        draft.save()
+    address = f"/document/{document.number}/edit/load/"
+
+    assert client.post(address).json()["entities"] == [
+        {"kind": "role", "key": "role-1", "label": "the approver"},
+        {"kind": "role", "key": "clerk", "label": "The clerk"},
+    ]
+
+    with schema_context(migrated_tenant.number):
+        draft.content = {**draft.content, "entities.yaml": "- {"}
+        draft.save()
+    assert client.post(address).json()["entities"] == []
+    assert "entities.yaml does not read" in caplog.text

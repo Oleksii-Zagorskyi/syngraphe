@@ -129,3 +129,40 @@ def kit() -> SimpleNamespace:
         run_job=run_job,
         attach=attach,
     )
+
+
+def canonical_with(
+    tenant: int, people: Any, commit_version: Any, body: str, files: dict[str, bytes | None]
+) -> Any:
+    """`body` committed with `files` beside it, accepted and made canonical; the edition."""
+    from editions import services as editions
+    from review import services as review
+
+    commit_version(people.document, people["a"], body, "edit", files=files)
+    with schema_context(tenant):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        return editions.make_canonical(people.document, people["p"])
+
+
+@pytest.fixture
+def pictures(invented_image: Any) -> SimpleNamespace:
+    """Invented images for the rendering tests, each with the path it is stored at and the
+        paragraph that shows it: `make(shade, kind="png", **more)`, `more` the width, height and
+    orientation `invented_image` takes; and `canonical_with`."""
+    import hashlib
+
+    def make(shade: int, kind: str = "png", **more: Any) -> SimpleNamespace:
+        from editing import images
+
+        data = images.check(invented_image(kind, shade=shade, **more)).data
+        ext = {"png": "png", "jpeg": "jpg", "gif": "gif"}[kind]
+        path = f"images/{hashlib.sha256(data).hexdigest()}.{ext}"
+        return SimpleNamespace(
+            data=data,
+            path=path,
+            name=path[7:],
+            paragraph=f"\n![A synthetic plan {shade}]({path})\n",
+        )
+
+    return SimpleNamespace(make=make, canonical_with=canonical_with)

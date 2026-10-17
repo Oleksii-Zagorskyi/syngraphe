@@ -29,6 +29,7 @@ class Spec:
     image_alone: bool
     image_src: re.Pattern[str]
     link_schemes: re.Pattern[str]
+    mention_id: re.Pattern[str]
     refusals: dict[str, dict[str, str]]
 
 
@@ -47,6 +48,7 @@ def spec_from(raw: dict[str, Any]) -> Spec:
         image_alone=raw["imageAlone"],
         image_src=re.compile(raw["imageSrc"]),
         link_schemes=re.compile(raw["linkSchemes"], re.IGNORECASE),
+        mention_id=re.compile(raw["mentionId"]),
         refusals=raw["refusals"],
     )
 

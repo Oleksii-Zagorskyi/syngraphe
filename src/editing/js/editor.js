@@ -19,6 +19,7 @@ import { serialize } from "./serializer.js";
 import { sourceField } from "./source.js";
 import { rawSpec, spec } from "./spec.js";
 import { capped, toolbar } from "./toolbar.js";
+import { addImages } from "./upload.js";
 
 import "./editor.css";
 
@@ -92,7 +93,8 @@ function format(template, values) {
   return template.replace(/%\((\w+)\)s/g, (_, key) => values[key]);
 }
 
-// One line under the editor for what a paste, a switch or a control could not do.
+// One line under the editor for what a paste, a switch or a control could not do, or what the
+// source view notes as the person types.
 function reporter(status, words, helpUrl) {
   const withHelp = (line) => {
     status.append(line + " ");
@@ -108,6 +110,11 @@ function reporter(status, words, helpUrl) {
       withHelp(format(words.notices.refused, { constructs: names }));
     } else if (event.kind === "lines") {
       if (event.text) withHelp(format(words.notices.lines, { lines: event.text }));
+    } else if (event.kind === "joined") {
+      const said = format(words.notices.joined, { first: event.first, last: event.last });
+      status.textContent = event.more ? `${said} ${format(words.notices.joined_more, { count: event.more })}` : said;
+    } else if (event.kind === "text") {
+      status.textContent = event.text;
     } else {
       status.textContent = words.notices[event.kind] || "";
     }
@@ -137,6 +144,7 @@ function editorFor(element, draft, words, report, { onClose = null } = {}) {
     validate: (text) => validate(text, spec),
     convert: (text) => convert(text, spec, schema, tokenMap, (doc) => serialize(doc, { oneLine: true })),
     refusal: (text) => report({ kind: "lines", text }),
+    notice: report,
   });
   const editor = {
     view: null,
@@ -167,24 +175,47 @@ function editorFor(element, draft, words, report, { onClose = null } = {}) {
     source.field.hidden = mode !== "source";
     if (mode === "rich") source.offer.hidden = true;
     if (tools) tools.hidden = mode !== "rich";
+    if (tools && mode !== "rich") for (const panel of tools.panels || []) panel.hidden = true;
     toggle.textContent = mode === "rich" ? words.labels.source : words.labels.rich;
   }
+
+  // Images are added only where the page takes uploads: the edit tab, not a test page. Each batch
+  // in flight is kept, so closing the editor waits for it to be placed and captured.
+  editor.uploads = new Set();
+  const images = element.dataset.imageUpload
+    ? {
+        add: (files, pos = null) => {
+          const job = addImages(files, { schema, element, editor, report, pos });
+          editor.uploads.add(job);
+          job.finally(() => editor.uploads.delete(job));
+          return job;
+        },
+      }
+    : null;
+
+  // Marking where the page declares entities: the edit tab, its route on the element.
+  const marking = element.dataset.entities
+    ? { element, entities: draft.entities || [], editor: draft.editor }
+    : null;
 
   function richView(doc) {
     editor.view = new EditorView(surface, {
       state: EditorState.create({ doc, plugins: plugins() }),
-      ...pasteHandling(spec, report, (doc) => validate(serialize(doc), spec)),
+      ...pasteHandling(spec, report, (doc) => validate(serialize(doc), spec), images),
       dispatchTransaction(tr) {
         editor.view.updateState(editor.view.state.apply(tr));
         if (tr.docChanged && editor.capture) editor.capture.changed();
       },
     });
     editor.view.dom.addEventListener("focusout", () => editor.capture && editor.capture.flush());
-    tools = toolbar(editor.view, schema, words, report);
+    tools = toolbar(editor.view, schema, words, report, images, marking);
     bar.insertBefore(tools, toggle);
+    for (const panel of tools.panels || []) bar.insertBefore(panel, toggle);
   }
 
   function toSource() {
+    source.quiet();
+    source.hold(false);
     shown = serialize(editor.view.state.doc, { oneLine: true });
     source.field.value = shown;
     report({ kind: "lines", text: "" });
@@ -193,6 +224,7 @@ function editorFor(element, draft, words, report, { onClose = null } = {}) {
   }
 
   function toRich() {
+    source.quiet();
     const text = source.field.value;
     if (editor.view && text === shown) {
       show("rich");
@@ -200,9 +232,11 @@ function editorFor(element, draft, words, report, { onClose = null } = {}) {
     }
     const refusals = validate(text, spec);
     if (refusals.length) {
+      source.hold(true);
       report({ kind: "lines", text: source.describe(refusals) });
       return false;
     }
+    source.hold(false);
     if (editor.view) editor.replace(text);
     else richView(parser.parse(text));
     report({ kind: "lines", text: "" });
@@ -218,6 +252,7 @@ function editorFor(element, draft, words, report, { onClose = null } = {}) {
   if (draft.verdict.state === "refused") {
     source.field.value = draft.body;
     show("source");
+    source.hold(true);
     report({ kind: "lines", text: source.describe(draft.verdict.refusals) });
   } else {
     richView(parser.parse(draft.body));

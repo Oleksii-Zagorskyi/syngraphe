@@ -1,5 +1,6 @@
 """Loading a prepared folder as a document (DL-0341, DL-0348): created as any other document, its
-text and attachments committed as one version, and that version accepted — each act by a named
+text, its attachments and the entities its text marks committed as one version, and that
+version accepted — each act by a named
 member through the services the interface calls.
 
 Every check runs before anything is written; a failure after the document exists names the step
@@ -12,7 +13,7 @@ import dataclasses
 import hashlib
 import os
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,7 @@ from django.db import connection, transaction
 
 from access.models import AccessGroup, DocumentGroup, GroupMember
 from access.rights import Right, rights_on
-from documents import bundle, gitstore
+from documents import bundle, entities, gitstore
 from documents.identity import identity_for
 from documents.locks import document_lock
 from documents.models import (
@@ -39,7 +40,16 @@ from editing.markdown import load_spec
 from editing.markdown.parser import parser
 from editing.markdown.validator import validate
 from editing.models import Hold
-from editing.normalizer import RULESET, Lists, NormalizerDefect, TooLarge, normalize, trailer
+from editing.normalizer import (
+    RULESET,
+    Lists,
+    NormalizerDefect,
+    TooLarge,
+    joined,
+    normalize,
+    trailer,
+)
+from editing.normalizer.headings import strip_own_numbers
 from editing.normalizer.spellings import OutsideWhitelist
 from identity.models import Language, Membership, MembershipState, User
 from tenancy.models import Tenant
@@ -94,6 +104,16 @@ class Prepared:
     body: str
     normalised: str
     files: list[tuple[str, str, bytes]]  # file name, title, bytes
+    # What the load changes and says so, never refusing for it: lines joined (DL-0441).
+    notices: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class Loaded:
+    """The loaded document, and the notices its load gave."""
+
+    document: Document
+    notices: list[str]
 
 
 def _nfc(name: str) -> str:
@@ -232,7 +252,7 @@ def _check_body(body: str, reasons: list[str]) -> None:
                 source = str(child.attrs.get("src", ""))
                 reasons.append(
                     f"line {(token.map or [0])[0] + 1}: the image reference {source!r}; "
-                    "images arrive later"
+                    "the loader takes no images; add them in the editor after loading"
                 )
 
 
@@ -262,6 +282,8 @@ def check(folder: Path, loader: User, group: AccessGroup) -> Prepared:
     if not folder.is_dir():
         raise Refused(folder, ["not a folder"])
     description, body, present = _read_folder(folder, reasons, load_spec().max_bytes)
+    # A heading's own number is the outline's to give, never stored (DL-0441).
+    body = strip_own_numbers(body) if body else body
     title, language, named = _check_description(description, present, reasons)
     if body:
         _check_body(body, reasons)
@@ -298,10 +320,27 @@ def check(folder: Path, loader: User, group: AccessGroup) -> Prepared:
                 reasons.append(
                     "the text is the template's and there are no attachments; nothing to load"
                 )
+            if len(_declared(normalised).encode("utf-8")) > entities.MAX_BYTES:
+                reasons.append(
+                    f"{holds.ENTITIES} would be over the limit of {entities.MAX_BYTES} bytes: "
+                    "the text marks more roles, actions and terms than the platform accepts"
+                )
     if reasons:
         raise Refused(folder, reasons)
     assert language is not None
-    return Prepared(title, language, body, normalised, files)
+    try:
+        found = joined(body, Lists.of(language))
+    except (NormalizerDefect, OutsideWhitelist):
+        # The notices say what the load changes, and never stop it.
+        found = []
+    notices = [f"line {line} is joined with the next" for line in found]
+    return Prepared(title, language, body, normalised, files, notices)
+
+
+def _declared(normalised: str) -> str:
+    """The `entities.yaml` the loaded version holds: every role, action and term the text marks,
+    declared from its words, as a commit from the editor declares it (DL-0440)."""
+    return entities.declared_with("[]\n", normalised)
 
 
 def _template_body(title: str, language: Language) -> str:
@@ -332,8 +371,9 @@ def _frontmatter(
     return bundle.Frontmatter(title=title, language=language.code, attachments=_parts(files))
 
 
-def load(folder: Path, loader: User, group: AccessGroup) -> Document:
-    """The folder as a document whose one content version is accepted as `0.1`."""
+def load(folder: Path, loader: User, group: AccessGroup) -> Loaded:
+    """The folder as a document whose one content version is accepted as `0.1`, with the notices
+    its check gave."""
     from editing.services import ask_authorship, derive_committed
     from review.services import accept, settle_head
 
@@ -366,7 +406,7 @@ def load(folder: Path, loader: User, group: AccessGroup) -> Document:
         DocumentGroup.link(document, group, by=loader)
     except Exception as error:
         raise Stopped(document.number, 2, error) from error
-    # (3) The text and the attachments as one version, under the writer lock.
+    # (3) The text, the attachments and the entities as one version, under the writer lock.
     try:
         with document_lock(tenant_number, document.number, timeout=holds.LOCK_WAIT_SECONDS):
             settle_head(document)
@@ -394,6 +434,11 @@ def load(folder: Path, loader: User, group: AccessGroup) -> Document:
                 files = {BODY: bundle.render(stored, normalised).encode("utf-8")}
                 for number, (_, _, data) in enumerate(prepared.files, 1):
                     files[f"attachments/{number}"] = data
+                declared = _declared(normalised).encode("utf-8")
+                if len(declared) > entities.MAX_BYTES:
+                    raise ValueError(f"{holds.ENTITIES} is over the limit")
+                if declared != holds.entities_at(repo, head).encode("utf-8"):
+                    files[holds.ENTITIES] = declared
             sha = gitstore.commit(
                 repo,
                 files,
@@ -412,4 +457,4 @@ def load(folder: Path, loader: User, group: AccessGroup) -> Document:
         accept(document, loader, confirmed=sha)
     except Exception as error:
         raise Stopped(document.number, 4, error) from error
-    return document
+    return Loaded(document, prepared.notices)

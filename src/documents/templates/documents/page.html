@@ -20,6 +20,7 @@
     {% include "rendering/panes_panel.html" %}
   </div>
   <script src="{% static 'rendering/outline.js' %}" defer></script>
+  <script src="{% static 'rendering/panel.js' %}" defer></script>
   {% else %}
   {% include "documents/tabs.html" %}
   {% block tab %}{% include "documents/info.html" %}{% endblock %}

@@ -247,7 +247,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Idea.** The `render` service has no route off its network (ADR-0013), but it holds what every application process holds: the database role the stack was initialised with, the secret key and the whole broker. A flaw in a layout engine parsing a document could leave through those rather than through the network — a query run inside the database, a task put on another worker's queue. Give `render` a database role of its own that reads the tables an export reads and writes only the export's row, a broker user limited to its own queue and results, and no secret key.
 
-**Why it is parked.** The text a renderer parses is escaped and its images are read as their descriptions, so the path needs a flaw in a native parser first; the split touches the backup design, which uses the stack's role, and the configuration reader, which requires the secret key of every process.
+**Why it is parked.** The text a renderer parses is escaped, and the images it is given are PNG, JPEG or GIF that passed the platform's checks and stripping (DL-0242, T-06), so the path needs a flaw in a native image decoder first; the split touches the backup design, which uses the stack's role, and the configuration reader, which requires the secret key of every process.
 
 **What has to be true before it is taken up.** Before the first production deploy.
 
@@ -275,7 +275,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
-**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+**Done in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
 ## B-041 — Telling the author that single line breaks are joined
 
@@ -285,7 +285,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
-**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+**Done in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
 ## B-042 — A leading heading number stripped on load or paste
 
@@ -295,7 +295,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The whitelist is next opened.
 
-**Taken up in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
+**Done in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
 ## B-043 — Three controls drawn out of proportion
 
@@ -368,3 +368,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** Release 0.1's picker picks or declares (ST-0026); the review surface already lists an entity relabelled or removed, so adding the controls later redoes nothing.
 
 **What has to be true before it is taken up.** Authors meet entities declared with a wrong label, or left unused, often enough to ask for a way to correct them.
+
+## B-11-001 — An export's images, or a draft's, held to a budget
+
+**Idea.** An export reads every image it shows before any writer runs, and holds them in memory together; a draft stages images each under the upload maximum, with no cap on how many. Either the images could be read to disk in the export's scratch folder as they are found, so a worker holds one at a time, or a draft and a document could carry an image budget — a total size, named in configuration — refused at the upload that would pass it.
+
+**Why it is parked.** Reading every image first is what lets a job fail with its reason when a draft's image is gone, which a writer's own fetch could not say; the documents the platform is built for hold few images, and no measurement yet shows an export near a worker's memory.
+
+**What has to be true before it is taken up.** An export comes near a worker's memory limit, or a document's images together pass a size an installation names as its ceiling.

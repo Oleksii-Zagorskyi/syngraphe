@@ -22,6 +22,7 @@ dependencies = [
     "weasyprint>=70",
     "pypandoc-binary>=1.17",
     "cryptography>=44",
+    "pillow>=12.3,<13",
 ]
 
 [dependency-groups]

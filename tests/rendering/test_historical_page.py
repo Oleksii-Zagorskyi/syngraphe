@@ -1,6 +1,7 @@
 """The historical page (DL-0195, DL-0209, DL-0286, DL-0334, DL-0421, ADR-0007): one version shown
 read-only at `/document/<n>/version/<number>/` to a reader whose ceiling reaches it, with its
-outline, its export and its attachments as that version lists them; every other number answers as
+outline, its export, its attachments as that version lists them and its generated views; every
+other number answers as
 a missing document does. The links that name a version — the canonical edition in the header and
 the folder list, the version a correction notice or a notification concerns — lead to it.
 
@@ -392,3 +393,35 @@ def test_canonical_reader_opens_the_edition(
     # segment to link (DL-0352); the edition's own page opens for them all the same.
     assert "Viewing canonical 1.0" in view.content.decode()
     assert canonical.client.get(f"/document/{number}/version/1.0/").status_code == 200
+
+
+def test_generated_views_at_a_version(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """The directory and *see also* of the version shown, not of the latest."""
+    from access.rights import Right
+
+    settings.LANGUAGE_CODE = "en"
+    client, author, membership = member_of("the.author@example.test")
+    document = new_document(author)
+    link_group(document, [Right.EDIT, Right.VIEW_ALL_HISTORY], [membership], author)
+    roles = '- kind: "role"\n  key: "clerk"\n  label: "the clerk"\n'
+    commit_version(
+        document,
+        author,
+        "The [clerk]{.role #clerk} files it, as [the old rules]{.document #4096} say.\n",
+        files={"entities.yaml": roles.encode()},
+    )
+    commit_version(document, author, "Nobody files it.\n", files={"entities.yaml": b"[]\n"})
+
+    earlier = client.get(f"/document/{document.number}/version/0.0-1/").content.decode()
+    latest = client.get(f"/document/{document.number}/").content.decode()
+
+    assert "the clerk" in earlier[earlier.index('class="role-directory"') :]
+    assert "the old rules" in earlier[earlier.index('class="see-also"') :]
+    assert 'class="role-directory"' not in latest and "the old rules" not in latest

@@ -14,6 +14,7 @@ From the renderer's contract, never from the renderer. The parse is the shared r
 | Soft break | One space |
 | Image | Its alt text, escaped, and nothing else |
 | Link | markdown-it's own tag, with `rel="noopener noreferrer"` after its other attributes |
+| Mention | Its words alone: no element of its own; what stands inside it as it renders anywhere |
 
 Every heading, and every paragraph outside a table, opens with its clause number — `<span class="num">LABEL</span>` and one space — derived as DL-0065, DL-0327 and DL-0330 decide. A table's cells and a paragraph holding only an image take no number, and the image's paragraph does not advance the count.
 

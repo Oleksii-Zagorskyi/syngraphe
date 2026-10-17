@@ -1,4 +1,5 @@
 {% extends "documents/page.html" %}
 {% block tab %}
-<div class="changes document-text">{{ changes }}</div>
+{% load i18n %}<div class="changes document-text">{{ changes }}</div>
+{% translate "Roles, actions and terms this draft changes" as heading %}{% include "editing/entity_changes.html" with heading=heading %}
 {% endblock %}

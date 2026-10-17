@@ -260,3 +260,27 @@ def test_two_editors_keystroke_measurement(tab: Any, page: Any) -> None:
     p95 = times[int(len(times) * 0.95) - 1]
     print(f"two section editors, forty pages: p95 {p95:.1f} ms over {len(times)} keystrokes")
     assert p95 <= 50
+
+
+def test_a_declaration_reaches_every_open_picker(tab: Any, page: Any) -> None:
+    """A role declared in one section's editor is offered at once by another's picker, open
+    while it was declared: the page keeps one list of the draft's declarations."""
+    tab(BODY)
+    open_section(page, 0)
+    open_section(page, 1)
+    first = ".section-editor[data-ordinal='0']"
+    second = ".section-editor[data-ordinal='1']"
+    page.click(f"{second} button[data-command=mark]")
+    page.select_option(f"{second} select[data-field=mark-kind]", "role")
+
+    page.evaluate(f"{section(0)}.select(5, 10)")
+    page.click(f"{first} button[data-command=mark]")
+    page.select_option(f"{first} select[data-field=mark-kind]", "role")
+    page.fill(f"{first} input[data-field=mark-label]", "the clerk")
+    page.click(f"{first} button[data-field=mark-declare]")
+    page.wait_for_function(f"{section(0)}.markdown().includes('#role-1')")
+
+    assert (
+        page.locator(f"{second} button[data-entity=role-1]").text_content(timeout=2000)
+        == "the clerk"
+    )

@@ -8,3 +8,9 @@ The **View** tab shows a document's text as it reads, never as it is written. It
 - **Info** names the canonical version, if the document has one, and the document's state as the version you read shows it.
 
 Each pane closes to a narrow strip with the button at its top, and opens again the same way.
+
+## Mentions and generated views
+
+A **mention** of another document reads as a link to it where you may read that document, and as its words alone where you may not.
+
+**Generated views**, the second button in the right pane, show the **role directory** — each role the document declares or marks, with every heading and clause marking it, linked to its place — and **see also**, each document this one mentions: its number and title where you may read it, the mention's words where not. A role marked without a key declares nothing: it is listed by its words, *not declared* beside them. The system works them out from the version shown.

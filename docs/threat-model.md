@@ -93,7 +93,7 @@ A second consequence worth stating: a development host that holds real tenant do
 
 ### T-06 — A malicious upload
 
-**Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export; a JPEG keeps its orientation tag alone (DL-0472).
+**Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps — 10 MB an image, or the platform's upload maximum `UPLOAD_MAX_MB` where that is lower (ASR-23), and at most 40 megapixels and 10,000 pixels a side, every frame of a GIF counted together (DL-0242, DL-11-007) — checked without decoding the image, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export; a JPEG keeps its orientation tag alone (DL-0472).
 
 ### T-07 — The record is altered
 

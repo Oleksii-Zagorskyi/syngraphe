@@ -144,3 +144,29 @@
 .capture-indicator[data-state="stale"] {
   color: var(--del);
 }
+
+/* An image stands alone in its paragraph, no wider than the text. */
+.editor-surface span.image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* A mention of another document: a link's colour with an entity's dotted underline, so it reads
+   apart from both. */
+.editor-surface .entity-document {
+  color: var(--accent);
+}
+
+/* *Mark*'s picker, beside the toolbar's controls: the kind, the declarations, a new label. */
+.entity-picker {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  margin-left: 0.3rem;
+}
+
+.entity-picker[hidden] {
+  display: none;
+}

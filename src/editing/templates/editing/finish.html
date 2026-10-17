@@ -5,6 +5,7 @@
   <h2>{% translate "Finish editing" %}</h2>
   <p class="muted">{% translate "Your changes, marked in the text. The summary is for the reviewer and is kept with the version; it starts from the sections you changed." %}</p>
   <div class="changes document-text">{{ changes }}</div>
+  {% translate "Roles, actions and terms this draft changes" as heading %}{% include "editing/entity_changes.html" with heading=heading %}
   <form method="post" action="/document/{{ document.number }}/edit/send/">
     {% csrf_token %}
     <label for="summary">{% translate "Change summary" %}</label>
