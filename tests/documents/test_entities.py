@@ -110,3 +110,13 @@ def test_spans_cost_what_the_parse_costs() -> None:
     started = time.perf_counter()
     assert len(list(entities.spans(body))) == 28_000
     assert time.perf_counter() - started < 3 * parsed + 0.2
+
+
+def test_kinds_follow_the_specification() -> None:
+    """An entity is a span of the specification's that names something the document defines: not
+    the underline, which is formatting, nor the mention, which names another document."""
+    from editing.markdown import load_spec
+
+    assert entities.KINDS == tuple(
+        kind for kind in load_spec().spans if kind not in ("underline", "document")
+    )

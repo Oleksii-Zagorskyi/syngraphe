@@ -3169,3 +3169,11 @@ msgstr "відкрити обидва в повному розмірі"
 #: editing/services.py
 msgid "your draft"
 msgstr "ваша чернетка"
+
+#: editing/messages.py
+msgid "a mention without a document number"
+msgstr "згадка без номера документа"
+
+#: editing/messages.py
+msgid "Mention of a document"
+msgstr "Згадка документа"

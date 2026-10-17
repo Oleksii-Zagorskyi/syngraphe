@@ -81,3 +81,21 @@ def test_refused_draft_opens_in_source_view(
     assert page.input_value("textarea[data-field=source]") == refused
     assert "line 3: HTML" in (page.text_content(".editor-status") or "")
     assert markdown() == refused
+
+
+def test_a_mention_without_a_number_converts_to_its_words(
+    editing: Any, markdown: Any, page: Any, settings: Any
+) -> None:
+    """A mention names a document by its number (DL-0436): one without a number is refused by name
+    and converts to its words; one with a number is taken as written."""
+    settings.LANGUAGE_CODE = "en"
+    editing("The start.\n")
+    page.click("button[data-command=source]")
+    page.evaluate(PASTE, "See [the payment procedure]{.document #twelve}.\n")
+    status = page.text_content(".editor-status") or ""
+    assert "line 1: a mention without a document number" in status
+    preview = page.text_content(".source-offer pre") or ""
+    assert preview == "See the payment procedure.\n"
+    page.fill("textarea[data-field=source]", "See [the payment procedure]{.document #12}.\n")
+    page.click("button[data-command=source]")
+    assert markdown() == "See [the payment procedure]{.document #12}.\n"

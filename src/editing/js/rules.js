@@ -79,7 +79,9 @@ export function attrSpan(state, silent) {
   state.md.inline.tokenize(state);
   state.pos = pos;
   state.posMax = maximum;
-  state.push(kindType + "_close", "span", -1);
+  // The close token says what it closes, so a rule rendering it alone — a mention's close — can.
+  const close = state.push(kindType + "_close", "span", -1);
+  close.meta = { kind: token.meta.kind, id: token.meta.id };
   state.pos = after;
   return true;
 }
@@ -317,6 +319,7 @@ function inline(children, block, spec, refuse) {
       if (span === null) refuse("span-attrs");
       else if (!Object.hasOwn(spec.spans, span)) refuse("span-type");
       else if (child.meta.id && !spec.spans[span]) refuse("span-id");
+      else if (span === "document" && !spec.mentionId.test(child.meta.id || "")) refuse("mention-id");
       if (following === kind.replace("_open", "_close")) refuse("span-empty");
       if (kind === "entity_open") {
         if (entities) refuse("span-nested");

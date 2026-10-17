@@ -23,6 +23,9 @@ from editing.markdown import load_spec
 from editing.markdown.rules import attr_span, callout, tidy
 from rendering.numbering import labels
 
+# The span that names another document (DL-0436): with no reader to decide for, its words alone.
+MENTION = "document"
+
 
 @dataclass(frozen=True)
 class RenderContext:
@@ -47,10 +50,18 @@ def _span_open(_renderer: Any, tokens: list[Token], i: int, *_: Any) -> str:
     if token.type == "underline_open":
         return '<span class="underline">'
     meta = token.meta or {}
+    if meta.get("kind") == MENTION:
+        return ""
     kind = escape(meta.get("kind") or "")
     identifier = meta.get("id")
     data = f' data-id="{escape(identifier)}"' if identifier else ""
     return f'<span class="entity entity-{kind}"{data}>'
+
+
+def _span_close(_renderer: Any, tokens: list[Token], i: int, *_: Any) -> str:
+    """What `_span_open` opened, read from the close token's own `meta`: a mention, which drew
+    nothing, closes nothing."""
+    return "" if (tokens[i].meta or {}).get("kind") == MENTION else "</span>"
 
 
 def _callout_open(_renderer: Any, tokens: list[Token], i: int, *_: Any) -> str:
@@ -105,7 +116,7 @@ def make_renderer() -> MarkdownIt:
         raise RuntimeError("raw HTML stays text: every html token is the platform's own")
     md.add_render_rule("entity_open", _span_open)
     md.add_render_rule("underline_open", _span_open)
-    md.add_render_rule("entity_close", lambda *_: "</span>")
+    md.add_render_rule("entity_close", _span_close)
     md.add_render_rule("underline_close", lambda *_: "</span>")
     md.add_render_rule("callout_open", _callout_open)
     md.add_render_rule("callout_close", lambda *_: "</div>\n")

@@ -17,6 +17,7 @@ function allowedLink(spec, href) {
 function allowedEntity(spec, kind, id) {
   if (!kind || kind === "underline" || !Object.hasOwn(spec.spans, kind)) return false;
   if (id && (!spec.spans[kind] || !IDENTIFIER.test(id))) return false;
+  if (kind === "document" && !spec.mentionId.test(id || "")) return false;
   return { kind, id: id || null };
 }
 

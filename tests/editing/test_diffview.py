@@ -148,6 +148,10 @@ def test_sense_and_style() -> None:
     assert classify("![Схема](images/a.png)", "![План](images/a.png)") is Change.SENSE
     assert classify("[Особа]{.role #r1} звітує.", "[Особа]{.role #r2} звітує.") is Change.SENSE
     assert classify("[Особа]{.role} звітує.", "[Особа]{.term} звітує.") is Change.SENSE
+    # A mention that now names another document is a change of sense (DL-0436).
+    assert classify("Див. [Порядок]{.document #12}.", "Див. [Порядок]{.document #13}.") is (
+        Change.SENSE
+    )
     assert classify("[Особа]{.underline} звітує.", "Особа звітує.") is Change.STYLE
 
 

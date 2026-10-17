@@ -160,10 +160,11 @@ tenant-N/document-M/          # repository root, one per document (DL-0111, ADR-
 | Emphasis | `*italic*`, `**bold**` | |
 | Underline | `[text]{.underline}` | An attributed span, not `<u>` |
 | Entity spans | `[CMO]{.role #cmo}` and the other types | Defined in `entities.yaml` |
+| Mentions | `[text]{.document #12}` | Another document named by its number: one to ten ASCII digits, the first 1 to 9; one without a number reads as its words; never inside an entity span, nor one inside it (DL-0436) |
 | Quotes | blockquote, `> text` | Paragraphs and lists inside; no nested quote, callout or table (DL-0238) |
 | Callouts | typed blockquote, `> [!note]` | Types: note, warning, example; paragraphs and lists inside, no nested quote, callout or table; the marker stands alone on its line, and text written after it moves to the first paragraph (DL-0238) |
 | Tables | pipe tables | At the top level only (DL-0239); no merged cells, no nested blocks; the row is the unit |
-| Images | `![alt](images/name.png)` | Repository-local paths only; every image stands as a paragraph of its own, however it arrives — one inside a sentence is refused (DL-0232, DL-0253) |
+| Images | `![alt](images/name.png)` | Repository-local paths only; every image stands as a paragraph of its own, however it arrives — one inside a sentence is refused (DL-0232, DL-0253); a reference to an image the document does not hold is refused when the text is committed (DL-0439) |
 | Links | `[text](url)` and repository-local paths | |
 
 Everything else is outside the subset: raw HTML, scripts, footnotes, definition lists, headings below depth four, task lists, nested tables, merged cells, horizontal rules, code blocks, math, and any remote image or stylesheet reference. The editor offers exactly the set above and nothing else; anything outside it is **rejected at edit time with a message**, never silently dropped. Pasted Markdown that falls outside the set is refused with the offending lines named, and the user is offered a conversion — removing or rewriting what the set does not allow — previewed before it is applied (DL-0171). The message links to a help page listing the set, generated from the same specification as the editor schema and the parser configuration.

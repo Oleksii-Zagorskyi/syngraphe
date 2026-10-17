@@ -6,7 +6,8 @@
     "underline": { "id": false },
     "role": { "id": true },
     "action": { "id": true },
-    "term": { "id": true }
+    "term": { "id": true },
+    "document": { "id": true }
   },
   "calloutTypes": ["note", "warning", "example"],
   "quotes": true,
@@ -15,6 +16,7 @@
   "imageAlone": true,
   "imageSrc": "^images/[A-Za-z0-9][A-Za-z0-9._-]*$",
   "linkSchemes": "^(https?:|mailto:|(?![/\\\\]{2})[^:]*$)",
+  "mentionId": "^[1-9][0-9]{0,9}$",
   "refusals": {
     "heading-depth": { "convert": "heading-to-max-depth" },
     "heading-nested": { "convert": "lift-after-parent" },
@@ -46,7 +48,8 @@
     "unsupported": { "convert": "unwrap-text" },
     "control-character": { "convert": "remove" },
     "too-large": { "convert": "none" },
-    "image-missing": { "convert": "none" }
+    "image-missing": { "convert": "none" },
+    "mention-id": { "convert": "unwrap-text" }
   },
   "maxBytes": 400000
 }

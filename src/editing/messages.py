@@ -41,6 +41,7 @@ CONSTRUCTS = {
     "too-large": _("a text longer than the platform accepts"),
     "table-merged": _("a merged table cell"),
     "image-missing": _("an image the document does not hold"),
+    "mention-id": _("a mention without a document number"),
 }
 
 LABELS = {
@@ -158,6 +159,7 @@ SPAN_NAMES = {
     "role": _("Entity: role"),
     "action": _("Entity: action"),
     "term": _("Entity: term"),
+    "document": _("Mention of a document"),
 }
 
 # The help pages shipped with the application, by address, in their order.

@@ -98,7 +98,9 @@ def attr_span(state: StateInline, silent: bool) -> bool:
     state.md.inline.tokenize(state)
     state.pos = pos
     state.posMax = maximum
-    state.push(kind_type + "_close", "span", -1)
+    # The close token says what it closes, so a rule rendering it alone — a mention's close — can.
+    close = state.push(kind_type + "_close", "span", -1)
+    close.meta = {"kind": token.meta["kind"], "id": token.meta["id"]}
     state.pos = m.end()
     return True
 
@@ -345,6 +347,8 @@ def _inline(
                 refuse("span-type")
             elif child.meta.get("id") and not spec.spans[span]:
                 refuse("span-id")
+            elif span == "document" and not spec.mention_id.match(child.meta.get("id") or ""):
+                refuse("mention-id")
             if following == kind.replace("_open", "_close"):
                 refuse("span-empty")
             if kind == "entity_open":

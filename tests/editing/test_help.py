@@ -26,6 +26,8 @@ def test_allowed_markdown_generated_from_spec(member_of: Any, settings: Any) -> 
         assert kind in body
     assert f"down to level {spec.heading_max_depth}" in body
     assert f"down to {spec.list_max_depth} levels" in body
+    # A mention is written with a document's number, not an entity's key.
+    assert "[…]{.document #12}" in body
     assert "<script" not in body.split("<main")[1]
     # Nothing else: the refusals table has one row per refusal and conversion, no more.
     from editing.views.help import refused

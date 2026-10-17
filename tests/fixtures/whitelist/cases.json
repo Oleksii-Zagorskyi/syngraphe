@@ -1939,5 +1939,236 @@
       }
     ],
     "note": "An ordered item that begins with another list is refused inside a callout too."
+  },
+  {
+    "id": "accept-mention",
+    "kind": "accept",
+    "input": "Порядок зберігання описано в [положенні про архів]{.document #12}.\n",
+    "stored": "Порядок зберігання описано в [положенні про архів]{.document #12}.\n",
+    "note": "A sentence holding one mention of another document by its number is stored as written."
+  },
+  {
+    "id": "accept-mention-in-list",
+    "kind": "accept",
+    "input": "- перевірити підпис\n- звірити з [інструкцією з діловодства]{.document #7}\n- передати до архіву\n",
+    "stored": "- перевірити підпис\n- звірити з [інструкцією з діловодства]{.document #7}\n- передати до архіву\n",
+    "note": "A bullet list item holds a mention, here of a one-digit number."
+  },
+  {
+    "id": "accept-mention-beside-role",
+    "kind": "accept",
+    "input": "[Секретар]{.role #sekretar} реєструє звернення за [порядком реєстрації]{.document #305}.\n",
+    "stored": "[Секретар]{.role #sekretar} реєструє звернення за [порядком реєстрації]{.document #305}.\n",
+    "note": "A mention and a role span stand side by side in one sentence."
+  },
+  {
+    "id": "refuse-mention-without-id",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 1
+      }
+    ],
+    "note": "A mention with no identifier is refused for its identifier alone."
+  },
+  {
+    "id": "refuse-mention-word-id",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #twelve}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 1
+      }
+    ],
+    "note": "A mention whose identifier is a word, not a document number, is refused for its identifier."
+  },
+  {
+    "id": "refuse-mention-in-role",
+    "kind": "refuse",
+    "input": "Відповідає [[автор положення]{.document #12}]{.role #avtor}.\n",
+    "refusals": [
+      {
+        "code": "span-nested",
+        "line": 1
+      }
+    ],
+    "note": "A mention inside a role span is an entity span inside another and is refused as nested."
+  },
+  {
+    "id": "refuse-mention-holding-role",
+    "kind": "refuse",
+    "input": "Див. [наказ, який підписує [директор]{.role #dyrektor}]{.document #12}.\n",
+    "refusals": [
+      {
+        "code": "span-nested",
+        "line": 1
+      }
+    ],
+    "note": "A role span inside a mention is an entity span inside another and is refused as nested."
+  },
+  {
+    "id": "refuse-mention-id-zero",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #0}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 1
+      }
+    ],
+    "note": "Zero is not a document number."
+  },
+  {
+    "id": "refuse-mention-id-leading-zero",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #012}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 1
+      }
+    ],
+    "note": "A document number with a leading zero is refused."
+  },
+  {
+    "id": "refuse-mention-id-letter-suffix",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #12a}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 1
+      }
+    ],
+    "note": "A number followed by a letter is not a document number."
+  },
+  {
+    "id": "accept-mention-ten-digits",
+    "kind": "accept",
+    "input": "Див. [реєстр наказів]{.document #9876543210}.\n",
+    "stored": "Див. [реєстр наказів]{.document #9876543210}.\n",
+    "note": "A ten-digit document number, the longest allowed, is accepted."
+  },
+  {
+    "id": "refuse-mention-eleven-digits",
+    "kind": "refuse",
+    "input": "Див. [реєстр наказів]{.document #98765432101}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 1
+      }
+    ],
+    "note": "An eleven-digit number is longer than a document number may be."
+  },
+  {
+    "id": "refuse-mention-empty",
+    "kind": "refuse",
+    "input": "Див. []{.document #12}.\n",
+    "refusals": [
+      {
+        "code": "span-empty",
+        "line": 1
+      }
+    ],
+    "note": "A mention with no words is refused as an empty span."
+  },
+  {
+    "id": "refuse-mention-without-id-later-line",
+    "kind": "refuse",
+    "input": "Перший абзац розділу.\n\nДив. [положення про архів]{.document}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 3
+      }
+    ],
+    "note": "A refused mention names the line it stands on, here the third."
+  },
+  {
+    "id": "accept-mention-bold-inside",
+    "kind": "accept",
+    "input": "Див. [**положення про архів**]{.document #12}.\n",
+    "stored": "Див. [**положення про архів**]{.document #12}.\n",
+    "note": "Bold nests inside a mention, the mention outermost."
+  },
+  {
+    "id": "accept-mention-link-inside",
+    "kind": "accept",
+    "input": "Див. [[положення про архів](appendices/polozhennia.md)]{.document #12}.\n",
+    "stored": "Див. [[положення про архів](appendices/polozhennia.md)]{.document #12}.\n",
+    "note": "A link nests inside a mention, the mention outermost."
+  },
+  {
+    "id": "accept-mention-in-heading",
+    "kind": "accept",
+    "input": "# Строки за [положенням про архів]{.document #12}\n\nЦей розділ описує строки зберігання.\n",
+    "stored": "# Строки за [положенням про архів]{.document #12}\n\nЦей розділ описує строки зберігання.\n",
+    "note": "A heading may hold a mention, and the paragraph after it is numbered as without one."
+  },
+  {
+    "id": "accept-mention-in-table-cell",
+    "kind": "accept",
+    "input": "| Етап | Підстава |\n| --- | --- |\n| зберігання | [положення про архів]{.document #12} |\n",
+    "stored": "| Етап | Підстава |\n| --- | --- |\n| зберігання | [положення про архів]{.document #12} |\n",
+    "note": "A table cell holds a mention."
+  },
+  {
+    "id": "accept-mention-in-callout",
+    "kind": "accept",
+    "input": "> [!note]\n> Див. [положення про архів]{.document #12}.\n",
+    "stored": "> [!note]\n> Див. [положення про архів]{.document #12}.\n",
+    "note": "A callout holds a mention."
+  },
+  {
+    "id": "edge-mention-id-hyphen",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #12-13}.\n",
+    "refusals": [
+      {
+        "code": "mention-id",
+        "line": 1
+      }
+    ],
+    "note": "An identifier of characters an identifier may hold but not a document number is refused for the mention's identifier, not its attributes."
+  },
+  {
+    "id": "edge-mention-id-cyrillic",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #дванадцять}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "An identifier with Cyrillic letters is refused as for every span."
+  },
+  {
+    "id": "edge-mention-id-numero-sign",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #№12}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "An identifier holding the numero sign, a character no identifier holds, is refused as for every span."
+  },
+  {
+    "id": "edge-mention-id-slash",
+    "kind": "refuse",
+    "input": "Див. [положення про архів]{.document #12/2025}.\n",
+    "refusals": [
+      {
+        "code": "span-attrs",
+        "line": 1
+      }
+    ],
+    "note": "An identifier holding a slash, punctuation no identifier holds, is refused as for every span and not as a mention identifier."
   }
 ]
