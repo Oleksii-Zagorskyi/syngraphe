@@ -294,8 +294,20 @@ def test_a_file_staged_after_the_stop_is_the_next_version(
     with schema_context(migrated_tenant.number):
         repo = gitstore.open_repository(migrated_tenant.number, document.number)
         stopped = gitstore.head(repo)
+        draft = Draft.objects.get(hold=hold)
+        # Listed by the draft as the parts services list an upload, so row and entry agree.
+        draft.content["frontmatter"]["attachments"] = [
+            {
+                "number": 1,
+                "title": "Synthetic form (example)",
+                "file_name": "form.txt",
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "bytes": len(data),
+            }
+        ]
+        draft.save()
         DraftFile.objects.create(
-            draft=Draft.objects.get(hold=hold),
+            draft=draft,
             kind="attachment",
             path="attachments/1",
             operation="add",
@@ -310,3 +322,63 @@ def test_a_file_staged_after_the_stop_is_the_next_version(
         ]
         assert gitstore.read(repo, "attachments/1", version.commit_sha) == data
         assert Version.objects.filter(document=document, kind="edit").count() == 2
+
+
+def test_a_part_staged_after_a_stop_is_kept(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    queued_authorship: list[Any],
+) -> None:
+    """Only an attachment renamed after the stop is later work all the same: the reconciler names
+    the stop and deletes nothing, and the next send commits the rename as the version after it."""
+    import hashlib
+
+    from documents import bundle, gitstore, reconcile
+    from documents.models import Version
+    from editing import parts, services
+    from editing.models import Draft, Hold
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    data = b"a synthetic form"
+    entry = {
+        "number": 1,
+        "title": "Request form (example)",
+        "file_name": "form.txt",
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+    }
+    commit_version(
+        document,
+        author,
+        "A synthetic sentence.\n",
+        files={"attachments/1": data},
+        attachments=[entry],
+    )
+    client.post(f"/document/{document.number}/edit/take/")
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document, released_at__isnull=True)
+        draft = Draft.objects.get(hold=hold)
+        draft.content = {**draft.content, "document.md": "A synthetic sentence, extended.\n"}
+        draft.save()
+        with pytest.raises(services.InjectedFault):
+            services.commit_draft(hold, author, "Extended", fault_at=1)
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        stopped = gitstore.head(repo)
+        parts.rename_attachment(document, author, 1, title="Renamed form (example)")
+
+    findings = reconcile.run(tenant=migrated_tenant.number, repair=True)
+
+    stop = [f for f in findings if f.kind == "finish_stopped"]
+    assert stop and not stop[0].repaired and "later work" in stop[0].detail
+    with schema_context(migrated_tenant.number):
+        assert Draft.objects.filter(pk=draft.pk).exists()
+        version = services.commit_draft(Hold.objects.get(pk=hold.pk), author, "Renamed")
+        assert [str(p.id) for p in gitstore.commit_at(repo, version.commit_sha).parents] == [
+            stopped
+        ]
+        text = gitstore.read(repo, "document.md", version.commit_sha).decode()
+        assert bundle.parse(text)[0].attachments[0]["title"] == "Renamed form (example)"
+        assert Version.objects.filter(document=document, commit_sha=stopped).exists()

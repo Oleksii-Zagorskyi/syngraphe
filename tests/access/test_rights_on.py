@@ -95,7 +95,16 @@ def test_author_only_and_administrators(
             )
         }
 
-    assert results["creator"] == {Right.EDIT} | VIEWS
+    # The author of an author-only document carries its forms from the first draft (DL-0445).
+    assert (
+        results["creator"]
+        == {
+            Right.EDIT,
+            Right.UPLOAD_ATTACHMENT,
+            Right.REPLACE_ATTACHMENT,
+        }
+        | VIEWS
+    )
     assert results["admin"] == VIEWS | HISTORY
     assert results["operator"] == VIEWS | HISTORY
     assert results["stranger"] == frozenset()

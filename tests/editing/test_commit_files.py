@@ -45,14 +45,37 @@ def write(tenant: Any, draft: Any, **content: Any) -> None:
         draft.save()
 
 
+def entry(number: int, data: bytes) -> dict[str, Any]:
+    """An attachment as the frontmatter lists it, named as `stage` names its file."""
+    return {
+        "number": number,
+        "title": f"Synthetic attachment {number}",
+        "file_name": str(number),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+    }
+
+
 def stage(
     tenant: Any, draft: Any, kind: str, path: str, operation: str, data: bytes | None
 ) -> None:
+    """A staged row; an attachment's under `attachments/<n>` listed by the draft as the parts
+    services list it, so the row and the list describe one file."""
     from django.utils import timezone
 
     from editing.models import DraftFile
 
     with schema_context(tenant.number):
+        number = path.removeprefix("attachments/")
+        if kind == "attachment" and number.isdigit():
+            draft.refresh_from_db()
+            listed = draft.content["frontmatter"]["attachments"]
+            at = next((i for i, e in enumerate(listed) if e["number"] == int(number)), None)
+            if at is not None:
+                listed.pop(at)
+            if data is not None:
+                listed.insert(len(listed) if at is None else at, entry(int(number), data))
+            draft.save()
         DraftFile.objects.create(
             draft_id=draft.pk,
             kind=kind,
@@ -85,15 +108,22 @@ def test_one_commit_writes_every_staged_path(
     migrated_tenant: Any,
     member_of: Any,
     new_document: Any,
+    link_group: Any,
     commit_version: Any,
     queued_authorship: list[Any],
 ) -> None:
+    from access.rights import Right
     from documents import gitstore
     from editing import services
 
-    client, author, _ = member_of("the.author@example.test")
+    client, author, own = member_of("the.author@example.test")
     document = new_document(author)
-    before = commit_version(document, author, BODY, files={"attachments/1": b"an old attachment"})
+    rights = [Right.EDIT, Right.CREATE_APPENDIX, Right.UPLOAD_ATTACHMENT, Right.DELETE_ATTACHMENT]
+    link_group(document, rights, [own], author)
+    old = b"an old attachment"
+    before = commit_version(
+        document, author, BODY, files={"attachments/1": old}, attachments=[entry(1, old)]
+    )
     hold, draft = held(client, migrated_tenant, document)
     kept, dropped = b"a synthetic image kept", b"a synthetic image dropped"
     appendix = "# Synthetic appendix\n\nAn appendix sentence.\n"
@@ -146,7 +176,8 @@ def test_an_unreferenced_image_leaves_the_tree(
         files={
             name(body_image): body_image,
             name(appendix_image): appendix_image,
-            "appendices/1.md": "An appendix sentence.\n\n" + picture(appendix_image),
+            "appendices/1.md": "# Synthetic appendix\n\nAn appendix sentence.\n\n"
+            + picture(appendix_image),
         },
         appendices=APPENDIX,
     )
@@ -178,6 +209,7 @@ def test_nothing_changed_counts_files_and_entities(
         author,
         BODY + "\n" + picture(image),
         files={name(image): image, "attachments/1": b"an attachment the head holds"},
+        attachments=[entry(1, b"an attachment the head holds")],
     )
     declared = entities.dump([entities.Declared("role", "approver", "the approver")])
 
@@ -225,7 +257,13 @@ def test_a_missing_image_is_refused_by_its_file_and_line(
     settings.LANGUAGE_CODE = "en"
     client, author, _ = member_of("the.author@example.test")
     document = new_document(author)
-    commit_version(document, author, BODY, appendices=[{"number": 2, "title": "Synthetic"}])
+    commit_version(
+        document,
+        author,
+        BODY,
+        appendices=[{"number": 2, "title": "Synthetic"}],
+        files={"appendices/2.md": b"# Synthetic\n"},
+    )
     hold, draft = held(client, migrated_tenant, document)
     in_body, in_appendix = b"an image nobody uploaded", b"another image nobody uploaded"
     write(
@@ -233,12 +271,12 @@ def test_a_missing_image_is_refused_by_its_file_and_line(
         draft,
         **{
             "document.md": BODY + "\n" + picture(in_body),
-            "appendices/2.md": "An appendix sentence.\n\n" + picture(in_appendix),
+            "appendices/2.md": "# Synthetic\n\nAn appendix sentence.\n\n" + picture(in_appendix),
         },
     )
     expected = [
         services.MissingImage(5, "image-missing", "document.md"),
-        services.MissingImage(3, "image-missing", "appendices/2.md"),
+        services.MissingImage(5, "image-missing", "appendices/2.md"),
     ]
     with schema_context(migrated_tenant.number):
         repo = repository(migrated_tenant, document)
@@ -256,7 +294,7 @@ def test_a_missing_image_is_refused_by_its_file_and_line(
     page = client.get(f"/document/{document.number}/edit/finish/").content.decode()
     assert "line 5: an image the document does not hold" in page
     # An appendix is named by its title, and a missing image is not refused text (DL-11-004).
-    assert "appendix «Synthetic», line 3: an image the document does not hold" in page
+    assert "appendix «Synthetic», line 5: an image the document does not hold" in page
     assert "The draft refers to an image the document does not hold" in page
     assert "text the editor does not accept" not in page
 
@@ -273,7 +311,9 @@ def test_undeclared_spans_are_declared_at_commit(
 
     client, author, _ = member_of("the.author@example.test")
     document = new_document(author)
-    commit_version(document, author, BODY, appendices=APPENDIX)
+    commit_version(
+        document, author, BODY, appendices=APPENDIX, files={"appendices/1.md": b"# Synthetic\n"}
+    )
     hold, draft = held(client, migrated_tenant, document)
     write(
         migrated_tenant,
@@ -284,7 +324,7 @@ def test_undeclared_spans_are_declared_at_commit(
                 "[The approving officer]{.role #approver} signs it.\n\n"
                 "[The clerk]{.role} files it.\n"
             ),
-            "appendices/1.md": "[The auditor]{.role #auditor} reads it.\n",
+            "appendices/1.md": "# Synthetic\n\n[The auditor]{.role #auditor} reads it.\n",
         },
     )
 

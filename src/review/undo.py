@@ -681,7 +681,7 @@ def _stage_images(repo: Any, draft: Any, head: str | None, undone: Collection[st
     staged = set(draft.files.filter(kind=DraftFileKind.IMAGE).values_list("path", flat=True))
     wanted = [
         reference.src
-        for reference in images.referenced(draft_texts(draft, repo, head))
+        for reference in images.referenced(draft_texts(draft, repo))
         if images.is_image_path(reference.src)
         and reference.src not in in_tree
         and reference.src not in staged

@@ -4,7 +4,7 @@ A hold is opened under the document's writer lock and, inside it, with the docum
 `select_for_update()` — the lock under which its group links change — and the right to edit is
 decided there, so a link removed while the taker waited is seen. The draft starts as the head's
 text: the frontmatter kept apart, the body what every editor, the validator and the normalizer see,
-and the head's `entities.yaml` beside them.
+the head's `entities.yaml` and the text of each appendix it lists beside them.
 """
 
 from __future__ import annotations
@@ -181,11 +181,16 @@ def hold_locked(locked: Document, user: User, number: int, *, take_back: bool = 
         OpenEditor.objects.filter(draft=kept, closed_at__isnull=True).update(closed_at=now)
         return hold
     frontmatter, body = split(gitstore.read(repo, BODY, base).decode("utf-8"))
-    Draft.objects.create(
-        hold=hold,
-        base_commit=base,
-        content={BODY: body, FRONTMATTER: frontmatter, ENTITIES: entities_at(repo, base)},
-    )
+    content = {BODY: body, FRONTMATTER: frontmatter, ENTITIES: entities_at(repo, base)}
+    # Each listed appendix's text beside the body, as the editors and the commit read it;
+    # one whose file is missing is the reconciler's to report, and reads as the base has it.
+    for entry in frontmatter["appendices"]:
+        path = f"appendices/{int(entry['number'])}.md"
+        try:
+            content[path] = gitstore.read(repo, path, base).decode("utf-8")
+        except KeyError:
+            continue
+    Draft.objects.create(hold=hold, base_commit=base, content=content)
     return hold
 
 

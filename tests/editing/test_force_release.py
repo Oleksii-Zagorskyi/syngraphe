@@ -507,7 +507,12 @@ def test_a_stop_with_later_files_keeps_the_draft(
             content = {**draft.content, "entities.yaml": declared}
             Draft.objects.filter(pk=draft.pk).update(content=content)
         elif later == "appendix":
-            content = {**draft.content, "appendices/1.md": "An appendix sentence.\n"}
+            created = [{"number": 1, "title": "Synthetic appendix"}]
+            content = {
+                **draft.content,
+                "frontmatter": {**draft.content["frontmatter"], "appendices": created},
+                "appendices/1.md": "# Synthetic appendix\n\nAn appendix sentence.\n",
+            }
             Draft.objects.filter(pk=draft.pk).update(content=content)
         else:
             data = b"an attachment staged after the stop"

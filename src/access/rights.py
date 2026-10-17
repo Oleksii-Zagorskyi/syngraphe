@@ -98,8 +98,18 @@ def implied(rights: Iterable[Right]) -> frozenset[Right]:
     return frozenset(result)
 
 
-# The author's own reach while nobody else is linked (ADR-0007).
-AUTHOR_ONLY = frozenset({Right.EDIT, Right.VIEW_PENDING, Right.VIEW_ACCEPTED, Right.VIEW_CANONICAL})
+# The author's own reach while nobody else is linked (ADR-0007): with the attachments a new group
+# starts with, so the document's forms travel with its first draft (DL-0445).
+AUTHOR_ONLY = frozenset(
+    {
+        Right.EDIT,
+        Right.VIEW_PENDING,
+        Right.VIEW_ACCEPTED,
+        Right.VIEW_CANONICAL,
+        Right.UPLOAD_ATTACHMENT,
+        Right.REPLACE_ATTACHMENT,
+    }
+)
 # An administrator reads every document of the organisation and holds no other right on it;
 # administration's own acts are not rights (ADR-0007).
 ADMINISTRATOR = frozenset(

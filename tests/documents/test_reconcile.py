@@ -738,3 +738,37 @@ def _head(tenant: int, document: Any) -> str:
         head = gitstore.head(gitstore.open_repository(tenant, document.number))
     assert head is not None
     return head
+
+
+def test_part_files_against_the_lists(
+    migrated_tenant: Any, created: Any, commit_version: Any
+) -> None:
+    """ADR-0005: a part file the head's frontmatter does not list, and a listed part whose file is
+    absent, are reported in report and repair alike; neither is ever deleted or written."""
+    from documents import gitstore, reconcile
+
+    document, author = created
+    version = commit_version(
+        document,
+        author,
+        "A synthetic sentence.\n",
+        files={"attachments/9": b"a synthetic file nobody listed"},
+        appendices=[{"number": 1, "title": "Listed appendix (example)"}],
+    )
+    with schema_context(migrated_tenant.number):
+        _authored(migrated_tenant.number, document)
+
+    for repair in (False, True):
+        found = [
+            (f.kind, f.detail, f.repaired)
+            for f in reconcile.run(tenant=migrated_tenant.number, repair=repair)
+            if f.kind in ("orphan_part", "part_missing")
+        ]
+        assert found == [
+            ("orphan_part", "attachments/9", False),
+            ("part_missing", "appendices/1.md", False),
+        ]
+    with schema_context(migrated_tenant.number):
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        assert gitstore.head(repo) == version.commit_sha
+        assert gitstore.read(repo, "attachments/9", version.commit_sha)

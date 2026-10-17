@@ -129,6 +129,14 @@ def _refused(
         }
         context = _context(document, "edit", reason=reason, refusals=[])
         return render(request, "editing/finish_waits.html", context, status=409)
+    if isinstance(refused, services.AppendixHeading):
+        # An appendix's text is its one top-level section (ADR-0005), named by its title.
+        reason = _(
+            "The appendix «%(title)s» must begin with its heading and hold no other heading of "
+            "the first level; correct it in the appendix's editor."
+        ) % {"title": refused.title}
+        context = _context(document, "edit", reason=reason, refusals=[])
+        return render(request, "editing/finish_waits.html", context, status=409)
     lines = []
     for r in refused.refusals:
         construct = words["constructs"][r.code]
@@ -141,11 +149,12 @@ def _refused(
                 words["notices"]["line_in_appendix"]
                 % {"title": titles.get(number) or number, "line": r.line, "construct": construct}
             )
-    reason = (
-        _("The draft refers to an image the document does not hold; correct it in the editor.")
-        if isinstance(refused, services.MissingImages)
-        else _("The draft holds text the editor does not accept; correct it in the editor.")
-    )
+    if isinstance(refused, services.MissingImages):
+        reason = _(
+            "The draft refers to an image the document does not hold; correct it in the editor."
+        )
+    else:
+        reason = _("The draft holds text the editor does not accept; correct it in the editor.")
     context = _context(document, "edit", reason=reason, refusals=lines)
     return render(request, "editing/finish_waits.html", context, status=409)
 
@@ -260,6 +269,13 @@ def send(request: HttpRequest, number: int) -> HttpResponse:
         return _waiting(request, document)
     except services.DraftRefused as refused:
         return _refused(request, document, hold, refused)
+    except services.PartRightLost as lost:
+        lost_reason = _(
+            "The draft changes parts you no longer hold the right to change: %(parts)s. Remove "
+            "those changes in the parts panel, or ask for the right again."
+        ) % {"parts": ", ".join(f"«{title}»" for title in lost.parts)}
+        context = _context(document, "edit", reason=lost_reason)
+        return render(request, "editing/finish_waits.html", context, status=409)
     except (LockTimeout, RecordIncomplete) as stopped:
         context = _context(
             document,

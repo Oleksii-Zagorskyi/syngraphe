@@ -203,3 +203,48 @@ def test_the_editing_messages_name_the_person_editing() -> None:
         and re.search(r"\b(holder|owner)s?\b|власник", block.split("\n#: ")[-1], re.IGNORECASE)
     ]
     assert named == []
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_part_refusals_at_finish(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    queued_authorship: list[Any],
+    settings: Any,
+) -> None:
+    """The finishing screen's reasons for a part right lost since staging and for an appendix out
+    of its one-heading rule, in Ukrainian."""
+    from access.rights import Right
+    from editing import holds, parts
+    from editing.models import Draft
+
+    settings.LANGUAGE_CODE = "uk"
+    _, author, _ = member_of("the.author@example.test")
+    client, holder, own = member_of("the.holder@example.test")
+    document = new_document(author)
+    group = link_group(
+        document, [Right.EDIT, Right.UPLOAD_ATTACHMENT, Right.CREATE_APPENDIX], [own], author
+    )
+    with schema_context(migrated_tenant.number):
+        holds.take(document, holder)
+        parts.upload_attachment(
+            document, holder, title="Форма (приклад)", file_name="form.txt", data=b"synthetic"
+        )
+        group.revoke(Right.UPLOAD_ATTACHMENT, by=author)
+    lost = client.post(f"/document/{document.number}/edit/send/", {"summary": "Синтетичний"})
+    assert lost.status_code == 409
+    assert "Чернетка змінює частини документа" in lost.content.decode()
+    assert "«Форма (приклад)»" in lost.content.decode()
+
+    with schema_context(migrated_tenant.number):
+        group.grant(Right.UPLOAD_ATTACHMENT, by=author)
+        number = parts.create_appendix(document, holder, title="Додаток (приклад)")
+        draft = Draft.objects.get(hold=holds.open_hold(document))
+        draft.content = {**draft.content, parts.appendix_key(number): "Речення без заголовка.\n"}
+        draft.save()
+    heading = client.get(f"/document/{document.number}/edit/finish/")
+    assert heading.status_code == 409
+    assert "Додаток «Додаток (приклад)» має починатися" in heading.content.decode()

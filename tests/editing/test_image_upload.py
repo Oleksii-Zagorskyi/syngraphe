@@ -200,7 +200,7 @@ def test_a_kept_draft_shows_its_base_images(
             "images/" + name(other): None,
             "images/" + name(x): x,
             "images/" + name(y): y,
-            "appendices/1.md": f"![Y](images/{name(y)})\n",
+            "appendices/1.md": f"# Synthetic appendix\n\n![Y](images/{name(y)})\n",
         },
         appendices=[{"number": 1, "title": "Synthetic appendix"}],
     )
@@ -213,7 +213,11 @@ def test_a_kept_draft_shows_its_base_images(
     with schema_context(migrated_tenant.number):
         b_hold = Hold.objects.get(document=document, released_at__isnull=True)
         b_draft = Draft.objects.get(hold=b_hold)
-        b_draft.content = {**b_draft.content, "document.md": BODY, "appendices/1.md": "Nothing.\n"}
+        b_draft.content = {
+            **b_draft.content,
+            "document.md": BODY,
+            "appendices/1.md": "# Synthetic appendix\n\nNothing.\n",
+        }
         b_draft.save()
         services.commit_draft(b_hold, b, "Both images removed")
 

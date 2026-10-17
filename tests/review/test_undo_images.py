@@ -40,13 +40,15 @@ def test_an_undo_stages_the_images_it_restores(
     people = cast(editors=("a", "b"), reviewers=("r",))
     document = people.document
     a_image, b_image, old_image = b"author A's image", b"author B's image", b"an appendix image"
-    appendix = f"An appendix sentence.\n\n![An older plan]({path(old_image)})\n"
+    heading = "# Synthetic appendix\n\n"
+    appendix = f"{heading}An appendix sentence.\n\n![An older plan]({path(old_image)})\n"
     commit_version(
         document,
         people["a"],
         BASE,
         "edit",
         files={path(old_image): old_image, "appendices/1.md": appendix.encode()},
+        appendices=[{"number": 1, "title": "Synthetic appendix"}],
     )
     with schema_context(migrated_tenant.number):
         services.accept(document, people["r"])
@@ -63,7 +65,7 @@ def test_an_undo_stages_the_images_it_restores(
             path(a_image): None,
             path(b_image): b_image,
             path(old_image): None,
-            "appendices/1.md": b"An appendix sentence.\n",
+            "appendices/1.md": f"{heading}An appendix sentence.\n".encode(),
         },
     )
 

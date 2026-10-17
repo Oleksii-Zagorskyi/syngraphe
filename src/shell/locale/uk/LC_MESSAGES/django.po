@@ -3105,6 +3105,16 @@ msgstr "додаток «%(title)s», рядок %(line)s: %(construct)s"
 msgid "The draft refers to an image the document does not hold; correct it in the editor."
 msgstr "Чернетка посилається на зображення, якого документ не містить; виправте це в редакторі."
 
+#: editing/views/finish.py
+#, python-format
+msgid "The appendix «%(title)s» must begin with its heading and hold no other heading of the first level; correct it in the appendix's editor."
+msgstr "Додаток «%(title)s» має починатися зі свого заголовка й не містити інших заголовків першого рівня; виправте це в редакторі додатка."
+
+#: editing/views/finish.py
+#, python-format
+msgid "The draft changes parts you no longer hold the right to change: %(parts)s. Remove those changes in the parts panel, or ask for the right again."
+msgstr "Чернетка змінює частини документа, на зміну яких ви більше не маєте права: %(parts)s. Приберіть ці зміни на панелі «Частини» або попросіть надати право знову."
+
 #: editing/messages.py
 msgid "Image"
 msgstr "Зображення"

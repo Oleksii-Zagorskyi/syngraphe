@@ -73,8 +73,8 @@ def commit_version(migrated_tenant: Any) -> Callable[..., Any]:
     kind given — `edit` or `reviewer_edit` — rather than decided from the rights as a finish
     decides it; derive its `VERSION` row; return the row. `body` is in the normal form: one
     sentence per line, a blank line between paragraphs. `files` are further paths written, or
-    removed by `None`, in the same commit; `appendices`, when given, replaces the frontmatter's
-    list of them."""
+    removed by `None`, in the same commit; `appendices` and `attachments`, when given, replace the
+    frontmatter's lists of them."""
 
     def commit(
         document: Any,
@@ -85,6 +85,7 @@ def commit_version(migrated_tenant: Any) -> Callable[..., Any]:
         summary: str = "Synthetic edit",
         files: Mapping[str, bytes | None] | None = None,
         appendices: list[dict[str, Any]] | None = None,
+        attachments: list[dict[str, Any]] | None = None,
     ) -> Any:
         from documents import gitstore, services
         from documents.identity import identity_for
@@ -101,6 +102,8 @@ def commit_version(migrated_tenant: Any) -> Callable[..., Any]:
                 frontmatter, _ = holds.split(gitstore.read(repo, holds.BODY, head).decode())
                 if appendices is not None:
                     frontmatter["appendices"] = appendices
+                if attachments is not None:
+                    frontmatter["attachments"] = attachments
                 sha = gitstore.commit(
                     repo,
                     {holds.BODY: holds.join(frontmatter, body).encode("utf-8"), **(files or {})},

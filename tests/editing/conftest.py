@@ -90,3 +90,14 @@ sys.modules[_spec.name] = _review
 _spec.loader.exec_module(_review)
 
 commit_version = _review.commit_version
+
+
+@pytest.fixture
+def frontmatter_kinds(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
+    """An empty registry of frontmatter kinds for one test, so a kind it registers never meets one
+    an app registered at start-up."""
+    from editing import parts
+
+    fresh: dict[str, Any] = {}
+    monkeypatch.setattr(parts, "FRONTMATTER_KINDS", fresh)
+    return fresh

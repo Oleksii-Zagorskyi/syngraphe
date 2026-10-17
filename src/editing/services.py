@@ -18,7 +18,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NoReturn
 
 import pygit2
 from django.db import transaction
@@ -29,7 +29,7 @@ from documents import entities, gitstore, images, services
 from documents.identity import identity_for
 from documents.locks import document_lock
 from documents.models import Document, DocumentState, Version
-from editing import holds, numbering, summary, tasks
+from editing import holds, numbering, parts, summary, tasks
 from editing.diffview import render_changes
 from editing.markdown.validator import Refusal, validate
 from editing.models import (
@@ -64,11 +64,13 @@ class InvalidSummary(ValueError):
 
 class DraftRefused(Exception):
     """The draft holds text the whitelist refuses — typed in the source view — and is corrected
-    there before it is shown as changes or committed."""
+    there before it is shown as changes or committed; `appendix` the title of the appendix whose
+    text it is, where it is one's."""
 
-    def __init__(self, refusals: list[Refusal]) -> None:
+    def __init__(self, refusals: list[Refusal], appendix: str | None = None) -> None:
         super().__init__(refusals)
         self.refusals = refusals
+        self.appendix = appendix
 
 
 @dataclass(frozen=True, order=True)
@@ -81,6 +83,31 @@ class MissingImage(Refusal):
 class MissingImages(DraftRefused):
     """The draft's texts reference images the document does not hold (DL-0439): each one named
     by its file and line, corrected in the source view before anything is committed."""
+
+
+@dataclass(frozen=True, order=True)
+class AppendixRefusal(Refusal):
+    """A refusal in an appendix's text, `file` its path, at `line`."""
+
+    file: str = holds.BODY
+
+
+class AppendixHeading(DraftRefused):
+    """An appendix's text does not start with its one level-1 heading, or holds a second one
+    (ADR-0005): `title` the appendix's."""
+
+    def __init__(self, title: str, file: str, line: int = 1) -> None:
+        super().__init__([AppendixRefusal(line, "appendix-heading", file)], appendix=title)
+        self.title = title
+
+
+class PartRightLost(Exception):
+    """The draft changes parts whose right its holder no longer holds (ADR-0007): `parts` their
+    titles. Nothing is committed; the draft stays."""
+
+    def __init__(self, parts: list[str]) -> None:
+        super().__init__(parts)
+        self.parts = parts
 
 
 class InjectedFault(Exception):
@@ -130,7 +157,7 @@ def draft_declarations(
     """The draft's declarations as the commit will write them, `own` its file's: the body read as
     the commit normalises it, so a span's words are the label the commit writes; while the
     whitelist refuses the body, as the draft holds it. Its texts are read once."""
-    texts = list(draft_texts(draft, repo, head).values())
+    texts = list(draft_texts(draft, repo).values())
     body = texts[0]
     if not validate(body):
         _, head_body = holds.split(gitstore.read(repo, holds.BODY, head).decode("utf-8"))
@@ -152,7 +179,7 @@ def entity_changes(
     declarations and those its spans will add, as the commit writes them (DL-0440)."""
     current = holds.entities_at(repo, head)
     held = holds.draft_entities(draft, repo, head)
-    texts = draft_texts(draft, repo, head)
+    texts = draft_texts(draft, repo)
     declared = entities.declared_with(held, normalised, *list(texts.values())[1:])
     own = {(e.kind, e.key) for e in entities.parse(held)}
     return [
@@ -255,15 +282,18 @@ def staged_changes(
 ) -> dict[str, bytes | None]:
     """Every path the draft changes against the tree of `against`, as `gitstore.commit` takes them:
     `document.md` when the normalised body or the frontmatter (as data) differs; `entities.yaml`
-    with every undeclared span declared (DL-0440); each `appendices/<n>.md` the draft holds; the
-    staged attachments' operations; the images the texts reference and the tree lacks, and `None`
-    for each the tree holds and no text references (DL-0439). Only entries whose bytes, or absence,
-    differ from the tree; a change only to the declarations the commit adds for spans of text the
-    tree already holds is no change. `DraftRefused` for a body the whitelist refuses or
-    declarations past the size the platform accepts, `MissingImages` for a reference to an image
-    neither the tree nor the draft holds, `NormalizerDefect` for a body that does not normalise,
-    `ValueError` for a draft `entities.yaml` that does not read or a staged file out of its
-    place."""
+    with every undeclared span declared (DL-0440); `appendices/<n>.md` for each appendix the draft
+    lists, validated, held to one level-1 heading and normalised against `against`'s text of it,
+    and `None` for one the tree holds and the draft does not list; the staged attachments'
+    operations; the images the texts reference and the tree lacks, and `None` for each the tree
+    holds and no text references (DL-0439). Only entries whose bytes, or absence, differ from the
+    tree; a change only to the declarations the commit adds for spans of text the tree already
+    holds is no change. `DraftRefused` for a body or an appendix the whitelist refuses (its
+    `appendix` the title) or a text or declarations past the size the platform accepts,
+    `AppendixHeading` for an appendix out of its one-heading rule, `MissingImages` for a reference
+    to an image neither the tree nor the draft holds, `NormalizerDefect` for a body that does not
+    normalise, `ValueError` for a draft `entities.yaml` that does not read or a staged file out of
+    its place."""
     body = _accepted(draft)
     frontmatter, against_body = holds.split(
         gitstore.read(repo, holds.BODY, against).decode("utf-8")
@@ -273,9 +303,13 @@ def staged_changes(
     held_frontmatter = draft.content[holds.FRONTMATTER]
     if normalised != against_body or _data(held_frontmatter) != _data(frontmatter):
         changes[holds.BODY] = holds.join(held_frontmatter, normalised).encode("utf-8")
-    for key, text in draft.content.items():
-        if APPENDIX.fullmatch(key):
-            changes[key] = None if text is None else str(text).encode("utf-8")
+    listed = _listed_appendices(held_frontmatter)
+    for number, title in listed.items():
+        changes[parts.appendix_key(number)] = _appendix(draft, repo, against, number, title, lists)
+    for name in gitstore.listing(repo, "appendices", against):
+        path = f"appendices/{name}"
+        if APPENDIX.fullmatch(path) and _appendix_order(path) not in listed:
+            changes[path] = None
     # Each staged row's path and kind are read first, and its bytes only where they are written.
     rows = list(draft.files.order_by("at").values_list("pk", "kind", "path", "operation"))
     attachments: dict[str, tuple[Any, str]] = {}
@@ -292,7 +326,7 @@ def staged_changes(
 
     # The texts the committed tree will hold, the body as the draft holds it, so a refusal's line
     # is the one the source view shows.
-    texts = draft_texts(draft, repo, against)
+    texts = draft_texts(draft, repo)
 
     current = holds.entities_at(repo, against)
     held = holds.draft_entities(draft, repo, against)
@@ -333,6 +367,49 @@ def staged_changes(
     return changed
 
 
+def _listed_appendices(frontmatter: dict[str, Any]) -> dict[int, str]:
+    """The appendices a frontmatter lists, their titles by number, in its order."""
+    return {int(e["number"]): str(e.get("title", "")) for e in frontmatter.get("appendices", [])}
+
+
+def _one_heading(text: str) -> int | None:
+    """The line breaking the one-heading rule — the text not starting with a level-1 heading, or a
+    second one — or `None` when it holds."""
+    from editing.markdown.parser import parser
+
+    tokens = parser().parse(text)
+    if not tokens or tokens[0].type != "heading_open" or tokens[0].tag != "h1":
+        return 1
+    for token in tokens[1:]:
+        if token.type == "heading_open" and token.tag == "h1":
+            return token.map[0] + 1 if token.map else 1
+    return None
+
+
+def _appendix(
+    draft: Draft, repo: pygit2.Repository, against: str, number: int, title: str, lists: Lists
+) -> bytes:
+    """Appendix `number`'s text as the commit writes it: held to the whitelist and the one-heading
+    rule, then normalised against `against`'s text of it, or the empty text where it holds none,
+    within the size the platform accepts per file (DL-0329)."""
+    key = parts.appendix_key(number)
+    text = parts.appendix_text(draft, number, repo)
+    refusals = validate(text)
+    if refusals:
+        raise DraftRefused([AppendixRefusal(r.line, r.code, key) for r in refusals], appendix=title)
+    broken = _one_heading(text)
+    if broken is not None:
+        raise AppendixHeading(title, key, broken)
+    try:
+        current = gitstore.read(repo, key, against)
+    except KeyError:
+        current = b""
+    try:
+        return normalize(current, text, lists)
+    except TooLarge as error:
+        raise DraftRefused([AppendixRefusal(1, "too-large", key)], appendix=title) from error
+
+
 def _staged_bytes(draft: Draft, pk: Any) -> bytes:
     content = draft.files.filter(pk=pk).values_list("content", flat=True).get()
     if content is None:
@@ -340,22 +417,14 @@ def _staged_bytes(draft: Draft, pk: Any) -> bytes:
     return bytes(content)
 
 
-def draft_texts(draft: Draft, repo: pygit2.Repository, commit: str) -> dict[str, str]:
-    """The draft's texts as it holds them: its body, then every appendix — the draft's own key, else
-    the file at `commit` — in its number's order. What its images are read from."""
-    appendices = {
-        path: gitstore.read(repo, path, commit).decode("utf-8")
-        for path in (f"appendices/{name}" for name in gitstore.listing(repo, "appendices", commit))
-        if APPENDIX.fullmatch(path)
-    }
-    for key, text in draft.content.items():
-        if APPENDIX.fullmatch(key):
-            if text is None:
-                appendices.pop(key, None)
-            else:
-                appendices[key] = str(text)
-    ordered = sorted(appendices.items(), key=lambda item: _appendix_order(item[0]))
-    return {holds.BODY: str(draft.content.get(holds.BODY, "")), **dict(ordered)}
+def draft_texts(draft: Draft, repo: pygit2.Repository) -> dict[str, str]:
+    """The draft's texts as it holds them: its body, then every appendix its list holds — through
+    `parts.appendix_text`, its own key or else the file at the draft's base — in its number's
+    order. What its images are read from."""
+    texts = {holds.BODY: str(draft.content.get(holds.BODY, ""))}
+    for number in sorted(_listed_appendices(draft.content.get(holds.FRONTMATTER, {}))):
+        texts[parts.appendix_key(number)] = parts.appendix_text(draft, number, repo)
+    return texts
 
 
 def holds_later_work(draft: Draft, repo: pygit2.Repository, commit: str, lists: Lists) -> bool:
@@ -573,12 +642,19 @@ def commit_draft_locked(
             raise EditorsOpen(locked.pk)
         draft = Draft.objects.get(hold=locked)
         _accepted(draft)
+        listed = _listed_appendices(draft.content[holds.FRONTMATTER])
+        if any(APPENDIX.fullmatch(k) and _appendix_order(k) not in listed for k in draft.content):
+            # Every part operation drops a key with its entry: one left behind is a defect, and
+            # the commit leaves it out.
+            logger.error("a draft holds an unlisted appendix", extra={"draft": str(draft.pk)})
         head = gitstore.head(repo)
         if head is None:
             raise RuntimeError(f"document {document.number} has no commit")
         stopped = _stopped(repo, head, draft, user)
         lists = _lists(document)
+        _part_rights(draft, repo, head, rights)
         changes = staged_changes(draft, repo, head, lists)
+        _consistent(draft, repo)
         if stopped is not None and (not changes or not staged_changes(draft, repo, stopped, lists)):
             # Nothing beyond the stop: the version is the stopped commit.
             changes = {}
@@ -626,6 +702,100 @@ def commit_draft_locked(
     _fault(4, fault_at)
     # (5), by the caller once the lock is released: the authorship asked of the worker.
     return Version.objects.get(document=document, commit_sha=sha)
+
+
+# The right each net part operation needs at the commit beyond *edit* (ADR-0007); renaming and
+# reordering need none (DL-0470).
+PART_RIGHTS = {
+    ("appendix", "added"): Right.CREATE_APPENDIX,
+    ("appendix", "removed"): Right.DELETE_APPENDIX,
+    ("attachment", "added"): Right.UPLOAD_ATTACHMENT,
+    ("attachment", "replaced"): Right.REPLACE_ATTACHMENT,
+    ("attachment", "removed"): Right.DELETE_ATTACHMENT,
+}
+# The operation a revert of each change stages (DL-0446).
+REVERTED_BY = {"added": "removed", "removed": "added", "replaced": "replaced", "renamed": "renamed"}
+
+
+def _part_rights(
+    draft: Draft, repo: pygit2.Repository, head: str, rights: frozenset[Right]
+) -> None:
+    """The rights decided again, under the locks, on what the commit changes in the parts against
+    the head: a right lost since staging refuses the commit and names each part. An operation a
+    revert staged needs *accept* instead (DL-0446) — only while the draft still holds what the
+    revert staged: the entry it recorded, or the part's absence."""
+    from documents.parts import part_operations
+
+    current, _ = holds.split(gitstore.read(repo, holds.BODY, head).decode("utf-8"))
+    held = draft.content[holds.FRONTMATTER]
+    reverted = {
+        (str(r.get("part")), REVERTED_BY.get(str(r.get("change")), "")): r.get("staged")
+        for r in draft.content.get("revert", [])
+    }
+    lost = []
+    for operation in part_operations(
+        (current["appendices"], current["attachments"]),
+        (held.get("appendices", []), held.get("attachments", [])),
+    ):
+        right = PART_RIGHTS.get((operation.kind, operation.change))
+        if right is None or right in rights:
+            continue
+        recorded = (f"{operation.kind}:{operation.number}", operation.change)
+        if (
+            recorded in reverted
+            and reverted[recorded] == operation.newer
+            and Right.ACCEPT in rights
+        ):
+            continue
+        entry = operation.newer or operation.older or {}
+        lost.append(str(entry.get("title", operation.number)))
+    if lost:
+        raise PartRightLost(lost)
+
+
+def _consistent(draft: Draft, repo: pygit2.Repository) -> None:
+    """Every listed attachment has its bytes — a staged row, or its file at the draft's base — and
+    each describes the other: a row's hash is its bytes', and its hash, size and file name the
+    entry's; a removal is of an attachment the draft no longer lists. Anything else is a defect:
+    `RuntimeError`, logged, nothing written."""
+    entries = {int(e["number"]): e for e in draft.content[holds.FRONTMATTER].get("attachments", [])}
+    staged: set[int] = set()
+    rows = draft.files.filter(kind=DraftFileKind.ATTACHMENT).values_list(
+        "path", "operation", "sha256", "file_name", "content"
+    )
+    for path, operation, sha256, file_name, content in rows:
+        number_text = path.removeprefix("attachments/")
+        number = int(number_text) if number_text.isdigit() else None
+        entry = entries.get(number) if number is not None else None
+        if operation == DraftFileOperation.REMOVE:
+            if number is None or entry is not None:
+                _defect(draft, f"a removal of a listed attachment: {path!r}")
+            continue
+        data = bytes(content or b"")
+        if (
+            number is None
+            or entry is None
+            or hashlib.sha256(data).hexdigest() != sha256
+            or entry.get("sha256") != sha256
+            or entry.get("bytes") != len(data)
+            or entry.get("file_name") != file_name
+        ):
+            _defect(draft, f"a staged attachment its entry does not describe: {path!r}")
+        staged.add(number)
+    for number, entry in entries.items():
+        if number in staged:
+            continue
+        try:
+            data = gitstore.read(repo, parts.attachment_path(number), draft.base_commit)
+        except KeyError:
+            _defect(draft, f"a listed attachment without its file: {number}")
+        if hashlib.sha256(data).hexdigest() != entry.get("sha256"):
+            _defect(draft, f"a listed attachment whose file is not the one listed: {number}")
+
+
+def _defect(draft: Draft, what: str) -> NoReturn:
+    logger.error("a draft that cannot be committed: %s", what, extra={"draft": str(draft.pk)})
+    raise RuntimeError(what)
 
 
 def discard_preserved(draft: Draft, user: User) -> bool:

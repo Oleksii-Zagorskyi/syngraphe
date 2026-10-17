@@ -88,6 +88,10 @@ REPOSITORY_MISSING = "repository_missing"
 COMMIT_WITHOUT_ROW = "commit_without_row"
 ROW_WITHOUT_COMMIT = "row_without_commit"
 FRONTMATTER_DIFFERS = "frontmatter_differs"
+# A file under `appendices/` or `attachments/` the frontmatter does not list, and a listed part
+# whose file is absent (ADR-0005): reported, never repaired — nothing tells which side is right.
+ORPHAN_PART = "orphan_part"
+PART_MISSING = "part_missing"
 PASSPORT_ENTRY_WITHOUT_ROW = "passport_entry_without_row"
 IDENTITY_MISMATCH = "identity_mismatch"
 SEQUENCE_BEHIND = "sequence_behind"
@@ -246,6 +250,7 @@ class _Run:
         self.commits_without_rows(document, commits, replay=not missing)
         if commits:
             self.frontmatter(document, repo, commits[-1])
+            self.parts(document, repo, commits[-1])
             self.passport(document, repo, commits[-1])
             self.editions(document, repo, commits[-1])
             self.notices(document)
@@ -719,6 +724,23 @@ class _Run:
                 {"number": document.number, "language": frontmatter.language, "changed": changed},
             )
         self.found(FRONTMATTER_DIFFERS, document.number, ", ".join(changed), repaired=True)
+
+    def parts(self, document: Document, repo: pygit2.Repository, head: Any) -> None:
+        """The part files at the head against the lists of its frontmatter."""
+        commit = str(head.id)
+        frontmatter, _ = bundle.parse(gitstore.read(repo, "document.md", commit).decode("utf-8"))
+        listed = {f"appendices/{int(e['number'])}.md" for e in frontmatter.appendices} | {
+            f"attachments/{int(e['number'])}" for e in frontmatter.attachments
+        }
+        present = {
+            f"{folder}/{name}"
+            for folder in ("appendices", "attachments")
+            for name in gitstore.listing(repo, folder, commit)
+        }
+        for path in sorted(present - listed):
+            self.found(ORPHAN_PART, document.number, path)
+        for path in sorted(listed - present):
+            self.found(PART_MISSING, document.number, path)
 
     def passport(self, document: Document, repo: pygit2.Repository, head: Any) -> None:
         """Every acceptance row against the section its own commit appended, field by field, the
