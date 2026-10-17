@@ -224,6 +224,34 @@ def test_a_busy_or_failed_upload_says_so(
     assert "Not captured" not in (page.text_content(".editor-status") or "")
 
 
+def test_a_refused_upload_says_why(editing: Any, markdown: Any, page: Any, settings: Any) -> None:
+    """The server's reason for refusing an image reaches the notice line: the type, and the
+    dimensions read from the file's header; nothing is placed."""
+    import struct
+    import zlib
+
+    settings.LANGUAGE_CODE = "en"
+    editing("A first sentence.\n")
+    page.evaluate(f"{EDITOR}.select(1)")
+    status = "() => document.querySelector('.editor-status').textContent"
+
+    choose(page, b'<svg xmlns="http://www.w3.org/2000/svg"/>', "plan.svg", "image/svg+xml")
+    page.wait_for_function(f"{status}.includes('Only PNG, JPEG and GIF images are accepted.')")
+
+    header = struct.pack(">IIBBBBB", 20_000, 10, 8, 2, 0, 0, 0)
+    wide = (
+        b"\x89PNG\r\n\x1a\n"
+        + struct.pack(">I", len(header))
+        + b"IHDR"
+        + header
+        + struct.pack(">I", zlib.crc32(b"IHDR" + header))
+    )
+    choose(page, wide, "wide.png")
+    page.wait_for_function(f"{status}.includes('20000 × 10 pixels')")
+    assert page.evaluate(IMAGES) == 0
+    assert markdown() == "A first sentence.\n"
+
+
 def test_a_batch_stays_together_beside_an_earlier_copy(
     editing: Any, markdown: Any, page: Any, invented_image: Any
 ) -> None:

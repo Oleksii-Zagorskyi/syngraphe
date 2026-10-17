@@ -72,8 +72,9 @@ def test_only_active_readable_targets_link(
     readable, unreadable, archived = targets(new_document, owner, 3)
     for document in (here, readable, archived):
         link_group(document, [Right.VIEW_ACCEPTED], [membership], owner)
-    missing = 4096
-    numbers = [readable.number, unreadable.number, archived.number, missing]
+    # The specification admits ten digits, more than a document's number holds.
+    missing, beyond = 4096, 9_999_999_999
+    numbers = [readable.number, unreadable.number, archived.number, missing, beyond]
     body = "".join(f"See [the rules {n}]{{.document #{n}}}.\n" for n in numbers)
     with schema_context(migrated_tenant.number):
         Document.objects.filter(pk=archived.pk).update(state=DocumentState.ARCHIVED)

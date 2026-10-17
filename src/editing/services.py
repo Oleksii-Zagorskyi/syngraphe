@@ -298,7 +298,7 @@ def staged_changes(
     held = holds.draft_entities(draft, repo, against)
     declared = entities.declared_with(held, normalised, *list(texts.values())[1:]).encode("utf-8")
     if len(declared) > entities.MAX_BYTES:
-        raise DraftRefused([Refusal(1, "too-large")])
+        raise DraftRefused([Refusal(1, "entities-full")])
     changes[holds.ENTITIES] = declared
 
     in_tree = {f"{images.FOLDER}/{name}" for name in gitstore.listing(repo, images.FOLDER, against)}

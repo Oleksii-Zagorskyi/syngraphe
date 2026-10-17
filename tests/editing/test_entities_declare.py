@@ -47,10 +47,12 @@ def test_declare_in_the_draft(
 
     first = client.post(address, {"kind": "role", "label": "the approver"})
     again = client.post(address, {"kind": "role", "label": "  the approver "})
+    # Case is not a second entity: the label keeps the form it was first declared in.
+    capitals = client.post(address, {"kind": "role", "label": "The Approver"})
     action = client.post(address, {"kind": "action", "label": "approves"})
 
     assert first.status_code == again.status_code == action.status_code == 200
-    assert first.json()["key"] == again.json()["key"] == "role-1"
+    assert first.json()["key"] == again.json()["key"] == capitals.json()["key"] == "role-1"
     assert action.json()["key"] == "action-1"
     assert action.json()["entities"] == [
         {"kind": "role", "key": "role-1", "label": "the approver"},

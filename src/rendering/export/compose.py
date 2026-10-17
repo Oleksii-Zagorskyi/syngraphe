@@ -357,12 +357,11 @@ def shown_images(*texts: str | None) -> list[str]:
 
 def _refusal(refusals: list[Any]) -> str:
     """What the platform refuses in the text, by construct, as the editor names them."""
-    from editing.messages import CONSTRUCTS
+    from editing.messages import CONSTRUCTS, DRAFT_LIMITS
 
+    names = {**CONSTRUCTS, **DRAFT_LIMITS}
     # The construct as the editor names it, its code after it for whoever reports the fault.
-    named = ", ".join(
-        dict.fromkeys(f"{CONSTRUCTS.get(r.code, r.code)} ({r.code})" for r in refusals)
-    )
+    named = ", ".join(dict.fromkeys(f"{names.get(r.code, r.code)} ({r.code})" for r in refusals))
     return _(
         "The text holds what the platform does not accept: %(constructs)s. Correct it in the "
         "editor and export again."

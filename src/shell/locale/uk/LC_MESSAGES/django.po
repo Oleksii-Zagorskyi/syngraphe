@@ -3338,3 +3338,12 @@ msgstr "Ще пунктів, які буде з’єднано: %(count)s."
 #: rendering/templates/rendering/generated_views.html
 msgid "not declared"
 msgstr "не оголошено"
+
+#: editing/messages.py
+msgid "more roles, actions and terms than the platform accepts"
+msgstr "більше ролей, дій і термінів, ніж приймає платформа"
+
+#: editing/views/finish.py
+#, python-format
+msgid "The draft marks %(what)s; remove some in the editor."
+msgstr "Чернетка позначає %(what)s; вилучіть частину в редакторі."

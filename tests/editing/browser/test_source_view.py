@@ -157,6 +157,21 @@ def test_paste_strips_its_headings_own_numbers(editing: Any, page: Any) -> None:
     assert page.input_value("textarea[data-field=source]") == "# Purpose\n\n# 2 Scope\n\nText.\n"
 
 
+def test_a_paste_with_carriage_returns_strips_as_any_other(editing: Any, page: Any) -> None:
+    """A clipboard written with Windows line endings is read line by line as the field holds it:
+    the pasted heading loses its own number, and no line is split or shifted."""
+    editing("The start.\n")
+    page.click("button[data-command=source]")
+    field = "textarea[data-field=source]"
+    page.fill(field, "# 1 Old\n\nText.\n\n")
+    page.evaluate(
+        f"() => {{ const f = document.querySelector('{field}');"
+        " f.setSelectionRange(f.value.length, f.value.length); }"
+    )
+    page.evaluate(PASTE, "# 2 Scope\r\n\r\nMore.\r\n")
+    assert page.input_value(field) == "# 1 Old\n\nText.\n\n# Scope\n\nMore.\n"
+
+
 def test_the_caret_ends_after_a_stripped_paste(editing: Any, page: Any) -> None:
     """Where a pasted heading loses its number, the caret ends where the paste ends, as it does
     after any paste, not at the end of the line it ends on."""

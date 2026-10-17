@@ -44,6 +44,12 @@ CONSTRUCTS = {
     "mention-id": _("a mention without a document number"),
 }
 
+# A draft's limits outside the whitelist, refused as its constructs are: the declarations a commit
+# derives from the spans pass the size the platform holds them to.
+DRAFT_LIMITS = {
+    "entities-full": _("more roles, actions and terms than the platform accepts"),
+}
+
 LABELS = {
     "paragraph": _("Paragraph"),
     # One label for every level the specification allows; the toolbar fills in the level.

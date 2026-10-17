@@ -25,12 +25,13 @@ def context(
 ) -> RenderContext:
     """The reader's context for `bodies` of `document`: the documents its mentions name that
     `user` may follow, images shown from `images`, a change's sides named by `sides`. `found`,
-    where the page has read them, are the bodies' mentions."""
+    where the page has read them, are the bodies' mentions. A mention of `document` itself is
+    never followed: the reader is on it, and the link would leave the version shown."""
     from rendering import mentions
 
     if found is None:
         found = mentions.targets(*bodies)
-    numbers = {mention.number for mention in found}
+    numbers = {mention.number for mention in found if mention.number != document.number}
     return RenderContext(reachable=mentions.reachable(user, numbers), image_url=images, sides=sides)
 
 

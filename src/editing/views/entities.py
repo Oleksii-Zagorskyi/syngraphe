@@ -56,10 +56,11 @@ def _typed(label: str) -> bool:
 @login_required
 def declare(request: HttpRequest, number: int) -> HttpResponse:
     """The holder's declaration: `200` with its key and the draft's declarations — the key a label
-    of that kind already has when it has one, a span's included; `400` *refused* with the rule a
-    kind or a label breaks, or when the file holds as many as the platform accepts, nothing
-    written; `409` *closed* with how the hold ended, to the editor the request names (`editor`),
-    as an upload answers it; `503` while the document is being committed."""
+    of that kind already has, in any capitals, when it has one, a span's included; `400`
+    *refused* with the rule a kind or a label breaks, or when the file holds as many as the
+    platform accepts, nothing written; `409` *closed* with how the hold ended, to the editor the
+    request names (`editor`), as an upload answers it; `503` while the document is being
+    committed."""
     document = editable(request, number)
     if document is None or request.method != "POST":
         return not_found(request)
@@ -104,10 +105,12 @@ def _declare_locked(
     head = gitstore.head(repo) or draft.base_commit
     own = entities.parse(holds.draft_entities(draft, repo, head))
     # A new declaration takes no key the commit will declare or a span holds, and a label a span
-    # already reads as is that span's entity.
+    # already reads as, in any capitals, is that span's entity.
     found = services.draft_declarations(draft, repo, head, document, own)
     committed = found.committed
-    same = next((e for e in committed if e.kind == kind and e.label == label), None)
+    # The same label in other capitals is the same entity (DL-11-013); its first form stands.
+    wanted = label.casefold()
+    same = next((e for e in committed if e.kind == kind and e.label.casefold() == wanted), None)
     if same is not None:
         return JsonResponse({"key": same.key, "entities": listed(committed)})
     added = entities.Declared(kind, _next_key(kind, found.keys | shown), label)

@@ -344,12 +344,15 @@ def test_declarations_over_the_cap_are_refused(
     commit_version: Any,
     queued_authorship: list[Any],
     monkeypatch: pytest.MonkeyPatch,
+    settings: Any,
 ) -> None:
     """The declared `entities.yaml` is held to the size the body is held to: a commit that would
-    write more is refused as too large, as the body is."""
+    write more is refused, and the finishing screen says it is the roles, actions and terms, not a
+    line of the text, that pass the limit."""
     from documents import entities
     from editing import services
 
+    settings.LANGUAGE_CODE = "en"
     monkeypatch.setattr(entities, "MAX_BYTES", 200)
     client, author, _ = member_of("the.author@example.test")
     document = new_document(author)
@@ -359,4 +362,8 @@ def test_declarations_over_the_cap_are_refused(
     write(migrated_tenant, draft, **{"document.md": marked})
     with schema_context(migrated_tenant.number), pytest.raises(services.DraftRefused) as refused:
         services.commit_draft(hold, author, "Many roles")
-    assert [r.code for r in refused.value.refusals] == ["too-large"]
+    assert [r.code for r in refused.value.refusals] == ["entities-full"]
+
+    page = client.get(f"/document/{document.number}/edit/finish/").content.decode()
+    assert "more roles, actions and terms than the platform accepts" in page
+    assert "line 1" not in page and "text the editor does not accept" not in page

@@ -20,6 +20,7 @@ from access.rights import Right, rights_on
 from documents.locks import LockTimeout
 from documents.models import Document
 from editing import holds, numbering, services, summary
+from editing.messages import DRAFT_LIMITS
 from editing.messages import for_the_editor as messages_for_the_editor
 from editing.models import Draft, Hold, ReleaseKind
 from editing.views.edit_tab import editable
@@ -121,6 +122,13 @@ def _refused(
     way back to the editor where it is corrected."""
     words = messages_for_the_editor()
     titles = _appendix_titles(hold)
+    if [r.code for r in refused.refusals] == ["entities-full"]:
+        # A limit of the whole draft, which no line of it holds.
+        reason = _("The draft marks %(what)s; remove some in the editor.") % {
+            "what": DRAFT_LIMITS["entities-full"]
+        }
+        context = _context(document, "edit", reason=reason, refusals=[])
+        return render(request, "editing/finish_waits.html", context, status=409)
     lines = []
     for r in refused.refusals:
         construct = words["constructs"][r.code]

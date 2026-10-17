@@ -346,7 +346,7 @@ The same edit yields different findings for different readers: an editor who can
 - **Document types** are a table in each tenant's schema, maintained by its tenant administrator and seeded with one type, *document*; assigned per document, used as list filters (DL-0057, DL-0063, DL-0235).
 - **Folders** are metadata with unlimited nesting; storage stays flat (ASR-15). A person sees only folders holding, at any depth, a document they may read; administrators see all (DL-0206).
 - **Outline** — every document renders a navigation outline of its sections and subsections.
-- **Links** resolve per reader: a mention — `[words]{.document #12}`, another document named by its number (DL-0436) — becomes a link only if that reader may read the target while it is active, and renders as its words alone otherwise, an archived target and a number that names none included (ASR-16, DL-0084). The generated **see also** applies the same filter, listing an unreachable target by the mention's words (DL-0437). The filter runs at render time against the access table, never at authoring time.
+- **Links** resolve per reader: a mention — `[words]{.document #12}`, another document named by its number (DL-0436) — becomes a link only if that reader may read the target while it is active, and renders as its words alone otherwise, an archived target and a number that names none included (ASR-16, DL-0084); a mention of the document itself is its words alone for every reader (DL-11-012). The generated **see also** applies the same filter, listing an unreachable target by the mention's words (DL-0437). The filter runs at render time against the access table, never at authoring time.
 
 ## Generated views and document ADRs
 

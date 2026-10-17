@@ -106,7 +106,11 @@ export function sourceField({ words, validate, convert, refusal, notice = () => 
   let converted = "";
   let at = [0, 0];
   field.addEventListener("paste", (event) => {
-    const pasted = event.clipboardData ? event.clipboardData.getData("text/plain") : "";
+    // Read as the field will hold it: a field's line breaks are always "\n".
+    const pasted = (event.clipboardData ? event.clipboardData.getData("text/plain") : "").replace(
+      /\r\n?/g,
+      "\n",
+    );
     const refusals = pasted ? validate(pasted) : [];
     if (!refusals.length) {
       offer.hidden = true;
