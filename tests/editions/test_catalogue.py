@@ -55,7 +55,7 @@ def text_of(body: str) -> str:
     return re.sub(r"<[^>]*>", " ", body)
 
 
-def test_catalogue_covers_epic_6_pages(
+def test_catalogue_covers_the_edition_pages(
     migrated_tenant: Any,
     edition_cast: Any,
     member_of: Any,

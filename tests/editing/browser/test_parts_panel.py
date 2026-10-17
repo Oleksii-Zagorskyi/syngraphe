@@ -4,6 +4,7 @@ draft the tab draws again. Invented text; the people are synthetic examples."""
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import Any
 
 import pytest
@@ -13,6 +14,26 @@ from tenancy.schemas import schema_context
 pytestmark = pytest.mark.browser
 
 EDITOR = "document.getElementById('editor').editor"
+
+
+@pytest.fixture(autouse=True)
+def settled(page: Any) -> Iterator[None]:
+    """Each page left quiet before the server and the database go: what the tab still sends —
+    its take on mount, a capture, a heartbeat — answered, every editor finished, the page closed."""
+    yield
+    for open_page in list(page.context.pages):
+        if open_page.is_closed():
+            continue
+        try:
+            open_page.wait_for_load_state("networkidle")
+            open_page.evaluate(
+                """async () => {
+                  const editor = document.getElementById('editor')?.editor;
+                  if (editor && editor.capture) await editor.capture.finish().catch(() => null);
+                }"""
+            )
+        finally:
+            open_page.close()
 
 
 def opened(

@@ -237,22 +237,42 @@ def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, 
     _, old = holds.split(gitstore.read(repo, holds.BODY, against).decode("utf-8"))
     from django.utils.translation import gettext
 
+    from editing import parts
     from rendering import reading
 
+    # The draft's parts against the same side: its appendices as it holds them.
+    current = parts.side_at(repo, head)
+    found = parts.changes_between(parts.side_at(repo, against), parts.draft_side(kept))
+    # An appendix only the draft holds has no page to open.
+    on_head = {int(e["number"]) for e in current[0].get("appendices", [])}
+    side = chosen or {sha: n for n, sha in choices}.get(head, "")
     reader = reading.context(
         request.user,
         document,
         old,
         body,
+        *(text for change in found.appendices for text in (change.older, change.newer)),
         images=reading.draft_images(document, kept, repo),
         # The side compared with is named by its number, the head's when none was chosen.
-        sides=(chosen or {sha: n for n, sha in choices}.get(head, ""), gettext("your draft")),
+        sides=(side, gettext("your draft")),
     )
     # Built from text the whitelist accepted, by the renderer that escapes it.
     changes = mark_safe(  # noqa: S308
         render_changes(old.encode("utf-8"), body.encode("utf-8"), context=reader)
     )
-    return shown | {"changes": changes}
+    number = document.number
+    drawn = parts.drawn(
+        found,
+        reader,
+        older_file=lambda n: f"/document/{number}/version/{side}/attachment/{n}/" if side else None,
+        newer_file=lambda n: f"/document/{number}/edit/parts/attachment/{n}/",
+        appendix_link=lambda n: f"/document/{number}/appendix/{n}/" if n in on_head else "",
+    )
+    return shown | {
+        "changes": changes,
+        **drawn,
+        "parts_heading": gettext("Part operations in this draft"),
+    }
 
 
 def _reservation(

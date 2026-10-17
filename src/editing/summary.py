@@ -44,11 +44,12 @@ def sections_touched(old: str, new: str) -> list[str | None]:
     return found
 
 
-def drafted(old: str, new: str) -> str:
-    """The summary the finishing screen starts from."""
+def drafted(old: str, new: str, *, appendices: list[str] | tuple[str, ...] = ()) -> str:
+    """The summary the finishing screen starts from: the body's sections touched, then the titles
+    of the appendices whose text changed."""
     names = [
         name if name is not None else _("the opening text") for name in sections_touched(old, new)
-    ]
+    ] + list(appendices)
     # As many sections as fit the summary's limit, so the drafted text is one the form accepts.
     for count in range(len(names), 0, -1):
         listed = "; ".join(names[:count]) + ("; …" if count < len(names) else "")

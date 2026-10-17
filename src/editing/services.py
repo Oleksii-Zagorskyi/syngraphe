@@ -116,13 +116,16 @@ class InjectedFault(Exception):
 
 @dataclass(frozen=True)
 class Finishing:
-    """What the finishing screen shows: the changes, the drafted summary, the number to come, and
-    the roles, actions and terms the commit adds, relabels or removes."""
+    """What the finishing screen shows: the changes, the drafted summary, the number to come, the
+    roles, actions and terms the commit adds, relabels or removes, and the changed appendices and
+    part operations."""
 
     changes: str
     summary: str
     number: str
     entities: list[ListedEntity] = field(default_factory=list)
+    # The part changes partial's context: the appendices, the part operations, the frontmatter.
+    parts: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -444,14 +447,31 @@ def draft_text(hold: Hold) -> tuple[str, str, str]:
     """The head's sha and body, and the draft normalised against it — the text *my edits* shows
     and exports; `DraftRefused` for a draft the whitelist refuses, `MissingImages` for one that
     references an image the document does not hold."""
+    head, head_body, normalised, _ = _draft_text(hold)
+    return head, head_body, normalised
+
+
+def _draft_text(hold: Hold) -> tuple[str, str, str, dict[str, bytes | None]]:
+    """`draft_text`, and what the commit would write against the head."""
     document = Document.objects.select_related("language").get(pk=hold.document_id)
     tenant_number = holds.tenant_number()
     head, head_body = _head_body(tenant_number, document)
     draft = Draft.objects.get(hold=hold)
     lists = _lists(document)
-    staged_changes(draft, gitstore.open_repository(tenant_number, document.number), head, lists)
+    staged = staged_changes(
+        draft, gitstore.open_repository(tenant_number, document.number), head, lists
+    )
     normalised = _normalised(head_body, draft.content[holds.BODY], lists)
-    return head, head_body, normalised.decode("utf-8")
+    return head, head_body, normalised.decode("utf-8"), staged
+
+
+def _head_number(document: Document, head: str) -> str:
+    try:
+        version = Version.objects.get(document=document, commit_sha=head)
+        return numbering.number_of(document, version)
+    except (Version.DoesNotExist, LookupError):
+        # A head a stopped finish left underived: its side is named without a number.
+        return ""
 
 
 def _holders_reading(hold: Hold, document: Document, head: str, *bodies: str) -> Any:
@@ -461,12 +481,7 @@ def _holders_reading(hold: Hold, document: Document, head: str, *bodies: str) ->
 
     from rendering import reading
 
-    try:
-        version = Version.objects.get(document=document, commit_sha=head)
-        head_number = numbering.number_of(document, version)
-    except (Version.DoesNotExist, LookupError):
-        # A head a stopped finish left underived: its side is named without a number.
-        head_number = ""
+    head_number = _head_number(document, head)
     draft = Draft.objects.get(hold=hold)
     return reading.context(
         hold.user,
@@ -477,16 +492,51 @@ def _holders_reading(hold: Hold, document: Document, head: str, *bodies: str) ->
     )
 
 
-def my_edits(hold: Hold) -> tuple[str, str, list[ListedEntity]]:
-    """The draft normalised against the head, its changes rendered, and the entities it changes;
-    `DraftRefused` for a draft the whitelist refuses."""
-    head, head_body, normalised = draft_text(hold)
-    document = Document.objects.get(pk=hold.document_id)
-    reader = _holders_reading(hold, document, head, head_body, normalised)
-    changes = render_changes(head_body.encode(), normalised.encode(), context=reader)
+def _draft_parts(
+    hold: Hold, repo: pygit2.Repository, head: str, staged: dict[str, bytes | None]
+) -> parts.PartChanges:
+    """The draft's part changes against the head: each appendix as the commit will write it —
+    `staged`, what `staged_changes` returned, or the head's own text where it changed nothing."""
+    draft = Draft.objects.get(hold=hold)
+    current = parts.side_at(repo, head)
+
+    def written(number: int) -> str:
+        content = staged.get(parts.appendix_key(number))
+        return content.decode("utf-8") if content is not None else current[1].get(number, "")
+
+    return parts.changes_between(current, parts.draft_side(draft, written))
+
+
+def _drawn_for_the_holder(
+    document: Document, head: str, changes: parts.PartChanges, reader: Any
+) -> dict[str, Any]:
+    """The draft's part changes as the person editing is shown them: an attachment's file at the
+    head's version and in the draft, an appendix's link to its edit tab."""
+    number, at = document.number, _head_number(document, head)
+    return parts.drawn(
+        changes,
+        reader,
+        older_file=lambda n: f"/document/{number}/version/{at}/attachment/{n}/" if at else None,
+        newer_file=lambda n: f"/document/{number}/edit/parts/attachment/{n}/",
+        appendix_link=lambda n: f"/document/{number}/appendix/{n}/edit/",
+    )
+
+
+def _appendix_texts(changes: parts.PartChanges) -> list[str]:
+    return [text for change in changes.appendices for text in (change.older, change.newer)]
+
+
+def my_edits(hold: Hold) -> tuple[str, str, list[ListedEntity], dict[str, Any]]:
+    """The draft normalised against the head, its changes rendered, the entities it changes and
+    its part changes; `DraftRefused` for a draft the whitelist refuses."""
+    head, head_body, normalised, staged = _draft_text(hold)
+    document = Document.objects.select_related("language").get(pk=hold.document_id)
     repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    found = _draft_parts(hold, repo, head, staged)
+    reader = _holders_reading(hold, document, head, head_body, normalised, *_appendix_texts(found))
+    changes = render_changes(head_body.encode(), normalised.encode(), context=reader)
     listed = entity_changes(Draft.objects.get(hold=hold), repo, head, normalised)
-    return head_body, changes, listed
+    return head_body, changes, listed, _drawn_for_the_holder(document, head, found, reader)
 
 
 def finish(hold: Hold) -> Finishing:
@@ -500,14 +550,22 @@ def finish(hold: Hold) -> Finishing:
     draft = Draft.objects.get(hold=hold)
     lists = _lists(document)
     repo = gitstore.open_repository(tenant_number, document.number)
-    staged_changes(draft, repo, head, lists)
+    staged = staged_changes(draft, repo, head, lists)
     normalised = _normalised(head_body, draft.content[holds.BODY], lists)
-    reader = _holders_reading(hold, document, head, head_body, normalised.decode("utf-8"))
+    found = _draft_parts(hold, repo, head, staged)
+    reader = _holders_reading(
+        hold, document, head, head_body, normalised.decode("utf-8"), *_appendix_texts(found)
+    )
     return Finishing(
         changes=render_changes(head_body.encode(), normalised, context=reader),
-        summary=summary.drafted(head_body, normalised.decode("utf-8")),
+        summary=summary.drafted(
+            head_body,
+            normalised.decode("utf-8"),
+            appendices=[change.title for change in found.appendices],
+        ),
         number=_number(document, repo, head, draft, lists),
         entities=entity_changes(draft, repo, head, normalised.decode("utf-8")),
+        parts=_drawn_for_the_holder(document, head, found, reader),
     )
 
 

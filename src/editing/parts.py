@@ -606,3 +606,138 @@ def draft_attachment(draft: Draft, number: int, repo: Any = None) -> tuple[dict[
         )
         raise ValueError(number)
     return dict(entry), data
+
+
+# --- the changes a reader is shown -----------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class AppendixChange:
+    """An appendix whose text differs between two sides: `older` empty for one added, `newer`
+    empty for one removed."""
+
+    number: int
+    title: str
+    older: str
+    newer: str
+
+
+@dataclass(frozen=True)
+class PartChanges:
+    """What changed in the parts between two sides, beside the body: each appendix's text, the
+    part operations (`documents.parts.part_operations`) and each registered frontmatter key."""
+
+    appendices: list[AppendixChange]
+    operations: list[Any]
+    frontmatter: list[FrontmatterChange]
+
+    def __bool__(self) -> bool:
+        return bool(self.appendices or self.operations or self.frontmatter)
+
+
+Side = tuple[dict[str, Any], dict[int, str]]
+
+
+def side_at(repo: Any, commit: str) -> Side:
+    """A commit's frontmatter, as data, and the text of each appendix it lists."""
+    frontmatter, _ = holds.split(gitstore.read(repo, holds.BODY, commit).decode("utf-8"))
+    texts = {}
+    for entry in frontmatter.get(APPENDICES, []):
+        number = int(entry["number"])
+        try:
+            texts[number] = gitstore.read(repo, appendix_key(number), commit).decode("utf-8")
+        except KeyError:
+            texts[number] = ""
+    return frontmatter, texts
+
+
+def draft_side(draft: Draft, texts: Callable[[int], str] | None = None) -> Side:
+    """A draft's frontmatter and its appendices' texts, each through `texts` — as the commit will
+    write it — or as the draft holds it."""
+    frontmatter = draft.content[holds.FRONTMATTER]
+    read = texts or (lambda number: appendix_text(draft, number))
+    return frontmatter, {int(e["number"]): read(int(e["number"])) for e in frontmatter[APPENDICES]}
+
+
+def changes_between(older: Side, newer: Side) -> PartChanges:
+    """What changed from `older` to `newer`: each appendix whose text differs — in the newer
+    side's list order, then those only the older lists — the part operations and the registered
+    frontmatter keys."""
+    from documents.parts import part_operations
+
+    old_fm, old_texts = older
+    new_fm, new_texts = newer
+    titles = {int(e["number"]): str(e["title"]) for e in old_fm.get(APPENDICES, [])}
+    titles |= {int(e["number"]): str(e["title"]) for e in new_fm.get(APPENDICES, [])}
+    order = [int(e["number"]) for e in new_fm.get(APPENDICES, [])]
+    order += [n for n in (int(e["number"]) for e in old_fm.get(APPENDICES, [])) if n not in order]
+    appendices = [
+        AppendixChange(n, titles[n], old_texts.get(n, ""), new_texts.get(n, ""))
+        for n in order
+        if old_texts.get(n, "") != new_texts.get(n, "")
+    ]
+    operations = part_operations(
+        (old_fm.get(APPENDICES, []), old_fm.get(ATTACHMENTS, [])),
+        (new_fm.get(APPENDICES, []), new_fm.get(ATTACHMENTS, [])),
+    )
+    return PartChanges(appendices, operations, frontmatter_changes(old_fm, new_fm))
+
+
+def drawn(
+    changes: PartChanges,
+    context: Any,
+    *,
+    older_file: Callable[[int], str | None],
+    newer_file: Callable[[int], str | None],
+    appendix_link: Callable[[int], str],
+    authors: dict[int, dict[int, str]] | None = None,
+) -> dict[str, Any]:
+    """What the part changes partial draws: each changed appendix's changes marked in place,
+    rendered with the page's `context` — its lines attributed by `authors[number]` where given —
+    and a row per part operation and frontmatter change, an attachment's files linked on each
+    side it is on."""
+    from django.utils.safestring import mark_safe
+
+    from editing.diffview import render_changes
+
+    appendices = [
+        {
+            "number": change.number,
+            "title": change.title,
+            # Built from text the whitelist accepted, by the renderer that escapes it.
+            "changes": mark_safe(  # noqa: S308
+                render_changes(
+                    change.older.encode("utf-8"),
+                    change.newer.encode("utf-8"),
+                    authors=(authors or {}).get(change.number),
+                    context=context,
+                )
+            ),
+        }
+        for change in changes.appendices
+    ]
+    rows = []
+    for operation in changes.operations:
+        if operation.change == "reordered":
+            rows.append({"kind": operation.kind, "change": "reordered"})
+            continue
+        entry = operation.newer or operation.older or {}
+        attachment = operation.kind == "attachment"
+        rows.append(
+            {
+                "kind": operation.kind,
+                "change": operation.change,
+                "title": entry.get("title", ""),
+                "older_title": (operation.older or {}).get("title", ""),
+                "old": older_file(operation.number) if attachment and operation.older else None,
+                "new": newer_file(operation.number) if attachment and operation.newer else None,
+                "open": appendix_link(operation.number)
+                if not attachment and operation.newer
+                else None,
+            }
+        )
+    return {
+        "part_appendices": appendices,
+        "part_rows": rows,
+        "frontmatter_rows": [change.words for change in changes.frontmatter],
+    }

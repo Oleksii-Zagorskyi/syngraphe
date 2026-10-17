@@ -16,12 +16,13 @@
   </form>
   {% if run %}
   <ol class="run">
-    {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}, {{ version.at|date:"j M Y, H:i" }}</span></li>{% endfor %}
+    {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}, {{ version.at|date:"j M Y, H:i" }}</span>{% if version.parts %}<br><span class="parts-line">{% translate "Parts:" %} {% for row in version.parts %}{% include "editing/part_label.html" %}{% if not forloop.last %}; {% endif %}{% endfor %}</span>{% endif %}</li>{% endfor %}
   </ol>
   {% else %}
   <p class="nothing-pending">{% translate "Nothing awaits review." %}</p>
   {% endif %}
   <div class="changes document-text">{{ changes }}</div>
+  {% include "editing/part_changes.html" %}
   {% translate "Roles, actions and terms changed in the run" as heading %}{% include "editing/entity_changes.html" with heading=heading %}
 </div>
 {% endblock %}

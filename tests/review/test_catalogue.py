@@ -181,3 +181,54 @@ def test_catalogue_covers_history_compare_and_return(
         assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
     assert "Історична версія 0.1" in bodies["the historical page"]
     assert "повернено" in bodies["the list"]
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_runs_parts(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    accepted_directly: Any,
+    settings: Any,
+) -> None:
+    """*Pending edits* with the run's appendices, part operations and *Parts:* lines, in
+    Ukrainian."""
+    import hashlib
+
+    from access.rights import Right
+
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    client, author, own = member_of("the.author@example.test")
+    document = new_document(author)
+    link_group(document, [Right.ACCEPT, Right.VIEW_PENDING], [own], author)
+
+    def form(data: bytes, title: str) -> dict[str, Any]:
+        digest = hashlib.sha256(data).hexdigest()
+        return {"number": 2, "title": title, "file_name": "f.txt", "sha256": digest, "bytes": 1}
+
+    commit_version(
+        document,
+        author,
+        "# Мета\n\nПерше речення.\n",
+        files={"appendices/1.md": "# Додаток\n\nРечення.\n".encode(), "attachments/2": b"a"},
+        appendices=[{"number": 1, "title": "Перша назва (приклад)"}],
+        attachments=[form(b"a", "Форма (приклад)")],
+    )
+    accepted_directly(document, author)
+    commit_version(
+        document,
+        author,
+        "# Мета\n\nПерше речення.\n",
+        files={"appendices/1.md": "# Додаток\n\nІнше речення.\n".encode(), "attachments/2": b"b"},
+        appendices=[{"number": 1, "title": "Друга назва (приклад)"}],
+        attachments=[form(b"b", "Форма (приклад)")],
+    )
+    body = text_of(client.get(f"/document/{document.number}/pending/").content.decode())
+    leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+    assert leaked == [], f"pending edits shows message ids verbatim: {leaked}"
+    assert "перейменовано з «Перша назва (приклад)»" in body
+    assert "Частини:" in body

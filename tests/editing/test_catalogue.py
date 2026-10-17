@@ -50,7 +50,7 @@ def text_of(body: str) -> str:
 
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
-def test_catalogue_covers_epic_4_pages(
+def test_catalogue_covers_the_editor_pages(
     migrated_tenant: Any,
     member_of: Any,
     new_document: Any,
@@ -326,3 +326,38 @@ def test_catalogue_covers_the_appendix_pages(
         assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
     # The page hands the editor its words as JSON, every letter beyond ASCII escaped.
     assert json.dumps("Редагувати весь додаток")[1:-1] in editing
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_drafts_parts(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    queued_authorship: list[Any],
+    settings: Any,
+) -> None:
+    """*My edits* and the finishing screen with the draft's appendices and part operations, in
+    Ukrainian."""
+    from access.rights import PARTS, Right
+    from editing import holds, parts
+
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    _, author, _ = member_of("the.author@example.test")
+    client, holder, own = member_of("the.holder@example.test")
+    document = new_document(author)
+    link_group(document, [Right.EDIT, *PARTS], [own], author)
+    with schema_context(migrated_tenant.number):
+        holds.take(document, holder)
+        parts.create_appendix(document, holder, title="Додаток (приклад)")
+        parts.upload_attachment(
+            document, holder, title="Форма (приклад)", file_name="f.txt", data=b"x"
+        )
+    m = document.number
+    for path in (f"/document/{m}/my-edits/", f"/document/{m}/edit/finish/"):
+        body = text_of(client.get(path).content.decode())
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+        assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
+        assert "Зміни частин документа в цій чернетці" in body

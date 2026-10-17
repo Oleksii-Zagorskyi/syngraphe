@@ -59,7 +59,7 @@ def _assert_translated(name: str, body: str) -> None:
     assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
 
 
-def test_catalogue_covers_epic_7_pages(
+def test_catalogue_covers_the_reading_and_export_pages(
     migrated_tenant: Any,
     edition_cast: Any,
     member_of: Any,

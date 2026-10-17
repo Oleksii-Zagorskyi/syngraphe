@@ -1,5 +1,6 @@
 """The *Pending edits* tab (DL-0040, DL-0170): the whole document, every change since the last
-acceptance marked in place, the run's versions listed, each line's author behind *show author*, and
+acceptance marked in place, the run's versions listed with the parts each changed, each line's
+author behind *show author*, each appendix the run changed and the parts changed in the run, and
 the roles, actions and terms the run added, relabelled or removed.
 
 The run's lines are attributed at render from the run itself — a blame of the head bounded by the
@@ -24,6 +25,7 @@ from access.rights import Right, rights_on_many
 from documents import gitstore
 from documents.holds import held_by
 from documents.models import Document, DocumentState, Version, VersionKind
+from documents.parts import lists_at, part_operations
 from documents.views import ABSENT, is_member
 from editing import holds, numbering
 from editing.authorship import DOCUMENT_FILE, blame_at
@@ -49,19 +51,31 @@ def _body(text: str) -> tuple[int, str]:
 
 
 def _authors(
-    tenant_number: int, document: Document, head: str, base: Version, offset: int
+    tenant_number: int,
+    document: Document,
+    head: str,
+    base: Version,
+    offset: int,
+    *,
+    path: str = DOCUMENT_FILE,
+    at_base: bool = True,
 ) -> dict[int, str]:
-    """Each body line of the head by its index, to the name of its author."""
+    """Each line of `path` at the head after its first `offset` — the body of `document.md`, or
+    an appendix's whole text — by its index, to the name of its author; an appendix the base does
+    not hold (`at_base` false) attributed from the run alone."""
     lines = blame_at(
-        gitstore.repository_path(tenant_number, document.number), head, base=base.commit_sha
+        gitstore.repository_path(tenant_number, document.number),
+        head,
+        base=base.commit_sha if at_base else None,
+        path=path,
     )
     versions = {
         v.commit_sha: v for v in Version.objects.filter(document=document).select_related("author")
     }
     base_rows: dict[int, Any] = {}
-    if base.kind != VersionKind.CREATED:
+    if base.kind != VersionKind.CREATED and at_base:
         base_rows = dict(
-            LineAuthorship.objects.filter(version=base, file=DOCUMENT_FILE).values_list(
+            LineAuthorship.objects.filter(version=base, file=path).values_list(
                 "line", "introduced_by__author"
             )
         )
@@ -145,14 +159,19 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         }
         for n, version in enumerate(run, 1)
     ]
+    from editing import parts
     from rendering import reading
 
     head_number = f"{accepted}-{len(run)}" if run else accepted
+    # The run's parts beside its body: each appendix's text, the part operations, the
+    # frontmatter, from the base to the head (DL-0168).
+    found = parts.changes_between(parts.side_at(repo, base.commit_sha), parts.side_at(repo, head))
     reader = reading.context(
         request.user,
         document,
         base_body,
         head_body,
+        *(text for change in found.appendices for text in (change.older, change.newer)),
         images=reading.committed_images(document),
         sides=(accepted, head_number),
     )
@@ -160,6 +179,30 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     changes = render_changes(
         base_body.encode(), head_body.encode(), authors=authors, context=reader
     )
+    # The head's own number, from its row: none while a finish stopped after its commit has left
+    # it underived, and then no *new* file is drawn rather than the version before's.
+    head_version = Version.objects.filter(document=document, commit_sha=head).first()
+    at_head = numbering.number_of(document, head_version) if head_version is not None else ""
+    drawn = parts.drawn(
+        found,
+        reader,
+        older_file=lambda n: f"/document/{document.number}/version/{accepted}/attachment/{n}/",
+        newer_file=lambda n: (
+            f"/document/{document.number}/version/{at_head}/attachment/{n}/" if at_head else None
+        ),
+        appendix_link=lambda n: f"/document/{document.number}/appendix/{n}/",
+        authors=_appendix_authors(tenant_number, document, head, base, found)
+        if attributed
+        else None,
+    )
+    for version, before, row in zip(run, [base, *run], versions, strict=False):
+        row["parts"] = parts.drawn(
+            parts.PartChanges([], part_operations(lists_at(before), lists_at(version)), []),
+            reader,
+            older_file=lambda n: None,
+            newer_file=lambda n: None,
+            appendix_link=lambda n: "",
+        )["part_rows"]
     rights = rights_on_many(request.user, [document.pk])[document.pk]
     acts = None
     if Right.ACCEPT in rights:
@@ -185,8 +228,32 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         "changes": mark_safe(changes),  # noqa: S308
         "show_author": attributed,
         "entity_changes": _entity_changes(repo, base.commit_sha, head, document.number),
+        **drawn,
+        "parts_heading": _("Parts changed in the run"),
     }
     return render(request, "review/pending.html", context)
+
+
+def _appendix_authors(
+    tenant_number: int, document: Document, head: str, base: Version, found: Any
+) -> dict[int, dict[int, str]]:
+    """Each changed appendix the head holds, its lines by index to their authors."""
+    from editing import parts
+
+    authors = {}
+    for change in found.appendices:
+        if not change.newer:
+            continue
+        authors[change.number] = _authors(
+            tenant_number,
+            document,
+            head,
+            base,
+            0,
+            path=parts.appendix_key(change.number),
+            at_base=bool(change.older),
+        )
+    return authors
 
 
 def _entity_changes(repo: Any, base: str, head: str, number: int) -> list[Any]:

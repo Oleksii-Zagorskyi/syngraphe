@@ -8,7 +8,7 @@
 {% else %}
 <p>{% translate "The document has changed since your draft began — a new version or an acceptance — so your draft can only be read: it is shown as changes against the text you choose. Carry over what you need by hand." %}</p>
 <form method="get" class="inline compare-against"><label for="against">{% translate "Compare with" %}</label> <select id="against" name="against"><option value=""{% if not chosen %} selected{% endif %}>{% translate "the current text" %}</option>{% for number in choices %}<option value="{{ number }}"{% if number == chosen %} selected{% endif %}>{{ number }}</option>{% endfor %}</select> <button class="btn" type="submit">{% translate "Compare" %}</button></form>
-{% if refused_text %}<p class="muted">{% translate "Your draft holds text the editor does not accept, so it is shown as it was typed." %}</p><pre class="draft-text">{{ refused_text }}</pre>{% else %}<div class="changes document-text">{{ changes }}</div>{% endif %}
+{% if refused_text %}<p class="muted">{% translate "Your draft holds text the editor does not accept, so it is shown as it was typed." %}</p><pre class="draft-text">{{ refused_text }}</pre>{% else %}<div class="changes document-text">{{ changes }}</div>{% include "editing/part_changes.html" %}{% endif %}
 {% endif %}
 <details class="confirm"><summary class="btn">{% translate "Discard this draft…" %}</summary><p>{% translate "The whole draft — its text and its files — is thrown away. This cannot be undone." %}</p><form method="post" action="/document/{{ document.number }}/edit/discard-draft/" class="inline">{% csrf_token %}<button class="btn danger" type="submit">{% translate "Discard this draft" %}</button></form></details>
 {% endblock %}

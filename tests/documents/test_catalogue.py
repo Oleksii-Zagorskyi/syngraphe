@@ -74,7 +74,7 @@ def text_of(body: str) -> str:
 
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
-def test_catalogue_covers_epic_3_pages(
+def test_catalogue_covers_the_document_pages(
     migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any
 ) -> None:
     from access.models import AccessGroup, DocumentGroup
@@ -114,7 +114,7 @@ def test_catalogue_covers_epic_3_pages(
 
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
-def test_catalogue_covers_epic_10_pages(
+def test_catalogue_covers_the_corpus_pages(
     migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any, repo_root: Path
 ) -> None:
     """The corpus's pages in `uk`: every string from the catalogue, a type's label as the

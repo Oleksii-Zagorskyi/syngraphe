@@ -3847,3 +3847,48 @@ msgstr "%(name)s має розмір %(size)s; обмеження цієї ор�
 #: editing/views/appendix.py
 msgid "Edit the whole appendix"
 msgstr "Редагувати весь додаток"
+
+#: editing/templates/editing/part_label.html
+msgid "Appendices reordered"
+msgstr "Додатки впорядковано наново"
+
+#: editing/templates/editing/part_label.html
+msgid "Attachments reordered"
+msgstr "Вкладені файли впорядковано наново"
+
+#: editing/templates/editing/part_label.html
+msgid "replaced"
+msgstr "замінено"
+
+#: editing/templates/editing/part_label.html
+#, python-format
+msgid "renamed from “%(older)s”"
+msgstr "перейменовано з «%(older)s»"
+
+#: editing/templates/editing/part_label.html
+msgid "deleted"
+msgstr "видалено"
+
+#: editing/templates/editing/part_changes.html
+msgid "old"
+msgstr "попередній"
+
+#: editing/templates/editing/part_changes.html
+msgid "last version"
+msgstr "остання версія"
+
+#: editing/templates/editing/part_changes.html
+msgid "new"
+msgstr "новий"
+
+#: editing/views/finish.py editing/views/edit_tab.py
+msgid "Part operations in this draft"
+msgstr "Зміни частин документа в цій чернетці"
+
+#: review/templates/review/pending.html
+msgid "Parts:"
+msgstr "Частини:"
+
+#: review/views/pending.py
+msgid "Parts changed in the run"
+msgstr "Частини документа, змінені в правках після останнього погодження"

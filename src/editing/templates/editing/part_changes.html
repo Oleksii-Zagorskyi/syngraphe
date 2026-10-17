@@ -1,0 +1,18 @@
+{% load i18n %}{# After the body's changes: each changed appendix under its title, then the part operations and the frontmatter changes as one table (DL-0168). #}
+{% for appendix in part_appendices %}<section class="appendix-changes" data-appendix="{{ appendix.number }}">
+  <h2>{{ appendix.title }}</h2>
+  <div class="changes document-text">{{ appendix.changes }}</div>
+</section>{% endfor %}
+{% if part_rows or frontmatter_rows %}<section class="part-changes">
+  <h2>{{ parts_heading }}</h2>
+  <table>
+    <tbody>
+      {% for row in part_rows %}<tr data-kind="{{ row.kind }}" data-change="{{ row.change }}">{% if row.change == "reordered" %}<td colspan="3">{% include "editing/part_label.html" %}</td>{% else %}
+        <td>{% include "editing/part_label.html" %}</td>
+        <td>{% if row.kind == "attachment" %}{% if row.old %}<a href="{{ row.old }}">{% if row.change == "removed" %}{% translate "last version" %}{% else %}{% translate "old" %}{% endif %}</a>{% endif %}{% if row.old and row.new %} · {% endif %}{% if row.new %}<a href="{{ row.new }}">{% translate "new" %}</a>{% endif %}{% endif %}</td>
+        <td>{% if row.open %}<a href="{{ row.open }}">{% translate "open" %}</a>{% endif %}</td>{% endif %}
+      </tr>{% endfor %}
+      {% for words in frontmatter_rows %}<tr data-kind="frontmatter"><td colspan="3">{{ words }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>{% endif %}

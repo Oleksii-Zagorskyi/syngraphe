@@ -667,3 +667,14 @@ def invented_image() -> Callable[..., bytes]:
         return buffer.getvalue()
 
     return make
+
+
+@pytest.fixture
+def frontmatter_kinds(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
+    """An empty registry of frontmatter kinds for one test, so a kind it registers never meets one
+    an app registered at start-up."""
+    from editing import parts
+
+    fresh: dict[str, Any] = {}
+    monkeypatch.setattr(parts, "FRONTMATTER_KINDS", fresh)
+    return fresh
