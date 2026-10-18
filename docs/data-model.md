@@ -372,7 +372,7 @@ erDiagram
         uuid version FK "the passport commit"
         uuid returned_from FK "previous accepted version"
         uuid reviewer FK
-        text reason "required: one line, at most 500 characters, no bidirectional controls (DL-0378)"
+        text reason "required: one line, at most 500 characters, no control, reordering or invisible format character but the two joiners (DL-0378, DL-0483)"
         datetime at
     }
     FREEZE {

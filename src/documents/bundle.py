@@ -30,6 +30,8 @@ NUMBER_MAX = 2**31 - 1
 # The document's own title-page text (DL-0476): plain lines, as many as a title page holds.
 TITLE_PAGE_TEXT_MAX = 500
 TITLE_PAGE_TEXT_LINES = 8
+# The zero-width non-joiner and joiner, which some scripts need to be written correctly.
+JOINERS = frozenset("\u200c\u200d")
 
 
 def valid_title(title: str) -> bool:
@@ -54,13 +56,16 @@ def clean_title_page_text(text: str) -> str:
 
 def valid_title_page_text(text: str) -> bool:
     """Plain text of at most `TITLE_PAGE_TEXT_MAX` characters on `TITLE_PAGE_TEXT_LINES` lines: no
-    control character but the line break, no mark reordering the text around it; empty is none."""
+    control character but the line break, no mark reordering the text around it, no invisible
+    character but the two joiners some scripts need (DL-0483); empty is none."""
     return (
         len(text) <= TITLE_PAGE_TEXT_MAX
         and text.count("\n") < TITLE_PAGE_TEXT_LINES
         and not DIRECTION.search(text)
         and not any(
-            unicodedata.category(ch) in ("Cc", "Cs", "Cn", "Zl", "Zp") and ch != "\n" for ch in text
+            (unicodedata.category(ch) in ("Cc", "Cs", "Cn", "Zl", "Zp") and ch != "\n")
+            or (unicodedata.category(ch) == "Cf" and ch not in JOINERS)
+            for ch in text
         )
     )
 

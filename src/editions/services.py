@@ -70,10 +70,22 @@ BIDI_CONTROLS = frozenset(
 )
 
 
+# The zero-width non-joiner and joiner, the one invisible format characters some scripts need
+# to be written correctly; every other one is refused, so a text reads as it is stored (DL-0483).
+JOINERS = frozenset("\u200c\u200d")
+
+
+def invisible(ch: str) -> bool:
+    """Whether `ch` is a format character a reader cannot see and a text may not hold."""
+    return unicodedata.category(ch) == "Cf" and ch not in JOINERS
+
+
 def valid_reason(reason: str) -> bool:
     """One line of printable text, at most `REASON_MAX` characters, or nothing."""
     return len(reason) <= REASON_MAX and not any(
-        unicodedata.category(ch) in ("Cc", "Cs", "Cn", "Zl", "Zp") or ch in BIDI_CONTROLS
+        unicodedata.category(ch) in ("Cc", "Cs", "Cn", "Zl", "Zp")
+        or ch in BIDI_CONTROLS
+        or invisible(ch)
         for ch in reason
     )
 

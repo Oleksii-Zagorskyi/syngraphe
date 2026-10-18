@@ -25,4 +25,5 @@
     </li>{% endfor %}</ul>{% else %}<p>{% translate "No attachments" %}</p>{% endif %}
     {% if parts_panel.can_upload %}<form method="post" action="/document/{{ document.number }}/edit/parts/attachment/" enctype="multipart/form-data" class="part-add">{% csrf_token %}<input name="title" required maxlength="500" aria-label="{% translate 'Title of the new attachment' %}" placeholder="{% translate 'Title of the new attachment' %}"> <input type="file" name="file" required aria-label="{% translate 'File' %}"> <button class="btn" type="submit">{% translate "Add" %}</button></form>{% endif %}
   </section>
+  {% include "editing/title_page_panel.html" %}
 </aside>

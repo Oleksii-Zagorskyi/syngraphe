@@ -10,6 +10,7 @@ from editing.views import (
     images,
     parts,
     reservations,
+    title_page,
 )
 
 urlpatterns = [
@@ -23,6 +24,11 @@ urlpatterns = [
     path("document/<int:number>/edit/close/", capture.close, name="document_edit_close"),
     path("document/<int:number>/edit/changes/", capture.changes, name="document_edit_changes"),
     path("document/<int:number>/edit/finish/", finish.finish, name="document_edit_finish"),
+    path(
+        "document/<int:number>/edit/title-page/",
+        title_page.switch,
+        name="document_edit_title_page",
+    ),
     path("document/<int:number>/edit/send/", finish.send, name="document_edit_send"),
     path("document/<int:number>/edit/discard/", finish.discard, name="document_edit_discard"),
     path("document/<int:number>/my-edits/", finish.my_edits, name="document_my_edits"),

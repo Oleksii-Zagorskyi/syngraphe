@@ -1,0 +1,12 @@
+{% load i18n %}{# The title page's switch and the document's own text, draft changes the run carries to the reviewer (DL-0463, DL-0476). #}
+<section class="title-page-panel">
+  <h2>{% translate "Title page" %}</h2>
+  <p class="note">{% translate "Your draft; committed with the run and shown to the reviewer." %}</p>
+  {% if title_page_error %}<p class="error" role="alert">{{ title_page_error }}</p>{% endif %}
+  <form method="post" action="/document/{{ document.number }}/edit/title-page/">{% csrf_token %}
+    <p><label><input type="checkbox" name="title_page"{% if title_page_attempt is not None %}{% if title_page_attempt_on %} checked{% endif %}{% elif title_page.title_page %} checked{% endif %}> {% translate "Title page" %}</label></p>
+    <p><label for="title-page-text">{% translate "Title page text" %}</label> <span class="note">{% translate "Printed on the title page; plain text, at most 500 characters and 8 lines." %}</span><br>
+      <textarea id="title-page-text" name="title_page_text" rows="4" maxlength="500">{% if title_page_attempt is not None %}{{ title_page_attempt }}{% else %}{{ title_page.text }}{% endif %}</textarea></p>
+    <button class="btn" type="submit">{% translate "Apply" %}</button>
+  </form>
+</section>

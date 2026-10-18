@@ -145,7 +145,10 @@ def _ran(
     from editing import parts
 
     if kind == "frontmatter":
-        return key in parts.FRONTMATTER_KINDS and older[0].get(key) != newer[0].get(key)
+        kind_of = parts.FRONTMATTER_KINDS.get(key or "")
+        return kind_of is not None and (
+            older[0].get(key, kind_of.absent) != newer[0].get(key, kind_of.absent)
+        )
     operations = part_operations(
         (older[0].get("appendices", []), older[0].get("attachments", [])),
         (newer[0].get("appendices", []), newer[0].get("attachments", [])),

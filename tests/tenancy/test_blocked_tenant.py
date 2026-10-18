@@ -71,6 +71,7 @@ def _signed_in(user: Any, host: str, tenant: Any = None) -> Client:
 def test_closed_to_members_open_to_platform_administrators(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
+    from audit.models import AuditEvent
     from identity.models import Membership, User
     from tenancy.middleware import invalidate_host_cache
     from tenancy.models import TenantDomain
@@ -96,6 +97,14 @@ def test_closed_to_members_open_to_platform_administrators(
             assert answer.status_code == 404, page
             assert _tokenless(answer.content) == nothing, page
             assert document.title not in answer.content.decode(), page
+        # A draft change posted, its text past the rule: the gate answers before the rule does.
+        posted = client.post(
+            f"/document/{document.number}/edit/title-page/",
+            {"title_page": "on", "title_page_text": "x" * 501},
+        )
+        assert posted.status_code == 404
+        assert _tokenless(posted.content) == nothing
+    assert not AuditEvent.objects.filter(action="frontmatter.staged").exists()
     assert Membership.objects.get(pk=membership.pk).state == "active"
 
     for client in (

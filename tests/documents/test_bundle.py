@@ -249,6 +249,10 @@ def test_the_title_page_text_and_its_rule() -> None:
     assert not bundle.valid_title_page_text("\n".join(["line"] * 9))
     assert not bundle.valid_title_page_text("Synthetic ‮ reversed")
     assert not bundle.valid_title_page_text("Synthetic\x07bell")
+    # Invisible format characters refused but the two joiners (DL-0483).
+    assert not bundle.valid_title_page_text("Synthetic\u200bspace")
+    assert not bundle.valid_title_page_text("Synthetic\ufeffmark")
+    assert bundle.valid_title_page_text("Synthetic\u200cjoined\u200d")
     for refused in ("x" * 501, "\n".join(["line"] * 9), "Synthetic ‮ reversed"):
         front = TWO_APPENDICES.replace(
             "title_page: true\n", f"title_page: true\ntitle_page_text: {json.dumps(refused)}\n"

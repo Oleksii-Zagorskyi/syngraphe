@@ -361,3 +361,44 @@ def test_catalogue_covers_the_drafts_parts(
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
         assert "Зміни частин документа в цій чернетці" in body
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_title_page_panel(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """The edit tab's title-page panel, its refusal, and the two changes listed at *finish*, in
+    Ukrainian."""
+    from access.rights import Right
+
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    client, holder, own = member_of("the.holder@example.test")
+    document = new_document(holder)
+    link_group(document, [Right.EDIT], [own], holder)
+    commit_version(document, holder, BODY)
+    n = document.number
+    assert client.post(f"/document/{n}/edit/take/").status_code == 200
+
+    refused = client.post(f"/document/{n}/edit/title-page/", {"title_page_text": "x" * 501})
+    body = text_of(refused.content.decode())
+    leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+    assert leaked == [], f"the title-page panel shows message ids verbatim: {leaked}"
+    assert "Не більше 500 символів і 8 рядків" in body
+    assert "Текст титульної сторінки" in body
+
+    client.post(
+        f"/document/{n}/edit/title-page/",
+        {"title_page": "on", "title_page_text": "Реєстровий запис (приклад)"},
+    )
+    finish = text_of(client.get(f"/document/{n}/edit/finish/").content.decode())
+    leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", finish)]
+    assert leaked == [], f"finish shows message ids verbatim: {leaked}"
+    assert "Титульну сторінку увімкнено" in finish
+    assert "Текст титульної сторінки: Реєстровий запис (приклад)" in finish

@@ -499,6 +499,9 @@ class FrontmatterKind:
     key: str
     valid: Callable[[Any], bool]
     describe: Callable[[Any, Any], str]
+    # The value a frontmatter written before the key existed holds, so a draft opened then
+    # compares equal to a head that has it.
+    absent: Any = None
 
 
 # Registered by the apps that own a key, from their `AppConfig.ready`.
@@ -542,10 +545,13 @@ def frontmatter_changes(older: dict[str, Any], newer: dict[str, Any]) -> list[Fr
     """One change per registered key whose value differs between two frontmatters."""
     return [
         FrontmatterChange(
-            key, older.get(key), newer.get(key), kind.describe(older.get(key), newer.get(key))
+            key,
+            older.get(key, kind.absent),
+            newer.get(key, kind.absent),
+            kind.describe(older.get(key, kind.absent), newer.get(key, kind.absent)),
         )
         for key, kind in FRONTMATTER_KINDS.items()
-        if older.get(key) != newer.get(key)
+        if older.get(key, kind.absent) != newer.get(key, kind.absent)
     ]
 
 

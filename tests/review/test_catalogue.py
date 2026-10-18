@@ -327,3 +327,47 @@ def test_catalogue_covers_the_undo_over_appendices(
     leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", page)]
     assert leaked == [], f"the edit tab shows message ids verbatim: {leaked}"
     assert "У додатку «Додаток (приклад)»:" in page
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_title_page_changes(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """*Pending edits* listing the title page switched and its text written, then removed, in
+    Ukrainian."""
+    from access.rights import Right
+    from review import services as review
+
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    editor, holder, own = member_of("the.holder@example.test")
+    client, reviewer, theirs = member_of("the.reviewer@example.test")
+    document = new_document(holder)
+    link_group(document, [Right.EDIT], [own], holder)
+    link_group(document, [Right.ACCEPT, Right.VIEW_PENDING], [theirs], holder)
+    commit_version(document, holder, WRITTEN)
+    n = document.number
+
+    def run(fields: dict[str, str]) -> str:
+        assert editor.post(f"/document/{n}/edit/take/").status_code == 200
+        editor.post(f"/document/{n}/edit/title-page/", fields)
+        editor.post(f"/document/{n}/edit/send/", {"summary": "Титульна сторінка (приклад)"})
+        body = text_of(client.get(f"/document/{n}/pending/").content.decode())
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+        assert leaked == [], f"pending edits shows message ids verbatim: {leaked}"
+        return body
+
+    written = run({"title_page": "on", "title_page_text": "Реєстровий запис (приклад)"})
+    assert "Титульну сторінку увімкнено" in written
+    assert "Текст титульної сторінки: Реєстровий запис (приклад)" in written
+    with schema_context(migrated_tenant.number):
+        review.accept(document, reviewer)
+    removed = run({"title_page_text": ""})
+    assert "Титульну сторінку вимкнено" in removed
+    assert "Текст титульної сторінки вилучено" in removed

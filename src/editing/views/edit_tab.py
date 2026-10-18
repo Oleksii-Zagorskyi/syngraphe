@@ -57,6 +57,19 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     document = editable(request, number)
     if document is None or request.method != "GET":
         return not_found(request)
+    return tab_response(request, document)
+
+
+def tab_response(
+    request: HttpRequest,
+    document: Document,
+    *,
+    extra: dict[str, Any] | None = None,
+    status: int = 200,
+) -> HttpResponse:
+    """The tab drawn for a document the caller's gate opened; `extra` what a refused form keeps,
+    drawn with `status`."""
+    from editing import title_page
     from editing.views.capture import settings_for_the_editor as capture_settings
 
     hold = holds.open_hold(document)
@@ -110,7 +123,10 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     if holding and hold is not None:
         # What an undo left for the holder's hand, beside the text and never in it (DL-0380).
         context["undo"] = hold.draft.content.get("undo")
-    return render(request, "editing/edit_tab.html", context)
+    # The title page's switch and text in the panel, as the draft has them (DL-0463, DL-0476).
+    context["title_page"] = title_page.state(document, hold if holding else None)
+    context |= extra or {}
+    return render(request, "editing/edit_tab.html", context, status=status)
 
 
 def _draft_view(document: Document, hold: Any, user: Any) -> Any:

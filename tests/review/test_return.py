@@ -43,6 +43,8 @@ REFUSED = (
     "   ",
     f"Synthetic reason {BIDI}with a direction control",
     "Synthetic first line\nSynthetic second line",
+    # An invisible character other than the two joiners (DL-0483).
+    "Synthetic reason\u200bwith a zero-width space",
 )
 
 

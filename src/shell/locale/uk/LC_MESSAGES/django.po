@@ -4508,3 +4508,36 @@ msgstr "Експортувати зразок PDF"
 #: rendering/templates/rendering/styles.html
 msgid "Export a sample Word file"
 msgstr "Експортувати зразок файлу Word"
+
+#: editing/title_page.py
+msgid "Title page switched on"
+msgstr "Титульну сторінку увімкнено"
+
+#: editing/title_page.py
+msgid "Title page switched off"
+msgstr "Титульну сторінку вимкнено"
+
+#: editing/title_page.py
+#, python-format
+msgid "Title page text: %(text)s"
+msgstr "Текст титульної сторінки: %(text)s"
+
+#: editing/title_page.py
+msgid "Title page text removed"
+msgstr "Текст титульної сторінки вилучено"
+
+#: editing/templates/editing/title_page_panel.html
+msgid "Your draft; committed with the run and shown to the reviewer."
+msgstr "Ваша чернетка; фіксується разом із правками й показується погоджувачеві."
+
+#: editing/templates/editing/title_page_panel.html
+msgid "Title page text"
+msgstr "Текст титульної сторінки"
+
+#: editing/templates/editing/title_page_panel.html
+msgid "Printed on the title page; plain text, at most 500 characters and 8 lines."
+msgstr "Друкується на титульній сторінці; простий текст, не більше 500 символів і 8 рядків."
+
+#: editing/views/title_page.py
+msgid "At most 500 characters and 8 lines, plain text."
+msgstr "Не більше 500 символів і 8 рядків, простий текст."
