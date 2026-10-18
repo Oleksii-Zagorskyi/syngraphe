@@ -786,8 +786,24 @@ Who and what it applies to.
 # Procedure
 
 # Records</textarea></div>
-<div class="box"><label><input type="checkbox" checked> New documents get a title page</label> <button class="btn" data-open="tpD">Title page layout…</button>
+<div class="box"><label><input type="checkbox" checked> New documents get a title page</label> <button class="btn" data-adm="t-titlepage">Title page layout…</button>
 <div class="note">The title page is generated at export from the document's details; nobody types it.</div></div></div>
+<div class="admsec" id="t-titlepage" data-url="/administration/tenant/template/title-page/" style="display:none">
+<div class="title" style="margin-bottom:8px">Title page layout</div>
+<p class="note">Which of the document's details its title page shows, and in which order — for every document whose title page is switched on. No logo in this release.</p>
+<table class="list"><thead><tr><th>Detail</th><th>Shown</th><th>Position</th></tr></thead><tbody>
+<tr><td>Title</td><td><input type="checkbox" checked></td><td><select><option>—</option><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+<tr><td>Document number</td><td><input type="checkbox" checked></td><td><select><option>—</option><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+<tr><td>Type</td><td><input type="checkbox"></td><td><select><option selected>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+<tr><td>Edition</td><td><input type="checkbox"></td><td><select><option selected>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+<tr><td>Approved by</td><td><input type="checkbox"></td><td><select><option selected>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+<tr><td>Approval date</td><td><input type="checkbox"></td><td><select><option selected>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+<tr><td>The document's own title-page text</td><td><input type="checkbox" checked></td><td><select><option>—</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+<tr><td>The approval — or that the text is not approved</td><td class="note">Always shown</td><td><select><option>—</option><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></td></tr>
+</tbody></table>
+<p>Alignment <select><option selected>left</option><option>centred</option></select></p>
+<p class="note">Approved by and the approval date are printed only on an export of the canonical version; on any other export the approval line says the text is not approved, and the edition is the one the text departs from.</p>
+<p><button class="btn primary">Apply</button> <button class="btn">Reset to the default form</button> <button class="btn" data-adm="t-template">Back to the template</button></p></div>
 <div class="admsec" id="t-settings" data-url="/administration/tenant/settings/" style="display:none">
 <div class="title" style="margin-bottom:8px">Settings</div>
 <div class="kv"><span class="muted">Attachment size cap</span><span><input value="5" size="3"> MB</span><span class="muted">Inactivity timeout</span><span><input value="30" size="3"> minutes</span><span class="muted">Distinct approver check</span><span><label><input type="checkbox"> on</label></span></div></div>
@@ -1041,12 +1057,6 @@ footer { font-size: 9pt; }</textarea>
 <p class="note">To <select><option>Policies / Finance</option><option>Procedures</option><option>Guidelines</option><option>Example Org (root)</option></select></p>
 <p class="note">Folders are presentation only: moving changes nothing about a document or who may read it.</p>
 <button class="btn primary" data-close>Move</button> <button class="btn" data-close>Cancel</button></div></div>
-<div class="overlay" id="tpD"><div class="dialog dlg"><strong>Title page layout</strong>
-<p class="note">Which of the document's details appear, in this order:</p>
-<label><input type="checkbox" checked> Organisation logo</label><br><label><input type="checkbox" checked> Title</label><br><label><input type="checkbox" checked> Document number</label><br>
-<label><input type="checkbox" checked> Version and its stance — canonical, accepted, pending</label><br><label><input type="checkbox" checked> Date of the version</label><br><label><input type="checkbox"> Type</label><br><label><input type="checkbox"> Approved by</label>
-<p class="note">Alignment <select><option>centred</option><option>left</option></select></p>
-<button class="btn primary" data-close>Apply</button> <button class="btn" data-close>Cancel</button></div></div>
 <div class="overlay" id="disc"><div class="dialog" style="max-width:420px"><strong><span class="dw">Discard my edits</span>?</strong><p>Your whole draft of #12 is thrown away — every change to the text, and every appendix or attachment you added, replaced, reordered or deleted. It cannot be recovered.</p><p class="note" data-st="h-mineres">Your reservation ends too.</p><button class="btn primary" id="discYes">Discard the draft</button> <button class="btn" id="discNo">Keep editing</button></div></div><div class="toast hid" id="idle"><strong>Are you still working?</strong><p class="note">#12 is released for others in 2 minutes. Your draft is kept either way.</p><button class="btn primary" id="idleYes">I am still working</button></div><div class="pop" id="pWhat">Choose what goes into the export. Appendices can sit inside the document or come as separate files; attachments always come as the files they are. Several files arrive as one zip.</div><div class="pop" id="pFmt">One format for the document and its appendices: PDF, Word or Markdown. Attachments keep their own format.</div><div class="pop" id="pView">Which version’s text you get. Only the versions you may see are offered.</div><div class="pop" id="pCh">Marked shows what changed, as in the pending-edits view; clean is the text alone. A canonical edition is clean unless you ask; every other version is marked unless you ask.</div><div class="overlay" id="export">
 <div class="dialog">
 <div><strong>Export — #12</strong></div>

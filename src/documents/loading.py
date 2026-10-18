@@ -35,6 +35,7 @@ from documents.models import (
     PartIndex,
 )
 from documents.services import CreationStopped, create_document
+from documents.template import TemplateRefused, starting_body
 from editing import holds
 from editing.markdown import load_spec
 from editing.markdown.parser import parser
@@ -355,7 +356,8 @@ def _template_body(title: str, language: Language) -> str:
     frontmatter = bundle.Frontmatter(
         title=title, language=language.code, title_page=template.title_page
     )
-    return bundle.parse(bundle.render(frontmatter, template.outline))[1]
+    body = starting_body(template.outline, language, strict=False)
+    return bundle.parse(bundle.render(frontmatter, body))[1]
 
 
 def _parts(files: list[tuple[str, str, bytes]]) -> list[dict[str, Any]]:
@@ -406,6 +408,10 @@ def load(folder: Path, loader: User, group: AccessGroup) -> Loaded:
             DocumentType.objects.get(code="document"),
             Folder.objects.get(number=ROOT_FOLDER),
         )
+    except TemplateRefused as error:
+        # Nothing written: refused before the row, as the interface's creation is.
+        reason = f"the organisation's document template does not pass ({error})"
+        raise Refused(folder, [reason]) from error
     except CreationStopped as error:
         raise Stopped(error.number, 1, error) from error
     try:

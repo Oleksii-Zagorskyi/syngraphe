@@ -260,3 +260,52 @@ def test_the_compiled_catalogue_is_the_catalogue() -> None:
     stale += [key for key, (_other, forms) in plural.items() if compiled_forms(key) != forms]
 
     assert stale == []
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_template_page(
+    migrated_tenant: Any, member_of: Any, settings: Any
+) -> None:
+    """The document template's page in `uk`, a refused save's lines among it, and the create
+    dialog refused by a template that no longer passes."""
+    from access.models import AccessGroup
+    from access.rights import Right
+    from documents.models import DocumentTemplate, DocumentType, Folder
+    from identity.models import Language
+
+    settings.LANGUAGE_CODE = "uk"
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    author, _, membership = member_of("an.author@example.test")
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(name="Authors", actor_kind="system")
+        group.grant(Right.CREATE_AND_EDIT, by=None)
+        group.add_member(membership, by=None)
+        form = {
+            "title": "Synthetic example",
+            "language": "uk",
+            "document_type": str(DocumentType.objects.get(code="document").id),
+            "folder": str(Folder.objects.get(number=1).id),
+        }
+    # An id its translation spells the same way, such as *HTML*, is no leak.
+    ids = [
+        message
+        for (_, message), value in entries(CATALOGUE.read_text(encoding="utf-8")).items()
+        if len(message) > 2 and value != message
+    ]
+    page = "/administration/tenant/template/"
+    image = "images/" + "a" * 64 + ".png"
+    answers = [
+        admin.get(page),
+        admin.post(page, {"outline": f"Starting text\n<div>raw</div>\n\n![A picture]({image})\n"}),
+    ]
+    with schema_context(migrated_tenant.number):
+        DocumentTemplate.objects.update(outline="Starting text\n")
+    answers.append(author.post("/document/new/", form))
+
+    assert [answer.status_code for answer in answers] == [200, 400, 409]
+    for answer in answers:
+        body = text_of(answer.content.decode())
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
+        assert leaked == [], f"shows message ids verbatim: {leaked}"

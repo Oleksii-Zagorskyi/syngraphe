@@ -96,11 +96,14 @@ def test_created_commit_holds_the_initial_tree(
     from documents.models import Document, DocumentTemplate
 
     client, _ = author
+    with schema_context(migrated_tenant.number):
+        DocumentTemplate.objects.update(
+            outline="# Purpose\nThe first sentence. The second sentence.\n"
+        )
     client.post("/document/new/", _form(migrated_tenant))
 
     with schema_context(migrated_tenant.number):
         document = Document.objects.get()
-        outline = DocumentTemplate.objects.get().outline
     repo = gitstore.open_repository(migrated_tenant.number, document.number)
     sha = str(next(gitstore.history(repo)).id)
     frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", sha).decode())
@@ -110,7 +113,8 @@ def test_created_commit_holds_the_initial_tree(
         False,
     )
     assert (frontmatter.appendices, frontmatter.attachments) == ([], [])
-    assert body == outline
+    # The outline in normal form for the document's language, each sentence on a line of its own.
+    assert body == "# Purpose\n\nThe first sentence.\nThe second sentence.\n"
     assert gitstore.read(repo, "passport.md", sha).decode() == bundle.passport_header(
         migrated_tenant.number, document.number
     )

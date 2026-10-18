@@ -29,6 +29,8 @@ from documents.models import (
     VersionKind,
     next_document_number,
 )
+from documents.template import TemplateRefused, refusals, starting_body
+from identity.models import Language
 from syngraphe.provenance import ActorKind
 from tenancy.models import Tenant
 from tenancy.schemas import current_tenant
@@ -93,6 +95,12 @@ def create_document(
         raise RuntimeError("a document is created inside a tenant's schema")
     tenant = Tenant.objects.get(number=tenant_number)
     template = DocumentTemplate.objects.get()
+    # The template checked before any row or number is taken; step 3 puts this same row in
+    # normal form, so a template saved in between reaches only documents created after it.
+    refused = refusals(template.outline)
+    if refused:
+        raise TemplateRefused(refused)
+    starting_body(template.outline, Language.objects.get(code=language))
 
     # (1) The row, with the next number, committed before anything leaves the database.
     with transaction.atomic():
@@ -209,7 +217,9 @@ def resume_creation(
             title=document.title,
             language=document.language_id,
             title_page=template.title_page,
-            outline=template.outline,
+            # Leniently: the reconciler resumes with the row as it stands then, and a creation
+            # never sticks on a template the whitelist has since stopped accepting.
+            outline=starting_body(template.outline, document.language, strict=False),
         )
         sha = gitstore.commit(
             repo, tree, identity_for(user), commit_message(Kind.CREATED), Kind.CREATED

@@ -4110,3 +4110,82 @@ msgstr "перейменовано у версії %(changing)s, автор зм
 #, python-format
 msgid "%(changer)s restored it in %(changing)s."
 msgstr "відновлено у версії %(changing)s, автор зміни — %(changer)s."
+
+#: documents/forms.py
+msgid "Section headings and starting text"
+msgstr "Заголовки розділів і початковий текст"
+
+#: documents/forms.py documents/templates/documents/template.html
+msgid "New documents get a title page"
+msgstr "Нові документи мають титульну сторінку"
+
+#: documents/template_views.py
+msgid "The template must begin with a # heading"
+msgstr "Шаблон має починатися із заголовка #"
+
+#: documents/template_views.py
+msgid "A template cannot hold an image"
+msgstr "Шаблон не може містити зображення"
+
+#: documents/template_views.py
+#, python-format
+msgid "The template cannot be put in the platform's form in %(language)s"
+msgstr "Шаблон не вдається привести до форми платформи мовою «%(language)s»"
+
+#: documents/template_views.py
+#, python-format
+msgid "Line %(line)s: %(what)s"
+msgstr "Рядок %(line)s: %(what)s"
+
+#: documents/templates/documents/template.html shell/templates/shell/administration.html
+msgctxt "document template"
+msgid "Template"
+msgstr "Шаблон документа"
+
+#: documents/templates/documents/template.html
+msgid ""
+"What every new document starts with. Changing it never touches existing "
+"documents."
+msgstr ""
+"З цього починається кожен новий документ. Зміна шаблону ніколи не зачіпає "
+"наявних документів."
+
+#: documents/templates/documents/template.html
+msgid "The template was not saved:"
+msgstr "Шаблон не збережено:"
+
+#: documents/templates/documents/template.html
+msgid "Markdown, the same allowed set as the editor; the first line a # heading."
+msgstr ""
+"Markdown, той самий дозволений набір, що й у редакторі; перший рядок — "
+"заголовок #."
+
+#: documents/templates/documents/template.html
+msgid ""
+"The title page is generated at export from the document's details; nobody "
+"types it."
+msgstr ""
+"Титульна сторінка створюється під час експорту з відомостей про документ; "
+"її ніхто не набирає."
+
+#: documents/templates/documents/template.html
+#, python-format
+msgid "Last changed by %(name)s, %(date)s"
+msgstr "Востаннє змінено: %(name)s, %(date)s"
+
+#: documents/templates/documents/template.html
+#, python-format
+msgid "Not changed since %(date)s"
+msgstr "Не змінювався з %(date)s"
+
+#: documents/templates/documents/template.html
+msgid "Save"
+msgstr "Зберегти"
+
+#: documents/templates/documents/create.html
+msgid ""
+"The organisation's document template holds what the platform does not "
+"accept. An administrator corrects it on the Template page."
+msgstr ""
+"Шаблон документа організації містить те, чого платформа не приймає. "
+"Адміністратор виправляє його на сторінці «Шаблон документа»."

@@ -262,7 +262,7 @@ erDiagram
     }
     DOCUMENT_TEMPLATE {
         uuid id PK
-        text outline "Markdown: section headings, optional starting text"
+        text outline "Markdown: section headings, optional starting text; at most 20,000 bytes"
         bool title_page "whether new documents get a title page"
         text title_page_layout "which details the title page shows, in which order, aligned how; empty for the default form (DL-0462); among them the document's own title-page text, kept in its frontmatter (DL-0476)"
     }
@@ -307,7 +307,7 @@ erDiagram
 
 **`MAIL_SENDER` holds a tenant's own sending address, at most one row** (DL-0202); with none, the platform's sender in the shared schema is used. The password is stored only encrypted and is never read back into the interface.
 
-**`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from, whether it gets a title page, and the layout the title page renders through at export (DL-0164). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
+**`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from — at most 20,000 bytes (DL-0481), put in normal form for the new document's language at its first commit — whether it gets a title page, and the layout the title page renders through at export (DL-0164). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
 
 **A new or copied document is author-only** (ADR-0007): `author_only` is set, no group is linked, and only its creator reaches it, with edit. The tenant administrator is notified and links groups; the first link clears `author_only`, after which the author reaches the document through their groups. A copy records `copied_from`, and its `document.copied` `AUDIT_EVENT` — written before its repository exists — holds the source's number, the version's number and commit and the appendices taken; the copy's *Info* tab shows administrators the source, the version and the commit, with when and by whom it was copied (DL-0455). A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
 

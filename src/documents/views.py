@@ -39,6 +39,7 @@ from documents.models import (
     Version,
 )
 from documents.services import ChoiceGone, CreationStopped, create_document
+from documents.template import TemplateRefused
 from identity.models import User
 from identity.naming import person
 from shell.views import not_found
@@ -85,6 +86,10 @@ def create(request: HttpRequest) -> HttpResponse:
                 # offered it.
                 form.add_error(gone.field, str(CHOICE_GONE[gone.field]))
                 return render(request, "documents/create.html", {"form": form}, status=400)
+            except TemplateRefused:
+                # Refused before any row: the organisation's template needs its administrator.
+                context = {"form": form, "template_refused": True}
+                return render(request, "documents/create.html", context, status=409)
             except CreationStopped as stopped:
                 # The row is kept and the reconciler finishes it; the person keeps what they typed.
                 logger.exception("a creation stopped", extra={"document": stopped.number})

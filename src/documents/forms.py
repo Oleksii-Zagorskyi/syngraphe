@@ -111,3 +111,20 @@ class CopyForm(CreateForm):
         chosen = [int(n) for n in posted]
         cleaned["appendices"] = {"none": [], "all": None, "chosen": chosen}[mode]
         return cleaned
+
+
+class TemplateForm(forms.Form):
+    """The document template's page: the outline and the title-page switch (ST-0058)."""
+
+    # Checked by `documents.template`, not here: an empty outline is refused there, by its line.
+    outline = forms.CharField(
+        label=_("Section headings and starting text"),
+        required=False,
+        strip=False,
+        widget=forms.Textarea(attrs={"rows": 16, "class": "outline", "spellcheck": "false"}),
+    )
+    title_page = forms.BooleanField(label=_("New documents get a title page"), required=False)
+
+    def clean_outline(self) -> str:
+        # A browser sends a text box's line breaks as CR LF; the stored text is the editor's.
+        return str(self.cleaned_data["outline"]).replace("\r\n", "\n").replace("\r", "\n")

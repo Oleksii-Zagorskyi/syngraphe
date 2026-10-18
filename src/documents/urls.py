@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from documents import administration, corpus_views, image_views, views
+from documents import administration, corpus_views, image_views, template_views, views
 
 urlpatterns = [
     path("document/new/", views.create, name="document_create"),
@@ -41,6 +41,7 @@ urlpatterns = [
         administration.document_types,
         name="document_types",
     ),
+    path("administration/tenant/template/", template_views.template, name="document_template"),
     path(
         "document/<int:number>/info/type/",
         corpus_views.change_type,

@@ -472,13 +472,16 @@ def test_template_body_without_attachments_refused_before_writing(
     from documents.models import DocumentTemplate
 
     with schema_context(migrated_tenant.number):
-        outline = DocumentTemplate.objects.get().outline
+        DocumentTemplate.objects.update(outline="# Purpose\nThe first sentence. The second one.\n")
     folder = copy(PROCEDURE, tmp_path)
     (folder / "scheme.txt").unlink()
     (folder / "document.yaml").write_text(
         'title: "Empty synthetic document"\nlanguage: "uk"\n', encoding="utf-8"
     )
-    (folder / "document.md").write_text(outline, encoding="utf-8")
+    # The template's body as a created document's first commit holds it: in normal form.
+    (folder / "document.md").write_text(
+        "# Purpose\n\nThe first sentence.\nThe second one.\n", encoding="utf-8"
+    )
 
     assert "nothing to load" in refused(migrated_tenant, operators, folder)
     assert_nothing_written(migrated_tenant, repo_root)
