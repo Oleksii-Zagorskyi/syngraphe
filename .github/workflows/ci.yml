@@ -118,7 +118,8 @@ jobs:
         if: ${{ !cancelled() }}
         run: uv run pytest -q -n auto -m "not budget"
 
-      # The timing budgets alone: beside the workers they measure the load.
+      # The timing budgets alone: beside the workers they measure the load. Each one's time is
+      # printed, so its margin on the runner shows on a green run, not only on a red one.
       - name: Timing budgets
         if: ${{ !cancelled() }}
-        run: uv run pytest -q -m budget
+        run: uv run pytest -q -m budget --durations=0
