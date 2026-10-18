@@ -2903,6 +2903,46 @@ msgstr "Історія"
 msgid "Comparing %(older)s with %(newer)s — read only"
 msgstr "Порівняння %(older)s з %(newer)s — лише для читання"
 
+#: rendering/templates/rendering/compare_appendix.html
+#, python-format
+msgid "Comparing appendices of %(older)s with %(newer)s — read only"
+msgstr "Порівняння додатків %(older)s з %(newer)s — лише для читання"
+
+#: rendering/templates/rendering/compare_appendix.html
+#, python-format
+msgid ""
+"Comparing appendices of %(first)s %(older)s with %(second)s %(newer)s — read "
+"only"
+msgstr ""
+"Порівняння додатків %(first)s %(older)s з %(second)s %(newer)s — лише для "
+"читання"
+
+#: rendering/templates/rendering/compare_appendix_pair.html
+#, python-format
+msgid "%(number)s has no appendices."
+msgstr "У %(number)s немає додатків."
+
+#: rendering/templates/rendering/compare_appendix.html
+msgctxt "compare"
+msgid "to"
+msgstr "до"
+
+#: rendering/templates/rendering/compare_appendix.html
+msgid "open the appendix at that version"
+msgstr "відкрити додаток у цій версії"
+
+#: rendering/templates/rendering/compare_appendix.html
+msgid "Back to the comparison"
+msgstr "Назад до порівняння"
+
+#: rendering/templates/rendering/compare_appendix_pair.html
+msgid "pick a pair to compare"
+msgstr "виберіть пару для порівняння"
+
+#: rendering/templates/rendering/compare_appendix_pair.html
+msgid "Compare appendices"
+msgstr "Порівняти додатки"
+
 #: rendering/templates/rendering/compare.html
 msgctxt "compare"
 msgid "From"

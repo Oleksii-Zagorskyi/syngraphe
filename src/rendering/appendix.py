@@ -1,14 +1,16 @@
 """An appendix's own page (DL-0443, DL-0444): the document's frame for one appendix of the version
 its reader may see — the appendix's outline, its text numbered from 1 with nothing in front, the
 document's parts and generated views in the read-only panel, the tabs DL-0443 gives it, and none of
-the document's acts; and the same frame for an appendix of a past version, read only under the
-historical banner. And the streams that bring a version's appendices into the generated views
+the document's acts; the same frame for an appendix of a past version, read only under the
+historical banner; and two appendices compared on a page of their own, in one document or across
+two (DL-0187, DL-0208). And the streams that bring a version's appendices into the generated views
 (DL-0073): each appendix's places named by its title and linked to its page.
 """
 
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any, cast
@@ -43,22 +45,25 @@ class Shown:
     tokens: list[Token]
 
 
+def _text_at(repo: Any, version: Version, appendix: Appendix) -> str | None:
+    """`appendix`'s text as `version` holds it; `None`, logged, where its file is missing — the
+    reconciler reports it (`part_missing`)."""
+    path = f"appendices/{appendix.number}.md"
+    try:
+        return gitstore.read(repo, path, version.commit_sha).decode("utf-8")
+    except KeyError:
+        logger.error(
+            "a listed appendix without its file",
+            extra={"commit": version.commit_sha, "file": path},
+        )
+        return None
+
+
 def read_at(repo: Any, version: Version, listed: Sequence[Appendix]) -> list[Shown]:
     """Each appendix `listed` as `version` holds its text, labelled; one whose file is missing is
-    left out and logged — the reconciler reports it (`part_missing`)."""
-    found = []
-    for appendix in listed:
-        path = f"appendices/{appendix.number}.md"
-        try:
-            text = gitstore.read(repo, path, version.commit_sha).decode("utf-8")
-        except KeyError:
-            logger.error(
-                "a listed appendix without its file",
-                extra={"commit": version.commit_sha, "file": path},
-            )
-            continue
-        found.append(Shown(appendix, labelled(text)))
-    return found
+    left out."""
+    texts = ((appendix, _text_at(repo, version, appendix)) for appendix in listed)
+    return [Shown(appendix, labelled(text)) for appendix, text in texts if text is not None]
 
 
 def streams(
@@ -232,3 +237,136 @@ def historical(request: HttpRequest, number: int, version_number: str, part: int
         version_path=f"/document/{document.number}/version/{shown}/",
     )
     return render(request, "rendering/appendix_historical.html", context)
+
+
+PAIR_SIDE = re.compile(r"(?P<version>[0-9][0-9.\-]{0,40}):(?P<part>[1-9][0-9]{0,8})")
+
+
+def _side(value: str) -> tuple[str, int] | None:
+    """`<version>:<appendix>` as the pair's address names one side; `None` for anything else."""
+    found = PAIR_SIDE.fullmatch(value)
+    return (found["version"], int(found["part"])) if found else None
+
+
+def _appendix_at(
+    tenant: int, document: Document, version: Version, part: int
+) -> tuple[Appendix, str] | None:
+    """Appendix `part` as `version` lists it, and its text; `None` where it does not list it, or
+    its file is missing — logged as `read_at` logs it; the reconciler reports it."""
+    appendix = next((a for a in appendices(version) if a.number == part), None)
+    if appendix is None:
+        return None
+    text = _text_at(gitstore.open_repository(tenant, document.number), version, appendix)
+    return (appendix, text) if text is not None else None
+
+
+@never_cache
+@login_required
+def compare(request: HttpRequest, number: int) -> HttpResponse:
+    """`/document/<n>/compare/appendix/?from=<v>:<p>&to=<v>:<p>`: two appendices on a page of their
+    own (DL-0187, DL-0208) — the newer side's appendix whole with its changes against the older's
+    marked, whichever order they were asked in, each version through the reader's ceiling, read
+    once, and each appendix in its version's list. With `with=<m>`, the `to` side is document
+    `m`'s, each document and version gated as two documents compared are (DL-0452), and the
+    `to` side is marked against the `from` side in the reader's order. Anything else answers
+    *Nothing to show here*."""
+    from editing.diffview import render_changes
+    from rendering.views import (
+        UNREADABLE,
+        _document_link,
+        _two_documents_context,
+        _version_link,
+    )
+    from review.history import ceiling
+
+    document = readable_document(request, number)
+    sides = [_side(request.GET.get("from", "")), _side(request.GET.get("to", ""))]
+    other = request.GET.get("with")
+    if document is None or None in sides:
+        return not_found(request)
+    (from_number, from_part), (to_number, to_part) = cast(list[tuple[str, int]], sides)
+    second = document
+    if other is not None:
+        if not (other.isascii() and other.isdigit() and len(other) <= 9):
+            return not_found(request)
+        found_second = readable_document(request, int(other))
+        if found_second is None:
+            return not_found(request)
+        second = found_second
+        if second.pk == document.pk:
+            # The document named as its own second: its own pair, as its comparison is.
+            other = None
+    tenant = request.tenant.number  # type: ignore[attr-defined]
+    try:
+        first_past = ceiling(request.user, document)
+        second_past = first_past if second.pk == document.pk else ceiling(request.user, second)
+        from_version = first_past.version(from_number)
+        to_version = second_past.version(to_number)
+        if from_version is None or to_version is None:
+            return not_found(request)
+        older = _appendix_at(tenant, document, from_version, from_part)
+        newer = _appendix_at(tenant, second, to_version, to_part)
+        if older is None or newer is None:
+            return not_found(request)
+        from_number, to_number = first_past.number(from_version), second_past.number(to_version)
+        pair = [
+            (document, from_number, from_version, *older),
+            (second, to_number, to_version, *newer),
+        ]
+        if other is None:
+            # One document: the newer version shown whole, whichever order was asked.
+            order = {v.pk: i for i, (_n, v) in enumerate(first_past.reachable())}
+            if order.get(from_version.pk, -1) > order.get(to_version.pk, -1):
+                pair.reverse()
+    except UNREADABLE:
+        logger.exception(
+            "appendices could not be read", extra={"document": number, "with": other or ""}
+        )
+        return not_found(request)
+    (one, one_number, _ov, one_appendix, one_text) = pair[0]
+    (two, two_number, _nv, two_appendix, two_text) = pair[1]
+    if other is None:
+        context = reading.context(
+            request.user,
+            document,
+            one_text,
+            two_text,
+            images=reading.committed_images(document),
+            sides=(one_number, two_number),
+        )
+        back = f"/document/{document.number}/compare/?from={one_number}&to={two_number}"
+    else:
+        context = _two_documents_context(
+            request.user, (one, one_number, one_text), (two, two_number, two_text)
+        )
+        back = (
+            f"/document/{document.number}/compare/?from={one_number}"
+            f"&with={second.number}&to={two_number}"
+        )
+    return render(
+        request,
+        "rendering/compare_appendix.html",
+        {
+            "document": document,
+            "second": second if other is not None else None,
+            "older": {
+                "document": one,
+                "number": one_number,
+                "link": _version_link(one, one_number),
+                "document_link": _document_link(one),
+                "appendix": one_appendix,
+            },
+            "newer": {
+                "document": two,
+                "number": two_number,
+                "link": _version_link(two, two_number),
+                "document_link": _document_link(two),
+                "appendix": two_appendix,
+            },
+            "back": back,
+            # Rendered from text the whitelist accepted, by the renderer that escapes it.
+            "changes": mark_safe(  # noqa: S308
+                render_changes(one_text.encode(), two_text.encode(), context=context)
+            ),
+        },
+    )

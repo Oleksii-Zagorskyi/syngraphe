@@ -1,0 +1,11 @@
+{% extends "shell/base.html" %}
+{% load corpus i18n %}
+{% block title %}#{{ older.document.number }} {{ older.number }} · {% if second %}#{{ newer.document.number }} {% endif %}{{ newer.number }} · {{ newer.appendix.title }} · Syngraphē{% endblock %}
+{% block content %}
+<section class="content document compare compare-appendix">
+  <p class="band historical" role="status">{% if second %}{% blocktranslate with first=older.document_link older=older.link second=newer.document_link newer=newer.link %}Comparing appendices of {{ first }} {{ older }} with {{ second }} {{ newer }} — read only{% endblocktranslate %}{% else %}{% blocktranslate with older=older.link newer=newer.link %}Comparing appendices of {{ older }} with {{ newer }} — read only{% endblocktranslate %}{% endif %}</p>
+  <h1>{% if second %}<span class="id">#{{ older.document.number }}</span> {{ older.document.title }}{% archived_tag older.document %} · <span class="id">#{{ newer.document.number }}</span> {{ newer.document.title }}{% archived_tag newer.document %}{% else %}<span class="id">#{{ document.number }}</span> {{ document.title }}{% archived_tag document %}{% endif %}</h1>
+  <p class="pair-heads">{% translate "From" context "compare" %} <strong>{% if second %}#{{ older.document.number }} {% endif %}{{ older.number }} · {{ older.appendix.title }}</strong> <a href="/document/{{ older.document.number }}/version/{{ older.number }}/appendix/{{ older.appendix.number }}/" target="_blank" rel="noopener" aria-label="{% translate 'open the appendix at that version' %}">↗</a> {% translate "to" context "compare" %} <strong>{% if second %}#{{ newer.document.number }} {% endif %}{{ newer.number }} · {{ newer.appendix.title }}</strong> <a href="/document/{{ newer.document.number }}/version/{{ newer.number }}/appendix/{{ newer.appendix.number }}/" target="_blank" rel="noopener" aria-label="{% translate 'open the appendix at that version' %}">↗</a> <a class="btn" href="{{ back }}">↑ {% translate "Back to the comparison" %}</a></p>
+  <div class="changes document-text">{{ changes }}</div>
+</section>
+{% endblock %}

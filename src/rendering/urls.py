@@ -33,6 +33,11 @@ urlpatterns = [
     ),
     path("compare/", views.compare_start, name="compare_start"),
     path(
+        "document/<int:number>/compare/appendix/",
+        appendix.compare,
+        name="document_compare_appendix",
+    ),
+    path(
         "document/<int:number>/appendix/<int:part>/",
         appendix.page,
         name="document_appendix",

@@ -14,6 +14,7 @@
   <div class="compare-panes">
     <div class="changes document-text">{{ changes }}</div>
     <aside class="panel" aria-label="{% translate 'Parts' %}">
+      {% include "rendering/compare_appendix_pair.html" with from_appendices=older_appendices to_appendices=newer_appendices from_number=older to_number=newer %}
       <section class="attachments">
         <h2>{% translate "Attachments" %}</h2>
         {% if parts %}<ul>{% for part in parts %}<li data-change="{{ part.change }}">{% firstof part.newer.title part.older.title %}{% if part.older and part.newer and part.older.title != part.newer.title %} <span class="muted">({{ part.older.title }})</span>{% endif %} — {% if part.change == "added" %}{% translate "added" %}{% elif part.change == "changed" %}{% translate "changed" %}{% elif part.change == "removed" %}{% translate "removed" %}{% else %}{% translate "unchanged" %}{% endif %}<br>{% if part.older %}<a href="/document/{{ document.number }}/version/{{ older }}/attachment/{{ part.number }}/">{{ older }} · {{ part.older.file_name }}</a>{% endif %}{% if part.older and part.newer %} · {% endif %}{% if part.newer %}<a href="/document/{{ document.number }}/version/{{ newer }}/attachment/{{ part.number }}/">{{ newer }} · {{ part.newer.file_name }}</a>{% endif %}</li>{% endfor %}</ul>{% else %}<p>{% translate "No attachments" %}</p>{% endif %}

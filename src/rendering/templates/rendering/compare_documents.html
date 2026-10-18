@@ -15,7 +15,8 @@
   {% if second %}
   <div class="compare-panes">
     <div class="changes document-text">{{ changes }}</div>
-    <aside class="panel" aria-label="{% translate 'Attachments' %}">
+    <aside class="panel" aria-label="{% translate 'Parts' %}">
+      {% include "rendering/compare_appendix_pair.html" with document=first from_appendices=first_appendices to_appendices=second_appendices from_number=older to_number=newer with=second.number %}
       {% include "rendering/compare_document_attachments.html" with document=first number=older listed=first_attachments %}
       {% include "rendering/compare_document_attachments.html" with document=second number=newer listed=second_attachments %}
     </aside>

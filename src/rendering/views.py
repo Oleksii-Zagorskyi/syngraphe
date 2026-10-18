@@ -280,6 +280,8 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
         "previous": link(i - 1, i) if consecutive and i > 0 else "",
         "next": link(j, j + 1) if consecutive and j + 1 < len(seen) else "",
         "parts": changed_between(older, newer),
+        "older_appendices": appendices(older),
+        "newer_appendices": appendices(newer),
         # Rendered from text the whitelist accepted, by the renderer that escapes it.
         "changes": mark_safe(  # noqa: S308
             render_changes(
@@ -365,6 +367,8 @@ def _compare_documents(
             "second_numbers": [n for n, _v in second_seen],
             "first_attachments": attachments(older),
             "second_attachments": attachments(newer),
+            "first_appendices": appendices(older),
+            "second_appendices": appendices(newer),
             # Rendered from text the whitelist accepted, by the renderer that escapes it.
             "changes": mark_safe(  # noqa: S308
                 render_changes(

@@ -2,7 +2,8 @@
 with its outline, panel and header, the *Info* state line, the export dialog with its offers and
 refusal, the job's page in each of its states, the help pages for reading and exporting, two
 documents compared, the picker, and the starts on the document page and the list; the export's
-appendices, and an appendix of a past version.
+appendices, an appendix of a past version, and the compare page's appendix pickers with a pair's
+page.
 
 People, groups and titles are synthetic examples; every text is invented.
 """
@@ -252,3 +253,45 @@ def test_catalogue_covers_an_appendix_at_a_version(
     assert page.status_code == 200
     _assert_translated("an appendix at a version", page.content.decode())
     assert f"Історична версія {number}" in page.content.decode()
+
+
+def test_catalogue_covers_comparing_appendices(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """The compare page's appendix pickers and a pair's page, in Ukrainian."""
+    from review import services as review
+
+    settings.LANGUAGE_CODE = "uk"
+    tenant = migrated_tenant.number
+    people = edition_cast()
+    numbers = []
+    for word in ("Перше", "Друге"):
+        commit_version(
+            people.document,
+            people["a"],
+            kit.FIRST,
+            "edit",
+            files={"appendices/1.md": f"# Додаток\n\n{word} речення додатка.\n".encode()},
+            appendices=[{"number": 1, "title": "Форми (приклад)"}],
+        )
+        with schema_context(tenant):
+            numbers.append(review.accept(people.document, people["r"]).number)
+    reader, _ = kit.reader(
+        member_of, link_group, people, [Right.VIEW_ACCEPTED, Right.VIEW_ALL_HISTORY], "pairs"
+    )
+    m = people.document.number
+    older, newer = numbers
+    for name, path in (
+        ("the compare page's pickers", f"/document/{m}/compare/?from={older}&to={newer}"),
+        ("a pair of appendices", f"/document/{m}/compare/appendix/?from={older}:1&to={newer}:1"),
+    ):
+        page = reader.get(path)
+        assert page.status_code == 200, name
+        _assert_translated(name, page.content.decode())
+    assert "Назад до порівняння" in page.content.decode()

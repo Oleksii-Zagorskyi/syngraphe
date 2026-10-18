@@ -1,0 +1,12 @@
+{% load i18n %}{# A pair of appendices to compare, one of each side (DL-0208) #}
+<section class="appendices">
+  <h2>{% translate "Appendices" %}</h2>
+  {% if from_appendices or to_appendices %}<p class="muted">{% translate "pick a pair to compare" %}</p>
+  <form class="appendix-pair" method="get" action="/document/{{ document.number }}/compare/appendix/">
+    {% if with %}<input type="hidden" name="with" value="{{ with }}">{% endif %}
+    <label>{% translate "From" context "compare" %} <select name="from">{% for item in from_appendices %}<option value="{{ from_number }}:{{ item.number }}">{{ item.title }}</option>{% endfor %}</select></label>
+    <label>{% translate "To" context "compare" %} <select name="to">{% for item in to_appendices %}<option value="{{ to_number }}:{{ item.number }}">{{ item.title }}</option>{% endfor %}</select></label>
+    <button class="btn" type="submit"{% if not from_appendices or not to_appendices %} disabled{% endif %}>{% translate "Compare appendices" %}</button>
+    {# A disabled control says why (DL-0233) #}{% if not from_appendices %}<p class="muted">{% blocktranslate with number=from_number %}{{ number }} has no appendices.{% endblocktranslate %}</p>{% elif not to_appendices %}<p class="muted">{% blocktranslate with number=to_number %}{{ number }} has no appendices.{% endblocktranslate %}</p>{% endif %}
+  </form>{% else %}<p>{% translate "No appendices" %}</p>{% endif %}
+</section>
