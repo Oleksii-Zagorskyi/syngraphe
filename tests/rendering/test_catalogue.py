@@ -1,7 +1,8 @@
 """Every page and screen of reading and export renders in Ukrainian from the one catalogue: the view
 with its outline, panel and header, the *Info* state line, the export dialog with its offers and
-refusal, the job's page in each of its states, the help pages for reading and exporting, and two
-documents compared, the picker, and the starts on the document page and the list.
+refusal, the job's page in each of its states, the help pages for reading and exporting, two
+documents compared, the picker, and the starts on the document page and the list; the export's
+appendices, and an appendix of a past version.
 
 People, groups and titles are synthetic examples; every text is invented.
 """
@@ -219,3 +220,35 @@ def test_catalogue_covers_the_appendices_in_an_export(
     assert job.state == "done", job.failure_reason
     with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as bundle:
         assert bundle.namelist() == ["додаток-1_—_Форми_(приклад).md"]
+
+
+def test_catalogue_covers_an_appendix_at_a_version(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """An appendix of a past version, in Ukrainian: the historical banner over it."""
+    from review import services as review
+
+    settings.LANGUAGE_CODE = "uk"
+    tenant = migrated_tenant.number
+    people = edition_cast()
+    commit_version(
+        people.document,
+        people["a"],
+        kit.FIRST,
+        "edit",
+        files={"appendices/1.md": "# Додаток\n\nРечення додатка.\n".encode()},
+        appendices=[{"number": 1, "title": "Форми (приклад)"}],
+    )
+    with schema_context(tenant):
+        number = review.accept(people.document, people["r"]).number
+    reader, _ = kit.reader(member_of, link_group, people, [Right.VIEW_ACCEPTED], "past")
+    page = reader.get(f"/document/{people.document.number}/version/{number}/appendix/1/")
+    assert page.status_code == 200
+    _assert_translated("an appendix at a version", page.content.decode())
+    assert f"Історична версія {number}" in page.content.decode()

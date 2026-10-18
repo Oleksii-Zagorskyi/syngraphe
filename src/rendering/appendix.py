@@ -1,7 +1,8 @@
 """An appendix's own page (DL-0443, DL-0444): the document's frame for one appendix of the version
 its reader may see — the appendix's outline, its text numbered from 1 with nothing in front, the
 document's parts and generated views in the read-only panel, the tabs DL-0443 gives it, and none of
-the document's acts. And the streams that bring a version's appendices into the generated views
+the document's acts; and the same frame for an appendix of a past version, read only under the
+historical banner. And the streams that bring a version's appendices into the generated views
 (DL-0073): each appendix's places named by its title and linked to its page.
 """
 
@@ -66,13 +67,15 @@ def streams(
     shown: Sequence[Shown],
     *,
     at_version: str | None = None,
+    elsewhere: bool = False,
 ) -> list[directory.Stream]:
     """The texts the generated views read: the body first, then each appendix in its list's order,
     its places named by its title — the title stands for its number (DL-0177, DL-0444) — and
-    linked to the appendix's page, or to it at `at_version`."""
+    linked to the appendix's page, or to it at `at_version`. `elsewhere`, on a page that does not
+    show the body, links the body's places to the page that does."""
     base = f"/document/{document.number}/" + (f"version/{at_version}/" if at_version else "")
     return [
-        directory.Stream(body),
+        directory.Stream(body, link=base if elsewhere else ""),
         *(
             directory.Stream(
                 one.tokens,
@@ -93,9 +96,11 @@ def generated(
     shown: Sequence[Shown],
     *,
     at_version: str | None = None,
+    elsewhere: bool = False,
 ) -> tuple[RenderContext, dict[str, Any]]:
     """The reader's context over the body and every appendix — their mentions read once — and the
-    generated views over all of them, as the panel shows them (DL-0448)."""
+    generated views over all of them, as the panel shows them (DL-0448); `elsewhere` as
+    `streams` takes it."""
     from rendering.views import _declared_at
 
     found = [
@@ -108,7 +113,9 @@ def generated(
     declared = _declared_at(repo, version.commit_sha, document)
     return reader, {
         "roles": directory.roles(
-            streams(document, body, shown, at_version=at_version), declared, context=reader
+            streams(document, body, shown, at_version=at_version, elsewhere=elsewhere),
+            declared,
+            context=reader,
         ),
         "see_also": mentions.see_also(
             request.user, found, own=document.number, reachable=reader.reachable
@@ -117,11 +124,18 @@ def generated(
 
 
 def frame(
-    request: HttpRequest, document: Document, version: Version, number: str, part: int
+    request: HttpRequest,
+    document: Document,
+    version: Version,
+    number: str,
+    part: int,
+    *,
+    at_version: bool = False,
 ) -> dict[str, Any] | None:
     """What an appendix's page shows of appendix `part` at `version`, which the caller resolved
-    through the reader's ceiling and numbers `number`; `None` where that version does not list it
-    or its text cannot be read."""
+    through the reader's ceiling and numbers `number` — `at_version` for a past version's page,
+    whose panel and generated views link at that version; `None` where that version does not
+    list it or its text cannot be read."""
     from documents import bundle
     from rendering.views import UNREADABLE, panes
 
@@ -140,7 +154,16 @@ def frame(
     if own is None:
         return None
     anchor_clauses(own.tokens)
-    reader, views = generated(request, document, repo, version, labelled(body), shown)
+    reader, views = generated(
+        request,
+        document,
+        repo,
+        version,
+        labelled(body),
+        shown,
+        at_version=number if at_version else None,
+        elsewhere=True,
+    )
     return {
         "appendix": appendix,
         "version_number": number,
@@ -183,3 +206,29 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
         view_listed=True,
     )
     return render(request, "rendering/appendix.html", context)
+
+
+@never_cache
+@login_required
+def historical(request: HttpRequest, number: int, version_number: str, part: int) -> HttpResponse:
+    """`/document/<n>/version/<v>/appendix/<p>/`: appendix `p` as version `v` had it, read only,
+    under the historical banner, with no tabs and no act (DL-0195), beside the version's page and
+    its attachments; *Nothing to show here* past the reader's ceiling, read once, or for an
+    appendix that version does not list."""
+    from rendering.views import _version
+
+    if request.method != "GET":
+        return not_found(request)
+    found = _version(request, number, version_number)
+    if found is None:
+        return not_found(request)
+    document, version, past = found
+    shown = past.number(version)
+    context = frame(request, document, version, shown, part, at_version=True)
+    if context is None:
+        return not_found(request)
+    context.update(
+        document=document,
+        version_path=f"/document/{document.number}/version/{shown}/",
+    )
+    return render(request, "rendering/appendix_historical.html", context)

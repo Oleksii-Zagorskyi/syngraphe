@@ -19,6 +19,11 @@ urlpatterns = [
         views.historical_attachment,
         name="document_version_attachment",
     ),
+    path(
+        "document/<int:number>/version/<str:version_number>/appendix/<int:part>/",
+        appendix.historical,
+        name="document_version_appendix",
+    ),
     path("document/<int:number>/export/", views.export, name="document_export"),
     path("document/<int:number>/export/<str:job_id>/", views.export_status, name="export_status"),
     path(

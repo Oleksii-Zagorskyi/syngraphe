@@ -179,9 +179,8 @@ def _part_entry(
     }
     link = ""
     at, version = accepted
-    if version is not None and kind == "attachment":
-        if any(int(e["number"]) == number for e in lists_at(version)[side]):
-            link = f"/document/{document.number}/version/{at}/attachment/{number}/"
+    if version is not None and any(int(e["number"]) == number for e in lists_at(version)[side]):
+        link = f"/document/{document.number}/version/{at}/{kind}/{number}/"
     return {
         "kind": "part_operation",
         "said": said,
@@ -210,7 +209,9 @@ def _accepted(request: HttpRequest, document: Any, acceptance: Any) -> Any:
 
 def _link(document: Any, accepted: tuple[str, Any], lines: list[Any], repo: Any) -> str:
     """Where *open the document* leads: the accepted version's historical page at the first
-    passage of the body, where the reader's ceiling reaches it; else the document (DL-0334)."""
+    passage of the body, where the reader's ceiling reaches it — or, where every line is an
+    appendix's, the first such appendix at that version while it lists it; else the document
+    (DL-0334)."""
     plain = f"/document/{document.number}/"
     at, version = accepted
     if version is None:
@@ -219,6 +220,11 @@ def _link(document: Any, accepted: tuple[str, Any], lines: list[Any], repo: Any)
     body = [line for line in lines if line.file == DOCUMENT_FILE and line.entry != "part_operation"]
     first = next((_span(line.range_after) for line in body if line.range_after), None)
     if first is None:
+        appendix = next((line.file for line in lines if line.file != DOCUMENT_FILE), None)
+        if appendix is not None and body == []:
+            number = int(appendix.removeprefix("appendices/").removesuffix(".md"))
+            if any(int(e["number"]) == number for e in lists_at(version)[0]):
+                return f"{page}appendix/{number}/"
         return page
     target = _passage(gitstore.read(repo, "document.md", version.commit_sha), first[0])
     return f"{page}#{target}" if target else page

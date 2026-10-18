@@ -217,7 +217,7 @@ def test_a_deleted_appendixs_lines_read(
     assert link and re.fullmatch(rf"/document/{document.number}/version/[0-9.]+/", link.group(1))
 
 
-def test_appendix_lines_alone_open_the_accepted_version(
+def test_appendix_lines_alone_open_the_appendix_at_the_accepted_version(
     migrated_tenant: Any, cast: Any, commit_version: Any, queued_authorship: list[Any]
 ) -> None:
     from django.test import Client
@@ -246,10 +246,9 @@ def test_appendix_lines_alone_open_the_accepted_version(
     from django.urls import resolve
 
     html = notice_page(migrated_tenant, client, author)
-    page = f"/document/{document.number}/version/{acceptance.number}/"
+    page = f"/document/{document.number}/version/{acceptance.number}/appendix/2/"
     assert f'<a class="btn" href="{page}">' in html
-    assert resolve(page).url_name == "document_version"
-    assert "/appendix/" not in html
+    assert resolve(page).url_name == "document_version_appendix"
 
 
 def test_an_appendix_image_reaches_the_notices_author(
@@ -564,6 +563,7 @@ def test_an_unreadable_history_costs_the_links_never_the_notice(
     assert response.status_code == 200
     assert "You added this attachment in" in flat(html)
     assert f'<a class="btn" href="/document/{document.number}/">' in html
+    assert "/version/" not in html
 
 
 def notice_page_url(tenant: Any, author: Any) -> str:
@@ -587,3 +587,56 @@ def test_an_appendix_has_no_frontmatter(
     acceptance = accepted(migrated_tenant, document, reviewer)
     [line] = lines_of(migrated_tenant, acceptance)
     assert (line.file, line.range_after) == ("appendices/1.md", "2")
+
+
+def test_an_appendix_part_entry_opens_the_appendix(
+    migrated_tenant: Any,
+    cast: Any,
+    commit_version: Any,
+    queued_authorship: list[Any],
+    settings: Any,
+) -> None:
+    """A renames appendix 1; R renames it back. A's entry opens the appendix at the accepted
+    version, which still lists it."""
+    from django.urls import resolve
+
+    settings.LANGUAGE_CODE = "en"
+    people = cast(editors=("a",), reviewers=("r",))
+    document, author, reviewer = people.document, people["a"], people["r"]
+    with_appendix(commit_version, document, author, "# One\n\nThe base sentence.\n")
+    accepted(migrated_tenant, document, reviewer)
+    commit_version(
+        document, author, BODY, appendices=[{"number": 1, "title": "Renamed by A (example)"}]
+    )
+    commit_version(document, reviewer, BODY, "reviewer_edit", appendices=ONE)
+    acceptance = accepted(migrated_tenant, document, reviewer)
+    html = notice_page(migrated_tenant, signed(migrated_tenant, author), author)
+    link = f"/document/{document.number}/version/{acceptance.number}/appendix/1/"
+    assert "You renamed this appendix in" in flat(html)
+    assert f'href="{link}"' in html
+    assert resolve(link).url_name == "document_version_appendix"
+
+
+def test_a_removed_appendixs_entry_has_nothing_to_open(
+    migrated_tenant: Any,
+    cast: Any,
+    commit_version: Any,
+    queued_authorship: list[Any],
+    settings: Any,
+) -> None:
+    """A renames appendix 1; R removes it. A's entry names it, with nothing to open."""
+    settings.LANGUAGE_CODE = "en"
+    people = cast(editors=("a",), reviewers=("r",))
+    document, author, reviewer = people.document, people["a"], people["r"]
+    with_appendix(commit_version, document, author, "# One\n\nThe base sentence.\n")
+    accepted(migrated_tenant, document, reviewer)
+    commit_version(
+        document, author, BODY, appendices=[{"number": 1, "title": "Renamed by A (example)"}]
+    )
+    commit_version(
+        document, reviewer, BODY, "reviewer_edit", files={"appendices/1.md": None}, appendices=[]
+    )
+    accepted(migrated_tenant, document, reviewer)
+    html = notice_page(migrated_tenant, signed(migrated_tenant, author), author)
+    assert "▤ Renamed by A (example)" in flat(html)
+    assert "/appendix/1/" not in html

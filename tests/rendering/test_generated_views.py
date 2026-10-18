@@ -362,12 +362,16 @@ def test_appendices_join_the_generated_views(
     )
     m = document.number
 
-    for path in (f"/document/{m}/", f"/document/{m}/appendix/2/"):
+    # On the appendix's page a place in the body leads to the document's page, where it stands.
+    for path, body in (
+        (f"/document/{m}/", "#c-2-1"),
+        (f"/document/{m}/appendix/2/", f"/document/{m}/#c-2-1"),
+    ):
         html = client.get(path).content.decode()
         panel = html[html.index('class="generated-views"') :]
         places = re.findall(r'<li><a href="([^"]+)">([^<]+)</a>', panel.split("See also")[0])
         assert places == [
-            ("#c-2-1", "2-1"),
+            (body, "2-1"),
             (f"/document/{m}/appendix/2/#c-1-1", "Approval matrix (example), 1-1"),
         ], path
         listed = panel[panel.index('class="see-also"') :]

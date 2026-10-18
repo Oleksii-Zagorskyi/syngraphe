@@ -40,7 +40,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | [Search results](#search-results) | `/search/?q=…&type=…` | ST-0013 | **0.1** |
 | [Document page](#document-page) | `/document/12/` and one segment per tab | ST-0005, ST-0010, ST-0014, ST-0015, ST-0016, ST-0017, ST-0018, ST-0019, ST-0020, ST-0021, ST-0022, ST-0023, ST-0024, ST-0026, ST-0027, ST-0028, ST-0029, ST-0030, ST-0031, ST-0032, ST-0033, ST-0034, ST-0035, ST-0036, ST-0037, ST-0038, ST-0039, ST-0040, ST-0041, ST-0042, ST-0043, ST-0044, ST-0045, ST-0051, ST-0052, ST-0053, ST-0059, ST-0060, ST-0061, ST-0062, ST-0063, ST-0064, ST-0067, ST-0069, ST-0070 | **0.1** |
 | [Appendix page](#appendix-page) | `/document/12/appendix/3/` | ST-0023, ST-0061 | **0.1** |
-| [Historical page](#historical-page) | `/document/12/version/2.0/` | ST-0027, ST-0032, ST-0041, ST-0044, ST-0064 | **0.1** |
+| [Historical page](#historical-page) | `/document/12/version/2.0/` | ST-0027, ST-0032, ST-0041, ST-0044, ST-0061, ST-0064 | **0.1** |
 | [Compare](#compare) | `/document/12/compare/?from=2.0&to=2.3-1` | ST-0033, ST-0041, ST-0064 | **0.1** |
 | [Send-for-review screen](#send-for-review-screen) | within the edit tab, opened by *finish editing* | ST-0022, ST-0029, ST-0035 | **0.1** |
 | [Export](#export) | a dialog | ST-0045 | **0.1** |
@@ -215,13 +215,14 @@ The document page's frame for one appendix. The title reads **#12 Annual leave�
 
 ## Historical page
 
-One version, opened in a new window: a **banner** across the top — *Historical version 2.0 — read only*, with a link to the current document; the reading view with a collapsible outline; the generated views of that version, as the View tab's; the attachments as that version listed them, each downloadable at that version — `/document/12/version/2.0/attachment/3/` (DL-0421); *Export* of that version alone, marked by the chain of the stance it reached where the reader may see its baseline (DL-0426), re-checked against the reader's ceiling when it runs (DL-0423); *compare with* any other version the reader may see, the latest included — not drawn when there is none; beside it and drawn with it, *compare with another document*, a document's number, its newest version the reader may see compared with this one. Never editable (DL-0195, DL-0208). The versions a reader may open: the current version of each stance their viewing right includes, every version of the pending run with *view pending*, every edition with *view previous canonical versions*, every version up to their highest stance with *view all history* (ADR-0007, DL-0286).
+One version, opened in a new window: a **banner** across the top — *Historical version 2.0 — read only*, with a link to the current document; the reading view with a collapsible outline; the generated views of that version, as the View tab's; the attachments as that version listed them, each downloadable at that version — `/document/12/version/2.0/attachment/3/` (DL-0421); the appendices as that version listed them, each opening at that version — `/document/12/version/2.0/appendix/2/`, the appendix page's frame under the same banner, without tabs, its places in the generated views linking there; *Export* of that version alone, marked by the chain of the stance it reached where the reader may see its baseline (DL-0426), re-checked against the reader's ceiling when it runs (DL-0423); *compare with* any other version the reader may see, the latest included — not drawn when there is none; beside it and drawn with it, *compare with another document*, a document's number, its newest version the reader may see compared with this one. Never editable (DL-0195, DL-0208). The versions a reader may open: the current version of each stance their viewing right includes, every version of the pending run with *view pending*, every edition with *view previous canonical versions*, every version up to their highest stance with *view all history* (ADR-0007, DL-0286).
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | the page | **0.1** | the reader's ceiling: a viewing right, widened by a history right | ST-0032, ST-0041 | Epic 15 |
 | the generated views of that version — the role directory and *see also*, as the View tab's | **0.1** | as the page | ST-0027, ST-0044 | Epic 11 |
 | *compare with another document* — a second form beside *compare with*, drawn with it: the document's number | **0.1** | a viewing right on each | ST-0064 | Epic 10 |
+| the appendices at that version, each on its own page | **0.1** | as the page | ST-0032, ST-0061 | Epic 13 |
 
 ## Compare
 
