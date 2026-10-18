@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import os
 import subprocess
-import time
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -111,21 +111,31 @@ def test_a_restored_line_names_its_remover(tmp_path: Path) -> None:
 
 
 @pytest.mark.budget
-def test_a_long_run_costs_its_length(tmp_path: Path) -> None:
-    """Two hundred versions of a four-hundred-line text, every other one covered, a move every
-    fifth: seconds, never minutes."""
-    lines = [f"Речення номер {n}." for n in range(400)]
-    commits = [(1, FRONT + "\n".join(lines) + "\n")]
-    for n in range(200):
-        author = 3 if n % 2 else 2
-        if n % 5 == 0:
-            lines.insert(0, lines.pop(200 + n % 150))
-        else:
-            lines[(n * 7) % 400] = f"Правка {n} автора {author}."
-        commits.append((author, FRONT + "\n".join(lines) + "\n"))
-    started = time.monotonic()
-    got = found(tmp_path, commits, covered_by=3)
-    assert time.monotonic() - started < 20.0
+def test_a_long_run_costs_its_length(tmp_path: Path, grows_linearly: Any) -> None:
+    """Up to two thousand versions of a four-hundred-line text, every other one covered, a move
+    every fifth: the walk grows with the run, never with its square."""
+
+    def repository(versions: int) -> tuple[Path, list[str], list[int]]:
+        lines = [f"Речення номер {n}." for n in range(400)]
+        commits = [(1, FRONT + "\n".join(lines) + "\n")]
+        for n in range(versions):
+            author = 3 if n % 2 else 2
+            if n % 5 == 0:
+                lines.insert(0, lines.pop(200 + n % 150))
+            else:
+                lines[(n * 7) % 400] = f"Правка {n} автора {author}."
+            commits.append((author, FRONT + "\n".join(lines) + "\n"))
+        repo = tmp_path / f"run-{versions}.git"
+        return repo, history(repo, commits), [author for author, _ in commits]
+
+    got: list[notices.Entry] = []
+
+    def walk(made: tuple[Path, list[str], list[int]]) -> None:
+        repo, shas, authors = made
+        covered = {shas[n] for n in range(1, len(shas)) if authors[n] == 3}
+        got[:] = notices.entries(repo, base=shas[0], run=run_of(shas, authors), covered=covered)
+
+    grows_linearly(repository, walk, 500)
     assert got and all(entry.changer == 3 and entry.author == 2 for entry in got)
 
 

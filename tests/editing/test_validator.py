@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import time
+from typing import Any
 
 import pytest
 
@@ -63,12 +63,12 @@ def test_refusals_sort_by_line_then_code() -> None:
 
 
 @pytest.mark.budget
-def test_a_long_run_of_labels_costs_linear_time() -> None:
-    """A text of a hundred thousand characters that opens a span label at every fourth is checked
-    in seconds at most, not in the minute and more a scan of the rest of the text at each takes."""
-    started = time.perf_counter()
-    validate("[a]{" * 25000)
-    assert time.perf_counter() - started < 5.0
+def test_a_long_run_of_labels_costs_linear_time(grows_linearly: Any) -> None:
+    """A text that opens a span label at every fourth character: each label read where it stands,
+    never by a scan of the rest of the text."""
+    # Up to 50,000 characters: past them the parser's own inline pass grows a little faster
+    # than its input, which is the library's, not the validator's.
+    grows_linearly(lambda n: "[a]{" * n, validate, 3_125)
 
 
 def test_a_text_over_the_size_is_refused_unread() -> None:

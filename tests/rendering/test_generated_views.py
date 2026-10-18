@@ -192,22 +192,20 @@ def test_a_clause_of_many_roles_is_shown_in_linear_space(settings: Any) -> None:
     assert shown < 200 * len(body)
 
 
+@pytest.mark.fast
 @pytest.mark.budget
-def test_a_clause_of_many_roles_costs_about_its_length(settings: Any) -> None:
-    import time
-
+def test_a_clause_of_many_roles_costs_about_its_length(settings: Any, grows_linearly: Any) -> None:
     from rendering import directory
-    from rendering.renderer import RENDERER
 
     settings.LANGUAGE_CODE = "en"
-    body = "# One\n\nA clause " + " ".join(f"[w{n}]{{.role}}" for n in range(16_000)) + ".\n"
-    started = time.perf_counter()
-    RENDERER.parse(body)
-    parsed = time.perf_counter() - started
-    shown = stream(body)
-    started = time.perf_counter()
-    directory.roles([shown], [], context=None)
-    assert time.perf_counter() - started < 3 * parsed + 0.1
+    grows_linearly(
+        lambda n: stream(
+            "# One\n\nA clause " + " ".join(f"[w{k}]{{.role}}" for k in range(n)) + ".\n"
+        ),
+        # The clause in four streams, as a body and its appendices: a window the clock reads.
+        lambda shown: directory.roles([shown] * 4, [], context=None),
+        4_000,
+    )
 
 
 @pytest.mark.integration

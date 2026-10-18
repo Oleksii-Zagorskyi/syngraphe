@@ -3,6 +3,8 @@ adds for spans the file lacks (DL-0440), and the changes between two files. Inve
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from documents import entities
@@ -96,20 +98,16 @@ def test_whatever_does_not_read_is_a_value_error(monkeypatch: pytest.MonkeyPatch
 
 
 @pytest.mark.budget
-def test_spans_cost_what_the_parse_costs() -> None:
-    """Reading the spans of a body at the size limit costs about what parsing it does: each span's
-    words are read in place, never from a copy of the rest of the paragraph."""
-    import time
-
-    from editing.markdown.parser import parser
-
-    body = "[x]{.role #x} " * 28_000 + "\n"
-    started = time.perf_counter()
-    parser().parse(body)
-    parsed = time.perf_counter() - started
-    started = time.perf_counter()
-    assert len(list(entities.spans(body))) == 28_000
-    assert time.perf_counter() - started < 3 * parsed + 0.2
+def test_spans_cost_what_the_parse_costs(grows_linearly: Any) -> None:
+    """Reading the spans of a body up to the size limit grows with its length: each span's words
+    are read in place, never from a copy of the rest of the paragraph."""
+    counted: list[int] = []
+    grows_linearly(
+        lambda n: "[x]{.role #x} " * n + "\n",
+        lambda body: counted.append(len(list(entities.spans(body)))),
+        7_000,
+    )
+    assert counted[-1] == 28_000
 
 
 def test_kinds_follow_the_specification() -> None:

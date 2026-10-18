@@ -691,17 +691,14 @@ def test_a_jpeg_with_two_frames_is_unreadable() -> None:
 
 
 @pytest.mark.budget
-def test_a_scan_of_fill_bytes_is_walked_quickly() -> None:
-    import time
-
+def test_a_scan_of_fill_bytes_is_walked_quickly(grows_linearly: Any) -> None:
+    """Fill before a marker is allowed, up to an upload's size: the walk passes over it once."""
     base = jpeg()
     at = base.index(b"\xff\xda")
     length = struct.unpack(">H", base[at + 2 : at + 4])[0]
-    data = base[: at + 2 + length] + b"\xff" * 9_500_000 + b"\xd9"
-    started = time.perf_counter()
-    # Fill before a marker is allowed: what matters is that the walk does not crawl over it.
-    images.check(data)
-    assert time.perf_counter() - started < 1.0
+    grows_linearly(
+        lambda n: base[: at + 2 + length] + b"\xff" * n + b"\xd9", images.check, 2_375_000
+    )
 
 
 def test_a_png_has_one_header() -> None:

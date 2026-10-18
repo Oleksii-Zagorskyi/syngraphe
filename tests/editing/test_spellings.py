@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -93,10 +94,6 @@ def test_a_numbered_bullet_list_renders_as_it_is_stored() -> None:
 
 
 @pytest.mark.budget
-def test_numbered_bullets_are_rewritten_in_linear_time() -> None:
-    import time
-
-    body = "- 1. a\n\nb\n\n" * 28000
-    started = time.perf_counter()
-    parser().parse(body)
-    assert time.perf_counter() - started < 3.0
+def test_numbered_bullets_are_rewritten_in_linear_time(grows_linearly: Any) -> None:
+    """Up to 28,000 one-item numbered lists, the size limit's worth: each moved in one pass."""
+    grows_linearly(lambda n: "- 1. a\n\nb\n\n" * n, parser().parse, 7_000)

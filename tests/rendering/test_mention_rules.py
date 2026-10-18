@@ -5,12 +5,12 @@ invented."""
 
 from __future__ import annotations
 
-import time
+from typing import Any
 
 import pytest
 
 from rendering import mentions
-from rendering.renderer import RENDERER, RenderContext, render
+from rendering.renderer import RenderContext, render
 
 pytestmark = pytest.mark.fast
 
@@ -48,18 +48,16 @@ def test_a_mention_inside_a_mention_never_nests_an_anchor() -> None:
 
 
 @pytest.mark.budget
-def test_targets_reads_a_paragraph_of_mentions_in_linear_time() -> None:
-    """A paragraph at the size limit holding mentions alone costs about its parse, not its
+def test_targets_reads_a_paragraph_of_mentions_in_linear_time(grows_linearly: Any) -> None:
+    """A paragraph up to the size limit holding mentions alone costs about its length, not its
     square."""
-    body = " ".join(f"[w]{{.document #{n % 9 + 1}}}" for n in range(20_000)) + "\n"
-    started = time.perf_counter()
-    RENDERER.parse(body)
-    parsed = time.perf_counter() - started
-    started = time.perf_counter()
-    assert len(mentions.targets(body)) == 20_000
-    read = time.perf_counter() - started
 
-    assert read < 3 * parsed + 0.1
+    def body(n: int) -> str:
+        return " ".join(f"[w]{{.document #{k % 9 + 1}}}" for k in range(n)) + "\n"
+
+    counted: list[int] = []
+    grows_linearly(body, lambda text: counted.append(len(mentions.targets(text))), 5_000)
+    assert counted[-1] == 20_000
 
 
 def test_mentions_are_listed_where_they_open() -> None:

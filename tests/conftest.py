@@ -46,6 +46,47 @@ os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
 pytest_plugins = ("celery.contrib.pytest",)
 
+# A growth guard's bound on the time at four times a size over the time at that size: linear cost
+# reads about 4, quadratic about 16, so 8 tells them apart on any machine (`test-strategy.md`).
+GROWTH_BOUND = 8.0
+
+
+@pytest.fixture
+def grows_linearly() -> Callable[..., float]:
+    """`grows_linearly(prepare, work, size)`: asserts that the median time of
+    `work(prepare(4 * size))` over the median time of `work(prepare(size))`, three runs each, the
+    inputs prepared and the garbage collector paused outside the clock, stays below
+    `GROWTH_BOUND`; returns that ratio. A growth guard asserts this, never a time, which a slower
+    machine breaks while the code is linear."""
+    import gc
+    import statistics
+    import time
+
+    def measure(prepare: Callable[[int], Any], work: Callable[[Any], object], size: int) -> float:
+        def median(n: int) -> float:
+            given = prepare(n)
+            times = []
+            for _ in range(3):
+                # The collector's passes grow with the objects alive, a large input's above all:
+                # timed, they read as the code's own growth.
+                gc.collect()
+                gc.disable()
+                try:
+                    started = time.perf_counter()
+                    work(given)
+                    times.append(time.perf_counter() - started)
+                finally:
+                    gc.enable()
+            return statistics.median(times)
+
+        small, large = median(size), median(4 * size)
+        ratio = large / small
+        print(f"growth x4: {ratio:.1f} ({small:.3f} s, then {large:.3f} s)")
+        assert ratio < GROWTH_BOUND, f"four times the input took {ratio:.1f} times as long"
+        return ratio
+
+    return measure
+
 
 @pytest.fixture(autouse=True)
 def unhashed_static_files(settings: Any) -> None:

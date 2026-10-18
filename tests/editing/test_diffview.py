@@ -5,6 +5,8 @@ synthetic examples; the texts are invented."""
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from editing.diffview import Change, classify, render_changes
@@ -88,20 +90,28 @@ def test_a_change_to_a_line_without_words_is_shown() -> None:
     assert html.index("format-changed") < html.index("<table>")
 
 
-@pytest.mark.budget
-def test_a_diff_costs_a_bounded_amount() -> None:
-    """A sentence of 110 KB with one word changed, and a text of repeated lines rewritten, render
-    in well under a second each, not the minutes an unbounded alignment takes."""
-    import time
+def _sentence(words: int) -> str:
+    return " ".join(f"слово{n % 97}" for n in range(words)) + ".\n"
 
-    sentence = " ".join(f"слово{n % 97}" for n in range(15000)) + ".\n"
-    changed = sentence.replace("слово5 ", "інше ", 1)
-    repeated = "Той самий абзац.\n\n" * 2000
-    rewritten = "Інший абзац.\n\n" * 2000
-    for old, new in ((sentence, changed), (repeated, rewritten), (repeated, sentence)):
-        started = time.perf_counter()
-        render_changes(old.encode(), new.encode())
-        assert time.perf_counter() - started < 2.0
+
+@pytest.mark.budget
+@pytest.mark.parametrize(
+    "pair",
+    [
+        lambda n: (_sentence(n), _sentence(n).replace("слово5 ", "інше ", 1)),
+        lambda n: ("Той самий абзац.\n\n" * (n // 8), "Інший абзац.\n\n" * (n // 8)),
+        lambda n: ("Той самий абзац.\n\n" * (n // 2), _sentence(n)),
+    ],
+    ids=["a-long-sentence", "repeated-lines", "lines-against-a-sentence"],
+)
+def test_a_diff_costs_a_bounded_amount(pair: Any, grows_linearly: Any) -> None:
+    """Up to a sentence of 110 KB with one word changed, and a text of repeated lines rewritten:
+    never the square an unbounded alignment costs."""
+    grows_linearly(
+        lambda n: tuple(text.encode() for text in pair(n)),
+        lambda texts: render_changes(*texts),
+        3_750,
+    )
 
 
 def test_the_alignment_rebuilds_the_new_text() -> None:
@@ -204,18 +214,18 @@ def test_unrelated_sentences_are_not_diffed_word_by_word() -> None:
     assert "<ins>Строк розгляду становить п'ять днів.</ins>" in html
 
 
-@pytest.mark.parametrize(
-    "line",
-    [":-" + " " * 399_990 + "x", "|" + " " * 399_990 + "x", "> " + " " * 399_990 + "[!x"],
-)
+@pytest.mark.parametrize(("opening", "closing"), [(":-", "x"), ("|", "x"), ("> ", "[!x")])
 @pytest.mark.budget
-def test_a_line_that_fails_a_pattern_costs_its_length(line: str) -> None:
-    """The line patterns never backtrack over a long run of spaces (a line at the size ceiling)."""
-    import time
-
-    started = time.monotonic()
-    render_changes(b"a\n", (line + "\n").encode())
-    assert time.monotonic() - started < 2.0
+def test_a_line_that_fails_a_pattern_costs_its_length(
+    opening: str, closing: str, grows_linearly: Any
+) -> None:
+    """The line patterns never backtrack over a long run of spaces, up to a line at the size
+    ceiling."""
+    grows_linearly(
+        lambda n: (opening + " " * n + closing + "\n").encode(),
+        lambda line: render_changes(b"a\n", line),
+        100_000,
+    )
 
 
 def test_sentences_alike_by_their_words() -> None:
@@ -336,35 +346,65 @@ def test_a_changed_target_alone_is_shown() -> None:
 
 
 @pytest.mark.budget
-def test_crafted_alignments_cost_a_bounded_amount() -> None:
+@pytest.mark.parametrize(
+    ("pair", "size"),
+    [
+        (
+            lambda n: (
+                "".join(f"U{k}\n" + "а\nб\n" * n for k in range(20)),
+                "".join(f"U{k}\n" + "б\nа\nа\n" * (2 * n // 3) for k in range(20)),
+            ),
+            250,
+        ),
+        (
+            lambda n: (
+                " ".join(f"U{k} " + "а б " * n for k in range(100)) + ".\n",
+                " ".join(f"U{k} " + "б а а " * (2 * n // 3) for k in range(100)) + ".\n",
+            ),
+            60,
+        ),
+    ],
+    ids=["lines", "words"],
+)
+def test_crafted_alignments_cost_a_bounded_amount(
+    pair: Any, size: int, grows_linearly: Any
+) -> None:
     """Regions with no line met once on each side, each led by a unique line, and one long
-    sentence of the same shape in words: the aligner's cost is budgeted per diff, so neither takes
-    more than a second or two, whatever the shape."""
-    import time
+    sentence of the same shape in words, each region growing: an alignment costs the cube of its
+    region, so the aligner's cost is bounded per region and per diff, and the whole grows no faster
+    than the text."""
+    grows_linearly(
+        lambda n: tuple(text.encode() for text in pair(n)),
+        lambda texts: render_changes(*texts),
+        size,
+    )
 
-    old = "".join(f"U{k}\n" + "а\nб\n" * 250 for k in range(20))
-    new = "".join(f"U{k}\n" + "б\nа\nа\n" * 166 for k in range(20))
-    words_old = " ".join(f"U{k} " + "а б " * 60 for k in range(400)) + ".\n"
-    words_new = " ".join(f"U{k} " + "б а а " * 40 for k in range(400)) + ".\n"
-    for a, b in ((old, new), (words_old, words_new)):
-        started = time.perf_counter()
-        render_changes(a.encode(), b.encode())
-        assert time.perf_counter() - started < 3.0
+
+def _callouts(n: int) -> str:
+    return "".join(f"> [!note]\n> Примітка {k}.\n\n" for k in range(n))
+
+
+def _paragraphs(n: int) -> str:
+    return "".join(f"Абзац номер {k}.\n\n" for k in range(n))
 
 
 @pytest.mark.budget
-def test_many_marker_changes_and_removed_blocks_cost_linearly() -> None:
-    import time
-
-    callouts = "".join(f"> [!note]\n> Примітка {k}.\n\n" for k in range(10_000))
-    paragraphs = "".join(f"Абзац номер {k}.\n\n" for k in range(10_000))
-    for a, b in (
-        (callouts, callouts.replace("[!note]", "[!warning]")),
-        (paragraphs + "Кінець.\n", "Кінець.\n"),
-    ):
-        started = time.perf_counter()
-        render_changes(a.encode(), b.encode())
-        assert time.perf_counter() - started < 3.0
+@pytest.mark.parametrize(
+    "pair",
+    [
+        lambda n: (_callouts(n), _callouts(n).replace("[!note]", "[!warning]")),
+        lambda n: (_paragraphs(n) + "Кінець.\n", "Кінець.\n"),
+    ],
+    ids=["marker-changes", "removed-blocks"],
+)
+def test_many_marker_changes_and_removed_blocks_cost_linearly(
+    pair: Any, grows_linearly: Any
+) -> None:
+    grows_linearly(
+        lambda n: tuple(text.encode() for text in pair(n)),
+        lambda texts: render_changes(*texts),
+        2_500,
+    )
 
 
 def test_hostile_values_stay_text_in_a_diff() -> None:

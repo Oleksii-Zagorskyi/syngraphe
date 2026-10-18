@@ -4,6 +4,8 @@ invented synthetic example."""
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from editing.sections import (
@@ -242,18 +244,9 @@ def test_ends_follow_the_rule_for_any_sequence_of_levels() -> None:
 
 
 @pytest.mark.budget
-def test_ranges_cost_about_what_the_parse_costs() -> None:
-    """At the size allowed, a body of nothing but headings — the case that costs most — is
-    divided in little more than the time the parser takes to read it."""
-    import time
-
-    from editing.markdown.parser import parser
-
-    body = "# aa\n" * 60_000
-    started = time.perf_counter()
-    parser().parse(body)
-    parsed = time.perf_counter() - started
-    started = time.perf_counter()
-    assert len(ranges(body)) == 60_000
-    divided = time.perf_counter() - started
-    assert divided < 3 * parsed
+def test_ranges_cost_about_what_the_parse_costs(grows_linearly: Any) -> None:
+    """Up to the size allowed, a body of nothing but headings — the case that costs most — is
+    divided in time that grows with its length."""
+    counted: list[int] = []
+    grows_linearly(lambda n: "# aa\n" * n, lambda body: counted.append(len(ranges(body))), 15_000)
+    assert counted[-1] == 60_000
