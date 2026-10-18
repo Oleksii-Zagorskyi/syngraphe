@@ -230,6 +230,8 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         "entity_changes": _entity_changes(repo, base.commit_sha, head, document.number),
         **drawn,
         "parts_heading": _("Parts changed in the run"),
+        # *Revert* on each row, for a holder of *accept* (DL-0446): the head the page shows.
+        "revert_head": head if Right.ACCEPT in rights else "",
     }
     return render(request, "review/pending.html", context)
 

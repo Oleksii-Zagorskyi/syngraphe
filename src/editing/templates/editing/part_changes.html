@@ -7,12 +7,13 @@
   <h2>{{ parts_heading }}</h2>
   <table>
     <tbody>
-      {% for row in part_rows %}<tr data-kind="{{ row.kind }}" data-change="{{ row.change }}">{% if row.change == "reordered" %}<td colspan="3">{% include "editing/part_label.html" %}</td>{% else %}
+      {% for row in part_rows %}<tr data-kind="{{ row.kind }}" data-change="{{ row.change }}">{% if row.change == "reordered" %}<td colspan="3">{% include "editing/part_label.html" %}</td>{% if revert_head %}{% include "editing/part_revert.html" %}{% endif %}{% else %}
         <td>{% include "editing/part_label.html" %}</td>
         <td>{% if row.kind == "attachment" %}{% if row.old %}<a href="{{ row.old }}">{% if row.change == "removed" %}{% translate "last version" %}{% else %}{% translate "old" %}{% endif %}</a>{% endif %}{% if row.old and row.new %} · {% endif %}{% if row.new %}<a href="{{ row.new }}">{% translate "new" %}</a>{% endif %}{% endif %}</td>
-        <td>{% if row.open %}<a href="{{ row.open }}">{% translate "open" %}</a>{% endif %}</td>{% endif %}
+        <td>{% if row.open %}<a href="{{ row.open }}">{% translate "open" %}</a>{% endif %}</td>{% if revert_head %}{% include "editing/part_revert.html" %}{% endif %}{% endif %}
       </tr>{% endfor %}
-      {% for words in frontmatter_rows %}<tr data-kind="frontmatter"><td colspan="3">{{ words }}</td></tr>{% endfor %}
+      {% for row in frontmatter_rows %}<tr data-kind="frontmatter"><td colspan="3">{{ row.words }}</td>{% if revert_head %}{% include "editing/part_revert.html" %}{% endif %}</tr>{% endfor %}
     </tbody>
   </table>
+  {% if revert_head %}<p class="muted">{% translate "Reverting takes the document and becomes part of your correction." %}</p>{% endif %}
 </section>{% endif %}

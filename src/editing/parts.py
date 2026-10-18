@@ -719,7 +719,8 @@ def drawn(
     rows = []
     for operation in changes.operations:
         if operation.change == "reordered":
-            rows.append({"kind": operation.kind, "change": "reordered"})
+            lists = "appendices" if operation.kind == "appendix" else "attachments"
+            rows.append({"kind": operation.kind, "change": "reordered", "part": lists})
             continue
         entry = operation.newer or operation.older or {}
         attachment = operation.kind == "attachment"
@@ -727,6 +728,8 @@ def drawn(
             {
                 "kind": operation.kind,
                 "change": operation.change,
+                # What a revert names the row by (`review.revert`).
+                "part": f"{operation.kind}:{operation.number}",
                 "title": entry.get("title", ""),
                 "older_title": (operation.older or {}).get("title", ""),
                 "old": older_file(operation.number) if attachment and operation.older else None,
@@ -739,5 +742,8 @@ def drawn(
     return {
         "part_appendices": appendices,
         "part_rows": rows,
-        "frontmatter_rows": [change.words for change in changes.frontmatter],
+        "frontmatter_rows": [
+            {"words": change.words, "part": f"frontmatter:{change.key}", "change": "changed"}
+            for change in changes.frontmatter
+        ],
     }

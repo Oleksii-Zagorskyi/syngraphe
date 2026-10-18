@@ -232,3 +232,13 @@ def test_catalogue_covers_the_runs_parts(
     assert leaked == [], f"pending edits shows message ids verbatim: {leaked}"
     assert "перейменовано з «Перша назва (приклад)»" in body
     assert "Частини:" in body
+    assert "повернути як було" in body
+    stale = client.post(
+        f"/document/{document.number}/pending/revert/",
+        {"part": "appendix:1", "change": "renamed", "head": "0" * 40},
+        follow=True,
+    )
+    refused = text_of(stale.content.decode())
+    leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", refused)]
+    assert leaked == [], f"a refused revert shows message ids verbatim: {leaked}"
+    assert "Правки змінилися" in refused

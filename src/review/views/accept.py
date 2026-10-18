@@ -49,6 +49,14 @@ def reason(document: Document, user: User, code: str) -> str:
             "An undo of these edits waits in %(name)s’s draft: the run is accepted when they "
             "finish it with “Accept as”."
         ) % {"name": person(hold.user) if hold is not None else ""}
+    if code == "revert_waits":
+        from review.services import revert_waiting
+
+        hold = revert_waiting(document)
+        return _(
+            "A revert of parts waits in %(name)s’s draft: the run is accepted when they finish "
+            "it with “Accept as”."
+        ) % {"name": person(hold.user) if hold is not None else ""}
     return {
         "no_reviewer": _("No reviewer is assigned to this document."),
         "nothing_to_accept": _("Nothing awaits review."),

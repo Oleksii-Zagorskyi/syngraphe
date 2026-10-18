@@ -188,6 +188,21 @@ def undo_waiting(document: Document) -> Any:
     return draft.hold
 
 
+def revert_waiting(document: Document) -> Any:
+    """The open hold whose draft carries a revert of parts of the run, or `None`: the run is
+    accepted through it, as through an undo (DL-0427)."""
+    from editing.models import Draft
+
+    draft = (
+        Draft.objects.filter(hold__document=document, hold__released_at__isnull=True)
+        .select_related("hold__user")
+        .first()
+    )
+    if draft is None or not draft.content.get("revert"):
+        return None
+    return draft.hold
+
+
 def refusal(
     document: Document,
     reviewer: User,
@@ -215,6 +230,10 @@ def refusal(
         # Accepted around a waiting undo, the undone versions would become accepted text and
         # their authors never be told (ADR-0015); the undo's own reviewer accepts through it.
         return "undo_waits"
+    if not around_an_undo and revert_waiting(document) is not None:
+        # The same for a revert of parts: accepted around it, the run would be accepted with the
+        # parts the reviewer has already taken back.
+        return "revert_waits"
     pending = run(document) if pending is None else pending
     if not pending:
         return "nothing_to_accept"

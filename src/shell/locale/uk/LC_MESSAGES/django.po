@@ -3892,3 +3892,32 @@ msgstr "Частини:"
 #: review/views/pending.py
 msgid "Parts changed in the run"
 msgstr "Частини документа, змінені в правках після останнього погодження"
+
+#: editing/templates/editing/part_changes.html
+msgid "Reverting takes the document and becomes part of your correction."
+msgstr "Повернення як було бере документ на редагування й стає частиною вашого виправлення."
+
+#: editing/templates/editing/part_revert.html
+msgid "revert"
+msgstr "повернути як було"
+
+#: review/views/accept.py
+#, python-format
+msgid "A revert of parts waits in %(name)s’s draft: the run is accepted when they finish it with “Accept as”."
+msgstr "Повернення частин документа як було чекає в чернетці %(name)s: правки погоджують, коли ця особа завершить її через «Погодити як»."
+
+#: review/views/revert.py
+msgid "The run changed since the page was drawn — check it again."
+msgstr "Правки змінилися, відколи сторінку відкрито, — перевірте їх ще раз."
+
+#: review/views/revert.py
+msgid "Nothing of this is left to revert."
+msgstr "Цю зміну вже повернуто як було."
+
+#: review/views/revert.py
+msgid "Your draft has already changed this part: settle it in your draft first."
+msgstr "Ваша чернетка вже змінила цю частину документа: спершу владнайте це в чернетці."
+
+#: review/views/revert.py
+msgid "You may not revert parts of this document."
+msgstr "Ви не можете повертати як було частини цього документа."
