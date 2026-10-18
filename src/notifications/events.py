@@ -160,11 +160,15 @@ def describe(row: Any, *, named: bool = True) -> str:
         "title": document.title if document is not None else "",
     }
     if event == Event.CORRECTION_NOTICE:
-        accepted = row.correction_notice.acceptance.number if row.correction_notice else ""
-        return _("Correction notice: #%(number)s %(title)s, accepted as %(accepted)s.") % {
-            **document_named,
-            "accepted": accepted,
-        }
+        from review.notices import counted
+
+        notice = row.correction_notice
+        accepted = notice.acceptance.number if notice else ""
+        # The counts alone; every line and part is on the notice's own page (DL-0480).
+        return _(
+            "Correction notice: #%(number)s %(title)s, accepted as %(accepted)s — %(changed)s "
+            "changed."
+        ) % {**document_named, "accepted": accepted, "changed": counted(notice) if notice else ""}
     words = {
         Event.VERSION_COMMITTED: _("#%(number)s %(title)s: version %(version)s awaits review."),
         Event.ACCEPTED: _("#%(number)s %(title)s: your edits were accepted as %(accepted)s."),

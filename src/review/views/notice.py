@@ -14,13 +14,16 @@ from typing import Any
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy
 
 from access.rights import Right, rights_on
 from documents import gitstore
+from documents.parts import lists_at, part_operations
 from editing import holds
+from editing.authorship import DOCUMENT_FILE
 from editing.diffview import render_changes
 from identity.naming import person
-from review import services
+from review import notices, services
 from review.models import Acceptance
 from shell.views import not_found
 
@@ -95,26 +98,128 @@ def _passage(text: bytes, line: int) -> str:
     return found
 
 
-def _link(request: HttpRequest, document: Any, acceptance: Any, lines: list[Any]) -> str:
-    """Where *open the document* leads: the accepted version's historical page at the first
-    passage, where the reader's ceiling reaches it; else the document (DL-0334)."""
+# A part entry's two halves (ADR-0014): what its author's version did, what the changing version
+# did; each half a whole phrase, so a translation never makes a verb agree with a name.
+AUTHOR_DID = {
+    ("attachment", "added"): gettext_lazy("You added this attachment in %(version)s"),
+    ("attachment", "replaced"): gettext_lazy("You replaced this attachment in %(version)s"),
+    ("attachment", "renamed"): gettext_lazy("You renamed this attachment in %(version)s"),
+    ("attachment", "removed"): gettext_lazy("You removed this attachment in %(version)s"),
+    ("appendix", "added"): gettext_lazy("You added this appendix in %(version)s"),
+    ("appendix", "renamed"): gettext_lazy("You renamed this appendix in %(version)s"),
+    ("appendix", "removed"): gettext_lazy("You removed this appendix in %(version)s"),
+}
+CHANGER_DID = {
+    "removed": gettext_lazy("%(changer)s removed it in %(changing)s."),
+    "replaced": gettext_lazy("%(changer)s replaced it in %(changing)s."),
+    "renamed": gettext_lazy("%(changer)s renamed it in %(changing)s."),
+    "added": gettext_lazy("%(changer)s restored it in %(changing)s."),
+}
+
+
+def _parent(document: Any, repo: Any, version: Any) -> Any:
+    """The version `version` was committed on, or `None` for the document's first."""
+    from documents.models import Version
+
+    parents = gitstore.commit_at(repo, version.commit_sha).parents
+    if not parents:
+        return None
+    return Version.objects.filter(document=document, commit_sha=str(parents[0].id)).first()
+
+
+ORDER = ("added", "removed", "replaced", "renamed")
+
+
+def _changes(document: Any, repo: Any, version: Any, kind: str, number: int) -> list[str]:
+    """What `version` did to part `number` against the version before it, in `ORDER`."""
+    before = _parent(document, repo, version)
+    older = lists_at(before) if before is not None else ([], [])
+    done = {
+        o.change
+        for o in part_operations(older, lists_at(version))
+        if o.kind == kind and o.number == number
+    }
+    return [change for change in ORDER if change in done]
+
+
+def _part_entry(
+    document: Any, accepted: tuple[str, Any], line: Any, numbers: dict[str, str], repo: Any
+) -> dict[str, Any]:
+    """A part entry as the page draws it: its sentence, the part by its title as its author left
+    it, and *open* where the accepted version — `(number, version)`, the version `None` past the
+    reader's ceiling — holds the part."""
+    kind = "appendix" if line.part.startswith("appendices/") else "attachment"
+    side = 0 if kind == "appendix" else 1
+    number = int(
+        line.part.removeprefix("appendices/").removeprefix("attachments/").removesuffix(".md")
+    )
+    changed = _changes(document, repo, line.changing_version, kind, number) or ["renamed"]
+    # The author's half names what of theirs the change undid: of a version that both replaced
+    # and renamed a part, the half the changing version touched.
+    touched = {attribute for change in changed for attribute in notices.SETS[change]}
+    own_changes = _changes(document, repo, line.author_version, kind, number)
+    authored = next(
+        (c for c in own_changes if touched & set(notices.SETS[c])),
+        own_changes[0] if own_changes else "renamed",
+    )
+    title = next(
+        (e["title"] for e in lists_at(line.author_version)[side] if int(e["number"]) == number), ""
+    )
+    if not title:
+        # A part the author's version removed: its title in the version before it.
+        before = _parent(document, repo, line.author_version)
+        held = lists_at(before)[side] if before is not None else []
+        title = next((e["title"] for e in held if int(e["number"]) == number), "")
+    said = str(AUTHOR_DID.get((kind, authored), AUTHOR_DID[(kind, "renamed")])) % {
+        "version": numbers.get(line.author_version.commit_sha, "")
+    }
+    said += "; " + str(CHANGER_DID[changed[0]]) % {
+        "changer": person(line.changing_version.author),
+        "changing": numbers.get(line.changing_version.commit_sha, ""),
+    }
+    link = ""
+    at, version = accepted
+    if version is not None and kind == "attachment":
+        if any(int(e["number"]) == number for e in lists_at(version)[side]):
+            link = f"/document/{document.number}/version/{at}/attachment/{number}/"
+    return {
+        "kind": "part_operation",
+        "said": said,
+        "icon": "▤" if kind == "appendix" else "📎",
+        "title": title,
+        "open": link,
+    }
+
+
+def _accepted(request: HttpRequest, document: Any, acceptance: Any) -> Any:
+    """The accepted version as the reader may open it: `None` past their ceiling, or where the
+    document's history does not read."""
     from rendering.views import UNREADABLE
     from review.history import version_for
 
-    plain = f"/document/{document.number}/"
     try:
-        version = version_for(request.user, document, acceptance.number)
+        return version_for(request.user, document, acceptance.number)
     except UNREADABLE:
-        # A record that does not read costs the passage, never the notice; logged for the operator.
-        logger.exception("a document's history could not be read", extra={"document": plain})
-        return plain
+        # A record that does not read costs the links, never the notice; logged for the operator.
+        logger.exception(
+            "a document's history could not be read",
+            extra={"document": f"/document/{document.number}/"},
+        )
+        return None
+
+
+def _link(document: Any, accepted: tuple[str, Any], lines: list[Any], repo: Any) -> str:
+    """Where *open the document* leads: the accepted version's historical page at the first
+    passage of the body, where the reader's ceiling reaches it; else the document (DL-0334)."""
+    plain = f"/document/{document.number}/"
+    at, version = accepted
     if version is None:
         return plain
-    page = f"{plain}version/{acceptance.number}/"
-    first = next((_span(line.range_after) for line in lines if line.range_after), None)
+    page = f"{plain}version/{at}/"
+    body = [line for line in lines if line.file == DOCUMENT_FILE and line.entry != "part_operation"]
+    first = next((_span(line.range_after) for line in body if line.range_after), None)
     if first is None:
         return page
-    repo = gitstore.open_repository(holds.tenant_number(), document.number)
     target = _passage(gitstore.read(repo, "document.md", version.commit_sha), first[0])
     return f"{page}#{target}" if target else page
 
@@ -157,11 +262,22 @@ def page(request: HttpRequest, notification: Any) -> HttpResponse:
                     ),
                 }
             )
+    link = ""
+    if readable:
+        accepted = (acceptance.number, _accepted(request, document, acceptance))
+        repo = gitstore.open_repository(holds.tenant_number(), document.number)
+        entries += [
+            _part_entry(document, accepted, line, numbers, repo)
+            for line in lines
+            if line.entry == "part_operation"
+        ]
+        link = _link(document, accepted, lines, repo)
     context = {
         "document": document,
         "acceptance": acceptance,
-        "link": _link(request, document, acceptance, lines) if readable else "",
+        "link": link,
         "count": len(lines),
+        "counted": notices.counted(notice),
         "changers": changers,
         "readable": readable,
         "entries": entries,

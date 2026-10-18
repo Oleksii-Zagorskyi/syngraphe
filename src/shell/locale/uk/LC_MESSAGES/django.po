@@ -1473,12 +1473,8 @@ msgstr "Сповіщення про виправлення"
 
 #: review/templates/review/notice.html:7
 #, python-format
-msgid ""
-"In #%(number)s, accepted as %(accepted)s, a reviewer changed lines you wrote "
-"or removed: %(count)s."
-msgstr ""
-"У документі #%(number)s, погодженому як %(accepted)s, змінено рядки, які ви "
-"написали або видалили: %(count)s."
+msgid "In #%(number)s, accepted as %(accepted)s, a reviewer changed what you wrote: %(counted)s."
+msgstr "У документі #%(number)s, погодженому як %(accepted)s, змінено написане вами: %(counted)s."
 
 #: review/templates/review/notice.html:8
 msgid "Changed by:"
@@ -1811,8 +1807,8 @@ msgstr "Вас додано до групи."
 
 #: notifications/events.py
 #, python-format
-msgid "Correction notice: #%(number)s %(title)s, accepted as %(accepted)s."
-msgstr "Сповіщення про виправлення: #%(number)s %(title)s, погоджено як %(accepted)s."
+msgid "Correction notice: #%(number)s %(title)s, accepted as %(accepted)s — %(changed)s changed."
+msgstr "Сповіщення про виправлення: #%(number)s %(title)s, погоджено як %(accepted)s — змінено %(changed)s."
 
 #: notifications/events.py
 #, python-format
@@ -3921,3 +3917,79 @@ msgstr "Ваша чернетка вже змінила цю частину до
 #: review/views/revert.py
 msgid "You may not revert parts of this document."
 msgstr "Ви не можете повертати як було частини цього документа."
+
+#: review/notices.py
+#, python-format
+msgid "%(count)s line"
+msgid_plural "%(count)s lines"
+msgstr[0] "%(count)s рядок"
+msgstr[1] "%(count)s рядки"
+msgstr[2] "%(count)s рядків"
+
+#: review/notices.py
+#, python-format
+msgid "%(count)s part"
+msgid_plural "%(count)s parts"
+msgstr[0] "%(count)s частину документа"
+msgstr[1] "%(count)s частини документа"
+msgstr[2] "%(count)s частин документа"
+
+#: review/notices.py
+#, python-format
+msgid "%(lines)s and %(parts)s"
+msgstr "%(lines)s і %(parts)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "You added this attachment in %(version)s"
+msgstr "Ви додали цей вкладений файл у версії %(version)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "You replaced this attachment in %(version)s"
+msgstr "Ви замінили цей вкладений файл у версії %(version)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "You renamed this attachment in %(version)s"
+msgstr "Ви перейменували цей вкладений файл у версії %(version)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "You removed this attachment in %(version)s"
+msgstr "Ви видалили цей вкладений файл у версії %(version)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "You added this appendix in %(version)s"
+msgstr "Ви додали цей додаток у версії %(version)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "You renamed this appendix in %(version)s"
+msgstr "Ви перейменували цей додаток у версії %(version)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "You removed this appendix in %(version)s"
+msgstr "Ви видалили цей додаток у версії %(version)s"
+
+#: review/views/notice.py
+#, python-format
+msgid "%(changer)s removed it in %(changing)s."
+msgstr "видалено у версії %(changing)s, автор зміни — %(changer)s."
+
+#: review/views/notice.py
+#, python-format
+msgid "%(changer)s replaced it in %(changing)s."
+msgstr "замінено у версії %(changing)s, автор зміни — %(changer)s."
+
+#: review/views/notice.py
+#, python-format
+msgid "%(changer)s renamed it in %(changing)s."
+msgstr "перейменовано у версії %(changing)s, автор зміни — %(changer)s."
+
+#: review/views/notice.py
+#, python-format
+msgid "%(changer)s restored it in %(changing)s."
+msgstr "відновлено у версії %(changing)s, автор зміни — %(changer)s."

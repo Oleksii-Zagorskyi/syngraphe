@@ -1,6 +1,8 @@
 """The correction notice (ADR-0001, ADR-0014, DL-0113): at acceptance, for every version of the run
-committed by a holder of *accept*, each line of `document.md` another author of the run wrote that
-the version replaced or removed, or removed and the version restored.
+committed by a holder of *accept*, each line of `document.md` or of an appendix another author of
+the run wrote that the version replaced or removed, or removed and the version restored; and each
+part — an appendix or an attachment — whose state another author's version of the run set and the
+version changed: removed, replaced, renamed, or restored after another's removal.
 
 The core, `entries`, reads the document's repository twice — the file at the base and the run's
 `-U0` log — then walks the run forward, carrying for every line the version that wrote it and its
@@ -47,13 +49,17 @@ class Entry:
     removing version's parent for a `restored` one; `range_after` the lines that stand in its place
     in the run's last version, `""` when none do. A range is `"n"` or `"n-m"`."""
 
-    kind: Literal["line", "restored"]
+    kind: Literal["line", "restored", "part_operation"]
     author: Hashable
     author_version: str
     changing_version: str
     changer: Hashable
     range_before: str
     range_after: str
+    # file: the file a line entry is in. part: a part entry's path beside `document.md`; ""
+    # for a line entry.
+    file: str = authorship.DOCUMENT_FILE
+    part: str = ""
 
 
 @dataclass(frozen=True)
@@ -85,9 +91,10 @@ def _blank(text: bytes) -> bool:
     return not text.strip()
 
 
-def _body_start(texts: Sequence[bytes]) -> int:
-    """The number of the first line after the frontmatter; 1 when there is none."""
-    if texts and texts[0] == b"---":
+def _body_start(texts: Sequence[bytes], path: str = authorship.DOCUMENT_FILE) -> int:
+    """The number of the first line after the frontmatter; 1 when there is none, as for an
+    appendix, whose whole text is its body."""
+    if path == authorship.DOCUMENT_FILE and texts and texts[0] == b"---":
         for n in range(1, len(texts)):
             if texts[n] == b"---":
                 return n + 2
@@ -160,8 +167,10 @@ def entries(
     run: Sequence[RunCommit],
     covered: Collection[str],
     path: str = authorship.DOCUMENT_FILE,
+    from_empty: bool = False,
 ) -> list[Entry]:
-    """The entries the run's `covered` versions generate, in run order, for the file at `path`.
+    """The entries the run's `covered` versions generate, in run order, for the file at `path` —
+    walked from the empty file with `from_empty`, an appendix the base does not hold.
 
     `base` is the commit the run starts from — the latest accepted content version, or the
     document's first commit. A commit outside `covered` generates nothing of its own, but still
@@ -171,17 +180,17 @@ def entries(
     authors = {commit.sha: commit.author for commit in run}
     changes = authorship.changes(repository_path, path, base, run[-1].sha)
     parents = {commit.sha: commit.parent for commit in run}
-    at_base = authorship.file_at(repository_path, base, path)
+    at_base = [] if from_empty else authorship.file_at(repository_path, base, path)
     texts = at_base
     written = [_Written(base, n) for n in range(1, len(texts) + 1)]
     steps: list[_Step] = []
     for change in changes:
         if change.commit in parents and change.parent != parents[change.commit]:
             raise ValueError(f"run commit {change.commit} is not a child of {change.parent}")
-        step = _Step(change, body_before=_body_start(texts))
+        step = _Step(change, body_before=_body_start(texts, path))
         after = _applied(texts, change)
         _moves(step, texts, after)
-        step.body_after = _body_start(after)
+        step.body_after = _body_start(after, path)
         steps.append(step)
         texts = after
 
@@ -220,6 +229,8 @@ def entries(
                 replace(by, ambiguous=True) if texts[n] in step.ambiguous_texts else by
                 for n, by in enumerate(written)
             ]
+    if path != authorship.DOCUMENT_FILE:
+        result = [replace(e, file=path) for e in result]
     return result
 
 
@@ -342,6 +353,73 @@ def _range(lines: set[int]) -> str:
     return str(first) if first == last else f"{first}-{last}"
 
 
+def touched(repo: Any, run: Sequence[RunCommit]) -> list[str]:
+    """Every appendix file a commit of the run changed, in its number's order."""
+    found: set[str] = set()
+    for commit in run:
+        diff = repo.diff(repo.get(commit.parent), repo.get(commit.sha))
+        for patch in diff:
+            for path in (patch.delta.old_file.path, patch.delta.new_file.path):
+                if path.startswith("appendices/") and path.endswith(".md"):
+                    found.add(path)
+    return sorted(found, key=lambda p: int(p.removeprefix("appendices/").removesuffix(".md")))
+
+
+# What each kind of part operation sets of a part's state: its presence, its file, its title.
+SETS = {
+    "added": ("presence", "file", "title"),
+    "removed": ("presence", "file", "title"),
+    "replaced": ("file",),
+    "renamed": ("title",),
+}
+
+
+def part_entries(base: Any, versions: Sequence[Any], covered: Collection[str]) -> list[Entry]:
+    """The part entries of the run: walking its versions oldest first, each part's presence, file
+    and title carried with the version that last set it in the run — none for the base's — and,
+    for each covered version, one entry per other author's version that set what it changed. A
+    reorder sets nothing and generates nothing."""
+    from documents.parts import lists_at, part_operations
+
+    set_by: dict[tuple[str, int, str], Any] = {}
+    result: list[Entry] = []
+    before = lists_at(base)
+    for version in versions:
+        after = lists_at(version)
+        changed: dict[tuple[str, int], set[str]] = {}
+        for operation in part_operations(before, after):
+            if operation.number is not None:
+                key = (operation.kind, operation.number)
+                changed.setdefault(key, set()).update(SETS[operation.change])
+        for (kind, number), attributes in sorted(changed.items()):
+            setters = {
+                setter.commit_sha: setter
+                for attribute in sorted(attributes)
+                if (setter := set_by.get((kind, number, attribute))) is not None
+            }
+            for setter in setters.values():
+                if version.commit_sha not in covered or setter.author_id == version.author_id:
+                    continue
+                result.append(
+                    Entry(
+                        kind="part_operation",
+                        author=setter.author_id,
+                        author_version=setter.commit_sha,
+                        changing_version=version.commit_sha,
+                        changer=version.author_id,
+                        range_before="",
+                        range_after="",
+                        part=f"appendices/{number}.md"
+                        if kind == "appendix"
+                        else f"attachments/{number}",
+                    )
+                )
+            for attribute in attributes:
+                set_by[(kind, number, attribute)] = version
+        before = after
+    return result
+
+
 def compute(acceptance: Any) -> list[Any]:
     """The correction notices of `acceptance`, written once: one `CORRECTION_NOTICE` per author,
     a `CORRECTION_LINE` per entry, one `NOTIFICATION` per notice, one `accepted` notification to
@@ -387,12 +465,21 @@ def compute(acceptance: Any) -> list[Any]:
         for version in versions
         if version.kind == VersionKind.REVIEWER_EDIT or version.author_id == acceptance.reviewer_id
     }
-    found = entries(
-        gitstore.repository_path(tenant_number, document.number),
-        base=base.commit_sha,
-        run=run,
-        covered=covered,
-    )
+    path = gitstore.repository_path(tenant_number, document.number)
+    found = entries(path, base=base.commit_sha, run=run, covered=covered)
+    at_base = {
+        f"appendices/{name}" for name in gitstore.listing(repo, "appendices", base.commit_sha)
+    }
+    for appendix in touched(repo, run):
+        found += entries(
+            path,
+            base=base.commit_sha,
+            run=run,
+            covered=covered,
+            path=appendix,
+            from_empty=appendix not in at_base,
+        )
+    found += part_entries(base, versions, covered)
     by_sha = {v.commit_sha: v for v in Version.objects.filter(document=document)}
     by_author: dict[Any, list[Entry]] = {}
     for entry in found:
@@ -412,7 +499,8 @@ def compute(acceptance: Any) -> list[Any]:
                     changing_version=by_sha[entry.changing_version],
                     entry=entry.kind,
                     author_version=by_sha[entry.author_version],
-                    file=authorship.DOCUMENT_FILE,
+                    file=entry.file,
+                    part=entry.part,
                     range_before=entry.range_before,
                     range_after=entry.range_after,
                 )
@@ -452,3 +540,23 @@ def compute(acceptance: Any) -> list[Any]:
         locked.save(update_fields=["notices_computed_at"])
         acceptance.notices_computed_at = now
     return notices
+
+
+def counted(notice: Any) -> str:
+    """How much a notice holds, as its list line and its page say it: its lines and its parts
+    counted apart, a count of none left out (DL-0480)."""
+    from django.utils.translation import gettext, ngettext
+
+    from review.models import CorrectionLine
+    from review.models import Entry as Kind
+
+    rows = CorrectionLine.objects.filter(notice=notice)
+    parts = rows.filter(entry=Kind.PART_OPERATION).count()
+    lines = rows.count() - parts
+    said = [
+        ngettext("%(count)s line", "%(count)s lines", lines) % {"count": lines} if lines else "",
+        ngettext("%(count)s part", "%(count)s parts", parts) % {"count": parts} if parts else "",
+    ]
+    if all(said):
+        return gettext("%(lines)s and %(parts)s") % {"lines": said[0], "parts": said[1]}
+    return said[0] or said[1]

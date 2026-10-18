@@ -376,3 +376,20 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** Reading every image first is what lets a job fail with its reason when a draft's image is gone, which a writer's own fetch could not say; the documents the platform is built for hold few images, and no measurement yet shows an export near a worker's memory.
 
 **What has to be true before it is taken up.** An export comes near a worker's memory limit, or a document's images together pass a size an installation names as its ceiling.
+
+
+## B-052 — Pasting an image onto a selected image replaces it
+
+**Idea.** With an image selected in the editor, pasting or dropping another image replaces it in place, as typing replaces selected text.
+
+**Why it is parked.** Release 0.1 adds a pasted or dropped image as a paragraph of its own after the selection (DL-0232); replacing one takes deleting it first, and nothing is lost meanwhile.
+
+**What has to be true before it is taken up.** Authors replace images often enough that the extra step is noticed.
+
+## B-053 — The *Edit* tab of an archived document for an administrator
+
+**Idea.** The document page draws *Edit* by the right alone, so an administrator who holds *edit* through a group sees it on an archived document; the tab answers *Nothing to show here*, as every act on an archived document does (DL-0450). Draw it only where the tab opens, as the appendix page already does.
+
+**Why it is parked.** Nothing is written or lost: the tab refuses, and the archived tag says why; the mismatch is the page's, between a right and a state.
+
+**What has to be true before it is taken up.** An administrator reports meeting the dead tab, or the document page's tabs are next changed.

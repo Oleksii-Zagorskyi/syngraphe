@@ -512,6 +512,11 @@ BASE_YAML = 'title: "Synthetic example"\nlanguage: "uk"\n'
             "scheme.txt",
         ),
         (BASE_YAML + 'attachments:\n  - file: ".scheme.txt"\n    title: "Scheme"\n', ".scheme.txt"),
+        # A right-to-left override would show the name as another (`exe.txt` read backwards).
+        (
+            BASE_YAML + 'attachments:\n  - file: "scheme\\u202etxt.exe"\n    title: "Scheme"\n',
+            "the order it is shown in",
+        ),
         (
             BASE_YAML
             + 'attachments:\n  - file: "scheme.txt"\n    title: "Scheme"\n'

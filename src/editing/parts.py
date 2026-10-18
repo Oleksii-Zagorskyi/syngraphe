@@ -118,16 +118,12 @@ def head_lists(draft: Draft, repo: Any = None) -> dict[str, list[dict[str, Any]]
     return {APPENDICES: frontmatter.appendices, ATTACHMENTS: frontmatter.attachments}
 
 
-# Marks that change the order a name is displayed in, so it would read as another name.
-DIRECTION = re.compile("[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]")
-
-
 def valid_file_name(name: str) -> str | None:
     """`name` as an attachment's file name — NFC, one printable line beside the text, within the
     length the index holds, displayed in the order it is stored — or `None`; the loader's rule
     (`documents.loading`), and no direction control."""
     name = unicodedata.normalize("NFC", name)
-    if "/" in name or "\\" in name or name.startswith(".") or DIRECTION.search(name):
+    if "/" in name or "\\" in name or name.startswith(".") or bundle.DIRECTION.search(name):
         return None
     if not bundle.valid_title(name) or len(name) > FILE_NAME_MAX:
         return None

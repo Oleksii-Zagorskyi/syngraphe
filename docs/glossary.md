@@ -168,7 +168,9 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **return without accepting** · повернути без погодження · *proposed* — a reviewer's act: the run stays pending and its authors are notified with the reviewer's reason; recorded in the passport like an acceptance (DL-0114).
 
-**correction notice** · сповіщення про виправлення · *proposed* — generated at acceptance for each author whose lines of the run a reviewer's version — or the acceptor's own — replaced or removed, or whose removal it undid; one per author, listing every such line (ADR-0014). Never authored, never optional.
+**revert** · повернути як було · *fixed* — a reviewer's act on one row of the run's part changes: that appendix or attachment is put back as the run's base had it, in the reviewer's draft, and committed as their version. The noun is *повернення як було*. Never *повернути* alone, the verb of *return without accepting* (DL-0446, DL-0479).
+
+**correction notice** · сповіщення про виправлення · *proposed* — generated at acceptance for each author whose lines of the run a reviewer's version — or the acceptor's own — replaced or removed, or whose removal it undid, and each author of a part — an appendix or an attachment — whose addition, removal, file or title such a version changed; one per author, listing every such line and part (ADR-0014). Never authored, never optional.
 
 **freeze** · заморозити · *proposed* — lock a document nobody is editing against editors while something outside it is resolved; holders of *accept* may still edit (ADR-0016). Ends by *make canonical* or *unfreeze*.
 

@@ -71,12 +71,17 @@ def notice_lines(notice: Any, document: Any, *, ordered: bool = True) -> list[No
     lines = selected_lines(notice, document, _numbers(acceptance) if ordered else None)
     repo = gitstore.open_repository(holds.tenant_number(), document.number)
     accepted = services.accepted_content_version(acceptance).commit_sha
-    texts: dict[str, bytes] = {}
+    texts: dict[tuple[str, str], bytes] = {}
 
-    def text_at(sha: str) -> bytes:
-        if sha not in texts:
-            texts[sha] = gitstore.read(repo, "document.md", sha)
-        return texts[sha]
+    def text_at(sha: str, file: str) -> bytes:
+        """`file` at `sha`; empty for a file that commit does not hold — an appendix a covered
+        version deleted, or one the author's version had not yet created."""
+        if (sha, file) not in texts:
+            try:
+                texts[(sha, file)] = gitstore.read(repo, file, sha)
+            except KeyError:
+                texts[(sha, file)] = b""
+        return texts[(sha, file)]
 
     found = []
     for line in lines:
@@ -92,9 +97,9 @@ def notice_lines(notice: Any, document: Any, *, ordered: bool = True) -> list[No
         found.append(
             NoticeLine(
                 line,
-                _lines(text_at(before_sha), line.range_before),
+                _lines(text_at(before_sha, line.file), line.range_before),
                 before_sha,
-                _lines(text_at(accepted), line.range_after),
+                _lines(text_at(accepted, line.file), line.range_after),
                 accepted,
             )
         )

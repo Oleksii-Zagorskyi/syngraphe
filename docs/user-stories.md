@@ -270,7 +270,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Acceptance covers the whole document. Accepting only part of a run is a backlog refinement.
 - I may accept work I wrote myself; the record, not a rule, is what makes that accountable (DL-0092). Finishing my own session, I can do both in one act (ST-0029).
 - I cannot accept, return or correct while the document is reserved; the screen says it is reserved and by whom (DL-0224).
-- Every author whose lines of the run a reviewer's version replaced or removed receives one **correction notice** for the acceptance — their text, the accepted text, and who changed it (ADR-0014).
+- Every author whose lines of the run a reviewer's version replaced or removed, or whose appendix or attachment operation it reversed, receives one **correction notice** for the acceptance — their text, the accepted text, and who changed it (ADR-0014).
 
 **ST-0052** — As a reviewer, I return a run without accepting it, giving a reason, so that I can decline work that needs rework instead of holding it or unpicking it sentence by sentence.
 - The run stays pending and its authors are notified with my reason (ADR-0001).
@@ -341,7 +341,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0047** — As any user, I see in the application what is waiting for me, so that I do not have to go looking.
 - Two tabs: *Document*, each entry linking to the document at the version concerned, and *Administrative*, with filters and *mark all as read*. Opening a notification marks it read (DL-0204).
-- Committed versions awaiting my review, acceptances of work I wrote, a run of mine returned with the reviewer's reason, a correction notice listing my lines a reviewer's version changed (ADR-0014), frozen documents awaiting a decision, a hold of mine about to be released for inactivity, groups I was added to, and — for a tenant administrator — a document created or copied and not yet linked to any group.
+- Committed versions awaiting my review, acceptances of work I wrote, a run of mine returned with the reviewer's reason, a correction notice listing my lines and parts a reviewer's version changed (ADR-0014), frozen documents awaiting a decision, a hold of mine about to be released for inactivity, groups I was added to, and — for a tenant administrator — a document created or copied and not yet linked to any group.
 
 **ST-0048** — As any user, I receive an email for the same events, so that I notice them without visiting the platform.
 - It names the document, versions, people and the event, and links to the platform; it never contains text of the document (DL-0205).

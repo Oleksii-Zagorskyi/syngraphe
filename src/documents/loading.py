@@ -219,6 +219,12 @@ def _check_description(
         if not bundle.valid_title(file_name):
             reasons.append(f"attachment {position}: the file name is not one printable line")
             continue
+        if bundle.DIRECTION.search(file_name):
+            reasons.append(
+                f"attachment {position}: the file name holds a mark that changes the order it is "
+                "shown in"
+            )
+            continue
         if len(file_name) > FILE_NAME_MAX:
             reasons.append(
                 f"attachment {position}: the file name is over {FILE_NAME_MAX} characters"

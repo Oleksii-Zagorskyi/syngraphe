@@ -242,3 +242,50 @@ def test_catalogue_covers_the_runs_parts(
     leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", refused)]
     assert leaked == [], f"a refused revert shows message ids verbatim: {leaked}"
     assert "Правки змінилися" in refused
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_notices_parts(
+    migrated_tenant: Any,
+    cast: Any,
+    commit_version: Any,
+    accepted_directly: Any,
+    queued_authorship: list[Any],
+    settings: Any,
+) -> None:
+    """The correction notice's part entries, its counts and its list line, in Ukrainian."""
+    import hashlib
+
+    from notifications.models import Notification
+    from review import services
+
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    people = cast(editors=("a",), reviewers=("r",))
+    document, author, reviewer = people.document, people["a"], people["r"]
+    body = "# Мета\n\nРечення.\n"
+    commit_version(document, author, body)
+    with schema_context(migrated_tenant.number):
+        services.accept(document, reviewer)
+    form = {
+        "number": 3,
+        "title": "Форма (приклад)",
+        "file_name": "f.txt",
+        "sha256": hashlib.sha256(b"3").hexdigest(),
+        "bytes": 1,
+    }
+    commit_version(document, author, body, files={"attachments/3": b"3"}, attachments=[form])
+    commit_version(
+        document, reviewer, body, "reviewer_edit", files={"attachments/3": None}, attachments=[]
+    )
+    with schema_context(migrated_tenant.number):
+        services.accept(document, reviewer)
+        notification = Notification.objects.get(user=author, event="correction_notice")
+    client = signed_in(migrated_tenant, author)
+    for path in ("/notifications/?tab=document", f"/notifications/{notification.pk}/"):
+        page = text_of(client.get(path).content.decode())
+        leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", page)]
+        assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
+        assert "1 частину документа" in page
+    assert "Ви додали цей вкладений файл" in page

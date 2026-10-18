@@ -23,6 +23,8 @@ DELIMITER = "---\n"
 # Characters a YAML reader refuses or reads as a line break, written as escapes instead.
 UNPRINTABLE = re.compile("[\x7f-\x9f\u2028\u2029\ufffe\uffff]")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+# Marks that change the order a name is displayed in, so a file name would read as another.
+DIRECTION = re.compile("[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]")
 TITLE_MAX = 500
 NUMBER_MAX = 2**31 - 1
 
