@@ -1,5 +1,6 @@
 {% extends "shell/base.html" %}
-{% load corpus i18n %}
+{% load stylesheet corpus i18n %}
+{% block document_styles %}{% organisation_stylesheet %}{% endblock %}
 {% block title %}#{{ document.number }} {{ older }} · {{ newer }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document compare">

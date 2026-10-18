@@ -1,5 +1,6 @@
 {% extends "shell/base.html" %}
-{% load i18n %}
+{% load stylesheet i18n %}
+{% block document_styles %}{% organisation_stylesheet %}{% endblock %}
 {% block title %}{% translate "Correction notice" %} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content notice-page" data-lines="{{ count }}">

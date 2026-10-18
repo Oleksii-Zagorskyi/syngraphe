@@ -4311,3 +4311,105 @@ msgstr "Вигляд титульної сторінки…"
 #: documents/forms.py
 msgid "Give the approval line a position."
 msgstr "Укажіть позицію рядка затвердження."
+
+#: documents/templates/documents/info.html
+msgid "Title page"
+msgstr "Титульна сторінка"
+
+#: documents/templates/documents/info.html
+msgid "Yes"
+msgstr "Так"
+
+#: documents/templates/documents/info.html
+msgid "No"
+msgstr "Ні"
+
+#: documents/templates/documents/info.html
+msgid "Style"
+msgstr "Стиль"
+
+#: documents/templates/documents/info.html
+msgid "The organisation's stylesheet"
+msgstr "Таблиця стилів організації"
+
+#: documents/templates/documents/info.html
+msgid "The platform's default"
+msgstr "Типовий вигляд платформи"
+
+#: rendering/templates/rendering/styles.html shell/templates/shell/administration.html
+msgctxt "administration section"
+msgid "Styles"
+msgstr "Стилі"
+
+#: rendering/templates/rendering/styles.html
+msgid ""
+"The stylesheet the organisation's documents are read and exported with — the "
+"reading view, comparisons, notices, PDF and Word files. The editor keeps the "
+"platform's look."
+msgstr ""
+"Таблиця стилів, з якою документи організації читають і експортують, — вигляд "
+"для читання, порівняння, повідомлення, файли PDF і Word. Редактор зберігає "
+"вигляд платформи."
+
+#: rendering/templates/rendering/styles.html
+msgid "Used by every document of the organisation."
+msgstr "Використовується в кожному документі організації."
+
+#: rendering/templates/rendering/styles.html
+msgid "Not applied:"
+msgstr "Не застосовано:"
+
+#: rendering/templates/rendering/styles.html
+msgid "Stylesheet"
+msgstr "Таблиця стилів"
+
+#: rendering/templates/rendering/styles.html
+#, python-format
+msgid "Fonts installed: %(fonts)s; and the generic %(generics)s."
+msgstr "Встановлені шрифти: %(fonts)s; а також загальні %(generics)s."
+
+#: rendering/templates/rendering/styles.html
+msgid "Empty, the platform's default look."
+msgstr "Порожня — типовий вигляд платформи."
+
+#: rendering/styles_views.py
+msgid "The stylesheet is longer than the platform accepts, 100,000 bytes."
+msgstr "Таблиця стилів довша, ніж приймає платформа, — 100 000 байтів."
+
+#: rendering/styles_views.py
+msgid "this cannot be read as CSS."
+msgstr "це не читається як CSS."
+
+#: rendering/styles_views.py
+#, python-format
+msgid "@%(subject)s is not allowed; only @page and @media print are."
+msgstr "@%(subject)s не дозволено; дозволено лише @page і @media print."
+
+#: rendering/styles_views.py
+#, python-format
+msgid ""
+"the selector %(subject)s is not allowed: it names something outside the "
+"document's text, or the platform's own marks, or takes a form not allowed."
+msgstr ""
+"селектор %(subject)s не дозволено: він називає щось поза текстом документа "
+"або власні позначки платформи, або має недозволену форму."
+
+#: rendering/styles_views.py
+#, python-format
+msgid "%(subject)s is not a property a stylesheet may set."
+msgstr "%(subject)s — не властивість, яку може задавати таблиця стилів."
+
+#: rendering/styles_views.py
+#, python-format
+msgid "the value of %(subject)s is not allowed, or is past its bounds."
+msgstr "значення %(subject)s не дозволене або виходить за межі."
+
+#: rendering/styles_views.py
+#, python-format
+msgid "%(subject)s fetches from outside the platform."
+msgstr "%(subject)s завантажує з-поза платформи."
+
+#: rendering/styles_views.py
+#, python-format
+msgid "the font %(subject)s is not installed."
+msgstr "шрифт %(subject)s не встановлено."

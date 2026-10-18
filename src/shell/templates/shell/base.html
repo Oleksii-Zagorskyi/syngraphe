@@ -6,6 +6,8 @@
 <title>{% block title %}Syngraphē{% endblock %}</title>
 <link rel="stylesheet" href="{% static 'shell.css' %}">
 <link rel="stylesheet" href="{% static 'rendering/document.css' %}">
+{# The organisation's stylesheet, linked by the pages that draw document text for reading. #}
+{% block document_styles %}{% endblock %}
 <meta name="htmx-config" content='{"allowEval": false, "historyCacheSize": 0}'>
 <script src="{% static 'htmx.min.js' %}" defer></script>
 </head>

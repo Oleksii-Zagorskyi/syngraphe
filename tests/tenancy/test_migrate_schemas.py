@@ -102,6 +102,7 @@ def test_tenant_schema_holds_tenant_tables_only(
             "editions_freeze",
             "editions_edition",
             "rendering_exportjob",
+            "rendering_stylesheet",
             "notifications_notification",
             "mail_mailsender",
             "mail_emailoutbox",

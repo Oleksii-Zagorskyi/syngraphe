@@ -1,5 +1,7 @@
 {% extends "documents/page.html" %}
 {% load i18n static %}
+{# The editor, its draft preview included, keeps the platform's look (DL-0464). #}
+{% block document_styles %}{% endblock %}
 {% block tab %}
 <div class="panes edit-panes" style="--panel-width: {{ panel_width|default:280 }}px">
 <div class="centre">

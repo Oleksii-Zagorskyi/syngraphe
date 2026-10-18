@@ -1,6 +1,6 @@
 from django.urls import path
 
-from rendering import appendix, views
+from rendering import appendix, styles_views, views
 
 urlpatterns = [
     path("document/<int:number>/compare/", views.compare, name="document_compare"),
@@ -41,5 +41,11 @@ urlpatterns = [
         "document/<int:number>/appendix/<int:part>/",
         appendix.page,
         name="document_appendix",
+    ),
+    path("administration/tenant/styles/", styles_views.styles, name="styles"),
+    path(
+        "document-styles/<str:digest_asked>.css",
+        styles_views.served_view,
+        name="organisation_stylesheet",
     ),
 ]

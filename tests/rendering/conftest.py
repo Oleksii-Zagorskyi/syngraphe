@@ -140,6 +140,47 @@ def switched(tenant: int, people: Any, **changes: Any) -> None:
             services.derive_version(document, gitstore.commit_at(repo, sha), people["a"])
 
 
+def computed(html: str, stylesheets: list[str]) -> list[dict[str, Any]]:
+    """Each element's box as the PDF's renderer lays `html` out with `stylesheets`: its tag, its
+    classes, its text and the style it computed — colours as `#rrggbb`, sizes in points."""
+    from weasyprint import CSS, HTML
+
+    document = HTML(string=html).render(stylesheets=[CSS(string=sheet) for sheet in stylesheets])
+    boxes: list[dict[str, Any]] = []
+
+    def walk(box: Any) -> None:
+        element = getattr(box, "element", None)
+        if element is not None and getattr(box, "element_tag", None):
+            colour = box.style["color"]
+            red, green, blue = (round(part * 255) for part in colour.coordinates)
+            boxes.append(
+                {
+                    "tag": box.element_tag,
+                    "classes": (element.get("class") or "").split(),
+                    "text": "".join(element.itertext()),
+                    "color": f"#{red:02x}{green:02x}{blue:02x}",
+                    "font_family": box.style["font_family"],
+                    "font_size": box.style["font_size"] * 0.75,
+                    "letter_spacing": getattr(
+                        box.style["letter_spacing"], "value", box.style["letter_spacing"]
+                    ),
+                    "text_indent": getattr(
+                        box.style["text_indent"], "value", box.style["text_indent"]
+                    ),
+                    "margin_left": getattr(
+                        box.style["margin_left"], "value", box.style["margin_left"]
+                    ),
+                    "background": box.style["background_color"],
+                }
+            )
+        for child in getattr(box, "children", []):
+            walk(child)
+
+    for page in document.pages:
+        walk(page._page_box)
+    return boxes
+
+
 @pytest.fixture
 def kit() -> SimpleNamespace:
     """The export tests' texts and helpers: `canonical`, `reader`, `run_job`, `attach`,
@@ -155,6 +196,7 @@ def kit() -> SimpleNamespace:
         run_job=run_job,
         attach=attach,
         switched=switched,
+        computed=computed,
     )
 
 

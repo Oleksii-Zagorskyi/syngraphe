@@ -1,5 +1,6 @@
 {% extends "shell/base.html" %}
-{% load i18n static review editions editing corpus %}
+{% load stylesheet i18n static review editions editing corpus %}
+{% block document_styles %}{% organisation_stylesheet %}{% endblock %}
 {% block title %}#{{ document.number }} {{ document.title }} › {{ appendix.title }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document appendix-page">

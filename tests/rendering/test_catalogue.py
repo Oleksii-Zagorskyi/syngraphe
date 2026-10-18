@@ -318,3 +318,28 @@ def test_catalogue_covers_the_title_page() -> None:
         page = html(facts, Layout((*DETAILS, "approval"), "left"))
 
     _assert_translated("the title page", page)
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_styles_page(
+    migrated_tenant: Any, member_of: Any, settings: Any
+) -> None:
+    """The styles page in `uk`, a refusal of every kind among it."""
+    settings.LANGUAGE_CODE = "uk"
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    refused = (
+        "@import 'x';\nh1 { color: red !important }\n#id { color: red }\n"
+        "p { display: none }\nh2 { background: url(x) }\nh3 { font-family: Synthetic }\n"
+        "p { color: }\n"
+    )
+
+    answers = [
+        admin.get("/administration/tenant/styles/"),
+        admin.post("/administration/tenant/styles/", {"text": refused}),
+        admin.post("/administration/tenant/styles/", {"text": "p {} " * 20_001}),
+    ]
+
+    assert [answer.status_code for answer in answers] == [200, 400, 400]
+    for n, answer in enumerate(answers):
+        _assert_translated(f"the styles page ({n})", answer.content.decode())

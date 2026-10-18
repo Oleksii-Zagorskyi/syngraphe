@@ -1,0 +1,18 @@
+{% extends "shell/administration.html" %}
+{% load i18n tz %}
+{% block title %}{% translate "Styles" context "administration section" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="styles">
+  <h1>{% translate "Styles" context "administration section" %}</h1>
+  <p class="muted">{% translate "The stylesheet the organisation's documents are read and exported with — the reading view, comparisons, notices, PDF and Word files. The editor keeps the platform's look." %} <strong>{% translate "Used by every document of the organisation." %}</strong></p>
+  {% if refusals %}<div class="error" role="alert"><p>{% translate "Not applied:" %}</p><ul>{% for line in refusals %}<li>{{ line }}</li>{% endfor %}</ul></div>{% endif %}
+  <form method="post" action="{{ page_url }}">{% csrf_token %}
+    <label class="visually-hidden" for="stylesheet-text">{% translate "Stylesheet" %}</label>
+    <textarea id="stylesheet-text" name="text" rows="16" class="outline" spellcheck="false">{{ text }}</textarea>
+    <p class="note">{% blocktranslate with fonts=fonts|join:", " generics=generics|join:", " %}Fonts installed: {{ fonts }}; and the generic {{ generics }}.{% endblocktranslate %}</p>
+    <p class="note">{% translate "Empty, the platform's default look." %}</p>
+    <p><button class="btn primary" type="submit">{% translate "Apply" %}</button>
+      <span class="muted">{% timezone display_timezone %}{% if changed_by %}{% blocktranslate with name=changed_by date=changed_at|date:"j E Y" %}Last changed by {{ name }}, {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with date=changed_at|date:"j E Y" %}Not changed since {{ date }}{% endblocktranslate %}{% endif %}{% endtimezone %}</span></p>
+  </form>
+</div>
+{% endblock %}

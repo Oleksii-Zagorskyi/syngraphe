@@ -488,3 +488,54 @@ def test_a_marked_pdf_carries_both_images(
         "pdf",
     )
     assert len(placed_images(path)) == 2
+
+
+def _captured(monkeypatch: Any) -> list[tuple[str, list[str]]]:
+    """Every `pdf.write` the job makes, its page and its sheets, the file still written."""
+    from rendering.export import pdf
+
+    given: list[tuple[str, list[str]]] = []
+    real = pdf.write
+
+    def recorded(html: str, path: Path, **kwargs: Any) -> None:
+        given.append((html, list(kwargs["stylesheets"])))
+        real(html, path, **kwargs)
+
+    monkeypatch.setattr(pdf, "write", recorded)
+    return given
+
+
+def test_an_export_carries_the_organisations_stylesheet(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    monkeypatch: Any,
+) -> None:
+    """The organisation's rules after the default and the furniture, the guard last; a `body`
+    rule reaching the text itself, not only the title page."""
+    from rendering.models import Stylesheet
+    from rendering.stylesheet import EXPORT_GUARD
+
+    with schema_context(migrated_tenant.number):
+        Stylesheet.objects.update(
+            text='h1 { color: #123456 }\nbody { font-family: "DejaVu Serif" }\n'
+        )
+    people = edition_cast()
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "pdf")
+    given = _captured(monkeypatch)
+    _export(client, people.document.number, format="pdf", view="canonical")
+    kit.run_job(migrated_tenant.number, exports[0][1])
+
+    ((html, sheets),) = given
+    assert len(sheets) == 4
+    assert ":root h1" in sheets[2] and sheets[3] == EXPORT_GUARD
+    boxes = kit.computed(html, sheets)
+    heading = next(b for b in boxes if b["tag"] == "h1")
+    paragraph = next(b for b in boxes if b["tag"] == "p" and "approval" in b["text"])
+    assert heading["color"] == "#123456"
+    assert paragraph["font_family"][0] == "DejaVu Serif"

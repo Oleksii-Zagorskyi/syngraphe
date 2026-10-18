@@ -11,6 +11,8 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 
+from syngraphe.provenance import Mutable
+
 # A failure's reason: the constructs the validator refused, or the renderer's error, one line.
 REASON_MAX = 500
 
@@ -101,3 +103,14 @@ class ExportJob(models.Model):
 
     def __str__(self) -> str:
         return f"export {self.pk}"
+
+
+class Stylesheet(Mutable):
+    """The organisation's stylesheet (DL-0464, DL-0465): one row per organisation, empty for the
+    platform's default; read only through `rendering.stylesheet.applied`."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    text = models.TextField(blank=True)
+
+    class Meta(Mutable.Meta):
+        abstract = False

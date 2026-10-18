@@ -538,7 +538,36 @@ def render_page(
     # A copy's source, to administrators alone (DL-0455).
     context |= _copied_from(request, document) if administrator else {}
     context |= _state_line(request, document)
+    context |= _title_page_and_style(request, document)
     return render(request, "documents/page.html", context, status=status)
+
+
+def _title_page_and_style(request: HttpRequest, document: Document) -> dict[str, Any]:
+    """Whether the version the reader is shown has a title page (DL-0463) — `None` when none is
+    shown — and whether the organisation's stylesheet or the platform's default is applied
+    (DL-0465)."""
+    from documents import bundle, gitstore
+    from editions.visible import latest_visible
+    from rendering.models import Stylesheet
+    from rendering.stylesheet import applied
+
+    # A document with no version yet — one whose creation has not reached its first commit —
+    # shows none.
+    has_versions = Version.objects.filter(document=document).exists()
+    version = latest_visible(request.user, document) if has_versions else None
+    title_page = None
+    if version is not None:
+        tenant = getattr(request, "tenant", None)
+        assert tenant is not None
+        repo = gitstore.open_repository(tenant.number, document.number)
+        frontmatter, _body = bundle.parse(
+            gitstore.read(repo, "document.md", version.commit_sha).decode("utf-8")
+        )
+        title_page = frontmatter.title_page
+    return {
+        "title_page": title_page,
+        "organisation_style": bool(applied(Stylesheet.objects.get().text)),
+    }
 
 
 def _copied_from(request: HttpRequest, document: Document) -> dict[str, Any]:

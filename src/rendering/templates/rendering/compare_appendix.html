@@ -1,5 +1,6 @@
 {% extends "shell/base.html" %}
-{% load corpus i18n %}
+{% load stylesheet corpus i18n %}
+{% block document_styles %}{% organisation_stylesheet %}{% endblock %}
 {% block title %}#{{ older.document.number }} {{ older.number }} · {% if second %}#{{ newer.document.number }} {% endif %}{{ newer.number }} · {{ newer.appendix.title }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document compare compare-appendix">

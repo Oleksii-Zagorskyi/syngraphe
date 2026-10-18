@@ -24,8 +24,9 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from documents import gitstore
-from rendering.export import compose, docx, furniture, names, pdf
-from rendering.models import REASON_MAX, ExportFormat, ExportJob, ExportState
+from rendering.export import compose, docx, names, pdf
+from rendering.models import REASON_MAX, ExportFormat, ExportJob, ExportState, Stylesheet
+from rendering.stylesheet import applied, export_stylesheets
 
 logger = logging.getLogger(__name__)
 
@@ -75,12 +76,18 @@ def _images(composed: compose.Composed, tenant: int, job: ExportJob) -> dict[str
 
 
 def _write_document(
-    composed: compose.Composed, fmt: str, path: Path, pictures: dict[str, bytes]
+    composed: compose.Composed,
+    fmt: str,
+    path: Path,
+    pictures: dict[str, bytes],
+    stylesheet: str = "",
 ) -> None:
+    """One file of the export; `stylesheet` the organisation's, as `_held` read it once for the
+    whole job, so no file of it goes unstyled or takes another look."""
     if fmt == ExportFormat.MARKDOWN:
         path.write_text(composed.markdown, encoding="utf-8")
     elif fmt == ExportFormat.PDF:
-        stylesheets = [STYLESHEET.read_text(encoding="utf-8"), furniture.pdf_css()]
+        stylesheets = export_stylesheets(stylesheet)
         pdf.write(composed.html, path, stylesheets=stylesheets, read_image=pictures.__getitem__)
     else:
         docx.write(composed.html, path, images=pictures)
@@ -94,6 +101,7 @@ def _zip(
     tenant: int,
     job: ExportJob,
     pictures: dict[str, bytes],
+    stylesheet: str = "",
 ) -> Path:
     """The document, when chosen, each separate appendix, the images beside a Markdown text under
     the paths it names them by, and the attachments as stored, in one zip of the document's
@@ -113,6 +121,7 @@ def _zip(
                 job.format,
                 written,
                 pictures,
+                stylesheet,
             )
             bundle.write(written, part.name)
         if job.format == ExportFormat.MARKDOWN:
@@ -195,6 +204,8 @@ def _held(job: ExportJob, tenant: int) -> ExportState:
             else:
                 number = compose.number_of(job.document, job.version, job.view)
             composed = compose.compose(job, tenant, number=number)
+            # The organisation's look as it stands when the job runs, read once (DL-0464).
+            stylesheet = applied(Stylesheet.objects.get().text)
             folder.mkdir(parents=True, exist_ok=True)
             # Marked as fresh: the hourly sweep keys on the folder's age.
             os.utime(folder)
@@ -204,11 +215,11 @@ def _held(job: ExportJob, tenant: int) -> ExportState:
                 pictures = _images(composed, tenant, job) if writes else {}
                 if job.include_document:
                     document = Path(scratch) / composed.name
-                    _write_document(composed, job.format, document, pictures)
+                    _write_document(composed, job.format, document, pictures, stylesheet)
                 beside = job.format == ExportFormat.MARKDOWN and bool(pictures)
                 if composed.attachments or composed.appendices or beside:
                     produced = _zip(
-                        composed, document, folder, Path(scratch), tenant, job, pictures
+                        composed, document, folder, Path(scratch), tenant, job, pictures, stylesheet
                     )
                 elif document is not None:
                     produced = folder / composed.name

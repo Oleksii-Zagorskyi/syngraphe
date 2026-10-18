@@ -82,6 +82,8 @@ def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: An
     assert 'href="/administration/tenant/folders/"' in body
     assert 'href="/administration/tenant/archive/"' in body
     assert 'href="/administration/tenant/template/"' in body
+    assert 'href="/administration/tenant/styles/"' in body
+    assert body.index("/tenant/archive/") < body.index("/tenant/styles/")
     # In the order `pages.md` gives: after the document types, before the sending address.
     assert (
         body.index("/tenant/document-types/")

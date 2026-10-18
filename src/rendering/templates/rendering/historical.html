@@ -1,5 +1,6 @@
 {% extends "shell/base.html" %}
-{% load i18n static corpus %}
+{% load stylesheet i18n static corpus %}
+{% block document_styles %}{% organisation_stylesheet %}{% endblock %}
 {% block title %}#{{ document.number }} {{ document.title }} {{ version_number }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document historical">

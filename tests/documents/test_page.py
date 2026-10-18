@@ -55,6 +55,9 @@ def test_header_and_info(
     assert "29 вересня 2026" in body and "Synthetic Author" in body
     # Only administrators are told a document is author-only.
     assert "author-only" not in body
+    # No version shown, so nothing to say of a title page; no stylesheet applied.
+    assert '<dd class="title-page-shown">—</dd>' in body
+    assert '<dd class="style">Типовий вигляд платформи</dd>' in body
 
 
 def test_administrators_see_author_only(

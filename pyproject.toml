@@ -23,6 +23,7 @@ dependencies = [
     "pypandoc-binary>=1.17",
     "cryptography>=44",
     "pillow>=12.3,<13",
+    "tinycss2>=1.5,<2",
 ]
 
 [dependency-groups]
@@ -66,9 +67,9 @@ plugins = ["mypy_django_plugin.main"]
 module = ["*.migrations.*"]
 ignore_errors = true
 
-# The renderers ship without type information.
+# The renderers, and the stylesheet's parser, ship without type information.
 [[tool.mypy.overrides]]
-module = ["weasyprint", "weasyprint.*", "pypandoc"]
+module = ["weasyprint", "weasyprint.*", "pypandoc", "tinycss2", "tinycss2.*"]
 ignore_missing_imports = true
 
 [tool.django-stubs]
