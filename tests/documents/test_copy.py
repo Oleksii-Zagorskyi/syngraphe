@@ -512,3 +512,85 @@ def test_a_source_whose_declarations_do_not_read_is_refused(
     )
     with schema_context(migrated_tenant.number):
         assert Document.objects.count() == before
+
+
+def test_a_copy_carries_the_title_page_text_of_the_version_copied(
+    migrated_tenant: Any, member_of: Any, repo_root: Any, tmp_path: Any
+) -> None:
+    """DL-0478: the copy's first tree holds the title-page text as it stood at the version copied,
+    not the head's, and the copy's exports print it on its title page."""
+    import zipfile
+
+    from pypdf import PdfReader
+
+    from access.models import AccessGroup, DocumentGroup
+    from access.rights import Right
+    from documents import bundle, gitstore, services
+    from documents.locks import document_lock
+    from documents.models import DocumentType, Folder
+    from editions import services as editions
+    from identity.models import Language
+    from rendering.export import compose, docx, furniture, job, pdf
+    from review import services as review
+
+    Language.objects.get_or_create(code="uk", defaults={"label": "uk", "actor_kind": "system"})
+    _, user, membership = member_of("the.copier@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(
+            name="Copiers (synthetic example)", created_by=user, actor_kind="user"
+        )
+        for right in Right:
+            group.grant(right, by=user)
+        group.add_member(membership, by=user)
+        kind, root = DocumentType.objects.get(code="document"), Folder.objects.get(number=1)
+        document = services.create_document(user, "Synthetic register policy", "uk", kind, root)
+        DocumentGroup.link(document, group, by=user)
+
+    def with_text(text: str, body: str) -> None:
+        number = migrated_tenant.number
+        with schema_context(number):
+            repo = gitstore.open_repository(number, document.number)
+            with document_lock(number, document.number):
+                head = gitstore.head(repo)
+                assert head is not None
+                frontmatter, _ = bundle.parse(gitstore.read(repo, "document.md", head).decode())
+                changed = dataclasses.replace(frontmatter, title_page=True, title_page_text=text)
+                from documents.identity import identity_for
+
+                sha = gitstore.commit(
+                    repo,
+                    {"document.md": bundle.render(changed, body).encode()},
+                    identity_for(user),
+                    "Synthetic edit",
+                    gitstore.Kind.REVIEWER_EDIT,
+                )
+                services.derive_version(document, gitstore.commit_at(repo, sha), user)
+
+    with_text("Register entry: EX-1 (synthetic)", "# Terms\n\nThe first synthetic text.\n")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, user)
+        editions.freeze(document, user, "Synthetic reason")
+        editions.make_canonical(document, user)
+    with_text("Register entry: EX-2 (synthetic)", "# Terms\n\nThe later synthetic text.\n")
+
+    copy = _copy(migrated_tenant, SimpleNamespace(user=user, document=document), "canonical", "1.0")
+
+    repo = gitstore.open_repository(migrated_tenant.number, copy.number)
+    head = str(next(gitstore.history(repo)).id)
+    frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", head).decode())
+    assert frontmatter.title_page_text == "Register entry: EX-1 (synthetic)"
+    with schema_context(migrated_tenant.number):
+        shown = SimpleNamespace(document=copy, view="accepted")
+        page = compose._page(shown, frontmatter, "<p>The first synthetic text.</p>", "h", "0.0")
+        pdf.write(
+            page,
+            tmp_path / "copy.pdf",
+            stylesheets=[job.STYLESHEET.read_text(encoding="utf-8"), furniture.pdf_css()],
+            read_image=lambda path: b"",
+        )
+        docx.write(page, tmp_path / "copy.docx")
+    first = PdfReader(str(tmp_path / "copy.pdf")).pages[0].extract_text()
+    assert "Register entry: EX-1 (synthetic)" in first
+    with zipfile.ZipFile(tmp_path / "copy.docx") as produced:
+        words = produced.read("word/document.xml").decode()
+    assert "Register entry: EX-1 (synthetic)" in words and "EX-2" not in words

@@ -8,6 +8,7 @@ from django import forms
 from django.db.models import Case, Value, When
 from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from documents.bundle import TITLE_MAX, valid_title
 from documents.models import DocumentType, Folder
@@ -128,3 +129,59 @@ class TemplateForm(forms.Form):
     def clean_outline(self) -> str:
         # A browser sends a text box's line breaks as CR LF; the stored text is the editor's.
         return str(self.cleaned_data["outline"]).replace("\r\n", "\n").replace("\r", "\n")
+
+
+class TitlePageLayoutForm(forms.Form):
+    """The title page's layout (DL-0462, DL-0476): each detail shown or not, with a position; the
+    approval line's position, never hidden; the alignment."""
+
+    POSITIONS = [("", "—"), *((str(n), str(n)) for n in range(1, 9))]
+    LABELS = {
+        "title": _("Title"),
+        "number": _("Document number"),
+        "type": _("Type"),
+        "edition": _("Edition"),
+        "approver": _("Approved by"),
+        "approval_date": _("Approval date"),
+        "text": _("The document's own title-page text"),
+    }
+
+    position_approval = forms.ChoiceField(label=_("Approval"), choices=POSITIONS[1:])
+    align = forms.ChoiceField(
+        label=_("Alignment"),
+        choices=[
+            ("left", pgettext_lazy("alignment", "left")),
+            ("centre", pgettext_lazy("alignment", "centred")),
+        ],
+    )
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        for item, label in self.LABELS.items():
+            self.fields[f"show_{item}"] = forms.BooleanField(label=label, required=False)
+            self.fields[f"position_{item}"] = forms.ChoiceField(
+                label=label, choices=self.POSITIONS, required=False
+            )
+
+    def rows(self) -> list[tuple[Any, Any]]:
+        """Each detail's two fields, in the details' order."""
+        return [(self[f"show_{item}"], self[f"position_{item}"]) for item in self.LABELS]
+
+    def clean(self) -> dict[str, Any]:
+        cleaned = super().clean() or {}
+        placed: dict[int, str] = {}
+        shown = [item for item in self.LABELS if cleaned.get(f"show_{item}")]
+        if not cleaned.get("position_approval"):
+            raise forms.ValidationError(_("Give the approval line a position."))
+        for item in [*shown, "approval"]:
+            raw = cleaned.get(f"position_{item}") or ""
+            if not raw:
+                raise forms.ValidationError(_("Give each shown detail a position."))
+            position = int(raw)
+            if position in placed:
+                raise forms.ValidationError(
+                    _("Two details are at position %(position)s.") % {"position": position}
+                )
+            placed[position] = item
+        cleaned["items"] = tuple(placed[p] for p in sorted(placed))
+        return cleaned

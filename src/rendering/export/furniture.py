@@ -26,13 +26,15 @@ def _css_string(text: str) -> str:
 def pdf_css() -> str:
     """A4 pages, the page number at the foot and nothing at the head (DL-0362), a narrow left
     margin beside the gutter (DL-0363); the title page and the attachment list each on a page of
-    their own, and each embedded appendix starting one."""
+    their own, the title page centred when its layout says so, and each embedded appendix starting
+    one."""
     return (
         "@page { size: A4; margin: 18mm 18mm 20mm 10mm;"
         " @bottom-center { content: counter(page); font: 9pt 'DejaVu Sans', sans-serif;"
         " color: #555; } }"
         # The title page and the attachment list each stand on a page of their own.
         " .title-page { break-after: page; } .attachment-list { break-before: page; }"
+        " .title-page.align-centre { text-align: center; }"
         " .appendix { break-before: page; }"
         # On paper a change of formatting is marked by its colour; its words are the screen's.
         " .document-text .format-changed::after { content: none; }"

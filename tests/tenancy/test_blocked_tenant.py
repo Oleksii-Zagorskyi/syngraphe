@@ -48,6 +48,7 @@ def _pages(number: int) -> list[str]:
         "/administration/",
         "/administration/tenant/users/",
         "/administration/tenant/template/",
+        "/administration/tenant/template/title-page/",
     ]
 
 

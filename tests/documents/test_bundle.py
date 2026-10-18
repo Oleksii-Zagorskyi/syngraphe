@@ -3,6 +3,7 @@ sections, and the initial tree (ADR-0005)."""
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import pytest
@@ -224,3 +225,41 @@ def test_a_passport_time_counts_whole_seconds() -> None:
 def test_the_passport_reader_is_strict(tail: str) -> None:
     with pytest.raises(ValueError):
         bundle.passport_entries(bundle.passport_header(1, 2) + tail + "\n")
+
+
+def test_the_title_page_text_and_its_rule() -> None:
+    """The document's own title-page text (DL-0476): absent, nothing is written and every
+    existing `document.md` reads and renders as it did; present, it round-trips under its rule."""
+    plain = Frontmatter(title="Synthetic policy", language="en", title_page=True)
+    written = bundle.render(plain, "# One\n")
+    assert "title_page_text" not in written
+    assert bundle.parse(written)[0].title_page_text == ""
+    # A document written before the key existed renders byte for byte as before.
+    assert bundle.render(*bundle.parse(TWO_APPENDICES)) == TWO_APPENDICES
+
+    text = "Register entry: EX-1\nSecond line"
+    carried = Frontmatter(title="Synthetic policy", language="en", title_page_text=text)
+    rendered = bundle.render(carried, "# One\n")
+    assert rendered.index("title_page:") < rendered.index("title_page_text:")
+    assert bundle.parse(rendered)[0].title_page_text == text
+
+    assert bundle.valid_title_page_text(text)
+    assert bundle.valid_title_page_text("    Code:\n        EX-1")
+    assert not bundle.valid_title_page_text("x" * 501)
+    assert not bundle.valid_title_page_text("\n".join(["line"] * 9))
+    assert not bundle.valid_title_page_text("Synthetic ‮ reversed")
+    assert not bundle.valid_title_page_text("Synthetic\x07bell")
+    for refused in ("x" * 501, "\n".join(["line"] * 9), "Synthetic ‮ reversed"):
+        front = TWO_APPENDICES.replace(
+            "title_page: true\n", f"title_page: true\ntitle_page_text: {json.dumps(refused)}\n"
+        )
+        with pytest.raises(ValueError):
+            bundle.parse(front)
+
+
+def test_the_title_page_text_is_cleaned() -> None:
+    """Line endings made one, each line's trailing white space and the empty lines at either end
+    removed, an indent kept: the holder's."""
+    cleaned = bundle.clean_title_page_text("\n  Register entry: EX-1  \r\nSecond line\r\n\n")
+
+    assert cleaned == "  Register entry: EX-1\nSecond line"

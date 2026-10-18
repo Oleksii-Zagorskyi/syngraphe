@@ -295,3 +295,26 @@ def test_catalogue_covers_comparing_appendices(
         assert page.status_code == 200, name
         _assert_translated(name, page.content.decode())
     assert "Назад до порівняння" in page.content.decode()
+
+
+@pytest.mark.fast
+def test_catalogue_covers_the_title_page() -> None:
+    """Every detail a title page can show, in `uk`, from the catalogue."""
+    from django.utils import translation
+
+    from rendering.title_page import DETAILS, Layout, TitleFacts, html
+
+    facts = TitleFacts(
+        title="Синтетична політика",
+        number="#7",
+        type_label="Документ",
+        edition="1.0",
+        approver="Синтетичний затверджувач",
+        approval_date="1 жовтня 2026",
+        text="Реєстр: EX-1",
+        approval="Затверджено",
+    )
+    with translation.override("uk"):
+        page = html(facts, Layout((*DETAILS, "approval"), "left"))
+
+    _assert_translated("the title page", page)

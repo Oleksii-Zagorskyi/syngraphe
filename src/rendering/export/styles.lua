@@ -38,6 +38,31 @@ end
 -- attachment list begins one.
 local PAGE = pandoc.RawBlock("openxml", '<w:p><w:r><w:br w:type="page"/></w:r></w:p>')
 
+-- The title page's items in its named styles (DL-0462): the title, the approval line, and every
+-- other detail — the document's own text among them, its line breaks kept — each a paragraph
+-- style, its centred twin when the layout centres the page.
+local function title_page(div)
+  local suffix = div.classes:includes("align-centre") and " Centred" or ""
+  local items = {}
+  for _, block in ipairs(div.content) do
+    local style
+    if block.t == "Header" and block.classes:includes("document-title") then
+      block = pandoc.Div({ pandoc.Para(block.content) })
+      style = "Title Page Title"
+    elseif block.t == "Div" and block.classes:includes("approval") then
+      style = "Title Page Approval"
+    elseif block.t == "Div" then
+      style = "Title Page Detail"
+    end
+    if style then
+      block.attributes["custom-style"] = style .. suffix
+    end
+    items[#items + 1] = block
+  end
+  div.content = items
+  return div
+end
+
 -- An image pair stands side by side, as on the page: a row of two equal cells, each holding one
 -- side's figure; `docx.py` fits each picture to its cell.
 local function pair(div)
@@ -65,7 +90,7 @@ function Div(div)
       return div
     end
     if class == "title-page" then
-      return { div, PAGE }
+      return { title_page(div), PAGE }
     end
     if class == "attachment-list" then
       return { PAGE, div }

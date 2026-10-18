@@ -13,7 +13,7 @@
       {{ form.outline }}
     </div>
     <div class="box">
-      <label>{{ form.title_page }} {{ form.title_page.label }}</label>
+      <label>{{ form.title_page }} {{ form.title_page.label }}</label> <a class="btn" href="/administration/tenant/template/title-page/">{% translate "Title page layout…" %}</a>
       <p class="note">{% translate "The title page is generated at export from the document's details; nobody types it." %}</p>
     </div>
     <p class="muted">{% timezone display_timezone %}{% if changed_by %}{% blocktranslate with name=changed_by date=changed_at|date:"j E Y" %}Last changed by {{ name }}, {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with date=changed_at|date:"j E Y" %}Not changed since {{ date }}{% endblocktranslate %}{% endif %}{% endtimezone %}</p>

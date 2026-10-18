@@ -15,7 +15,6 @@ from html import escape
 from typing import TYPE_CHECKING, Any
 
 import pygit2
-from django.utils import formats, timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
@@ -499,47 +498,15 @@ def _title_of(frontmatter: bundle.Frontmatter, number: int) -> str:
     )
 
 
-def _title_page(job: ExportJob, title: str, number: str) -> str:
-    """The title page's default form, until a tenant configures its own (DL-0164, DL-0360): the
-    title, the number, and the approval as the exported text stands — the approver, the date and
-    the edition on the canonical view; elsewhere what the text is, to the edition it departs
-    from, or that nothing is approved yet."""
-    from zoneinfo import ZoneInfo
+def _title_page(job: ExportJob, title: str, number: str, text: str = "") -> str:
+    """The title page as the organisation's template lays it out (DL-0462), its default form
+    DL-0360's: the details, the document's own text, and the approval as the exported text
+    stands."""
+    from documents.models import DocumentTemplate
+    from rendering import title_page
 
-    from django.conf import settings
-
-    from identity.naming import person
-
-    # The edition behind the exported version, from its own number: `N.M` and `N.M-X` stand on
-    # edition `N.0` (DL-0183), so a job run after a newer edition still names the one it exports.
-    major = int(number.split(".", 1)[0])
-    edition = (
-        Edition.objects.filter(version__document=job.document, number=f"{major}.0")
-        .select_related("approved_by")
-        .first()
-        if major
-        else None
-    )
-    if edition is None:
-        approval = _("Not yet approved")
-    elif job.view == ExportView.CANONICAL:
-        approved_at = timezone.localtime(edition.approved_at, ZoneInfo(settings.DISPLAY_TIMEZONE))
-        approval = _("Approved: %(name)s, %(date)s; edition %(number)s") % {
-            "name": person(edition.approved_by),
-            "date": formats.date_format(approved_at, "j E Y"),
-            "number": edition.number,
-        }
-    else:
-        approval = _("Not approved — %(stance)s to edition %(number)s") % {
-            "stance": stance(job.view),
-            "number": edition.number,
-        }
-    return (
-        '<section class="title-page">'
-        f'<h1 class="document-title">{escape(title)}</h1>'
-        f'<p class="document-number">#{job.document.number}</p>'
-        f'<p class="approval">{escape(approval)}</p></section>'
-    )
+    layout = title_page.layout_of(DocumentTemplate.objects.get().title_page_layout)
+    return title_page.html(title_page.facts_for(job, title, number, text), layout)
 
 
 def _attachment_list(items: list[dict[str, Any]]) -> str:
@@ -576,7 +543,7 @@ def _page(
         f"<title>{escape(header)}</title>{meta}</head><body>"
     ]
     if frontmatter.title_page:
-        parts.append(_title_page(job, frontmatter.title, number))
+        parts.append(_title_page(job, frontmatter.title, number, frontmatter.title_page_text))
     parts.append(f'<article class="document-text">{text}</article>')
     parts += [
         f'<section class="appendix"><article class="document-text">{html}</article></section>'

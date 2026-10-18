@@ -17,7 +17,7 @@ from django.views.decorators.cache import never_cache
 
 from access.views import administers
 from audit.record import record
-from documents.forms import TemplateForm
+from documents.forms import TemplateForm, TitlePageLayoutForm
 from documents.models import DocumentTemplate
 from documents.template import TemplateRefusal, checked
 from identity.models import Language, User
@@ -113,3 +113,57 @@ def _page(
         "page_url": PAGE,
     }
     return render(request, "documents/template.html", context, status=status)
+
+
+LAYOUT_PAGE = "/administration/tenant/template/title-page/"
+
+
+@never_cache
+@login_required
+def title_page_layout(request: HttpRequest) -> HttpResponse:
+    """The title page's layout (DL-0462): `POST` saves the details shown, their order and the
+    alignment, or with `action=reset` the default form; audited as `template.changed`. Two details
+    at one position are refused with `400`, nothing saved."""
+    from rendering import title_page
+
+    if request.method not in ("GET", "POST") or not administers(request):
+        return not_found(request)
+    if request.method == "GET":
+        layout = title_page.layout_of(DocumentTemplate.objects.get().title_page_layout)
+        initial: dict[str, Any] = {"align": layout.align}
+        for position, item in enumerate(layout.items, 1):
+            initial[f"position_{item}"] = str(position)
+            initial[f"show_{item}"] = True
+        return _layout_page(request, TitlePageLayoutForm(initial=initial))
+    if request.POST.get("action") == "reset":
+        stored = ""
+    else:
+        form = TitlePageLayoutForm(request.POST)
+        if not form.is_valid():
+            return _layout_page(request, form, status=400)
+        layout = title_page.Layout(form.cleaned_data["items"], form.cleaned_data["align"])
+        stored = title_page.dump(layout)
+    with transaction.atomic():
+        row = DocumentTemplate.objects.select_for_update(of=("self",)).get()
+        before = _state(row)
+        row.title_page_layout = stored
+        row.updated_by = cast(User, request.user)
+        row.save(update_fields=["title_page_layout", "updated_by", "updated_at"])
+        record(
+            actor=cast(User, request.user),
+            action="template.changed",
+            obj=row,
+            before=before,
+            after=_state(row),
+            tenant=getattr(request, "tenant", None),
+        )
+    response = HttpResponse(status=303)
+    response["Location"] = LAYOUT_PAGE
+    return response
+
+
+def _layout_page(
+    request: HttpRequest, form: TitlePageLayoutForm, *, status: int = 200
+) -> HttpResponse:
+    context = {**frame(request), "form": form, "page_url": LAYOUT_PAGE, "template_url": PAGE}
+    return render(request, "documents/title_page_layout.html", context, status=status)

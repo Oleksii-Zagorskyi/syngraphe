@@ -21,6 +21,7 @@ import tempfile
 import zipfile
 from collections.abc import Mapping
 from pathlib import Path, PurePosixPath
+from typing import Any
 
 import pypandoc
 
@@ -33,9 +34,26 @@ TYPES = "[Content_Types].xml"
 PART = "application/vnd.openxmlformats-officedocument.wordprocessingml"
 REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
+# The approval line's look, every property a stylesheet could reach set explicitly: the guard's
+# values, so nothing an organisation's rule derives into Word can change it (DL-0360).
+APPROVAL_PARAGRAPH = (
+    '<w:spacing w:before="120" w:after="0" w:line="336" w:lineRule="auto"/>'
+    '<w:ind w:left="0" w:right="0" w:firstLine="0"/>'
+    '<w:shd w:val="clear" w:color="auto" w:fill="auto"/>'
+)
+APPROVAL_RUN = (
+    '<w:rFonts w:ascii="DejaVu Sans" w:hAnsi="DejaVu Sans" w:eastAsia="DejaVu Sans"'
+    ' w:cs="DejaVu Sans"/>'
+    '<w:b w:val="0"/><w:i w:val="0"/><w:strike w:val="0"/><w:color w:val="000000"/>'
+    '<w:sz w:val="22"/><w:u w:val="none"/>'
+)
+CENTRED = '<w:jc w:val="center"/>'
+
 # The named styles and their look (the reading view's, `document.css`): character styles for the
-# spans, the label and a marked export's changes, paragraph styles for the callouts.
-STYLES = {
+# spans, the label and a marked export's changes, paragraph styles for the callouts, and plain
+# paragraph styles — the style each is based on, its paragraph and its run properties — for the
+# title page, each with a centred twin.
+STYLES: dict[str, tuple[str, Any]] = {
     "Entity Role": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="E6E6E6"/>'),
     "Entity Action": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="E6E6E6"/>'),
     "Entity Term": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="E6E6E6"/>'),
@@ -47,11 +65,29 @@ STYLES = {
     "Callout Note": ("paragraph", "F3F6F9"),
     "Callout Warning": ("paragraph", "FBF3E4"),
     "Callout Example": ("paragraph", "F4F4F4"),
+    "Title Page Title": (
+        "plain",
+        ("BodyText", '<w:spacing w:after="240"/>', '<w:b/><w:sz w:val="36"/>'),
+    ),
+    "Title Page Detail": ("plain", ("BodyText", "", "")),
+    # Based on no style, so nothing reaches it from `Normal` or `BodyText`.
+    "Title Page Approval": ("plain", ("", APPROVAL_PARAGRAPH, APPROVAL_RUN)),
+    "Title Page Title Centred": ("plain", ("TitlePageTitle", CENTRED, "")),
+    "Title Page Detail Centred": ("plain", ("TitlePageDetail", CENTRED, "")),
+    "Title Page Approval Centred": ("plain", ("TitlePageApproval", CENTRED, "")),
 }
 
 
-def _style(name: str, kind: str, look: str) -> str:
+def _style(name: str, kind: str, look: Any) -> str:
     identifier = name.replace(" ", "")
+    if kind == "plain":
+        based_on, paragraph, run = look
+        based = f'<w:basedOn w:val="{based_on}"/>' if based_on else ""
+        return (
+            f'<w:style w:type="paragraph" w:customStyle="1" w:styleId="{identifier}">'
+            f'<w:name w:val="{name}"/>{based}<w:pPr>{paragraph}</w:pPr><w:rPr>{run}</w:rPr>'
+            "</w:style>"
+        )
     if kind == "character":
         return (
             f'<w:style w:type="character" w:customStyle="1" w:styleId="{identifier}">'

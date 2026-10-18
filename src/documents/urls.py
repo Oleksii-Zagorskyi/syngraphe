@@ -43,6 +43,11 @@ urlpatterns = [
     ),
     path("administration/tenant/template/", template_views.template, name="document_template"),
     path(
+        "administration/tenant/template/title-page/",
+        template_views.title_page_layout,
+        name="document_template_title_page",
+    ),
+    path(
         "document/<int:number>/info/type/",
         corpus_views.change_type,
         name="document_type_change",

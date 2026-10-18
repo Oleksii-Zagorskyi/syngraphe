@@ -1,0 +1,28 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Title page layout" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="title-page-layout">
+  <h1>{% translate "Title page layout" %}</h1>
+  <p class="muted">{% translate "Which of the document's details its title page shows, and in which order — for every document whose title page is switched on." %}</p>
+  {% if form.errors %}<div class="error" role="alert">{{ form.non_field_errors }}{% for field in form %}{% if field.errors %}<p>{{ field.label }}: {{ field.errors|join:" " }}</p>{% endif %}{% endfor %}</div>{% endif %}
+  <form method="post" action="{{ page_url }}">{% csrf_token %}
+    <table class="list">
+      <thead><tr><th>{% translate "Detail" %}</th><th>{% translate "Shown" %}</th><th>{% translate "Position" %}</th></tr></thead>
+      <tbody>
+        {% for show, position in form.rows %}
+        <tr><td><label for="{{ show.id_for_label }}">{{ show.label }}</label></td><td>{{ show }}</td><td><label class="visually-hidden" for="{{ position.id_for_label }}">{% translate "Position" %}</label>{{ position }}</td></tr>
+        {% endfor %}
+        <tr><td><label for="{{ form.position_approval.id_for_label }}">{% translate "The approval — or that the text is not approved" %}</label></td><td class="note">{% translate "Always shown: the approval, or that the text is not approved" %}</td><td>{{ form.position_approval }}</td></tr>
+      </tbody>
+    </table>
+    <p><label for="{{ form.align.id_for_label }}">{{ form.align.label }}</label> {{ form.align }}</p>
+    <p class="note">{% translate "Approved by and the approval date are printed only on an export of the canonical version; on any other export the approval line says the text is not approved, and the edition is the one the text departs from." %}</p>
+    <p>
+      <button class="btn primary" type="submit">{% translate "Apply" %}</button>
+      <button class="btn" type="submit" name="action" value="reset">{% translate "Reset to the default form" %}</button>
+      <a class="btn" href="{{ template_url }}">{% translate "Back to the template" %}</a>
+    </p>
+  </form>
+</div>
+{% endblock %}

@@ -16,7 +16,7 @@ from typing import Any
 
 import yaml
 
-KEYS = ("title", "language", "title_page", "appendices", "attachments")
+KEYS = ("title", "language", "title_page", "title_page_text", "appendices", "attachments")
 APPENDIX_KEYS = ("number", "title")
 ATTACHMENT_KEYS = ("number", "title", "file_name", "sha256", "bytes")
 DELIMITER = "---\n"
@@ -27,6 +27,9 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 DIRECTION = re.compile("[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]")
 TITLE_MAX = 500
 NUMBER_MAX = 2**31 - 1
+# The document's own title-page text (DL-0476): plain lines, as many as a title page holds.
+TITLE_PAGE_TEXT_MAX = 500
+TITLE_PAGE_TEXT_LINES = 8
 
 
 def valid_title(title: str) -> bool:
@@ -35,6 +38,30 @@ def valid_title(title: str) -> bool:
         bool(title.strip())
         and len(title) <= TITLE_MAX
         and not any(unicodedata.category(ch) in ("Cc", "Cs", "Cn") for ch in title)
+    )
+
+
+def clean_title_page_text(text: str) -> str:
+    """The title-page text as stored: its line endings one, each line's trailing white space and
+    the empty lines at either end removed; an indent is the holder's and stays."""
+    lines = [line.rstrip() for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n")]
+    while lines and not lines[0]:
+        lines.pop(0)
+    while lines and not lines[-1]:
+        lines.pop()
+    return "\n".join(lines)
+
+
+def valid_title_page_text(text: str) -> bool:
+    """Plain text of at most `TITLE_PAGE_TEXT_MAX` characters on `TITLE_PAGE_TEXT_LINES` lines: no
+    control character but the line break, no mark reordering the text around it; empty is none."""
+    return (
+        len(text) <= TITLE_PAGE_TEXT_MAX
+        and text.count("\n") < TITLE_PAGE_TEXT_LINES
+        and not DIRECTION.search(text)
+        and not any(
+            unicodedata.category(ch) in ("Cc", "Cs", "Cn", "Zl", "Zp") and ch != "\n" for ch in text
+        )
     )
 
 
@@ -61,6 +88,8 @@ class Frontmatter:
     title_page: bool = False
     appendices: list[dict[str, Any]] = field(default_factory=list)
     attachments: list[dict[str, Any]] = field(default_factory=list)
+    # Last, so every construction by position stands; empty means the document has none.
+    title_page_text: str = ""
 
 
 def _string(value: str) -> str:
@@ -95,6 +124,12 @@ def render(frontmatter: Frontmatter, body: str) -> str:
         f"title: {_string(frontmatter.title)}",
         f"language: {_string(frontmatter.language)}",
         f"title_page: {_scalar(frontmatter.title_page)}",
+        # Written only when there is one, so a document without it reads as it always did.
+        *(
+            [f"title_page_text: {_string(frontmatter.title_page_text)}"]
+            if frontmatter.title_page_text
+            else []
+        ),
         *_items("appendices", frontmatter.appendices, APPENDIX_KEYS),
         *_items("attachments", frontmatter.attachments, ATTACHMENT_KEYS),
     ]
@@ -154,11 +189,15 @@ def parse(text: str) -> tuple[Frontmatter, str]:
         raise ValueError("the frontmatter names a language")
     if not isinstance(title_page, bool):
         raise ValueError("title_page is true or false")
+    title_page_text = data.get("title_page_text", "")
+    if not isinstance(title_page_text, str) or not valid_title_page_text(title_page_text):
+        raise ValueError("title_page_text is plain text of a few lines")
     return (
         Frontmatter(
             title=title,
             language=language,
             title_page=title_page,
+            title_page_text=title_page_text,
             appendices=_checked_items(data.get("appendices", []), APPENDIX_KEYS, "appendices"),
             attachments=_checked_items(data.get("attachments", []), ATTACHMENT_KEYS, "attachments"),
         ),

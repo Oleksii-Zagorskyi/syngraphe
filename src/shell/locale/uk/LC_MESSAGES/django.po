@@ -2535,9 +2535,6 @@ msgstr "Люди й доступ"
 #~ msgid "Marking: %(kind)s"
 #~ msgstr "Позначка: %(kind)s"
 
-#~ msgid "Apply"
-#~ msgstr "Застосувати"
-
 #: tenancy/templates/tenancy/administrators.html
 msgid "blocked their own account"
 msgstr "обліковий запис заблоковано власником"
@@ -4189,3 +4186,128 @@ msgid ""
 msgstr ""
 "Шаблон документа організації містить те, чого платформа не приймає. "
 "Адміністратор виправляє його на сторінці «Шаблон документа»."
+
+#: rendering/title_page.py
+#, python-format
+msgid "Type: %(type)s"
+msgstr "Тип: %(type)s"
+
+#: rendering/title_page.py
+#, python-format
+msgid "Edition %(number)s"
+msgstr "Редакція %(number)s"
+
+#: rendering/title_page.py
+#, python-format
+msgid "Approved by: %(name)s"
+msgstr "Затвердив: %(name)s"
+
+#: rendering/title_page.py
+#, python-format
+msgid "Approval date: %(date)s"
+msgstr "Дата затвердження: %(date)s"
+
+#: documents/forms.py
+msgid "Edition"
+msgstr "Редакція"
+
+#: documents/forms.py
+msgid "Approved by"
+msgstr "Затвердив"
+
+#: documents/forms.py
+msgid "Approval date"
+msgstr "Дата затвердження"
+
+#: documents/forms.py
+msgid "The document's own title-page text"
+msgstr "Власний текст титульної сторінки документа"
+
+#: documents/forms.py
+msgid "Approval"
+msgstr "Затвердження"
+
+#: documents/forms.py
+msgid "Alignment"
+msgstr "Вирівнювання"
+
+#: documents/forms.py
+msgctxt "alignment"
+msgid "left"
+msgstr "ліворуч"
+
+#: documents/forms.py
+msgctxt "alignment"
+msgid "centred"
+msgstr "по центру"
+
+#: documents/forms.py
+msgid "Give each shown detail a position."
+msgstr "Укажіть позицію для кожної показаної відомості."
+
+#: documents/forms.py
+#, python-format
+msgid "Two details are at position %(position)s."
+msgstr "Дві відомості стоять на позиції %(position)s."
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Title page layout"
+msgstr "Вигляд титульної сторінки"
+
+#: documents/templates/documents/title_page_layout.html
+msgid ""
+"Which of the document's details its title page shows, and in which order — "
+"for every document whose title page is switched on."
+msgstr ""
+"Які відомості про документ показує його титульна сторінка і в якому порядку — "
+"для кожного документа з увімкненою титульною сторінкою."
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Detail"
+msgstr "Відомість"
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Shown"
+msgstr "Показано"
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Position"
+msgstr "Позиція"
+
+#: documents/templates/documents/title_page_layout.html
+msgid "The approval — or that the text is not approved"
+msgstr "Затвердження — або що текст не затверджено"
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Always shown: the approval, or that the text is not approved"
+msgstr "Показано завжди: затвердження або що текст не затверджено"
+
+#: documents/templates/documents/title_page_layout.html
+msgid ""
+"Approved by and the approval date are printed only on an export of the "
+"canonical version; on any other export the approval line says the text is "
+"not approved, and the edition is the one the text departs from."
+msgstr ""
+"Хто затвердив і дата затвердження друкуються лише в експорті канонічної "
+"версії; в будь-якому іншому експорті рядок затвердження каже, що текст не "
+"затверджено, а редакція — та, від якої текст відходить."
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Apply"
+msgstr "Застосувати"
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Reset to the default form"
+msgstr "Повернути типовий вигляд"
+
+#: documents/templates/documents/title_page_layout.html
+msgid "Back to the template"
+msgstr "Назад до шаблону"
+
+#: documents/templates/documents/template.html
+msgid "Title page layout…"
+msgstr "Вигляд титульної сторінки…"
+
+#: documents/forms.py
+msgid "Give the approval line a position."
+msgstr "Укажіть позицію рядка затвердження."

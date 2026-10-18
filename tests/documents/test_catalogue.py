@@ -299,12 +299,13 @@ def test_catalogue_covers_the_template_page(
     answers = [
         admin.get(page),
         admin.post(page, {"outline": f"Starting text\n<div>raw</div>\n\n![A picture]({image})\n"}),
+        admin.get(page + "title-page/"),
     ]
     with schema_context(migrated_tenant.number):
         DocumentTemplate.objects.update(outline="Starting text\n")
     answers.append(author.post("/document/new/", form))
 
-    assert [answer.status_code for answer in answers] == [200, 400, 409]
+    assert [answer.status_code for answer in answers] == [200, 400, 200, 409]
     for answer in answers:
         body = text_of(answer.content.decode())
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]

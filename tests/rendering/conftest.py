@@ -114,10 +114,36 @@ def attach(tenant: int, people: Any, body: str, data: bytes, *, title_page: bool
             return services.derive_version(document, gitstore.commit_at(repo, sha), people["a"])
 
 
+def switched(tenant: int, people: Any, **changes: Any) -> None:
+    """The head's frontmatter changed as `changes` say, committed as the editor."""
+    import dataclasses
+
+    from documents import bundle, gitstore, services
+    from documents.identity import identity_for
+    from documents.locks import document_lock
+
+    document = people.document
+    with schema_context(tenant):
+        repo = gitstore.open_repository(tenant, document.number)
+        with document_lock(tenant, document.number):
+            head = gitstore.head(repo)
+            assert head is not None
+            frontmatter, body = bundle.parse(gitstore.read(repo, "document.md", head).decode())
+            changed = dataclasses.replace(frontmatter, **changes)
+            sha = gitstore.commit(
+                repo,
+                {"document.md": bundle.render(changed, body).encode()},
+                identity_for(people["a"]),
+                "Synthetic change of the frontmatter",
+                gitstore.Kind.EDIT,
+            )
+            services.derive_version(document, gitstore.commit_at(repo, sha), people["a"])
+
+
 @pytest.fixture
 def kit() -> SimpleNamespace:
-    """The export tests' texts and helpers: `canonical`, `reader`, `run_job`, the fixtures'
-    folder."""
+    """The export tests' texts and helpers: `canonical`, `reader`, `run_job`, `attach`,
+    `switched`, the fixtures' folder."""
     return SimpleNamespace(
         FIXTURES=FIXTURES,
         FIRST=FIRST,
@@ -128,6 +154,7 @@ def kit() -> SimpleNamespace:
         reader=reader,
         run_job=run_job,
         attach=attach,
+        switched=switched,
     )
 
 

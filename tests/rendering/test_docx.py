@@ -398,3 +398,74 @@ def test_pairs_in_table_cells_fit_their_cells(invented_image: Any, tmp_path: Pat
     for width, height in boxes:
         assert width <= docx.text_width() // 4
         assert abs(width / height - 4.0) < 0.01
+
+
+def test_the_title_page_carries_its_styles(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """A centred title page in Word: the title, each detail and the approval in their *Title
+    Page* styles' centred twins, the document's own text one detail with its line break, and a
+    page break after."""
+    import json
+
+    from documents.models import DocumentTemplate
+    from tenancy.schemas import schema_context
+
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    layout = {"items": ["title", "number", "text", "approval"], "align": "centre"}
+    with schema_context(migrated_tenant.number):
+        DocumentTemplate.objects.update(title_page_layout=json.dumps(layout))
+    kit.switched(
+        migrated_tenant.number,
+        people,
+        title_page=True,
+        title_page_text="Register entry: EX-1 (synthetic)\nSecond line",
+    )
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "docx")
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "docx", "view": "canonical"},
+    )
+    assert response.status_code == 302
+    job = kit.run_job(migrated_tenant.number, exports[0][1])
+
+    with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as produced:
+        document = produced.read("word/document.xml").decode()
+        styles = produced.read("word/styles.xml").decode()
+    paragraphs = re.findall(r"<w:p>.*?</w:p>|<w:p .*?</w:p>", document, re.S)
+    styled = [
+        (re.search(r'w:pStyle w:val="([^"]+)"', p) or [None, None])[1]
+        for p in paragraphs
+        if "EX-1" in p
+        or f"#{people.document.number}<" in p
+        or people.document.title in p
+        or "Approved" in p
+    ]
+    assert styled[:3] == [
+        "TitlePageTitleCentred",
+        "TitlePageDetailCentred",
+        "TitlePageDetailCentred",
+    ]
+    assert styled[-1] == "TitlePageApprovalCentred"
+    text = next(p for p in paragraphs if "EX-1" in p)
+    assert re.search(r"<w:br ?/>", text) and "Second line" in text
+    approval = document.index("TitlePageApprovalCentred")
+    assert '<w:br w:type="page"/>' in document[approval:]
+    for style in (
+        "TitlePageTitle",
+        "TitlePageDetail",
+        "TitlePageApproval",
+        "TitlePageTitleCentred",
+        "TitlePageDetailCentred",
+        "TitlePageApprovalCentred",
+    ):
+        assert f'w:styleId="{style}"' in styles, style
