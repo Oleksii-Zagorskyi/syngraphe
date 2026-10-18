@@ -324,6 +324,16 @@ def apply(document: Any, reviewer: Any, *, part: str, change: str, head: str) ->
                         raise RevertRefused("nothing_to_revert")
                     if has != expected:
                         raise RevertRefused("changed_in_draft")
+                if change == "added" and kind in ("appendix", "attachment") and number is not None:
+                    # Reverting an addition deletes the part whole, so it is refused where the
+                    # draft changed any of it — its entry, its file, an appendix's text — and
+                    # not only its presence (DL-0474).
+                    changed = _entry(held, kind, number) != _entry(newer[0], kind, number)
+                    if kind == "appendix" and not changed:
+                        typed = parts.appendix_text(draft, number, repo)
+                        changed = typed != newer[1].get(number, "")
+                    if changed:
+                        raise RevertRefused("changed_in_draft")
                 if kind == "appendix" and change in ("added", "removed") and number is not None:
                     if OpenEditor.objects.filter(
                         draft=draft, file=parts.appendix_key(number), closed_at__isnull=True
@@ -336,6 +346,11 @@ def apply(document: Any, reviewer: Any, *, part: str, change: str, head: str) ->
                         "editor_open" if error.reason == "editor_open" else "nothing_to_revert"
                     ) from error
                 draft.refresh_from_db()
+                if kind == "appendix" and change == "removed":
+                    from review.undo import stage_images
+
+                    # The restored text's images, taken away with it, come back from the base.
+                    stage_images(repo, draft, head, [base_sha])
                 # Every earlier revert of this part names the entry the draft now holds: a part
                 # both replaced and renamed is exempt at the commit whichever row went first.
                 records = [

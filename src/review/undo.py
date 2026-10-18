@@ -733,11 +733,11 @@ def _entities_changed(document: Any, versions: list[Any]) -> bool:
     return False
 
 
-def _stage_images(repo: Any, draft: Any, head: str | None, undone: Collection[str]) -> None:
+def stage_images(repo: Any, draft: Any, head: str | None, undone: Collection[str]) -> None:
     """Every image the draft's texts reference that neither the head's tree nor the draft's rows
-    hold, staged from the newest of the undone versions and the versions they were written on
-    that holds it — an image an undone edit had removed comes back with the text that shows it
-    (DL-0439), and nothing the undone run never showed is read."""
+    hold, staged from the newest of the `undone` commits and the commits they were written on
+    that holds it — an image an undone edit, or a reverted removal, had taken away comes back
+    with the text that shows it (DL-0439), and nothing those commits never showed is read."""
     import hashlib
 
     from django.utils import timezone
@@ -954,7 +954,7 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
                     },
                 }
                 draft.save(update_fields=["content", "updated_at"])
-                _stage_images(
+                stage_images(
                     repo,
                     draft,
                     head,

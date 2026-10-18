@@ -477,3 +477,23 @@ def test_a_withdrawal_and_the_appendix_moves_are_drawn(
         re.S,
     )
     assert orders == ["2,1", "2,1"]
+
+
+def test_a_part_never_sent_is_deleted_at_once(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, settings: Any
+) -> None:
+    """Deleting a part the draft added and never sent says it goes at once; deleting one the
+    document holds says the document keeps it until the draft is finished."""
+    from access.rights import PARTS, Right
+    from editing import holds, parts
+
+    settings.LANGUAGE_CODE = "en"
+    client, author, own = member_of("the.author@example.test")
+    document = new_document(author)
+    link_group(document, [Right.EDIT, *PARTS], [own], author)
+    with schema_context(migrated_tenant.number):
+        holds.take(document, author)
+        parts.create_appendix(document, author, title="Never sent (example)")
+    page = client.get(f"/document/{document.number}/edit/").content.decode()
+    assert "This appendix was never sent: it and its text are deleted at once." in page
+    assert "the document keeps it until you finish editing" not in page

@@ -94,7 +94,7 @@ Three application roles (DL-0079). A **platform administrator** does everything 
 
 **One optional check, per tenant, off by default** (DL-0101, DL-0115): an edition cannot be approved by anyone who accepted a run since the previous canonical edition. One comparison at the single transition where text becomes authoritative — enough to give a tenant a second pair of eyes to show an auditor, without slowing everyday editing.
 
-**A new document starts with its creator holding edit, and nothing else** (DL-0089). The tenant administrator is notified that it was created and grants the rest. Until a reviewer exists the document reads *no reviewer assigned*, and acceptance is blocked with that stated reason rather than silently.
+**A new document starts with its creator holding edit, and of the part rights only upload and replace attachment** (DL-0089, DL-0445): the creator can carry the document's forms from its first draft, while creating and deleting its parts wait for a linked group's rights. The tenant administrator is notified that it was created and grants the rest. Until a reviewer exists the document reads *no reviewer assigned*, and acceptance is blocked with that stated reason rather than silently.
 
 **Archiving** is visible to administrators only (DL-0084). An archived document's links stop resolving anywhere, including where its name appears in another document's prose; its access rights are archived with it, vanish from the administration panel, and **resurrect unchanged** on restore.
 

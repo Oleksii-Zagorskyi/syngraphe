@@ -7,6 +7,7 @@ twice runs once.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 import shutil
@@ -120,6 +121,12 @@ def _zip(
         for item in composed.attachments:
             number = int(item["number"])
             data = _attachment(job, tenant, number)
+            if hashlib.sha256(data).hexdigest() != item.get("sha256"):
+                # A draft changed between the list composed above and this read: the file would
+                # not be the one the export's list names.
+                raise compose.Refused(
+                    _("Your draft changed while the file was being made; export again.")
+                )
             bundle.writestr(names.part_name(word, number, str(item.get("file_name", ""))), data)
     partial.replace(target)
     return target

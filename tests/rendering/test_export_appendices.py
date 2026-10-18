@@ -477,3 +477,106 @@ def test_a_refusal_without_the_document_names_what_remains(
     with override("uk"):
         said = gettext("The chosen version has no appendices; untick them to export the rest.")
     assert said in response.content.decode()
+
+
+def test_a_draft_changed_while_its_export_is_made_fails_it(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+    monkeypatch: Any,
+) -> None:
+    """The holder replaces an attachment between the export's composing and its zip: the zip
+    would pair the new file with the old list's name and hash, so the job fails instead."""
+    from editing import parts
+    from rendering.export import job as export_job
+
+    number = migrated_tenant.number
+    people = edition_cast()
+    _canonical(
+        number,
+        people,
+        commit_version,
+        files={"attachments/1": b"first"},
+        attachments=[entry(1, b"first", "First (example)")],
+    )
+    holder, user, membership = member_of("holder.synthetic@example.test")
+    link_group(people.document, [Right.EDIT, Right.VIEW_PENDING, *PARTS], [membership], people["a"])
+    assert holder.post(f"/document/{people.document.number}/edit/take/").status_code == 200
+    response = holder.post(
+        f"/document/{people.document.number}/export/",
+        {
+            "document": "on",
+            "attachments": "on",
+            "format": "markdown",
+            "view": "my_edits",
+            "changes-my_edits": "clean",
+        },
+    )
+    assert response.status_code == 302
+    written = export_job._write_document
+
+    def replaced_meanwhile(*args: Any, **kwargs: Any) -> None:
+        written(*args, **kwargs)
+        parts.replace_attachment(
+            people.document, user, 1, file_name="other.txt", data=b"other bytes"
+        )
+
+    monkeypatch.setattr(export_job, "_write_document", replaced_meanwhile)
+    job = kit.run_job(number, exports[-1][1])
+    assert job.state == "failed" and job.failure_reason
+    assert not (Path(settings.EXPORT_ROOT) / str(job.pk)).exists()
+
+
+def test_an_appendices_only_export_without_attachments_names_the_rest(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+) -> None:
+    """Attachments asked of a version without them, beside its appendices and without the
+    document: the sentence names what is left, not the document."""
+    from django.utils.translation import gettext, override
+
+    from editions import services as editions
+    from review import services as review
+
+    number = migrated_tenant.number
+    people = edition_cast()
+    # An edition with an attachment, so the dialog offers attachments at all ...
+    _canonical(
+        number,
+        people,
+        commit_version,
+        files={"attachments/1": b"one"},
+        attachments=[entry(1, b"one", "Form one (example)")],
+    )
+    # ... and a pending version with appendices and none.
+    commit_version(
+        people.document,
+        people["a"],
+        BODY,
+        "edit",
+        files={"appendices/1.md": ONE.encode(), "attachments/1": None},
+        appendices=LISTED[:1],
+        attachments=[],
+    )
+    assert editions and review
+    client, _ = kit.reader(
+        member_of, link_group, people, [Right.VIEW_CANONICAL, Right.VIEW_PENDING], "rest"
+    )
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {"appendices": "on", "attachments": "on", "format": "pdf", "view": "pending_edits"},
+    )
+    assert response.status_code == 400
+    with override("uk"):
+        said = gettext("The chosen version has no attachments; untick them to export the rest.")
+    assert said in response.content.decode()

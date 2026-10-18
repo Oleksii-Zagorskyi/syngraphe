@@ -562,6 +562,8 @@ def _chosen(
     if include_attachments and not attachments:
         if not writes:
             return _("The chosen version has no attachments: nothing is left to export.")
+        if not include_document:
+            return _("The chosen version has no attachments; untick them to export the rest.")
         return _("The chosen version has no attachments; untick them to export the document.")
     mode = ExportAppendices.NONE
     if include_appendices:

@@ -1278,6 +1278,10 @@ msgstr ""
 "У вибраній версії немає додатків; зніміть позначку, щоб експортувати решту."
 
 #: rendering/export/job.py
+msgid "Your draft changed while the file was being made; export again."
+msgstr "Ваша чернетка змінилася, поки файл створювався; експортуйте знову."
+
+#: rendering/export/job.py
 msgid "An attachment has gone since you asked; export again."
 msgstr "Вкладений файл зник, відколи ви замовили експорт; експортуйте знову."
 
@@ -3880,6 +3884,20 @@ msgstr "Замінити"
 #: editing/templates/editing/parts_panel.html
 msgid "The attachment leaves your draft; the document keeps it until you finish editing."
 msgstr "Вкладений файл вилучається з вашої чернетки; документ зберігає його, доки ви не завершите редагування."
+
+#: editing/templates/editing/parts_panel.html
+msgid "This appendix was never sent: it and its text are deleted at once."
+msgstr "Цей додаток ще не надсилали: його разом із текстом буде видалено одразу."
+
+#: editing/templates/editing/parts_panel.html
+msgid "This attachment was never sent: it is deleted at once."
+msgstr "Цей вкладений файл ще не надсилали: його буде видалено одразу."
+
+#: rendering/views.py
+msgid "The chosen version has no attachments; untick them to export the rest."
+msgstr ""
+"У вибраній версії немає вкладених файлів; зніміть позначку, щоб експортувати "
+"решту."
 
 #: editing/templates/editing/parts_panel.html
 msgid "Title of the new attachment"

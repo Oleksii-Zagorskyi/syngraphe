@@ -284,7 +284,11 @@ def heartbeat(request: HttpRequest, number: int) -> HttpResponse:
 
         # The listing alone decides, and the heartbeat writes nothing in the draft: no lock.
         appendix = parts.number_of(editor.file)
-        if appendix is None or not parts.lists(Draft.objects.get(pk=editor.draft_id), appendix):
+        draft = Draft.objects.filter(pk=editor.draft_id).first()
+        if draft is None:
+            # Finished or discarded in another tab since the editor was read: closed with it.
+            return JsonResponse({"closed": True}, status=409)
+        if appendix is None or not parts.lists(draft, appendix):
             return _gone(editor, now)
     updated = OpenEditor.objects.filter(pk=editor.pk, closed_at__isnull=True).update(
         last_seen_at=now

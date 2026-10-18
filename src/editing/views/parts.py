@@ -306,6 +306,7 @@ def panel(document: Document, user: Any, hold: Any) -> dict[str, Any]:
         numbers = [int(e["number"]) for e in entries]
         for at, item in enumerate(entries):
             added = item["number"] not in head_numbers[kind]
+            item["draft_only"] = added
             item["can_delete"] = (add if added else delete) in rights
             item["up"] = _swapped(numbers, at, -1)
             item["down"] = _swapped(numbers, at, 1)

@@ -283,3 +283,35 @@ def test_an_unlisted_appendixs_heartbeat_and_changes_close(
             assert OpenEditor.objects.get(pk=opened["editor"]).closed_at is not None
             held.content = {**held.content, "frontmatter": {**listed, "appendices": LISTED}}
             held.save()
+
+
+def test_a_heartbeat_after_the_draft_is_gone_answers_closed(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    monkeypatch: Any,
+) -> None:
+    """Another tab finishes or discards the draft between the heartbeat's reading of its editor
+    and of its draft: the heartbeat answers that the editor is closed, not an error."""
+    from editing.models import Draft, OpenEditor
+    from editing.views import capture
+
+    client, _, document = setup(member_of, new_document, link_group, commit_version)
+    opened = load(client, document, "whole", appendix=2).json()
+    found = capture._own_editor
+
+    def then_gone(request: Any, number: int) -> Any:
+        hold_and_editor = found(request, number)
+        with schema_context(migrated_tenant.number):
+            Draft.objects.filter(hold__document=document).delete()
+        return hold_and_editor
+
+    monkeypatch.setattr(capture, "_own_editor", then_gone)
+    answer = post(
+        client, f"/document/{document.number}/edit/heartbeat/", {"editor": opened["editor"]}
+    )
+    assert answer.status_code == 409 and answer.json() == {"closed": True}
+    with schema_context(migrated_tenant.number):
+        assert not OpenEditor.objects.filter(pk=opened["editor"]).exists()

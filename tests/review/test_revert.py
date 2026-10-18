@@ -930,3 +930,90 @@ def test_the_reviewer_holding_the_revert_is_told_in_the_second_person(
         "A revert of parts waits in your draft: the run is accepted when you finish it with "
         "“Accept as”."
     ) in flat(markup.content.decode())
+
+
+def test_restoring_an_appendix_restores_its_images(
+    migrated_tenant: Any,
+    cast: Any,
+    commit_version: Any,
+    accepted_directly: Any,
+    invented_image: Any,
+) -> None:
+    """An accepted appendix shows an image no other text shows; the run deletes the appendix and
+    the image goes with it. Reverting the removal brings the image back with the text, so the
+    correction is accepted as it stands."""
+    import hashlib
+
+    from documents import gitstore
+    from editing.models import DraftFile, Hold
+    from review import revert, services
+
+    data = invented_image("png")
+    image = f"images/{hashlib.sha256(data).hexdigest()}.png"
+    text = f"# Forms\n\nThe appendix sentence.\n\n![A synthetic plan]({image})\n"
+    people, document, head = build(
+        migrated_tenant,
+        cast,
+        commit_version,
+        accepted_directly,
+        base={
+            "files": {"appendices/1.md": text.encode(), image: data},
+            "appendices": [{"number": 1, "title": "Forms (example)"}],
+        },
+        run={"files": {"appendices/1.md": None, image: None}, "appendices": []},
+    )
+    with schema_context(migrated_tenant.number):
+        hold = revert.apply(document, people["r"], part="appendix:1", change="removed", head=head)
+        staged = DraftFile.objects.get(draft__hold=hold, kind="image")
+        assert (staged.path, bytes(staged.content)) == (image, data)
+        services.accept_as(Hold.objects.get(pk=hold.pk), people["r"], "Synthetic correction")
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        assert gitstore.read(repo, image, gitstore.head(repo)) == data
+
+
+def test_an_addition_the_draft_changed_is_not_reverted_over(
+    migrated_tenant: Any, cast: Any, commit_version: Any, accepted_directly: Any
+) -> None:
+    """The run added appendix 2 and attachment 2; the reviewer's draft has since typed into the
+    appendix and renamed the attachment. Reverting either addition would delete that work: it is
+    refused `changed_in_draft`, and the draft keeps both (DL-0474)."""
+    from editing import holds, parts
+    from editing.models import Draft
+    from review import revert
+
+    people, document, head = build(
+        migrated_tenant,
+        cast,
+        commit_version,
+        accepted_directly,
+        base={},
+        run={
+            "files": {
+                "appendices/2.md": b"# Two\n\nThe run's sentence.\n",
+                "attachments/2": FORM_FOUR,
+            },
+            "appendices": [{"number": 2, "title": "Two (example)"}],
+            "attachments": [attachment(2, "Form two (example)", FORM_FOUR)],
+        },
+    )
+    with schema_context(migrated_tenant.number):
+        hold = holds.take(document, people["r"])
+        draft = Draft.objects.get(hold=hold)
+        typed = "# Two\n\nThe reviewer's own sentence.\n"
+        draft.content = {**draft.content, "appendices/2.md": typed}
+        draft.save()
+        parts.apply_to_draft(
+            Draft.objects.get(hold=hold),
+            "rename_attachment",
+            number=2,
+            title="Renamed in the draft",
+        )
+        for part in ("appendix:2", "attachment:2"):
+            with pytest.raises(revert.RevertRefused) as refused:
+                revert.apply(document, people["r"], part=part, change="added", head=head)
+            assert refused.value.reason == "changed_in_draft", part
+        kept = Draft.objects.get(hold=hold)
+        assert kept.content["appendices/2.md"] == typed
+        assert [e["title"] for e in kept.content["frontmatter"]["attachments"]] == [
+            "Renamed in the draft"
+        ]

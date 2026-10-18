@@ -206,7 +206,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0023** — As an editor, I see a clause number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
 - The form is `1.1-3` and `4.3.2-6`: the heading path, then the clause within it — each paragraph of text is one clause.
-- Inside an appendix the numbers start again from 1, with nothing in front; a reference from elsewhere names the appendix by its title in front, so *Approval matrix, 1.1-3* is unambiguous — the appendix's number is internal (DL-0444).
+- Inside an appendix the numbers start again from 1, with nothing in front; a reference from elsewhere names the appendix by its title in front, so *Approval matrix, 1.1-3* (a synthetic example) is unambiguous — the appendix's number is internal (DL-0444).
 - The numbers are not part of the text and cannot be typed into: a heading's stands in the heading, a clause's in a gutter beside it (DL-0363).
 
 **ST-0024** — As any reader of a document, I navigate by an outline of its sections and subsections, so that a forty-page policy is usable.
