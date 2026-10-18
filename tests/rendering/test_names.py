@@ -125,3 +125,10 @@ def test_control_characters_never_reach_a_name() -> None:
 
     assert not any(ord(c) < 0x20 or ord(c) == 0x7F for c in name)
     assert name.startswith("Порядок")
+
+
+@pytest.mark.parametrize("mark", ["\u202e", "\u2066", "\u200f", "\u2028", "\u0085"])
+def test_a_mark_that_changes_how_a_name_reads_is_dropped(mark: str) -> None:
+    """A direction control or a line separator would make a name read as another one."""
+    assert part_name("appendix", 1, f"Forms{mark}fdp.exe") == "appendix-1_—_Formsfdp.exe"
+    assert file_name(f"Plan{mark}", "1.0", "canonical", "pdf") == "Plan_—_1.0_—_canonical.pdf"

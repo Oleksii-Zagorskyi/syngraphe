@@ -451,6 +451,24 @@ def draft_text(hold: Hold) -> tuple[str, str, str]:
     return head, head_body, normalised
 
 
+def draft_export(hold: Hold) -> tuple[dict[str, Any], str, list[tuple[int, str, str]]]:
+    """The draft's state as a *my edits* export writes it (DL-0193, DL-0209): its frontmatter —
+    its lists and every key it holds — its body normalised against the head, and each appendix
+    its list holds, `(number, title, text)` in its order, as the commit would write it; the
+    head's own text where the draft changed none. `DraftRefused` as `draft_text` refuses."""
+    head, _head_body, normalised, staged = _draft_text(hold)
+    draft = Draft.objects.get(hold=hold)
+    document = Document.objects.get(pk=hold.document_id)
+    current = parts.side_at(gitstore.open_repository(holds.tenant_number(), document.number), head)
+    frontmatter = dict(draft.content[holds.FRONTMATTER])
+    appendices = []
+    for number, title in _listed_appendices(frontmatter).items():
+        content = staged.get(parts.appendix_key(number))
+        text = content.decode("utf-8") if content is not None else current[1].get(number, "")
+        appendices.append((number, title, text))
+    return frontmatter, normalised, appendices
+
+
 def _draft_text(hold: Hold) -> tuple[str, str, str, dict[str, bytes | None]]:
     """`draft_text`, and what the commit would write against the head."""
     document = Document.objects.select_related("language").get(pk=hold.document_id)

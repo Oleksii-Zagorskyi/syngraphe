@@ -9,8 +9,11 @@
   <form method="post" action="{{ action }}" class="export-dialog">
     {% csrf_token %}
     <fieldset class="what">
-      <legend>{% translate "What" %} <details class="hint"><summary aria-label="{% translate 'What can be exported' %}">?</summary><p>{% translate "The document in the format chosen; attachments, when the document has them, as their own files. With attachments, or as Markdown with images, the export is one zip." %}</p></details></legend>
+      <legend>{% translate "What" %} <details class="hint"><summary aria-label="{% translate 'What can be exported' %}">?</summary><p>{% translate "The document in the format chosen; its appendices, when it has them, after it or each as a file of its own; attachments, when the document has them, as their own files. With attachments or separate appendices, or as Markdown with images, the export is one zip." %}</p></details></legend>
       <label><input type="checkbox" name="document" checked> {% translate "Document" %}</label>
+      {% if appendices %}<div class="appendices"><label><input type="checkbox" name="appendices" checked> {% translate "Appendices" %}</label>
+        <label><input type="radio" name="appendices_mode" value="embedded" checked> {% translate "embedded" context "appendices in an export" %}</label>
+        <label><input type="radio" name="appendices_mode" value="separate"> {% translate "separate" context "appendices in an export" %}</label></div>{% endif %}
       {% if parts %}<label><input type="checkbox" name="attachments" checked> {% translate "Attachments" %}</label>{% endif %}
     </fieldset>
     <fieldset class="format">
@@ -23,7 +26,7 @@
       <legend>{% translate "View" context "export" %} <details class="hint"><summary aria-label="{% translate 'The views' %}">?</summary><p>{% translate "Which version to export, among those you may read. Marked changes are measured against the version before it in the chain, named beside each." %}</p></details></legend>
       {% for offer in offers %}
       <div class="offer" data-view="{{ offer.view }}">
-        {% if offers|length == 1 %}<input type="hidden" name="view" value="{{ offer.view }}" data-images="{{ offer.images|yesno:'true,false' }}"><span class="single">{% include "rendering/export_offer.html" %}</span>{% else %}<label><input type="radio" name="view" value="{{ offer.view }}" data-images="{{ offer.images|yesno:'true,false' }}"{% if forloop.first %} checked{% endif %}> {% include "rendering/export_offer.html" %}</label>{% endif %}
+        {% if offers|length == 1 %}<input type="hidden" name="view" value="{{ offer.view }}" data-images="{{ offer.images|yesno:'true,false' }}" data-appendix-images="{{ offer.appendix_images|yesno:'true,false' }}"><span class="single">{% include "rendering/export_offer.html" %}</span>{% else %}<label><input type="radio" name="view" value="{{ offer.view }}" data-images="{{ offer.images|yesno:'true,false' }}" data-appendix-images="{{ offer.appendix_images|yesno:'true,false' }}"{% if forloop.first %} checked{% endif %}> {% include "rendering/export_offer.html" %}</label>{% endif %}
         {% if offer.baseline %}<span class="changes" data-changes="{{ offer.view }}">{% translate "Changes" %}:
           <label><input type="radio" name="changes-{{ offer.view }}" value="marked"{% if offer.marked_by_default %} checked{% endif %}> {% blocktranslate with number=offer.baseline_number %}marked against {{ number }}{% endblocktranslate %}</label>
           <label><input type="radio" name="changes-{{ offer.view }}" value="clean"{% if not offer.marked_by_default %} checked{% endif %}> {% translate "clean text" %}</label></span>{% endif %}

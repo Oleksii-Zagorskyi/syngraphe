@@ -198,6 +198,10 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version, composed from a scope, formats and a view.
 
+**embedded appendices** · додатки у документі · *proposed* — an export's appendices after the document's body and before its attachment list (DL-0193); in PDF each starts a page of its own. The dialog's choice reads *у документі*.
+
+**separate appendices** · додатки окремими файлами · *proposed* — an export's appendices each as a file of its own in the zip, named by its number and title (DL-0193). The dialog's choice reads *окремими файлами*; appendices exported without the document always go so.
+
 **edit the whole document** · редагувати весь документ · *proposed* — open one editor over the whole body or appendix.
 
 **edit a section** · редагувати розділ · *proposed* — open an editor over one section: a `#` heading at any depth and the lines it leads, its subsections included; several may be open at once. Every editor writes into the same draft.

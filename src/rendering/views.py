@@ -456,17 +456,15 @@ def _version_link(document: Document, number: str) -> str:
 
 def _offers_and_parts(
     user: Any, document: Document, version: Version | None = None, past: Any = None
-) -> tuple[list[Any], bool]:
+) -> tuple[list[Any], bool, bool]:
     """The views the person may export — the one at `version` from a historical page — each
-    marked by whether its text shows images, and whether any offered version has attachments."""
-    from documents.models import PartIndex, PartKind
-    from rendering.export.compose import offers, with_images
+    marked by whether its texts show images; whether any offered export would hold attachments,
+    and whether any would hold appendices — a version's lists, or the holder's draft's."""
+    from rendering.export.compose import offer_lists, offers, with_images
 
     offered = with_images(offers(user, document, version=version, past=past), document, user)
-    parts = PartIndex.objects.filter(
-        version__in=[offer.version for offer in offered], kind=PartKind.ATTACHMENT
-    ).exists()
-    return offered, parts
+    lists = [offer_lists(offer, document, user) for offer in offered]
+    return offered, any(files for _a, files in lists), any(texts for texts, _f in lists)
 
 
 @never_cache
@@ -488,7 +486,7 @@ def export(request: HttpRequest, number: int, version_number: str | None = None)
     if document is None:
         return not_found(request)
     try:
-        offered, parts = _offers_and_parts(request.user, document, version, past)
+        offered, parts, appendices = _offers_and_parts(request.user, document, version, past)
     except UNREADABLE:
         logger.exception("a document's versions could not be read", extra={"document": number})
         return not_found(request)
@@ -498,11 +496,12 @@ def export(request: HttpRequest, number: int, version_number: str | None = None)
         "document": document,
         "offers": offered,
         "parts": parts,
+        "appendices": appendices,
         "action": request.path,
     }
     if request.method == "GET":
         return render(request, "rendering/export.html", context)
-    chosen = _chosen(request, offered, parts)
+    chosen = _chosen(request, document, offered, parts)
     if isinstance(chosen, str) or _waiting(request, document):
         # One export at a time per person and document: a second waits for the first.
         if not isinstance(chosen, str):
@@ -529,33 +528,49 @@ def _waiting(request: HttpRequest, document: Document) -> bool:
     ).exists()
 
 
-def _has_attachments(version: Any) -> bool:
-    from documents.models import PartIndex, PartKind
-
-    return PartIndex.objects.filter(version=version, kind=PartKind.ATTACHMENT).exists()
-
-
-def _chosen(request: HttpRequest, offered: list[Any], parts: bool) -> dict[str, Any] | str:
-    """What the form chose, checked against what was offered; a message where it cannot stand."""
-    from rendering.models import ExportChanges, ExportFormat
+def _chosen(
+    request: HttpRequest, document: Document, offered: list[Any], parts: bool
+) -> dict[str, Any] | str:
+    """What the form chose, checked against what was offered; a message where it cannot stand.
+    Appendices chosen without the document always go separate: the dialog disables the mode, and
+    so never posts it, when the document is not chosen (DL-0207)."""
+    from rendering.export.compose import offer_lists
+    from rendering.models import ExportAppendices, ExportChanges, ExportFormat
 
     by_view = {offer.view.value: offer for offer in offered}
     offer = by_view.get(request.POST.get("view", ""))
     include_document = request.POST.get("document") == "on"
     include_attachments = parts and request.POST.get("attachments") == "on"
-    # A format is the document's alone: the dialog disables it, and so never posts it, when the
-    # document is not chosen. The files go out as stored; the stored value is only the default.
-    fmt = request.POST.get("format", "") if include_document else ExportFormat.PDF.value
+    include_appendices = request.POST.get("appendices") == "on"
+    # A format is the document's and the appendices': the dialog disables it, and so never posts
+    # it, when neither is chosen. The files go out as stored; the stored value is only the default.
+    writes = include_document or include_appendices
+    fmt = request.POST.get("format", "") if writes else ExportFormat.PDF.value
     if offer is None or fmt not in ExportFormat.values:
         return _("Choose a view and a format.")
-    if not include_document and not include_attachments:
+    if not writes and not include_attachments:
         return _("Nothing is chosen to export.")
-    if include_attachments and not _has_attachments(offer.version):
-        if not include_document:
+    appendices, attachments = offer_lists(offer, document, request.user)
+    if include_appendices and not appendices:
+        if not include_document and not include_attachments:
+            return _("The chosen version has no appendices: nothing is left to export.")
+        return _("The chosen version has no appendices; untick them to export the rest.")
+    if include_attachments and not attachments:
+        if not writes:
             return _("The chosen version has no attachments: nothing is left to export.")
         return _("The chosen version has no attachments; untick them to export the document.")
+    mode = ExportAppendices.NONE
+    if include_appendices:
+        posted = request.POST.get("appendices_mode")
+        mode = (
+            ExportAppendices(posted)
+            if include_document and posted in (ExportAppendices.EMBEDDED, ExportAppendices.SEPARATE)
+            else ExportAppendices.EMBEDDED
+            if include_document
+            else ExportAppendices.SEPARATE
+        )
     marked = (
-        include_document
+        writes
         and request.POST.get(f"changes-{offer.view.value}") == ExportChanges.MARKED
         and offer.baseline is not None
         and fmt != ExportFormat.MARKDOWN
@@ -565,6 +580,7 @@ def _chosen(request: HttpRequest, offered: list[Any], parts: bool) -> dict[str, 
         "format": fmt,
         "document": include_document,
         "attachments": include_attachments,
+        "appendices": mode,
         "changes": ExportChanges.MARKED if marked else ExportChanges.CLEAN,
     }
 
@@ -591,6 +607,7 @@ def _queued(
             version=offer.version,
             include_document=chosen["document"],
             include_attachments=chosen["attachments"],
+            appendices=chosen["appendices"],
             format=chosen["format"],
             view=offer.view,
             changes=chosen["changes"],
@@ -667,6 +684,14 @@ def export_status(request: HttpRequest, number: int, job_id: str) -> HttpRespons
     return render(request, template, context)
 
 
+DOWNLOAD_TYPES = {
+    ".pdf": "application/pdf",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".md": "text/markdown; charset=utf-8",
+    ".zip": "application/zip",
+}
+
+
 @never_cache
 @login_required
 def export_download(request: HttpRequest, number: int, job_id: str) -> HttpResponseBase:
@@ -677,7 +702,13 @@ def export_download(request: HttpRequest, number: int, job_id: str) -> HttpRespo
     path = artifact(job) if job is not None else None
     if path is None:
         return not_found(request)
-    response = FileResponse(path.open("rb"), as_attachment=True, filename=path.name)
+    # Named, never guessed from the file name: a host may know no type for `.docx`.
+    response = FileResponse(
+        path.open("rb"),
+        as_attachment=True,
+        filename=path.name,
+        content_type=DOWNLOAD_TYPES.get(path.suffix, "application/octet-stream"),
+    )
     response["X-Content-Type-Options"] = "nosniff"
     patch_cache_control(response, private=True)
     return response

@@ -269,12 +269,12 @@ Within the edit tab, opened by *finish editing* for every holder (DL-0222): the 
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
-| *What* checkboxes, all checked by default; parts the document lacks not offered (DL-0236) | **0.1** | ST-0045 | Epic 7 |
-| *embedded / separate* — disabled unless the document is checked; *Format* — disabled unless the document or appendices are (DL-0207) | **0.1** | ST-0045 | Epic 7 |
+| *What* checkboxes, all checked by default; parts the document lacks not offered (DL-0236) | **0.1** | ST-0045 | Epic 7; the appendices, Epic 13 |
+| *embedded / separate* — disabled unless the document is checked; *Format* — disabled unless the document or appendices are (DL-0207) | **0.1** | ST-0045 | Epic 7; the appendices, Epic 13 |
 | *View* — canonical, accepted, pending edits, my edits, as the user's rights allow; each version linking to that version in a new window; a single view is named as text, not offered as a choice (DL-0236) | **0.1** | ST-0045 | Epic 7 |
 | *Changes* — *marked against* the previous version in the chain, named: a canonical edition against the previous edition, an accepted version against the current canonical edition, pending edits against the last acceptance, the draft against the current text; or *clean text*. Clean by default for a canonical edition, marked for every other. Not drawn when marks are impossible — a canonical edition for someone with no history right (DL-0241) | **0.1** | ST-0045 | Epic 7 |
-| what will be delivered — one file or one zip | **0.1** | ST-0045 | Epic 7 |
-| *Export* — disabled while nothing is chosen; a message when a chosen part is not in the chosen version, or nothing is left to export (DL-0208) | **0.1** | ST-0045 | Epic 7 |
+| what will be delivered — one file or one zip | **0.1** | ST-0045 | Epic 7; the appendices, Epic 13 |
+| *Export* — disabled while nothing is chosen; a message when a chosen part is not in the chosen version, or nothing is left to export (DL-0208) | **0.1** | ST-0045 | Epic 7; the appendices, Epic 13 |
 | *?* beside each section's heading — a box of help above the dialog, closed by a click anywhere else; no help text in the layout (DL-0233) | **0.1** | ST-0045 | Epic 7 |
 | file names — `<title>_—_<version>_—_<stance>.<ext>`, the stance in the interface's language; a marked export ends in `-позначено` (`-marked`), `<stance>-позначено.<ext>`, and a clean one has none (DL-0359); the title cut at eighty characters; several files a zip of the same name (DL-0275) | **0.1** | ST-0045 | Epic 7 |
 | the file's pages — the page number at the foot and no header, the title, version and stance standing in the file's name, and on the title page where the document has one (DL-0182, DL-0362); headings numbered in their text and clause numbers in a light-grey gutter — in DOCX at the start of the paragraph, Word having no gutter — a change of formatting alone marked by its colour; a Markdown file's headings carry their numbers and its clauses none (DL-0363) | **0.1** | ST-0045 | Epic 7 |

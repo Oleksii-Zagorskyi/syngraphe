@@ -258,7 +258,7 @@ def test_markdown_with_images_is_announced_as_a_zip(
     assert 'data-zip="' in body and 'data-file="' in body
 
 
-def test_an_image_only_an_appendix_shows_makes_no_zip(
+def test_an_appendixs_images_are_marked_apart_from_the_body(
     migrated_tenant: Any,
     edition_cast: Any,
     member_of: Any,
@@ -268,19 +268,74 @@ def test_an_image_only_an_appendix_shows_makes_no_zip(
     kit: Any,
     pictures: Any,
 ) -> None:
-    """The dialog reads the text the export writes: an image only an appendix shows is in no
-    Markdown export yet, and announces no zip."""
+    """The dialog reads the texts the export writes, each apart: an image only a listed appendix
+    shows marks the appendices, not the body, so a Markdown export without the appendices is
+    one file."""
+    from editions import services as editions
+    from review import services as review
+
     people = edition_cast()
     plan = pictures.make(6)
-    pictures.canonical_with(
-        migrated_tenant.number,
-        people,
-        commit_version,
+    commit_version(
+        people.document,
+        people["a"],
         kit.FIRST,
-        {plan.path: plan.data, "appendices/1.md": plan.paragraph.encode()},
+        "edit",
+        files={plan.path: plan.data, "appendices/1.md": ("# Plans" + plan.paragraph).encode()},
+        appendices=[{"number": 1, "title": "Plans (example)"}],
     )
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        editions.make_canonical(people.document, people["p"])
     client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "appendix")
 
     body = client.get(f"/document/{people.document.number}/export/").content.decode()
 
-    assert 'data-images="false"' in body and 'data-images="true"' not in body
+    assert 'data-images="false"' in body and 'data-appendix-images="true"' in body
+
+
+def test_appendices_are_offered_where_a_version_lists_one(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+) -> None:
+    """*Appendices* beneath *Document*, *embedded* checked, where the offered version lists one;
+    absent where none does."""
+    bare = edition_cast()
+    kit.canonical(migrated_tenant.number, bare, commit_version, kit.FIRST)
+    client, _ = kit.reader(member_of, link_group, bare, [Right.VIEW_CANONICAL], "bare")
+    body = client.get(f"/document/{bare.document.number}/export/").content.decode()
+    assert 'name="appendices"' not in body and 'name="appendices_mode"' not in body
+
+    from editions import services as editions
+    from review import services as review
+
+    people = bare
+    commit_version(
+        people.document,
+        people["a"],
+        kit.FIRST,
+        "edit",
+        files={
+            "appendices/1.md": b"# One\n\nA sentence.\n",
+            "appendices/2.md": b"# Two\n\nAnother.\n",
+        },
+        appendices=[
+            {"number": 1, "title": "One (example)"},
+            {"number": 2, "title": "Two (example)"},
+        ],
+    )
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        editions.make_canonical(people.document, people["p"])
+    body = client.get(f"/document/{people.document.number}/export/").content.decode()
+    what = body[body.index('class="what"') : body.index('class="format"')]
+    assert what.index('name="document"') < what.index('name="appendices"')
+    assert re.search(r'name="appendices_mode" value="embedded" checked', what)
+    assert re.search(r'name="appendices_mode" value="separate"(?! checked)', what)

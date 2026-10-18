@@ -66,8 +66,10 @@ class Offer:
     baseline: Version | None
     baseline_number: str
     marked_by_default: bool
-    # Whether the text it offers shows images: a Markdown export of it is then one zip.
+    # Whether its body, and whether the appendices it lists, show images: a Markdown export of
+    # those that show them is then one zip.
     images: bool = False
+    appendix_images: bool = False
 
 
 @dataclass(frozen=True)
@@ -254,27 +256,79 @@ def offers(
     return found
 
 
+def _mine(document: Document, user: Any) -> Any:
+    """`user`'s draft of `document` while they hold it, or `None`."""
+    from editing.holds import open_hold
+    from editing.models import Draft
+
+    hold = open_hold(document)
+    if hold is None or hold.user_id != getattr(user, "pk", None):
+        return None
+    return Draft.objects.filter(hold=hold).first()
+
+
+def offer_lists(
+    offer: Offer, document: Document, user: Any
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The appendices and the attachments the offer's export would hold: its version's, or for
+    *my edits* the draft's (DL-0193)."""
+    from documents.parts import lists_at
+    from editing.holds import FRONTMATTER
+
+    if offer.view == ExportView.MY_EDITS:
+        draft = _mine(document, user)
+        held = draft.content.get(FRONTMATTER, {}) if draft is not None else {}
+        return list(held.get("appendices", [])), list(held.get("attachments", []))
+    return lists_at(offer.version)
+
+
 def with_images(offers: list[Offer], document: Document, user: Any) -> list[Offer]:
-    """Each offer marked by whether the text its export writes shows images — a version's body, or
-    the holder's draft's, whose first image may be in no commit yet — as the job decides it."""
+    """Each offer marked by whether the texts its export writes show images — a version's body,
+    and apart from it the appendices it lists, or the holder's draft's, whose first image may be
+    in no commit yet — as the job decides it."""
     from dataclasses import replace
 
-    from editing.holds import BODY, open_hold
-    from editing.models import Draft
+    from editing.holds import BODY
+    from editing.services import draft_texts
 
     marked = []
     for offer in offers:
+        body: str | None = None
+        appendices: list[str] = []
         if offer.view == ExportView.MY_EDITS:
-            hold = open_hold(document)
-            draft = Draft.objects.filter(hold=hold).first() if hold is not None else None
-            mine = (
-                draft is not None and hold is not None and hold.user_id == getattr(user, "pk", None)
-            )
-            body = str(draft.content.get(BODY, "")) if mine and draft is not None else None
+            draft = _mine(document, user)
+            if draft is not None:
+                repo = gitstore.open_repository(_tenant(), document.number)
+                texts = draft_texts(draft, repo)
+                body = texts.pop(BODY)
+                appendices = list(texts.values())
         else:
-            body = _body(_tenant(), document, offer.version)[1]
-        marked.append(replace(offer, images=bool(shown_images(body))))
+            frontmatter, body = _body(_tenant(), document, offer.version)
+            appendices = list(_appendix_texts(document, offer.version, frontmatter).values())
+        marked.append(
+            replace(
+                offer,
+                images=bool(shown_images(body)),
+                appendix_images=bool(shown_images(*appendices)),
+            )
+        )
     return marked
+
+
+def _appendix_texts(
+    document: Document, version: Version, frontmatter: bundle.Frontmatter
+) -> dict[int, str]:
+    """Each appendix `version` lists, its text by number in the list's order."""
+    repo = gitstore.open_repository(_tenant(), document.number)
+    found = {}
+    for entry in frontmatter.appendices:
+        number = int(entry["number"])
+        try:
+            found[number] = gitstore.read(repo, f"appendices/{number}.md", version.commit_sha)
+        except KeyError:
+            # A listed appendix without its file: the reconciler's `part_missing`.
+            found[number] = b""
+    return {number: text.decode("utf-8") for number, text in found.items()}
 
 
 def _offer_at(document: Document, version: Version, past: Any) -> list[Offer]:
@@ -332,6 +386,15 @@ def _body(
 
 
 @dataclass
+class ComposedPart:
+    """One appendix exported as a file of its own, ready for a writer."""
+
+    name: str
+    html: str = ""
+    markdown: str = ""
+
+
+@dataclass
 class Composed:
     """One export's content, ready for a writer."""
 
@@ -340,8 +403,22 @@ class Composed:
     html: str = ""
     markdown: str = ""
     attachments: list[dict[str, Any]] = field(default_factory=list)
-    # The images the text shows — and, marked, the baseline's — by their paths.
+    # The images the texts show — and, marked, the baseline's — by their paths.
     images: list[str] = field(default_factory=list)
+    # The appendices as files of their own, when they go separate.
+    appendices: list[ComposedPart] = field(default_factory=list)
+
+
+@dataclass
+class _Texts:
+    """What a job exports: the frontmatter, the body, each appendix `(number, title, text)`, and
+    when marked the baseline's body and its appendices' texts by number."""
+
+    frontmatter: bundle.Frontmatter
+    body: str
+    baseline: str | None
+    appendices: list[tuple[int, str, str]]
+    baseline_appendices: dict[int, str]
 
 
 # An export's text names its images by their paths: PDF reads them through its fetcher, DOCX from
@@ -375,26 +452,51 @@ def _checked(text: str) -> str:
     return text
 
 
-def _texts(job: ExportJob, tenant_number: int) -> tuple[bundle.Frontmatter, str, str | None]:
-    """The frontmatter and the body the job exports, and the baseline's body when marked."""
+def _texts(job: ExportJob, tenant_number: int) -> _Texts:
+    """The texts the job exports: a version's, or for *my edits* the draft's state throughout —
+    its frontmatter and lists, its body and its appendices (DL-0193, DL-0209)."""
+    from rendering.models import ExportAppendices
+
     document = job.document
     frontmatter, body = _body(tenant_number, document, job.version)
+    wanted = job.appendices != ExportAppendices.NONE
     if job.view == ExportView.MY_EDITS:
         from editing.holds import open_hold
-        from editing.services import DraftRefused, draft_text
+        from editing.services import DraftRefused, draft_export
 
         hold = open_hold(document)
         if hold is None or hold.user_id != job.requested_by_id:
             raise Refused(_("Your draft has been finished or discarded since you asked."))
         try:
-            _head, _head_body, body = draft_text(hold)
+            held, body, appendices = draft_export(hold)
         except DraftRefused as refused:
             raise Refused(_refusal(refused.refusals)) from refused
+        frontmatter = bundle.Frontmatter(**held)
+    else:
+        appendices = [
+            (number, _title_of(frontmatter, number), text)
+            for number, text in _appendix_texts(document, job.version, frontmatter).items()
+        ]
     baseline = None
+    baseline_appendices: dict[int, str] = {}
     if job.changes == ExportChanges.MARKED and job.baseline_version is not None:
-        baseline = _body(tenant_number, document, job.baseline_version)[1]
+        before, baseline = _body(tenant_number, document, job.baseline_version)
+        if wanted:
+            baseline_appendices = _appendix_texts(document, job.baseline_version, before)
     # Checked even when only attachments go: an export is of a text that stands.
-    return frontmatter, _checked(body), baseline
+    return _Texts(
+        frontmatter,
+        _checked(body),
+        baseline,
+        [(n, title, _checked(text)) for n, title, text in appendices] if wanted else [],
+        baseline_appendices,
+    )
+
+
+def _title_of(frontmatter: bundle.Frontmatter, number: int) -> str:
+    return next(
+        (str(e.get("title", "")) for e in frontmatter.appendices if int(e["number"]) == number), ""
+    )
 
 
 def _title_page(job: ExportJob, title: str, number: str) -> str:
@@ -455,8 +557,15 @@ def _attachment_list(items: list[dict[str, Any]]) -> str:
 
 
 def _page(
-    job: ExportJob, frontmatter: bundle.Frontmatter, text: str, header: str, number: str
+    job: ExportJob,
+    frontmatter: bundle.Frontmatter,
+    text: str,
+    header: str,
+    number: str,
+    appendices: tuple[str, ...] = (),
 ) -> str:
+    """The HTML page a writer converts: the title page when the document has one, the body, each
+    embedded appendix in a section of its own — a new page in PDF — and the attachment list."""
     language = escape(job.document.language_id or "")
     hashes = "; ".join(
         f"{item.get('file_name', '')} {item.get('sha256', '')}" for item in frontmatter.attachments
@@ -469,6 +578,10 @@ def _page(
     if frontmatter.title_page:
         parts.append(_title_page(job, frontmatter.title, number))
     parts.append(f'<article class="document-text">{text}</article>')
+    parts += [
+        f'<section class="appendix"><article class="document-text">{html}</article></section>'
+        for html in appendices
+    ]
     if frontmatter.attachments:
         parts.append(_attachment_list(frontmatter.attachments))
     parts.append("</body></html>")
@@ -480,11 +593,38 @@ def _cell(value: object) -> str:
     return str(value).replace("|", "\\|")
 
 
-def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
-    """The job's content: its file name, its header, and the HTML page or the Markdown."""
+def _rendered(job: ExportJob, text: str, baseline: str | None, number: str) -> str:
+    """`text` rendered alone, its numbers from 1; marked against `baseline` when it is given."""
     from editing.diffview import render_changes
 
-    frontmatter, body, baseline = _texts(job, tenant_number)
+    if baseline is None or job.baseline_version is None:
+        return render(text, context=EXPORT_CONTEXT)
+    from dataclasses import replace
+
+    from editing.numbering import number_of as shown_number
+
+    try:
+        baseline_number = shown_number(job.document, job.baseline_version)
+    except LookupError:
+        # A baseline the numbering does not reach: its side is named without a number.
+        baseline_number = ""
+    marked = replace(EXPORT_CONTEXT, sides=(baseline_number, number))
+    return render_changes(baseline.encode(), text.encode(), context=marked)
+
+
+def _markdown(text: str) -> str:
+    return number_headings(join_paragraphs(text))
+
+
+def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
+    """The job's content: its file name, its header, the HTML page or the Markdown, and its
+    appendices — embedded after the body, or each a file of its own (DL-0193, DL-0444). An
+    appendix is rendered alone, its title never printed (DL-0165); marked, against the baseline's
+    text of it, an appendix the baseline lacks wholly inserted."""
+    from rendering.models import ExportAppendices
+
+    texts = _texts(job, tenant_number)
+    frontmatter, body, baseline = texts.frontmatter, texts.body, texts.baseline
     shown = stance(job.view)
     header = furniture.header_text(frontmatter.title, number, shown)
     marks = pgettext("marks in a file name", "marked") if baseline is not None else ""
@@ -493,10 +633,35 @@ def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
         name=names.file_name(frontmatter.title, number, shown, ext, marks=marks),
         header=header,
         attachments=list(frontmatter.attachments) if job.include_attachments else [],
-        images=shown_images(body, baseline),
+        # The images of the texts that go: the body's only with the document.
+        images=shown_images(
+            *((body, baseline) if job.include_document else ()),
+            *(text for _n, _t, text in texts.appendices),
+            *texts.baseline_appendices.values(),
+        ),
     )
-    if job.format == ExportFormat.MARKDOWN:
-        text = number_headings(join_paragraphs(body))
+    marked = baseline is not None
+    separate = job.appendices == ExportAppendices.SEPARATE
+    markdown = job.format == ExportFormat.MARKDOWN
+    shown_parts: list[str] = []
+    word = pgettext("a part in an exported file's name", "appendix")
+    for n, title, text in texts.appendices:
+        against = texts.baseline_appendices.get(n, "") if marked else None
+        part = _markdown(text) if markdown else _rendered(job, text, against, number)
+        if not separate:
+            shown_parts.append(part)
+            continue
+        named = names.part_name(word, n, title[: names.TITLE_MOST]) + f".{ext}"
+        page = bundle.Frontmatter(title=title, language=frontmatter.language)
+        composed.appendices.append(
+            ComposedPart(named, markdown=part)
+            if markdown
+            else ComposedPart(named, html=_page(job, page, part, header, number))
+        )
+    if markdown:
+        text = _markdown(body)
+        for part in shown_parts:
+            text += "\n" + part
         if frontmatter.attachments:
             rows = "\n".join(
                 f"| {_cell(item.get('title', ''))} | {_cell(item.get('file_name', ''))} | "
@@ -510,19 +675,6 @@ def compose(job: ExportJob, tenant_number: int, *, number: str) -> Composed:
             )
         composed.markdown = text
         return composed
-    if baseline is not None and job.baseline_version is not None:
-        from dataclasses import replace
-
-        from editing.numbering import number_of as shown_number
-
-        try:
-            baseline_number = shown_number(job.document, job.baseline_version)
-        except LookupError:
-            # A baseline the numbering does not reach: its side is named without a number.
-            baseline_number = ""
-        marked = replace(EXPORT_CONTEXT, sides=(baseline_number, number))
-        rendered = render_changes(baseline.encode(), body.encode(), context=marked)
-    else:
-        rendered = render(body, context=EXPORT_CONTEXT)
-    composed.html = _page(job, frontmatter, rendered, header, number)
+    rendered = _rendered(job, body, baseline, number)
+    composed.html = _page(job, frontmatter, rendered, header, number, tuple(shown_parts))
     return composed

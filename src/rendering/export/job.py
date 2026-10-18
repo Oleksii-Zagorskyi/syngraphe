@@ -1,7 +1,8 @@
 """Running an export job on the render worker: the content composed, the file written under the
-exports root at `<job id>/<file name>` — one file, or one zip when attachments go with it or a
-Markdown export's text shows images — and the row marked `done` with its file, or `failed` with the
-reason. A job that is not `queued` is left alone, so a job queued twice runs once.
+exports root at `<job id>/<file name>` — one file, or one zip when attachments or separate
+appendices go with it or a Markdown export's text shows images — and the row marked `done` with
+its file, or `failed` with the reason. A job that is not `queued` is left alone, so a job queued
+twice runs once.
 """
 
 from __future__ import annotations
@@ -93,9 +94,10 @@ def _zip(
     job: ExportJob,
     pictures: dict[str, bytes],
 ) -> Path:
-    """The document, when chosen, its images beside a Markdown text under the paths it names
-    them by, and its attachments as stored, in one zip of the document's name."""
-    repo = gitstore.open_repository(tenant, job.document.number)
+    """The document, when chosen, each separate appendix, the images beside a Markdown text under
+    the paths it names them by, and the attachments as stored, in one zip of the document's
+    name. Every attachment is read as the download reads it, its hash checked: a file that does
+    not match its entry fails the job."""
     word = pgettext("a part in an exported file's name", "attachment")
     inner = _("Document").lower() + Path(composed.name).suffix
     target = folder / (Path(composed.name).stem + ".zip")
@@ -103,15 +105,54 @@ def _zip(
     with zipfile.ZipFile(partial, "w", zipfile.ZIP_DEFLATED) as bundle:
         if document is not None:
             bundle.write(document, inner)
-            if job.format == ExportFormat.MARKDOWN:
-                for image, data in pictures.items():
-                    bundle.writestr(image, data)
+        for part in composed.appendices:
+            written = scratch / part.name
+            _write_document(
+                compose.Composed(name=part.name, header="", html=part.html, markdown=part.markdown),
+                job.format,
+                written,
+                pictures,
+            )
+            bundle.write(written, part.name)
+        if job.format == ExportFormat.MARKDOWN:
+            for image, data in pictures.items():
+                bundle.writestr(image, data)
         for item in composed.attachments:
             number = int(item["number"])
-            data = gitstore.read(repo, f"attachments/{number}", job.version.commit_sha)
+            data = _attachment(job, tenant, number)
             bundle.writestr(names.part_name(word, number, str(item.get("file_name", ""))), data)
     partial.replace(target)
     return target
+
+
+def _attachment(job: ExportJob, tenant: int, number: int) -> bytes:
+    """Attachment `number`'s bytes as the export lists it — the version's, or for *my edits* the
+    draft's, staged or at the draft's base — hash checked; a mismatch is logged as a defect where
+    it is read, and fails the job."""
+    from documents.parts import read_attachment
+    from rendering.models import ExportView
+
+    try:
+        if job.view == ExportView.MY_EDITS:
+            from editing.holds import open_hold
+            from editing.models import Draft
+            from editing.parts import draft_attachment
+
+            hold = open_hold(job.document)
+            if hold is None or hold.user_id != job.requested_by_id:
+                raise compose.Refused(
+                    _("Your draft has been finished or discarded since you asked.")
+                )
+            return draft_attachment(Draft.objects.get(hold=hold), number)[1]
+        return read_attachment(tenant, job.document, job.version, number)[1]
+    except KeyError as missing:
+        raise compose.Refused(
+            _("An attachment has gone since you asked; export again.")
+        ) from missing
+    except ValueError as mismatch:
+        raise compose.Refused(
+            _("An attachment's file does not match its record; tell the operator.")
+        ) from mismatch
 
 
 def run(job_id: str | uuid.UUID, tenant: int) -> ExportState:
@@ -152,12 +193,13 @@ def _held(job: ExportJob, tenant: int) -> ExportState:
             os.utime(folder)
             with tempfile.TemporaryDirectory(dir=folder) as scratch:
                 document: Path | None = None
-                pictures = _images(composed, tenant, job) if job.include_document else {}
+                writes = job.include_document or bool(composed.appendices)
+                pictures = _images(composed, tenant, job) if writes else {}
                 if job.include_document:
                     document = Path(scratch) / composed.name
                     _write_document(composed, job.format, document, pictures)
                 beside = job.format == ExportFormat.MARKDOWN and bool(pictures)
-                if composed.attachments or beside:
+                if composed.attachments or composed.appendices or beside:
                     produced = _zip(
                         composed, document, folder, Path(scratch), tenant, job, pictures
                     )

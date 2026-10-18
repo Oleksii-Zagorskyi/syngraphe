@@ -1249,6 +1249,38 @@ msgctxt "a part in an exported file's name"
 msgid "attachment"
 msgstr "вкладений файл"
 
+#: rendering/export/compose.py
+msgctxt "a part in an exported file's name"
+msgid "appendix"
+msgstr "додаток"
+
+#: rendering/templates/rendering/export.html
+msgctxt "appendices in an export"
+msgid "embedded"
+msgstr "у документі"
+
+#: rendering/templates/rendering/export.html
+msgctxt "appendices in an export"
+msgid "separate"
+msgstr "окремими файлами"
+
+#: rendering/views.py
+msgid "The chosen version has no appendices: nothing is left to export."
+msgstr "У вибраній версії немає додатків: експортувати нічого."
+
+#: rendering/views.py
+msgid "The chosen version has no appendices; untick them to export the rest."
+msgstr ""
+"У вибраній версії немає додатків; зніміть позначку, щоб експортувати решту."
+
+#: rendering/export/job.py
+msgid "An attachment has gone since you asked; export again."
+msgstr "Вкладений файл зник, відколи ви замовили експорт; експортуйте знову."
+
+#: rendering/export/job.py
+msgid "An attachment's file does not match its record; tell the operator."
+msgstr "Вкладений файл не збігається зі своїм записом; повідомте оператора."
+
 #: rendering/export/job.py:103
 msgid "The version asked for is no longer one you may export."
 msgstr "Цю версію ви більше не можете експортувати."
@@ -1277,12 +1309,14 @@ msgstr "Що можна експортувати"
 
 #: rendering/templates/rendering/export.html:12
 msgid ""
-"The document in the format chosen; attachments, when the document has them, "
-"as their own files. With attachments, or as Markdown with images, the export "
-"is one zip."
+"The document in the format chosen; its appendices, when it has them, after it "
+"or each as a file of its own; attachments, when the document has them, as "
+"their own files. With attachments or separate appendices, or as Markdown with "
+"images, the export is one zip."
 msgstr ""
-"Документ у вибраному форматі; вкладені файли, якщо вони є, — окремими "
-"файлами. З вкладеними файлами, а також у Markdown із зображеннями, експорт "
+"Документ у вибраному форматі; додатки, якщо вони є, — після нього або кожен "
+"окремим файлом; вкладені файли, якщо вони є, — окремими файлами. З вкладеними "
+"файлами чи окремими додатками, а також у Markdown із зображеннями, експорт "
 "завантажується одним zip-архівом."
 
 #: rendering/templates/rendering/export.html:17

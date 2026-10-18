@@ -762,3 +762,69 @@ def test_a_members_job_fails_once_the_document_is_archived(
     assert not list((Path(settings.EXPORT_ROOT) / str(members_job.pk)).glob("*"))
     served = admin_client.get(f"/document/{number}/export/{administrators_job.pk}/download/")
     assert served.status_code == 200
+
+
+@pytest.mark.parametrize(
+    ("fmt", "with_file", "content_type"),
+    [
+        ("pdf", False, "application/pdf"),
+        (
+            "docx",
+            False,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ),
+        ("markdown", False, "text/markdown; charset=utf-8"),
+        ("pdf", True, "application/zip"),
+    ],
+)
+def test_the_download_names_its_content_type(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    fmt: str,
+    with_file: bool,
+    content_type: str,
+    monkeypatch: Any,
+) -> None:
+    """Each format's type named, never guessed from the file name: a host without a `.docx` type
+    would send a Word file as bytes of no kind — a host that knows no type at all, here."""
+    import hashlib
+    import mimetypes
+
+    from editions import services as editions
+    from review import services as review
+
+    people = edition_cast()
+    files = {"attachments/1": b"one"} if with_file else None
+    listed = (
+        [
+            {
+                "number": 1,
+                "title": "Form (example)",
+                "file_name": "form.txt",
+                "sha256": hashlib.sha256(b"one").hexdigest(),
+                "bytes": 3,
+            }
+        ]
+        if with_file
+        else None
+    )
+    commit_version(people.document, people["a"], kit.FIRST, "edit", files=files, attachments=listed)
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        editions.make_canonical(people.document, people["p"])
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "typed")
+    choice = {"document": "on", "view": "canonical", "format": fmt}
+    if with_file:
+        choice["attachments"] = "on"
+    assert client.post(f"/document/{people.document.number}/export/", choice).status_code == 302
+    job = kit.run_job(migrated_tenant.number, exports[-1][1])
+    assert job.state == "done", job.failure_reason
+    monkeypatch.setattr(mimetypes, "guess_type", lambda *_a, **_k: (None, None))
+    download = client.get(f"/document/{people.document.number}/export/{job.pk}/download/")
+    assert download["Content-Type"] == content_type

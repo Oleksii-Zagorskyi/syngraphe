@@ -9,8 +9,9 @@ import re
 
 # Characters Windows, macOS or Linux refuse in a file name.
 REFUSED = re.compile(r'[/\\:*?"<>|]')
-# Control characters: a file system refuses some and a zip entry or a terminal misreads the rest.
-CONTROL = re.compile(r"[\x00-\x1f\x7f]")
+# Control characters: a file system refuses some and a zip entry or a terminal misreads the rest;
+# a direction control or a line separator makes a name read as another one.
+CONTROL = re.compile("[\x00-\x1f\x7f-\x9f\u061c\u200e\u200f\u2028\u2029\u202a-\u202e\u2066-\u2069]")
 SEPARATOR = "_—_"
 TITLE_MOST = 80
 

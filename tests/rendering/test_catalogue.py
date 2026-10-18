@@ -172,3 +172,50 @@ def test_catalogue_covers_comparing_two_documents(
         body = response.content.decode()
         _assert_translated(name, body)
         assert "Порівняти" in body or "Порівняння" in body, name
+
+
+def test_catalogue_covers_the_appendices_in_an_export(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """The dialog's appendices, a refused choice and the separate files' names, in Ukrainian."""
+    import zipfile
+
+    settings.LANGUAGE_CODE = "uk"
+    tenant = migrated_tenant.number
+    people = edition_cast()
+    number = people.document.number
+    kit.canonical(tenant, people, commit_version, kit.FIRST)
+    commit_version(
+        people.document,
+        people["a"],
+        kit.FIRST,
+        "edit",
+        files={"appendices/1.md": "# Додаток\n\nРечення додатка.\n".encode()},
+        appendices=[{"number": 1, "title": "Форми (приклад)"}],
+    )
+    pending = people.clients["r"]
+    dialog = pending.get(f"/document/{number}/export/").content.decode()
+    _assert_translated("export dialog with appendices", dialog)
+    assert "у документі" in dialog and "окремими файлами" in dialog
+    refused = pending.post(
+        f"/document/{number}/export/",
+        {"document": "on", "appendices": "on", "format": "pdf", "view": "canonical"},
+    )
+    assert refused.status_code == 400
+    _assert_translated("appendices refused", refused.content.decode())
+    asked = pending.post(
+        f"/document/{number}/export/",
+        {"appendices": "on", "format": "markdown", "view": "pending_edits"},
+    )
+    assert asked.status_code == 302
+    job = kit.run_job(tenant, exports[-1][1])
+    assert job.state == "done", job.failure_reason
+    with zipfile.ZipFile(Path(settings.EXPORT_ROOT) / job.artifact_ref) as bundle:
+        assert bundle.namelist() == ["додаток-1_—_Форми_(приклад).md"]
