@@ -88,9 +88,10 @@ docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 
 # the check; needs the override's test-db and Redis, POSTGRES_TEST_PORT set,
 # GNU gettext on the path, and Pango and HarfBuzz for the PDF exports; the
-# tests on one worker per core, then the timing budgets alone
+# tests on one worker per core, then the timing budgets alone, each one's time
+# printed
 uv run ruff check . && uv run ruff format --check . && uv run mypy src \
-  && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget
+  && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget --durations=0
 ```
 
 The first line installs the Python dependencies from `uv.lock` and the

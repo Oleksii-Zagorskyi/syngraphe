@@ -21,10 +21,10 @@ The commands a developer runs locally are the commands CI runs — never a varia
 
 ```bash
 uv sync --locked && npm ci && npm run build && uv run playwright install chromium
-uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget
+uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget --durations=0
 ```
 
-The tests run on one worker per core (`pytest-xdist`), each worker with a test database of its own, and every run with a database name of its own, so two runs on one server never share one (DL-0428). The suite refuses a database server that archives its log: the stack's `db` sends every segment to the backup store, and a test run's would go with it (DL-0430). The timing budgets, marked `budget`, run afterwards in a process of their own: beside the workers they measure the load. A single file or test runs without `-n`, in one process.
+The tests run on one worker per core (`pytest-xdist`), each worker with a test database of its own, and every run with a database name of its own, so two runs on one server never share one (DL-0428). The suite refuses a database server that archives its log: the stack's `db` sends every segment to the backup store, and a test run's would go with it (DL-0430). The timing budgets, marked `budget`, run afterwards in a process of their own: beside the workers they measure the load. Each one's time is printed, so its margin shows on a green run, not only on a red one — a shared CI runner is slower than a developer's machine, and a budget that passes there by a few milliseconds is visible before it fails. A single file or test runs without `-n`, in one process.
 
 The check needs PostgreSQL and Redis running — on a developer's machine the developer override's `test-db`, at `POSTGRES_TEST_PORT`, and the stack's `redis`; services in CI — and GNU gettext on the path, whose `xgettext` the catalogue test runs through `makemessages`, with Pango and HarfBuzz, which weasyprint loads for the PDF export tests: the developer's package manager installs them, CI a step of its own. The browser and conformance levels start the application themselves, as a live server inside the test run, so nothing else has to be started first.
 
@@ -32,7 +32,7 @@ CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs both on ever
 
 ## Levels
 
-Each level is a pytest marker, so it can run alone while working and CI runs them all. A test carries exactly one level marker; a test that asserts on elapsed time also carries `budget`.
+Each level is a pytest marker, so it can run alone while working and CI runs them all. A test carries exactly one level marker; a test that asserts on elapsed time also carries `budget`. **A budget is one of two kinds.** A user-facing budget (ASR-21) promises a time on the reference machine and asserts it. A guard against cost that grows faster than its input asserts the **growth** — the time at one size against the time at four times that size, the median of a few runs — never a time on whatever machine runs it, which a slower runner breaks while the code is linear.
 
 | Level | Marker | Runs against | Command |
 |---|---|---|---|
@@ -90,7 +90,7 @@ A story's tests are done when all of these hold:
 2. **Every refusal path is tested** — the unauthorised caller, the input outside the whitelist, the other tenant's object. A permission that is only tested for the permitted case is untested.
 3. **Every ASR the story touches has its invariant test**, new or already existing and still green.
 4. **Every multi-step write the story adds has its crash test.**
-5. **The CI command passes locally**, in full, not only the new tests.
+5. **The tests the change can reach pass**, selected from the change rather than listed by hand — by a coverage-based selector, or by the changed files: their app's tests and every test that imports a changed module. **The CI command passes locally in full** after a change to a shared core — the models and migrations, the settings, the renderer, the editor's parser and commit path, the templates, the message catalogue — at least every third story, and always before the work is committed.
 6. **What tests cannot see has been looked at** — the page opened, the row queried, the export read — and the completion note says so.
 
 A failing test is fixed before the next story starts, and the completion note records the failure and its fix.
