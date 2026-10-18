@@ -301,13 +301,13 @@ erDiagram
 
 **`DOCUMENT.number` is the identity people use and never changes** (ASR-15, ADR-0008) — unique within the tenant, shown as `#7`, and the document's URL. `FOLDER` is presentation; moving a document rewrites one foreign key and nothing in git. **The repository on disk is `tenant-N/document-M/`** (ADR-0008) — `TENANT.number` and `DOCUMENT.number`, never a title; a directory named by title puts document titles, a confidential guidance document's included, into filesystem listings, backup manifests and operator shells that the access table does not govern.
 
-**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `active`; that it reaches only its author is `author_only`, not a state (DL-0260). Title, language, the title-page switch and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler finishes a creation that stopped — except a copy, whose source the audit trail names before its repository is touched: a stopped copy is left unfinished and reported, and the operator removes it (DL-0455) — and recreates the row of a repository without one, with no access, never deleting a repository.
+**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `active`; that it reaches only its author is `author_only`, not a state (DL-0260). Title, language, the title-page switch, the title page's own text (DL-0476) and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler finishes a creation that stopped — except a copy, whose source the audit trail names before its repository is touched: a stopped copy is left unfinished and reported, and the operator removes it (DL-0455) — and recreates the row of a repository without one, with no access, never deleting a repository.
 
 **Groups are the whole permission model** (ADR-0007, ASR-07, ASR-08). A document's `DOCUMENT_GROUP` rows cannot change while a `HOLD` on it is open. A group holds rights (`GROUP_RIGHT`), has members (`GROUP_MEMBER`, through their tenant membership) and is linked to documents (`DOCUMENT_GROUP`); a person's rights on a document are the union of the rights of their groups linked to it. `create_and_edit` is the one right not tied to a link: it lets a member create and copy documents. The part rights apply only where the group can edit. *Accept*, *freeze* and *reserve_for_editing* include *edit* and the views below it, *make_canonical* includes *view_accepted* — an included right is implied, not stored (ADR-0016, DL-0234). Every right covers a whole document; there is no scope column (DL-0091). Comment is not among the rights; the annotation surface is stage 2 (DL-0083). The group table is `ACCESS_GROUP` so it does not collide with the framework's own.
 
 **`MAIL_SENDER` holds a tenant's own sending address, at most one row** (DL-0202); with none, the platform's sender in the shared schema is used. The password is stored only encrypted and is never read back into the interface.
 
-**`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from — at most 20,000 bytes (DL-0481), put in normal form for the new document's language at its first commit — whether it gets a title page, and the layout the title page renders through at export (DL-0164). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
+**`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from — at most 20,000 bytes (DL-0481), put in normal form for the new document's language at its first commit — whether it gets a title page, and the title page's layout — which of the document's details it shows, in which order, left or centred, the approval line always among them at a position of its own — a structured choice stored as data, never a template the page renders through (DL-0164, DL-0462, DL-0475). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
 
 **A new or copied document is author-only** (ADR-0007): `author_only` is set, no group is linked, and only its creator reaches it, with edit. The tenant administrator is notified and links groups; the first link clears `author_only`, after which the author reaches the document through their groups. A copy records `copied_from`, and its `document.copied` `AUDIT_EVENT` — written before its repository exists — holds the source's number, the version's number and commit and the appendices taken; the copy's *Info* tab shows administrators the source, the version and the commit, with when and by whom it was copied (DL-0455). A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
 
@@ -565,6 +565,21 @@ erDiagram
         string failure_reason
         datetime created_at
     }
+    STYLESHEET {
+        uuid id PK
+        text text "CSS within the allowlist, at most 100,000 bytes; empty for the platform's default look (DL-0464)"
+    }
+    SAMPLE_EXPORT {
+        uuid id PK
+        string format "pdf | docx"
+        text stylesheet "the text in the styles page's box when asked, never applied (DL-0466)"
+        string language "the interface's, choosing the invented sample's text"
+        uuid requested_by FK
+        string state "queued | done | failed"
+        string artifact_ref "under the exports root; set exactly when done"
+        string failure_reason
+        datetime created_at
+    }
 ```
 
 **A `NOTIFICATION` lives in the tenant's schema**, beside the document it concerns, an organisation's administrative ones with them; a platform administrator's own — a backup condition, a failed email — is a `PLATFORM_NOTIFICATION` in the shared schema, since a platform administrator may belong to no organisation (DL-0382). A notification is opened at its own address, never a document's, and only by its person; one about a document its person can no longer open is neither shown nor counted (DL-0386).
@@ -574,6 +589,10 @@ erDiagram
 **`NOTIFICATION.emailed_at` separates the two surfaces**: the in-application record exists whether or not mail was sent. The platform's sender is one row in the shared schema, a tenant's own sender one row in its schema; each password is encrypted at rest and write-only in the interface (DL-0072, DL-0202).
 
 **`EXPORT_JOB.version` is required**, not defaulted to the latest. An export is of a stated version — usually the canonical edition — and a job that silently followed the head would produce documents nobody can reproduce. What, format, view and changes are the choices the export screen composes (DL-0172, DL-0193); *changes* marks the text against `baseline_version`, the version before it in the chain (DL-0241) — for a job asked at a version, the chain of the stance that version reached, set only where the reader's ceiling reaches it (DL-0426) — and a Markdown export is always clean; a *my edits* export reads the requester's own draft as well as the version. A job asked from a version's historical page records it in `at_version`, and is re-checked when it runs against the versions the reader may open — the version and its baseline — rather than the view's rights (DL-0423). The row is written before the job is queued; `render` holds it while it runs, so a job queued twice runs once; its file is swept after a day and the row stays, with `failure_reason` naming what the platform refused or that the file could not be made.
+
+**`STYLESHEET` has one row per tenant**, seeded empty (DL-0464, DL-0465): every document of the organisation is read and exported with it, and with the platform's default look while it is empty — no document chooses another. Its text is checked against the allowlist when it is applied and again by every reader of it, so a row written before a rule tightened reaches no page and no file; every change is audited with the whole text before and after, which is its only history (DL-0477). The Word files' reference document is derived from it, never stored.
+
+**A `SAMPLE_EXPORT` is the styles page's trial of a stylesheet** (DL-0466): a built-in invented text, in the interface's language, rendered with the text in the box. One may be queued or running per tenant at a time; the row is written and audited before it is queued, failed when the queue refuses it or it has waited half an hour unheld, and swept with the exports after a day.
 
 ## Stage 2 attachment points
 

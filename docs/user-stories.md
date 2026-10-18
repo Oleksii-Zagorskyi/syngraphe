@@ -93,8 +93,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The new document's text is the organisation's document template: its section headings and any starting text (DL-0169).
 
 **ST-0058** — As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page, so that every new document starts with the structure we expect.
-- One template per organisation. Editing it changes documents created afterwards, never existing ones.
-- The title page is generated at export from the document's metadata through a layout I configure; nobody types it as a page (DL-0164). One detail is the document's own title-page text — an internal code, a register entry — written by its holder as a draft change, as the title is (DL-0476).
+- One template per organisation: Markdown in the editor's allowed set, beginning with a `#` heading, holding no image, at most 20,000 bytes (DL-0481); each refusal named by its line. Editing it changes documents created afterwards, each starting from it in the platform's form for its language, never existing ones; the page says who last changed it and when (DL-0482).
+- *New documents get a title page* sets the switch a new document starts with; each document's own switch is changed by its holder as a draft change, committed with the run and shown to the reviewer (DL-0463).
+- The title page is generated at export from the document's metadata through a layout I configure — which of title, number, type, edition, approver, approval date and the document's own text it shows, in which order, left or centred, the approval line always present (DL-0462, DL-0475); nobody types it as a page (DL-0164). One detail is the document's own title-page text — an internal code, a register entry — written by its holder as a draft change, as the title is (DL-0476).
 
 **ST-0051** — As a tenant administrator, I am notified when a document is created or copied, so that I link its groups while only its author can reach it.
 - Until a linked group holds accept, the document reads *no reviewer assigned* and acceptance is refused with that reason rather than failing quietly.
@@ -336,6 +337,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0046** — As a tenant administrator, I edit the stylesheet the exports are rendered with, so that documents look the way the organisation expects.
 - One stylesheet per organisation, used by every document; the platform's default while it has none (DL-0465).
+- Checked against an allowlist, each refusal named by its line (DL-0464); tried first as a sample PDF or Word file of an invented text (DL-0466); carried into Word files through Word's own styles, what cannot be carried listed (DL-0465).
 
 ---
 

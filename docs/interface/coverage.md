@@ -33,7 +33,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0054 | As an invited person, I accept an invitation and set a password | Sign-in pages — the three forms; Help — People and access | drawn |
 | ST-0055 | As a user, I reset a forgotten password | Sign-in pages — the three forms; Help — People and access | drawn |
 | ST-0009 | As a user holding *create and edit*, I create a document by giving it a title, a language, a type and a folder | Document list — create; Create or copy a document — create | drawn |
-| ST-0058 | As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page | Administration — template | drawn |
+| ST-0058 | As a tenant administrator, I edit my organisation's document template and choose whether documents get a title page | Document page › The edit tab — the title page, to the holder, in the panel below the part…; Help — Template and styles; Administration — template | drawn |
 | ST-0051 | As a tenant administrator, I am notified when a document is created or copied | Document list — state tags after the title; Document page — state tags, as in the list; Notifications — both tabs; Administration — document links | drawn |
 | ST-0010 | As a tenant administrator, I change a document's type | Document page › The tabs — Info | drawn |
 | ST-0011 | As a tenant administrator, I maintain my organisation's list of document types | Administration — document types | drawn |
@@ -81,7 +81,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0043 | As a reader, I follow a mention of another document as a link when I have access to it | Document page › The tabs — View, mentions; Document page › The edit tab — a section editor opened in place, the rest rendered around…; Help — Editing | drawn |
 | ST-0044 | As any reader of a document, I see an automatically maintained *see also* listing the documents it links to, filtered the same way | Document page — generated views; Historical page — the generated views of that version; Help — Editing | drawn |
 | ST-0045 | As a reader, I export a stated version to PDF, to Word or to Markdown | Document page — Export, Copy; Export — What checkboxes, all checked by default; Export — embedded / separate; Export — View; Export — Changes; Export — what will be delivered; Export; Export — ? beside each section's heading; Export — file names; Export — the file's pages; Help — Reading a document | drawn |
-| ST-0046 | As a tenant administrator, I edit the stylesheet the exports are rendered with | Administration — styles | drawn |
+| ST-0046 | As a tenant administrator, I edit the stylesheet the exports are rendered with | Help — Template and styles; Administration — styles | drawn |
 | ST-0047 | As any user, I see in the application what is waiting for me | Shell — notifications; Notifications — both tabs | drawn |
 | ST-0048 | As any user, I receive an email for the same events | Notifications — both tabs; Administration — mail and outbox | drawn |
 | ST-0068 | As a tenant administrator, I configure my organisation's own sending address | Administration — sending address | drawn |

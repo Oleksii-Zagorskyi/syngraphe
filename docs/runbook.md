@@ -304,6 +304,16 @@ The person who asked sees the reason on the job's page.
 
 A job still queued is the reconciler's `export_stuck`: the first hourly run after it has waited ten minutes queues it again, and a job runs once however often it is queued. A job the broker refused when it was asked for is logged in `web` as *an export could not be queued* and waits for that run.
 
+### The organisation's stylesheet and its fonts
+
+A stylesheet names only the fonts the image installs, listed in `rendering.stylesheet.FONTS` and on the styles page; the checker refuses any other family, and the Word file's styles take their names from the same list. **Adding a font family is two changes in one release**: its package in `deploy/Dockerfile`, beside `fonts-dejavu-core` and `fonts-dejavu-extra`, and its name in `FONTS`. A name in `FONTS` the image does not install passes the checker and the renderer falls back to another font without saying so; a package without its name is never reachable. Check the result in the built image, in `render`: `fc-list : family` lists every name in `FONTS`.
+
+A stylesheet the checker accepted when it was applied and refuses after a release — a rule tightened — reaches no reader: the reading view and every export use the platform's default look. The styles page still shows the stored text; *Apply* on it lists each refusal by its line, and the organisation's administrator corrects the text and applies it again.
+
+### A sample that never finishes
+
+The styles page's *Export a sample PDF* or *Word file* makes one sample at a time per organisation, on `render`. A sample still queued and not being made half an hour after it was asked for is failed, *the sample was not made in time*, when the organisation's next sample is asked for — the reconciler does not watch samples. One that never leaves *being made* means `render` is down or not consuming its queue: `docker compose ps render`, `docker compose logs render`. A failed sample's reason is on the styles page; `render`'s log has *a sample failed* with the sample's id, and `web`'s *a sample could not be queued* when the broker refused it. A sample is no record: its file is swept with the exports after a day.
+
 ### A document whose text will not parse
 
 Every text the platform commits has passed the validator, so this happens only to a repository written outside the platform: restored from a foreign bundle, or edited by hand. Two cases. **A file that does not read** (its frontmatter broken, or not UTF-8): the reading view answers *Nothing to show here*, as for a missing document, and `web`'s log has *a document's text could not be read* with the document's number. **A text that reads but holds constructs the platform refuses**: the reading view shows it, raw HTML as plain text, and every export of it fails with the constructs named.

@@ -19,3 +19,7 @@ Select words and choose *Mark* to mark them as a role, an action or a term of th
 ## Mentions
 
 Select words and choose *Mention*, then type another document's number, to mention that document. A reader who may read it sees your words as a link to it; any other reader sees your words alone. Nothing about the document is looked up, so check the number.
+
+## The title page
+
+While you hold the document, the panel on the right of the **Edit** tab has *Title page*: tick it to give the document a title page, or untick it to take the page away, and write the document's own *Title page text* — plain text, at most 500 characters and 8 lines, its line breaks kept. *Apply* puts both in your draft. They are changes of your draft like your text: the finishing screen, *My edits* and the reviewer's *Pending edits* list them, and they become part of the document with your version. A version that changes nothing else can be sent too. Undoing an author's edits keeps them, as it keeps a title. Which details the title page shows, and in which order, is the organisation's choice: *Template and styles* tells how it is set.

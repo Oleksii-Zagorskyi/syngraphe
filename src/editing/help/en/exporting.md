@@ -16,3 +16,7 @@
 ## Images
 
 PDF and DOCX carry the document's images where its text holds them, a photograph standing as it was taken; a marked export shows a changed image before and after. A Markdown export whose text holds images is one zip: the `.md` file beside an `images` folder holding them.
+
+## The title page and the stylesheet
+
+Which details a title page shows, in which order and how aligned, is the organisation's *Title page layout*; whether a document has a title page, and its own text on it, are changed in the edit tab as part of a draft. The organisation's stylesheet sets how PDF and Word files look, as it does the reading view. *Template and styles* tells how both are set.

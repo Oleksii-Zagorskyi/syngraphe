@@ -34,7 +34,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **part** · частина документа · *proposed* — the body, an appendix or an attachment, when a sentence has to speak of all three.
 
-**title page** · титульна сторінка · *proposed* — an optional first page generated at export from the document's metadata. Never edited.
+**title page** · титульна сторінка · *proposed* — an optional first page generated at export from the document's metadata. Never edited. Its switch, and one plain text of the document's own, are the holder's draft changes (DL-0463, DL-0476); which details it shows, and in which order, is the organisation's layout (DL-0462).
 
 **document template** · шаблон документа · *proposed* — the outline a new document starts from, one per organisation, kept by the tenant administrator.
 
@@ -74,7 +74,7 @@ Every term in both languages, because the interface is Ukrainian and the design 
 
 **folder** · тека · *fixed* — where a document appears in the interface. Presentation only; storage is flat.
 
-**style** · стиль · *proposed* — the organisation's rendering rules, authored by its tenant administrator and selected per document (DL-0230).
+**style** · стиль · *proposed* — the organisation's rendering rules: one stylesheet, authored by its tenant administrator, that every document of the organisation is read and exported with — the platform's default look while it is empty; no document selects another (DL-0230, DL-0465).
 
 **image** · зображення · *proposed* — an uploaded PNG, JPEG or GIF, at most 40 megapixels and 10,000 pixels a side, named by its content. HEIC is refused; metadata is stripped, but for a JPEG's orientation tag (DL-0439, DL-0472).
 

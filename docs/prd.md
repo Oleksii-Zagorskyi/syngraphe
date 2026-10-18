@@ -55,7 +55,7 @@ Named by the action performed, never by corporate title (DL-0017). A person hold
 | decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
 | approver | makes a frozen document canonical | document |
 | pending edits viewer | sees committed, unaccepted changes | whole document |
-| tenant administrator | users, document sets, role assignments, heuristic selection, the export stylesheet (DL-0230) | tenant |
+| tenant administrator | users, document sets, role assignments, heuristic selection, the document template and its title page layout, the organisation's stylesheet (DL-0169, DL-0230, DL-0462, DL-0464) | tenant |
 | platform administrator | the platform, the seeded heuristic catalogue, the base prompts | platform |
 
 Board approval is recorded by one designated person; quorum and voting happen outside the software (DL-0017).

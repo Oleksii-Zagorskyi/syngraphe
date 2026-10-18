@@ -204,6 +204,7 @@ HELP_PAGES = {
     "markdown": _("What the editor accepts"),
     "reading": _("Reading a document"),
     "exporting": _("Exporting"),
+    "template-and-styles": _("Template and styles"),
     "parts": _("Appendices and attachments"),
     "notifications": _("Notifications"),
     "mail": _("Mail"),

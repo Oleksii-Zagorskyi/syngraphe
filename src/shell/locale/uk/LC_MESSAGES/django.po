@@ -4175,10 +4175,6 @@ msgstr "Востаннє змінено: %(name)s, %(date)s"
 msgid "Not changed since %(date)s"
 msgstr "Не змінювався з %(date)s"
 
-#: documents/templates/documents/template.html
-msgid "Save"
-msgstr "Зберегти"
-
 #: documents/templates/documents/create.html
 msgid ""
 "The organisation's document template holds what the platform does not "
@@ -4541,3 +4537,7 @@ msgstr "Друкується на титульній сторінці; прос�
 #: editing/views/title_page.py
 msgid "At most 500 characters and 8 lines, plain text."
 msgstr "Не більше 500 символів і 8 рядків, простий текст."
+
+#: editing/messages.py
+msgid "Template and styles"
+msgstr "Шаблон і стилі"

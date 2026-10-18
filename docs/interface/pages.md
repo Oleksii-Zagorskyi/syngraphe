@@ -312,6 +312,7 @@ Pages rendered from Markdown files shipped with the application (DL-0195), `/hel
 | *Finding and organising documents* — folders and the list, search and the type filter, copying, comparing two documents; for administrators, document types, folders, archive and restore; *Reading a document* — *Comparing two documents*, a pointer here | **0.1** | ST-0012, ST-0013, ST-0015, ST-0016, ST-0064, ST-0067 | Epic 10 |
 | *Appendices and attachments* — reading them, the edit tab's parts panel and the rights each act needs, review and *revert*, the correction notice, exporting; the parts' sections of *Exporting*, *History, comparing and undoing*, *Reading a document* and *Reviewing and accepting* | **0.1** | ST-0061, ST-0062, ST-0063 | Epic 13 |
 | *People and access* — inviting, a forgotten password, blocking a member and one's own account and lifting a block, several organisations, and the platform administrator's acts | **0.1** | ST-0002, ST-0003, ST-0004, ST-0007, ST-0054, ST-0055, ST-0065, ST-0066 | Epic 8 |
+| *Template and styles* — the document template, the title page layout, the stylesheet and what it may hold, the Word files' styles, the sample; the title page's sections of *Editing* and *Exporting* | **0.1** | ST-0046, ST-0058 | Epic 16 |
 
 ## Nothing to show here
 
