@@ -217,6 +217,8 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `row_without_commit` | a version row names a commit its repository does not hold — a repository restored from an older bundle | reports it | deletes the row, and with it the rows derived from it: an acceptance or a return it records or started from, a correction notice naming it, their notifications, the export jobs that exported it or marked against it — each counted in the audit |
 | `orphan_repository` | a repository with no row | recreates the row from `document.md`, in the root folder, type *document*, **with no groups and not author-only** — only administrators reach it until the tenant administrator links groups. Only when its first commit's author is a member of the organisation and its language is known; otherwise reported | — |
 | `frontmatter_differs` | the row's title or language differs from `document.md` | rewrites the row from the file | — |
+| `orphan_part` | a file under `appendices/` or `attachments/` at the head that the head's frontmatter does not list; the detail names its path | reports it; **never repaired or deleted** — the history keeps it, and whether it belongs is the document's editors' to say | — |
+| `part_missing` | a part the head's frontmatter lists whose file is absent; the detail names its path | reports it; never repaired — the reading view leaves the appendix out and the download answers as missing until an editor replaces or removes the part | — |
 | `passport_entry_without_row` | the passport records an acceptance, a return or an approval no row records | reports it; the passport is believed, and repair derives the row as `commit_without_row` does. A passport that does not read is reported heading by heading | — |
 | `repository_missing` | a document's repository is not on disk | reports it; **nothing is pruned** — it may be a missing mount, not a loss | — |
 | `identity_mismatch` | a repository whose passport names another organisation or number, or not the creation its row began | reports it; never trusted | — |
@@ -243,7 +245,7 @@ docker compose exec web python manage.py remove_stopped_copy --tenant N --docume
 
 It refuses anything but a copy still being created past the ten minutes, deciding under the document's writer lock — a copy that finished meanwhile is kept. It removes the repository first, then the version rows and the document's row, audited as `document.stopped_copy_removed`; run again after a stop between the two, it removes what is left, and with nothing left it says so. The number is never given again.
 
-A recreated orphan notifies nobody yet. ⟨the tenant administrator's notification: fixed when notifications are implemented⟩ Exports are the one task queued again from its row; the broker holds no other that matters.
+A recreated orphan notifies nobody. Exports are the one task queued again from its row; the broker holds no other that matters.
 
 ## Editing
 
@@ -257,7 +259,7 @@ A hold ends when its holder finishes. One that stays open — the holder has lef
 docker compose exec web python manage.py release_hold --tenant N --document M --reason "…"
 ```
 
-It marks the hold *forced*, **keeps the draft**, and records the release, with its reason, in the audit log. It waits for the document's writer lock, so it never releases a hold in the middle of a commit. **Never delete a hold or a draft row** — the draft is the holder's text. ⟨the administrator's *force release* in the interface, and the holder's own *discard my edits*: fixed when holds are managed in the interface⟩
+It marks the hold *forced*, **keeps the draft**, and records the release, with its reason, in the audit log. It waits for the document's writer lock, so it never releases a hold in the middle of a commit. **Never delete a hold or a draft row** — the draft is the holder's text. In the interface the same release is the document page's *More ▾ › force release*, for a tenant or platform administrator, and the holder ends their own hold with *Discard my edits*.
 
 A holder who cannot finish because *an editor is still open* first closes their other tabs on the document: an open tab keeps its editor open, however long. An editor whose page went away without closing it — a closed laptop, a crashed browser — is closed by the worker within about four minutes: silent for three, found by the check that runs every minute. If the wait lasts longer, the worker is not running.
 
@@ -295,6 +297,8 @@ The person who asked sees the reason on the job's page.
 - **The version asked for is no longer one you may export**: the person lost the right between asking and the run. This is not a fault.
 - **Your draft has been finished or discarded since you asked**: a *my edits* export whose draft was sent for review or discarded before the run. Not a fault; the person exports another version.
 - **The chosen version has no attachments to export**: attachments alone were asked of a version that has none. Not a fault.
+- **An attachment has gone since you asked**: an attachment the export lists was not found when the zip was made. Not a fault; the person exports again.
+- **An attachment's file does not match its record**: an attachment's stored bytes are not the ones its version lists — a defect. The render worker's log has *an attachment's file does not match its listed hash* with the document, the commit and the number; for a *my edits* export it reads *a draft's attachment does not match its listed hash*, with the draft.
 - **The file could not be made**: the renderer failed. `docker compose logs render` has the error under *an export failed*, with the job's id. Failures of one document's every export point at its text, an image it names or the fonts; failures of every export point at `render` itself.
 - ***Not made in time***: the job was still unrun at the first hourly reconciler run after it had waited an hour, one to two hours after the request, and `export_abandoned` failed it. `docker compose ps render` shows whether `render` is running; the person asks again once it is.
 

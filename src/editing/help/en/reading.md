@@ -4,7 +4,7 @@ The **View** tab shows a document's text as it reads, never as it is written. It
 
 - **Clause numbers** stand in the margin. `1.1-3` reads as section 1, subsection 1, clause 3: the headings above the clause, a hyphen, then the clause's place in its section. Every paragraph is a clause, including those inside lists, quotes and callouts. A table does not count, and nor does a paragraph that holds only an image. A heading carries its own number, `1.1`, at the start of the heading itself. A paragraph before the first heading carries its place alone. The numbers are worked out every time the text is shown, so they follow the text: an edit that adds a clause renumbers the clauses after it.
 - **The outline**, on the left, appears on the **View** tab only and lists the headings of the version it shows, each with its number. A heading jumps to its place in the text; the triangle beside a heading shows or hides the headings under it. Drag the pane's edge to change its width; the width is kept for you, as is the right pane's.
-- **Parts**, on the right, lists the document's attachments in the version you are reading. Each downloads as a file and is never opened by the platform.
+- **Parts**, on the right, lists the document's appendices and attachments in the version you are reading. An appendix opens on a page of its own; an attachment downloads as a file and is never opened by the platform. *Appendices and attachments* tells more.
 - **Info** names the canonical version, if the document has one, and the document's state as the version you read shows it.
 
 Each pane closes to a narrow strip with the button at its top, and opens again the same way.

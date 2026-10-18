@@ -188,11 +188,14 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - An appendix holds one `#` section, and I edit it with the same editors as the body.
 - Creating and deleting need the part rights (ADR-0007); renaming and reordering need only *edit*.
 - Appendices are listed in the order I added them until I reorder them.
+- I change them in the edit tab's own parts panel while I hold the document, and type into an appendix from its own page's *Edit* tab; nothing changes in the document until I finish editing (DL-0442, DL-0443).
+- An appendix I added and never sent, I can always delete again; one with an editor open is not deleted.
 
 **ST-0062** — As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, as my groups' part rights allow, so that the files people need sit beside the policy they belong to.
 - Every attachment has a title. Files above the organisation's size limit are refused with the limit stated (DL-0166).
 - The platform never opens an attachment; replacing it keeps the earlier version in the history.
-- Every change to an attachment is part of my draft and is reviewed with my text (DL-0168).
+- Every change to an attachment is part of my draft and is reviewed with my text (DL-0168); I download a file as my draft holds it.
+- As the author of a document no group is linked to yet, I may upload and replace attachments (DL-0445).
 
 **ST-0021** — As an editor, I undo changes I have just made, so that a wrong turn costs seconds.
 - *Undo* and *redo* are buttons in every editor's toolbar as well as the usual keys, because people arriving from Word look for them (DL-0241).
@@ -203,7 +206,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0023** — As an editor, I see a clause number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
 - The form is `1.1-3` and `4.3.2-6`: the heading path, then the clause within it — each paragraph of text is one clause.
-- Inside an appendix the numbers start again from 1, under the appendix's title; a reference from elsewhere carries the appendix in front, so *Appendix 2, 1.1-3* is unambiguous (DL-0177, DL-0444).
+- Inside an appendix the numbers start again from 1, with nothing in front; a reference from elsewhere names the appendix by its title in front, so *Approval matrix, 1.1-3* is unambiguous — the appendix's number is internal (DL-0444).
 - The numbers are not part of the text and cannot be typed into: a heading's stands in the heading, a clause's in a gutter beside it (DL-0363).
 
 **ST-0024** — As any reader of a document, I navigate by an outline of its sections and subsections, so that a forty-page policy is usable.
@@ -259,6 +262,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0034** — As a reviewer, I see that an image changed and view the old and new side by side, so that I never accept a change I could not see.
 
 **ST-0063** — As a reviewer, I see every appendix and attachment that was added, replaced, renamed, reordered or removed, and can download each version of an attachment and revert the operation before accepting, so that a form never becomes part of an approved document unseen (DL-0168).
+- Each appendix the run changed is shown after the body, its changes marked; each version's part changes are listed under it.
+- *Revert* needs *accept* alone; it takes the document and joins my correction, and while it waits the run is accepted only through my draft's *accept as* (DL-0446).
+- The author whose part operation I reversed is told in their correction notice (ADR-0014).
 
 **ST-0035** — As a reviewer, I correct wording I find unacceptable and accept the result, so that a single sentence does not cost a round trip. *(skeleton)*
 - My correction is committed as mine and is visible as such.

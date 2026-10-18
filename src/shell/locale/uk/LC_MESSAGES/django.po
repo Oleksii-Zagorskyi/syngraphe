@@ -751,6 +751,10 @@ msgstr "Читання документа"
 msgid "Exporting"
 msgstr "Експорт"
 
+#: editing/messages.py
+msgid "Appendices and attachments"
+msgstr "Додатки й вкладені файли"
+
 #: editing/summary.py:50
 msgid "the opening text"
 msgstr "вступний текст"
