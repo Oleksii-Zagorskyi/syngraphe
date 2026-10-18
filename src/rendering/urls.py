@@ -43,6 +43,17 @@ urlpatterns = [
         name="document_appendix",
     ),
     path("administration/tenant/styles/", styles_views.styles, name="styles"),
+    path("administration/tenant/styles/sample/", styles_views.sample, name="styles_sample"),
+    path(
+        "administration/tenant/styles/sample/<uuid:sample_id>/",
+        styles_views.sample_status,
+        name="styles_sample_status",
+    ),
+    path(
+        "administration/tenant/styles/sample/<uuid:sample_id>/download/",
+        styles_views.sample_download,
+        name="styles_sample_download",
+    ),
     path(
         "document-styles/<str:digest_asked>.css",
         styles_views.served_view,

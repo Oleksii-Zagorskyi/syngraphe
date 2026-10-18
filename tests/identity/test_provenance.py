@@ -53,6 +53,7 @@ def test_every_model_carries_provenance_or_its_own_columns() -> None:
         "editions.Freeze",
         "editions.Edition",
         "rendering.ExportJob",
+        "rendering.SampleExport",
         "notifications.Notification",
         "tenancy.PlatformNotification",
         "mail.MailSender",

@@ -53,14 +53,20 @@ def _events(action: str) -> list[Any]:
 
 
 def test_only_administrators_open_the_template(
-    migrated_tenant: Any, member_of: Any, signed_in_without_tenant: Any
+    migrated_tenant: Any, member_of: Any, signed_in_without_tenant: Any, settings: Any
 ) -> None:
+    from zoneinfo import ZoneInfo
+
+    from django.utils import timezone
+
     admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
     member, _, _ = member_of("a.member@example.test")
     platform = _chosen_by_a_platform_administrator(migrated_tenant, signed_in_without_tenant)
     template = _template(migrated_tenant)
     outline = template.outline
-    created = template.created_at.strftime("%-d %B %Y")
+    # The date as the page gives it: in the installation's display timezone.
+    shown = timezone.localtime(template.created_at, ZoneInfo(settings.DISPLAY_TIMEZONE))
+    created = shown.strftime("%-d %B %Y")
 
     for client in (admin, platform):
         response = client.get(PAGE)

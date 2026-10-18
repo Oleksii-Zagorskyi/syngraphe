@@ -121,6 +121,17 @@ def queued_exports(monkeypatch: pytest.MonkeyPatch) -> list[tuple[Any, ...]]:
 
 
 @pytest.fixture(autouse=True)
+def queued_samples(monkeypatch: pytest.MonkeyPatch) -> list[tuple[Any, ...]]:
+    """The samples a test queues, recorded rather than sent, as the exports are: a test runs a
+    sample itself."""
+    queued: list[tuple[Any, ...]] = []
+    monkeypatch.setattr(
+        "rendering.tasks.render_sample.delay", lambda *args: queued.append(args), raising=True
+    )
+    return queued
+
+
+@pytest.fixture(autouse=True)
 def fresh_host_cache() -> None:
     """Each test sees the hosts it creates: the thirty-second cache never carries across tests."""
     from tenancy.middleware import invalidate_host_cache

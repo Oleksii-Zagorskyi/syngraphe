@@ -828,3 +828,32 @@ def test_the_download_names_its_content_type(
     monkeypatch.setattr(mimetypes, "guess_type", lambda *_a, **_k: (None, None))
     download = client.get(f"/document/{people.document.number}/export/{job.pk}/download/")
     assert download["Content-Type"] == content_type
+
+
+def test_the_sweep_takes_a_samples_file(
+    migrated_tenant: Any, member_of: Any, exports: Any, queued_samples: list[Any], settings: Any
+) -> None:
+    """A sample's file is kept for a day, as an export's is; its row stays (DL-0466)."""
+    from rendering import sample as samples
+    from rendering.export.job import sweep
+    from rendering.models import SampleExport
+
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    assert (
+        admin.post(
+            "/administration/tenant/styles/sample/", {"text": "", "format": "pdf"}
+        ).status_code
+        == 303
+    )
+    with schema_context(migrated_tenant.number):
+        made = SampleExport.objects.get()
+        samples.run(made.pk, migrated_tenant.number)
+    folder = Path(settings.EXPORT_ROOT) / str(made.pk)
+    assert folder.is_dir()
+    old = (timezone.now() - timedelta(hours=25)).timestamp()
+    os.utime(folder, (old, old))
+
+    assert sweep() == 1
+    assert not folder.exists()
+    with schema_context(migrated_tenant.number):
+        assert SampleExport.objects.filter(pk=made.pk, state="done").exists()

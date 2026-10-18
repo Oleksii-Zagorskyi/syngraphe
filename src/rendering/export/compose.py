@@ -533,24 +533,49 @@ def _page(
 ) -> str:
     """The HTML page a writer converts: the title page when the document has one, the body, each
     embedded appendix in a section of its own — a new page in PDF — and the attachment list."""
-    language = escape(job.document.language_id or "")
+    title_page = (
+        _title_page(job, frontmatter.title, number, frontmatter.title_page_text)
+        if frontmatter.title_page
+        else ""
+    )
+    return page_html(
+        language=job.document.language_id or "",
+        header=header,
+        title_page=title_page,
+        text=text,
+        attachments=frontmatter.attachments,
+        appendices=appendices,
+    )
+
+
+def page_html(
+    *,
+    language: str,
+    header: str,
+    title_page: str,
+    text: str,
+    attachments: list[dict[str, Any]],
+    appendices: tuple[str, ...] = (),
+) -> str:
+    """The page's HTML from its parts, already rendered: the export's and the sample's (DL-0466)
+    one assembly."""
     hashes = "; ".join(
-        f"{item.get('file_name', '')} {item.get('sha256', '')}" for item in frontmatter.attachments
+        f"{item.get('file_name', '')} {item.get('sha256', '')}" for item in attachments
     )
     meta = f'<meta name="description" content="{escape(hashes)}">' if hashes else ""
     parts = [
-        f'<!doctype html><html lang="{language}"><head><meta charset="utf-8">'
+        f'<!doctype html><html lang="{escape(language)}"><head><meta charset="utf-8">'
         f"<title>{escape(header)}</title>{meta}</head><body>"
     ]
-    if frontmatter.title_page:
-        parts.append(_title_page(job, frontmatter.title, number, frontmatter.title_page_text))
+    if title_page:
+        parts.append(title_page)
     parts.append(f'<article class="document-text">{text}</article>')
     parts += [
         f'<section class="appendix"><article class="document-text">{html}</article></section>'
         for html in appendices
     ]
-    if frontmatter.attachments:
-        parts.append(_attachment_list(frontmatter.attachments))
+    if attachments:
+        parts.append(_attachment_list(attachments))
     parts.append("</body></html>")
     return "".join(parts)
 

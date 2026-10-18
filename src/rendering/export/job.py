@@ -25,7 +25,14 @@ from django.utils.translation import pgettext
 
 from documents import gitstore
 from rendering.export import compose, docx, names, pdf
-from rendering.models import REASON_MAX, ExportFormat, ExportJob, ExportState, Stylesheet
+from rendering.models import (
+    REASON_MAX,
+    ExportFormat,
+    ExportJob,
+    ExportState,
+    SampleExport,
+    Stylesheet,
+)
 from rendering.stylesheet import applied, export_stylesheets
 
 logger = logging.getLogger(__name__)
@@ -247,8 +254,8 @@ def _failed(job: ExportJob, reason: str, folder: Path) -> ExportState:
     return ExportState.FAILED
 
 
-def artifact(job: ExportJob) -> Path | None:
-    """The job's file, while it is kept."""
+def artifact(job: ExportJob | SampleExport) -> Path | None:
+    """The job's file, or the sample's (DL-0466), while it is kept."""
     if job.state != ExportState.DONE or not job.artifact_ref:
         return None
     root = Path(settings.EXPORT_ROOT).resolve()

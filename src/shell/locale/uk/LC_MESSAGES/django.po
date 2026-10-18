@@ -4422,3 +4422,89 @@ msgstr "Рядок %(line)s: %(selector)s — %(prop)s"
 #: rendering/templates/rendering/styles.html
 msgid "Not carried into Word files"
 msgstr "Не переноситься у файли Word"
+
+#: rendering/sample.py
+msgctxt "a sample file's name"
+msgid "sample"
+msgstr "зразок"
+
+#: rendering/sample.py
+msgid "Try again, or tell the operator."
+msgstr "Спробуйте ще раз або повідомте оператора."
+
+#: rendering/sample.py
+msgid "An example approver"
+msgstr "Затверджувач із прикладу"
+
+#: rendering/sample.py
+msgid "An example policy"
+msgstr "Приклад положення"
+
+#: rendering/sample.py
+msgid "An example type"
+msgstr "Тип із прикладу"
+
+#: rendering/sample.py
+msgid "Register entry: EX-0 (example)"
+msgstr "Запис у реєстрі: EX-0 (приклад)"
+
+#: rendering/sample.py
+msgid "A second line of its own text"
+msgstr "Другий рядок власного тексту"
+
+#: rendering/sample.py
+msgid "An example form"
+msgstr "Форма з прикладу"
+
+#: rendering/sample.py
+msgid "An example schedule"
+msgstr "Графік із прикладу"
+
+#: rendering/styles_views.py
+msgid "Choose a PDF or a Word file."
+msgstr "Виберіть PDF або файл Word."
+
+#: rendering/styles_views.py
+msgid "A sample is being made; wait for it."
+msgstr "Зразок уже готується; дочекайтеся його."
+
+#: rendering/styles_views.py
+msgid "The sample was not made in time."
+msgstr "Зразок не було підготовлено вчасно."
+
+#: rendering/styles_views.py
+#, python-format
+msgid "It could not be queued (%(error)s)."
+msgstr "Його не вдалося поставити в чергу (%(error)s)."
+
+#: rendering/templates/rendering/sample_status.html
+msgid "The sample PDF of the text in the box is being made…"
+msgstr "Зразок PDF тексту з поля готується…"
+
+#: rendering/templates/rendering/sample_status.html
+msgid "The sample Word file of the text in the box is being made…"
+msgstr "Зразок файлу Word тексту з поля готується…"
+
+#: rendering/templates/rendering/sample_status.html
+msgid "Download the sample PDF"
+msgstr "Завантажити зразок PDF"
+
+#: rendering/templates/rendering/sample_status.html
+msgid "Download the sample Word file"
+msgstr "Завантажити зразок файлу Word"
+
+#: rendering/templates/rendering/sample_status.html
+msgid "The sample is no longer kept. Make it again."
+msgstr "Зразок більше не зберігається. Підготуйте його знову."
+
+#: rendering/templates/rendering/sample_status.html
+msgid "The sample could not be made."
+msgstr "Зразок не вдалося підготувати."
+
+#: rendering/templates/rendering/styles.html
+msgid "Export a sample PDF"
+msgstr "Експортувати зразок PDF"
+
+#: rendering/templates/rendering/styles.html
+msgid "Export a sample Word file"
+msgstr "Експортувати зразок файлу Word"

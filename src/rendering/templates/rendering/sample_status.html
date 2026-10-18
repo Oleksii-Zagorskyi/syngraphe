@@ -1,0 +1,6 @@
+{% load i18n %}<div class="sample-status" data-state="{{ sample.state }}"{% if sample.state == "queued" %} hx-get="/administration/tenant/styles/sample/{{ sample.pk }}/" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  {% if sample.state == "queued" %}<p role="status">{% if sample.format == "pdf" %}{% translate "The sample PDF of the text in the box is being made…" %}{% else %}{% translate "The sample Word file of the text in the box is being made…" %}{% endif %}</p>
+  {% elif sample.state == "done" and file %}<p><a class="download" href="/administration/tenant/styles/sample/{{ sample.pk }}/download/">{% if sample.format == "pdf" %}{% translate "Download the sample PDF" %}{% else %}{% translate "Download the sample Word file" %}{% endif %}</a></p><p class="muted">{% translate "The file is kept for a day." %}</p>
+  {% elif sample.state == "done" %}<p>{% translate "The sample is no longer kept. Make it again." %}</p>
+  {% else %}<p class="refusal" role="alert">{% translate "The sample could not be made." %} {{ sample.failure_reason }}</p>{% endif %}
+</div>

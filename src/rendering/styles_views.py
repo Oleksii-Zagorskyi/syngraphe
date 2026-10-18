@@ -4,12 +4,18 @@ organisation's documents, confined to the document's text."""
 
 from __future__ import annotations
 
+import logging
+from datetime import timedelta
 from typing import Any, cast
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.http import HttpRequest, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse
+from django.http.response import HttpResponseBase
 from django.shortcuts import render
+from django.utils import timezone, translation
+from django.utils.cache import patch_cache_control
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
@@ -18,11 +24,16 @@ from audit.record import record
 from documents.views import is_member
 from identity.models import User
 from identity.naming import person
-from rendering.models import Stylesheet
+from rendering.models import ExportFormat, ExportState, SampleExport, Stylesheet
 from rendering.stylesheet import FONTS, GENERICS, StyleRefusal, check, digest, served
 from shell.views import frame, not_found
 
+logger = logging.getLogger(__name__)
+
 PAGE = "/administration/tenant/styles/"
+# A queued sample older than this was never taken: it counts as failed (DL-0466). The `render`
+# queue is shared with the exports, each up to its hard limit.
+STALE = timedelta(minutes=30)
 
 
 def refusal_text(refusal: StyleRefusal) -> str:
@@ -85,6 +96,7 @@ def _page(
     *,
     refusals: list[StyleRefusal] | None = None,
     status: int = 200,
+    refused: str = "",
 ) -> HttpResponse:
     current = Stylesheet.objects.select_related("updated_by").get()
     context: dict[str, Any] = {
@@ -97,8 +109,155 @@ def _page(
         "changed_by": person(current.updated_by) if current.updated_by_id else "",
         "changed_at": current.updated_at if current.updated_by_id else current.created_at,
         "page_url": PAGE,
+        "refused": refused,
+        "sample": _shown_sample(request),
     }
     return render(request, "rendering/styles.html", context, status=status)
+
+
+def _shown_sample(request: HttpRequest) -> dict[str, Any] | None:
+    """The sample `?sample=` names, with its file while it is kept."""
+    from rendering.export.job import artifact
+
+    asked = request.GET.get("sample", "")
+    try:
+        sample = SampleExport.objects.filter(pk=asked).first() if asked else None
+    except (ValueError, ValidationError):
+        sample = None
+    return {"sample": sample, "file": artifact(sample)} if sample is not None else None
+
+
+@never_cache
+@login_required
+def sample(request: HttpRequest) -> HttpResponse:
+    """*Export a sample PDF* or *Word file* of the text in the box, never applied (DL-0466):
+    checked first; one at a time per organisation, no request waiting behind a render; the row
+    written and audited before it is queued, and failed — never reported queued — when the queue
+    refuses it."""
+    from rendering.tasks import render_sample
+
+    if request.method != "POST" or not administers(request):
+        return not_found(request)
+    fmt = request.POST.get("format", "")
+    text = request.POST.get("text", "").replace("\r\n", "\n")
+    if fmt not in (ExportFormat.PDF, ExportFormat.DOCX):
+        return _page(request, text, status=400, refused=_("Choose a PDF or a Word file."))
+    refusals = check(text)
+    if refusals:
+        return _page(request, text, refusals=refusals, status=400)
+    tenant = getattr(request, "tenant", None)
+    assert tenant is not None
+    with transaction.atomic():
+        Stylesheet.objects.select_for_update(of=("self",)).get()
+        busy = _busy()
+        if not busy:
+            made = _queued_sample(request, fmt, text, tenant)
+    # Drawn once the transaction has ended: no lock is held while a page renders.
+    if busy:
+        return _page(request, text, status=409, refused=_("A sample is being made; wait for it."))
+    try:
+        render_sample.delay(tenant.number, str(made.pk))
+    except Exception as error:
+        logger.exception("a sample could not be queued", extra={"sample": str(made.pk)})
+        made.state = ExportState.FAILED
+        made.failure_reason = _("It could not be queued (%(error)s).") % {
+            "error": error.__class__.__name__
+        }
+        made.save(update_fields=["state", "failure_reason"])
+    response = HttpResponse(status=303)
+    response["Location"] = f"{PAGE}?sample={made.pk}"
+    return response
+
+
+def _unheld(ids: list[Any]) -> set[Any]:
+    """Which of `ids` are still queued and held by nobody — the locking read, which never
+    waits."""
+    return set(
+        SampleExport.objects.select_for_update(of=("self",), skip_locked=True)
+        .filter(pk__in=ids, state=ExportState.QUEUED)
+        .values_list("pk", flat=True)
+    )
+
+
+def _busy() -> bool:
+    """Whether a sample is being made, under the stylesheet row's lock. The queued samples read
+    twice, neither read waiting: one the plain read finds and the locking read skips is held — by
+    the worker rendering it, or finished meanwhile. A queued, unheld one asked longer ago than
+    `STALE` was never taken: failed, if it is still queued."""
+    queued = list(SampleExport.objects.filter(state=ExportState.QUEUED))
+    free = _unheld([waiting.pk for waiting in queued])
+    now = timezone.now()
+    for waiting in queued:
+        if waiting.pk in free:
+            if waiting.created_at > now - STALE:
+                return True
+            SampleExport.objects.filter(pk=waiting.pk, state=ExportState.QUEUED).update(
+                state=ExportState.FAILED, failure_reason=_("The sample was not made in time.")
+            )
+        elif SampleExport.objects.filter(pk=waiting.pk, state=ExportState.QUEUED).exists():
+            return True
+    return False
+
+
+def _queued_sample(request: HttpRequest, fmt: str, text: str, tenant: Any) -> SampleExport:
+    """The sample's row, written and audited before it is queued."""
+    made = SampleExport.objects.create(
+        format=fmt,
+        stylesheet=text,
+        language=translation.get_language() or "",
+        requested_by=cast(User, request.user),
+    )
+    record(
+        actor=cast(User, request.user),
+        action="stylesheet.sample_requested",
+        obj=made,
+        before=None,
+        after={"format": fmt, "language": made.language},
+        tenant=tenant,
+    )
+    return made
+
+
+def _sample(request: HttpRequest, sample_id: Any) -> SampleExport | None:
+    if not administers(request):
+        return None
+    return SampleExport.objects.filter(pk=sample_id).first()
+
+
+@never_cache
+@login_required
+def sample_status(request: HttpRequest, sample_id: Any) -> HttpResponse:
+    """A sample's progress, polled while it is queued, for any administrator of the organisation:
+    the sample holds nothing of its documents."""
+    from rendering.export.job import artifact
+
+    made = _sample(request, sample_id)
+    if made is None:
+        return not_found(request)
+    context = {"sample": made, "file": artifact(made)}
+    return render(request, "rendering/sample_status.html", context)
+
+
+@never_cache
+@login_required
+def sample_download(request: HttpRequest, sample_id: Any) -> HttpResponseBase:
+    """The sample's file while it is kept."""
+    from rendering.export.job import artifact
+    from rendering.views import DOWNLOAD_TYPES
+
+    made = _sample(request, sample_id)
+    path = artifact(made) if made is not None else None
+    if path is None:
+        return not_found(request)
+    response = FileResponse(
+        path.open("rb"),
+        as_attachment=True,
+        filename=path.name,
+        content_type=DOWNLOAD_TYPES.get(path.suffix, "application/octet-stream"),
+    )
+    response["X-Content-Type-Options"] = "nosniff"
+    patch_cache_control(response, private=True)
+    return response
 
 
 def _not_carried(text: str) -> list[str]:

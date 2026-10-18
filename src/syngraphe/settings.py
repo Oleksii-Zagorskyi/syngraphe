@@ -156,6 +156,7 @@ CELERY_BEAT_SCHEDULE = {
 CELERY_TASK_ROUTES = {
     "rendering.render_export": {"queue": "render"},
     "rendering.sweep_exports": {"queue": "render"},
+    "rendering.render_sample": {"queue": "render"},
 }
 
 GIT_REPO_ROOT = _CONFIG.git_repo_root

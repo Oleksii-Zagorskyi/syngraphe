@@ -114,3 +114,38 @@ class Stylesheet(Mutable):
 
     class Meta(Mutable.Meta):
         abstract = False
+
+
+class SampleExport(models.Model):
+    """A sample PDF or Word file of the built-in invented text, rendered with a stylesheet as it
+    stood in the styles page's box (DL-0466): written before it is queued, and done only when the
+    worker says so. Its file is kept for a day, as an export's is; the row stays with the text it
+    was asked with."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    format = models.CharField(max_length=8, choices=ExportFormat.choices)
+    stylesheet = models.TextField(blank=True)
+    language = models.CharField(max_length=8)
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+"
+    )
+    state = models.CharField(max_length=6, choices=ExportState.choices, default=ExportState.QUEUED)
+    artifact_ref = models.CharField(max_length=400, blank=True)
+    failure_reason = models.CharField(max_length=REASON_MAX, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(format__in=[ExportFormat.PDF, ExportFormat.DOCX]),
+                name="rendering_sampleexport_format_pdf_or_docx",
+            ),
+            models.CheckConstraint(
+                condition=Q(state=ExportState.DONE, artifact_ref__gt="")
+                | ~Q(state=ExportState.DONE),
+                name="rendering_sampleexport_done_has_its_file",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"sample {self.pk}"

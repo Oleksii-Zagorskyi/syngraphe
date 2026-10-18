@@ -323,7 +323,7 @@ def test_catalogue_covers_the_title_page() -> None:
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
 def test_catalogue_covers_the_styles_page(
-    migrated_tenant: Any, member_of: Any, settings: Any
+    migrated_tenant: Any, member_of: Any, settings: Any, queued_samples: Any
 ) -> None:
     """The styles page in `uk`, a refusal of every kind among it."""
     settings.LANGUAGE_CODE = "uk"
@@ -345,8 +345,14 @@ def test_catalogue_covers_the_styles_page(
     with schema_context(migrated_tenant.number):
         Stylesheet.objects.update(text="li { letter-spacing: 1px }\n")
     answers.append(admin.get("/administration/tenant/styles/"))
+    # And with a sample's progress drawn, and the refusal of a second one.
+    asked = admin.post("/administration/tenant/styles/sample/", {"text": "", "format": "pdf"})
+    answers.append(admin.get(asked["Location"]))
+    answers.append(
+        admin.post("/administration/tenant/styles/sample/", {"text": "", "format": "docx"})
+    )
 
-    assert [answer.status_code for answer in answers] == [200, 400, 400, 200]
+    assert [answer.status_code for answer in answers] == [200, 400, 400, 200, 200, 409]
     assert "li — letter-spacing" in answers[-1].content.decode()
     for n, answer in enumerate(answers):
         _assert_translated(f"the styles page ({n})", answer.content.decode())

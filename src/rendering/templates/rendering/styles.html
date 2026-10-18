@@ -5,6 +5,7 @@
 <div id="styles">
   <h1>{% translate "Styles" context "administration section" %}</h1>
   <p class="muted">{% translate "The stylesheet the organisation's documents are read and exported with — the reading view, comparisons, notices, PDF and Word files. The editor keeps the platform's look." %} <strong>{% translate "Used by every document of the organisation." %}</strong></p>
+  {% if refused %}<p class="error" role="alert">{{ refused }}</p>{% endif %}
   {% if refusals %}<div class="error" role="alert"><p>{% translate "Not applied:" %}</p><ul>{% for line in refusals %}<li>{{ line }}</li>{% endfor %}</ul></div>{% endif %}
   <form method="post" action="{{ page_url }}">{% csrf_token %}
     <label class="visually-hidden" for="stylesheet-text">{% translate "Stylesheet" %}</label>
@@ -12,8 +13,12 @@
     <p class="note">{% blocktranslate with fonts=fonts|join:", " generics=generics|join:", " %}Fonts installed: {{ fonts }}; and the generic {{ generics }}.{% endblocktranslate %}</p>
     <p class="note">{% translate "Empty, the platform's default look." %}</p>
     <p><button class="btn primary" type="submit">{% translate "Apply" %}</button>
+      {# The text in the box, never applied (DL-0466). #}
+      <button class="btn" type="submit" formaction="/administration/tenant/styles/sample/" name="format" value="pdf">{% translate "Export a sample PDF" %}</button>
+      <button class="btn" type="submit" formaction="/administration/tenant/styles/sample/" name="format" value="docx">{% translate "Export a sample Word file" %}</button>
       <span class="muted">{% timezone display_timezone %}{% if changed_by %}{% blocktranslate with name=changed_by date=changed_at|date:"j E Y" %}Last changed by {{ name }}, {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with date=changed_at|date:"j E Y" %}Not changed since {{ date }}{% endblocktranslate %}{% endif %}{% endtimezone %}</span></p>
   </form>
+  {% if sample %}{% include "rendering/sample_status.html" with sample=sample.sample file=sample.file %}{% endif %}
   {% if not_carried %}<div class="box not-carried"><p class="note">{% translate "Not carried into Word files" %}</p><ul>{% for line in not_carried %}<li>{{ line }}</li>{% endfor %}</ul></div>{% endif %}
 </div>
 {% endblock %}

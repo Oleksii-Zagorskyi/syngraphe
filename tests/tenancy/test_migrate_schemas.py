@@ -103,6 +103,7 @@ def test_tenant_schema_holds_tenant_tables_only(
             "editions_edition",
             "rendering_exportjob",
             "rendering_stylesheet",
+            "rendering_sampleexport",
             "notifications_notification",
             "mail_mailsender",
             "mail_emailoutbox",
