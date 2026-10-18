@@ -12,8 +12,8 @@ A version's page lists the appendices and attachments that version had, each ope
 
 While you hold the document, the **Edit** tab has a **Parts** panel on its right: your draft's appendices and attachments, with the controls your rights allow.
 
-- **Appendices.** *Add* creates one with its title; *rename* changes its title; *delete* drops it and its text from your draft; *Move up* and *Move down* change its place. An appendix is typed into from its own page's **Edit** tab, as the body is — a section at a time, or the whole appendix at once. It starts with one top-level heading, and holds only that one.
-- **Attachments.** *Add* uploads a file with its title; *replace* puts another file in its place; *rename* changes its title; *delete* drops it; *Move up* and *Move down* change its place. *Download* gives you the file as your draft holds it.
+- **Appendices.** *Add* creates one with its title; *rename* changes its title; *delete* drops it and its text from your draft; ↑ and ↓ move it up or down the list. An appendix is typed into from its own page's **Edit** tab, as the body is — a section at a time, or the whole appendix at once. It starts with one top-level heading, and holds only that one.
+- **Attachments.** *Add* uploads a file with its title; *replace* puts another file in its place; *rename* changes its title; *delete* drops it; ↑ and ↓ move it up or down the list. The download arrow beside it gives you the file as your draft holds it.
 
 Adding needs *create appendix* or *upload attachment*, deleting *delete appendix* or *delete attachment*, replacing *replace attachment*; renaming and moving need only *edit*. A part you added yourself, never sent, can be deleted again with the right that added it; an appendix with an editor open is not deleted until the editor closes. The author of a document no group is linked to yet may upload and replace attachments.
 

@@ -45,6 +45,12 @@ def reason(document: Document, user: User, code: str) -> str:
         from review.services import undo_waiting
 
         hold = undo_waiting(document)
+        if hold is not None and hold.user_id == user.pk:
+            # The reviewer whose own draft holds it is told so, not by their own name.
+            return _(
+                "An undo of these edits waits in your draft: the run is accepted when you "
+                "finish it with “Accept as”."
+            )
         return _(
             "An undo of these edits waits in %(name)s’s draft: the run is accepted when they "
             "finish it with “Accept as”."
@@ -53,6 +59,11 @@ def reason(document: Document, user: User, code: str) -> str:
         from review.services import revert_waiting
 
         hold = revert_waiting(document)
+        if hold is not None and hold.user_id == user.pk:
+            return _(
+                "A revert of parts waits in your draft: the run is accepted when you finish it "
+                "with “Accept as”."
+            )
         return _(
             "A revert of parts waits in %(name)s’s draft: the run is accepted when they finish "
             "it with “Accept as”."

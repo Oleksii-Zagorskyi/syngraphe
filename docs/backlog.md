@@ -393,3 +393,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** Nothing is written or lost: the tab refuses, and the archived tag says why; the mismatch is the page's, between a right and a state.
 
 **What has to be true before it is taken up.** An administrator reports meeting the dead tab, or the document page's tabs are next changed.
+
+## B-054 — The parts' screens laid out evenly
+
+**Idea.** Six small layout faults seen walking the parts: the parts panel's two headings drawn at different sizes, and an attachment's title in heading type, larger than an appendix's; the editor's toolbar running past the centre column on an appendix's edit tab; a panel act taken from an appendix's page returning to the document's edit tab rather than the appendix; the finishing screen's part rows in number order rather than the list's order after a move, its summary field too narrow for the summary it drafts, and its *new* and *open* links in different columns; the View tab's panel bulleting appendices and not attachments; the compare page's appendix pickers wrapping in the panel.
+
+**Why it is parked.** Each one reads; none blocks an act or hides one, and every act was walked through them.
+
+**What has to be true before it is taken up.** The parts' screens are next changed, or a person reports one of them in use.

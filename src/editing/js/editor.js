@@ -519,6 +519,10 @@ function offer(element, words, report) {
       discard.submit();
     });
   }
+  // The holder's own tab, drawn hidden for one who has not taken the document yet.
+  document.querySelectorAll("a[data-my-edits]").forEach((tab) => {
+    tab.hidden = false;
+  });
   // The parts panel: drawn hidden until the hold is taken, and each of its forms posted only once
   // every open editor has captured and closed, so the tab drawn again holds the typed text.
   const parts = document.querySelector("[data-parts-panel]");

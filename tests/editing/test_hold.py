@@ -63,12 +63,14 @@ def test_opening_the_tab_takes_the_hold(
     assert draft.content["document.md"] == bundle.parse(stored)[1]
     assert holds.join(draft.content["frontmatter"], draft.content["document.md"]) == stored
     assert draft.content["frontmatter"]["title"] == document.title
+    # Drawn before the hold: *My edits* hidden, for the editor's take to reveal.
     tabs = re.search(r'<nav class="tabs">.*?</nav>', page.content.decode(), re.S)
     assert tabs is not None
     assert tabs.group(0) == (
         f'<nav class="tabs"><a href="/document/{document.number}/">View</a>'
         f'<a href="/document/{document.number}/edit/" aria-current="page">'
-        f'Edit</a><a href="/document/{document.number}/pending/">Pending edits</a>'
+        f'Edit</a><a href="/document/{document.number}/my-edits/" hidden data-my-edits>'
+        f'My edits</a><a href="/document/{document.number}/pending/">Pending edits</a>'
         f'<a href="/document/{document.number}/info/">Info</a></nav>'
     )
     info = client.get(f"/document/{document.number}/info/").content.decode()

@@ -284,6 +284,8 @@ def test_parts_help_page(member_of: Any, settings: Any) -> None:
         body = page.content.decode()
         assert 'href="/help/parts/"' in index, language
         assert page.status_code == 200 and f"<h1>{heading}</h1>" in body, language
+        # The controls named as the panel draws them: arrows, their words in the tooltips.
+        assert "↑" in body and "↓" in body, language
         if language == "uk":
             leaked = [message for message in ids if message in catalogue.text_of(body)]
             assert leaked == [], leaked

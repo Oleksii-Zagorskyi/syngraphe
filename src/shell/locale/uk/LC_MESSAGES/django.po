@@ -3985,6 +3985,22 @@ msgstr "повернути як було"
 msgid "A revert of parts waits in %(name)s’s draft: the run is accepted when they finish it with “Accept as”."
 msgstr "Повернення частин документа як було чекає в чернетці %(name)s: правки погоджують, коли ця особа завершить її через «Погодити як»."
 
+#: review/views/accept.py
+msgid ""
+"A revert of parts waits in your draft: the run is accepted when you finish it "
+"with “Accept as”."
+msgstr ""
+"Повернення частин документа як було чекає у вашій чернетці: правки погоджують, "
+"коли ви завершите її через «Погодити як»."
+
+#: review/views/accept.py
+msgid ""
+"An undo of these edits waits in your draft: the run is accepted when you "
+"finish it with “Accept as”."
+msgstr ""
+"Скасування цих правок чекає у вашій чернетці: правки погоджують, коли ви "
+"завершите її через «Погодити як»."
+
 #: review/views/revert.py
 msgid "The run changed since the page was drawn — check it again."
 msgstr "Правки змінилися, відколи сторінку відкрито, — перевірте їх ще раз."

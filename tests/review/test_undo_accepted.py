@@ -244,3 +244,31 @@ def test_a_second_undo_keeps_the_places_the_first_left(
         assert "The last sentence stands." in after[holds.BODY]
         assert kept in after["undo"]["listed"]
         assert undo.refusal(document, people["r"], version=first) == "nothing_to_undo"
+
+
+def test_the_reviewer_holding_the_undo_is_told_in_the_second_person(
+    migrated_tenant: Any, cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """The reviewer whose own draft holds the undo reads that it waits in *their* draft; another
+    reviewer reads it under the holder's name."""
+    import re
+
+    from identity.models import User
+    from review import undo
+
+    settings.LANGUAGE_CODE = "en"
+    people = _run(migrated_tenant, cast, commit_version)
+    document = people.document
+    User.objects.filter(pk=people["r"].pk).update(display_name="Synthetic Reviewer R")
+    with schema_context(migrated_tenant.number):
+        undo.apply(document, people["r"], author=people["a"])
+
+    def said(user: Any) -> str:
+        page = signed_in(migrated_tenant, user).get(f"/document/{document.number}/pending/")
+        return " ".join(re.sub(r"<[^>]+>", " ", page.content.decode()).split())
+
+    assert (
+        "An undo of these edits waits in your draft: the run is accepted when you finish it with "
+        "“Accept as”."
+    ) in said(people["r"])
+    assert "waits in Synthetic Reviewer R’s draft" in said(people["s"])

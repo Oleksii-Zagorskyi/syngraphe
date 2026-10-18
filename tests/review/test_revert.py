@@ -900,3 +900,33 @@ def test_an_open_editor_stops_an_appendix_revert(
     assert numbers(lists_of(draft)[0]) == [1]
     assert "appendices/3.md" not in draft.content
     assert reverted(draft) == [("appendix:3", "added")]
+
+
+def test_the_reviewer_holding_the_revert_is_told_in_the_second_person(
+    migrated_tenant: Any,
+    cast: Any,
+    commit_version: Any,
+    accepted_directly: Any,
+    settings: Any,
+) -> None:
+    """The reviewer whose own draft holds the revert reads that it waits in *their* draft, not
+    under their own name."""
+    from review import revert
+
+    settings.LANGUAGE_CODE = "en"
+    people, document, head = build(
+        migrated_tenant,
+        cast,
+        commit_version,
+        accepted_directly,
+        base=ONE_FORM,
+        run=SECOND_FORM,
+        reviewers=("ra",),
+    )
+    with schema_context(migrated_tenant.number):
+        revert.apply(document, people["ra"], part="attachment:2", change="added", head=head)
+    markup = signed_in(migrated_tenant, people["ra"]).get(f"/document/{document.number}/pending/")
+    assert (
+        "A revert of parts waits in your draft: the run is accepted when you finish it with "
+        "“Accept as”."
+    ) in flat(markup.content.decode())
