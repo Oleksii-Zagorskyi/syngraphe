@@ -289,3 +289,41 @@ def test_catalogue_covers_the_notices_parts(
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
         assert "1 частину документа" in page
     assert "Ви додали цей вкладений файл" in page
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+def test_catalogue_covers_the_undo_over_appendices(
+    migrated_tenant: Any, cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """The edit tab's *After the undo* naming an appendix's place, in Ukrainian."""
+    from review import services, undo
+
+    settings.LANGUAGE_CODE = "uk"
+    ids = message_ids(CATALOGUE.read_text(encoding="utf-8"))
+    people = cast(editors=("a", "b"), reviewers=("r",))
+    document = people.document
+    body = "# Мета\n\nРечення.\n"
+    one = [{"number": 1, "title": "Додаток (приклад)"}]
+    text = "# Додаток\n\nРечення додатка.\n"
+    commit_version(
+        document, people["a"], body, files={"appendices/1.md": text.encode()}, appendices=one
+    )
+    with schema_context(migrated_tenant.number):
+        services.accept(document, people["r"])
+    commit_version(
+        document, people["a"], body, files={"appendices/1.md": (text + "Речення А.\n").encode()}
+    )
+    commit_version(
+        document, people["b"], body, files={"appendices/1.md": (text + "Речення Б.\n").encode()}
+    )
+    with schema_context(migrated_tenant.number):
+        undo.apply(document, people["r"], author=people["a"])
+    page = text_of(
+        signed_in(migrated_tenant, people["r"])
+        .get(f"/document/{document.number}/edit/")
+        .content.decode()
+    )
+    leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", page)]
+    assert leaked == [], f"the edit tab shows message ids verbatim: {leaked}"
+    assert "У додатку «Додаток (приклад)»:" in page

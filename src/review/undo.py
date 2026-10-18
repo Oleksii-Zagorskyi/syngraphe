@@ -56,10 +56,10 @@ class Listed:
 
 @dataclass(frozen=True)
 class Reversal:
-    """The reversal of a set of versions against `head`. `body` is the whole of `document.md` at
-    the head with `removed` (head line numbers) taken out and `inserted` (head line number → the
-    lines restored after it, 0 for before the first) put in; `head_text` the head's own file, to
-    which the line numbers refer."""
+    """The reversal of a set of versions against `head`. `body` is the whole of the file walked —
+    `document.md`, or an appendix — at the head with `removed` (head line numbers) taken out and
+    `inserted` (head line number → the lines restored after it, 0 for before the first) put in;
+    `head_text` the head's own copy of that file, to which the line numbers refer."""
 
     head: str
     body: str
@@ -139,26 +139,27 @@ class Prepared:
         texts: list[bytes],
         written: list[_Written],
         removed_by: dict[tuple[str, int], tuple[int, int]],
+        path: str = authorship.DOCUMENT_FILE,
     ) -> None:
         self._head = head
         self._versions = versions
         self._index = {version.commit: k for k, version in enumerate(versions)}
         self._texts = texts
         self._written = written
-        self._body = _body_start(texts)
+        self._body = _body_start(texts, path)
         self._at = {(by.commit, by.line): n for n, by in enumerate(written, 1)}
         # Which version, and which of its hunks, removed each line identity that is gone.
         self._removed_by = removed_by
 
     @property
     def versions(self) -> frozenset[str]:
-        """The run's commits that change `document.md`: the versions `reverse` can undo."""
+        """The run's commits that change the file walked: the versions `reverse` can undo."""
         return frozenset(self._index)
 
     def reverse(self, undone: Collection[str]) -> Reversal:
         """The reversal of the `undone` versions of the run, taken together: a line one of them
         wrote and another later changed is their own business, never built on. `ValueError` for an
-        empty set or a commit that is not a version of the run changing `document.md`."""
+        empty set or a commit that is not a version of the run changing the file walked."""
         chosen = set(undone)
         if not chosen or any(commit not in self._index for commit in chosen):
             raise ValueError("undo needs one or more versions of the run")
@@ -495,21 +496,30 @@ class _Reversing:
         )
 
 
-def prepare(repository_path: Path, *, base: str, head: str) -> Prepared:
-    """Read the run from `base` to `head` once and walk it forward. `ValueError` for a sha that is
-    not 40 lowercase hex characters; `authorship.AuthorshipError` passes through."""
+def prepare(
+    repository_path: Path,
+    *,
+    base: str,
+    head: str,
+    path: str = authorship.DOCUMENT_FILE,
+    from_empty: bool = False,
+) -> Prepared:
+    """Read the run of the file at `path` from `base` to `head` once and walk it forward — from
+    the empty file with `from_empty`, an appendix the base does not hold; an appendix's whole text
+    is its body. `ValueError` for a sha that is not 40 lowercase hex characters;
+    `authorship.AuthorshipError` passes through."""
     _checked(base)
     _checked(head)
-    texts = authorship.file_at(repository_path, base)
-    changes = authorship.changes(repository_path, authorship.DOCUMENT_FILE, base, head)
+    texts = [] if from_empty else authorship.file_at(repository_path, base, path)
+    changes = authorship.changes(repository_path, path, base, head)
     written = [_Written(base, n) for n in range(1, len(texts) + 1)]
     versions: list[_Version] = []
     removed_by: dict[tuple[str, int], tuple[int, int]] = {}
     for change in changes:
-        step = _Step(change, body_before=_body_start(texts))
+        step = _Step(change, body_before=_body_start(texts, path))
         after = _applied(texts, change)
         _moves(step, texts, after)
-        step.body_after = _body_start(after)
+        step.body_after = _body_start(after, path)
         removed: set[int] = set()
         for index, hunk in enumerate(change.hunks):
             for offset in range(len(hunk.removed)):
@@ -527,7 +537,7 @@ def prepare(repository_path: Path, *, base: str, head: str) -> Prepared:
                 replace(by, ambiguous=True) if texts[n] in step.ambiguous_texts else by
                 for n, by in enumerate(written)
             ]
-    return Prepared(head, versions, texts, written, removed_by)
+    return Prepared(head, versions, texts, written, removed_by, path)
 
 
 # --- the reviewer's act: the reversal typed into their own draft ----------------------------------
@@ -597,12 +607,14 @@ def plan(
     version: Any = None,
     author: Any = None,
     already: Collection[str] = (),
+    path: str = authorship.DOCUMENT_FILE,
 ) -> tuple[str, Reversal]:
     """The reversal of `version`, or of every version of `author`, in the pending run — together
-    with the versions `already` undone into the draft — against the head (ADR-0015); and the text
-    the draft was last derived from: the reversal of `already` alone, or the head's file. A second
-    undo is merged from the first, so nothing is typed in twice. `UndoRefused` with
-    `nothing_to_undo` when the asked versions change no text."""
+    with the versions `already` undone into the draft — against the head, in the file at `path`
+    (ADR-0015); and the text the draft was last derived from: the reversal of `already` alone, or
+    the head's file, `""` where the head does not hold it. A second undo is merged from the first,
+    so nothing is typed in twice. An appendix the base lacks is walked from the empty file.
+    `UndoRefused` with `nothing_to_undo` when the asked versions change no text of the file."""
     from documents import gitstore
     from editing.holds import tenant_number
     from review.services import base, run
@@ -613,18 +625,77 @@ def plan(
     asked = {v.commit_sha for v in _undone(run(document), version, author)}
     if head is None or not asked:
         raise UndoRefused("nothing_to_undo")
-    path = gitstore.repository_path(number, document.number)
-    prepared = prepare(path, base=base(document).commit_sha, head=head)
-    new = (asked - set(already)) & prepared.versions
+    start = base(document).commit_sha
+    prepared = prepare(
+        gitstore.repository_path(number, document.number),
+        base=start,
+        head=head,
+        path=path,
+        from_empty=not _holds(repo, start, path),
+    )
+    # A version that created or deleted the file is a part operation there, never walked: the
+    # draft's text was not derived from its reversal.
+    walked = {sha for sha in prepared.versions if not _made_or_dropped(repo, sha, path)}
+    new = (asked - set(already)) & walked
     if not new or not prepared.reverse(new).classified:
         raise UndoRefused("nothing_to_undo")
-    earlier = set(already) & prepared.versions
-    derived_from = (
-        prepared.reverse(earlier).body
-        if earlier
-        else gitstore.read(repo, "document.md", head).decode("utf-8")
-    )
+    earlier = set(already) & walked
+    if earlier:
+        derived_from = prepared.reverse(earlier).body
+    elif _holds(repo, head, path):
+        derived_from = gitstore.read(repo, path, head).decode("utf-8")
+    else:
+        derived_from = ""
     return derived_from, prepared.reverse(new | earlier)
+
+
+def _holds(repo: Any, commit: str, path: str) -> bool:
+    from documents import gitstore
+
+    try:
+        gitstore.commit_at(repo, commit).tree[path]
+    except KeyError:
+        return False
+    return True
+
+
+def _made_or_dropped(repo: Any, sha: str, path: str) -> bool:
+    """Whether the commit `sha` created or deleted the file at `path`; never `document.md`."""
+    from documents import gitstore
+
+    if path == authorship.DOCUMENT_FILE:
+        return False
+    parents = gitstore.commit_at(repo, sha).parents
+    before = bool(parents) and _holds(repo, str(parents[0].id), path)
+    return before != _holds(repo, sha, path)
+
+
+def _appendix_files(repo: Any, document: Any, undone: list[Any]) -> list[str]:
+    """Every appendix file a commit of the run touched, but one an undone version created or
+    deleted: that appendix stays as it stands, a part operation, kept as the frontmatter is
+    (DL-0380)."""
+    from documents import gitstore
+    from review.notices import RunCommit, touched
+    from review.services import run
+
+    commits = [
+        RunCommit(v.commit_sha, str(gitstore.commit_at(repo, v.commit_sha).parents[0].id), "")
+        for v in run(document)
+    ]
+    return [
+        path
+        for path in touched(repo, commits)
+        if not any(_made_or_dropped(repo, v.commit_sha, path) for v in undone)
+    ]
+
+
+def _title(number: int, *sides: list[dict[str, Any]]) -> str:
+    """Appendix `number`'s title in the first of `sides` that lists it."""
+    for side in sides:
+        for entry in side:
+            if int(entry["number"]) == number:
+                return str(entry["title"])
+    return ""
 
 
 def _frontmatter_changed(document: Any, versions: list[Any]) -> bool:
@@ -712,6 +783,85 @@ def _stage_images(repo: Any, draft: Any, head: str | None, undone: Collection[st
             break
 
 
+def _undo_files(
+    document: Any,
+    draft: Any,
+    repo: Any,
+    head: str | None,
+    version: Any,
+    author: Any,
+    already: Collection[str],
+    undone: list[Any],
+) -> tuple[dict[str, str], list[dict[str, str]], dict[str, int]]:
+    """The reversal merged into each file of the draft it walks: the body, and every appendix the
+    run touched that no undone version created. An appendix the head or the draft no longer lists
+    gets no text: its undone lines are listed as places with nothing now, never merged. Returns
+    the draft's new texts by key, the places listed — an appendix's carrying its title — and the
+    lines taken out and put back; `UndoRefused` with `nothing_to_undo` where no file's walk
+    classifies anything, `too_large` where a merged file passes the platform's size."""
+    from documents.parts import lists_at
+    from editing import holds, parts
+
+    texts: dict[str, str] = {}
+    listed: list[dict[str, str]] = []
+    applied = {"taken": 0, "put": 0}
+    walked = False
+    from documents import gitstore
+    from documents.models import Version
+
+    sides = [draft.content.get(holds.FRONTMATTER, {}).get("appendices", [])]
+    sides += [lists_at(v)[0] for v in reversed(undone)]
+    # An appendix a later version removed is still listed where the undone versions started.
+    parents = [str(p.id) for v in undone for p in gitstore.commit_at(repo, v.commit_sha).parents]
+    sides += [
+        lists_at(v)[0] for v in Version.objects.filter(document=document, commit_sha__in=parents)
+    ]
+    asked = {v.commit_sha for v in undone} - set(already)
+    for path in [holds.BODY, *_appendix_files(repo, document, undone)]:
+        try:
+            derived_from, reversal = plan(
+                document, version=version, author=author, already=already, path=path
+            )
+        except UndoRefused as refused:
+            if refused.reason == "nothing_to_undo":
+                continue
+            raise
+        walked = True
+        number = parts.number_of(path)
+        title = {} if number is None else {"appendix": _title(number, *sides)}
+        if number is not None and (
+            head is None or not _holds(repo, head, path) or not parts.lists(draft, number)
+        ):
+            mine = [c for c in reversal.classified if c.version in asked]
+            listed.append(
+                {
+                    **title,
+                    "before": "\n".join(c.text for c in mine if c.side == "removed"),
+                    "after": "",
+                    "wrote": "\n".join(c.text for c in mine if c.side == "added"),
+                }
+            )
+            continue
+        current = (
+            str(draft.content[holds.BODY])
+            if number is None
+            else parts.appendix_text(draft, number, repo)
+        )
+        text, conflicts, counts = merge(derived_from, reversal, current, path=path)
+        if len(text.encode("utf-8")) > load_spec().max_bytes:
+            raise UndoRefused("too_large")
+        texts[path] = text
+        listed += [
+            {**title, "before": e.before, "after": e.after, "wrote": e.wrote}
+            for e in reversal.listed
+        ]
+        listed += [{**title, **conflict} for conflict in conflicts]
+        applied = {key: applied[key] + counts[key] for key in applied}
+    if not walked:
+        raise UndoRefused("nothing_to_undo")
+    return texts, listed, applied
+
+
 def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = None) -> Any:
     """Undo `version`, or every version of `author`, into the reviewer's draft (ADR-0015,
     DL-0243): the one they have open, else one opened for it — and only then, in the transaction
@@ -780,18 +930,11 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
                 hold = Hold.objects.select_for_update(of=("self",)).get(pk=hold.pk)
                 draft = Draft.objects.select_for_update(of=("self",)).get(hold=hold)
                 already = (draft.content.get(UNDO) or {}).get("undone", [])
-                derived_from, reversal = plan(
-                    locked, version=version, author=author, already=already
-                )
-                body, conflicts, applied = merge(derived_from, reversal, draft.content[holds.BODY])
-                if len(body.encode("utf-8")) > load_spec().max_bytes:
-                    raise UndoRefused("too_large")
                 undone = _undone(run(locked), version, author)
-                listed = [
-                    {"before": e.before, "after": e.after, "wrote": e.wrote}
-                    for e in reversal.listed
-                ]
-                listed += conflicts
+                repo = gitstore.open_repository(number, document.number)
+                texts, listed, applied = _undo_files(
+                    locked, draft, repo, head, version, author, already, undone
+                )
                 if _frontmatter_changed(locked, undone):
                     listed.append({"before": "", "after": "", "frontmatter": "kept"})
                 if _entities_changed(locked, undone):
@@ -802,7 +945,7 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
                 listed = earlier + [place for place in listed if place not in earlier]
                 draft.content = {
                     **draft.content,
-                    holds.BODY: body,
+                    **texts,
                     UNDO: {
                         "version": version.commit_sha if version is not None else None,
                         "author": str(author.pk) if author is not None else None,
@@ -812,7 +955,7 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
                 }
                 draft.save(update_fields=["content", "updated_at"])
                 _stage_images(
-                    gitstore.open_repository(number, document.number),
+                    repo,
                     draft,
                     head,
                     [v.commit_sha for v in undone],
@@ -836,20 +979,29 @@ def apply(document: Any, reviewer: Any, *, version: Any = None, author: Any = No
 
 
 def merge(
-    derived_from: str, reversal: Reversal, draft_body: str
+    derived_from: str,
+    reversal: Reversal,
+    draft_body: str,
+    *,
+    path: str = authorship.DOCUMENT_FILE,
 ) -> tuple[str, list[dict[str, str]], dict[str, int]]:
     """The draft with the undo merged in, line by line, three ways: what the reversal changes
     against the text the draft was derived from is applied where the draft still holds that text,
     and listed where the draft changed it — never overwritten (ADR-0015). Lines are taken out and
     put in whole, never re-split (ASR-20). Both alignments are the diff view's, bounded under the
     writer lock: a stretch too costly to align is one change, applied only where the draft holds it
-    whole and listed otherwise. Returns the body, the places listed, and the non-blank lines taken
-    out and put back."""
+    whole and listed otherwise. Returns the text, the places listed, and the non-blank lines taken
+    out and put back. The file at `path` is `document.md`, whose frontmatter is set aside, or an
+    appendix, whose whole text is its body."""
     from documents import bundle
     from editing.diffview import opcodes
 
-    base = bundle.parse(derived_from)[1].splitlines(keepends=True)
-    wanted = bundle.parse(reversal.body)[1].splitlines(keepends=True)
+    if path == authorship.DOCUMENT_FILE:
+        derived_from, wanted_text = bundle.parse(derived_from)[1], bundle.parse(reversal.body)[1]
+    else:
+        wanted_text = reversal.body
+    base = derived_from.splitlines(keepends=True)
+    wanted = wanted_text.splitlines(keepends=True)
     draft = draft_body.splitlines(keepends=True)
     same: dict[int, int] = {}
     for op, b1, b2, d1, _d2 in opcodes(base, draft):

@@ -419,7 +419,7 @@ erDiagram
         uuid id PK
         uuid hold FK
         string base_commit "the head's commit when the hold was taken (DL-0318)"
-        json content "per-file working text: body, appendices, frontmatter, entities.yaml (the head's when the hold was taken, and every declaration made since); after an undo, undo: the versions undone and the places left for the holder's hand, each with its wording before, what the undone versions wrote and what stands now, and an entry naming a title, a part or the entities the undone versions changed — those stand — never in the text (DL-0380)"
+        json content "per-file working text: body, appendices, frontmatter, entities.yaml (the head's when the hold was taken, and every declaration made since); after an undo, undo: the versions undone and the places left for the holder's hand, each with its wording before, what the undone versions wrote and what stands now — an appendix's place with the appendix's title — and an entry naming a title, a part or the entities the undone versions changed — those stand — never in the text (DL-0380)"
         datetime updated_at
     }
     DRAFT ||--o{ DRAFT_FILE : stages

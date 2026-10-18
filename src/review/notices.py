@@ -354,13 +354,16 @@ def _range(lines: set[int]) -> str:
 
 
 def touched(repo: Any, run: Sequence[RunCommit]) -> list[str]:
-    """Every appendix file a commit of the run changed, in its number's order."""
+    """Every appendix file a commit of the run changed, in its number's order; a file under
+    `appendices/` outside the application's own naming is no appendix."""
+    from editing.parts import APPENDIX_FILE
+
     found: set[str] = set()
     for commit in run:
         diff = repo.diff(repo.get(commit.parent), repo.get(commit.sha))
-        for patch in diff:
-            for path in (patch.delta.old_file.path, patch.delta.new_file.path):
-                if path.startswith("appendices/") and path.endswith(".md"):
+        for delta in diff.deltas:
+            for path in (delta.old_file.path, delta.new_file.path):
+                if APPENDIX_FILE.fullmatch(path):
                     found.add(path)
     return sorted(found, key=lambda p: int(p.removeprefix("appendices/").removesuffix(".md")))
 

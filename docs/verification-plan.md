@@ -208,6 +208,18 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 
 **Status.** **Proven** — 2026-09-29, by the normalizer's tests (`tests/editing/test_reuse.py`, `tests/editing/test_untouched_lines.py`), on every path. A synthetic Ukrainian document of two sections and five paragraphs, one of whose stored lines holds two sentences as an older split might have left it — a line the current splitter would divide — was normalised against each submission: a paragraph moved within a section and between sections with its lines as the editor keeps them; the whole document through the source view, every paragraph on one line and one moved to the other section; a paragraph deleted and pasted back from outside as one line with extra spaces, trailing whitespace, or no-break spaces between its sentences; a paragraph moved to the other section as one line with one sentence reworded; and a sentence with an identical twin in another paragraph moved into a third. Every result equals the stored document rearranged byte for byte: every unchanged sentence keeps its stored bytes, the two-sentence line included; the reworded sentence is the only new line; the identical pair leaves the same bytes. The same holds at forty pages: on the corpus document one sentence changed, through the editor and through the source view, leaves every other line byte-identical (ASR-20). A paragraph moved into a list item or a quote keeps its lines' bytes after the container's prefix. A stored line is carried only where it stands as a sentence of its own (DL-0323): a new sentence that merely contains a stored line's words is split as new text.
 
+### V-17 — The undo walks every appendix within its budget
+
+**Claim.** *Undo this edit* walks the body and every appendix the run touched, each with the correction notice's walk, and merges each file's reversal into the reviewer's draft within the undo's five seconds (DL-0135) at ASR-23's largest document (DL-0447, ADR-0015).
+
+**Test.** `tests/review/test_undo_appendices_budget.py`, run alone: a generated document of about 300 KB of invented English — a body of about 150 KB and five appendices of about 30 KB — and a run of 200 versions, each changing the body and one appendix; *undo this edit* on the run's earliest version, timing the walk of every file and each file's merge, without the database writes. Measured on the development workstation, then on the development host.
+
+**Pass condition.** Under five seconds on the development host.
+
+**If it fails.** DL-0447's fallback, the owner's to take: an appendix's text is not walked; each appendix whose text an undone version changed is listed once, for the reviewer to edit by hand, and an appendix-only version answers with that entry.
+
+**Status.** Open with a reason: to be measured on the development host, whose verdict stands. Measured 2026-10-18 on a development workstation, alone: 0.47 s over six files — the body and five appendices, 300 KB at the head — and 200 versions.
+
 ## The platform
 
 ### V-12 — Schema-per-tenant migrations stay manageable
@@ -245,4 +257,3 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 **If it fails.** ADR-0019's review trigger: the interval or the run is revisited.
 
 **Status.** Open with a reason: to be measured again at the first production deploy. Measured 2026-09-29 on a development workstation against an SFTP store on the local network, 102 documents, 100 of them of about forty pages and 203 commits each: 336 s over repositories never repacked (834 MB of loose objects), 107 s after a repack (23 MB), the repack itself 112 s. The trigger was met and answered by repacking nightly before the base backup (DL-0313).
-

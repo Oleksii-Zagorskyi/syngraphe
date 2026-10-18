@@ -33,7 +33,6 @@ def test_an_undo_stages_the_images_it_restores(
     migrated_tenant: Any, cast: Any, commit_version: Any, queued_authorship: list[Any]
 ) -> None:
     from documents import gitstore
-    from editing import holds
     from editing.models import Draft, DraftFile, Hold
     from review import services, undo
 
@@ -70,13 +69,8 @@ def test_an_undo_stages_the_images_it_restores(
     )
 
     with schema_context(migrated_tenant.number):
-        hold = holds.take(document, people["r"])
-        draft = Draft.objects.get(hold=hold)
-        # The appendix text as an undo of B would restore it; undoing an appendix is a later
-        # part's, which hands its text to the draft as this does.
-        draft.content = {**draft.content, "appendices/1.md": appendix}
-        draft.save()
         hold = undo.apply(document, people["r"], author=people["b"])
+        assert Draft.objects.get(hold=hold).content["appendices/1.md"] == appendix
         staged = set(
             DraftFile.objects.filter(draft__hold=hold, kind="image").values_list("path", flat=True)
         )

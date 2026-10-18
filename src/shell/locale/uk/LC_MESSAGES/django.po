@@ -3035,6 +3035,11 @@ msgid "Now:"
 msgstr "Зараз:"
 
 #: editing/templates/editing/edit_tab.html
+#, python-format
+msgid "In the appendix “%(title)s”:"
+msgstr "У додатку «%(title)s»:"
+
+#: editing/templates/editing/edit_tab.html
 msgid "The undone edits wrote:"
 msgstr "Скасовані правки написали:"
 
