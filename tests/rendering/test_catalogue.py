@@ -339,7 +339,14 @@ def test_catalogue_covers_the_styles_page(
         admin.post("/administration/tenant/styles/", {"text": refused}),
         admin.post("/administration/tenant/styles/", {"text": "p {} " * 20_001}),
     ]
+    # And with what Word cannot carry listed.
+    from rendering.models import Stylesheet
 
-    assert [answer.status_code for answer in answers] == [200, 400, 400]
+    with schema_context(migrated_tenant.number):
+        Stylesheet.objects.update(text="li { letter-spacing: 1px }\n")
+    answers.append(admin.get("/administration/tenant/styles/"))
+
+    assert [answer.status_code for answer in answers] == [200, 400, 400, 200]
+    assert "li — letter-spacing" in answers[-1].content.decode()
     for n, answer in enumerate(answers):
         _assert_translated(f"the styles page ({n})", answer.content.decode())

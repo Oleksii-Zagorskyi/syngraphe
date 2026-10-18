@@ -4413,3 +4413,12 @@ msgstr "%(subject)s завантажує з-поза платформи."
 #, python-format
 msgid "the font %(subject)s is not installed."
 msgstr "шрифт %(subject)s не встановлено."
+
+#: rendering/styles_views.py
+#, python-format
+msgid "Line %(line)s: %(selector)s — %(prop)s"
+msgstr "Рядок %(line)s: %(selector)s — %(prop)s"
+
+#: rendering/templates/rendering/styles.html
+msgid "Not carried into Word files"
+msgstr "Не переноситься у файли Word"

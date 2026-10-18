@@ -4,10 +4,11 @@ file the footer's page number rewritten, no header (DL-0182, DL-0362), and an or
 photograph's picture turned as its tag says (DL-11-003), and a picture in a table's cell fitted to
 its column — an image pair's two sides stand in one row (DL-0059).
 
-The reference document is built from Pandoc's own default, once per process: its eight named
-styles and an empty footer are added to it. Pandoc never gates an export: it cannot fail on a
-missing resource, so nothing it is given may be missing — the validator refuses a remote
-reference, and the export job reads every image before Pandoc runs.
+The reference document is built from Pandoc's own default, once per process and stylesheet: the
+platform's named styles and an empty footer are added to it, and the organisation's stylesheet
+derived over them (DL-0465); each conversion writes it into its own scratch folder. Pandoc never
+gates an export: it cannot fail on a missing resource, so nothing it is given may be missing — the
+validator refuses a remote reference, and the export job reads every image before Pandoc runs.
 """
 
 from __future__ import annotations
@@ -105,10 +106,13 @@ def _pandoc() -> str:
     return str(pypandoc.get_pandoc_path())
 
 
-@functools.cache
-def reference() -> Path:
+@functools.lru_cache(maxsize=8)
+def reference(stylesheet: str = "") -> bytes:
     """The reference document: Pandoc's default with the named styles and a footer, and no header
-    (DL-0362)."""
+    (DL-0362); with a stylesheet, its derived styles and page over them (DL-0465). Remembered per
+    stylesheet text."""
+    from rendering.reference import derive
+
     default = subprocess.run(  # noqa: S603 — Pandoc's own path and fixed arguments
         [_pandoc(), "--print-default-data-file", "reference.docx"],
         capture_output=True,
@@ -116,6 +120,7 @@ def reference() -> Path:
     ).stdout
     source = zipfile.ZipFile(io.BytesIO(default))
     styles = "".join(_style(name, kind, look) for name, (kind, look) in STYLES.items())
+    derived = derive(stylesheet) if stylesheet else None
     built = io.BytesIO()
     with zipfile.ZipFile(built, "w", zipfile.ZIP_DEFLATED) as target:
         for item in source.infolist():
@@ -135,8 +140,38 @@ def reference() -> Path:
                 data = data.replace(b"</Types>", added.encode() + b"</Types>")
             target.writestr(item, data)
         target.writestr(FOOTER, furniture.docx_footer())
-    path = Path(tempfile.mkdtemp(prefix="syngraphe-docx-")) / "reference.docx"
-    path.write_bytes(built.getvalue())
+    if derived is None:
+        return built.getvalue()
+    # The derived looks set over the built styles, so the platform's own are reached too.
+    return _overlaid(built.getvalue(), derived)
+
+
+def _overlaid(data: bytes, derived: Any) -> bytes:
+    from rendering.reference import overlay
+
+    source = zipfile.ZipFile(io.BytesIO(data))
+    styles, document = overlay(
+        source.read("word/styles.xml").decode("utf-8"),
+        source.read("word/document.xml").decode("utf-8"),
+        derived,
+    )
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as target:
+        for item in source.infolist():
+            if item.filename == "word/styles.xml":
+                target.writestr(item, styles.encode("utf-8"))
+            elif item.filename == "word/document.xml":
+                target.writestr(item, document.encode("utf-8"))
+            else:
+                target.writestr(item, source.read(item.filename))
+    return out.getvalue()
+
+
+def _reference_in(scratch: str | Path, stylesheet: str) -> Path:
+    """The reference document written into a conversion's own scratch folder: no derived file
+    outlives the conversion."""
+    path = Path(scratch) / "reference.docx"
+    path.write_bytes(reference(stylesheet))
     return path
 
 
@@ -167,9 +202,10 @@ RELATION = re.compile(r'<Relationship\b[^>]*\bId="([^"]+)"[^>]*\bTarget="([^"]+)
 EMU_PER_PIXEL = 12700
 
 
-@functools.cache
-def text_width() -> int:
-    """The widest a picture is laid out, in EMU: what Pandoc gives one far wider than the page."""
+@functools.lru_cache(maxsize=8)
+def text_width(stylesheet: str = "") -> int:
+    """The widest a picture is laid out, in EMU, on the page the stylesheet sets: what Pandoc gives
+    one far wider than that page."""
     from PIL import Image
 
     with tempfile.TemporaryDirectory(prefix="syngraphe-docx-") as scratch:
@@ -180,7 +216,10 @@ def text_width() -> int:
             "docx",
             format="html",
             outputfile=str(produced),
-            extra_args=[f"--reference-doc={reference()}", f"--resource-path={scratch}"],
+            extra_args=[
+                f"--reference-doc={_reference_in(scratch, stylesheet)}",
+                f"--resource-path={scratch}",
+            ],
         )
         with zipfile.ZipFile(produced) as source:
             found = EXTENT.search(source.read(DOCUMENT).decode("utf-8"))
@@ -189,7 +228,7 @@ def text_width() -> int:
     return int(found.group(1))
 
 
-def _turned(text: str, data: bytes, turn: tuple[int, bool, bool]) -> str:
+def _turned(text: str, data: bytes, turn: tuple[int, bool, bool], bound: int) -> str:
     """One drawing of `data` given its turn as Word writes one: the picture's own size in both
     its extents, the turn and the flips on its transform, and a quarter turn's laid-out box —
     widened or narrowed by the effect extent — fitted to the text as the PDF fits it."""
@@ -199,12 +238,12 @@ def _turned(text: str, data: bytes, turn: tuple[int, bool, bool]) -> str:
     width, height = size(data)
     produced = EXTENT.search(text)
     per_pixel: float = EMU_PER_PIXEL
-    if produced is not None and int(produced.group(1)) < text_width():
+    if produced is not None and int(produced.group(1)) < bound:
         per_pixel = int(produced.group(1)) / width
     quarter = degrees in (90, 270)
     # The width the picture is laid out at: a quarter-turned picture is as wide as it is tall.
     laid = (height if quarter else width) * per_pixel
-    scale = min(laid, text_width()) / laid
+    scale = min(laid, bound) / laid
     cx, cy = round(width * per_pixel * scale), round(height * per_pixel * scale)
     across, down = (cy - cx, cx - cy) if quarter else (0, 0)
     left, top = across // 2, down // 2
@@ -222,7 +261,7 @@ def _turned(text: str, data: bytes, turn: tuple[int, bool, bool]) -> str:
     return text.replace("<a:xfrm>", f"<a:xfrm{attributes}>", 1)
 
 
-def _oriented(source: zipfile.ZipFile, document: str) -> str:
+def _oriented(source: zipfile.ZipFile, document: str, width: int) -> str:
     """`document`'s pictures of an oriented JPEG (DL-0472) given their orientation as Word's own
     geometry, so a photograph stands as the reading view and the PDF stand it (DL-11-003); nothing
     is decoded."""
@@ -243,7 +282,7 @@ def _oriented(source: zipfile.ZipFile, document: str) -> str:
         if embed is None or embed.group(1) not in turned:
             return drawing.group(0)
         data, how = turned[embed.group(1)]
-        return _turned(drawing.group(0), data, how)
+        return _turned(drawing.group(0), data, how, width)
 
     return DRAWING.sub(turn, document)
 
@@ -334,17 +373,17 @@ def _within(xml: str, width: int) -> str:
     return "".join(out)
 
 
-def _columned(document: str) -> str:
+def _columned(document: str, width: int) -> str:
     """`document`'s pictures in a table's cells — an image pair's sides among them, and a pair in
     a cell of the document's own table — each fitted to its cell's share of the text width, as
     the page fits a picture to its cell; Pandoc lays one out at the text's width wherever it
     stands."""
-    return _within(document, text_width())
+    return _within(document, width)
 
 
-def _furnished(produced: Path, target: Path) -> None:
+def _furnished(produced: Path, target: Path, width: int) -> None:
     """`produced` copied to `target` with its footer part rewritten, its oriented pictures turned
-    and its pictures in table cells fitted to their columns."""
+    and its pictures in table cells fitted to their columns, within the text's `width` in EMU."""
     with (
         zipfile.ZipFile(produced) as source,
         zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as out,
@@ -358,14 +397,21 @@ def _furnished(produced: Path, target: Path) -> None:
             elif item.filename == DOCUMENT:
                 text = data.decode("utf-8")
                 if RELATIONS in source.namelist():
-                    text = _oriented(source, text)
-                data = _columned(text).encode("utf-8")
+                    text = _oriented(source, text, width)
+                data = _columned(text, width).encode("utf-8")
             out.writestr(item, data)
 
 
-def write(html: str, path: Path, *, images: Mapping[str, bytes] | None = None) -> None:
+def write(
+    html: str,
+    path: Path,
+    *,
+    images: Mapping[str, bytes] | None = None,
+    stylesheet: str = "",
+) -> None:
     """Convert `html` to DOCX at `path`, its pages numbered at the foot, `images` — each by the path
-    the HTML names it by — embedded. Nothing is written when a step fails."""
+    the HTML names it by — embedded, its look the reference document derived from `stylesheet`.
+    Nothing is written when a step fails."""
     from documents.images import is_image_path
 
     with tempfile.TemporaryDirectory(prefix="syngraphe-docx-") as scratch:
@@ -380,7 +426,7 @@ def write(html: str, path: Path, *, images: Mapping[str, bytes] | None = None) -
         # The scratch folder as the only resource path: nothing outside it is ever embedded.
         arguments = [
             f"--lua-filter={FILTER}",
-            f"--reference-doc={reference()}",
+            f"--reference-doc={_reference_in(scratch, stylesheet)}",
             f"--resource-path={scratch}",
         ]
         pypandoc.convert_text(
@@ -388,7 +434,7 @@ def write(html: str, path: Path, *, images: Mapping[str, bytes] | None = None) -
         )
         partial = path.with_name(path.name + ".part")
         try:
-            _furnished(produced, partial)
+            _furnished(produced, partial, text_width(stylesheet))
             partial.replace(path)
         finally:
             partial.unlink(missing_ok=True)

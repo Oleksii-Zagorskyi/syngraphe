@@ -14,5 +14,6 @@
     <p><button class="btn primary" type="submit">{% translate "Apply" %}</button>
       <span class="muted">{% timezone display_timezone %}{% if changed_by %}{% blocktranslate with name=changed_by date=changed_at|date:"j E Y" %}Last changed by {{ name }}, {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with date=changed_at|date:"j E Y" %}Not changed since {{ date }}{% endblocktranslate %}{% endif %}{% endtimezone %}</span></p>
   </form>
+  {% if not_carried %}<div class="box not-carried"><p class="note">{% translate "Not carried into Word files" %}</p><ul>{% for line in not_carried %}<li>{{ line }}</li>{% endfor %}</ul></div>{% endif %}
 </div>
 {% endblock %}

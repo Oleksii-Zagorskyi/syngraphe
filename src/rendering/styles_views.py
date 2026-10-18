@@ -91,6 +91,7 @@ def _page(
         **frame(request),
         "text": text,
         "refusals": [refusal_text(r) for r in refusals or []],
+        "not_carried": _not_carried(current.text if not refusals else ""),
         "fonts": FONTS,
         "generics": GENERICS,
         "changed_by": person(current.updated_by) if current.updated_by_id else "",
@@ -98,6 +99,17 @@ def _page(
         "page_url": PAGE,
     }
     return render(request, "rendering/styles.html", context, status=status)
+
+
+def _not_carried(text: str) -> list[str]:
+    """What the Word files cannot carry of the applied stylesheet, by line (DL-0465)."""
+    from rendering.reference import derive
+
+    return [
+        _("Line %(line)s: %(selector)s — %(prop)s")
+        % {"line": u.line, "selector": u.selector, "prop": u.prop}
+        for u in derive(text).unmapped
+    ]
 
 
 def served_view(request: HttpRequest, digest_asked: str) -> HttpResponse:

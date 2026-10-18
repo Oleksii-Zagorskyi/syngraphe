@@ -90,7 +90,7 @@ def _write_document(
         stylesheets = export_stylesheets(stylesheet)
         pdf.write(composed.html, path, stylesheets=stylesheets, read_image=pictures.__getitem__)
     else:
-        docx.write(composed.html, path, images=pictures)
+        docx.write(composed.html, path, images=pictures, stylesheet=stylesheet)
 
 
 def _zip(
