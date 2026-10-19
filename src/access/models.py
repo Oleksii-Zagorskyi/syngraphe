@@ -267,6 +267,13 @@ class AccessChange(models.Model):
                 name="access_accesschange_actor_matches_by",
             )
         ]
+        # The access history's reads: a document's links, a group's rights and members, and every
+        # change up to a moment (`access.history`).
+        indexes = [
+            models.Index(fields=["document", "at"], name="access_change_document_at"),
+            models.Index(fields=["group", "at"], name="access_change_group_at"),
+            models.Index(fields=["at"], name="access_change_at"),
+        ]
 
     def __str__(self) -> str:
         return f"{self.kind} {self.action} on {self.group_id}"

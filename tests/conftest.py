@@ -217,6 +217,10 @@ _KEPT_SCHEMA: dict[str, str] = {}
 PRISTINE_SCHEMA = "pristine_tenant"
 
 
+# The tenant tables whose rows refuse a delete (DL-0459).
+APPEND_ONLY_TENANT_TABLES = frozenset({"access_accesschange"})
+
+
 class TenantSchema:
     """A tenant schema migrated once, and the means to put it back as its migrations left it."""
 
@@ -257,8 +261,19 @@ class TenantSchema:
         """Every row the last test left removed, the seeded rows put back, and every sequence
         set to where the migrations left it — in one statement, since this runs before every
         test that takes the tenant. Foreign keys are checked at the end of the transaction, so
-        the order of the tables does not matter."""
-        statements = [f'DELETE FROM "{self.name}"."{table}";' for table in self.tables]
+        the order of the tables does not matter. The access history refuses a deleted row
+        (DL-0459) and is emptied by `TRUNCATE`, a statement and not a row's delete, first: no row
+        inserted into it by this transaction can be pending a deferred check."""
+        statements = [
+            f'TRUNCATE "{self.name}"."{table}";'
+            for table in self.tables
+            if table in APPEND_ONLY_TENANT_TABLES
+        ]
+        statements += [
+            f'DELETE FROM "{self.name}"."{table}";'
+            for table in self.tables
+            if table not in APPEND_ONLY_TENANT_TABLES
+        ]
         statements += [
             f'INSERT INTO "{self.name}"."{table}" ({columns}) OVERRIDING SYSTEM VALUE'
             f' SELECT {columns} FROM "{PRISTINE_SCHEMA}"."{table}";'
@@ -314,7 +329,10 @@ def tenant_schema(django_db_setup: None, django_db_blocker: Any) -> Iterator[Ten
         tenant = Tenant.objects.create(name="Example Org", actor_kind="system")
         call_command("migrate_schemas", f"--tenant={tenant.number}", verbosity=0)
         schema = TenantSchema(tenant.number)
-        TenantStateHistory.objects.filter(tenant=tenant).delete()
+        # The state history refuses a deleted row (DL-0459); this worker's database holds no
+        # other organisation yet.
+        with connection.cursor() as cursor:
+            cursor.execute(f"TRUNCATE {TenantStateHistory._meta.db_table}")
         tenant.delete()
     _KEPT_SCHEMA["name"] = schema.name
     flush = DatabaseOperations.sql_flush
