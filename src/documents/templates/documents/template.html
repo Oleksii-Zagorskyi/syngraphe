@@ -5,7 +5,7 @@
 <div id="document-template">
   <h1>{% translate "Template" context "document template" %}</h1>
   <p class="muted">{% translate "What every new document starts with. Changing it never touches existing documents." %}</p>
-  {% if refusals %}<div class="error" role="alert"><p>{% translate "The template was not saved:" %}</p><ul>{% for line in refusals %}<li>{{ line }}</li>{% endfor %}</ul></div>{% endif %}
+  {% if refusals %}<div class="error" role="alert"><p>{% translate "The template was not applied:" %}</p><ul>{% for line in refusals %}<li>{{ line }}</li>{% endfor %}</ul></div>{% endif %}
   <form method="post" action="{{ page_url }}">{% csrf_token %}
     <div class="box">
       <label for="{{ form.outline.id_for_label }}">{{ form.outline.label }}</label>

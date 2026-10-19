@@ -110,6 +110,45 @@ def test_read_only_renderings_link_it_and_the_editors_do_not(
     assert "{% block document_styles %}{% endblock %}" in emptied.read_text()
 
 
+def test_the_appendix_page_links_it_and_its_edit_tab_does_not(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    kit: Any,
+) -> None:
+    """The appendix's own reading page and its editor, asked for as a reader and the person
+    editing ask for them."""
+    from editions import services as editions
+    from review import services as review
+
+    _apply(migrated_tenant, "h1 { color: #123456 }")
+    people = edition_cast()
+    commit_version(
+        people.document,
+        people["a"],
+        kit.FIRST,
+        "edit",
+        files={"appendices/1.md": b"# Synthetic appendix\n\nIts one sentence.\n"},
+        appendices=[{"number": 1, "title": "A synthetic appendix"}],
+    )
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        editions.make_canonical(people.document, people["p"])
+    n = people.document.number
+    reader, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "reader")
+
+    reading = reader.get(f"/document/{n}/appendix/1/")
+    editor = people.clients["a"]
+    assert editor.post(f"/document/{n}/edit/take/").status_code == 200
+    editing = editor.get(f"/document/{n}/appendix/1/edit/")
+
+    assert reading.status_code == 200 and LINK.search(reading.content.decode())
+    assert editing.status_code == 200 and not LINK.search(editing.content.decode())
+
+
 def test_the_served_stylesheet(
     migrated_tenant: Any,
     edition_cast: Any,
@@ -212,6 +251,16 @@ def test_a_row_that_no_longer_passes_reaches_no_one(
         real(html, path, **kwargs)
 
     monkeypatch.setattr(pdf, "write", recorded)
+    from rendering.export import docx
+
+    words: list[str] = []
+    real_docx = docx.write
+
+    def recorded_docx(html: str, path: Path, **kwargs: Any) -> None:
+        words.append(kwargs.get("stylesheet", ""))
+        real_docx(html, path, **kwargs)
+
+    monkeypatch.setattr(docx, "write", recorded_docx)
     n = people.document.number
     page = reader.get(f"/document/{n}/").content.decode()
     served = reader.get("/document-styles/0000000000000000.css").content.decode()
@@ -227,6 +276,14 @@ def test_a_row_that_no_longer_passes_reaches_no_one(
     assert "The platform's default" in info
     (sheets,) = given
     assert "display" not in sheets[2] and sheets[2].strip() == ""
+    # The Word file as with no stylesheet: the default's reference document.
+    asked = reader.post(
+        f"/document/{n}/export/", {"document": "on", "format": "docx", "view": "canonical"}
+    )
+    assert asked.status_code == 302
+    done = kit.run_job(migrated_tenant.number, exports[-1][1])
+    assert done.state == "done", done.failure_reason
+    assert words and docx.reference(stylesheet.applied(words[0])) == docx.reference("")
 
 
 def test_the_info_tab_says_the_title_page_and_the_style(

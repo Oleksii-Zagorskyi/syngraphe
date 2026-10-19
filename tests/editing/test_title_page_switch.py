@@ -119,12 +119,23 @@ def test_a_switch_alone_is_a_version(
 
 
 def test_the_reviewer_sees_it_and_the_export_follows(
-    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    canonical_pdf: Any,
 ) -> None:
-    from rendering.export.compose import _page
+    from access.rights import Right
     from review import services as review
 
-    people = scene(member_of, new_document, link_group, commit_version)
+    approver_client, approver, approvers = member_of("the.approver@example.test")
+
+    def linked(document: Any, author: Any) -> None:
+        rights = [Right.FREEZE, Right.MAKE_CANONICAL, Right.VIEW_CANONICAL]
+        link_group(document, rights, [approvers], author)
+
+    people = scene(member_of, new_document, link_group, commit_version, linked)
     switch(people, True)
     n = people.document.number
     people.client.post(f"/document/{n}/edit/send/", {"summary": "A title page"})
@@ -133,19 +144,15 @@ def test_the_reviewer_sees_it_and_the_export_follows(
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people.reviewer)
     info = people.reviewer_client.get(f"/document/{n}/info/").content.decode()
-    accepted = head_frontmatter(migrated_tenant, people.document)
-    with schema_context(migrated_tenant.number):
-        page = _page(
-            SimpleNamespace(document=people.document, view="accepted"),
-            accepted,
-            "<p>The first synthetic sentence.</p>",
-            "h",
-            "0.1",
-        )
+    pages = canonical_pdf(people.document, approver_client, approver)
 
     assert "Title page switched on" in pending
     assert '<dd class="title-page-shown">Yes</dd>' in info
-    assert page.index('class="title-page') < page.index('class="document-text"')
+    # The canonical PDF opens with the title page; the text starts on the next.
+    assert "The first synthetic sentence." not in pages[0]
+    assert people.document.title in pages[0]
+    assert "Approved:" in pages[0] and "edition 1.0" in pages[0]
+    assert any("The first synthetic sentence." in page for page in pages[1:])
 
 
 def test_refusals(

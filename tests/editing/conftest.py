@@ -90,3 +90,41 @@ sys.modules[_spec.name] = _review
 _spec.loader.exec_module(_review)
 
 commit_version = _review.commit_version
+
+
+@pytest.fixture
+def canonical_pdf(
+    migrated_tenant: Any, settings: Any, tmp_path: Path, queued_exports: list[tuple[Any, ...]]
+) -> Callable[..., list[str]]:
+    """`made(document, client, user)`: `document`, its edits accepted, frozen and made canonical
+    by `user`, then exported as a canonical PDF by `client`, the job run as `render` runs it;
+    each page's text, its whitespace folded."""
+    from pypdf import PdfReader
+
+    from tenancy.schemas import schema_context
+
+    settings.EXPORT_ROOT = tmp_path / "exports"
+    number = migrated_tenant.number
+
+    def made(document: Any, client: Any, user: Any) -> list[str]:
+        from editions import services as editions
+        from rendering.export import job
+        from rendering.models import ExportJob
+
+        with schema_context(number):
+            editions.freeze(document, user, "Synthetic reason")
+            editions.make_canonical(document, user)
+        asked = client.post(
+            f"/document/{document.number}/export/",
+            {"document": "on", "format": "pdf", "view": "canonical"},
+        )
+        assert asked.status_code == 302
+        queued = queued_exports[-1][1]
+        with schema_context(number):
+            job.run(queued, number)
+            row = ExportJob.objects.get(pk=queued)
+        assert row.state == "done", row.failure_reason
+        pages = PdfReader(str(Path(settings.EXPORT_ROOT) / row.artifact_ref)).pages
+        return [" ".join(page.extract_text().split()) for page in pages]
+
+    return made

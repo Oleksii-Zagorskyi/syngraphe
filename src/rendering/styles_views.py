@@ -65,7 +65,13 @@ def styles(request: HttpRequest) -> HttpResponse:
     if request.method not in ("GET", "POST") or not administers(request):
         return not_found(request)
     if request.method == "GET":
-        return _page(request, Stylesheet.objects.select_related("updated_by").get().text)
+        text = Stylesheet.objects.select_related("updated_by").get().text
+        shown = _shown_sample(request)
+        # Back from asking for a sample: the box as it was typed, so what was tried is what
+        # *Apply* applies (DL-0466); someone else's sample leaves one's own box alone.
+        if shown is not None and shown["sample"].requested_by_id == request.user.pk:
+            text = shown["sample"].stylesheet
+        return _page(request, text)
     # A browser sends a text box's line breaks as CR LF; the stored text is the typed text.
     text = request.POST.get("text", "").replace("\r\n", "\n")
     refusals = check(text)

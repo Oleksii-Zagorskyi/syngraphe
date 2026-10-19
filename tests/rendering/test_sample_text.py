@@ -32,6 +32,8 @@ def test_the_sample_holds_every_construct(language: str, example: str) -> None:
     children = [child for token in tokens for child in token.children or []]
     kinds = {(child.meta or {}).get("kind") for child in children if child.type.endswith("_open")}
     assert set(spec.spans) <= kinds
+    # A mention among them, by its own kind, not only as a link.
+    assert "document" in kinds
     callouts = {token.info for token in tokens if token.type == "callout_open"}
     assert callouts == set(spec.callout_types)
     assert {f"h{n}" for n in range(1, spec.heading_max_depth + 1)} <= {

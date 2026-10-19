@@ -272,13 +272,14 @@ def _carry(look: Look, style: str, declaration: ast.Declaration) -> bool:
         sides = _sides(tokens)
         if sides is None:
             return False
-        top, _right, bottom, _left = sides
+        top, right, bottom, left = sides
         # A vertical `auto` margin computes to nothing in CSS.
         if name in ("margin", "margin-top"):
             look.spacing["w:before"] = str(round((top or 0) * 20))
         if name in ("margin", "margin-bottom"):
             look.spacing["w:after"] = str(round((bottom or 0) * 20))
-        return True
+        # A paragraph style holds no horizontal margin: one the shorthand sets is listed.
+        return name != "margin" or not (right or left)
     if name == "line-height" and isinstance(one, ast.NumberToken):
         look.spacing["w:line"] = str(round(float(one.value) * 240))
         look.spacing["w:lineRule"] = "auto"
@@ -315,7 +316,8 @@ def _sides(
 
 
 def _border(tokens: list[Any]) -> str | None:
-    width, style, colour = 0.75, "single", "auto"
+    # The shorthand resets what it does not name: a border without a style is not drawn.
+    width, style, colour = 0.75, "none", "auto"
     for token in tokens:
         if isinstance(token, ast.IdentToken) and token.lower_value in (
             "none",
@@ -334,6 +336,8 @@ def _border(tokens: list[Any]) -> str | None:
             colour = found
         else:
             return None
+    if style == "none" or width <= 0:
+        return '<w:left w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
     eighths = max(2, min(96, round(width * 8)))
     return f'<w:left w:val="{style}" w:sz="{eighths}" w:space="4" w:color="{colour}"/>'
 

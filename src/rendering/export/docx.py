@@ -49,6 +49,7 @@ APPROVAL_RUN = (
     '<w:sz w:val="22"/><w:u w:val="none"/>'
 )
 CENTRED = '<w:jc w:val="center"/>'
+MARK_INK = '<w:color w:val="222222"/>'
 
 # The named styles and their look (the reading view's, `document.css`): character styles for the
 # spans, the label and a marked export's changes, paragraph styles for the callouts, and plain
@@ -60,9 +61,17 @@ STYLES: dict[str, tuple[str, Any]] = {
     "Entity Term": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="E6E6E6"/>'),
     "Underline": ("character", '<w:u w:val="single"/>'),
     "Clause Number": ("character", '<w:color w:val="C2C2C2"/><w:sz w:val="18"/>'),
-    "Inserted": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="DFF0D8"/>'),
-    "Deleted": ("character", '<w:strike/><w:shd w:val="clear" w:color="auto" w:fill="F6D6D6"/>'),
-    "Format Changed": ("character", '<w:shd w:val="clear" w:color="auto" w:fill="FFF3C4"/>'),
+    # A mark's words in the platform's ink, whatever colour a stylesheet gives the text around
+    # them (DL-0477); the derivation never reaches these three.
+    "Inserted": ("character", MARK_INK + '<w:shd w:val="clear" w:color="auto" w:fill="DFF0D8"/>'),
+    "Deleted": (
+        "character",
+        "<w:strike/>" + MARK_INK + '<w:shd w:val="clear" w:color="auto" w:fill="F6D6D6"/>',
+    ),
+    "Format Changed": (
+        "character",
+        MARK_INK + '<w:shd w:val="clear" w:color="auto" w:fill="FFF3C4"/>',
+    ),
     "Callout Note": ("paragraph", "F3F6F9"),
     "Callout Warning": ("paragraph", "FBF3E4"),
     "Callout Example": ("paragraph", "F4F4F4"),

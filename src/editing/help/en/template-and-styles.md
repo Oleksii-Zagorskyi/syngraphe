@@ -12,7 +12,7 @@ Administration › *Template* holds what every new document starts with — its 
 
 A title page is generated at export from the document's details; nobody types it as a page. *Title page layout…*, on the template page, chooses which details it shows and in which order — title, number, type, edition, approver, approval date, and the document's own title-page text — and whether they stand on the left or centred. The approval line is always there, at the position chosen for it: on an export of the canonical version it names who approved the edition and when; on any other export it says the text is not approved. *Reset to the default form* returns to the platform's layout. The layout serves every document whose title page is switched on.
 
-Whether a document has a title page, and the text of its own on it, are changed by the document's holder in the edit tab, as changes of the draft the reviewer sees: *Editing* tells how.
+Whether a document has a title page, and the text of its own on it, are changed by the person editing the document, in the edit tab, as changes of the draft the reviewer sees: *Editing* tells how.
 
 ## The stylesheet
 

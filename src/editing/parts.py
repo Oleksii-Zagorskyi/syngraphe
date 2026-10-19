@@ -315,11 +315,12 @@ def _act(
     document: Document,
     user: User,
     action: str,
-    stage: Callable[[Draft, frozenset[Right]], tuple[Any, dict[str, Any]]],
+    stage: Callable[[Draft, frozenset[Right]], tuple[Any, dict[str, Any] | list[dict[str, Any]]]],
 ) -> Any:
     """Under the document's writer lock, the head settled, in one transaction: the document's row,
     the rights and state decided there, the caller's own open hold and its draft locked; `stage`
-    checks what its operation needs and writes it, answering the result and the audit's fields."""
+    checks what its operation needs and writes it, answering the result and the audit's fields —
+    a list of them for an act that records one event per change."""
     from editions.models import open_freeze
     from review.services import RecordIncomplete, settle_head
 
@@ -344,14 +345,16 @@ def _act(
             result, after = stage(draft, rights)
             hold.last_activity_at = timezone.now()
             hold.save(update_fields=["last_activity_at"])
-            record(
-                actor=user,
-                action=action,
-                obj=locked,
-                before=None,
-                after={"number": locked.number, **after},
-                tenant=Tenant.objects.get(number=tenant_number),
-            )
+            tenant = Tenant.objects.get(number=tenant_number)
+            for fields in after if isinstance(after, list) else [after]:
+                record(
+                    actor=user,
+                    action=action,
+                    obj=locked,
+                    before=None,
+                    after={"number": locked.number, **fields},
+                    tenant=tenant,
+                )
     return result
 
 
@@ -529,6 +532,29 @@ def stage_frontmatter(document: Document, user: User, key: str, value: Any) -> N
             raise PartRefused("bad_value", key=key)
         apply_to_draft(draft, "set_frontmatter", key=key, value=value)
         return None, {"key": key, "value": value}
+
+    _act(document, user, "frontmatter.staged", stage)
+
+
+def stage_frontmatter_values(document: Document, user: User, values: dict[str, Any]) -> None:
+    """Several registered keys' new values in one act, so no commit falls between them; each key
+    whose value differs from the draft's staged and audited on its own, none when none differs,
+    and nothing staged when any value is refused."""
+
+    def stage(draft: Draft, rights: frozenset[Right]) -> tuple[Any, list[dict[str, Any]]]:
+        for key, value in values.items():
+            kind = FRONTMATTER_KINDS.get(key)
+            if kind is None:
+                raise PartRefused("unknown_key", key=key)
+            if not kind.valid(value):
+                raise PartRefused("bad_value", key=key)
+        current = draft.content.get(holds.FRONTMATTER, {})
+        changed = []
+        for key, value in values.items():
+            if current.get(key, FRONTMATTER_KINDS[key].absent) != value:
+                apply_to_draft(draft, "set_frontmatter", key=key, value=value)
+                changed.append({"key": key, "value": value})
+        return None, changed
 
     _act(document, user, "frontmatter.staged", stage)
 

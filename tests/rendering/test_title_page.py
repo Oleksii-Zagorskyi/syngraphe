@@ -177,6 +177,9 @@ def test_the_documents_own_text_is_plain() -> None:
     # A text that is nothing once cleaned draws nothing.
     blank = html(TitleFacts(**{**facts.__dict__, "text": "\n  \n"}), layout)
     assert "title-page-text" not in blank
+    # A line's leading spaces, kept when it was written, stay visible where it is printed.
+    indented = html(TitleFacts(**{**facts.__dict__, "text": "Code:\n    EX-1  a b"}), layout)
+    assert "<br>\u00a0\u00a0\u00a0\u00a0EX-1  a b</p>" in indented
 
 
 def test_the_pdf_prints_the_configured_title_page(

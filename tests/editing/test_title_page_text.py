@@ -31,13 +31,23 @@ def scene(member_of: Any, new_document: Any, link_group: Any, commit_version: An
     _, author, _ = member_of("the.author@example.test")
     client, holder, own = member_of("the.holder@example.test")
     reviewer_client, reviewer, theirs = member_of("the.reviewer@example.test")
+    approver_client, approver, approvers = member_of("the.approver@example.test")
     document = new_document(author)
     link_group(document, [Right.EDIT], [own], author)
     link_group(document, [Right.ACCEPT, Right.VIEW_PENDING], [theirs], author)
+    link_group(
+        document, [Right.FREEZE, Right.MAKE_CANONICAL, Right.VIEW_CANONICAL], [approvers], author
+    )
     commit_version(document, author, BODY)
     assert client.post(f"/document/{document.number}/edit/take/").status_code == 200
     return SimpleNamespace(
-        client=client, document=document, reviewer=reviewer, reviewer_client=reviewer_client
+        client=client,
+        holder=holder,
+        document=document,
+        reviewer=reviewer,
+        reviewer_client=reviewer_client,
+        approver=approver,
+        approver_client=approver_client,
     )
 
 
@@ -120,10 +130,13 @@ def test_the_two_joiners_stay(
 
 
 def test_the_reviewer_sees_the_text_and_the_export_prints_it(
-    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    canonical_pdf: Any,
 ) -> None:
-    from documents import bundle, gitstore
-    from rendering.export.compose import _page
     from review import services as review
 
     people = scene(member_of, new_document, link_group, commit_version)
@@ -135,21 +148,14 @@ def test_the_reviewer_sees_the_text_and_the_export_prints_it(
     pending = flat(people.reviewer_client.get(f"/document/{n}/pending/").content.decode())
     with schema_context(migrated_tenant.number):
         review.accept(people.document, people.reviewer)
-        repo = gitstore.open_repository(migrated_tenant.number, n)
-        frontmatter = bundle.parse(
-            gitstore.read(repo, "document.md", gitstore.head(repo)).decode()
-        )[0]
-        page = _page(
-            SimpleNamespace(document=people.document, view="accepted"),
-            frontmatter,
-            "<p>The first synthetic sentence.</p>",
-            "h",
-            "0.1",
-        )
+    pages = canonical_pdf(people.document, people.approver_client, people.approver)
 
     assert "Title page text: Register entry: EX-1 / Second line" in finish
     assert "Title page text: Register entry: EX-1 / Second line" in pending
-    assert '<div class="title-page-text"><p>Register entry: EX-1<br>Second line</p></div>' in page
+    # The canonical PDF's first page is the title page, both lines printed; the text follows.
+    assert "Register entry: EX-1 Second line" in pages[0]
+    assert "The first synthetic sentence." not in pages[0]
+    assert any("The first synthetic sentence." in page for page in pages[1:])
 
     # Emptied in the next run: listed as removed.
     assert people.client.post(f"/document/{n}/edit/take/").status_code == 200
@@ -201,3 +207,54 @@ def test_a_refusal_keeps_the_switch_as_set(
     assert answer.status_code == 400
     assert re.search(r'name="title_page"[^>]*checked', answer.content.decode())
     assert staged(migrated_tenant, people.document).get("title_page") is False
+
+
+def test_the_form_stages_both_keys_in_one_act(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    monkeypatch: Any,
+) -> None:
+    """The switch and the text in one act under the writer lock, so a finish cannot commit one
+    without the other; each key still audited on its own."""
+    from audit.models import AuditEvent
+    from editing import parts
+
+    people = scene(member_of, new_document, link_group, commit_version)
+    acts: list[str] = []
+    real = parts._act
+
+    def counted(*args: Any, **kwargs: Any) -> Any:
+        acts.append(args[2])
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(parts, "_act", counted)
+
+    assert written(people, "Register entry: EX-1", on=True).status_code == 303
+
+    assert acts == ["frontmatter.staged"]
+    events = AuditEvent.objects.filter(action="frontmatter.staged").order_by("at")
+    assert sorted(e.after["key"] for e in events) == ["title_page", "title_page_text"]
+    frontmatter = staged(migrated_tenant, people.document)
+    assert frontmatter["title_page"] is True
+    assert frontmatter["title_page_text"] == "Register entry: EX-1"
+
+
+def test_a_refused_value_stages_neither(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+) -> None:
+    from editing import parts
+
+    people = scene(member_of, new_document, link_group, commit_version)
+
+    with schema_context(migrated_tenant.number), pytest.raises(parts.PartRefused):
+        parts.stage_frontmatter_values(
+            people.document,
+            people.holder,
+            {"title_page": True, "title_page_text": "x" * 501},
+        )
+
+    frontmatter = staged(migrated_tenant, people.document)
+    assert frontmatter["title_page"] is False and frontmatter.get("title_page_text", "") == ""

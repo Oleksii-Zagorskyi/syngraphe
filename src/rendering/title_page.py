@@ -138,6 +138,13 @@ def _detail(css: str, words: str) -> str:
     return f'<div class="{css}"><p>{escape(words)}</p></div>'
 
 
+def _indented(line: str) -> str:
+    """A line's leading spaces as no-break spaces, which neither HTML nor Word collapses: the
+    indentation the text keeps (DL-0476) is printed as written."""
+    body = line.lstrip(" ")
+    return "\u00a0" * (len(line) - len(body)) + body
+
+
 def html(facts: TitleFacts, layout: Layout) -> str:
     """The title page as the export's HTML: each shown item in the layout's order, an item with
     nothing to show left out with its element. The document's text is plain — escaped, its line
@@ -171,7 +178,7 @@ def html(facts: TitleFacts, layout: Layout) -> str:
         ),
         "text": (
             '<div class="title-page-text"><p>'
-            + "<br>".join(escape(line) for line in text.split("\n"))
+            + "<br>".join(_indented(escape(line)) for line in text.split("\n"))
             + "</p></div>"
             if text
             else None

@@ -190,9 +190,7 @@ def _page(node: ast.AtRule, found: list[StyleRefusal]) -> None:
 def _qualified(node: ast.QualifiedRule, found: list[StyleRefusal]) -> None:
     items = _selectors(node.prelude)
     if items is None:
-        found.append(
-            StyleRefusal(node.source_line, "selector", tinycss2.serialize(node.prelude).strip())
-        )
+        found.append(StyleRefusal(node.source_line, "selector", _quoted(node.prelude)))
         gutter = number = False
     else:
         gutter = any(_in_gutter(item[-1][1]) for item in items)
@@ -209,6 +207,25 @@ def _qualified(node: ast.QualifiedRule, found: list[StyleRefusal]) -> None:
             found.append(StyleRefusal(item.source_line, "selector", "nested"))
         elif isinstance(item, ast.Declaration):
             _declaration(item, found, gutter=gutter, number=number)
+
+
+def _quoted(prelude: Sequence[Any]) -> str:
+    """A refused selector as written; its blocks elided where the walk stopped short or they nest
+    past the allowlist's depth, since serialising them recurses."""
+    fetches, depth = _nested(prelude)
+    if not fetches and depth <= DEPTH_MOST:
+        return str(tinycss2.serialize(prelude)).strip()
+    shallow = []
+    for token in prelude:
+        if isinstance(token, ast.FunctionBlock):
+            shallow.append(f"{token.name}(…)")
+        elif isinstance(token, ast.ParenthesesBlock | ast.SquareBracketsBlock):
+            shallow.append("(…)" if isinstance(token, ast.ParenthesesBlock) else "[…]")
+        elif isinstance(token, ast.CurlyBracketsBlock):
+            shallow.append("{…}")
+        else:
+            shallow.append(tinycss2.serialize([token]))
+    return "".join(shallow).strip()
 
 
 def _declaration(
@@ -650,6 +667,12 @@ def guard(scope: str) -> str:
     }
     rules = [block(f"{scope} .title-page .approval, {scope} .title-page .approval *", approval)]
     rules += [block(f"{scope} {mark}", {**inherited, **own}) for mark, own in marks.items()]
+    # Formatting inside a mark — an `em`, a `strong`, an entity's span — takes the mark's ink and
+    # paints nothing over its background; a mark nested in another keeps its own.
+    words = ("ins", "del", ".format-changed", ".format-old")
+    others = "".join(f":not({mark})" for mark in words)
+    inside = ", ".join(f"{scope} {mark} *{others}" for mark in words)
+    rules.append(block(inside, {"color": "inherit", "background-color": "transparent"}))
     return "\n".join(rules) + "\n"
 
 

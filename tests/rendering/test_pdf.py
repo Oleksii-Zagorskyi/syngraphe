@@ -529,11 +529,30 @@ def test_an_export_carries_the_organisations_stylesheet(
     client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "pdf")
     given = _captured(monkeypatch)
     _export(client, people.document.number, format="pdf", view="canonical")
-    kit.run_job(migrated_tenant.number, exports[0][1])
+    job = kit.run_job(migrated_tenant.number, exports[0][1])
 
     ((html, sheets),) = given
     assert len(sheets) == 4
     assert ":root h1" in sheets[2] and sheets[3] == EXPORT_GUARD
+    # The file itself: the heading's colour among the page's fill operators, and the body's
+    # family among its fonts.
+    from django.conf import settings
+    from pypdf import PdfReader
+
+    (page, *_) = PdfReader(str(Path(settings.EXPORT_ROOT) / job.artifact_ref)).pages
+    content = page.get_contents()
+    assert content is not None
+    fills = re.findall(rb"([\d.]+) ([\d.]+) ([\d.]+) rg", content.get_data())
+    assert any([round(float(part) * 255) for part in fill] == [0x12, 0x34, 0x56] for fill in fills)
+    # The family is drawn only where it is installed — the image and CI install it; a developer's
+    # machine may not, and the renderer then falls back without saying so.
+    import os
+    import subprocess
+
+    listed = subprocess.run(["fc-list", ":", "family"], capture_output=True, text=True).stdout
+    if os.environ.get("CI") or "DejaVu Serif" in listed:
+        fonts = {str(font["/BaseFont"]) for font in page["/Resources"]["/Font"].values()}
+        assert any("DejaVuSerif" in name for name in fonts), fonts
     boxes = kit.computed(html, sheets)
     heading = next(b for b in boxes if b["tag"] == "h1")
     paragraph = next(b for b in boxes if b["tag"] == "p" and "approval" in b["text"])

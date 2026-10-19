@@ -71,7 +71,7 @@ def test_the_approval_line_and_the_marks_hold(
         },
     )
     assert asked.status_code == 302
-    kit.run_job(migrated_tenant.number, exports[0][1])
+    job = kit.run_job(migrated_tenant.number, exports[0][1])
 
     ((html, sheets),) = given
     boxes = kit.computed(html, sheets)
@@ -91,6 +91,61 @@ def test_the_approval_line_and_the_marks_hold(
     # A mark's words stay in the platform's ink, whatever colour the text around them takes.
     marked = [b for b in boxes if b["tag"] == "ins"]
     assert marked and all(b["color"] == "#222222" for b in marked)
+    # The file itself: the line's words whole on the title page, drawn in black.
+    import re
+
+    from django.conf import settings
+    from pypdf import PdfReader
+
+    (first, *_) = PdfReader(str(Path(settings.EXPORT_ROOT) / job.artifact_ref)).pages
+    words = " ".join(first.extract_text().split())
+    line = approval[0]["text"]
+    assert " ".join(line.split()) in words
+    content = first.get_contents()
+    assert content is not None
+    assert re.search(rb"(?<![\d.])0 0 0 rg", content.get_data())
     # The organisation's rule reached the other details, so the guard is what held the line.
     number = next(b for b in boxes if b["tag"] == "p" and b["text"].startswith("#"))
     assert number["color"] == "#fefefe"
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize("target", ["browser", "export"])
+def test_formatting_inside_a_mark_keeps_the_platforms_ink(kit: Any, target: str) -> None:
+    """A mark's words stay readable when they are formatted themselves: the guard reaches the
+    elements inside a mark, not only the mark, while the earlier formatting keeps its grey."""
+    from rendering.stylesheet import EXPORT_GUARD, check, for_export, served
+
+    sheet = (
+        "em { color: #fff3c4 }\n"
+        "strong { color: #ffffff; background-color: #ffffff }\n"
+        "span { color: #dff0d8 }\n"
+    )
+    assert check(sheet) == []
+    base = (
+        Path(__file__).resolve().parents[2] / "src/rendering/static/rendering/document.css"
+    ).read_text(encoding="utf-8")
+    sheets = (
+        [base, served(sheet)] if target == "browser" else [base, for_export(sheet), EXPORT_GUARD]
+    )
+    html = (
+        '<article class="document-text">'
+        '<p><span class="format-changed"><em>Synthetic reformatted words</em>'
+        '<span class="format-old"><strong>earlier form</strong></span></span></p>'
+        "<p><ins><strong>Synthetic inserted words</strong></ins></p>"
+        "<p><del><em><span>Synthetic deleted words</span></em></del></p>"
+        "<p><em>Unmarked words</em></p>"
+        "</article>"
+    )
+
+    boxes = kit.computed(html, sheets)
+
+    inside = [b for b in boxes if b["tag"] in ("em", "strong", "span") and "Synthetic" in b["text"]]
+    inside = [b for b in inside if "format-changed" not in b["classes"]]
+    assert {b["tag"] for b in inside} == {"em", "strong", "span"}
+    for box in inside:
+        assert box["color"] == "#222222", box
+        assert not box["background"].alpha, box
+    # Outside the marks the organisation's rule stands.
+    plain = [b for b in boxes if b["tag"] == "em" and b["text"] == "Unmarked words"]
+    assert plain and all(b["color"] == "#fff3c4" for b in plain)

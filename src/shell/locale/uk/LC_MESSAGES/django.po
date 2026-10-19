@@ -4148,8 +4148,8 @@ msgstr ""
 "наявних документів."
 
 #: documents/templates/documents/template.html
-msgid "The template was not saved:"
-msgstr "Шаблон не збережено:"
+msgid "The template was not applied:"
+msgstr "Шаблон не застосовано:"
 
 #: documents/templates/documents/template.html
 msgid "Markdown, the same allowed set as the editor; the first line a # heading."
@@ -4474,12 +4474,12 @@ msgid "It could not be queued (%(error)s)."
 msgstr "Його не вдалося поставити в чергу (%(error)s)."
 
 #: rendering/templates/rendering/sample_status.html
-msgid "The sample PDF of the text in the box is being made…"
-msgstr "Зразок PDF тексту з поля готується…"
+msgid "The sample PDF is being made with the stylesheet in the box…"
+msgstr "Зразок PDF готується з таблицею стилів із поля…"
 
 #: rendering/templates/rendering/sample_status.html
-msgid "The sample Word file of the text in the box is being made…"
-msgstr "Зразок файлу Word тексту з поля готується…"
+msgid "The sample Word file is being made with the stylesheet in the box…"
+msgstr "Зразок файлу Word готується з таблицею стилів із поля…"
 
 #: rendering/templates/rendering/sample_status.html
 msgid "Download the sample PDF"
@@ -4523,8 +4523,8 @@ msgid "Title page text removed"
 msgstr "Текст титульної сторінки вилучено"
 
 #: editing/templates/editing/title_page_panel.html
-msgid "Your draft; committed with the run and shown to the reviewer."
-msgstr "Ваша чернетка; фіксується разом із правками й показується погоджувачеві."
+msgid "Your draft; included with your version and shown to the reviewer."
+msgstr "Ваша чернетка; входить до вашої версії й показується погоджувачеві."
 
 #: editing/templates/editing/title_page_panel.html
 msgid "Title page text"

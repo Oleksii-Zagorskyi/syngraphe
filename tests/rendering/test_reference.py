@@ -237,3 +237,64 @@ def test_a_paragraphs_spacing_never_takes_a_runs() -> None:
 
     assert '<w:pPr><w:spacing w:before="240"/></w:pPr>' in styles
     assert '<w:rPr><w:spacing w:val="20"/></w:rPr>' in styles
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize("margin", ["1mm 20mm", "5mm"])
+def test_a_horizontal_margin_is_listed_as_not_carried(margin: str) -> None:
+    """Word's paragraph styles take the vertical sides alone; the horizontal ones are named on
+    the styles page, never dropped in silence."""
+    from rendering.reference import derive
+
+    derived = derive(f"h1 {{ margin: {margin} }}\n")
+
+    assert "w:before" in derived.styles["Heading1"].spacing
+    assert [(u.line, u.selector, u.prop) for u in derived.unmapped] == [(1, "h1", "margin")]
+
+
+@pytest.mark.fast
+def test_a_vertical_margin_shorthand_is_carried_whole() -> None:
+    from rendering.reference import derive
+
+    derived = derive("h1 { margin: 2mm 0 }\nh2 { margin: 2mm auto }\n")
+
+    assert derived.unmapped == []
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize(
+    ("declaration", "drawn"),
+    [
+        ("border-left: 0 solid #ff0000", False),
+        ("border-left: #ff0000", False),
+        ("border-left: 2pt", False),
+        ("border-left: none", False),
+        ("border-left: 2pt solid #ff0000", True),
+        ("border-left: solid", True),
+    ],
+)
+def test_a_border_is_drawn_in_word_only_where_css_draws_it(declaration: str, drawn: bool) -> None:
+    """A border CSS does not draw — no style, or no width — is none in Word too."""
+    from rendering.reference import derive
+
+    derived = derive(f".callout-note {{ {declaration} }}\n")
+
+    border = derived.styles["CalloutNote"].paragraph["pBdr"]
+    if drawn:
+        assert re.search(r'w:val="single" w:sz="[1-9]', border), border
+    else:
+        assert 'w:val="none"' in border, border
+
+
+@pytest.mark.fast
+def test_a_marks_words_keep_the_platforms_ink_in_word() -> None:
+    """Text coloured like a mark's own shading would vanish inside it: the three marks' styles
+    set their ink, as the platform's sheet does for the reading view (DL-0477)."""
+    from rendering.export import docx
+
+    sheet = "p { color: #f6d6d6 }\nh1 { color: #dff0d8 }\n"
+    styles = _part(docx.reference(sheet), "word/styles.xml")
+
+    for mark in ("Inserted", "Deleted", "FormatChanged"):
+        assert '<w:color w:val="222222"/>' in _style(styles, mark), mark
+    assert '<w:color w:val="F6D6D6"/>' in _style(styles, "BodyText")

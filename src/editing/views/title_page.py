@@ -44,12 +44,10 @@ def switch(request: HttpRequest, number: int) -> HttpResponse:
             "title_page_error": _("At most 500 characters and 8 lines, plain text."),
         }
         return tab_response(request, document, extra=refused, status=400)
-    current = title_page.state(document, hold)
     try:
-        if on != current["title_page"]:
-            parts.stage_frontmatter(document, user, "title_page", on)
-        if text != current["text"]:
-            parts.stage_frontmatter(document, user, "title_page_text", text)
+        # Both keys in one act: no commit can fall between the switch and the text.
+        values = {title_page.TITLE_PAGE.key: on, title_page.TITLE_PAGE_TEXT.key: text}
+        parts.stage_frontmatter_values(document, user, values)
     except parts.PartRefused as refusal:
         messages.error(request, _said(refusal))
     except LockTimeout:

@@ -1732,6 +1732,19 @@ def test_a_value_nested_past_any_depth_is_refused_not_raised(opening: str) -> No
     assert found and {r.line for r in found} == {2}
 
 
+@pytest.mark.parametrize("opening", ["", "url(x) "])
+@pytest.mark.parametrize("depth", [10, 500, 5_000])
+def test_a_selector_nested_past_any_depth_is_refused_not_raised(depth: int, opening: str) -> None:
+    """A selector of functions nested deeper than the interpreter recurses is a refusal with
+    its line, never an error."""
+    from rendering.stylesheet import check
+
+    selector = opening + "p:not(" * depth + "p" + ")" * depth
+    found = check("h1 { color: #123 }\n" + selector + " { color: red }\n")
+
+    assert [(r.line, r.code) for r in found] == [(2, "selector")]
+
+
 @pytest.mark.parametrize(
     "text",
     [

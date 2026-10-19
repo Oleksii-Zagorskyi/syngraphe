@@ -389,3 +389,25 @@ def test_a_blocked_organisation_reaches_no_sample(
     assert _ask(admin).status_code == 404
     assert admin.get(f"{ASK}{sample.pk}/").status_code == 404
     assert admin.get(f"{ASK}{sample.pk}/download/").status_code == 404
+
+
+def test_the_box_keeps_the_text_the_sample_was_made_with(
+    migrated_tenant: Any, member_of: Any, admin: Any, exports: Any, queued_samples: list[Any]
+) -> None:
+    """Asking for a sample leaves the box as it was typed, not as applied, so the text tried is
+    the one *Apply* then applies; another administrator's sample does not fill one's box."""
+    import html as markup
+
+    applied = "h1 { color: #654321 }\n"
+    assert admin.post(PAGE, {"text": applied}).status_code == 303
+
+    answer = _ask(admin, text=BOX)
+    page = admin.get(answer["Location"])
+
+    box = re.search(r"<textarea[^>]*>(.*?)</textarea>", page.content.decode(), re.S)
+    assert box is not None and markup.unescape(box.group(1)).strip() == BOX.strip()
+    other, _, _ = member_of("another.admin@example.test", is_tenant_admin=True)
+    theirs = re.search(
+        r"<textarea[^>]*>(.*?)</textarea>", other.get(answer["Location"]).content.decode(), re.S
+    )
+    assert theirs is not None and markup.unescape(theirs.group(1)).strip() == applied.strip()
