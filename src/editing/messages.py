@@ -210,6 +210,7 @@ HELP_PAGES = {
     "mail": _("Mail"),
     "people": _("People and access"),
     "corpus": _("Finding and organising documents"),
+    "accountability": _("Settings, access history and the audit log"),
 }
 
 

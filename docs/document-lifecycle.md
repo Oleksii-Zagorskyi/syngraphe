@@ -128,7 +128,7 @@ Entries arrive two ways: a reviewer marks a passage disputed, or an editor escal
 | archive | tenant administrator | the document is active | off every list and search; mentions of it render as plain text for everyone; a hold is released as a force release does and a reservation ended, drafts kept, the reason the platform's own — the holder is told by a notification naming the number and the archiver, never the title, and the kept draft says the editing ended when the document was archived (DL-0456, DL-0471); a freeze and a pending run kept as they stand; administrators open its read-only pages with an *archived* tag, every act refused (DL-0084, DL-0449, DL-0450) |
 | restore | tenant administrator | the document is archived | active again exactly as it was; its group links apply as they stand; a kept draft is offered back to its holder as after any forced release, while nobody has committed since (DL-0084, DL-0318) |
 | set a document's type | tenant administrator | the type is on the organisation's list (DL-0235) | changes list filtering only |
-| toggle show author | anyone who can see a diff | — | attribution shown or hidden (DL-0040) |
+| toggle *Show edit authors* | anyone who can see a diff | — | attribution shown or hidden (DL-0040) |
 | download an attachment | anyone who may read the version it belongs to | — | the stored file, under its original name |
 | export | anyone who may read the chosen view | at least one scope and one format chosen | an export job (DL-0172) |
 | edit the document template | tenant administrator | — | applies to documents created afterwards (DL-0169) |

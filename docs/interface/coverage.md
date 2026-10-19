@@ -27,7 +27,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0072 | As a tenant administrator, I lift the block on a person's membership in my tenant | Administration — users | drawn |
 | ST-0066 | As any user, I block my own account | Shell — user menu; Help — People and access; Administration — users | drawn |
 | ST-0005 | As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to | Document page — Groups; Administration — groups; Administration — document links | drawn |
-| ST-0006 | As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links | Administration — access history | drawn |
+| ST-0006 | As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links | Help — Settings, access history and the audit log; Administration — access history | drawn |
 | ST-0007 | As a user with memberships in several tenants, I switch between them | Shell — tenant switcher; Help — People and access | drawn |
 | ST-0008 | As a user, I sign in with an email address and a password | Sign-in pages — the three forms | drawn |
 | ST-0054 | As an invited person, I accept an invitation and set a password | Sign-in pages — the three forms; Help — People and access | drawn |
@@ -61,7 +61,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0027 | As any reader of a document, I see the directory of roles it declares, with each role's rights and obligations and the paragraphs they come from | Document page — generated views; Historical page — the generated views of that version; Help — Editing | drawn |
 | ST-0028 | As an editor, I upload an image and place it in the text | Document page › The tabs — Edit; Document page › The edit tab — paste refusal; Document page › The edit tab — image refusal; Help — Editing | drawn |
 | ST-0029 | As an editor, I press *finish editing*, see what my changes introduce, and either continue editing or commit | Document page — the notice after send for review; Document page › The edit tab — Finish editing; Send-for-review screen — the screen | drawn |
-| ST-0030 | As a tenant administrator, I release a document held by someone who has gone quiet | Document page — Archive / Restore; Document page › The edit tab — inactivity prompt; Notifications — both tabs; Administration — document links; Administration — reservations; Administration — settings | drawn |
+| ST-0030 | As a tenant administrator, I release a document held by someone who has gone quiet | Document page — Archive / Restore; Document page › The edit tab — inactivity prompt; Notifications — both tabs; Help — Settings, access history and the audit log; Administration — document links; Administration — reservations; Administration — settings | drawn |
 | ST-0031 | As a reviewer, I read everything committed since the last acceptance, in order, with each change attributed to its author | Document page › The tabs — My edits; Document page › The tabs — Pending edits | drawn |
 | ST-0032 | As a holder of a history right on a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not | Document page › The tabs — History; Historical page — the page; Historical page — the appendices at that version, each on its own page; Historical page — Show edit authors | drawn |
 | ST-0033 | As a reviewer, I compare any two versions directly | Document page › The tabs — History; Compare — version comparison, previous and next, attachment list | drawn |
@@ -70,7 +70,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0035 | As a reviewer, I correct wording I find unacceptable and accept the result | Document page › The tabs — Edit; Document page › The tabs — Pending edits; Document page › The edit tab — to a reviewer correcting a pending run: that their changes…; Send-for-review screen — the screen; Notifications — both tabs | drawn |
 | ST-0036 | As a reviewer, I accept the run of versions since the last acceptance, making the current text the accepted baseline | Document page › The tabs — Pending edits; Notifications — both tabs | drawn |
 | ST-0052 | As a reviewer, I return a run without accepting it, giving a reason | Document list — state tags after the title; Document page — state tags, as in the list; Document page › The tabs — Pending edits; Notifications — both tabs | drawn |
-| ST-0053 | As a tenant administrator, I switch on a check that a document cannot be made canonical by anyone who accepted any of its runs since the previous canonical edition | Document page — Make canonical; Administration — settings | drawn |
+| ST-0053 | As a tenant administrator, I switch on a check that a document cannot be made canonical by anyone who accepted any of its runs since the previous canonical edition | Document page — Make canonical; Help — Settings, access history and the audit log; Administration — settings | drawn |
 | ST-0037 | As a reviewer, I undo one pending version, or everything one author contributed since the last acceptance | Document page › The tabs — History; Document page › The edit tab — to a reviewer correcting a pending run: that their changes… | drawn |
 | ST-0038 | As a holder of the freeze right, I freeze a document | Document page — bands across the top; Document page — Freeze / Unfreeze; Document page › The edit tab — the tab while someone else holds or has reserved the docum… | drawn |
 | ST-0039 | As a holder of the make-canonical right, I make a frozen document canonical | Document page — Make canonical | drawn |
@@ -86,7 +86,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0048 | As any user, I receive an email for the same events | Notifications — both tabs; Administration — mail and outbox | drawn |
 | ST-0068 | As a tenant administrator, I configure my organisation's own sending address | Administration — sending address | drawn |
 | ST-0049 | As a platform administrator, I configure the sending address and its credentials | Administration — mail and outbox | drawn |
-| ST-0050 | As a platform administrator, I read a log of what people did | Administration — audit log | drawn |
+| ST-0050 | As a platform administrator, I read a log of what people did | Help — Settings, access history and the audit log; Administration — audit log | drawn |
 
 ## Not in release 0.1
 

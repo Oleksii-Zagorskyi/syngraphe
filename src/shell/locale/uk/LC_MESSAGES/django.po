@@ -4766,3 +4766,6 @@ msgstr "Авторів правок ще визначають — оновіть
 #, python-format
 msgid "… %(count)s more"
 msgstr "… ще %(count)s"
+
+msgid "Settings, access history and the audit log"
+msgstr "Налаштування, історія доступу і журнал аудиту"

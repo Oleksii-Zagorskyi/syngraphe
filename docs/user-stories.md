@@ -314,6 +314,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0041** — As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two, so that I can answer what changed between version 1.0 and version 2.0.
 - This is the question the previous tool could not answer, and it is why editions are a first-class thing rather than a note in the margin.
+- Met by the History tab, which lists the editions alone for this right, an edition's historical page and the compare page; no separate list or picker (DL-0245).
 
 ---
 

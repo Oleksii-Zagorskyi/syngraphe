@@ -176,6 +176,8 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **unfreeze** · розморозити · *proposed* — end a freeze and return the document to ordinary editing at its current accepted number (DL-0189).
 
+**distinct approver check** · перевірка окремого затверджувача · *proposed* — an organisation's setting: when on, nobody who accepted any run since the previous edition may make the next one canonical (DL-0101, DL-0115).
+
 **make canonical** · затвердити · *proposed* — end a freeze by making the latest accepted version the next edition.
 
 **author-only** · лише для автора · *proposed* — a document that has never had a group linked: only its creator reaches it, and administrators see it; the first linked group ends it (ADR-0007).

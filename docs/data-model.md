@@ -118,8 +118,8 @@ erDiagram
         int number UK "platform-wide, in creation order, never reused; names the tenant's directory (ADR-0008)"
         string state "migrating | active | blocked; migrating until its schema is fully migrated, resolvable by no request (ADR-0017); blocked closes it to all but platform administrators"
         bool require_distinct_approver "off by default (DL-0101, DL-0115)"
-        int attachment_max_bytes "5 MB by default, tenant administrator sets it (DL-0166)"
-        int hold_inactivity_minutes "30 by default, tenant administrator sets it (ADR-0006)"
+        int attachment_max_bytes "5 MB by default, in whole MB from 1 to the upload maximum (DL-0166, DL-0458, DL-0469)"
+        int hold_inactivity_minutes "30 by default, from 5 to 480 (ADR-0006, DL-0458)"
     }
     MEMBERSHIP {
         uuid id PK
@@ -313,7 +313,7 @@ erDiagram
 
 **Two audit mechanisms, split by a single question: must the answer be reconstructible at a past date?** (DL-0082)
 
-- **Yes → typed, append-only history.** `MEMBERSHIP_HISTORY` and `ACCESS_CHANGE` — every membership, right and link added or removed — exist so that *"who could read this document on the day that edition was approved"* is a query, not an inference from a replayed event stream.
+- **Yes → typed, append-only history.** `MEMBERSHIP_HISTORY` and `ACCESS_CHANGE` — every membership, right and link added or removed — exist so that *"who could read this document on the day that edition was approved"* is a query, not an inference from a replayed event stream. A grant, membership or link is removed from its current table and its removal written to the history in the same transaction; the history tables — with `ACCOUNT_BLOCK_HISTORY` and `TENANT_STATE_HISTORY` — refuse an update or a delete by database trigger, as `AUDIT_EVENT` does (DL-0459). The access history reads one fact beside them from `AUDIT_EVENT`: whether the document was archived at the moment asked (DL-0433, DL-0468).
 - **No → `AUDIT_EVENT`.** Everything else a person did and should be answerable for: assigning a document type, attaching a side-document type, archiving, uploading an image. One table, actor and object typed loosely, because nobody reconstructs state from it — they read it.
 
 **Archiving preserves rights rather than removing them** (DL-0084). `DOCUMENT.state` goes to `archived`; its `DOCUMENT_GROUP` links stay, take no effect while it is archived, remain editable by the tenant administrator, and **apply as they then stand** on restore. An archived document enters no analysis scope and is exported only by administrators. Rebuilding a permission set by hand is exactly where a restored document quietly becomes readable by the wrong people. Archiving is visible to tenant and platform administrators only, and an archived document's links stop resolving everywhere — including where its name sits in another document's prose.
@@ -413,7 +413,7 @@ erDiagram
         int line
         uuid introduced_by FK "the version that introduced the line"
         bool ambiguous_move "a verbatim line matched more than once; recorded, not guessed (ADR-0011)"
-        datetime expires_at "null for the kept versions; set on rows computed on demand"
+        datetime expires_at "null for the kept versions; a day ahead on rows computed on demand, swept hourly"
     }
     DRAFT {
         uuid id PK

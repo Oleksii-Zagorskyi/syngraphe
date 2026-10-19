@@ -22,7 +22,7 @@ If the version changes while the dialog is open, the copy is refused and the dia
 
 ## Comparing two documents
 
-*Compare with another document*, on a document's page, opens a comparison with the number of the other document still to be given; the historical page and the list's *Compare documents…* start one too. The page shows the second document's whole text with its changes against the first's marked in place. *From* and *to* choose a version of each; without a *to*, the second document's newest version you may see is compared. Each document's attachments are listed apart, under its number and version. You need to be able to read both documents, and each version is one its own document lets you see.
+*Compare with another document*, on a document's page, opens a comparison with the number of the other document still to be given; the list's *Compare documents…* starts one too. The page shows the second document's whole text with its changes against the first's marked in place. *From* and *to* choose a version of each; without a *to*, the second document's newest version you may see is compared. Each document's attachments are listed apart, under its number and version. You need to be able to read both documents, and each version is one its own document lets you see.
 
 ## For administrators
 

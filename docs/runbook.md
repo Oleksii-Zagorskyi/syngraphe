@@ -110,6 +110,8 @@ The command prints `document M · freeze ended`; the freeze ends as *unfrozen*, 
 
 `UPLOAD_MAX_MB` in `.env` sets the platform's largest upload, in whole megabytes of 1024 × 1024 bytes, 20 by default (DL-0432) — an image at most 10 MB, or `UPLOAD_MAX_MB` where that is lower, and held to 40 megapixels and 10,000 pixels a side whatever `UPLOAD_MAX_MB` allows; the application and, in production, the front read it. The front admits a request body one megabyte larger, for the form's other fields, and refuses a larger one itself. A value that is not a whole number above zero is refused by `web` as a configuration error, and stops the front as it starts, naming the key. `$C up -d` applies a change.
 
+An organisation's attachment size cap cannot be set above the maximum (DL-0469). Lowering the maximum leaves a larger cap stored as it is: uploads are then refused at the maximum, and the organisation's settings page shows the cap and refuses to save it until an administrator lowers it.
+
 ## First run
 
 Once, on a fresh installation, to create the first platform administrator (DL-0231):
@@ -193,6 +195,8 @@ How much may be lost, and how long a restore may take, are the recovery objectiv
 **Rehearse.** A restore is rehearsed on a copy — never on the live host — before production opens and after any change to the backup tooling, and the rehearsal is logged with its date and how long it took.
 
 ## Housekeeping
+
+**No row of the history is ever deleted.** The access changes, the memberships' history, the account blocks' history, the organisations' state history and the audit trail refuse an update or a delete by database trigger (DL-0459). A restore replaces them whole; nothing in operating the platform removes a row of them.
 
 Nightly at 01:35 UTC, before the base backup, the worker repacks every repository and prunes what nothing reaches, each under its writer lock. **Pruning cannot remove a version**: it removes only unreachable objects, and in an append-only linear history those are debris from failed writes (ASR-02, [`verification-plan.md`](verification-plan.md) V-08). A repository whose lock stays held is left for the next night and logged. The repack is also what keeps the nightly run of full bundles inside five minutes (DL-0313).
 

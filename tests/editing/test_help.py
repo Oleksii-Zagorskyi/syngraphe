@@ -331,3 +331,43 @@ def test_template_and_styles_help_page(member_of: Any, settings: Any) -> None:
         if language == "uk":
             leaked = [message for message in ids if message in catalogue.text_of(body)]
             assert leaked == [], leaked
+
+
+def test_accountability_help_page(member_of: Any, settings: Any) -> None:
+    """*Settings, access history and the audit log*: listed in the index and rendered in both
+    languages, no message id shown, the controls named as the pages name them."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "accountability_catalogue",
+        Path(__file__).resolve().parents[1] / "review" / "test_catalogue.py",
+    )
+    assert spec is not None and spec.loader is not None
+    catalogue = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(catalogue)
+    ids = catalogue.message_ids(catalogue.CATALOGUE.read_text(encoding="utf-8"))
+    client, _, _ = member_of("a.reader@example.test")
+
+    from django.utils import translation
+
+    # The controls as the pages draw them, read from the catalogue in each language.
+    controls = ("Attachment size cap", "Distinct approver check", "Access history", "Audit log")
+    for language, heading in (
+        ("en", "Settings, access history and the audit log"),
+        ("uk", "Налаштування, історія доступу і журнал аудиту"),
+    ):
+        with translation.override(language):
+            named = [translation.gettext(control) for control in controls]
+            named.append(translation.gettext("Show edit authors"))
+        settings.LANGUAGE_CODE = language
+        index = client.get("/help/").content.decode()
+        page = client.get("/help/accountability/")
+        body = page.content.decode()
+        assert 'href="/help/accountability/"' in index, language
+        assert page.status_code == 200 and f"<h1>{heading}</h1>" in body, language
+        for name in named:
+            assert name in body, (language, name)
+        if language == "uk":
+            leaked = [message for message in ids if message in catalogue.text_of(body)]
+            assert leaked == [], leaked

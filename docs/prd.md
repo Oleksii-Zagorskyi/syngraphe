@@ -138,7 +138,7 @@ English names are canonical; every translation, the Ukrainian interface names in
 
 **Four of the five are *edits*, not document states.** The user is not switching between five documents; there is one document and a filter over which layers of edits are shown, with authorship toggled on top. That is how the tool being replaced works, and the interface follows it rather than the substrate.
 
-**Authorship is visible to everyone**, behind a *show author* toggle so a diff can be read without it (DL-0040). A **time machine** steps through versions with a visual boundary between accepted history and pending edits.
+**Authorship is visible to everyone**, behind a *Show edit authors* toggle so a diff can be read without it (DL-0040). A **time machine** steps through versions with a visual boundary between accepted history and pending edits.
 
 ## Acceptance
 
