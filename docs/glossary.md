@@ -158,7 +158,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **anonymous editor** · анонімний редактор · *fixed* — how a page names a person who has no display name (DL-0339).
 
-**show author** · показувати авторів · *proposed* — the toggle that names beside each line who wrote it (DL-0040).
+**edit author** · автор правки · *fixed* — the person whose edit last wrote a line; *Show edit authors* · *Показувати авторів правок* is the toggle that names one beside each line (DL-0040, DL-0489).
 
 **formatting only** · лише форматування · *proposed* — the mark of a change that altered a sentence's look, not its words or what it points at (DL-0331).
 

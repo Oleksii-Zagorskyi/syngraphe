@@ -426,7 +426,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="note"><strong>The run since 2.3</strong> — 2.3-1 · Author A · change summary for the reviewer: "Contractors included; notice shortened"</div>
 <div class="note" style="margin-top:6px"><strong>Parts changed in the run</strong></div><table class="ops"><tr><td>📎 Leave request template.xlsx</td><td>replaced</td><td><a href="#">old ⤓</a> · <a href="#">new ⤓</a></td><td data-need="acc"><a href="#" class="rv">revert</a></td></tr><tr><td>📎 Sick note form.docx</td><td>added</td><td><a href="#">⤓</a></td><td data-need="acc"><a href="#" class="rv">revert</a></td></tr><tr><td>▤ Holiday calendar</td><td>added</td><td><a href="#" data-go="app">open</a></td><td data-need="acc"><a href="#" class="rv">revert</a></td></tr><tr><td>▤ Request form fields</td><td>renamed from <em>Form fields</em></td><td></td><td data-need="acc"><a href="#" class="rv">revert</a></td></tr><tr><td>📎 Holiday table.pdf</td><td>deleted</td><td><a href="#">last version ⤓</a></td><td data-need="acc"><a href="#" class="rv">revert</a></td></tr></table><p class="note" data-need="acc">Reverting takes the document and becomes part of your correction.</p>
 <div class="note" style="margin-top:6px"><strong>Roles, actions and terms changed in the run</strong></div><table class="ops"><tr><td>role</td><td>HR officer</td><td>added</td></tr><tr><td>term</td><td>working day</td><td>relabelled from <em>work day</em></td></tr><tr><td>action</td><td>approves leave</td><td>removed</td></tr></table>
-<label class="note"><input type="checkbox" checked> show author</label></div>
+<label class="note"><input type="checkbox" checked> Show edit authors</label></div>
 <div data-need="acc" data-st="r-pending r-returned"><div style="display:flex;gap:6px;align-items:flex-start" data-st="h-none h-edited h-mine1"><span data-st="h-none"><button class="btn" id="corBtn">Correct</button></span><span class="act" data-st="h-edited"><button class="btn" disabled>Correct</button><span class="why">Author A is editing — correct once they finish</span></span><span data-st="h-mine1"><button class="btn" id="corGo">Continue correcting</button></span><button class="btn primary" id="accBtn">Accept the run</button><button class="btn" id="retBtn">Return without accepting</button></div><div data-st="h-reserved"><div style="display:flex;gap:6px"><button class="btn" disabled>Correct</button><button class="btn primary" disabled>Accept the run</button><button class="btn" disabled>Return without accepting</button></div><span class="why" style="max-width:none">Reserved for editing by Author A since 12 Sep — reviewing waits until the reservation ends.</span></div><div data-st="h-mineres"><div style="display:flex;gap:6px"><button class="btn" disabled>Correct</button><button class="btn primary" disabled>Accept the run</button><button class="btn" disabled>Return without accepting</button></div><span class="why" style="max-width:none">You have reserved the document — accept the run with your own version through <em>Finish editing</em>.</span></div></div></div></div>
 <div class="tp" id="doc-4" style="display:none">
 <p class="note" data-need="hcan" data-not="hall">Canonical editions only — your groups hold <em>view previous canonical versions</em>.</p><p class="note hAcc">The pending run only — your groups hold <em>accept</em> without a history right.</p><div class="hist note"><span>Version</span><span>Event</span><span>Who</span><span>When</span><span></span></div>
@@ -475,7 +475,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="wrap">
 <div class="crumb">Policies / Human resources /</div>
 <div class="title"><span class="num">#12</span>Annual leave, sick leave and parental leave… <span class="note">2.0</span></div>
-<div class="actions"><button class="btn" onclick="openX()">Export</button><span id="hCmp"><span class="note">Compare with</span><select id="hSel"></select><button class="btn" data-go="cmp" id="hGo">Compare</button> <span class="note">Compare with another document</span><input type="text" placeholder="number" size="4" style="flex:0;width:5em"><button class="btn" data-go="cmpd">Compare</button></span></div></div></div>
+<div class="actions"><button class="btn" onclick="openX()">Export</button><span id="hCmp"><span class="note">Compare with</span><select id="hSel"></select><button class="btn" data-go="cmp" id="hGo">Compare</button></span> <button class="btn" aria-pressed="true" title="The pending tab's own toggle: one preference for both pages">Show edit authors</button></div></div></div>
 <div class="wrap">
 <div class="split3" id="hsS" style="--r:0px">
 <aside class="left" id="hsL">
@@ -493,6 +493,7 @@ details.um>summary{list-style:none;cursor:pointer}
 <div class="node"><span class="tw">▸</span>4 Records</div></aside>
 <div class="grip" data-grip="hsS" data-var="--l" data-side="l"></div>
 <main class="main">
+<p class="note">With <em>Show edit authors</em> on and the version's edit authors not yet worked out: <em>Authors are being worked out — reload the page in a moment.</em> The text reads as without authors until then. Once worked out, the reload names each line's edit author on hovering it, as the pending tab does; they are kept for a day.</p>
 <div class="sec">1 Purpose</div>
 <div class="clause"><span class="cn">1-1</span><span>This policy sets how employees request, approve and record time off.</span></div>
 <div class="sub2">1.1 Definitions</div>
@@ -842,19 +843,26 @@ li { letter-spacing: 0.5pt; }
 <tr><td>5</td><td>Old travel rules</td><td>2 Feb</td><td>restore · export</td></tr><tr data-st="arch"><td>12</td><td>Annual leave, sick leave and parental leave…</td><td>today</td><td>restore · export</td></tr></table></div>
 <div class="admsec" id="t-history" data-url="/administration/tenant/access-history/" style="display:none">
 <div class="title" style="margin-bottom:8px">Access history</div>
-<p class="note">Who could read what on a given date, and every change to access that led there.</p>
-<div class="toolbar"><select><option>#12 Annual leave, sick leave…</option><option>any document</option></select> <span class="note">on</span> <input type="date" value="2026-09-01" style="flex:0"> <button class="btn primary">Show</button></div>
+<p class="note">Who could read what at the end of a given day, or when one of the document's editions was approved, and every change to access that led there.</p>
+<div class="toolbar"><select><option>#12 Annual leave, sick leave…</option><option>any document</option></select> <span class="note">on</span> <input type="date" value="2026-09-01" style="flex:0"> <span class="note">or at the edition</span> <select style="flex:0"><option>—</option><option>2.0</option><option>1.0</option></select> <button class="btn primary">Show</button></div>
+<p class="note">The edition choice appears once a document is shown, and takes the place of the day: the answer stands at the moment the edition was approved — <em>#12 at 2.0, approved 1 Sep 2026 — readable by …</em></p>
 <div class="answer"><strong>#12 on 1 Sep 2026</strong> — readable by 5 groups, 25 people
+<div class="box"><div class="note">Each line drawn only when true — synthetic examples:</div><div>#12 did not exist then.</div><div>#12 was archived then: no group could read it.</div><div>The organisation was blocked then: none of its members could read.</div><div>No canonical edition existed then: view canonical reached nothing.</div></div>
 <table style="margin-top:6px"><tr><th>Group</th><th>Right</th><th>Members that day</th></tr>
-<tr><td>All staff</td><td>view canonical</td><td>18 <a href="#">list</a></td></tr>
-<tr><td>HR editors</td><td>create and edit</td><td>3 <a href="#">list</a></td></tr>
-<tr><td>HR leads</td><td>create and edit, accept</td><td>2 <a href="#">list</a></td></tr>
-<tr><td>HR reviewers</td><td>accept</td><td>1 <a href="#">list</a></td></tr>
-<tr><td>Executives</td><td>make canonical</td><td>1 <a href="#">list</a></td></tr></table></div>
+<tr><td>All staff<div class="note">linked 1 Sep by admin.a@example-org.example</div></td><td>view canonical <span class="note">(granted 3 Mar by admin.a@example-org.example)</span></td><td><details><summary>18 · list</summary></details></td></tr>
+<tr><td>HR editors<div class="note">linked 20 Aug by admin.a@example-org.example</div></td><td>create and edit <span class="note">(granted 3 Mar by admin.a@example-org.example)</span></td><td><details open><summary>3 · list</summary><div>author.a@example-org.example <span class="note">added 3 Mar by admin.a@example-org.example</span></div><div>author.b@example-org.example <span class="note">added 3 Mar by admin.a@example-org.example</span></div><div>author.c@example-org.example <span class="tag">blocked</span> <span class="note">added 4 Mar by admin.b@example-org.example</span></div><div>editor.d@example-org.example <span class="note">added 12 Jun by admin.a@example-org.example</span></div></details></td></tr>
+<tr><td>HR leads<div class="note">linked 20 Aug by admin.a@example-org.example</div></td><td>create and edit <span class="note">(granted 3 Mar by admin.a@example-org.example)</span><br>accept <span class="note">(granted 20 Aug by admin.b@example-org.example)</span></td><td><details><summary>2 · list</summary></details></td></tr>
+<tr><td>HR reviewers<div class="note">linked 20 Aug by admin.a@example-org.example</div></td><td>accept <span class="note">(granted 3 Mar by admin.a@example-org.example)</span></td><td><details><summary>1 · list</summary></details></td></tr>
+<tr><td>Executives<div class="note">linked 2 Feb by system</div></td><td>make canonical <span class="note">(granted 2 Feb by system)</span></td><td><details><summary>1 · list</summary></details></td></tr></table>
+<p class="note">The count is of active memberships; a blocked one is listed and not counted. A person's own block is never shown here.</p></div>
 <table><tr><th>When</th><th>Who</th><th>Change</th></tr>
-<tr><td>1 Sep</td><td>Admin A</td><td>All staff linked to #12</td></tr>
-<tr><td>20 Aug</td><td>Admin A</td><td>HR leads linked to #12</td></tr>
-<tr><td>3 Mar</td><td>Admin A</td><td>Author B added to HR editors</td></tr></table></div></div></div></div></section>
+<tr><td>1 Sep 10:12</td><td>admin.a@example-org.example</td><td>All staff linked to #12</td></tr>
+<tr><td>20 Aug 16:40</td><td>admin.b@example-org.example</td><td>HR leads granted accept</td></tr>
+<tr><td>20 Aug 16:38</td><td>admin.a@example-org.example</td><td>HR leads linked to #12</td></tr>
+<tr><td>12 Jun 09:05</td><td>admin.a@example-org.example</td><td>editor.d@example-org.example added to HR editors</td></tr>
+<tr><td>4 Apr 11:30</td><td>admin.b@example-org.example</td><td>author.c@example-org.example's membership blocked</td></tr>
+<tr><td>3 Mar 14:00</td><td>admin.a@example-org.example</td><td>author.b@example-org.example added to HR editors</td></tr></table>
+<p class="note">When it holds 200 rows: <em>The newest 200 changes up to then.</em> <em>Any document</em> draws this table alone — every access change in the organisation, memberships made administrators or not among them.</p></div></div></div></div></section>
 <section class="page" id="notif">
 <header class="shell">
 <div class="wrap">

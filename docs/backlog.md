@@ -409,3 +409,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** ASR-21 promises its times at forty pages, and the measured list lies beyond ASR-23's envelope by its length, where no promise is made without revising ASR-23 first (DL-0484); every document expected in the first release is far smaller, and a section's own editor opens on its section alone.
 
 **What has to be true before it is taken up.** A document near the limit is held by an organisation, or an editor reports a wait opening the edit tab on a long document.
+
+## B-056 — Edit authors on the compare page
+
+**Idea.** The *Show edit authors* toggle on the page comparing two versions of a document: each line of the newer version named by whoever last wrote it, from the same on-demand rows as the historical page (DL-0266), so a reader stepping across several edits by several people sees whose each change is. A line edited twice inside the range names the later editor; a removed line names nobody.
+
+**Why it is parked.** The pending tab already names the authors of the run awaiting acceptance, and the historical page those of any version a reader opens; the comparison across a longer range is a use nobody has yet asked for in practice.
+
+**What has to be true before it is taken up.** A reviewer or an administrator asks who made the changes between two editions, and stepping through the historical pages does not answer it.
