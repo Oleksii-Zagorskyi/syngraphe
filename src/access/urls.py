@@ -1,6 +1,6 @@
 from django.urls import path
 
-from access import views
+from access import history_page, views
 
 urlpatterns = [
     path("administration/tenant/groups/", views.groups, name="groups"),
@@ -19,5 +19,10 @@ urlpatterns = [
         "administration/tenant/document-links/<int:number>/",
         views.document_link,
         name="document_link",
+    ),
+    path(
+        "administration/tenant/access-history/",
+        history_page.access_history,
+        name="access_history",
     ),
 ]

@@ -1,0 +1,49 @@
+{% extends "shell/administration.html" %}
+{% load i18n tz %}
+{% block title %}{% translate "Access history" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="access-history">
+  <h1>{% translate "Access history" %}</h1>
+  <p class="muted">{% translate "Who could read a document at the end of a day, or when one of its editions was approved, and every change to access that led there." %}</p>
+  <form method="get" class="toolbar" novalidate>
+    {{ form.document }}
+    <label for="{{ form.on.id_for_label }}">{% translate "on" context "access history" %}</label> <input type="date" name="on" id="{{ form.on.id_for_label }}" value="{{ form.on.value|stringformat:'s'|default:'' }}">
+    {% if document %}<label for="{{ form.edition.id_for_label }}">{{ form.edition.label }}</label> {{ form.edition }}{% endif %}
+    <button class="btn primary" type="submit">{% translate "Show" %}</button>
+  </form>
+  {% for field in form %}{% for error in field.errors %}<p class="err">{{ error }}</p>{% endfor %}{% endfor %}
+  {% for error in form.non_field_errors %}<p class="err">{{ error }}</p>{% endfor %}
+  {% timezone display_timezone %}
+  {% if answer %}
+  <div class="answer">
+    <p><strong>{% if edition %}{% blocktranslate with number=document.number edition=edition.number date=edition.approved_at|date:"j M Y" %}#{{ number }} at {{ edition }}, approved {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with number=document.number date=day|date:"j M Y" %}#{{ number }} on {{ date }}{% endblocktranslate %}{% endif %}</strong>{% if answer.existed %} — {% blocktranslate count counter=answer.groups_reading|length %}readable by {{ counter }} group{% plural %}readable by {{ counter }} groups{% endblocktranslate %}, {% blocktranslate count counter=answer.people|length %}{{ counter }} person{% plural %}{{ counter }} people{% endblocktranslate %}{% endif %}</p>
+    {% if not answer.existed %}<p>{% blocktranslate with number=document.number %}#{{ number }} did not exist then.{% endblocktranslate %}</p>{% endif %}
+    {% if answer.archived %}<p>{% blocktranslate with number=document.number %}#{{ number }} was archived then: no group could read it.{% endblocktranslate %}</p>{% endif %}
+    {% if answer.organisation_blocked %}<p>{% translate "The organisation was blocked then: none of its members could read." %}</p>{% endif %}
+    {% if answer.existed and not answer.edition_existed %}<p>{% translate "No canonical edition existed then: view canonical reached nothing." %}</p>{% endif %}
+    {% if groups %}
+    <table>
+      <thead><tr><th>{% translate "Group" %}</th><th>{% translate "Right" %}</th><th>{% translate "Members that day" %}</th></tr></thead>
+      <tbody>
+        {% for group in groups %}<tr>
+          <td>{{ group.name }}<div class="note">{% blocktranslate with date=group.linked.at|date:"j M Y" who=group.linked.who %}linked {{ date }} by {{ who }}{% endblocktranslate %}</div></td>
+          <td>{% for right in group.rights %}{{ right.label }} <span class="note">{% blocktranslate with date=right.at|date:"j M Y" who=right.who %}(granted {{ date }} by {{ who }}){% endblocktranslate %}</span>{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+          <td><details><summary>{{ group.active }} · {% translate "list" context "access history" %}</summary>{% for member in group.members %}<div>{{ member.address }}{% if member.blocked %} <span class="tag">{% translate "blocked" context "membership" %}</span>{% endif %} <span class="note">{% blocktranslate with date=member.at|date:"j M Y" who=member.who %}added {{ date }} by {{ who }}{% endblocktranslate %}</span></div>{% endfor %}</details></td>
+        </tr>{% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if asked %}
+  <table>
+    <thead><tr><th>{% translate "When" %}</th><th>{% translate "Who" %}</th><th>{% translate "Change" context "access history" %}</th></tr></thead>
+    <tbody>
+      {% for row in changes.rows %}<tr><td>{{ row.at|date:"j M Y H:i" }}</td><td>{{ row.who }}</td><td>{{ row.change }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% if changes.bounded %}<p class="note">{% blocktranslate with count=shown %}The newest {{ count }} changes up to then.{% endblocktranslate %}</p>{% endif %}
+  {% endif %}
+  {% endtimezone %}
+</div>
+{% endblock %}

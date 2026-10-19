@@ -4574,3 +4574,160 @@ msgid "The attachment size cap cannot exceed the platform's upload maximum."
 msgstr ""
 "Найбільший розмір вкладеного файлу не може перевищувати найбільший розмір "
 "завантаження на платформі."
+
+msgid "Access history"
+msgstr "Історія доступу"
+
+msgid ""
+"Who could read a document at the end of a day, or when one of its editions "
+"was approved, and every change to access that led there."
+msgstr ""
+"Хто міг читати документ наприкінці дня або на момент затвердження однієї з "
+"його редакцій, і кожна зміна доступу, що до цього привела."
+
+msgid "On"
+msgstr "На дату"
+
+msgctxt "access history"
+msgid "on"
+msgstr "на"
+
+msgid "Or at the edition"
+msgstr "Або на редакцію"
+
+msgid "any document"
+msgstr "будь-який документ"
+
+msgid "Show"
+msgstr "Показати"
+
+msgid "The access history answers for today or earlier."
+msgstr "Історія доступу відповідає на сьогодні або раніше."
+
+msgid "The document has no such edition."
+msgstr "У документа немає такої редакції."
+
+msgid "system"
+msgstr "система"
+
+msgid "agent"
+msgstr "агент"
+
+#, python-format
+msgid "#%(number)s at %(edition)s, approved %(date)s"
+msgstr "#%(number)s на редакції %(edition)s, затвердженої %(date)s"
+
+#, python-format
+msgid "#%(number)s on %(date)s"
+msgstr "#%(number)s на %(date)s"
+
+#, python-format
+msgid "readable by %(counter)s group"
+msgid_plural "readable by %(counter)s groups"
+msgstr[0] "могли читати %(counter)s група"
+msgstr[1] "могли читати %(counter)s групи"
+msgstr[2] "могли читати %(counter)s груп"
+
+#, python-format
+msgid "%(counter)s person"
+msgid_plural "%(counter)s people"
+msgstr[0] "%(counter)s особа"
+msgstr[1] "%(counter)s особи"
+msgstr[2] "%(counter)s осіб"
+
+#, python-format
+msgid "#%(number)s did not exist then."
+msgstr "#%(number)s тоді ще не існував."
+
+#, python-format
+msgid "#%(number)s was archived then: no group could read it."
+msgstr "#%(number)s тоді був заархівований: жодна група не могла його читати."
+
+msgid "The organisation was blocked then: none of its members could read."
+msgstr "Організацію тоді було заблоковано: жоден її учасник не міг читати."
+
+msgid "No canonical edition existed then: view canonical reached nothing."
+msgstr ""
+"Канонічної редакції тоді ще не було: перегляд канонічної версії нічого не "
+"відкривав."
+
+msgid "Group"
+msgstr "Група"
+
+msgid "Right"
+msgstr "Право"
+
+msgid "Members that day"
+msgstr "Учасники того дня"
+
+#, python-format
+msgid "linked %(date)s by %(who)s"
+msgstr "пов’язано %(date)s, %(who)s"
+
+#, python-format
+msgid "(granted %(date)s by %(who)s)"
+msgstr "(надано %(date)s, %(who)s)"
+
+msgctxt "access history"
+msgid "list"
+msgstr "список"
+
+#, python-format
+msgid "added %(date)s by %(who)s"
+msgstr "додано %(date)s, %(who)s"
+
+msgctxt "access history"
+msgid "Change"
+msgstr "Зміна"
+
+#, python-format
+msgid "The newest %(count)s changes up to then."
+msgstr "Найновіші %(count)s змін до цього моменту."
+
+#, python-format
+msgid "%(group)s linked to #%(number)s"
+msgstr "%(group)s пов’язано з #%(number)s"
+
+#, python-format
+msgid "%(group)s unlinked from #%(number)s"
+msgstr "%(group)s від’єднано від #%(number)s"
+
+#, python-format
+msgid "%(group)s granted %(right)s"
+msgstr "%(group)s надано право «%(right)s»"
+
+#, python-format
+msgid "%(group)s: %(right)s withdrawn"
+msgstr "%(group)s: право «%(right)s» відкликано"
+
+#, python-format
+msgid "%(address)s added to %(group)s"
+msgstr "%(address)s додано до %(group)s"
+
+#, python-format
+msgid "%(address)s removed from %(group)s"
+msgstr "%(address)s вилучено з %(group)s"
+
+#, python-format
+msgid "%(address)s's membership blocked"
+msgstr "Членство %(address)s заблоковано"
+
+#, python-format
+msgid "%(address)s's membership active again"
+msgstr "Членство %(address)s знову активне"
+
+#, python-format
+msgid "%(address)s made an administrator"
+msgstr "%(address)s призначено адміністратором"
+
+#, python-format
+msgid "%(address)s no longer an administrator"
+msgstr "%(address)s більше не адміністратор"
+
+#, python-format
+msgid "#%(number)s archived"
+msgstr "#%(number)s заархівовано"
+
+#, python-format
+msgid "#%(number)s restored"
+msgstr "#%(number)s відновлено"

@@ -17,3 +17,11 @@ def person(user: User | None) -> str:
     if user.display_name:
         return user.display_name
     return _("anonymous editor")
+
+
+def by_address(user: User | None, actor_kind: str) -> str:
+    """How an administration page names who acted: a person by address, which the administrator
+    typed or must act on (DL-0434); an act with no person by its kind."""
+    if user is not None:
+        return str(user.email)
+    return _("agent") if actor_kind == "agent" else _("system")
