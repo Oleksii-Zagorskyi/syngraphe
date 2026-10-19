@@ -110,3 +110,27 @@ def test_catalogue_covers_the_access_history(
         shown = _review.text_of(body)
         leaked = [message for message in [*ids, *own] if message in shown]
         assert leaked == [], (name, leaked)
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("count", "words"),
+    [
+        (1, "могла читати 1 група"),
+        (21, "могла читати 21 група"),
+        (2, "могли читати 2 групи"),
+        (5, "могли читати 5 груп"),
+    ],
+)
+def test_the_count_of_groups_agrees_in_ukrainian(count: int, words: str) -> None:
+    """One group, or twenty-one, takes the singular verb as it takes the singular noun."""
+    from django.utils import translation
+    from django.utils.translation import ngettext
+
+    with translation.override("uk"):
+        drawn = ngettext(
+            "readable by %(counter)s group", "readable by %(counter)s groups", count
+        ) % {"counter": count}
+
+    assert drawn == words

@@ -1,4 +1,4 @@
-"""The audit log's filters (DD-10): each refuses what it does not know, never ignores it."""
+"""The audit log's filters: each refuses what it does not know, never ignores it."""
 
 from __future__ import annotations
 

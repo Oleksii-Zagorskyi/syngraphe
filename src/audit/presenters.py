@@ -1,4 +1,4 @@
-"""One audit event as the audit log draws it (DD-10), from its own payload: the set of actions is
+"""One audit event as the audit log draws it, from its own payload: the set of actions is
 open, so nothing here knows what an action means."""
 
 from __future__ import annotations
@@ -68,10 +68,15 @@ def _changes(before: dict[str, Any], after: dict[str, Any]) -> list[str]:
     lines = []
     for key in sorted({*before, *after}):
         old, new = before.get(key, _MISSING), after.get(key, _MISSING)
-        # Compared as stored: `1` and `true` are equal in Python, not in the record.
-        if _value(old, cut=False) == _value(new, cut=False):
+        # Compared as stored: `1` and `true` are equal in Python, not in the record; the string
+        # "1" and the number 1, or an absent value and the string "—", are not equal either.
+        if _stored(old) == _stored(new):
             continue
-        lines.append(f"{_cut(str(key))}: {_value(old)} → {_value(new)}")
+        if _value(old, cut=False) == _value(new, cut=False):
+            # Drawn alike, so each is drawn as stored — a string in quotes.
+            lines.append(f"{_cut(str(key))}: {_quoted(old)} → {_quoted(new)}")
+        else:
+            lines.append(f"{_cut(str(key))}: {_value(old)} → {_value(new)}")
     if len(lines) > CHANGES_SHOWN:
         more = len(lines) - CHANGES_SHOWN
         lines = [*lines[:CHANGES_SHOWN], _("… %(count)s more") % {"count": more}]
@@ -91,6 +96,18 @@ def _value(value: Any, *, cut: bool = True) -> str:
         else json.dumps(value, ensure_ascii=False, separators=(",", ":"))
     )
     return _cut(shown) if cut else shown
+
+
+def _stored(value: Any) -> str | None:
+    """`value` as the record stores it, `None` for a key the payload lacks."""
+    if value is _MISSING:
+        return None
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _quoted(value: Any) -> str:
+    """`value` drawn as stored, a string in quotes; an absent value as a dash."""
+    return "—" if value is _MISSING else _cut(str(_stored(value)))
 
 
 def _cut(text: str) -> str:

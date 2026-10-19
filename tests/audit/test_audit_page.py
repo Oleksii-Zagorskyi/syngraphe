@@ -280,6 +280,8 @@ def test_payloads_of_any_shape_are_drawn(signed_in_without_tenant: Any) -> None:
             ({"number": True, "flag": 1}, {"number": True, "flag": True}),
             (None, {"k" * 300: 1}),
             (None, {f"key{i:03d}": i for i in range(30)}),
+            ({"name": "1", "flag": "true"}, {"name": 1, "flag": True}),
+            (None, {"name": "—"}),
         ]
     ):
         AuditEvent.objects.create(
@@ -303,3 +305,7 @@ def test_payloads_of_any_shape_are_drawn(signed_in_without_tenant: Any) -> None:
     assert "flag: 1 → true" in rows["synthetic.shape2"][6]
     assert len(rows["synthetic.shape3"][6]) < 300
     assert "10 more" in rows["synthetic.shape4"][6]
+    # Two values that would draw alike are drawn as stored, so the change still shows.
+    assert 'name: "1" → 1' in rows["synthetic.shape5"][6]
+    assert 'flag: "true" → true' in rows["synthetic.shape5"][6]
+    assert 'name: — → "—"' in rows["synthetic.shape6"][6]

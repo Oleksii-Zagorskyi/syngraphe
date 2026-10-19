@@ -380,10 +380,13 @@ def test_every_route_is_closed_to_a_blocked_organisation(organisation: dict[str,
     active = _client(actor, DOMAIN)
 
     asked = {r.name: _asked(r, values, organisation["fresh"], active) for r in swept}
-    unreached = [
-        r.name for r in swept if r.name not in UNREACHED and not _reached(active, asked[r.name])
-    ]
-    assert unreached == [], "not reached while active:\n" + "\n".join(unreached)
+    # Reached while active on both hosts the blocked phase asks from, so a not-found answer
+    # there is the block's and not the host's.
+    for client in (active, _client(actor, "127.0.0.1", tenant)):
+        unreached = [
+            r.name for r in swept if r.name not in UNREACHED and not _reached(client, asked[r.name])
+        ]
+        assert unreached == [], "not reached while active:\n" + "\n".join(unreached)
     print("reached only when blocked, by their reasons:", UNREACHED)
     # The walk changed nothing the blocked phase stands on: the actor, their membership and the
     # document the routes are filled with.

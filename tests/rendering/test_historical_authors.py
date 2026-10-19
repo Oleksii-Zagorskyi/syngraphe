@@ -227,3 +227,47 @@ def test_one_job_at_a_time_per_version(
     compute_authorship_at(*asked[0])
     assert NOTE not in viewer.client.get(url).content.decode()
     assert len(asked) == 1
+
+
+@pytest.mark.parametrize("fails", ["the mark", "the queue"])
+def test_the_text_reads_when_the_authors_cannot_be_asked(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+    settings: Any,
+    monkeypatch: Any,
+    fails: str,
+) -> None:
+    """The authors are optional: Redis or the broker refusing the request leaves the text
+    readable without them (DL-0266), and a mark the queue never received is let go, so a reload
+    asks again."""
+    import redis
+
+    from editing.past_authors import asked_key
+
+    settings.LANGUAGE_CODE = "en"
+    history = _page.standard_history(migrated_tenant, edition_cast, commit_version)
+    viewer = _page.reader(member_of, link_group, history.people, "viewer", _page.READER_I)
+    _showing_authors(viewer.client)
+    version = history.versions["0.0-2"]
+
+    def refused(*_: Any, **__: Any) -> Any:
+        raise (redis.ConnectionError if fails == "the mark" else OSError)("refused")
+
+    if fails == "the mark":
+        monkeypatch.setattr(redis.Redis, "set", refused)
+    else:
+        monkeypatch.setattr("editing.tasks.compute_authorship_at.delay", refused)
+
+    response = viewer.client.get(f"/document/{history.document.number}/version/0.0-2/")
+
+    assert response.status_code == 200
+    assert 'class="document-text"' in response.content.decode()
+    client = redis.Redis.from_url(settings.REDIS_URL)
+    try:
+        key = asked_key(migrated_tenant.number, history.document.number, version.commit_sha)
+        assert not client.exists(key)
+    finally:
+        client.close()

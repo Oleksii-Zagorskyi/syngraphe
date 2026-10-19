@@ -63,7 +63,7 @@ Deferred at DL-0044. Two policies can regulate the same role, so the role direct
 
 ## B-004 — Style linting
 
-Deferred at DL-0004's successor. The sense-versus-style hunk split exists from the start; mechanical enforcement of the style half comes later.
+Deferred at DL-0004, superseded by DL-0046. The sense-versus-style hunk split exists from the start; mechanical enforcement of the style half comes later.
 
 ## B-005 — Tenant-authored heuristics
 
@@ -417,3 +417,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The pending tab already names the authors of the run awaiting acceptance, and the historical page those of any version a reader opens; the comparison across a longer range is a use nobody has yet asked for in practice.
 
 **What has to be true before it is taken up.** A reviewer or an administrator asks who made the changes between two editions, and stepping through the historical pages does not answer it.
+
+## B-057 — No invisible format character in a title or an entity's label
+
+**Idea.** DL-0490 applied: a document's title, an appendix's and an attachment's title, and an entity's label refuse every format character but the two joiners, as a reason and the title-page text do (DL-0483) — the marks that reorder text with them.
+
+**Why it is parked.** Decided after release 0.1's stories were built; a title or a label carrying such a character has to be typed or pasted on purpose, and its reviewer sees the title in every list.
+
+**What has to be true before it is taken up.** The next epic that changes a document's details, its parts or the entity picker takes it as a story; or a title is found displaying otherwise than it is stored.

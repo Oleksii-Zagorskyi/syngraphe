@@ -50,6 +50,20 @@ def test_paste_refused_with_lines_and_conversion(
     assert "#### Too deep" in page.input_value("textarea[data-field=source]")
 
 
+def test_a_reordering_mark_spelled_as_an_entity_is_converted_away(
+    editing: Any, page: Any, settings: Any
+) -> None:
+    """The parse decodes `&#x202E;` into the mark itself; the conversion offered removes it, so
+    applying it leaves nothing to refuse (DL-0486)."""
+    settings.LANGUAGE_CODE = "en"
+    editing("The start.\n")
+    page.click("button[data-command=source]")
+    page.evaluate(PASTE, "A &#x202E;sentence.\n")
+    assert "line 1: a mark that reorders text" in (page.text_content(".editor-status") or "")
+    preview = page.text_content(".source-offer pre") or ""
+    assert "\u202e" not in preview and "sentence." in preview
+
+
 def test_other_spellings_accepted(editing: Any, markdown: Any, page: Any) -> None:
     editing("The start.\n")
     page.click("button[data-command=source]")

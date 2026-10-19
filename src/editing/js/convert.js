@@ -233,7 +233,15 @@ export function convert(source, spec, schema, tokenMap, write) {
   leftOut = false;
   const refused = new RegExp(CONTROL.source + "|" + REORDERING.source, "g");
   const cleaned = footnotesInline(source.replace(refused, ""));
-  const tokens = rewrite(md.parse(cleaned, {}), spec);
+  const parsed = md.parse(cleaned, {});
+  // An entity — `&#x202E;` — is decoded by the parse into the character it names: removed there.
+  const decoded = (children) =>
+    (children || []).forEach((child) => {
+      if (child.type === "text") child.content = child.content.replace(refused, "");
+      decoded(child.children);
+    });
+  parsed.forEach((token) => decoded(token.children));
+  const tokens = rewrite(parsed, spec);
   const parser = new MarkdownParser(schema, { parse: () => tokens }, tokenMap);
   return { text: write(parser.parse("")), leftOut };
 }

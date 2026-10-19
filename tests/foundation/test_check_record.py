@@ -441,6 +441,22 @@ def test_routes_in_the_technical_design(check_record: ModuleType, tmp_path: Path
     assert dropped in finding.message or dropped_pattern in finding.message
 
 
+def test_an_exemption_naming_no_route_is_a_finding(
+    check_record: ModuleType, tmp_path: Path, monkeypatch: Any
+) -> None:
+    """A prefix left in the exemptions after its routes went is reported by the check itself."""
+    paths = ["/" + CONVERTER.sub("1", pattern) for _, pattern in _in_scope_routes()]
+    _design_tree(tmp_path, paths)
+    stale = "synthetic-" + "gone/"
+    monkeypatch.setattr(
+        check_record, "EXEMPT_PREFIXES", {**check_record.EXEMPT_PREFIXES, stale: "an example"}
+    )
+
+    findings = check_record.check_routes(tmp_path)
+
+    assert [(f.check, stale in f.message) for f in findings] == [("routes", True)]
+
+
 # --- words --------------------------------------------------------------------------------------
 
 

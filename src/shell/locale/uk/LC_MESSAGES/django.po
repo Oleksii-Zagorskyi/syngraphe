@@ -4628,7 +4628,7 @@ msgstr "#%(number)s на %(date)s"
 #, python-format
 msgid "readable by %(counter)s group"
 msgid_plural "readable by %(counter)s groups"
-msgstr[0] "могли читати %(counter)s група"
+msgstr[0] "могла читати %(counter)s група"
 msgstr[1] "могли читати %(counter)s групи"
 msgstr[2] "могли читати %(counter)s груп"
 

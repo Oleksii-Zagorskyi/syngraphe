@@ -94,7 +94,7 @@ Three application roles (DL-0079). A **platform administrator** does everything 
 
 **One optional check, per tenant, off by default** (DL-0101, DL-0115): an edition cannot be approved by anyone who accepted a run since the previous canonical edition. One comparison at the single transition where text becomes authoritative — enough to give a tenant a second pair of eyes to show an auditor, without slowing everyday editing.
 
-**A new document starts with its creator holding edit, and of the part rights only upload and replace attachment** (DL-0089, DL-0445): the creator can carry the document's forms from its first draft, while creating and deleting its parts wait for a linked group's rights. The tenant administrator is notified that it was created and grants the rest. Until a reviewer exists the document reads *no reviewer assigned*, and acceptance is blocked with that stated reason rather than silently.
+**A new document starts author-only until the first linked group: its creator holds edit, and of the part rights only upload and replace attachment** (ADR-0007, DL-0445): the creator can carry the document's forms from its first draft, while creating and deleting its parts wait for a linked group's rights. The tenant administrator is notified that it was created and grants the rest. Until a reviewer exists the document reads *no reviewer assigned*, and acceptance is blocked with that stated reason rather than silently.
 
 **Archiving** is visible to administrators only (DL-0084). An archived document's links stop resolving anywhere, including where its name appears in another document's prose; its access rights are archived with it, vanish from the administration panel, and **resurrect unchanged** on restore.
 
@@ -172,10 +172,10 @@ The catalogue of what the heuristics look for is [`review-findings.md`](review-f
 
 ### How a user reaches an agent
 
-Three rules (DL-0050, ASR-11, ASR-12):
+Three rules (DL-0056, ASR-11, ASR-12):
 
 - **No conversation.** A user calls predefined actions; nobody composes a prompt.
-- **No repeat for an unchanged version.** Once an action has answered for a version, the stored answer is returned — the source has not moved, so neither has the answer.
+- **No repeat for unchanged content.** Once an action has answered for a content state, the same action on the same content returns the stored answer — the source has not moved, so neither has the answer.
 - **Keyed to content, not to a session.** An action may run mid-edit; its result is stored against a hash of the document tree, so a commit is simply one content state among others (DL-0056). The send-for-review screen shows what was already computed rather than recomputing it.
 
 On sending for review the editor sees the analyses that will travel with the commit and confirms them.

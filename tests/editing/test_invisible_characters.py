@@ -182,3 +182,16 @@ def test_the_refusal_in_ukrainian(settings: Any) -> None:
 
     assert english == "a mark that reorders text"
     assert named != english and named.strip()
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize(
+    ("line", "stored"),
+    [("# Мета", "\\# Мета"), ("- пункт", "\\- пункт"), ("> цитата", "\\> цитата")],
+)
+def test_a_removal_at_a_paragraphs_start_keeps_it_a_paragraph(line: str, stored: str) -> None:
+    """An invisible character before a marker made the line paragraph text; removing it must not
+    make the marker a heading, a list or a quote: the marker is escaped as the editor writes it."""
+    submitted = f"Вступ.\n\n{ZERO_WIDTH_SPACE}{line}\n"
+
+    assert normalize(b"", submitted, lists_for("uk")).decode() == f"Вступ.\n\n{stored}\n"

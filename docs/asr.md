@@ -102,7 +102,7 @@ Each document carries exactly one language; the platform handles any (DL-0003). 
 
 ## ASR-11 — A user cannot converse with an agent *(constraint)*
 
-Interaction is by predefined actions only — a user calls an action, never composes a prompt (DL-0050).
+Interaction is by predefined actions only — a user calls an action, never composes a prompt (DL-0050, superseded in its timing by DL-0056).
 
 *Forbids:* a free-text channel to any agent; user-authored prompt text reaching a model.
 

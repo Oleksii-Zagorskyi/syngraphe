@@ -171,6 +171,7 @@ def _paragraph(
 ) -> list[tuple[str, bool]]:
     """A submitted paragraph's stored lines, each with its prefix, and whether it is touched."""
     text = paragraph.text
+    exposed = bool(text) and is_invisible(text[0])
     masked = splitter.mask(text)
     sentences: list[tuple[str, tuple[int, int] | None]] = []
     for piece in reuse.pieces(text, in_place, store):
@@ -198,8 +199,10 @@ def _paragraph(
     ):
         prefix = paragraph.prefixes[0] if n == 0 else paragraph.continuation
         if stored is None:
-            # New text: written as the serialiser writes a sentence at a line's start.
-            full = prefix + (escape_line_start(line) if n else line)
+            # New text: written as the serialiser writes a sentence at a line's start. The first
+            # sentence stands where it was submitted, already escaped — unless an invisible
+            # character removed from before it exposed a marker (DL-0487).
+            full = prefix + (escape_line_start(line) if n or exposed else line)
             out.append((full, True))
         else:
             full = prefix + line

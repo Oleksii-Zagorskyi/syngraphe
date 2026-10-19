@@ -449,12 +449,19 @@ def check_routes(root: Path) -> list[Finding]:
             route = prefix + str(pattern.pattern)  # type: ignore[attr-defined]
             if isinstance(pattern, URLResolver):
                 yield from routes(pattern.url_patterns, route)
-            elif pattern.name:  # type: ignore[attr-defined]
+            else:
                 yield pattern.name, route  # type: ignore[attr-defined]
+
+    def exempting(route: str) -> list[str]:
+        return [p for p in exempt if (route == p if p == "" else route.startswith(p))]
 
     line, paths = _design_paths(_lines(root, TECHNICAL_DESIGN))
     findings: list[Finding] = []
+    used: set[str] = set()
     for name, route in routes(get_resolver().url_patterns, ""):
+        used.update(exempting(route))
+        if not name:
+            continue
         if route.startswith(IN_SCOPE_PREFIXES):
             pattern = _route_pattern(route)
             if not any(pattern.fullmatch(path) for path in paths):
@@ -466,9 +473,7 @@ def check_routes(root: Path) -> list[Finding]:
                         f"{name} ({route}) has no path in the URLs bullet",
                     )
                 )
-        elif not any(
-            route == prefix if prefix == "" else route.startswith(prefix) for prefix in exempt
-        ):
+        elif not exempting(route):
             findings.append(
                 Finding(
                     URLS,
@@ -478,6 +483,9 @@ def check_routes(root: Path) -> list[Finding]:
                     " say where it belongs",
                 )
             )
+    # An exemption left behind by the routes it named would hide whatever comes to use it next.
+    for prefix in sorted(set(exempt) - used):
+        findings.append(Finding(URLS, 0, "routes", f"the exempt prefix {prefix!r} names no route"))
     return findings
 
 
@@ -619,18 +627,7 @@ CHECKS: dict[str, Callable[[Path], list[Finding]]] = {
 # still holds under what replaced the row — each printed as pending until it is decided, and
 # failing the check once it is no longer found, so the list never outlives its findings.
 WHY = "whether the claim still holds under what replaced the row"
-PENDING: dict[tuple[str, str], tuple[int, str]] = {
-    ("docs/asr.md", "DL-0050"): (1, WHY),
-    ("docs/backlog.md", "DL-0004"): (1, WHY),
-    ("docs/document-lifecycle.md", "DL-0035"): (1, WHY),
-    ("docs/prd.md", "DL-0089"): (1, WHY),
-    ("docs/prd.md", "DL-0050"): (1, WHY),
-    ("docs/technical-design.md", "DL-0109"): (1, WHY),
-    ("docs/technical-design.md", "DL-0012"): (1, WHY),
-    ("docs/technical-design.md", "DL-0048"): (1, WHY),
-    ("docs/technical-design.md", "DL-0035"): (1, WHY),
-    ("docs/technical-design.md", "DL-0033"): (1, WHY),
-}
+PENDING: dict[tuple[str, str], tuple[int, str]] = {}
 
 
 def pending(findings: list[Finding]) -> tuple[list[Finding], list[Finding], list[tuple[str, str]]]:
