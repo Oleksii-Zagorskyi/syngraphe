@@ -55,6 +55,7 @@ static_collected/
 .mypy_cache/
 .coverage
 htmlcov/
+.testmondata*
 
 # macOS
 .DS_Store
