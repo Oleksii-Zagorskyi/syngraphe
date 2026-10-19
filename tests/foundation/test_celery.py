@@ -70,3 +70,19 @@ def test_idle_holds_are_visited_by_beat() -> None:
     assert entry["options"] == {"expires": 50}
     route = app.amqp.router.route({}, "editing.release_inactive_holds", (), {})
     assert route["queue"].name == app.conf.task_default_queue
+
+
+def test_past_authorship_is_swept_by_beat() -> None:
+    """A past version's on-demand authorship rows are swept hourly by beat, on the default queue
+    (DL-0266)."""
+    from celery.schedules import crontab
+    from django.conf import settings
+
+    from syngraphe.celery import app
+
+    entry = settings.CELERY_BEAT_SCHEDULE["sweep-authorship"]
+    assert entry["task"] == "editing.sweep_authorship"
+    assert entry["schedule"] == crontab(minute=50)
+    route = app.amqp.router.route({}, "editing.sweep_authorship", (), {})
+    assert route["queue"].name == app.conf.task_default_queue
+    assert "editing.sweep_authorship" in app.tasks

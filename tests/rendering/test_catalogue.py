@@ -356,3 +356,41 @@ def test_catalogue_covers_the_styles_page(
     assert "li — letter-spacing" in answers[-1].content.decode()
     for n, answer in enumerate(answers):
         _assert_translated(f"the styles page ({n})", answer.content.decode())
+
+
+def test_catalogue_covers_the_historical_authors(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+    settings: Any,
+    monkeypatch: Any,
+) -> None:
+    """The historical page with *Show edit authors* on: the toggle, and the line asking for a
+    reload while the edit authors are worked out."""
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "catalogue_historical_page", Path(__file__).resolve().parent / "test_historical_page.py"
+    )
+    assert spec is not None and spec.loader is not None
+    page = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = page
+    spec.loader.exec_module(page)
+    monkeypatch.setattr("editing.tasks.compute_authorship_at.delay", lambda *args: None)
+
+    settings.LANGUAGE_CODE = "uk"
+    history = page.standard_history(migrated_tenant, edition_cast, commit_version)
+    viewer = page.reader(member_of, link_group, history.people, "viewer", page.READER_I)
+    url = f"/document/{history.document.number}/version/0.0-2/"
+    off = viewer.client.get(url).content.decode()
+    viewer.client.post("/preferences/show-author/", {"show_author": "on"})
+    waiting = viewer.client.get(url).content.decode()
+
+    assert "Показувати авторів правок" in off
+    assert "Авторів правок ще визначають" in waiting
+    _assert_translated("the historical page", off)
+    _assert_translated("the historical page, edit authors waiting", waiting)

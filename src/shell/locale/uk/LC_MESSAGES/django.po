@@ -1553,8 +1553,8 @@ msgid "Correct"
 msgstr "Виправити"
 
 #: review/templates/review/pending.html:14
-msgid "Show author"
-msgstr "Показувати авторів"
+msgid "Show edit authors"
+msgstr "Показувати авторів правок"
 
 #: review/templates/review/pending.html:21 review/views/accept.py:46
 msgid "Nothing awaits review."
@@ -4759,6 +4759,9 @@ msgstr "Об’єкт"
 #, python-format
 msgid "The newest %(count)s events matching."
 msgstr "Найновіші %(count)s подій, що відповідають умовам."
+
+msgid "Edit authors are being worked out — reload the page in a moment."
+msgstr "Авторів правок ще визначають — оновіть сторінку за хвилину."
 
 #, python-format
 msgid "… %(count)s more"

@@ -9,6 +9,7 @@ start to it (DL-0452); the export dialog and its jobs."""
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from typing import Any, cast
 
 import pygit2
@@ -29,6 +30,7 @@ from documents import bundle, gitstore
 from documents.models import Document, Version
 from documents.parts import appendices, attachments
 from editing.numbering import number_of
+from editing.past_authors import ask, authors_at, by_author
 from editions.visible import visible as visible_to
 from identity.models import User, UserPreference
 from identity.views.preferences import (
@@ -57,10 +59,12 @@ def view_context(
     *,
     version: Version | None = None,
     number: str | None = None,
+    authors: Callable[[int], dict[int, str] | None] | None = None,
 ) -> dict[str, Any] | None:
     """What the tab shows — or, with `version`, what the historical page shows of a version the
     caller resolved through the reader's ceiling, and its `number` (DL-0195) — or `None` when
-    there is nothing the person may be shown."""
+    there is nothing the person may be shown. `authors`, given the lines before the body, names
+    each body line's edit author; its answer, or `None` while there is none, is `authors`."""
     try:
         if version is None:
             visible = visible_to(request.user, document)
@@ -87,6 +91,9 @@ def view_context(
     tokens = labelled(body)
     headings = outline(tokens)
     anchor_clauses(tokens)
+    named = authors(text[: len(text) - len(body)].count("\n")) if authors else None
+    if named:
+        by_author(tokens, named)
     # The mentions read once, from the tokens of every text, and the generated views over the
     # body and each appendix, derived from the version shown (DL-0448).
     reader, views = appendix.generated(
@@ -108,6 +115,8 @@ def view_context(
         **panes(request),
         # Raw HTML is off and every value escaped.
         "text": mark_safe(render_tokens(tokens, context=reader)),  # noqa: S308
+        "authors": named,
+        "has_text": bool(body.strip()),
         **views,
     }
 
@@ -180,16 +189,31 @@ def historical(request: HttpRequest, number: int, version_number: str) -> HttpRe
     found = _version(request, number, version_number)
     if found is None:
         return not_found(request)
+    from review.views.pending import show_author
+
     document, version, past = found
-    shown = view_context(request, document, version=version, number=past.number(version))
+    asking = show_author(request.user)
+    shown = view_context(
+        request,
+        document,
+        version=version,
+        number=past.number(version),
+        authors=(lambda offset: authors_at(document, version, offset)) if asking else None,
+    )
     if shown is None:
         return not_found(request)
+    # A version without its edit authors is asked of the worker; a blank body has none by design.
+    waiting = asking and shown["authors"] is None and shown["has_text"]
+    if waiting:
+        ask(request.tenant.number, document, version)  # type: ignore[attr-defined]
     others = [n for n, v in past.reachable() if v.pk != version.pk]
     context = {
         **shown,
         "document": document,
         "version_path": f"/document/{document.number}/version/{shown['version_number']}/",
         "others": others[::-1],
+        "show_author": asking,
+        "authors_waiting": waiting,
     }
     return render(request, "rendering/historical.html", context)
 

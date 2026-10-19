@@ -12,7 +12,7 @@
     <input type="hidden" name="next" value="{{ request.path }}">
     <input type="hidden" name="show_author" value="{% if show_author %}off{% else %}on{% endif %}">
     <a class="help-link" href="/help/review/">?</a>
-    <button class="btn" type="submit" aria-pressed="{% if show_author %}true{% else %}false{% endif %}">{% translate "Show author" %}</button>
+    <button class="btn" type="submit" aria-pressed="{% if show_author %}true{% else %}false{% endif %}">{% translate "Show edit authors" %}</button>
   </form>
   {% if run %}
   <ol class="run">

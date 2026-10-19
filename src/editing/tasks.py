@@ -42,6 +42,56 @@ def compute_authorship(tenant_number: int, document_number: int, commit_sha: str
     return result.rows
 
 
+@shared_task(name="editing.compute_authorship_at")
+def compute_authorship_at(tenant_number: int, document_number: int, commit_sha: str) -> int:
+    """A past version's rows, asked for by the historical page, kept for `KEPT_FOR`; returns how
+    many. A commit without its version row is logged and left, as `compute_authorship` leaves it."""
+    from django.utils import timezone
+
+    from editing.past_authors import KEPT_FOR, asked_done
+
+    try:
+        with schema_context(tenant_number):
+            document = Document.objects.get(number=document_number)
+            try:
+                result = authorship.compute(
+                    document,
+                    commit_sha,
+                    repository_path=gitstore.repository_path(tenant_number, document_number),
+                    expires_at=timezone.now() + KEPT_FOR,
+                )
+            except authorship.VersionMissing:
+                logger.warning(
+                    "authorship waits for a version row",
+                    extra={"tenant": tenant_number, "document": document_number},
+                )
+                return 0
+        return result.rows
+    finally:
+        asked_done(tenant_number, document_number, commit_sha)
+
+
+@shared_task(name="editing.sweep_authorship")
+def sweep_authorship() -> int:
+    """Delete the on-demand authorship rows whose day has passed, in every organisation background
+    work visits; returns how many."""
+    from django.utils import timezone
+
+    from editing.models import LineAuthorship
+    from tenancy.models import visited_by_background_work
+
+    swept = 0
+    for number in visited_by_background_work().values_list("number", flat=True):
+        # One organisation's failure leaves the others swept all the same.
+        try:
+            with schema_context(number):
+                deleted, _ = LineAuthorship.objects.filter(expires_at__lt=timezone.now()).delete()
+                swept += deleted
+        except DatabaseError:
+            logger.exception("authorship not swept", extra={"tenant": number})
+    return swept
+
+
 def queue_authorship(tenant_number: int, document_number: int, commit_sha: str) -> None:
     """Ask the worker for the authorship of one commit; the request path never computes it."""
     compute_authorship.delay(tenant_number, document_number, commit_sha)

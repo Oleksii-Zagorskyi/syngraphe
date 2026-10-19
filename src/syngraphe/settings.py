@@ -144,6 +144,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "rendering.sweep_exports",
         "schedule": crontab(minute=40),
     },
+    "sweep-authorship": {
+        "task": "editing.sweep_authorship",
+        "schedule": crontab(minute=50),
+    },
     # Each due email, every minute; a refusal waits five minutes for its next attempt (DL-0203).
     "send-outbox": {
         "task": "mail.send_outbox",

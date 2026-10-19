@@ -2,7 +2,7 @@
 
 Every version sent since the last acceptance waits in **pending edits**. A reviewer — a holder of *accept* — reads it and decides.
 
-- **Pending edits** shows the whole document with every change since the last acceptance marked in place. *Show author* names who wrote each line. A change of formatting alone is marked *formatting only* and folded away; open it to see the earlier form.
+- **Pending edits** shows the whole document with every change since the last acceptance marked in place. *Show edit authors* names who last edited each line — here and on a past version's page. A change of formatting alone is marked *formatting only* and folded away; open it to see the earlier form.
 - **Correct** takes the document so you can change what you will not accept as it stands. Your changes become a version of your own. Finish with **accept as N.M** — the version is made and everything pending accepted in one act — or with **create version N.M-X**, which leaves it waiting with the others.
 - **Parts.** *Pending edits* shows each appendix a version changed after the body, its changes marked, and lists the parts each version added, renamed, replaced, moved or deleted. **Revert** puts one of those part changes back as it stood at the last acceptance — unless your own draft has already changed that part: it takes the document and becomes part of your correction. While a revert waits in a draft, the edits are accepted only through that draft's *Accept as*.
 - **Accept the run** accepts every version since the last acceptance in one act; the confirmation names them and the number that results. It is refused while someone has the document reserved for editing.

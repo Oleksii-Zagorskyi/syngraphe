@@ -28,6 +28,7 @@ import subprocess
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, replace
+from datetime import datetime
 from pathlib import Path
 
 from django.db import connection, transaction
@@ -159,12 +160,14 @@ def compute(
     commit_sha: str,
     *,
     repository_path: Path,
+    expires_at: datetime | None = None,
 ) -> ComputeResult:
     """Write the rows of the version at `commit_sha` of `document`, whose bare repository is at
     `repository_path`, in the tenant's schema the connection is set to; then delete the rows of
     every version of the document other than the repository's head and its latest accepted
     version (DL-0266) — both found here, so no two callers can keep different sets; rows with an
-    expiry are left to it.
+    expiry are left to it. `expires_at` gives the rows of a past version asked for on demand an
+    end; a kept version's rows never take one, whoever asked.
 
     Idempotent: computing again writes the same rows. Raises `VersionMissing` naming every commit
     the rows would point at that has no version row, and writes nothing.
@@ -250,6 +253,10 @@ def compute(
                     "pk", flat=True
                 )
             )
+        # The head and the latest accepted version keep their rows (DL-0266): never an expiry.
+        kept = version.commit_sha == head or (accepted is not None and accepted.pk == version.pk)
+        for row in rows:
+            row.expires_at = None if kept else expires_at
         LineAuthorship.objects.filter(version=version).delete()
         LineAuthorship.objects.bulk_create(rows)
         deleted, _ = (

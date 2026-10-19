@@ -268,14 +268,12 @@ def test_the_three_starts(two: Any, member_of: Any, link_group: Any, settings: A
     picker = client.get(start.group(1).replace("&amp;", "&"))
     assert picker.status_code == 200 and 'name="with" value=""' in picker.content.decode()
 
-    # The historical page: its first form compares two versions, the second another document.
+    # The historical page: its versions alone (DL-0488).
     historical = client.get(f"/document/{a}/version/1.0/").content.decode()
     forms = re.findall(r'<form class="(compare-[a-z-]+)"[^>]*>(.*?)</form>', historical, re.S)
     named = dict(forms)
+    assert set(named) == {"compare-with"}
     assert 'name="to"' in named["compare-with"] and 'name="from"' in named["compare-with"]
-    second = named["compare-with-document"]
-    assert 'name="from" value="1.0"' in second and 'name="with"' in second
-    assert 'name="to"' not in second
     sent = client.get(f"/document/{a}/compare/?from=1.0&with={b}")
     assert f"Comparing #{a} 1.0 with #{b} 1.0-1" in _text(sent.content.decode())
 
