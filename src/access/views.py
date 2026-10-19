@@ -16,7 +16,6 @@ from access.rights import GRID, LABELS, Right, implied
 from documents import holds
 from documents.models import Document, DocumentState
 from identity.models import Membership, MembershipState, User
-from identity.naming import person
 from shell.views import frame, not_found
 from syngraphe.provenance import ActorKind
 from tenancy.middleware import TenantRequest
@@ -191,14 +190,15 @@ def _links_context(request: HttpRequest) -> dict[str, Any]:
                 "linked": linked,
                 "candidates": [g for g in groups if g.id not in linked_ids],
                 "held": hold is not None,
-                # The holder's name goes to administrators only (ADR-0006, DL-0226).
-                "holder": person(hold.user) if hold is not None else "",
+                # The holder goes to administrators only (ADR-0006, DL-0226), by address as every
+                # administration page names a person (DL-0434).
+                "holder": hold.user.email if hold is not None else "",
                 "reserved_at": hold.reserved_at if hold is not None else None,
                 # Whose hold it is, so an administrator is never offered to force their own.
                 "holder_id": hold.user_id if hold is not None else None,
                 "hold_id": hold.pk if hold is not None else None,
                 "archived": document.state == DocumentState.ARCHIVED,
-                "creator": (creator.display_name or creator.email) if creator else "",
+                "creator": creator.email if creator else "",
             }
         )
     return {

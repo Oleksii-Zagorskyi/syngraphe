@@ -179,7 +179,6 @@ def end(request: HttpRequest, number: int) -> HttpResponse:
     never ended with a reason written about another. `404` for anyone but an administrator, on a
     hold not reserved, or for its own holder, who cancels it instead."""
     from editions.models import REASON_MAX
-    from identity.naming import person
 
     if request.method not in ("GET", "POST"):
         return not_found(request)
@@ -189,7 +188,8 @@ def end(request: HttpRequest, number: int) -> HttpResponse:
     context = {
         "hold": hold,
         "document": hold.document,
-        "holder": person(hold.user),
+        # By address, as every administration page names a person (DL-0434).
+        "holder": hold.user.email,
         "reason": "",
         "reason_max": REASON_MAX,
     }
@@ -236,14 +236,13 @@ def administration(request: HttpRequest) -> HttpResponse:
 
     if request.method != "GET" or not administers(request):
         return not_found(request)
-    from identity.naming import person
-
     reserved = (
         Hold.objects.filter(released_at__isnull=True, reserved_at__isnull=False)
         .select_related("document", "user")
         .order_by("reserved_at", "document__number")
     )
-    rows = [{"hold": hold, "holder": person(hold.user)} for hold in reserved]
+    # By address, as every administration page names a person (DL-0434).
+    rows = [{"hold": hold, "holder": hold.user.email} for hold in reserved]
     return render(request, "editing/reservations.html", {"reserved": rows})
 
 

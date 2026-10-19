@@ -23,7 +23,6 @@ from access.views import administers
 from audit.record import record
 from documents.views import is_member
 from identity.models import User
-from identity.naming import person
 from rendering.models import ExportFormat, ExportState, SampleExport, Stylesheet
 from rendering.stylesheet import FONTS, GENERICS, StyleRefusal, check, digest, served
 from shell.views import frame, not_found
@@ -112,7 +111,8 @@ def _page(
         "not_carried": _not_carried(current.text if not refusals else ""),
         "fonts": FONTS,
         "generics": GENERICS,
-        "changed_by": person(current.updated_by) if current.updated_by_id else "",
+        # By address, as every administration page names a person (DL-0434).
+        "changed_by": current.updated_by.email if current.updated_by is not None else "",
         "changed_at": current.updated_at if current.updated_by_id else current.created_at,
         "page_url": PAGE,
         "refused": refused,

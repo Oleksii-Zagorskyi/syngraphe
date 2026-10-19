@@ -75,3 +75,21 @@ def test_platform_pages_closed_on_an_organisations_domain(make_tenant_schema: An
 
     for page in PAGES:
         assert client.get(page).status_code == 404, page
+
+
+def test_administrators_named_by_address(platform_admin: Any) -> None:
+    """An administration page names a person by address, a display name or not (DL-0434)."""
+    from identity.models import User
+
+    client, _ = platform_admin()
+    User.objects.create_user(
+        "second.admin@example.test",
+        "Tr4vel-Plan-Ok",
+        is_platform_admin=True,
+        display_name="Synthetic Operator",
+    )
+
+    body = client.get(PAGES[3]).content.decode()
+
+    assert "second.admin@example.test" in body
+    assert "Synthetic Operator" not in body

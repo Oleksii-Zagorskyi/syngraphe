@@ -107,7 +107,8 @@ def test_lists_each_with_its_end_link(
     for document, holder, _, _, date in reservations:
         number = document.number
         assert document.title in shown or f"#{number}" in shown or f"/document/{number}/" in body
-        assert holder.display_name in shown or holder.email in shown
+        # An administration page names a person by address (DL-0434).
+        assert holder.email in shown and holder.display_name not in shown
         assert date_shown(shown, date, settings.DISPLAY_TIMEZONE), number
         assert f'href="/document/{number}/edit/end-reservation/"' in body
     frame = admin_client.get("/administration/tenant/users/").content.decode()

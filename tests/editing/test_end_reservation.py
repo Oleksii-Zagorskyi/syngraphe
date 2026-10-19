@@ -175,7 +175,7 @@ def test_end_with_a_reason(migrated_tenant: Any, reserved: Reserved, settings: A
     assert form_posting_to(body, url)
     assert has_reason_field(body)
     shown = text_of(body)
-    assert reserved.holder.display_name in shown or reserved.holder.email in shown
+    assert reserved.holder.email in shown and reserved.holder.display_name not in shown
     assert date_shown(shown, reserved.hold.reserved_at, settings.DISPLAY_TIMEZONE)
 
     ended = reserved.admin_client.post(url, {"reason": REASON, "hold": str(reserved.hold.pk)})
@@ -313,12 +313,12 @@ def test_where_the_ending_is_offered_and_read(
     assert html.escape(REASON) in listed or REASON in listed
 
 
-def test_the_end_names_its_people_as_every_page_does(
+def test_the_notice_names_the_administrator_through_person(
     migrated_tenant: Any, reserved: Reserved, settings: Any
 ) -> None:
-    """A holder without a name is *anonymous editor* to administrators too, never an address
-    (DL-0339); the holder is told who ended the reservation (DL-0225), in the entry and its
-    email, the reason in neither email."""
+    """The administration pages name the holder by address, named or not (DL-0434); the holder
+    is told who ended the reservation by the name the platform gives a person (DL-0339, DL-0225),
+    in the entry and its email, the reason in neither email."""
     from mail.models import EmailOutbox
     from notifications.models import Notification
 
@@ -332,8 +332,8 @@ def test_the_end_names_its_people_as_every_page_does(
         reserved.admin_client.get("/administration/tenant/reservations/"),
     ):
         body = page.content.decode()
-        assert "anonymous editor" in body
-        assert reserved.holder.email not in body
+        assert reserved.holder.email in body
+        assert "anonymous editor" not in body
     reserved.admin_client.post(
         f"/document/{number}/edit/end-reservation/",
         {"reason": REASON, "hold": str(reserved.hold.pk)},
@@ -342,7 +342,7 @@ def test_the_end_names_its_people_as_every_page_does(
         told = Notification.objects.get(event="reservation_ended_by_admin")
         assert told.facts["by"] == str(reserved.admin.pk)
     listed = reserved.holder_client.get("/notifications/?tab=document").content.decode()
-    assert "Synthetic Administrator" in listed
+    assert "Synthetic Administrator" in listed and reserved.admin.email not in listed
     with schema_context(migrated_tenant.number):
         email = EmailOutbox.objects.get(notification_id=told.pk)
     assert "Synthetic Administrator" in email.body and REASON not in email.body

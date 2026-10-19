@@ -34,7 +34,8 @@ def test_page_for_administrators_only(
     body = as_admin.content.decode()
     assert as_admin.status_code == 200
     assert "Synthetic example" in body
-    assert "Synthetic Author" in body
+    # An administration page names a person by address (DL-0434).
+    assert "the.creator@example.test" in body and "Synthetic Author" not in body
     assert 'class="tag author-only"' in body
     assert as_member.status_code == 404
 
@@ -139,11 +140,13 @@ def test_locked_rows_name_the_holder(
         document.number: body.split(f"<td>{document.number}</td>", 1)[1].split("</tr>", 1)[0]
         for document in (held, reserved, free)
     }
-    assert "Held by Synthetic Editor" in rows[held.number]
+    assert "Held by the.holder@example.test" in rows[held.number]
+    assert "Synthetic Editor" not in rows[held.number]
     assert "Reserved" not in rows[held.number] and "Held by" not in rows[reserved.number]
     with schema_context(migrated_tenant.number):
         assert holds.holder_of(held) == holder and holds.holder_of(free) is None
-    assert "Synthetic Reviewer" in rows[reserved.number]
+    assert "the.keeper@example.test" in rows[reserved.number]
+    assert "Synthetic Reviewer" not in rows[reserved.number]
     assert "Reserved for editing" in rows[reserved.number]
     assert "5 October 2026" in rows[reserved.number] or "Oct. 5, 2026" in rows[reserved.number]
     assert "Held by" not in rows[free.number] and "Reserved" not in rows[free.number]
@@ -173,14 +176,15 @@ def test_author_only_and_archived_rows(
 
     mine_row = body.split(f"<td>{mine.number}</td>", 1)[1].split("</tr>", 1)[0]
     archived_row = body.split(f"<td>{archived.number}</td>", 1)[1].split("</tr>", 1)[0]
-    assert "Synthetic Author" in mine_row and 'class="tag author-only"' in mine_row
+    assert "the.creator@example.test" in mine_row and "Synthetic Author" not in mine_row
+    assert 'class="tag author-only"' in mine_row
     # No group is linked, so no chip; linking one is how the row opens to others.
     assert 'class="chip"' not in mine_row and 'class="link-a-group"' in mine_row
     assert "Archived — its links take effect on restore." in archived_row
     assert 'class="link-a-group"' in archived_row
 
 
-def test_a_holder_is_named_as_the_platform_names_a_person(
+def test_a_holder_is_named_by_address(
     migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any
 ) -> None:
     settings.LANGUAGE_CODE = "en"
@@ -193,8 +197,8 @@ def test_a_holder_is_named_as_the_platform_names_a_person(
     body = admin_client.get(URL).content.decode()
 
     row = body.split(f"<td>{document.number}</td>", 1)[1].split("</tr>", 1)[0]
-    assert "Held by anonymous editor." in row
-    assert "no.name@example.test" not in row
+    assert "Held by no.name@example.test." in row
+    assert "anonymous editor" not in row
 
 
 def test_the_page_reads_every_hold_at_once(

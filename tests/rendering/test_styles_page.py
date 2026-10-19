@@ -67,6 +67,9 @@ def test_apply_checks_saves_and_audits(
     refused = admin.post(PAGE, {"text": "h1 { color: #123456; }\nh2 { background: url(x.png) }\n"})
 
     assert applied.status_code == 303 and applied["Location"] == PAGE
+    # An administration page names a person by address, a name or not (DL-0434).
+    shown = html.unescape(admin.get(PAGE).content.decode())
+    assert "an.admin@example.test" in shown and "anonymous editor" not in shown
     row = _row(migrated_tenant)
     assert (row.text, row.updated_by_id) == (VALID, admin_user.pk)
     (event,) = AuditEvent.objects.filter(action="stylesheet.changed")

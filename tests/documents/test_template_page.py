@@ -103,7 +103,9 @@ def test_saving_the_template_is_audited(migrated_tenant: Any, member_of: Any) ->
         "title_page_layout": "",
     }
     assert event.after == {"outline": outline, "title_page": True, "title_page_layout": ""}
-    assert "Last changed by An Administrator" in admin.get(PAGE).content.decode()
+    # An administration page names a person by address (DL-0434).
+    page = admin.get(PAGE).content.decode()
+    assert "Last changed by an.admin@example.test" in page and "An Administrator" not in page
 
 
 def test_a_refused_template_names_each_line(migrated_tenant: Any, member_of: Any) -> None:

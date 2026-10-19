@@ -21,7 +21,6 @@ from documents.forms import TemplateForm, TitlePageLayoutForm
 from documents.models import DocumentTemplate
 from documents.template import TemplateRefusal, checked
 from identity.models import Language, User
-from identity.naming import person
 from shell.views import frame, not_found
 
 PAGE = "/administration/tenant/template/"
@@ -108,7 +107,8 @@ def _page(
         **frame(request),
         "form": form,
         "refusals": [refusal_text(r) for r in refusals or []],
-        "changed_by": person(current.updated_by) if current.updated_by_id else "",
+        # By address, as every administration page names a person (DL-0434).
+        "changed_by": current.updated_by.email if current.updated_by is not None else "",
         "changed_at": current.updated_at if current.updated_by_id else current.created_at,
         "page_url": PAGE,
     }

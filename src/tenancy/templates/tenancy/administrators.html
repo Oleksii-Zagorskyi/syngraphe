@@ -6,7 +6,7 @@
 <table>
   <thead><tr><th>{% translate "Person" %}</th><th></th></tr></thead>
   <tbody>
-    {% for person in administrators %}<tr><td>{{ person.display_name|default:person.email }}{% if person.self_blocked %} <span class="tag">{% translate "blocked their own account" %}</span>{% endif %}</td><td>{% if person.pk == last %}<span class="btn disabled" aria-disabled="true" title="{% translate "The last platform administrator keeps the role." %}">{% translate "Revoke" %}</span> <span class="note">{% translate "The last platform administrator keeps the role." %}</span>{% else %}<form method="post" action="{% url 'administration_revoke' person.pk %}" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Revoke" %}</button></form>{% endif %}</td></tr>{% endfor %}
+    {% for person in administrators %}<tr><td>{{ person.email }}{% if person.self_blocked %} <span class="tag">{% translate "blocked their own account" %}</span>{% endif %}</td><td>{% if person.pk == last %}<span class="btn disabled" aria-disabled="true" title="{% translate "The last platform administrator keeps the role." %}">{% translate "Revoke" %}</span> <span class="note">{% translate "The last platform administrator keeps the role." %}</span>{% else %}<form method="post" action="{% url 'administration_revoke' person.pk %}" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Revoke" %}</button></form>{% endif %}</td></tr>{% endfor %}
   </tbody>
 </table>
 <form method="post" action="{% url 'administration_grant' %}" class="toolbar" novalidate>
