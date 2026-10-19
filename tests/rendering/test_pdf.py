@@ -559,3 +559,23 @@ def test_an_export_carries_the_organisations_stylesheet(
     paragraph = next(b for b in boxes if b["tag"] == "p" and "approval" in b["text"])
     assert heading["color"] == "#123456"
     assert paragraph["font_family"][0] == "DejaVu Serif"
+
+
+@pytest.mark.fast
+def test_the_attachment_list_names_each_file() -> None:
+    """The PDF's and the Word file's attachment list: each attachment's title, its file's name and
+    the start of its hash, a row each."""
+    from rendering.export.compose import HASH_SHOWN, page_html
+
+    sha = "ab" * 32
+    attachment = {"title": "Synthetic form", "file_name": "synthetic-form.xlsx", "sha256": sha}
+    page = page_html(
+        language="en",
+        header="H",
+        title_page="",
+        text="",
+        attachments=[attachment],
+    )
+
+    row = f"<tr><td>Synthetic form</td><td>synthetic-form.xlsx</td><td><code>{sha[:HASH_SHOWN]}"
+    assert row in page

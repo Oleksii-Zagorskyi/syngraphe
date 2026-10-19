@@ -139,6 +139,26 @@ def fresh_host_cache() -> None:
     invalidate_host_cache()
 
 
+@pytest.fixture(scope="session")
+def memoised_functions() -> tuple[Any, ...]:
+    """Every function in `src/` kept by `cache` or `lru_cache` (`tests/foundation/test_memoised.py`
+    fails when one is missing)."""
+    from documents.template import _normal_form
+    from editing.markdown import load_spec
+    from rendering.export.docx import reference, text_width
+    from rendering.stylesheet import _passes, _served
+
+    return (_normal_form, load_spec, reference, text_width, _passes, _served)
+
+
+@pytest.fixture(autouse=True)
+def fresh_memos(memoised_functions: tuple[Any, ...]) -> None:
+    """Each test runs a memoised function's body itself: a value another test left would hide the
+    body from the test, and from the coverage that selects a story's tests."""
+    for function in memoised_functions:
+        function.cache_clear()
+
+
 # A queue of this run alone, so a worker container sharing the broker never takes the test's task.
 TEST_QUEUE = f"test-{uuid.uuid4().hex}"
 

@@ -1745,6 +1745,19 @@ def test_a_selector_nested_past_any_depth_is_refused_not_raised(depth: int, open
     assert [(r.line, r.code) for r in found] == [(2, "selector")]
 
 
+def test_a_refused_selector_is_quoted_whole_up_to_the_depth_limit() -> None:
+    """At the limit the selector is named as written; one level past it, its blocks elided."""
+    from rendering.stylesheet import DEPTH_MOST, check
+
+    def named(depth: int) -> str:
+        selector = "p:not(" * depth + "p" + ")" * depth
+        [refusal] = check(selector + " { color: red }\n")
+        return refusal.subject
+
+    assert named(DEPTH_MOST) == "p:not(" * DEPTH_MOST + "p" + ")" * DEPTH_MOST
+    assert named(DEPTH_MOST + 1) == "p:not(…)"
+
+
 @pytest.mark.parametrize(
     "text",
     [

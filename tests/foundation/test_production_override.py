@@ -232,6 +232,14 @@ def test_front_log_hides_link_tokens() -> None:
     assert f"{paths}/" in template
 
 
+# A worker writes a request's log line after its answer has left, so the log is read only once
+# nginx has quit gracefully and its master is gone: every worker has finished its requests then.
+QUIT = (
+    "pid=$(cat /var/run/nginx.pid) && nginx -s quit"
+    " && while kill -0 $pid 2>/dev/null; do sleep 0.05; done"
+)
+
+
 @needs_docker
 def test_front_access_log_hides_link_tokens(tmp_path: Path) -> None:
     """The front's own map, run by nginx: no request for a credential route leaves its token in
@@ -257,10 +265,11 @@ server {
         [
             str(DOCKER), "run", "--rm",
             "-v", f"{tmp_path / 'default.conf'}:/etc/nginx/conf.d/default.conf:ro",
-            "nginx:1.27-alpine", "sh", "-c", f"nginx && {asked} && cat /tmp/access.log",
+            "nginx:1.27-alpine", "sh", "-c", f"nginx && {asked} && {QUIT} && cat /tmp/access.log",
         ],
         capture_output=True,
         text=True,
+        timeout=120,
     )  # fmt: skip
     assert made.returncode == 0, made.stderr
     lines = made.stdout.splitlines()

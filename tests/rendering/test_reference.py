@@ -214,6 +214,17 @@ def test_pictures_are_fitted_to_the_derived_page(tmp_path: Path, monkeypatch: An
 
 
 @pytest.mark.fast
+def test_a_line_height_is_carried_in_word_s_line_units() -> None:
+    """Word counts automatic line spacing in 240ths of a line: 1.5 is 360."""
+    from rendering.reference import derive
+
+    derived = derive("p { line-height: 1.5 }\n")
+
+    assert derived.styles["BodyText"].spacing == {"w:line": "360", "w:lineRule": "auto"}
+    assert derived.unmapped == []
+
+
+@pytest.mark.fast
 def test_a_vertical_auto_margin_is_carried_as_none() -> None:
     from rendering.reference import derive
 
