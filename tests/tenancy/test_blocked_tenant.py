@@ -2,6 +2,7 @@
 administrators (ST-0065, DL-0376): the membership step — an active membership needs an active
 organisation — answers *Nothing to show here* on its domain and from the platform host, and the
 platform administrator reaches each page, the organisation listed and marked in the selector.
+Every other route is swept for the same answer by `test_blocked_sweep.py`.
 
 People, organisations and texts are synthetic examples."""
 
