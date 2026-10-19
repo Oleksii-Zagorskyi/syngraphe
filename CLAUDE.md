@@ -92,7 +92,17 @@ docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 # printed
 uv run ruff check . && uv run ruff format --check . && uv run mypy src \
   && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget --durations=0
+
+# per story, the tests the change can reach, by coverage; the full check
+# instead when the change is not ordinary Python (docs/test-strategy.md
+# § Tests done, for a story)
+uv run ruff check . && uv run ruff format --check . \
+  && uv run pytest -q -n auto -m "not budget" --testmon-forceselect
 ```
+
+`--testmon-forceselect` is needed because `-m` alone turns testmon's
+selection off. Its data file, `.testmondata`, belongs to the working folder and
+is never committed; the first run in a fresh folder records the whole suite.
 
 The first line installs the Python dependencies from `uv.lock` and the
 editor's from `package-lock.json`, builds the editor's bundle and installs the
