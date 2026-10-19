@@ -65,6 +65,8 @@ def test_platform_admin_sees_both_panes(signed_in: Any, tenant: Any) -> None:
     assert 'name="organisation"' in body
     assert tenant.name in body
     assert 'href="/administration/platform/mail/"' in body
+    assert 'href="/administration/platform/audit/"' in body
+    assert body.index("/platform/mail/") < body.index("/platform/audit/")
 
 
 def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: Any) -> None:

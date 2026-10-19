@@ -39,7 +39,12 @@ class AuditEvent(models.Model):
 
     class Meta:
         ordering = ["at"]
-        indexes = [models.Index(fields=["object_type", "object_id"])]
+        indexes = [
+            models.Index(fields=["object_type", "object_id"]),
+            # The audit log's reads: the newest events, of all or of one organisation.
+            models.Index(fields=["at"], name="audit_event_at"),
+            models.Index(fields=["tenant", "at"], name="audit_event_tenant_at"),
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=(

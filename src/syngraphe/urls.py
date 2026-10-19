@@ -34,6 +34,7 @@ urlpatterns = [
     path("", include("tenancy.urls")),
     path("", include("notifications.urls")),
     path("", include("mail.urls")),
+    path("", include("audit.urls")),
     path("editing/conformance/", conformance.page, name="editing_conformance"),
     path("help/", help_pages.index, name="help"),
     path("help/<slug:slug>/", help_pages.page, name="help_page"),

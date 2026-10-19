@@ -4731,3 +4731,35 @@ msgstr "#%(number)s заархівовано"
 #, python-format
 msgid "#%(number)s restored"
 msgstr "#%(number)s відновлено"
+
+msgid "Audit log"
+msgstr "Журнал аудиту"
+
+msgid "person"
+msgstr "особа"
+
+msgid "Action"
+msgstr "Дія"
+
+msgid "Since"
+msgstr "Від"
+
+msgid "Until"
+msgstr "До"
+
+msgid "the platform"
+msgstr "платформа"
+
+msgid "The end of the period comes before its start."
+msgstr "Кінець періоду раніше за його початок."
+
+msgid "Object"
+msgstr "Об’єкт"
+
+#, python-format
+msgid "The newest %(count)s events matching."
+msgstr "Найновіші %(count)s подій, що відповідають умовам."
+
+#, python-format
+msgid "… %(count)s more"
+msgstr "… ще %(count)s"
