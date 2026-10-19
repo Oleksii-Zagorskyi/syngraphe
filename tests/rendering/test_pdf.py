@@ -552,7 +552,8 @@ def test_an_export_carries_the_organisations_stylesheet(
     listed = subprocess.run(["fc-list", ":", "family"], capture_output=True, text=True).stdout
     if os.environ.get("CI") or "DejaVu Serif" in listed:
         fonts = {str(font["/BaseFont"]) for font in page["/Resources"]["/Font"].values()}
-        assert any("DejaVuSerif" in name for name in fonts), fonts
+        # A font's name in the file carries hyphens: `DejaVu-Serif`.
+        assert any("DejaVuSerif" in name.replace("-", "") for name in fonts), fonts
     boxes = kit.computed(html, sheets)
     heading = next(b for b in boxes if b["tag"] == "h1")
     paragraph = next(b for b in boxes if b["tag"] == "p" and "approval" in b["text"])
