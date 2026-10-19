@@ -91,6 +91,7 @@ docker compose -f compose.yaml -f deploy/compose.dev.yaml up
 # tests on one worker per core, then the timing budgets alone, each one's time
 # printed
 uv run ruff check . && uv run ruff format --check . && uv run mypy src \
+  && uv run python scripts/check_record.py \
   && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget --durations=0
 
 # per story, the tests the change can reach, by coverage; the full check

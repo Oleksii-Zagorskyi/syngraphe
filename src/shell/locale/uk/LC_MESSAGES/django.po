@@ -479,7 +479,7 @@ msgid "a text longer than the platform accepts"
 msgstr "текст, довший, ніж приймає платформа"
 
 #: editing/messages.py:41
-msgid "a merged table cell"
+msgid "a table cell spanning several"
 msgstr "об’єднана клітинка таблиці"
 
 #: editing/messages.py:45
@@ -2038,7 +2038,7 @@ msgstr "Організація не має власної адреси надс�
 
 #: mail/templates/mail/sender_form.html
 msgid "A password is stored; it is never shown."
-msgstr "Пароль збережено; його ніколи не показують."
+msgstr "Пароль записано; його ніколи не показують."
 
 #: mail/templates/mail/outbox_rows.html
 msgid "Attempts"
@@ -2644,7 +2644,7 @@ msgstr "Причина: «%(reason)s»"
 
 #: editing/templates/editing/band.html
 msgid "Your editing of this document was ended, and your draft was kept."
-msgstr "Ваше редагування цього документа завершено, чернетку збережено."
+msgstr "Ваше редагування цього документа завершено, чернетку залишено."
 
 #: editing/templates/editing/band.html
 msgid "Open it in the edit tab"
@@ -2662,7 +2662,7 @@ msgstr "Ваше редагування завершено %(date)s, коли д
 
 #: editing/templates/editing/draft_readonly.html
 msgid "Your draft was kept."
-msgstr "Вашу чернетку збережено."
+msgstr "Вашу чернетку залишено."
 
 #: editing/templates/editing/draft_readonly.html editing/messages.py
 msgid "Take the document back"
@@ -2706,7 +2706,7 @@ msgstr "Я ще працюю"
 
 #: editing/templates/editing/end_reservation.html
 msgid "Ending it frees the document for others. The draft is kept for the person editing, who is told who ended it, when and why."
-msgstr "Завершення звільняє документ для інших. Чернетку буде збережено для того, хто редагує, і цій людині повідомлять, хто, коли й чому завершив резервування."
+msgstr "Завершення звільняє документ для інших. Чернетку буде залишено для того, хто редагує, і цій людині повідомлять, хто, коли й чому завершив резервування."
 
 #: editing/templates/editing/end_reservation.html
 msgid "This reservation has changed since the page was opened. Read it again before ending it."
@@ -3150,7 +3150,7 @@ msgstr "Скасувати всі правки цього автора післ�
 
 #: review/views/undo.py
 msgid "Your editing of this document was ended, and your draft was kept: take the document back or discard the draft first."
-msgstr "Ваше редагування цього документа завершено, чернетку збережено: спершу заберіть документ назад або відкиньте чернетку."
+msgstr "Ваше редагування цього документа завершено, чернетку залишено: спершу заберіть документ назад або відкиньте чернетку."
 
 #: review/views/undo.py
 msgid "Nothing of this is left to undo."
@@ -3705,7 +3705,7 @@ msgstr "Архів"
 
 #: notifications/events.py
 msgid "Document #%(number)s, which you were editing, was archived by %(by)s; your draft is kept."
-msgstr "Документ #%(number)s, який ви редагували, заархівовано — %(by)s; вашу чернетку збережено."
+msgstr "Документ #%(number)s, який ви редагували, заархівовано — %(by)s; вашу чернетку залишено."
 
 #: editing/templates/editing/draft_readonly.html
 msgid "Your editing was ended on %(date)s when you archived the document."
@@ -3914,7 +3914,7 @@ msgstr "Назва — один рядок тексту, не довше 500 с�
 
 #: editing/views/parts.py
 msgid "This file’s name cannot be kept: it must be one line, without slashes, and must not begin with a dot."
-msgstr "Таку назву файлу не можна зберегти: вона має бути одним рядком, без скісних рисок, і не починатися з крапки."
+msgstr "Таку назву файлу не можна залишити: вона має бути одним рядком, без скісних рисок, і не починатися з крапки."
 
 #: editing/views/parts.py
 msgid "That part is no longer in your draft."

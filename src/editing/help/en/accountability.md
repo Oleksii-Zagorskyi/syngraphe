@@ -10,7 +10,7 @@ Administration › *Settings* holds three of the organisation's own rules, for i
 - **Inactivity timeout** — how long an editor may stay idle before being asked *Are you still working?*, from 5 to 480 minutes. A reserved document is never released for inactivity.
 - **Distinct approver check** — when on, nobody who accepted any of the runs since the previous edition may make the next one canonical: a second person stands behind every text that becomes authoritative.
 
-*Apply* saves them; a value outside its bound is refused with the bound named. A change governs the next act and the next check of an idle editor; it releases or asks nothing by itself. Every change is recorded with the settings it changed.
+*Apply* sets them; a value outside its bound is refused with the bound named. A change governs the next act and the next check of an idle editor; it releases or asks nothing by itself. Every change is recorded with the settings it changed.
 
 ## Access history
 

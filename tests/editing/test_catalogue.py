@@ -291,7 +291,7 @@ def test_catalogue_covers_the_parts_panel(
     leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
     assert leaked == [], f"the parts panel shows message ids verbatim: {leaked}"
     assert "Перемістити нижче" in refused.content.decode()
-    assert "Таку назву файлу не можна зберегти" in body
+    assert "Таку назву файлу не можна залишити" in body
 
 
 @pytest.mark.integration

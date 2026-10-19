@@ -1,4 +1,4 @@
-"""The names an export's files carry (DL-0275, DL-0357): one file is
+"""The names an export's files carry (DL-0275, DL-0359): one file is
 `<title>_—_<version>_—_<stance>.<ext>`, a marked one ends its stance in `-<marks>`, and a part
 inside a zip is `<word>-<number>_—_<name>`. Every space becomes `_`, every character filesystems
 refuse becomes `-`, and nothing else changes.

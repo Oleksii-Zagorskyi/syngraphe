@@ -39,7 +39,7 @@ CONSTRUCTS = {
     "unsupported": _("a construct outside the allowed Markdown"),
     "control-character": _("an invisible control character"),
     "too-large": _("a text longer than the platform accepts"),
-    "table-merged": _("a merged table cell"),
+    "table-merged": _("a table cell spanning several"),
     "image-missing": _("an image the document does not hold"),
     "mention-id": _("a mention without a document number"),
 }

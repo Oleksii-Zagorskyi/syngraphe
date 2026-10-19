@@ -21,8 +21,10 @@ The commands a developer runs locally are the commands CI runs — never a varia
 
 ```bash
 uv sync --locked && npm ci && npm run build && uv run playwright install chromium
-uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget --durations=0
+uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run python scripts/check_record.py && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget --durations=0
 ```
+
+`scripts/check_record.py` checks what the record must keep true and a script can decide: every cited decision row, ADR, story, verification claim and backlog row exists, and no superseded row is cited as current; the coverage table is current; each page's stories are its regions'; the help index and the page list agree; every address of a document is in the technical design; the glossary's never-used words stay out of the interface and its terms keep their pairs in the help.
 
 The tests run on one worker per core (`pytest-xdist`), each worker with a test database of its own, and every run with a database name of its own, so two runs on one server never share one (DL-0428). The suite refuses a database server that archives its log: the stack's `db` sends every segment to the backup store, and a test run's would go with it (DL-0430). The timing budgets, marked `budget`, run afterwards in a process of their own: beside the workers they measure the load. Each one's time is printed, so its margin shows on a green run, not only on a red one — a shared CI runner is slower than a developer's machine, and a budget that passes there by a few milliseconds is visible before it fails. A single file or test runs without `-n`, in one process.
 

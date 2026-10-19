@@ -35,7 +35,7 @@ def paste(page: Any, html: str | None = None, text: str | None = None) -> str:
 
 REFUSED = [
     ("<table><tr><td><table><tr><td>x</td></tr></table></td></tr></table>", "a table inside"),
-    ("<table><tr><td colspan='2'>x</td></tr></table>", "a merged table cell"),
+    ("<table><tr><td colspan='2'>x</td></tr></table>", "a table cell spanning several"),
     ("<h5>Heading</h5>", "a heading below depth four"),
     ("<p>before</p><script>alert(1)</script>", "HTML"),
     ("<p>before</p><hr><p>after</p>", "a horizontal rule"),

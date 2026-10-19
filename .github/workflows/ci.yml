@@ -113,6 +113,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: uv run mypy src
 
+      - name: Record
+        if: ${{ !cancelled() }}
+        run: uv run python scripts/check_record.py
+
       # Every test but the timing budgets, on one worker per core.
       - name: Tests
         if: ${{ !cancelled() }}

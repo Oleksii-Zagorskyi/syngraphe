@@ -1,4 +1,4 @@
-"""The names an exported file carries (DL-0275, DL-0357): what people call the document, the version
+"""The names an exported file carries (DL-0275, DL-0359): what people call the document, the version
 and the stance the file shows, and the marks when it carries them — one token in a shell or a mail
 client, and never a character a filesystem refuses.
 """

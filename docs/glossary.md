@@ -339,4 +339,6 @@ The substrate is invisible (ASR-06), so none of these appears anywhere a user ca
 
 **commit · branch · merge · pull request · repository · ref · diff · blame · LaTeX**
 
+Українською: коміт · гілк · репозитор · зберегт · збережіть · збережено
+
 And one that is not a git word: **save**. There is no Save button, and calling anything "save" reintroduces the idea that work can be lost by not doing it.

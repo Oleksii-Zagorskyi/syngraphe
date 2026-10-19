@@ -38,15 +38,15 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | [Document list](#document-list) | `/folder/7/`; `/` opens the root, `/folder/1/` | ST-0009, ST-0012, ST-0013, ST-0014, ST-0018, ST-0051, ST-0052, ST-0064 | **0.1** |
 | [In edit, In review](#in-edit-in-review) | `/in-edit/`, `/in-review/` | ST-0013, ST-0014 | **0.1** |
 | [Search results](#search-results) | `/search/?q=…&type=…` | ST-0013 | **0.1** |
-| [Document page](#document-page) | `/document/12/` and one segment per tab | ST-0005, ST-0010, ST-0014, ST-0015, ST-0016, ST-0017, ST-0018, ST-0019, ST-0020, ST-0021, ST-0022, ST-0023, ST-0024, ST-0026, ST-0027, ST-0028, ST-0029, ST-0030, ST-0031, ST-0032, ST-0033, ST-0034, ST-0035, ST-0036, ST-0037, ST-0038, ST-0039, ST-0040, ST-0041, ST-0042, ST-0043, ST-0044, ST-0045, ST-0051, ST-0052, ST-0053, ST-0059, ST-0060, ST-0061, ST-0062, ST-0063, ST-0064, ST-0067, ST-0069, ST-0070 | **0.1** |
+| [Document page](#document-page) | `/document/12/` and one segment per tab | ST-0005, ST-0010, ST-0014, ST-0015, ST-0016, ST-0017, ST-0018, ST-0019, ST-0020, ST-0021, ST-0022, ST-0023, ST-0024, ST-0026, ST-0027, ST-0028, ST-0029, ST-0030, ST-0031, ST-0032, ST-0033, ST-0034, ST-0035, ST-0036, ST-0037, ST-0038, ST-0039, ST-0040, ST-0041, ST-0042, ST-0043, ST-0044, ST-0045, ST-0051, ST-0052, ST-0053, ST-0058, ST-0059, ST-0060, ST-0061, ST-0062, ST-0063, ST-0064, ST-0067, ST-0069, ST-0070 | **0.1** |
 | [Appendix page](#appendix-page) | `/document/12/appendix/3/` | ST-0023, ST-0061 | **0.1** |
-| [Historical page](#historical-page) | `/document/12/version/2.0/` | ST-0027, ST-0032, ST-0041, ST-0044, ST-0061, ST-0064 | **0.1** |
+| [Historical page](#historical-page) | `/document/12/version/2.0/` | ST-0027, ST-0032, ST-0041, ST-0044, ST-0061 | **0.1** |
 | [Compare](#compare) | `/document/12/compare/?from=2.0&to=2.3-1` | ST-0033, ST-0041, ST-0064 | **0.1** |
 | [Send-for-review screen](#send-for-review-screen) | within the edit tab, opened by *finish editing* | ST-0022, ST-0029, ST-0035 | **0.1** |
 | [Export](#export) | a dialog | ST-0045 | **0.1** |
 | [Create or copy a document](#create-or-copy-a-document) | a dialog | ST-0009, ST-0067 | **0.1** |
 | [Notifications](#notifications) | `/notifications/` | ST-0004, ST-0030, ST-0035, ST-0036, ST-0047, ST-0048, ST-0051, ST-0052, ST-0070 | **0.1** |
-| [Help](#help) | `/help/…` | ST-0002, ST-0003, ST-0004, ST-0007, ST-0012, ST-0013, ST-0015, ST-0016, ST-0019, ST-0026, ST-0027, ST-0028, ST-0043, ST-0044, ST-0045, ST-0054, ST-0055, ST-0060, ST-0064, ST-0065, ST-0066, ST-0067 | **0.1** |
+| [Help](#help) | `/help/…` | ST-0002, ST-0003, ST-0004, ST-0006, ST-0007, ST-0012, ST-0013, ST-0015, ST-0016, ST-0019, ST-0026, ST-0027, ST-0028, ST-0030, ST-0043, ST-0044, ST-0045, ST-0046, ST-0050, ST-0053, ST-0054, ST-0055, ST-0058, ST-0060, ST-0061, ST-0062, ST-0063, ST-0064, ST-0065, ST-0066, ST-0067 | **0.1** |
 | [Nothing to show here](#nothing-to-show-here) | any address that may not be seen | ST-0015 | **0.1** |
 | [Administration](#administration) | `/administration/platform/…`, `/administration/tenant/…` | ST-0001, ST-0002, ST-0003, ST-0004, ST-0005, ST-0006, ST-0011, ST-0012, ST-0015, ST-0016, ST-0030, ST-0046, ST-0048, ST-0049, ST-0050, ST-0051, ST-0053, ST-0058, ST-0062, ST-0065, ST-0066, ST-0068, ST-0071, ST-0072 | **0.1** |
 | User profile | — | — | **later** — not yet designed; the user menu carries what 0.1 needs |
@@ -302,7 +302,7 @@ Two tabs (DL-0204). **Document** — each entry linking to the document at the v
 
 ## Help
 
-Pages rendered from Markdown files shipped with the application (DL-0195), `/help/` opening on *reading a document* with the list beside it: how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, history, comparing and undoing, editing, editing together, the allowed Markdown — generated from the same specification as the editor and the parser — reading a document, exporting, template and styles, appendices and attachments, notifications, mail, people and access, finding and organising documents, and settings, access history and the audit log. Linked from every paste refusal.
+Pages rendered from Markdown files shipped with the application (DL-0195), `/help/` opening on *reading a document* with the list beside it: how a document moves, versions and their numbers, reviewing and accepting, freezing and editions, history, comparing and undoing, editing, editing together, what the editor accepts — generated from the same specification as the editor and the parser — reading a document, exporting, template and styles, appendices and attachments, notifications, mail, people and access, finding and organising documents, and settings, access history and the audit log. Linked from every paste refusal.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|

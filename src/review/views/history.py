@@ -40,7 +40,7 @@ def _rows(found: list[Any], run: dict[str, Any]) -> list[dict[str, Any]]:
     the latest accepted version — its acceptance or its edition — so all that lies above the line
     is work not yet accepted. A version of the pending run carries the undo controls to a holder
     of *accept* (`run`, by commit): *undo this edit*, and *undo all of this author's edits* on the
-    author's newest version (DL-0243, DL-0251)."""
+    author's newest version (ADR-0015, DL-0243, DL-0251)."""
     accepted = next((entry.target for entry in found if entry.boundary), None)
     newest = [entry for entry in reversed(found)]
     line = next((i for i, entry in enumerate(newest) if accepted and entry.target == accepted), -1)
