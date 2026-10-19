@@ -40,7 +40,15 @@ from editing.models import (
     OpenEditor,
     ReleaseKind,
 )
-from editing.normalizer import RULESET, Lists, NormalizerDefect, TooLarge, normalize, trailer
+from editing.normalizer import (
+    RULESET,
+    Emptied,
+    Lists,
+    NormalizerDefect,
+    TooLarge,
+    normalize,
+    trailer,
+)
 from tenancy.models import Tenant
 
 if TYPE_CHECKING:
@@ -228,6 +236,8 @@ def _normalised(head_body: str, body: str, lists: Lists) -> bytes:
         return normalize(head_body.encode(), body, lists)
     except TooLarge as error:
         raise DraftRefused([Refusal(1, "too-large")]) from error
+    except Emptied as error:
+        raise DraftRefused(error.refusals) from error
 
 
 CONTENT_KINDS = (gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT)
@@ -411,6 +421,9 @@ def _appendix(
         return normalize(current, text, lists)
     except TooLarge as error:
         raise DraftRefused([AppendixRefusal(1, "too-large", key)], appendix=title) from error
+    except Emptied as error:
+        refused: list[Refusal] = [AppendixRefusal(r.line, r.code, key) for r in error.refusals]
+        raise DraftRefused(refused, appendix=title) from error
 
 
 def _staged_bytes(draft: Draft, pk: Any) -> bytes:

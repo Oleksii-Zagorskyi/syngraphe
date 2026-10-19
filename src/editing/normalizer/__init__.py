@@ -5,7 +5,8 @@ version and the submission, run at commit. Its stages, named and never numbered,
   spelling per construct (`canonical`, `spellings`) — and decide what the edit *touched*: a line
   whose canonical form differs from the stored line;
 - *reuse* stored lines for unchanged and moved text (`reuse`);
-- *typography* over what *reuse* left, on touched lines only (`typography`);
+- *typography* over what *reuse* left, on touched lines only (`typography`), once the invisible
+  format characters are removed from it (DL-0487);
 - *split* that remainder into sentences (`splitter`);
 - *check* every new boundary by the parse-preservation invariant, joining the two sentences of a
   boundary that fails it (`invariant`).
@@ -25,6 +26,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from editing.markdown.rules import is_invisible, without_invisibles
 from editing.markdown.serializer import escape_line_start, serialize
 from editing.markdown.validator import Refusal, validate
 from editing.normalizer import invariant, reuse, splitter, typography
@@ -35,6 +37,7 @@ from editing.normalizer.version import RULESET, trailer
 __all__ = [
     "RULESET",
     "Lists",
+    "Emptied",
     "NormalizerDefect",
     "Normalised",
     "TooLarge",
@@ -51,6 +54,15 @@ TRAILING = re.compile(r"[ \t]+$", re.MULTILINE)
 
 class NormalizerDefect(Exception):
     """The normalizer produced a text the validator refuses or the serialiser rewrites."""
+
+
+class Emptied(NormalizerDefect):
+    """Removing the invisible characters of a changed line left a construct empty (DL-0487): the
+    draft is refused by the validator's `refusals`, each naming its submitted line."""
+
+    def __init__(self, refusals: list[Refusal]) -> None:
+        super().__init__(", ".join(f"{r.code} at line {r.line}" for r in refusals))
+        self.refusals = refusals
 
 
 class TooLarge(NormalizerDefect):
@@ -80,6 +92,41 @@ def run(previous: bytes, submitted: str, lists: Lists) -> Normalised:
     """`normalize`, with the lines it touched, for the tests of ASR-20."""
     if submitted == previous.decode("utf-8"):
         return Normalised(submitted, frozenset())
+    result = _run(previous, submitted, lists)
+    fault = _fault(result.text)
+    if fault == [Refusal(1, "too-large")]:
+        raise TooLarge(len(result.text.encode("utf-8")))
+    if fault is not None:
+        emptied = _emptied(previous, submitted)
+        if emptied:
+            raise Emptied(emptied)
+        found = ", ".join(f"{r.code} at line {r.line}" for r in fault) or "not a fixed point"
+        raise NormalizerDefect(found)
+    return result
+
+
+def _fault(text: str) -> list[Refusal] | None:
+    """`None` when `text` is accepted by the validator and written back unchanged by the
+    serialiser; else the validator's refusals, empty when only the serialiser rewrites it."""
+    refusals = validate(text)
+    if refusals or serialize(text) != text:
+        return refusals
+    return None
+
+
+def _emptied(previous: bytes, submitted: str) -> list[Refusal]:
+    """The submission's refusals once each line it changed loses its invisible characters, by the
+    submitted line: a construct holding nothing else — a list item, a span, a bold run of a
+    zero-width space — reads as empty and is refused as what it reads as (DL-0487)."""
+    stored = set(previous.decode("utf-8").split("\n"))
+    lines = canonicalise(submitted).split("\n")
+    return validate(
+        "\n".join(line if line in stored else without_invisibles(line) for line in lines)
+    )
+
+
+def _run(previous: bytes, submitted: str, lists: Lists) -> Normalised:
+    """The stored form and its touched lines, unchecked."""
     store = reuse.Store(layout(previous.decode("utf-8")))
     canonical = layout(canonicalise(submitted))
     paired = reuse.align(canonical.paragraphs, store)
@@ -100,17 +147,12 @@ def run(previous: bytes, submitted: str, lists: Lists) -> Normalised:
         line = canonical.lines[number]
         if line not in store.lines:
             touched.add(len(out))
-            line = _typeset_line(line, canonical.kinds.get(number), lists.language)
+            line = _typeset_line(
+                without_invisibles(line), canonical.kinds.get(number), lists.language
+            )
         out.append(line)
         number += 1
-    text = "\n".join(out)
-    refusals = validate(text)
-    if refusals == [Refusal(1, "too-large")]:
-        raise TooLarge(len(text.encode("utf-8")))
-    if refusals or serialize(text) != text:
-        found = ", ".join(f"{r.code} at line {r.line}" for r in refusals) or "not a fixed point"
-        raise NormalizerDefect(found)
-    return Normalised(text, frozenset(touched))
+    return Normalised("\n".join(out), frozenset(touched))
 
 
 def _typeset_line(line: str, kind: str | None, language: str) -> str:
@@ -135,14 +177,21 @@ def _paragraph(
         if piece.stored is not None:
             sentences.append((store.raw(piece.stored), piece.stored))
             continue
+        # New text loses its invisible characters, the mask kept in step (DL-0487).
+        kept = [i for i in range(piece.start, piece.end) if not is_invisible(text[i])]
         typeset = typography.typeset(
-            text[piece.start : piece.end], lists.language, masked[piece.start : piece.end]
+            "".join(text[i] for i in kept), lists.language, "".join(masked[i] for i in kept)
         )
         sentences += [(s, None) for s in splitter.split(typeset, lists)]
 
     if not sentences:
         pairs = zip(paragraph.prefixes, paragraph.lines, strict=True)
-        return [(prefix + line, prefix + line not in store.lines) for prefix, line in pairs]
+        return [
+            (prefix + line, False)
+            if prefix + line in store.lines
+            else (prefix + without_invisibles(line), True)
+            for prefix, line in pairs
+        ]
     out = []
     for n, (line, stored) in enumerate(
         _check([s for s, _ in sentences], [stored for _, stored in sentences])

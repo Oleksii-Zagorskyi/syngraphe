@@ -1879,16 +1879,138 @@
     "note": "A NUL character is refused."
   },
   {
-    "id": "refuse-byte-order-mark",
+    "id": "accept-byte-order-mark",
+    "kind": "accept",
+    "input": "Текст\ufeffдалі\n",
+    "stored": "Текст\ufeffдалі\n",
+    "note": "A byte-order mark inside text is accepted; the normalizer removes it from a line the edit changed (DL-0487)."
+  },
+  {
+    "id": "accept-invisibles-and-joiners",
+    "kind": "accept",
+    "input": "по\u00adдається пись\u200bмово\u2060 з\u200cєднувачем\u200d\u200e\n",
+    "stored": "по\u00adдається пись\u200bмово\u2060 з\u200cєднувачем\u200d\u200e\n",
+    "note": "A soft hyphen, a zero-width space, a word joiner, the two joiners and a direction mark are accepted and written back as they stand."
+  },
+  {
+    "id": "refuse-reordering-entity",
     "kind": "refuse",
-    "input": "Текст﻿далі\n",
+    "input": "Перше речення.\nДруге &#x202E;речення.\n",
     "refusals": [
       {
-        "code": "control-character",
-        "line": 1
+        "code": "reordering-mark",
+        "line": 2
       }
     ],
-    "note": "A byte-order mark inside text is refused."
+    "note": "A reordering mark spelled as an entity is refused as the mark itself: the parse decodes it."
+  },
+  {
+    "id": "refuse-reordering-202a",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u202aречення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A left-to-right embedding (U+202A) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-202b",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u202bречення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A right-to-left embedding (U+202B) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-202c",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u202cречення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A pop directional formatting (U+202C) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-202d",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u202dречення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A left-to-right override (U+202D) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-202e",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u202eречення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A right-to-left override (U+202E) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-2066",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u2066речення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A left-to-right isolate (U+2066) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-2067",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u2067речення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A right-to-left isolate (U+2067) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-2068",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u2068речення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A first strong isolate (U+2068) reorders what is read; refused by its line (DL-0486)."
+  },
+  {
+    "id": "refuse-reordering-2069",
+    "kind": "refuse",
+    "input": "Перше речення.\nДруге \u2069речення.\n",
+    "refusals": [
+      {
+        "code": "reordering-mark",
+        "line": 2
+      }
+    ],
+    "note": "A pop directional isolate (U+2069) reorders what is read; refused by its line (DL-0486)."
   },
   {
     "id": "respell-plus-after-boundary",

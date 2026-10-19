@@ -5,10 +5,12 @@
 // placed as a paragraph of its own; one that is only a web address is left out with a one-line
 // notice; the rest of the paste or the drop goes in. An image node as the editor draws it, wherever
 // it was copied from, is kept and placed alone; one this document does not hold is refused at
-// finishing. Plain text is literal text; Markdown is read only in the source view.
+// finishing. Plain text is literal text; Markdown is read only in the source view. The invisible
+// format characters a paste carries are left out of it, the two joiners kept (DL-0487).
 import { Fragment, Slice } from "prosemirror-model";
 import { dropPoint } from "prosemirror-transform";
 
+import { withoutInvisibles } from "./rules.js";
 import { dataFile, placeAll } from "./upload.js";
 
 // More cells than this in one paste is refused before the editor lays the table out.
@@ -89,7 +91,21 @@ function imagesOf(slice) {
   return { found, rest };
 }
 
-// `handlePaste`, `handleDrop` and `transformPastedHTML` for the editor's view; `check` validates a
+// A fragment's text without the invisible format characters it carries; a text node left empty
+// is dropped.
+function visible(fragment, schema) {
+  const kept = [];
+  fragment.forEach((node) => {
+    if (!node.isText) kept.push(node.isLeaf ? node : node.copy(visible(node.content, schema)));
+    else {
+      const text = withoutInvisibles(node.text);
+      if (text) kept.push(text === node.text ? node : schema.text(text, node.marks));
+    }
+  });
+  return Fragment.fromArray(kept);
+}
+
+// `handlePaste`, `handleDrop`, `transformPastedHTML` and `transformPasted` for the editor's view; `check` validates a
 // document, `report` shows one line, `images` uploads and places files where the page takes them.
 export function pasteHandling(spec, report, check, images = null) {
   function screen(html) {
@@ -113,6 +129,11 @@ export function pasteHandling(spec, report, check, images = null) {
         if (!image.closest(OWN_IMAGE)) image.remove();
       });
       return doc.body.innerHTML;
+    },
+    transformPasted(slice, view) {
+      // Text dragged within the document is moved, not pasted: its stored bytes go with it.
+      if (view.dragging) return slice;
+      return new Slice(visible(slice.content, view.state.schema), slice.openStart, slice.openEnd);
     },
     handlePaste(view, event, slice) {
       const data = event.clipboardData;

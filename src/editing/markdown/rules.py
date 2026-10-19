@@ -12,6 +12,7 @@ break.
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Any
 
@@ -36,17 +37,36 @@ DEFINITION = re.compile(r"^ {0,3}\[[^\]]+\]:")
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 LINE_BREAK = re.compile(r"\r\n?|\n")
 NEWLINE = re.compile(r"[\r\n]")
-# C0 and C1 controls but the tab and the line breaks, the Unicode line and paragraph separators,
-# and the byte-order mark: invisible, and trimmed differently by the two languages.
+# C0 and C1 controls but the tab and the line breaks, and the Unicode line and paragraph
+# separators: invisible, and trimmed differently by the two languages.
 CONTROL = re.compile(
     "["
     + "".join(
         re.escape(chr(c))
-        for c in [*range(0x00, 0x09), 0x0B, 0x0C, *range(0x0E, 0x20), 0x7F, 0x85]
-        + [0x2028, 0x2029, 0xFEFF]
+        for c in [*range(0x00, 0x09), 0x0B, 0x0C, *range(0x0E, 0x20), 0x7F, 0x85] + [0x2028, 0x2029]
     )
     + "]"
 )
+# The marks that reorder text — the bidirectional embeddings, overrides and isolates: a clause
+# could display otherwise than it is stored, so they are refused, each by its line (DL-0486).
+REORDERING = re.compile(r"[\u202a-\u202e\u2066-\u2069]")
+# The joiners some scripts need to be written correctly (DL-0483): kept.
+JOINERS = frozenset("\u200c\u200d")
+
+
+def is_invisible(ch: str) -> bool:
+    """Whether `ch` is an invisible format character a reader cannot see — a zero-width space, a
+    soft hyphen, a word joiner, a direction mark, the byte-order mark — removed from a line an
+    edit changes; the two joiners are kept and the reordering marks left for the validator to
+    refuse (DL-0486, DL-0487)."""
+    return unicodedata.category(ch) == "Cf" and ch not in JOINERS and not REORDERING.match(ch)
+
+
+def without_invisibles(text: str) -> str:
+    """`text` without its invisible format characters (`is_invisible`)."""
+    return "".join(ch for ch in text if not is_invisible(ch))
+
+
 # JavaScript's `\s`, spelled out.
 SPACE = "".join(
     chr(c)
@@ -329,6 +349,8 @@ def walk(
     for index, text in enumerate(lines):
         if CONTROL.search(text):
             refuse("control-character", index + 1)
+        if REORDERING.search(text):
+            refuse("reordering-mark", index + 1)
     if env.get("references"):
         for number in definition_lines(lines, tokens) or [1]:
             refuse("link-reference", number)
@@ -389,9 +411,26 @@ def walk(
             if item_start and TASK.match(token.content):
                 refuse("task-list")
             _inline(token.children or [], tokens[index - 1].type, spec, refuse)
+            _decoded(token.children or [], token.map[0] + 1 if token.map else line, refuse)
         if kind != "paragraph_open":
             item_start = False
     return sorted(found, key=lambda refusal: (refusal[1], refusal[0]))
+
+
+def _decoded(children: Sequence[Token], at: int, refuse: Callable[[str, int], None]) -> int:
+    """Refuse a control character or a reordering mark spelled as an entity — `&#x202E;` — which
+    the raw line does not show and the parse decodes, by the line it stands on; the line after
+    the children."""
+    for child in children:
+        if child.type in ("softbreak", "hardbreak"):
+            at += 1
+        elif child.type == "text":
+            if CONTROL.search(child.content):
+                refuse("control-character", at)
+            if REORDERING.search(child.content):
+                refuse("reordering-mark", at)
+        at = _decoded(child.children or [], at, refuse)
+    return at
 
 
 def _inline(

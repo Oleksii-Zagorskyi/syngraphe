@@ -6,7 +6,7 @@ import Token from "markdown-it/lib/token.mjs";
 import { MarkdownParser } from "prosemirror-markdown";
 
 import { md } from "./parser.js";
-import { CONTROL, linesOf } from "./rules.js";
+import { CONTROL, REORDERING, linesOf } from "./rules.js";
 
 const FOOTNOTE_DEFINITION = /^ {0,3}\[\^([^\]]+)\]:[ \t]*(.*)$/;
 const FOOTNOTE_REFERENCE = /\[\^([^\]]+)\]/g;
@@ -231,7 +231,8 @@ function rewrite(tokens, spec) {
 // `leftOut` says whether an image from outside the document was dropped.
 export function convert(source, spec, schema, tokenMap, write) {
   leftOut = false;
-  const cleaned = footnotesInline(source.replace(new RegExp(CONTROL.source, "g"), ""));
+  const refused = new RegExp(CONTROL.source + "|" + REORDERING.source, "g");
+  const cleaned = footnotesInline(source.replace(refused, ""));
   const tokens = rewrite(md.parse(cleaned, {}), spec);
   const parser = new MarkdownParser(schema, { parse: () => tokens }, tokenMap);
   return { text: write(parser.parse("")), leftOut };

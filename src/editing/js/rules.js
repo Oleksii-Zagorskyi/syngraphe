@@ -21,13 +21,22 @@ export const DEFINITION = /^ {0,3}\[[^\]]+\]:/;
 export const FENCE = /^ {0,3}(`{3,}|~{3,})/;
 export const LINE_BREAK = /\r\n?|\n/;
 export const NEWLINE = /[\r\n]/g;
-// C0 and C1 controls but the tab and the line breaks, the Unicode line and paragraph separators,
-// and the byte-order mark: invisible, and trimmed differently by the two languages.
+// C0 and C1 controls but the tab and the line breaks, and the Unicode line and paragraph
+// separators: invisible, and trimmed differently by the two languages.
 export const CONTROL = new RegExp(
-  "[" +
-    characters([...range(0x00, 0x09), 0x0b, 0x0c, ...range(0x0e, 0x20), 0x7f, 0x85, 0x2028, 0x2029, 0xfeff]) +
-    "]",
+  "[" + characters([...range(0x00, 0x09), 0x0b, 0x0c, ...range(0x0e, 0x20), 0x7f, 0x85, 0x2028, 0x2029]) + "]",
 );
+// The marks that reorder text — the bidirectional embeddings, overrides and isolates: a clause
+// could display otherwise than it is stored, so they are refused, each by its line (DL-0486).
+export const REORDERING = /[\u202a-\u202e\u2066-\u2069]/;
+// The invisible format characters but the two joiners and the reordering marks: removed from what
+// is pasted, as the normalizer removes them from a changed line (DL-0487).
+const INVISIBLE = /(?![\u200c\u200d\u202a-\u202e\u2066-\u2069])\p{Cf}/gu;
+
+// `text` without the invisible format characters a reader cannot see.
+export function withoutInvisibles(text) {
+  return text.replace(INVISIBLE, "");
+}
 // JavaScript's `\s`, spelled out as the Python side spells it.
 const SPACE = characters([
   0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x20, 0xa0, 0x1680, ...range(0x2000, 0x200b), 0x2028, 0x2029, 0x202f,
@@ -324,6 +333,7 @@ export function walk(tokens, lines, env, spec) {
 
   lines.forEach((text, index) => {
     if (CONTROL.test(text)) refuse("control-character", index + 1);
+    if (REORDERING.test(text)) refuse("reordering-mark", index + 1);
   });
   if (env.references && Object.keys(env.references).length) {
     const numbers = definitionLines(lines, tokens);
@@ -375,6 +385,7 @@ export function walk(tokens, lines, env, spec) {
       if (FOOTNOTE.test(token.content)) refuse("footnote");
       if (itemStart && TASK.test(token.content)) refuse("task-list");
       inline(token.children || [], tokens[index - 1].type, spec, refuse);
+      decoded(token.children || [], token.map ? token.map[0] + 1 : line, refuse);
     }
     if (kind !== "paragraph_open") itemStart = false;
   });
@@ -382,6 +393,21 @@ export function walk(tokens, lines, env, spec) {
 }
 
 // The refusals inside one block's inline content, an image's description included.
+// Refuse a control character or a reordering mark spelled as an entity — `&#x202E;` — which the
+// raw line does not show and the parse decodes, by the line it stands on; the line after the
+// children.
+function decoded(children, at, refuse) {
+  for (const child of children) {
+    if (child.type === "softbreak" || child.type === "hardbreak") at += 1;
+    else if (child.type === "text") {
+      if (CONTROL.test(child.content)) refuse("control-character", at);
+      if (REORDERING.test(child.content)) refuse("reordering-mark", at);
+    }
+    at = decoded(child.children || [], at, refuse);
+  }
+  return at;
+}
+
 function inline(children, block, spec, refuse) {
   let entities = 0;
   if (spec.imageAlone && block === "paragraph_open" && children.length > 1) {

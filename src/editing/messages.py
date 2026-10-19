@@ -38,6 +38,7 @@ CONSTRUCTS = {
     "span-nested": _("an entity inside an entity"),
     "unsupported": _("a construct outside the allowed Markdown"),
     "control-character": _("an invisible control character"),
+    "reordering-mark": _("a mark that reorders text"),
     "too-large": _("a text longer than the platform accepts"),
     "table-merged": _("a table cell spanning several"),
     "image-missing": _("an image the document does not hold"),

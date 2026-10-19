@@ -47,6 +47,7 @@
     "span-nested": { "convert": "unwrap-text" },
     "unsupported": { "convert": "unwrap-text" },
     "control-character": { "convert": "remove" },
+    "reordering-mark": { "convert": "remove" },
     "too-large": { "convert": "none" },
     "image-missing": { "convert": "none" },
     "mention-id": { "convert": "unwrap-text" }

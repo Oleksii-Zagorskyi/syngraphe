@@ -475,6 +475,10 @@ msgid "an invisible control character"
 msgstr "невидимий керівний символ"
 
 #: editing/messages.py:40
+msgid "a mark that reorders text"
+msgstr "знак, що змінює порядок тексту"
+
+#: editing/messages.py:40
 msgid "a text longer than the platform accepts"
 msgstr "текст, довший, ніж приймає платформа"
 

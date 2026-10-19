@@ -183,7 +183,7 @@ Failures are counted by client and by address typed with client, and a browser t
 
 ### T-24 — A document's text displays otherwise than it is stored
 
-**Who:** any editor. **How:** an invisible character — a mark that reorders text, a zero-width space — placed in a clause so that what a reviewer sees differs from what is stored and later exported, and the reviewer accepts wording they did not see. **Answered by:** the marks that reorder text refused, each named by its line, and the harmless invisible characters removed at paste and at normalisation, the two joiners kept (DL-0486, ADR-0010).
+**Who:** any editor. **How:** an invisible character — a mark that reorders text, a zero-width space — placed in a clause so that what a reviewer sees differs from what is stored and later exported, and the reviewer accepts wording they did not see. **Answered by:** the marks that reorder text refused, each named by its line, and the harmless invisible characters removed at paste and from every line an edit changes, the two joiners kept (DL-0486, DL-0487, ADR-0010).
 
 ## What this found
 
