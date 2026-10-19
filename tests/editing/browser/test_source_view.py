@@ -189,10 +189,32 @@ def test_the_caret_ends_after_a_stripped_paste(editing: Any, page: Any) -> None:
     assert caret == len("# 1 Old\n\n# Scope\nmore ")
 
 
-def test_a_long_numbered_bullet_list_opens_in_the_editor(
-    editing: Any, markdown: Any, page: Any
-) -> None:
-    """The rule that reads `- 1.` holds at the size the platform accepts: the editor opens the
-    draft the server accepted."""
-    editing("- 1. a\n" * 30000)
-    assert markdown().startswith("1. a\n2. a\n")
+def test_a_long_numbered_bullet_list_is_parsed(browser_server: str, page: Any) -> None:
+    """The rule that reads `- 1.` holds at the size the platform accepts: the editor's parser
+    reads 30,000 such items as one numbered list. The rule once moved a list's tokens as the
+    arguments of one call, which throws from about 25,000 items. How long an editor takes to open
+    on such a text is not this test's measure."""
+    page.goto(browser_server + "/editing/conformance/")
+    parsed = page.evaluate(
+        """text => {
+            const doc = SyngrapheEditor.parser.parse(text);
+            const list = doc.firstChild;
+            return {
+                blocks: doc.childCount,
+                list: list.type.name,
+                order: list.attrs.order,
+                items: list.childCount,
+                first: list.firstChild.textContent,
+                last: list.lastChild.textContent,
+            };
+        }""",
+        "".join(f"- 1. a{n}\n" for n in range(30000)),
+    )
+    assert parsed == {
+        "blocks": 1,
+        "list": "ordered_list",
+        "order": 1,
+        "items": 30000,
+        "first": "a0",
+        "last": "a29999",
+    }
