@@ -401,3 +401,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** Each one reads; none blocks an act or hides one, and every act was walked through them.
 
 **What has to be true before it is taken up.** The parts' screens are next changed, or a person reports one of them in use.
+
+## B-055 — The edit tab on texts of extreme shape
+
+**Idea.** Measure opening the edit tab on texts whose shape costs the editor most, and bring each within a budget: 30,000 one-line list items — 210 KB, under ASR-23's 300 KB but some six hundred pages against its hundred — take about 16 s to open as the whole document's editor on a developer's machine, against about 0.8 s for the forty-page corpus of 254 KB; a single paragraph near 300 KB, a table of many rows and a list nested to the editor's depth are the other shapes to measure.
+
+**Why it is parked.** ASR-21 promises its times at forty pages, and the measured list lies beyond ASR-23's envelope by its length, where no promise is made without revising ASR-23 first (DL-0484); every document expected in the first release is far smaller, and a section's own editor opens on its section alone.
+
+**What has to be true before it is taken up.** A document near the limit is held by an organisation, or an editor reports a wait opening the edit tab on a long document.
