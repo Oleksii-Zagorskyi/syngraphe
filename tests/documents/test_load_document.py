@@ -312,12 +312,12 @@ def test_whitelist_and_cap_refuse_before_writing(
     assert "the loader takes no images; add them in the editor after loading" in message
     assert_nothing_written(migrated_tenant, repo_root)
 
-    Tenant.objects.filter(pk=migrated_tenant.pk).update(attachment_max_bytes=100)
+    Tenant.objects.filter(pk=migrated_tenant.pk).update(attachment_max_bytes=1048576)
     large = copy(PROCEDURE, tmp_path, "large-file")
-    (large / "scheme.txt").write_bytes(b"x" * 101)
+    (large / "scheme.txt").write_bytes(b"x" * (1048576 + 1))
     message = refused(migrated_tenant, operators, large)
     assert "scheme.txt" in message
-    assert re.search(r"\b100\b", message)
+    assert re.search(r"\b1048576\b", message)
     assert_nothing_written(migrated_tenant, repo_root)
 
 

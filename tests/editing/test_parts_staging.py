@@ -266,8 +266,9 @@ def test_an_upload_is_checked_before_it_is_staged(
     _, holder, own = member_of("the.holder@example.test")
     document = new_document(holder)
     link_group(document, [Right.EDIT, Right.UPLOAD_ATTACHMENT], [own], holder)
-    Tenant.objects.filter(pk=migrated_tenant.pk).update(attachment_max_bytes=64)
-    limit = min(64, int(settings.UPLOAD_MAX_BYTES))
+    # The smallest cap an organisation may store (DL-0458).
+    Tenant.objects.filter(pk=migrated_tenant.pk).update(attachment_max_bytes=1024 * 1024)
+    limit = min(1024 * 1024, int(settings.UPLOAD_MAX_BYTES))
     _, draft = take(migrated_tenant, document, holder)
     assert draft.content["frontmatter"]["attachments"] == []
 

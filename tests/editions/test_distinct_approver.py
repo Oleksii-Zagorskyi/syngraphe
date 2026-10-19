@@ -119,3 +119,35 @@ def test_self_approval_allowed_when_off(
 
         assert edition.number == "1.0"
         assert edition.approved_by_id == Acceptance.objects.get().reviewer_id == reviewer.pk
+
+
+def test_the_check_switched_from_the_settings_page(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, member_of: Any
+) -> None:
+    """The check as an administrator sets it on Administration › Settings: on, an approver who
+    accepted the run since the previous edition is refused; off again, they make it canonical."""
+    from editions import services as editions
+
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    people = edition_cast(editors=("a",), reviewers=("r",), approvers=("r",))
+    document, reviewer = people.document, people["r"]
+    commit_version(document, people["a"], WRITTEN, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, reviewer)
+        editions.freeze(document, reviewer, REASON)
+
+    page = "/administration/tenant/settings/"
+    on = {
+        "attachment_max_mb": "5",
+        "hold_inactivity_minutes": "30",
+        "require_distinct_approver": "on",
+    }
+    assert admin.post(page, on).status_code == 303
+    with schema_context(migrated_tenant.number):
+        assert editions.canonical_refusal(document, reviewer) == "distinct_approver"
+
+    off = {"attachment_max_mb": "5", "hold_inactivity_minutes": "30"}
+    assert admin.post(page, off).status_code == 303
+    with schema_context(migrated_tenant.number):
+        assert editions.canonical_refusal(document, reviewer) is None
+        assert editions.make_canonical(document, reviewer).number == "1.0"

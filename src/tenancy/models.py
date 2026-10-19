@@ -7,7 +7,9 @@ from typing import Any
 
 from django.conf import settings
 from django.db import connection, models
-from django.db.models import Q
+from django.db.models import F, Q
+from django.db.models.functions import Mod
+from django.db.models.lookups import Exact
 from django.utils import timezone
 
 from notifications.models import PLATFORM_EVENTS
@@ -23,6 +25,14 @@ class TenantState(models.TextChoices):
     BLOCKED = "blocked", "blocked"
 
 
+# A megabyte as the settings count it, and the inactivity timeout's bounds in minutes (DL-0458).
+MB = 1024 * 1024
+INACTIVITY_LEAST = 5
+INACTIVITY_MOST = 480
+# The largest cap the column holds (PostgreSQL's `integer`), below a platform maximum set past it.
+CAP_STORED_MOST = 2**31 - 1
+
+
 class Tenant(Mutable):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # Platform-wide, in creation order, never reused: it names the schema and the directory
@@ -34,12 +44,28 @@ class Tenant(Mutable):
         max_length=9, choices=TenantState.choices, default=TenantState.MIGRATING
     )
     require_distinct_approver = models.BooleanField(default=False)
-    attachment_max_bytes = models.PositiveIntegerField(default=5 * 1024 * 1024)
+    attachment_max_bytes = models.PositiveIntegerField(default=5 * MB)
     hold_inactivity_minutes = models.PositiveIntegerField(default=30)
 
     class Meta(Mutable.Meta):
         abstract = False
         ordering = ["number"]
+        # The settings' stored bounds (DL-0458); the cap's upper bound is the platform's configured
+        # upload maximum, which a stored constraint cannot follow, held by the form and the service
+        # that save it (DL-0469).
+        constraints = [
+            *Mutable.Meta.constraints,
+            models.CheckConstraint(
+                condition=Q(hold_inactivity_minutes__gte=INACTIVITY_LEAST)
+                & Q(hold_inactivity_minutes__lte=INACTIVITY_MOST),
+                name="tenancy_tenant_inactivity_5_to_480",
+            ),
+            models.CheckConstraint(
+                condition=Q(attachment_max_bytes__gte=MB)
+                & Q(Exact(Mod(F("attachment_max_bytes"), MB), 0)),
+                name="tenancy_tenant_attachment_cap_whole_mb",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"#{self.number} {self.name}"

@@ -1,0 +1,18 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{% translate "Settings" context "administration section" %} · Syngraphē{% endblock %}
+{% block section %}
+<div id="tenant-settings">
+  <h1>{% translate "Settings" context "administration section" %}</h1>
+  <form method="post" action="{{ page_url }}" novalidate>{% csrf_token %}
+    {% for field in form %}
+    <div class="box">
+      {% if field.name == "require_distinct_approver" %}<label>{{ field }} {{ field.label }}</label>{% else %}<label for="{{ field.id_for_label }}">{{ field.label }}</label> {{ field }}{% endif %}
+      <p class="note">{{ field.help_text }}</p>
+      {% for error in field.errors %}<p class="err">{{ error }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <button class="btn primary" type="submit">{% translate "Apply" %}</button>
+  </form>
+</div>
+{% endblock %}

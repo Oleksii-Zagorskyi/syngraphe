@@ -4541,3 +4541,36 @@ msgstr "Не більше 500 символів і 8 рядків, простий
 #: editing/messages.py
 msgid "Template and styles"
 msgstr "Шаблон і стилі"
+
+msgctxt "administration section"
+msgid "Settings"
+msgstr "Налаштування"
+
+msgid "Attachment size cap"
+msgstr "Найбільший розмір вкладеного файлу"
+
+msgid "Inactivity timeout"
+msgstr "Час до завершення через бездіяльність"
+
+msgid "Distinct approver check"
+msgstr "Перевірка окремого затверджувача"
+
+msgid ""
+"When on, nobody who accepted a run since the previous edition may make the "
+"next one canonical."
+msgstr ""
+"Коли увімкнено, ніхто, хто погоджував правки після попередньої редакції, не "
+"може затвердити наступну."
+
+#, python-format
+msgid "From 1 to %(most)s MB."
+msgstr "Від 1 до %(most)s МБ."
+
+#, python-format
+msgid "From %(least)s to %(most)s minutes."
+msgstr "Від %(least)s до %(most)s хвилин."
+
+msgid "The attachment size cap cannot exceed the platform's upload maximum."
+msgstr ""
+"Найбільший розмір вкладеного файлу не може перевищувати найбільший розмір "
+"завантаження на платформі."

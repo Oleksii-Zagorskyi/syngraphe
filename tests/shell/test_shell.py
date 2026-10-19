@@ -90,6 +90,9 @@ def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: An
         < body.index("/tenant/template/")
         < body.index("/tenant/sending-address/")
     )
+    assert 'href="/administration/tenant/settings/"' in body
+    assert body.index("/tenant/template/") < body.index("/tenant/settings/")
+    assert body.index("/tenant/settings/") < body.index("/tenant/sending-address/")
 
 
 def test_organisation_selector_writes_the_session(signed_in: Any, tenant: Any) -> None:

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from tenancy import views
+from tenancy import settings_page, views
 
 urlpatterns = [
     path("administration/platform/tenants/", views.tenants, name="tenants"),
@@ -8,6 +8,11 @@ urlpatterns = [
     path("administration/platform/hosts/", views.hosts, name="hosts"),
     path("administration/platform/administrators/", views.administrators, name="administrators"),
     path("organisation/switch/", views.switch, name="switch_organisation"),
+    path(
+        "administration/tenant/settings/",
+        settings_page.tenant_settings,
+        name="tenant_settings",
+    ),
     path(
         "administration/platform/administrators/grant/",
         views.administration_grant,

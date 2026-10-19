@@ -17,7 +17,7 @@ from django.utils.translation import gettext as _
 from audit.record import record
 from syngraphe.provenance import ActorKind
 from tenancy.middleware import invalidate_host_cache
-from tenancy.models import PlatformHost, Tenant, TenantDomain, TenantState
+from tenancy.models import CAP_STORED_MOST, PlatformHost, Tenant, TenantDomain, TenantState
 from tenancy.schemas import create_schema, schema_context, schema_exists
 
 if TYPE_CHECKING:
@@ -374,3 +374,58 @@ def revoke_platform_administration(user: User, *, by: User) -> None:
             before={"is_platform_admin": True},
             after={"user": str(locked.pk), "is_platform_admin": False},
         )
+
+
+def cap_most_bytes() -> int:
+    """The largest attachment size cap an organisation may set: the platform's upload maximum,
+    or what the column holds where the maximum is configured past it."""
+    from django.conf import settings
+
+    return min(int(settings.UPLOAD_MAX_BYTES), CAP_STORED_MOST)
+
+
+def change_settings(
+    tenant: Tenant,
+    *,
+    by: User,
+    attachment_max_bytes: int,
+    hold_inactivity_minutes: int,
+    require_distinct_approver: bool,
+) -> dict[str, tuple[Any, Any]]:
+    """Save the organisation's settings and record one `tenant.settings_changed` event with the
+    fields that changed, each before and after; nothing is recorded when nothing changed. Returns
+    the changes by field. The tenant's own row is locked, so two saves at once are applied one
+    after the other, each audited against the row the other left. The cap above the platform's
+    upload maximum is `Refused` here as well as by the form (DL-0469); the stored bounds are the
+    database's."""
+    if attachment_max_bytes > cap_most_bytes():
+        raise Refused(_("The attachment size cap cannot exceed the platform's upload maximum."))
+    wanted = {
+        "attachment_max_bytes": attachment_max_bytes,
+        "hold_inactivity_minutes": hold_inactivity_minutes,
+        "require_distinct_approver": require_distinct_approver,
+    }
+    with transaction.atomic():
+        row = Tenant.objects.select_for_update().get(pk=tenant.pk)
+        changes = {
+            field: (getattr(row, field), value)
+            for field, value in wanted.items()
+            if getattr(row, field) != value
+        }
+        if not changes:
+            return {}
+        for field, (_before, after) in changes.items():
+            setattr(row, field, after)
+        row.updated_by = by
+        row.save(update_fields=[*changes, "updated_by", "updated_at"])
+        record(
+            actor=by,
+            action="tenant.settings_changed",
+            obj=row,
+            before={field: before for field, (before, _after) in changes.items()},
+            after={field: after for field, (_before, after) in changes.items()},
+            tenant=row,
+        )
+    for field, (_before, after) in changes.items():
+        setattr(tenant, field, after)
+    return changes
