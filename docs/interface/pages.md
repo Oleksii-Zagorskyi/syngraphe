@@ -67,7 +67,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | *Help* | **0.1** | — | ST-0019 | Epic 4 |
 | *Administration* | **0.1** | tenant or platform administrator | — | Epic 2 |
 | notifications — unread count, opening the notifications page | **0.1** | — | ST-0047 | Epic 14 |
-| tenant switcher — only with several memberships; on a tenant's own domain, switching moves to the other tenant's domain, or to the platform's host, where the choice is confirmed (ADR-0008) | **0.1** | — | ST-0007 | Epic 8; the tenant's name Epic 2 |
+| tenant switcher — only with several memberships; on a tenant's own domain, switching answers with a page carrying the link to the other tenant's domain, or to the platform's host, where the choice is confirmed (ADR-0008, DL-0497) | **0.1** | — | ST-0007 | Epic 8; the tenant's name Epic 2 |
 | user menu — *My reservations*, each document the person may still read with its start date, drawn only for a holder of *reserve for editing* (DL-0241); *block my account…*, confirmed, never offered to a person whose account is blocked; *sign out* | **0.1** | — | ST-0066, ST-0069 | Epic 2; self-block Epic 8; reservations Epic 9 |
 
 ## Sign-in pages
