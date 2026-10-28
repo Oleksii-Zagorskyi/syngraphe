@@ -425,3 +425,19 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** Decided after release 0.1's stories were built; a title or a label carrying such a character has to be typed or pasted on purpose, and its reviewer sees the title in every list.
 
 **What has to be true before it is taken up.** The next epic that changes a document's details, its parts or the entity picker takes it as a story; or a title is found displaying otherwise than it is stored.
+
+## B-058 — An earlier version holding a reordering mark, exported
+
+**Idea.** A version stored before the marks that reorder text were refused (DL-0486) is exported with each such mark shown visibly, rather than refused by the export's check.
+
+**Why it is parked.** Every export now passes the same check as new text, so a stored version holding a reordering mark can no longer be exported; until real documents are stored, none is expected to hold one.
+
+**What has to be true before it is taken up.** A stored version is found holding a reordering mark.
+
+## B-059 — Content-policy violations reported by the browser
+
+**Idea.** The content policy (DL-0493) names a route of the platform to which a reader's browser reports each violation, so a page the policy breaks in a browser no test opened is seen by an operator rather than met by its reader.
+
+**Why it is parked.** The route parses whatever any client sends and needs a home for what it receives — a new surface with a security reader of its own — while the browser tests and the walks already exercise every page under the policy.
+
+**What has to be true before it is taken up.** A page is found broken by the policy in a reader's browser, or the policy is to be tightened and its effect on real browsers measured first.
