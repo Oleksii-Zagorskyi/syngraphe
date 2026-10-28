@@ -1,8 +1,9 @@
 """One `Content-Security-Policy` on every response the application sends (DL-0493; T-05).
 
-The platform's own scripts, styles, images and fonts only; scripts never evaluated; no plugin, no
-framing by another site, forms posted to the platform alone. Nothing inline but `style` attributes,
-which the pages use for their panes' widths, a folder's depth and a table cell's alignment.
+The platform's own scripts, styles, images and fonts only; no string evaluated as script; no plugin,
+no framing by another site, forms posted to the platform alone. Nothing inline but `style`
+attributes, which the pages use for their panes' widths, a folder's depth and a table cell's
+alignment.
 
 The policy is the same on every installation and is not configuration: a page that needs more is a
 change here, with the test that shows why. It is set rather than defaulted, so no view can relax it.

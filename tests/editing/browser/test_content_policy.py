@@ -155,11 +155,20 @@ def test_the_pages_run_under_the_policy(
         "/no-such-page/",
     ]
 
-    for path in as_administrator:
-        page.goto(f"{browser_server}{path}", wait_until="load")
+    # Each page's own status, so a page answering the not-found page in its place is not taken for
+    # the page it stands in for.
+    answers = {
+        path: page.goto(f"{browser_server}{path}", wait_until="load").status
+        for path in as_administrator
+    }
     _sign_in(page, browser_server, _operator())
-    page.goto(f"{browser_server}/{django_settings.DJANGO_ADMIN_PATH}", wait_until="load")
+    operator_index = page.goto(
+        f"{browser_server}/{django_settings.DJANGO_ADMIN_PATH}", wait_until="load"
+    )
 
+    expected = {path: 404 if path == "/no-such-page/" else 200 for path in as_administrator}
+    assert answers == expected
+    assert operator_index.status == 200
     assert len(documents) == len(as_administrator) + 1, [url for url, _ in documents]
     _assert_headers(documents)
     _assert_nothing_refused(violations, console)
