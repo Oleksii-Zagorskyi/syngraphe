@@ -404,3 +404,17 @@ def test_front_headers_reach_the_application(settings: Any) -> None:
     assert response.wsgi_request.META["REMOTE_ADDR"] == "203.0.113.9"
     assert response.wsgi_request.is_secure()
     assert response.wsgi_request.get_host() == "127.0.0.1:18443"
+
+
+@pytest.mark.fast
+def test_front_passes_the_content_policy_through() -> None:
+    """The application sets `Content-Security-Policy` on every response (DL-0493); nginx forwards
+    every upstream header it is not told to hide. The front hides and re-adds only its own three
+    headers, so its own answers carry them too; a second policy added here would reach the browser
+    beside the application's, and both would apply."""
+    template = (FRONT / "default.conf.template").read_text()
+
+    assert not re.search(r"content-security-policy", template, re.IGNORECASE)
+    for header in ("X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy"):
+        assert f"proxy_hide_header {header};" in template
+        assert re.search(rf"^\s*add_header {header} .+ always;$", template, re.MULTILINE)

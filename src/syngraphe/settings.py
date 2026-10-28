@@ -47,6 +47,8 @@ INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_
 
 MIDDLEWARE = [
     "syngraphe.proxy.TrustedProxyMiddleware",
+    # Before WhiteNoise, which answers static files itself, so they carry the policy too (DL-0493).
+    "syngraphe.content_policy.ContentSecurityPolicyMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "syngraphe.logs.RequestContextMiddleware",

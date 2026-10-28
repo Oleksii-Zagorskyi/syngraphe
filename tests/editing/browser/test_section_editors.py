@@ -278,7 +278,7 @@ def test_a_declaration_reaches_every_open_picker(tab: Any, page: Any) -> None:
     page.select_option(f"{first} select[data-field=mark-kind]", "role")
     page.fill(f"{first} input[data-field=mark-label]", "the clerk")
     page.click(f"{first} button[data-field=mark-declare]")
-    page.wait_for_function(f"{section(0)}.markdown().includes('#role-1')")
+    page.wait_for_function(f"() => {section(0)}.markdown().includes('#role-1')")
 
     assert (
         page.locator(f"{second} button[data-entity=role-1]").text_content(timeout=2000)

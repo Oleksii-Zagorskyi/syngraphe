@@ -24,7 +24,7 @@ def declare(page: Any, label: str, key: str) -> None:
     """Declared on the server, then the selection wrapped: wait for the key in the text."""
     page.fill("input[data-field=mark-label]", label)
     page.click("button[data-field=mark-declare]")
-    page.wait_for_function(f"{EDITOR}.markdown().includes('#{key}')")
+    page.wait_for_function(f"() => {EDITOR}.markdown().includes('#{key}')")
 
 
 def test_mark_picks_or_declares(editing: Any, markdown: Any, page: Any) -> None:

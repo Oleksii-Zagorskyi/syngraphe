@@ -179,10 +179,11 @@ def _host_row(identifier: str) -> PlatformHost | TenantDomain:
 @login_required
 def switch(request: HttpRequest) -> HttpResponse:
     """Switch organisation (ST-0007, ADR-0008): on the platform host the session's organisation
-    changes; on an organisation's domain, which carries its own session, the browser goes to the
-    other's default domain, or the platform's default host when it has none, and signs in there.
-    Only an organisation the person reaches through an active membership; anything else is the
-    not-found answer. Reads the shared schema alone."""
+    changes; on an organisation's domain, which carries its own session, the answer is a page
+    carrying the link to the other's default domain, or to the platform's default host when it has
+    none, where the choice is confirmed, signing in first when that host asks. Only an
+    organisation the person reaches through an active membership; anything else is the not-found
+    answer. Reads the shared schema alone."""
     # The one place a link to another host is built, from the rows alone, never the request.
     from mail.services import link
 
@@ -209,11 +210,18 @@ def switch(request: HttpRequest) -> HttpResponse:
             return not_found(request)
         return render(request, "tenancy/switch.html", {"tenant": membership.tenant})
     if on_domain:
+        # A link, never a redirect: the content policy's form rule refuses a form's redirect to
+        # another host in a browser that applies it there; a followed link is not governed by it
+        # (DL-0497).
         if TenantDomain.objects.filter(tenant=membership.tenant, is_default=True).exists():
-            return HttpResponseRedirect(link(membership.tenant, "/"))
-        # The platform host carries a session of its own: the choice travels in the address and
-        # is made there by the person's own POST.
-        return HttpResponseRedirect(link(None, f"{reverse('switch_organisation')}?to={number}"))
+            target = link(membership.tenant, "/")
+        else:
+            # The platform host carries a session of its own: the choice travels in the address
+            # and is made there by the person's own POST.
+            target = link(None, f"{reverse('switch_organisation')}?to={number}")
+        return render(
+            request, "tenancy/switch.html", {"tenant": membership.tenant, "target": target}
+        )
     request.session[SESSION_TENANT_KEY] = number
     return HttpResponseRedirect("/")
 

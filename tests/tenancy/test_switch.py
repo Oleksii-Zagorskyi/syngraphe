@@ -1,8 +1,9 @@
 """Switching organisation (ST-0007, ADR-0008, ASR-17): a person with two or more active memberships
 switches from the shell; on the platform host the session's organisation changes and the list is
-that organisation's alone; on an organisation's domain the browser is sent to the other's default
-domain, or to the platform's default host when it has none, where the choice is confirmed; an
-organisation the person does not reach answers as a missing page, and the session keeps its choice.
+that organisation's alone; on an organisation's domain the answer is a page carrying the link to
+the other's default domain, or to the platform's default host when it has none, where the choice is
+confirmed; an organisation the person does not reach answers as a missing page, and the session
+keeps its choice.
 
 People, organisations and documents are synthetic examples; every address ends in
 `@example.test`."""
@@ -98,9 +99,12 @@ def test_switch_on_the_platform_host(
     assert client.session["tenant_number"] == other.number
 
 
-def test_switch_on_a_domain_redirects(
+def test_switch_on_a_domain_answers_with_a_link(
     migrated_tenant: Any, make_tenant_schema: Any, settings: Any
 ) -> None:
+    """A redirect to another host after a form's POST is refused by the content policy's form rule
+    in a browser that applies it to the redirect; a link the person follows is a navigation the rule
+    does not govern (DL-0497)."""
     from identity.models import Membership
 
     with_domain = make_tenant_schema("Synthetic with an address")
@@ -117,12 +121,17 @@ def test_switch_on_a_domain_redirects(
     to_domain = client.post(SWITCH, {"organisation": with_domain.number})
     to_platform = client.post(SWITCH, {"organisation": without.number})
 
-    assert to_domain.status_code == 302
-    assert to_domain["Location"] == f"{scheme}://second.example.test/"
-    assert to_platform.status_code == 302
+    assert to_domain.status_code == 200 and "Location" not in to_domain
+    assert f'href="{scheme}://second.example.test/"' in to_domain.content.decode()
+    assert to_platform.status_code == 200 and "Location" not in to_platform
     # The platform host carries its own session: the choice goes with the address, and is made
     # there by the person's own POST — a GET never writes a session.
-    assert to_platform["Location"] == f"{scheme}://{platform}{SWITCH}?to={without.number}"
+    assert (
+        f'href="{scheme}://{platform}{SWITCH}?to={without.number}"' in to_platform.content.decode()
+    )
+    assert client.session.get("tenant_number") is None
+    # The confirmation is the platform host's page alone: on a domain, opening it is a missing page.
+    assert client.get(f"{SWITCH}?to={with_domain.number}").status_code == 404
     assert client.session.get("tenant_number") is None
 
 

@@ -4,6 +4,11 @@
 {% block content %}
 <section class="dlg">
   <h1>{% translate "Switch organisation" %}</h1>
+  {% if target %}
+  <p>{% blocktranslate with organisation=tenant.name %}Work in {{ organisation }}?{% endblocktranslate %}</p>
+  <a class="btn primary" href="{{ target }}">{% translate "Switch" context "organisation switcher" %}</a>
+  <a class="btn" href="/">{% translate "Cancel" %}</a>
+  {% else %}
   <form method="post" action="{% url 'switch_organisation' %}">
     {% csrf_token %}
     <input type="hidden" name="organisation" value="{{ tenant.number }}">
@@ -11,5 +16,6 @@
     <button class="btn primary" type="submit">{% translate "Switch" context "organisation switcher" %}</button>
     <a class="btn" href="/">{% translate "Cancel" %}</a>
   </form>
+  {% endif %}
 </section>
 {% endblock %}
