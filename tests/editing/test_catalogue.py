@@ -188,8 +188,35 @@ def test_catalogue_covers_editing_together_pages(
     for name, body in bodies.items():
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
+        # A Ukrainian date ends in "р.", so a sentence ending in one takes no stop of its own.
+        assert "р.." not in body, name
     assert "Скасувати резервування" in bodies["the reserved edit tab"]
     assert "Забрати документ назад" in bodies["the return, nothing committed since"]
+
+
+@pytest.mark.fast
+def test_a_sentence_ending_in_a_ukrainian_date_ends_once() -> None:
+    """The Ukrainian date already ends in "р.", so the sentences that end in one carry no stop of
+    their own: the reservation's band, said to its holder and to anyone, and the release for
+    inactivity."""
+    from datetime import date
+
+    from django.utils import translation
+    from django.utils.formats import date_format
+
+    with translation.override("uk"):
+        day = date_format(date(2026, 10, 14), "DATE_FORMAT")
+        said = [
+            translation.gettext(message) % {"date": day}
+            for message in (
+                "Reserved for editing by you since %(date)s.",
+                "Reserved for editing since %(date)s.",
+                "Your editing was ended for inactivity on %(date)s.",
+            )
+        ]
+
+    assert day.endswith("р.")
+    assert all(sentence.endswith(day) for sentence in said), said
 
 
 @pytest.mark.fast

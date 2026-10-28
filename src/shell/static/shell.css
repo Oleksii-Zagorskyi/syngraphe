@@ -9,7 +9,7 @@ a{color:var(--ink)}
 .wrap{max-width:1440px;margin:0 auto}
 
 header.shell{background:var(--panel);border-bottom:1px solid var(--line)}
-header.shell .wrap{display:flex;align-items:center;gap:16px;padding:8px 16px}
+header.shell .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:8px 16px}
 
 .logo{font-weight:600;letter-spacing:.02em;text-decoration:none;padding:4px 0}
 
@@ -116,6 +116,7 @@ del{background:var(--del)}
 .dialog{background:var(--panel);padding:16px;width:min(440px,94vw);border-radius:4px}
 .dialog fieldset{border:0;padding:0;margin:0 0 10px}
 .dialog legend{font-weight:600;margin-bottom:4px}
+.dialog input[name=title]{width:100%}
 
 .help{display:none;background:#f7f7f7;border:1px solid var(--line);padding:8px;font-size:12px;margin:6px 0}
 .help.on{display:block}
@@ -190,7 +191,12 @@ nav.menu a.disabled{color:var(--muted);cursor:default;text-decoration:none}
 .notifications{display:inline-flex;align-items:center;gap:3px;color:var(--ink);text-decoration:none}
 .notifications .count{background:var(--accent);color:#fff;border-radius:8px;padding:0 5px;font-size:11px;line-height:16px}
 .user{display:flex;align-items:center;gap:8px}
+/* An item of the bar moves to the next line whole, never broken inside: with the switcher and a
+   long organisation name the bar is wider than the window. */
+.menu a,.organisation,.user>*{white-space:nowrap}
 .inline{display:inline}
+input[type=email],input[name=reason]{min-width:min(100%,24em)}
+.document-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:1em 0}
 .pane{padding:0 0 12px}
 .pane h2{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:8px 0 4px}
 .sections{list-style:none;margin:0;padding:0}
@@ -198,7 +204,7 @@ nav.menu a.disabled{color:var(--muted);cursor:default;text-decoration:none}
 .selector{display:flex;flex-direction:column;gap:4px;margin-top:8px}
 .selector select{font:inherit;padding:4px}
 .grid th.rotated{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;color:var(--muted);font-weight:400;height:130px}
-.grid td.right button{width:100%}
+.grid td.right button{width:100%;min-height:24px}
 .grid td.right.faint button{opacity:.35}
 .grid td.right.inert button{opacity:.35;text-decoration:line-through}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

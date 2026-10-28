@@ -6,9 +6,9 @@
 <section class="content document historical">
   <p class="band historical" role="status">{% blocktranslate with number=version_number %}Historical version {{ number }} — read only{% endblocktranslate %} · <a href="/document/{{ document.number }}/">{% translate "open the current document" %}</a></p>
   <h1><span class="id">#{{ document.number }}</span> {{ document.title }} <span class="version-number">{{ version_number }}</span>{% archived_tag document %}</h1>
-  <p class="document-actions"><a class="button" href="{{ version_path }}export/">{% translate "Export" %}</a>
+  <div class="document-actions"><a class="button" href="{{ version_path }}export/">{% translate "Export" %}</a>
   {% if others %}<form class="compare-with" method="get" action="/document/{{ document.number }}/compare/"><input type="hidden" name="from" value="{{ version_number }}"><label>{% translate "Compare with" %} <select name="to">{% for number in others %}<option value="{{ number }}">{{ number }}</option>{% endfor %}</select></label> <button class="btn" type="submit">{% translate "Compare" %}</button></form>{% endif %}
-  <form method="post" action="/preferences/show-author/" class="show-author inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><input type="hidden" name="show_author" value="{% if show_author %}off{% else %}on{% endif %}"><button class="btn" type="submit" aria-pressed="{% if show_author %}true{% else %}false{% endif %}">{% translate "Show edit authors" %}</button></form></p>
+  <form method="post" action="/preferences/show-author/" class="show-author inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><input type="hidden" name="show_author" value="{% if show_author %}off{% else %}on{% endif %}"><button class="btn" type="submit" aria-pressed="{% if show_author %}true{% else %}false{% endif %}">{% translate "Show edit authors" %}</button></form></div>
   {% if authors_waiting %}<p class="note" role="status">{% translate "Edit authors are being worked out — reload the page in a moment." %}</p>{% endif %}
   <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
     {% include "rendering/panes_outline.html" %}

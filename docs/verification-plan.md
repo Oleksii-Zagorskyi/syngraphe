@@ -218,7 +218,7 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 
 **If it fails.** DL-0447's fallback, the owner's to take: an appendix's text is not walked; each appendix whose text an undone version changed is listed once, for the reviewer to edit by hand, and an appendix-only version answers with that entry.
 
-**Status.** Open with a reason: to be measured on the development host, whose verdict stands. Measured 2026-10-18 on a development workstation, alone: 0.47 s over six files — the body and five appendices, 300 KB at the head — and 200 versions.
+**Status.** **Proven.** On the development host, 2026-10-28, alone, three runs: 0.185 s, 0.194 s and 0.194 s over six files — the body and five appendices, 300 KB at the head — and 200 versions; a container reporting six processors and 8 GiB, Python 3.12. Measured first on a development workstation, 2026-10-18: 0.47 s.
 
 ## The platform
 

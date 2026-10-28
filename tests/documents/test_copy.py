@@ -360,7 +360,7 @@ def test_refusals(migrated_tenant: Any, member_of: Any, source: Any, settings: A
         source.client.get(f"/document/{source.document.number}/").content.decode()
     )
     assert source.client.get(f"/document/{source.document.number}/copy/").status_code == 404
-    act = archived_page.split('class="document-actions"', 1)[1].split("</p>", 1)[0]
+    act = archived_page.split('class="document-actions"', 1)[1].split("</div>", 1)[0]
     assert "Copy" in act and "disabled" in act and "archived — restore it first" in act
 
 

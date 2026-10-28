@@ -379,3 +379,32 @@ def test_entity_changes_are_listed(
     assert "the senior clerk" in row("role-1") and "relabelled from the clerk" in row("role-1")
     assert "the treasurer" in row("role-2") and "added" in row("role-2")
     assert "the auditor" in row("role-3") and "removed" in row("role-3")
+
+
+def test_the_run_dates_each_version_in_the_display_timezone(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """A version committed late on the 13th in UTC is listed on the 14th where the installation
+    shows its times — converted at the output boundary, like every other page."""
+    from datetime import UTC, datetime
+
+    from documents.models import Version
+
+    settings.LANGUAGE_CODE = "en"
+    settings.DISPLAY_TIMEZONE = "Europe/Kyiv"
+    client, _, author_a, _, document = reviewer_and_authors(member_of, new_document, link_group)
+    version = commit_version(document, author_a, FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        Version.objects.filter(pk=version.pk).update(
+            committed_at=datetime(2026, 10, 13, 22, 30, tzinfo=UTC)
+        )
+
+    page = client.get(f"/document/{document.number}/pending/").content.decode()
+
+    assert "14 Oct 2026, 01:30" in page
+    assert "13 Oct 2026, 22:30" not in page
