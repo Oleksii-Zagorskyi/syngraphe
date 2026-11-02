@@ -193,7 +193,7 @@ def test_the_archive_page_lists_and_restores(
         at = AuditEvent.objects.filter(action="document.archived", object_id=document.pk)
         when = at.latest("at").at.astimezone(ZoneInfo(settings.DISPLAY_TIMEZONE))
         with translation.override("en"):
-            shown = formats.date_format(when, "DATE_FORMAT")
+            shown = formats.date_format(when, "j E Y")
         row = re.search(rf'<tr data-number="{document.number}">(.*?)</tr>', page, re.S)
         assert row is not None and f"<td>{shown}</td>" in row.group(1)
     assert restored.status_code == 302 and _state(migrated_tenant, first) == "active"

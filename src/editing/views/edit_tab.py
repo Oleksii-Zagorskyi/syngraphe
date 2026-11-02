@@ -89,24 +89,29 @@ def tab_response(
     from editions.models import open_freeze
 
     frozen = open_freeze(document)
-    if frozen is not None and Right.ACCEPT not in rights_on_many(request.user, [document.pk]).get(
-        document.pk, frozenset()
-    ):
+    # Asked only of a frozen document: while frozen only holders of *accept* edit (ADR-0016).
+    accepts = frozen is not None and Right.ACCEPT in rights_on_many(
+        request.user, [document.pk]
+    ).get(document.pk, frozenset())
+    if hold is None:
+        kept = holds.preserved_draft(document, request.user)
+        if kept is not None:
+            # The kept draft is offered back before any new hold is taken (DL-0225, DL-0318) —
+            # on a frozen document too, read only to a holder who may not edit it now (DL-0511).
+            may_take = frozen is None or accepts
+            context |= {"frozen": frozen, "may_take": may_take}
+            return render(
+                request,
+                "editing/draft_readonly.html",
+                context | returning(request, document, kept, read_only=not may_take),
+            )
+    if frozen is not None and not accepts:
         # While frozen only holders of *accept* edit (ADR-0016); the tab says why and offers
         # nothing.
         context["frozen"] = frozen
         return render(request, "editing/held_by_other.html", context)
     if hold is not None and hold.user_id != request.user.pk:
         return render(request, "editing/held_by_other.html", context)
-    if hold is None:
-        kept = holds.preserved_draft(document, request.user)
-        if kept is not None:
-            # The kept draft is offered back before any new hold is taken (DL-0225, DL-0318).
-            return render(
-                request,
-                "editing/draft_readonly.html",
-                context | returning(request, document, kept),
-            )
     context["reservation"] = _reservation(request, document, hold, frozen, context)
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     from editing.views.parts import panel
@@ -203,11 +208,14 @@ def _ended_by_archiving(released: Any) -> bool:
 ARCHIVE_AND_RELEASE = timedelta(minutes=1)
 
 
-def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, Any]:
+def returning(
+    request: HttpRequest, document: Document, kept: Any, *, read_only: bool = False
+) -> dict[str, Any]:
     """What the holder of a kept draft is shown on their return (DL-0225): who released it, when
-    and why; *take the document back* while nobody has committed since; otherwise the draft as
-    changes against the current text, or a version they choose (DL-0379), and *discard this
-    draft* (DL-0381). Nothing here takes a hold."""
+    and why; *take the document back* while nobody has committed since; otherwise — or, with
+    `read_only`, whenever they may not take it back — the draft as changes against the current
+    text, or a version they choose (DL-0379), and *discard this draft* (DL-0381). Nothing here
+    takes a hold."""
     from django.utils.safestring import mark_safe
 
     from documents import gitstore
@@ -231,7 +239,7 @@ def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, 
         # The edit tab is where the kept draft is shown: the page's band does not point here.
         "returning": True,
     }
-    if not shown["moved"]:
+    if not shown["moved"] and not read_only:
         return shown
     try:
         # What the holder's ceiling reaches, newest first: the run, the latest accepted version

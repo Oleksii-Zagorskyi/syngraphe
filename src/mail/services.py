@@ -113,7 +113,7 @@ def compose(row: Any) -> tuple[str, str]:
         if version is not None and row.event == "version_committed":
             lines.append(_("Version by %(person)s.") % {"person": person(version.author)})
         moment = timezone.localtime(row.created_at, timezone=_display_zone())
-        lines.append(formats.date_format(moment, "DATETIME_FORMAT"))
+        lines.append(formats.date_format(moment, "j E Y, H:i"))
         # The notification itself: opening it marks it read and leads where its entry leads
         # (DL-0394); its id is random, so the link names nothing another person can reach.
         lines.append(link(_tenant_of(row), f"/notifications/{row.pk}/"))
@@ -361,7 +361,7 @@ def try_sender(sender: MailSender, now: datetime) -> dict[str, Any]:
             message = EmailMessage(
                 _("Test message"),
                 _("Test email from %(host)s, sent at %(time)s")
-                % {"host": sender.host, "time": formats.date_format(moment, "DATETIME_FORMAT")},
+                % {"host": sender.host, "time": formats.date_format(moment, "j E Y, H:i")},
                 from_email=formataddr((sender.display_name, sender.address)),
                 to=[sender.address],
             )

@@ -58,10 +58,7 @@ def date_shown(text: str, moment: datetime, zone: str) -> bool:
 
     local = moment.astimezone(ZoneInfo(zone))
     with translation.override("en"):
-        forms = {
-            formats.date_format(local, name)
-            for name in ("DATE_FORMAT", "SHORT_DATE_FORMAT", "DATETIME_FORMAT")
-        }
+        forms = {formats.date_format(local, name) for name in ("j E Y",)}
     forms |= {
         local.strftime("%Y-%m-%d"),
         local.strftime("%d.%m.%Y"),

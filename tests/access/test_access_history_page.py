@@ -91,13 +91,13 @@ def test_a_document_on_a_day(migrated_tenant: Any, member_of: Any, make_document
 
     page = _text(story["client"].get(PAGE, {"document": number, "on": "2026-03-03"}))
 
-    assert f"#{number} on 3 Mar 2026 — readable by 2 groups, 2 people" in page
-    assert "Readers linked 1 Mar 2026 by an.admin@example.test" in page
-    assert "view canonical (granted 1 Mar 2026 by an.admin@example.test)" in page
-    assert "Editors linked 3 Mar 2026 by an.admin@example.test" in page
-    assert "edit (granted 3 Mar 2026 by system)" in page
-    assert "first.reader@example.test added 1 Mar 2026 by an.admin@example.test" in page
-    assert "second.reader@example.test blocked added 1 Mar 2026" in page
+    assert f"#{number} on 3 March 2026 — readable by 2 groups, 2 people" in page
+    assert "Readers linked 1 March 2026 by an.admin@example.test" in page
+    assert "view canonical (granted 1 March 2026 by an.admin@example.test)" in page
+    assert "Editors linked 3 March 2026 by an.admin@example.test" in page
+    assert "edit (granted 3 March 2026 by system)" in page
+    assert "first.reader@example.test added 1 March 2026 by an.admin@example.test" in page
+    assert "second.reader@example.test blocked added 1 March 2026" in page
     changes = page[page.index("When Who Change") :]
     order = [
         "Editors linked to #",
@@ -121,9 +121,9 @@ def test_a_document_at_an_edition(migrated_tenant: Any, member_of: Any, make_doc
     page = _text(response)
     day = _text(story["client"].get(PAGE, {"document": number, "on": "2026-03-03"}))
 
-    assert f"#{number} at 1.0, approved 3 Mar 2026 — readable by 2 groups, 2 people" in page
+    assert f"#{number} at 1.0, approved 3 March 2026 — readable by 2 groups, 2 people" in page
     assert "No canonical edition existed then" not in page
-    assert f"#{number} on 3 Mar 2026 — readable by 1 group, 1 person" in day
+    assert f"#{number} on 3 March 2026 — readable by 1 group, 1 person" in day
     # The editions offered are the document's own, as a choice.
     assert '<option value="1.0" selected>1.0</option>' in response.content.decode()
 
@@ -195,7 +195,7 @@ def test_people_by_address(migrated_tenant: Any, member_of: Any, make_document: 
     )
 
     assert "named.editor@example.test" in page
-    assert "linked 1 Mar 2026 by an.admin@example.test" in page
+    assert "linked 1 March 2026 by an.admin@example.test" in page
     assert "Synthetic Person" not in page and "Synthetic Admin" not in page
 
 

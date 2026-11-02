@@ -195,17 +195,17 @@ def test_catalogue_covers_editing_together_pages(
 
 
 @pytest.mark.fast
-def test_a_sentence_ending_in_a_ukrainian_date_ends_once() -> None:
-    """The Ukrainian date already ends in "р.", so the sentences that end in one carry no stop of
-    their own: the reservation's band, said to its holder and to anyone, and the release for
-    inactivity."""
+def test_a_sentence_ending_in_a_date_ends_once() -> None:
+    """The interface's date (`j E Y`, DL-0511) carries no stop of its own, so a sentence that ends
+    in one ends in exactly one full stop: the reservation's band, said to its holder and to
+    anyone, and the release for inactivity."""
     from datetime import date
 
     from django.utils import translation
     from django.utils.formats import date_format
 
     with translation.override("uk"):
-        day = date_format(date(2026, 10, 14), "DATE_FORMAT")
+        day = date_format(date(2026, 10, 14), "j E Y")
         said = [
             translation.gettext(message) % {"date": day}
             for message in (
@@ -215,8 +215,8 @@ def test_a_sentence_ending_in_a_ukrainian_date_ends_once() -> None:
             )
         ]
 
-    assert day.endswith("р.")
-    assert all(sentence.endswith(day) for sentence in said), said
+    assert day == "14 жовтня 2026"
+    assert all(sentence.endswith(day + ".") for sentence in said), said
 
 
 @pytest.mark.fast

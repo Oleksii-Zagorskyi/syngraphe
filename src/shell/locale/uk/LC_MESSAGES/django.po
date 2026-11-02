@@ -2569,12 +2569,12 @@ msgstr "зарезервовано для редагування з %(date)s"
 #: editing/templates/editing/band.html
 #, python-format
 msgid "Reserved for editing by you since %(date)s."
-msgstr "Ви зарезервували документ для редагування з %(date)s"
+msgstr "Ви зарезервували документ для редагування з %(date)s."
 
 #: editing/templates/editing/band.html
 #, python-format
 msgid "Reserved for editing since %(date)s."
-msgstr "Зарезервовано для редагування з %(date)s"
+msgstr "Зарезервовано для редагування з %(date)s."
 
 #: editing/templates/editing/band.html
 msgid "Until the reservation ends, review, freezing and changes to the document's groups wait."
@@ -2657,7 +2657,7 @@ msgstr "Відкрити її у вкладці редагування"
 #: editing/templates/editing/draft_readonly.html
 #, python-format
 msgid "Your editing was ended for inactivity on %(date)s."
-msgstr "Ваше редагування завершено через бездіяльність %(date)s"
+msgstr "Ваше редагування завершено через бездіяльність %(date)s."
 
 #: editing/templates/editing/draft_readonly.html
 #, python-format
@@ -4797,3 +4797,9 @@ msgstr "(автор)"
 
 msgid "Close"
 msgstr "Закрити"
+
+msgid "Choose an organisation"
+msgstr "Оберіть організацію"
+
+msgid "The document is frozen, so your draft can only be read: it is shown as changes against the text you choose."
+msgstr "Документ заморожено, тож вашу чернетку можна лише прочитати: її показано як зміни відносно обраного тексту."

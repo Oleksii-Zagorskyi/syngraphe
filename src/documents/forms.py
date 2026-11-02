@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, cast
 
 from django import forms
+from django.conf import settings
 from django.db.models import Case, Value, When
 from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
@@ -13,9 +14,6 @@ from django.utils.translation import pgettext_lazy
 from documents.bundle import TITLE_MAX, valid_title
 from documents.models import DocumentType, Folder
 from identity.models import Language
-
-# A new document's language when the organisation names none (DL-0366).
-DEFAULT_DOCUMENT_LANGUAGE = "en"
 
 
 class FolderField(forms.ModelChoiceField):  # type: ignore[type-arg]
@@ -63,8 +61,12 @@ class CreateForm(forms.Form):
         order = Case(*(When(pk=f.pk, then=Value(i)) for i, f in enumerate(listed)))
         folder.queryset = Folder.objects.filter(pk__in=[f.pk for f in listed]).order_by(order)
         folder.paths = {f.pk: tree.path_of(f) for f in listed}
-        # English until an organisation has a language of its own (DL-0366).
-        self.fields["language"].initial = DEFAULT_DOCUMENT_LANGUAGE
+        # The installation's language until an organisation has one of its own (DL-0512) —
+        # never the person's interface language; English where no language row has the code.
+        installation = settings.LANGUAGE_CODE
+        self.fields["language"].initial = (
+            installation if Language.objects.filter(code=installation).exists() else "en"
+        )
 
     def clean_title(self) -> str:
         title = str(self.cleaned_data["title"])

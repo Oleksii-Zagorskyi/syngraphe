@@ -2,7 +2,7 @@
   {% if pending %}<p class="muted">{% translate "The test email is on its way…" %}</p>
   {% elif no_result %}<p class="muted" data-no-result>{% translate "No result has come yet; reload the page later to see it." %}</p>
   {% elif steps %}
-  <h2>{% translate "Last test" %}{% if sender.last_test_at %} · {% timezone display_timezone %}{{ sender.last_test_at|date:"j M Y, H:i" }}{% endtimezone %}{% endif %}</h2>
+  <h2>{% translate "Last test" %}{% if sender.last_test_at %} · {% timezone display_timezone %}{{ sender.last_test_at|date:"j E Y, H:i" }}{% endtimezone %}{% endif %}</h2>
   <ul class="steps">{% for step in steps %}<li data-step="{{ step.step }}" data-outcome="{{ step.outcome }}">{% if step.outcome == "done" %}✓{% elif step.outcome == "failed" %}✗{% else %}–{% endif %} {{ step.label }}{% if step.outcome == "not_needed" %} — {% translate "not needed" %}{% endif %}{% if step.reason %} — <span class="muted" data-error-code="{{ step.code }}">{{ step.reason }}</span>{% endif %}</li>{% endfor %}</ul>
   {% endif %}
 </section>

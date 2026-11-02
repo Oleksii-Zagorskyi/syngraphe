@@ -410,8 +410,8 @@ def test_the_run_dates_each_version_in_the_display_timezone(
 
     page = client.get(f"/document/{document.number}/pending/").content.decode()
 
-    assert "14 Oct 2026, 01:30" in page
-    assert "13 Oct 2026, 22:30" not in page
+    assert "14 October 2026, 01:30" in page
+    assert "13 October 2026, 22:30" not in page
 
 
 def test_the_checkbox_is_the_columns_title(

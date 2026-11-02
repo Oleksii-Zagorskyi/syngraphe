@@ -221,9 +221,29 @@ def test_the_dialog_renders(migrated_tenant: Any, author: Any, repo_root: Path) 
         options = re.findall(r"<option[^>]*>([^<]*)</option>", body)
     assert language.label in options and "uk" not in options and "en" not in options
     assert kind.label in options and "document" not in options
-    # English preselected while an organisation has no language of its own (DL-0366), whatever
-    # the interface's language and the list's order.
-    assert re.search(r'<option value="en" selected>', body)
+    # The installation's language preselected while an organisation has none of its own
+    # (DL-0512): the suite's is Ukrainian.
+    assert re.search(r'<option value="uk" selected>', body)
+
+
+@pytest.mark.parametrize(("installation", "offered"), [("en", "en"), ("de", "en")])
+def test_the_installations_language_is_offered_first(
+    migrated_tenant: Any, author: Any, settings: Any, installation: str, offered: str
+) -> None:
+    """The create form offers the installation's language first (DL-0512), never the person's
+    interface language; a code no language row has falls to English."""
+    from identity.models import Language
+
+    client, _ = author
+    for code, label in (("uk", "Українська"), ("en", "English")):
+        Language.objects.update_or_create(
+            code=code, defaults={"label": label, "actor_kind": "system"}
+        )
+    settings.LANGUAGE_CODE = installation
+
+    body = client.get("/document/new/").content.decode()
+
+    assert re.search(rf'<option value="{offered}" selected>', body)
 
 
 def test_the_dialog_offers_the_folders_the_person_sees(

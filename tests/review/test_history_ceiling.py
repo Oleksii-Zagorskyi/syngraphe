@@ -347,8 +347,8 @@ def test_the_times_read_in_the_display_timezone(
     client, _user, membership = member_of("all.synthetic@example.test")
     link_group(document, [Right.VIEW_PENDING, Right.VIEW_ALL_HISTORY], [membership], people["a"])
     page = client.get(f"/document/{document.number}/history/").content.decode()
-    assert "5 Oct 2026, 07:30" in page
-    assert "4 Oct 2026, 22:30" not in page
+    assert "5 October 2026, 07:30" in page
+    assert "4 October 2026, 22:30" not in page
 
 
 def test_a_freeze_and_its_unfreeze_keep_their_place_within_one_second(

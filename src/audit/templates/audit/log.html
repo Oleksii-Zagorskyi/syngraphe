@@ -14,7 +14,7 @@
   <table>
     <thead><tr><th>{% translate "When" %}</th><th>{% translate "Who" %}</th><th>{% translate "Kind" %}</th><th>{% translate "Organisation" %}</th><th>{% translate "Action" %}</th><th>{% translate "Object" %}</th><th>{% translate "Change" context "access history" %}</th></tr></thead>
     <tbody class="events">
-      {% for row in rows %}<tr><td>{{ row.at|date:"j M Y H:i" }}</td><td>{{ row.who }}</td><td>{{ row.kind }}</td><td>{{ row.organisation }}</td><td><code>{{ row.action }}</code></td><td>{{ row.object }}</td><td>{% for line in row.change %}<div>{{ line }}</div>{% endfor %}</td></tr>{% endfor %}
+      {% for row in rows %}<tr><td>{{ row.at|date:"j E Y, H:i" }}</td><td>{{ row.who }}</td><td>{{ row.kind }}</td><td>{{ row.organisation }}</td><td><code>{{ row.action }}</code></td><td>{{ row.object }}</td><td>{% for line in row.change %}<div>{{ line }}</div>{% endfor %}</td></tr>{% endfor %}
     </tbody>
   </table>
   {% endtimezone %}

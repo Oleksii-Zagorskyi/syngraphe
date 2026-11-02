@@ -296,5 +296,5 @@ def test_the_reserved_refusal_dates_in_the_display_timezone(
     session["tenant_number"] = migrated_tenant.number
     session.save()
     page = reviewer.get(f"/document/{document.number}/pending/").content.decode()
-    assert "Oct. 14, 2026" in page
-    assert "Oct. 13, 2026" not in page
+    assert "14 October 2026" in page
+    assert "13 October 2026" not in page

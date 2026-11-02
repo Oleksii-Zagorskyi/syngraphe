@@ -118,20 +118,20 @@ def test_reserved_by_rights(
     for who in ("reader", "pending", "editor", "administrator", "platform", "holder"):
         named = who in NAMED_ON_A_RESERVATION
         tag = (
-            f'data-state="reserved">reserved for editing by {HOLDER}, since Oct. 14, 2026<'
+            f'data-state="reserved">reserved for editing by {HOLDER}, since 14 October 2026<'
             if named
-            else 'data-state="reserved">reserved for editing, since Oct. 14, 2026<'
+            else 'data-state="reserved">reserved for editing, since 14 October 2026<'
         )
         listed, page = _pages(cast[who], cast["document"])
         for body in (listed, page):
             assert tag in body, who
             assert 'data-state="held"' not in body, who
-            assert "Oct. 13, 2026" not in body, who
+            assert "13 October 2026" not in body, who
             if who != "holder":
                 assert ADDRESS not in body, who
         assert 'class="band res"' in page, who
         if who == "holder":
-            assert "Reserved for editing by you since Oct. 14, 2026." in page
+            assert "Reserved for editing by you since 14 October 2026." in page
         else:
             assert "review, freezing and changes to the document's groups wait" in page, who
             band = page.split('class="band res"', 1)[1].split("</p>", 1)[0]

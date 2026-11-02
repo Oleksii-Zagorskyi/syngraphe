@@ -98,6 +98,14 @@ def root(request: HttpRequest) -> HttpResponse:
         return HttpResponseRedirect("/folder/1/")
     if _is_platform_admin(request):
         return HttpResponseRedirect(reverse("administration"))
+    person = request.user
+    if person.is_authenticated and getattr(request, "tenant", None) is None:
+        from identity.models import Membership
+
+        # A person of several organisations, none chosen: asked which (DL-0511), from the list
+        # the switcher draws, so nothing else is named.
+        if Membership.objects.active().filter(user=person).count() > 1:
+            return render(request, "shell/organisations.html")
     return not_found(request)
 
 

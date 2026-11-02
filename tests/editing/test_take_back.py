@@ -212,7 +212,7 @@ def test_take_back_restores_the_draft(migrated_tenant: Any, scene: Scene, settin
     with schema_context(migrated_tenant.number):
         ended_at = Hold.objects.get(pk=ended.pk).released_at
     local = timezone.localtime(ended_at, ZoneInfo(django_settings.DISPLAY_TIMEZONE))
-    assert formats.date_format(local, "DATE_FORMAT") in shown
+    assert formats.date_format(local, "j E Y") in shown
     assert posts_to(body, f"/document/{number}/edit/take-back/")
 
     taken = scene.holder_client.post(f"/document/{number}/edit/take-back/")
@@ -531,3 +531,91 @@ def test_a_taken_back_draft_keeps_its_files_and_entities(
         repo = gitstore.open_repository(migrated_tenant.number, number)
         assert gitstore.read(repo, path, version.commit_sha) == image
         assert gitstore.read(repo, "entities.yaml", version.commit_sha).decode() == declared
+
+
+def _frozen(tenant: Any, scene: Scene, member_of: Any, link_group: Any) -> None:
+    """The document frozen with `REASON` by a holder of *freeze* (synthetic)."""
+    from editions import services as editions
+
+    _, freezer, membership = member_of("freezer.synthetic@example.test")
+    link_group(scene.document, [Right.FREEZE], [membership], scene.admin)
+    with schema_context(tenant.number):
+        editions.freeze(scene.document, freezer, REASON)
+
+
+def test_a_kept_draft_on_a_frozen_document_opens_read_only(
+    migrated_tenant: Any, scene: Scene, member_of: Any, link_group: Any, settings: Any
+) -> None:
+    """A holder without *accept* whose draft was kept finds it, the document frozen meanwhile:
+    the draft read only against the text, the freeze said, *Discard this draft…* offered and no
+    *Take the document back* (DL-0511); discarded, the tab answers as a frozen one does."""
+    settings.LANGUAGE_CODE = "en"
+    _, draft = ended_reservation(migrated_tenant, scene)
+    _frozen(migrated_tenant, scene, member_of, link_group)
+    number = scene.document.number
+
+    page = scene.holder_client.get(f"/document/{number}/edit/", headers=SAME_ORIGIN)
+
+    assert page.status_code == 200
+    body = page.content.decode()
+    shown = text_of(body)
+    assert "Your draft was kept." in shown
+    assert f"Frozen — “{REASON}” — until it is unfrozen or made canonical." in shown
+    assert DRAFT_SENTENCE in shown
+    assert "The document is frozen, so your draft can only be read" in shown
+    assert not posts_to(body, f"/document/{number}/edit/take-back/")
+    assert posts_to(body, f"/document/{number}/edit/discard-draft/")
+
+    discarded = scene.holder_client.post(f"/document/{number}/edit/discard-draft/")
+
+    assert discarded.status_code in (302, 303)
+    assert draft_of(migrated_tenant, draft.pk) is None
+    after = scene.holder_client.get(f"/document/{number}/edit/", headers=SAME_ORIGIN)
+    assert "Your draft was kept." not in text_of(after.content.decode())
+    assert "Frozen —" in text_of(after.content.decode())
+
+
+def test_a_holder_with_accept_takes_a_frozen_document_back(
+    migrated_tenant: Any, scene: Scene, member_of: Any, link_group: Any, settings: Any
+) -> None:
+    """While frozen only a holder of *accept* edits (ADR-0016), so they may take it back."""
+    settings.LANGUAGE_CODE = "en"
+    ended_reservation(migrated_tenant, scene)
+    holder_membership = scene.holder.memberships.get()
+    link_group(scene.document, [Right.ACCEPT], [holder_membership], scene.admin)
+    _frozen(migrated_tenant, scene, member_of, link_group)
+    number = scene.document.number
+
+    body = scene.holder_client.get(
+        f"/document/{number}/edit/", headers=SAME_ORIGIN
+    ).content.decode()
+
+    assert posts_to(body, f"/document/{number}/edit/take-back/")
+
+
+def test_the_frozen_kept_draft_is_in_ukrainian(
+    migrated_tenant: Any, scene: Scene, member_of: Any, link_group: Any, settings: Any
+) -> None:
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "editing_catalogue_lint", Path(__file__).resolve().parent / "test_catalogue.py"
+    )
+    assert spec is not None and spec.loader is not None
+    lint = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = lint
+    spec.loader.exec_module(lint)
+    settings.LANGUAGE_CODE = "uk"
+    ended_reservation(migrated_tenant, scene)
+    _frozen(migrated_tenant, scene, member_of, link_group)
+    number = scene.document.number
+
+    body = scene.holder_client.get(f"/document/{number}/edit/", headers=SAME_ORIGIN).content
+    # The page around the draft: the draft's own invented text is not the interface's.
+    around = re.sub(r'<div class="changes document-text">.*?</div>', "", body.decode(), flags=re.S)
+    shown = text_of(around)
+
+    ids = lint.message_ids(lint.CATALOGUE.read_text(encoding="utf-8"))
+    assert [i for i in ids if i in shown] == []

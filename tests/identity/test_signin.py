@@ -182,3 +182,49 @@ def test_reset_link_on_the_page(client: Client) -> None:
     body = client.get(SIGNIN).content.decode()
 
     assert 'href="/reset/"' in body
+
+
+def test_a_person_of_several_organisations_chooses_one(person: Any) -> None:
+    """Signed in on the platform host with none chosen, a member of two organisations is asked
+    which, on a page naming both and no other; choosing one opens its documents (DL-0511)."""
+    from tenancy.models import Tenant
+
+    person("two@example.test", "Synthetic Org A", "Synthetic Org B")
+    person("other@example.test", "Synthetic Org C")
+    first, second = (Tenant.objects.get(name=n) for n in ("Synthetic Org A", "Synthetic Org B"))
+    client = Client(headers={"host": "127.0.0.1"}, REMOTE_ADDR="192.0.2.21")
+    assert sign_in(client, "two@example.test").status_code == 302
+
+    landing = client.get("/")
+
+    assert landing.status_code == 200
+    page = landing.content.decode()
+    assert "Synthetic Org A" in page and "Synthetic Org B" in page
+    assert "Synthetic Org C" not in page
+    for tenant in (first, second):
+        assert re.search(
+            rf'<form method="post" action="/organisation/switch/"[^>]*>.*?'
+            rf'name="organisation" value="{tenant.number}"',
+            page,
+            re.S,
+        )
+    chosen = client.post("/organisation/switch/", {"organisation": second.number})
+    assert chosen.status_code == 302
+    assert client.session["tenant_number"] == second.number
+    assert client.get("/")["Location"] == "/folder/1/"
+
+
+def test_the_choice_of_an_organisation_is_in_ukrainian(person: Any, settings: Any) -> None:
+    from django.utils.translation import override, pgettext
+
+    settings.LANGUAGE_CODE = "uk"
+    person("two@example.test", "Synthetic Org A", "Synthetic Org B")
+    client = Client(headers={"host": "127.0.0.1"}, REMOTE_ADDR="192.0.2.22")
+    sign_in(client, "two@example.test")
+
+    page = client.get("/").content.decode()
+
+    with override("uk"):
+        switch = pgettext("organisation switcher", "Switch")
+    assert "Оберіть організацію" in page and "Choose an organisation" not in page
+    assert page.count(f">{switch}</button>") == 2 and switch != "Switch"

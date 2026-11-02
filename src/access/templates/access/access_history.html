@@ -16,7 +16,7 @@
   {% timezone display_timezone %}
   {% if answer %}
   <div class="answer">
-    <p><strong>{% if edition %}{% blocktranslate with number=document.number edition=edition.number date=edition.approved_at|date:"j M Y" %}#{{ number }} at {{ edition }}, approved {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with number=document.number date=day|date:"j M Y" %}#{{ number }} on {{ date }}{% endblocktranslate %}{% endif %}</strong>{% if answer.existed %} — {% blocktranslate count counter=answer.groups_reading|length %}readable by {{ counter }} group{% plural %}readable by {{ counter }} groups{% endblocktranslate %}, {% blocktranslate count counter=answer.people|length %}{{ counter }} person{% plural %}{{ counter }} people{% endblocktranslate %}{% endif %}</p>
+    <p><strong>{% if edition %}{% blocktranslate with number=document.number edition=edition.number date=edition.approved_at|date:"j E Y" %}#{{ number }} at {{ edition }}, approved {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with number=document.number date=day|date:"j E Y" %}#{{ number }} on {{ date }}{% endblocktranslate %}{% endif %}</strong>{% if answer.existed %} — {% blocktranslate count counter=answer.groups_reading|length %}readable by {{ counter }} group{% plural %}readable by {{ counter }} groups{% endblocktranslate %}, {% blocktranslate count counter=answer.people|length %}{{ counter }} person{% plural %}{{ counter }} people{% endblocktranslate %}{% endif %}</p>
     {% if not answer.existed %}<p>{% blocktranslate with number=document.number %}#{{ number }} did not exist then.{% endblocktranslate %}</p>{% endif %}
     {% if answer.archived %}<p>{% blocktranslate with number=document.number %}#{{ number }} was archived then: no group could read it.{% endblocktranslate %}</p>{% endif %}
     {% if answer.organisation_blocked %}<p>{% translate "The organisation was blocked then: none of its members could read." %}</p>{% endif %}
@@ -26,9 +26,9 @@
       <thead><tr><th>{% translate "Group" %}</th><th>{% translate "Right" %}</th><th>{% translate "Members that day" %}</th></tr></thead>
       <tbody>
         {% for group in groups %}<tr>
-          <td>{{ group.name }}<div class="note">{% blocktranslate with date=group.linked.at|date:"j M Y" who=group.linked.who %}linked {{ date }} by {{ who }}{% endblocktranslate %}</div></td>
-          <td>{% for right in group.rights %}{{ right.label }} <span class="note">{% blocktranslate with date=right.at|date:"j M Y" who=right.who %}(granted {{ date }} by {{ who }}){% endblocktranslate %}</span>{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
-          <td><details><summary>{{ group.active }} · {% translate "list" context "access history" %}</summary>{% for member in group.members %}<div>{{ member.address }}{% if member.blocked %} <span class="tag">{% translate "blocked" context "membership" %}</span>{% endif %} <span class="note">{% blocktranslate with date=member.at|date:"j M Y" who=member.who %}added {{ date }} by {{ who }}{% endblocktranslate %}</span></div>{% endfor %}</details></td>
+          <td>{{ group.name }}<div class="note">{% blocktranslate with date=group.linked.at|date:"j E Y" who=group.linked.who %}linked {{ date }} by {{ who }}{% endblocktranslate %}</div></td>
+          <td>{% for right in group.rights %}{{ right.label }} <span class="note">{% blocktranslate with date=right.at|date:"j E Y" who=right.who %}(granted {{ date }} by {{ who }}){% endblocktranslate %}</span>{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+          <td><details><summary>{{ group.active }} · {% translate "list" context "access history" %}</summary>{% for member in group.members %}<div>{{ member.address }}{% if member.blocked %} <span class="tag">{% translate "blocked" context "membership" %}</span>{% endif %} <span class="note">{% blocktranslate with date=member.at|date:"j E Y" who=member.who %}added {{ date }} by {{ who }}{% endblocktranslate %}</span></div>{% endfor %}</details></td>
         </tr>{% endfor %}
       </tbody>
     </table>
@@ -39,7 +39,7 @@
   <table>
     <thead><tr><th>{% translate "When" %}</th><th>{% translate "Who" %}</th><th>{% translate "Change" context "access history" %}</th></tr></thead>
     <tbody>
-      {% for row in changes.rows %}<tr><td>{{ row.at|date:"j M Y H:i" }}</td><td>{{ row.who }}</td><td>{{ row.change }}</td></tr>{% endfor %}
+      {% for row in changes.rows %}<tr><td>{{ row.at|date:"j E Y, H:i" }}</td><td>{{ row.who }}</td><td>{{ row.change }}</td></tr>{% endfor %}
     </tbody>
   </table>
   {% if changes.bounded %}<p class="note">{% blocktranslate with count=shown %}The newest {{ count }} changes up to then.{% endblocktranslate %}</p>{% endif %}

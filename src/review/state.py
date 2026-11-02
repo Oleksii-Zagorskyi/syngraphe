@@ -232,7 +232,7 @@ def reserved_since(moment: Any) -> str:
     format: the one form every page shows it in, converted here because a tag's label is
     already output."""
     local = timezone.localtime(moment, ZoneInfo(settings.DISPLAY_TIMEZONE))
-    return formats.date_format(local, "DATE_FORMAT")
+    return formats.date_format(local, "j E Y")
 
 
 def hold_tag(hold: Any, rights: frozenset[Right], *, administrator: bool) -> Tag:

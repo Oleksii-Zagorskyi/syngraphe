@@ -9,7 +9,7 @@
     <thead><tr><th>#</th><th>{% translate "Title" %}</th><th>{% translate "Archived" context "date" %}</th><th></th></tr></thead>
     <tbody>{% timezone display_timezone %}
       {% for row in rows %}{% with document=row.document %}
-      <tr data-number="{{ document.number }}"><td class="id">#{{ document.number }}</td><td><a href="/document/{{ document.number }}/">{{ document.title }}</a></td><td>{% if row.at %}{{ row.at|date:"DATE_FORMAT" }}{% endif %}</td><td class="acts"><form class="inline" method="post" action="/document/{{ document.number }}/restore/">{% csrf_token %}<button class="btn" type="submit">{% translate "Restore" %}</button></form> <a class="btn" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a></td></tr>{% endwith %}
+      <tr data-number="{{ document.number }}"><td class="id">#{{ document.number }}</td><td><a href="/document/{{ document.number }}/">{{ document.title }}</a></td><td>{% if row.at %}{{ row.at|date:"j E Y" }}{% endif %}</td><td class="acts"><form class="inline" method="post" action="/document/{{ document.number }}/restore/">{% csrf_token %}<button class="btn" type="submit">{% translate "Restore" %}</button></form> <a class="btn" href="/document/{{ document.number }}/export/">{% translate "Export" %}</a></td></tr>{% endwith %}
       {% endfor %}
     {% endtimezone %}</tbody>
   </table>

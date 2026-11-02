@@ -1,0 +1,20 @@
+{% extends "shell/frame.html" %}
+{% load i18n %}
+{% block title %}{% translate "Choose an organisation" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="card organisations">
+  <div class="word">Syngraphē</div>
+  <h1>{% translate "Choose an organisation" %}</h1>
+  <ul>
+    {% for organisation in organisations_of_person %}
+    <li>
+      <form method="post" action="/organisation/switch/" class="inline">{% csrf_token %}
+        <input type="hidden" name="organisation" value="{{ organisation.tenant__number }}">
+        <span>{{ organisation.tenant__name }}</span>
+        <button class="btn" type="submit">{% translate "Switch" context "organisation switcher" %}</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
