@@ -415,11 +415,16 @@ def test_the_title_page_carries_its_styles(
     page break after."""
     import json
 
-    from documents.models import DocumentTemplate
+    from documents.models import Document, DocumentTemplate
+    from identity.models import Language
     from tenancy.schemas import schema_context
 
     settings.LANGUAGE_CODE = "en"
     people = edition_cast()
+    # The title page's words are the document's language (DL-0502); this one reads English.
+    Language.objects.get_or_create(code="en", defaults={"label": "English", "actor_kind": "system"})
+    with schema_context(migrated_tenant.number):
+        Document.objects.filter(pk=people.document.pk).update(language_id="en")
     layout = {"items": ["title", "number", "text", "approval"], "align": "centre"}
     with schema_context(migrated_tenant.number):
         DocumentTemplate.objects.update(title_page_layout=json.dumps(layout))

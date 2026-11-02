@@ -178,3 +178,29 @@ def test_accepting_is_one_transaction(
     assert not User.objects.get(email="new.person@example.test").has_usable_password()
     assert Invitation.objects.get().accepted_at is None
     assert invitations.person_of(token) is not None
+
+
+def test_the_invitation_is_in_the_default_and_its_page_in_the_persons_language(
+    migrated_tenant: Any, member_of: Any, invited: Any
+) -> None:
+    """An invitation goes in the installation's default, whoever it reaches — an administrator
+    reads the outbox (ASR-17); the page its link opens speaks the person's own language
+    (DL-0501)."""
+    from identity.models import User
+    from identity.views.preferences import _keep
+    from mail.models import EmailOutbox
+    from tenancy.schemas import schema_context
+
+    _, admin, _ = member_of("an.inviter@example.test", is_tenant_admin=True)
+    known = User.objects.create_user("known.elsewhere@example.test", "test-only-not-a-password")
+    _keep(known, "language", "uk")
+
+    token = invited(migrated_tenant, "known.elsewhere@example.test", by=admin)
+
+    with schema_context(migrated_tenant.number):
+        row = EmailOutbox.objects.filter(recipient="known.elsewhere@example.test").latest(
+            "created_at"
+        )
+    assert row.subject.startswith("Invitation to ")
+    page = Client(headers={"host": "127.0.0.1"}).get(f"/invitation/{token}/").content.decode()
+    assert '<html lang="uk">' in page

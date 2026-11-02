@@ -24,6 +24,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from documents import gitstore
+from identity.language import language_of
 from rendering.export import compose, docx, names, pdf
 from rendering.models import (
     REASON_MAX,
@@ -77,7 +78,7 @@ def _images(composed: compose.Composed, tenant: int, job: ExportJob) -> dict[str
                 continue
         if path not in found:
             raise compose.Refused(
-                _("An image the text shows has gone since you asked; export again.")
+                lambda: _("An image the text shows has gone since you asked; export again.")
             )
     return found
 
@@ -141,7 +142,7 @@ def _zip(
                 # A draft changed between the list composed above and this read: the file would
                 # not be the one the export's list names.
                 raise compose.Refused(
-                    _("Your draft changed while the file was being made; export again.")
+                    lambda: _("Your draft changed while the file was being made; export again.")
                 )
             bundle.writestr(names.part_name(word, number, str(item.get("file_name", ""))), data)
     partial.replace(target)
@@ -164,17 +165,17 @@ def _attachment(job: ExportJob, tenant: int, number: int) -> bytes:
             hold = open_hold(job.document)
             if hold is None or hold.user_id != job.requested_by_id:
                 raise compose.Refused(
-                    _("Your draft has been finished or discarded since you asked.")
+                    lambda: _("Your draft has been finished or discarded since you asked.")
                 )
             return draft_attachment(Draft.objects.get(hold=hold), number)[1]
         return read_attachment(tenant, job.document, job.version, number)[1]
     except KeyError as missing:
         raise compose.Refused(
-            _("An attachment has gone since you asked; export again.")
+            lambda: _("An attachment has gone since you asked; export again.")
         ) from missing
     except ValueError as mismatch:
         raise compose.Refused(
-            _("An attachment's file does not match its record; tell the operator.")
+            lambda: _("An attachment's file does not match its record; tell the operator.")
         ) from mismatch
 
 
@@ -199,51 +200,69 @@ def run(job_id: str | uuid.UUID, tenant: int) -> ExportState:
 
 def _held(job: ExportJob, tenant: int) -> ExportState:
     folder = Path(settings.EXPORT_ROOT) / str(job.pk)
-    try:
-        with translation.override(settings.LANGUAGE_CODE):
+    # Two languages (DL-0502): the file's own words are the document's; a refusal or a failure is
+    # read by whoever asked, so it is drawn in theirs — a `Refused` carries its reason unrendered
+    # out of the document's language.
+    with translation.override(language_of(job.requested_by)):
+        try:
             if not compose.still_permitted(job):
-                raise compose.Refused(_("The version asked for is no longer one you may export."))
-            if job.at_version:
-                # The number the version's page shows, from git and the passport (DL-0183, DL-0267).
-                from editing import numbering
-
-                number = numbering.number_of(job.document, job.version)
-            else:
-                number = compose.number_of(job.document, job.version, job.view)
-            composed = compose.compose(job, tenant, number=number)
-            # The organisation's look as it stands when the job runs, read once (DL-0464).
-            stylesheet = applied(Stylesheet.objects.get().text)
-            folder.mkdir(parents=True, exist_ok=True)
-            # Marked as fresh: the hourly sweep keys on the folder's age.
-            os.utime(folder)
-            with tempfile.TemporaryDirectory(dir=folder) as scratch:
-                document: Path | None = None
-                writes = job.include_document or bool(composed.appendices)
-                pictures = _images(composed, tenant, job) if writes else {}
-                if job.include_document:
-                    document = Path(scratch) / composed.name
-                    _write_document(composed, job.format, document, pictures, stylesheet)
-                beside = job.format == ExportFormat.MARKDOWN and bool(pictures)
-                if composed.attachments or composed.appendices or beside:
-                    produced = _zip(
-                        composed, document, folder, Path(scratch), tenant, job, pictures, stylesheet
-                    )
-                elif document is not None:
-                    produced = folder / composed.name
-                    document.replace(produced)
-                else:
-                    raise compose.Refused(_("The chosen version has no attachments to export."))
-    except compose.Refused as refusal:
-        return _failed(job, str(refusal), folder)
-    except Exception:
-        logger.exception("an export failed", extra={"export": str(job.pk)})
-        return _failed(
-            job, _("The file could not be made. Try again, or tell the operator."), folder
-        )
+                raise compose.Refused(
+                    lambda: _("The version asked for is no longer one you may export.")
+                )
+            with translation.override(compose.export_language(job.document.language_id)):
+                produced = _produced(job, tenant, folder)
+        except compose.Refused as refusal:
+            try:
+                reason = str(refusal)
+            except Exception:
+                logger.exception(
+                    "an export's reason could not be drawn", extra={"export": str(job.pk)}
+                )
+                reason = _("The file could not be made. Try again, or tell the operator.")
+            return _failed(job, reason, folder)
+        except Exception:
+            logger.exception("an export failed", extra={"export": str(job.pk)})
+            return _failed(
+                job, _("The file could not be made. Try again, or tell the operator."), folder
+            )
     job.state = ExportState.DONE
     job.artifact_ref = f"{job.pk}/{produced.name}"
     job.save(update_fields=["state", "artifact_ref"])
     return ExportState.DONE
+
+
+def _produced(job: ExportJob, tenant: int, folder: Path) -> Path:
+    """The job's file, composed and written in the language the caller set."""
+    if job.at_version:
+        # The number the version's page shows, from git and the passport (DL-0183, DL-0267).
+        from editing import numbering
+
+        number = numbering.number_of(job.document, job.version)
+    else:
+        number = compose.number_of(job.document, job.version, job.view)
+    composed = compose.compose(job, tenant, number=number)
+    # The organisation's look as it stands when the job runs, read once (DL-0464).
+    stylesheet = applied(Stylesheet.objects.get().text)
+    folder.mkdir(parents=True, exist_ok=True)
+    # Marked as fresh: the hourly sweep keys on the folder's age.
+    os.utime(folder)
+    with tempfile.TemporaryDirectory(dir=folder) as scratch:
+        document: Path | None = None
+        writes = job.include_document or bool(composed.appendices)
+        pictures = _images(composed, tenant, job) if writes else {}
+        if job.include_document:
+            document = Path(scratch) / composed.name
+            _write_document(composed, job.format, document, pictures, stylesheet)
+        beside = job.format == ExportFormat.MARKDOWN and bool(pictures)
+        if composed.attachments or composed.appendices or beside:
+            return _zip(
+                composed, document, folder, Path(scratch), tenant, job, pictures, stylesheet
+            )
+        if document is not None:
+            produced = folder / composed.name
+            document.replace(produced)
+            return produced
+        raise compose.Refused(lambda: _("The chosen version has no attachments to export."))
 
 
 def _failed(job: ExportJob, reason: str, folder: Path) -> ExportState:

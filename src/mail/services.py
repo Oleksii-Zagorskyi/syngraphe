@@ -98,13 +98,14 @@ def _tenant_of(row: Any) -> Any:
 
 
 def compose(row: Any) -> tuple[str, str]:
-    """The subject and body of the email of a `Notification` or a `PlatformNotification`, in the
-    installation's language: the entry's sentence, the version's author where a version awaits
-    review, the time, and one link."""
+    """The subject and body of the email of a `Notification` or a `PlatformNotification`, in its
+    recipient's language, fixed as it is queued (DL-0501): the entry's sentence, the version's
+    author where a version awaits review, the time, and one link."""
+    from identity.language import language_of
     from identity.naming import person
     from notifications.events import describe, tag
 
-    with translation.override(settings.LANGUAGE_CODE):
+    with translation.override(language_of(row.user)):
         sentence = describe(row)
         marked = tag(row)
         lines = [sentence + (f" — {marked}" if marked else "")]

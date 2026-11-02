@@ -12,7 +12,6 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
-from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.utils import timezone, translation
@@ -20,6 +19,7 @@ from django.utils.translation import gettext as _
 
 from audit.record import record
 from identity import throttle
+from identity.language import language_of
 from identity.models import Membership, PasswordReset, SignInAttempt, User, fold_email
 from identity.tokens import hash_token, new_token
 from mail import services as mail
@@ -51,7 +51,7 @@ def request_reset(email: str, reset_key: str, *, tenant: Tenant | None) -> None:
         row = PasswordReset.objects.create(
             user=user, token_hash=token_hash, expires_at=timezone.now() + RESET_LIFETIME
         )
-        subject, body = _email(place, token)
+        subject, body = _email(place, user, token)
         if mail.queue(place, user.email, subject, body, kind=Kind.RESET) is None:
             # No sender where the email belongs: the row stays so an administrator can tell
             # why no email came (DL-0383).
@@ -71,9 +71,9 @@ def _sole_organisation(user: User) -> Tenant | None:
     return memberships[0].tenant if len(memberships) == 1 else None
 
 
-def _email(place: Tenant | None, token: str) -> tuple[str, str]:
-    """The reset's subject and body in the installation's language, with the one link."""
-    with translation.override(settings.LANGUAGE_CODE):
+def _email(place: Tenant | None, user: User, token: str) -> tuple[str, str]:
+    """The reset's subject and body in its person's language (DL-0501), with the one link."""
+    with translation.override(language_of(user)):
         subject = _("Reset your password")
         lines = [
             _("Someone asked for a new password for this address."),

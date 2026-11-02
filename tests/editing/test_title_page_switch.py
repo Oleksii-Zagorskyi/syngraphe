@@ -25,6 +25,16 @@ def english(settings: Any) -> None:
     settings.LANGUAGE_CODE = "en"
 
 
+def _in_english(tenant: int, document: Any) -> None:
+    """The document written in English: an export's own words are its document's (DL-0502)."""
+    from documents.models import Document
+    from identity.models import Language
+
+    Language.objects.get_or_create(code="en", defaults={"label": "English", "actor_kind": "system"})
+    with schema_context(tenant):
+        Document.objects.filter(pk=document.pk).update(language_id="en")
+
+
 def scene(
     member_of: Any,
     new_document: Any,
@@ -136,6 +146,7 @@ def test_the_reviewer_sees_it_and_the_export_follows(
         link_group(document, rights, [approvers], author)
 
     people = scene(member_of, new_document, link_group, commit_version, linked)
+    _in_english(migrated_tenant.number, people.document)
     switch(people, True)
     n = people.document.number
     people.client.post(f"/document/{n}/edit/send/", {"summary": "A title page"})

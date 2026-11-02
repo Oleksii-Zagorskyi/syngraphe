@@ -572,3 +572,63 @@ def test_two_links_spent_at_once_give_one_password_and_no_error(
 
     assert not [o for o in outcomes if isinstance(o, Exception)], outcomes
     assert sorted(o is None for o in outcomes) == [False, True]
+
+
+def _prefers(user: Any, value: str) -> None:
+    from identity.views.preferences import _keep
+
+    _keep(user, "language", value)
+
+
+def test_the_email_goes_in_the_persons_language(
+    person: Any, sending_address: Any, outbox: Any
+) -> None:
+    """A person who chose Ukrainian on an English installation gets the reset in Ukrainian, fixed
+    when it is queued (DL-0501)."""
+    from django.utils.translation import gettext, override
+
+    sending_address(None, "platform.sender@example.test")
+    _prefers(person(P1), "uk")
+
+    assert ask(PLATFORM, P1, "192.0.2.51").status_code == 200
+
+    [row] = to(outbox(None), P1)
+    with override("uk"):
+        assert row.subject == gettext("Reset your password") != "Reset your password"
+        assert gettext("Someone asked for a new password for this address.") in row.body
+
+
+def test_the_reset_page_takes_the_links_persons_language(person: Any) -> None:
+    """The page a reset link opens speaks its person's language, the refusal of a weak password
+    included; a spent or unknown link answers in the installation's default."""
+    user = person(P1)
+    _prefers(user, "uk")
+    token = a_reset(user)
+    client = Client(headers={"host": PLATFORM})
+
+    page = client.get(f"/reset/{token}/").content.decode()
+    refused = client.post(f"/reset/{token}/", {"password": "short", "password_again": "short"})
+
+    assert '<html lang="uk">' in page
+    assert refused.status_code == 200
+    refusal = refused.content.decode()
+    assert '<html lang="uk">' in refusal
+    assert re.search(r'class="err[^"]*"[^>]*>[^<]*[Ѐ-ӿ]', refusal), refusal
+    unknown = client.get("/reset/" + "x" * 43 + "/").content.decode()
+    assert '<html lang="en">' in unknown
+
+
+def test_a_link_spent_meanwhile_answers_in_the_default(person: Any, monkeypatch: Any) -> None:
+    """A link spent by another hand between the page and the post answers as every spent link
+    does, in the installation's default — never in its person's language."""
+    user = person(P1)
+    _prefers(user, "uk")
+    token = a_reset(user)
+    monkeypatch.setattr("identity.resets.reset", lambda token, password: None)
+
+    answer = Client(headers={"host": PLATFORM}).post(
+        f"/reset/{token}/", {"password": NEW_PASSWORD, "password_again": NEW_PASSWORD}
+    )
+
+    assert answer.status_code == 404
+    assert '<html lang="en">' in answer.content.decode()

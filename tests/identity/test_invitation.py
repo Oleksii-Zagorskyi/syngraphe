@@ -282,3 +282,18 @@ def test_groups_tell_in_the_application_without_email(
     [row] = outbox(migrated_tenant.number)
     assert row.recipient == NEW
     assert len(re.findall(INVITATION_LINK, row.body)) == 1
+
+
+def test_the_wording_tells_no_one_apart(migrated_tenant: Any, member_of: Any, invited: Any) -> None:
+    """The invitation reads the same to an address with an account and one without (ASR-17): it
+    asks the person to join, never to set a password."""
+    from mail.models import EmailOutbox
+    from tenancy.schemas import schema_context
+
+    _, admin, _ = member_of("an.inviter@example.test", is_tenant_admin=True)
+    invited(migrated_tenant, "new.address@example.test", by=admin)
+
+    with schema_context(migrated_tenant.number):
+        body = EmailOutbox.objects.get(recipient="new.address@example.test").body
+    assert "set your password" not in body
+    assert f"Follow the link to join {migrated_tenant.name}; it works once, for seven days:" in body

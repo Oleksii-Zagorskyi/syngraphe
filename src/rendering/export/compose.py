@@ -10,6 +10,7 @@ DOCX (DL-0438).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from html import escape
 from typing import TYPE_CHECKING, Any
@@ -41,7 +42,23 @@ EXTENSIONS = {ExportFormat.PDF: "pdf", ExportFormat.DOCX: "docx", ExportFormat.M
 
 
 class Refused(Exception):
-    """The text holds constructs the platform refuses; the reason names each with its line."""
+    """An export refused, its reason drawn when it is read: the file is composed in the
+    document's language and the reason is read by whoever asked, in theirs (DL-0502)."""
+
+    def __init__(self, render: Callable[[], str]) -> None:
+        super().__init__()
+        self.render = render
+
+    def __str__(self) -> str:
+        return self.render()
+
+
+def export_language(code: str) -> str:
+    """The language an export's own words are written in: the document's, where the catalogue
+    serves it, else English — never the installation's (DL-0502)."""
+    from django.conf import settings
+
+    return code if code in {served for served, _ in settings.LANGUAGES} else "en"
 
 
 def stance(view: str) -> str:
@@ -447,7 +464,7 @@ def _refusal(refusals: list[Any]) -> str:
 def _checked(text: str) -> str:
     refusals = validate(text)
     if refusals:
-        raise Refused(_refusal(refusals))
+        raise Refused(lambda: _refusal(refusals))
     return text
 
 
@@ -465,11 +482,12 @@ def _texts(job: ExportJob, tenant_number: int) -> _Texts:
 
         hold = open_hold(document)
         if hold is None or hold.user_id != job.requested_by_id:
-            raise Refused(_("Your draft has been finished or discarded since you asked."))
+            raise Refused(lambda: _("Your draft has been finished or discarded since you asked."))
         try:
             held, body, appendices = draft_export(hold)
         except DraftRefused as refused:
-            raise Refused(_refusal(refused.refusals)) from refused
+            found = refused.refusals
+            raise Refused(lambda: _refusal(found)) from refused
         frontmatter = bundle.Frontmatter(**held)
     else:
         appendices = [

@@ -296,3 +296,37 @@ def test_an_email_without_a_notification_is_sent_as_queued(
         row = EmailOutbox.objects.get(pk=row.pk)
     assert row.status == Status.SENT
     assert [message.rcpt_tos for message in sink.messages] == [["i.synthetic@example.test"]]
+
+
+def test_the_email_is_in_the_recipients_language(
+    migrated_tenant: Any, member_of: Any, make_document: Any, settings: Any
+) -> None:
+    """A notification's email is composed in its recipient's language — the default for one who
+    has not chosen — and stored so when queued (DL-0501)."""
+    from django.utils.translation import override
+
+    from identity.views.preferences import _keep
+    from mail import services as mail
+    from notifications.events import describe
+    from notifications.models import Category, Event
+    from notifications.services import notify
+
+    settings.LANGUAGE_CODE = "en"
+    _, chose, _ = member_of("chose.ukrainian@example.test")
+    _, default, _ = member_of("no.choice@example.test")
+    _keep(chose, "language", "uk")
+    document = make_document(title="Synthetic procedure", created_by=default)
+    with schema_context(migrated_tenant.number):
+        [ukrainian, english] = notify(
+            users=[chose, default],
+            category=Category.DOCUMENT,
+            event=Event.FROZEN,
+            document=document,
+        )
+        with override("uk"):
+            in_ukrainian = describe(ukrainian)
+        with override("en"):
+            in_english = describe(english)
+        assert in_ukrainian != in_english
+        assert mail.compose(ukrainian)[0] == in_ukrainian
+        assert mail.compose(english)[0] == in_english

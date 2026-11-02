@@ -10,6 +10,7 @@ People, groups and titles are synthetic examples; every text is invented.
 from __future__ import annotations
 
 import os
+import re
 import zipfile
 from datetime import timedelta
 from pathlib import Path
@@ -857,3 +858,236 @@ def test_the_sweep_takes_a_samples_file(
     assert not folder.exists()
     with schema_context(migrated_tenant.number):
         assert SampleExport.objects.filter(pk=made.pk, state="done").exists()
+
+
+CYRILLIC = re.compile(r"[Ѐ-ӿ]")
+
+
+def _exported_in(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    language: str,
+) -> tuple[str, list[str], str]:
+    """A canonical document in `language` with a title page and one attachment, exported as PDF
+    with its attachment by a reader with no preference: the zip's name, its entries, and the
+    title page's text."""
+    from pypdf import PdfReader
+
+    from documents.models import Document
+    from editions import services as editions
+    from identity.models import Language
+    from review import services as review
+
+    people = edition_cast()
+    Language.objects.get_or_create(
+        code=language, defaults={"label": f"Synthetic {language}", "actor_kind": "system"}
+    )
+    with schema_context(migrated_tenant.number):
+        Document.objects.filter(pk=people.document.pk).update(language_id=language)
+    kit.attach(migrated_tenant.number, people, kit.FIRST, b"Synthetic limits.\n", title_page=True)
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        editions.freeze(people.document, people["p"], "Synthetic reason")
+        editions.make_canonical(people.document, people["p"])
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "words")
+    response = client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "attachments": "on", "format": "pdf", "view": "canonical"},
+    )
+    assert response.status_code == 302
+    job = kit.run_job(migrated_tenant.number, exports[0][1])
+    assert job.state == "done", job.failure_reason
+    from django.conf import settings as django_settings
+
+    with zipfile.ZipFile(Path(django_settings.EXPORT_ROOT) / job.artifact_ref) as bundle_file:
+        entries = sorted(bundle_file.namelist())
+        pdf = next(name for name in entries if name.endswith(".pdf"))
+        from io import BytesIO
+
+        title_page = PdfReader(BytesIO(bundle_file.read(pdf))).pages[0].extract_text()
+    return job.artifact_ref, entries, title_page
+
+
+def test_an_english_document_exports_in_english(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """The file's name, the zip's entries and the title page's words are the document's language,
+    not the installation's (DL-0502)."""
+    settings.LANGUAGE_CODE = "uk"
+    name, entries, title_page = _exported_in(
+        migrated_tenant, edition_cast, member_of, link_group, commit_version, exports, kit, "en"
+    )
+
+    assert "canonical_version" in name and not CYRILLIC.search(name), name
+    assert entries == ["attachment-1_—_time-limits.txt", "document.pdf"], entries
+    # The title page's own words — the approval's line — in English.
+    assert "Approved" in title_page and not CYRILLIC.search(title_page), title_page
+
+
+def test_a_ukrainian_document_exports_in_ukrainian(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    settings.LANGUAGE_CODE = "en"
+    name, entries, title_page = _exported_in(
+        migrated_tenant, edition_cast, member_of, link_group, commit_version, exports, kit, "uk"
+    )
+
+    assert "канонічна_версія" in name, name
+    assert all(CYRILLIC.search(entry.split("_—_")[0]) for entry in entries), entries
+    assert "Type:" not in title_page and "Approved" not in title_page, title_page
+
+
+def test_a_language_without_a_catalogue_falls_to_english(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """A document language the catalogue does not serve exports in English, never in the
+    installation's language."""
+    settings.LANGUAGE_CODE = "uk"
+    name, entries, _ = _exported_in(
+        migrated_tenant, edition_cast, member_of, link_group, commit_version, exports, kit, "de"
+    )
+
+    assert "canonical_version" in name and not CYRILLIC.search(name), name
+    assert entries == ["attachment-1_—_time-limits.txt", "document.pdf"], entries
+
+
+def test_a_refusal_is_in_the_requesters_language(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """A refusal is read by whoever asked, so it is in their language, whatever the document's
+    (DL-0502)."""
+    from django.utils.translation import gettext, override
+
+    from access.models import DocumentGroup
+    from identity.views.preferences import _keep
+
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    commit_version(people.document, people["a"], kit.SECOND, "edit")
+    client, leaver = kit.reader(member_of, link_group, people, [Right.VIEW_PENDING], "leaver")
+    _keep(leaver, "language", "uk")
+    client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "markdown", "view": "pending_edits"},
+    )
+    with schema_context(migrated_tenant.number):
+        DocumentGroup.objects.filter(
+            document=people.document, group__members__membership__user=leaver
+        ).delete()
+
+    job = kit.run_job(migrated_tenant.number, exports[0][1])
+
+    assert job.state == "failed"
+    with override("uk"):
+        expected = gettext("The version asked for is no longer one you may export.")
+    assert job.failure_reason == expected and CYRILLIC.search(expected)
+
+
+def test_a_whitelist_refusal_is_in_the_requesters_language(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """The whitelist's refusal is composed while the document's words are, and drawn in the
+    requester's language, the constructs named."""
+    from documents.models import Document
+    from identity.models import Language
+    from identity.views.preferences import _keep
+
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    # An English document and a Ukrainian requester: only a reason drawn after the document's
+    # language is left reads Ukrainian.
+    Language.objects.get_or_create(code="en", defaults={"label": "English", "actor_kind": "system"})
+    with schema_context(migrated_tenant.number):
+        Document.objects.filter(pk=people.document.pk).update(language_id="en")
+    kit.canonical(
+        migrated_tenant.number, people, commit_version, kit.FIRST + "\n<b>Raw markup.</b>\n"
+    )
+    client, reader = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "asker")
+    _keep(reader, "language", "uk")
+    client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "markdown", "view": "canonical"},
+    )
+
+    job = kit.run_job(migrated_tenant.number, exports[0][1])
+
+    assert job.state == "failed"
+    assert CYRILLIC.search(job.failure_reason), job.failure_reason
+    # The construct named, its code after it.
+    assert "(html)" in job.failure_reason, job.failure_reason
+
+
+def test_a_reason_that_cannot_be_drawn_fails_the_job(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    monkeypatch: Any,
+) -> None:
+    """A refusal's reason is drawn after the composition; should drawing it fail, the job still
+    ends failed with the generic line, never left queued."""
+    from rendering.export import compose
+
+    def broken() -> str:
+        raise KeyError("a synthetic unreadable reason")
+
+    def refuses(*args: Any, **kwargs: Any) -> Any:
+        raise compose.Refused(broken)
+
+    people = edition_cast()
+    kit.canonical(migrated_tenant.number, people, commit_version, kit.FIRST)
+    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "broken")
+    client.post(
+        f"/document/{people.document.number}/export/",
+        {"document": "on", "format": "markdown", "view": "canonical"},
+    )
+    monkeypatch.setattr("rendering.export.compose.compose", refuses)
+
+    job = kit.run_job(migrated_tenant.number, exports[0][1])
+
+    assert job.state == "failed"
+    assert job.failure_reason

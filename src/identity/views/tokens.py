@@ -11,11 +11,13 @@ from __future__ import annotations
 
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.utils import translation
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 from identity import invitations, resets, throttle
 from identity.forms import ResetRequestForm, SetPasswordForm
+from identity.language import language_of
 from identity.models import Membership, User
 from identity.sessions import start_session
 from shell.views import not_found
@@ -46,16 +48,20 @@ def accept_invitation(request: HttpRequest, token: str) -> HttpResponse:
     user = invitations.person_of(token)
     if user is None:
         return not_found(request)
-    if request.method == "GET":
-        return _page(request, SetPasswordForm(user=user))
-    form = SetPasswordForm(request.POST, user=user)
-    if not form.is_valid():
-        return _page(request, form)
-    accepted = invitations.accept(token, form.cleaned_data["password"])
-    if accepted is None:
-        return not_found(request)
-    person, invitation = accepted
-    return _signed_in(request, person, invitation.tenant.number)
+    # The link's person is known: the page, its form's refusals included, speaks their language
+    # (DL-0501); the middleware saw an anonymous request.
+    with translation.override(language_of(user)):
+        if request.method == "GET":
+            return _page(request, SetPasswordForm(user=user))
+        form = SetPasswordForm(request.POST, user=user)
+        if not form.is_valid():
+            return _page(request, form)
+        accepted = invitations.accept(token, form.cleaned_data["password"])
+        if accepted is not None:
+            person, invitation = accepted
+            return _signed_in(request, person, invitation.tenant.number)
+    # Spent meanwhile: the answer every spent link gets, in the installation's default.
+    return not_found(request)
 
 
 @never_cache
@@ -67,15 +73,19 @@ def reset_password(request: HttpRequest, token: str) -> HttpResponse:
     user = resets.person_of(token)
     if user is None:
         return not_found(request)
-    if request.method == "GET":
-        return _page(request, SetPasswordForm(user=user))
-    form = SetPasswordForm(request.POST, user=user)
-    if not form.is_valid():
-        return _page(request, form)
-    person = resets.reset(token, form.cleaned_data["password"])
-    if person is None:
-        return not_found(request)
-    return _signed_in(request, person, None)
+    # The link's person is known: the page, its form's refusals included, speaks their language
+    # (DL-0501); the middleware saw an anonymous request.
+    with translation.override(language_of(user)):
+        if request.method == "GET":
+            return _page(request, SetPasswordForm(user=user))
+        form = SetPasswordForm(request.POST, user=user)
+        if not form.is_valid():
+            return _page(request, form)
+        person = resets.reset(token, form.cleaned_data["password"])
+        if person is not None:
+            return _signed_in(request, person, None)
+    # Spent meanwhile: the answer every spent link gets, in the installation's default.
+    return not_found(request)
 
 
 @never_cache

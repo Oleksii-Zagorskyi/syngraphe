@@ -148,7 +148,9 @@ def _email(tenant: Tenant, by: User, token: str) -> tuple[str, str]:
         lines = [
             _("%(inviter)s has invited you to %(organisation)s.")
             % {"inviter": inviter, "organisation": tenant.name},
-            _("Follow the link to set your password and sign in; it works once, for seven days:"),
+            # One sentence for an address with an account and one without (ASR-17, DL-0511).
+            _("Follow the link to join %(organisation)s; it works once, for seven days:")
+            % {"organisation": tenant.name},
             mail.link(tenant, f"/invitation/{token}/"),
         ]
     return subject, "\n".join(lines) + "\n"

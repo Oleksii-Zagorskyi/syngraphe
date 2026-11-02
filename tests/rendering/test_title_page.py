@@ -32,6 +32,16 @@ def english(settings: Any) -> None:
     settings.LANGUAGE_CODE = "en"
 
 
+def _in_english(tenant: int, document: Any) -> None:
+    """The document written in English: an export's own words are its document's (DL-0502)."""
+    from documents.models import Document
+    from identity.models import Language
+
+    Language.objects.get_or_create(code="en", defaults={"label": "English", "actor_kind": "system"})
+    with schema_context(tenant):
+        Document.objects.filter(pk=document.pk).update(language_id="en")
+
+
 @pytest.mark.fast
 @pytest.mark.parametrize(
     ("stored", "expected", "warned"),
@@ -197,6 +207,7 @@ def test_the_pdf_prints_the_configured_title_page(
     from documents.models import DocumentTemplate
 
     people = edition_cast()
+    _in_english(migrated_tenant.number, people.document)
     with schema_context(migrated_tenant.number):
         DocumentTemplate.objects.update(title_page_layout=CENTRED)
     kit.switched(migrated_tenant.number, people, title_page=True)
