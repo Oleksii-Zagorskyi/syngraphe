@@ -15,6 +15,18 @@
   color: var(--doc-ink);
   font: 15px/1.6 system-ui, "DejaVu Sans", sans-serif;
 }
+/* On screen the text stands on a white sheet of its own, apart from the page and the editor; the
+   sheet is also the PDF's, whose paper stays white (DL-0503). The left padding stays the gutter,
+   which the clause numbers are placed against. */
+@media screen {
+  .document-text {
+    background: #ffffff;
+    border: 1px solid #d4d4d4;
+    padding-top: 8px;
+    padding-right: 24px;
+    padding-bottom: 8px;
+  }
+}
 /* Clause numbers stand in the gutter, outside the text, in a grey that does not compete with it,
    never selected with it (DL-0363). */
 .document-text .num {

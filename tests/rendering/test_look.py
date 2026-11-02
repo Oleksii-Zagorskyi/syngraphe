@@ -59,7 +59,68 @@ def test_clause_numbers_are_light_grey_and_kept_from_the_text() -> None:
     assert "color: #c2c2c2" in editor
     # The editor's gutter as the reading view's: 68 px, the number 22 px short of the text.
     assert "width: 46px" in editor
-    assert "padding: 1rem 0 1rem 68px" in rules(EDITOR_CSS, ".editor-surface .ProseMirror")
+    # The right padding keeps the editor's text off its border (DL-0503).
+    assert "padding: 1rem 24px 1rem 68px" in rules(EDITOR_CSS, ".editor-surface .ProseMirror")
+
+
+def at_rule_blocks(css: str) -> list[tuple[str, str]]:
+    """Every top-level `@… { … }` block as its prelude and its inside, by brace depth."""
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    blocks, at = [], 0
+    while (match := re.compile(r"@[^{};]*\{").search(css, at)) is not None:
+        depth, start = 1, match.end()
+        for end in range(start, len(css)):
+            depth += {"{": 1, "}": -1}.get(css[end], 0)
+            if depth == 0:
+                break
+        blocks.append((match.group(0)[:-1].strip(), css[start:end]))
+        at = end + 1
+    return blocks
+
+
+def outside_at_rules(css: str) -> str:
+    """The sheet with every top-level `@… { … }` block taken out."""
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    for prelude, inside in at_rule_blocks(css):
+        css = css.replace(f"{prelude} {{{inside}}}", "", 1).replace(f"{prelude}{{{inside}}}", "", 1)
+    return css
+
+
+def screen_blocks(css: str) -> str:
+    """The inside of every `@media screen …` block, joined."""
+    return "\n".join(i for p, i in at_rule_blocks(css) if re.match(r"@media\s+screen\b", p))
+
+
+def test_the_sheet_readers_see_rules_inside_and_outside_a_block() -> None:
+    # The known negative and positive for the reader below: a rule nested in a block is never
+    # read as a flat one, whichever its place in the block.
+    sheet = "@media print { .document-text { background: #eee } } .a { color: red }"
+    assert "background" not in rules(outside_at_rules(sheet), ".document-text")
+    assert [p for p, i in at_rule_blocks(sheet) if "background" in i] == ["@media print"]
+    later = (
+        "@media screen and (min-width: 1px) { .x { color: red } "
+        ".document-text { background: #fff } }"
+    )
+    assert "background" in rules(screen_blocks(later), ".document-text")
+    assert "background" not in rules(outside_at_rules(later), ".document-text")
+
+
+def test_the_text_box_and_the_editor_have_their_backgrounds_on_screen_only() -> None:
+    # The document's sheet is also the PDF's (`rendering.stylesheet.export_stylesheets`); exports
+    # stay on white paper, so the text's box is drawn on screen alone (DL-0503).
+    on_screen = rules(screen_blocks(DOCUMENT_CSS), ".document-text")
+    assert "background: #ffffff" in on_screen
+    assert "border: 1px solid #d4d4d4" in on_screen
+    everywhere = rules(outside_at_rules(DOCUMENT_CSS), ".document-text")
+    assert "background" not in everywhere
+    assert "border" not in everywhere
+    for prelude, inside in at_rule_blocks(DOCUMENT_CSS):
+        if not re.match(r"@media\s+screen\b", prelude):
+            assert "background" not in rules(inside, ".document-text"), prelude
+    # The clause numbers stand against the box's left edge: no left padding beyond the gutter.
+    assert "padding-left: var(--doc-gutter)" in everywhere
+    assert "padding-left" not in on_screen
+    assert "background: #fffdf3" in rules(EDITOR_CSS, ".editor-surface")
 
 
 def test_a_pdf_page_has_no_header_and_a_narrow_left_margin() -> None:
@@ -76,3 +137,5 @@ def test_a_pdf_page_has_no_header_and_a_narrow_left_margin() -> None:
 def test_the_shell_gives_the_editors_numbers_no_layout_of_its_own() -> None:
     shell = (SRC / "shell/static/shell.css").read_text("utf-8")
     assert not re.search(r"(^|[^\w-])\.clause\s*\{", shell, re.M)
+    # No template wears `class="editor"`; the rule it had is gone.
+    assert not re.search(r"(^|[^\w-])\.editor\s*\{", shell, re.M)
