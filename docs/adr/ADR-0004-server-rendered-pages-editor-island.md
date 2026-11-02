@@ -6,7 +6,8 @@ aliases:
 status: accepted
 date: 2026-09-24
 supersedes: []
-superseded_by: []
+superseded_by:
+  - DL-0517 (in part — one editor per section)
 ---
 
 # ADR-0004: Server-rendered pages, the editor as the one client island

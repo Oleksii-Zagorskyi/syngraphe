@@ -12,7 +12,7 @@ language:
 
 # Glossary
 
-Every term in both languages, because the interface is Ukrainian and the design is in English, so each concept exists twice from the first day and the two drift silently — nothing fails when they do.
+Every term in both languages, because the interface is Ukrainian or English as each person chooses (DL-0498) and the design is in English, so each concept exists twice from the first day and the two drift silently — nothing fails when they do.
 
 **Format.** One line per term: **English** · Ukrainian · status — meaning. No tables, so nothing reformats itself between sessions.
 
@@ -90,7 +90,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **pending edits** · всі неприйняті правки · *fixed* — everything committed since, attributed and not yet accepted.
 
-**my edits** · мої правки · *fixed* — the holder's own uncommitted session.
+**my edits** · мої правки · *fixed* — the holder's own uncommitted session; a switch inside the editor, showing the draft's changes marked in place (DL-0518).
 
 **my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent.
 
@@ -102,7 +102,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **draft** · чернетка · *proposed* — typed but not yet committed. Held by the platform, visible to nobody else.
 
-**held** · зайнятий · *fixed* — somebody has the document open for editing and nobody else can. The one name for the state, in the interface's tag as everywhere else (DL-0262); the claim itself is the *hold*.
+**held** · зайнятий · *fixed* — somebody has the document open for editing and nobody else can. The one name for the state, in the interface's tag as everywhere else (DL-0262); the claim itself is the *hold*. Everyone who may read the document sees the fact; holders of *edit* or *accept* on it, and administrators, also see who holds it, for every hold (DL-0516).
 
 **awaiting review** · очікує на розгляд · *proposed* — the tag of a document with pending edits that no reviewer has yet accepted or returned.
 
@@ -118,11 +118,11 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 ## What a user does
 
-**take for editing** · взяти на редагування · *proposed* — what opening an editor does when nobody holds the document: it takes the hold. There is no button of that name (ADR-0006), except on a tab reached from another site, which shows *Start editing* (DL-0325).
+**take for editing** · взяти на редагування · *proposed* — what opening an editor does when nobody holds the document: it takes the hold. There is no button of that name (ADR-0006), except on an editor reached from another site, which shows *Start editing* (DL-0325).
 
 **continue editing** · продовжити редагування · *fixed* — the button that returns from the send-for-review screen to the text.
 
-**kept draft** · збережена чернетка · *proposed* — the draft of a hold someone else ended — an administrator, the inactivity release, a block — kept for the person who was editing: offered back in the edit tab before any new editing begins. A finish and a discard keep nothing (DL-0225).
+**kept draft** · залишена чернетка · *proposed* — the draft of a hold someone else ended — an administrator, the inactivity release, a block — kept for the person who was editing: their draft point on the path, marked *залишена*, offered back before any new editing begins (DL-0522). A finish and a discard keep nothing (DL-0225), nor does a hold with no edits (DL-0514).
 
 **take the document back** · забрати документ назад · *proposed* — resume editing with the kept draft, offered while the document has not changed since the draft began (DL-0318).
 
@@ -130,7 +130,11 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **the person editing** · той, хто редагує · *proposed* — whoever has the document open for editing, and so holds it; in the interface never *holder* or *owner*.
 
-**discard my edits** · відкинути мої правки · *proposed* — a button in the edit tab and on the send-for-review screen (DL-0237): throws away the whole draft, text and file operations alike, after the user confirms. The document is left as it was.
+**discard my edits** · відкинути мої правки · *proposed* — a control beside the draft, from the first edit on, and on the send-for-review screen: throws away the whole draft, text and file operations alike, after the user confirms in a window over the page (DL-0510, DL-0513). The document is left as it was. Before the first edit the control is *release the document*.
+
+**back to editing** · повернутись до редагування · *proposed* — the button of the discard's window that closes it and throws nothing away (DL-0513).
+
+**release the document** · звільнити документ · *proposed* — the control a holder with no edits — no captured text, no part operation, no title page change — sees in place of *discard my edits*: it lets the hold go at once, nothing kept, without confirmation unless a reservation ends with it (DL-0510, DL-0514). Not the administrator's *force release*.
 
 **finish editing** · завершити редагування · *proposed* — the control that closes an editing session and opens the send-for-review screen, for every holder (DL-0222).
 
@@ -148,23 +152,23 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **cancel the reservation** · скасувати резервування · *proposed* — return a reserved hold to an ordinary one, released again after inactivity.
 
-**end the reservation** · завершити резервування · *proposed* — an administrator's act on someone else's reservation, with a reason the holder reads in their notifications: the hold ends, the holder's draft is kept for them (DL-0225, DL-0415).
+**end the reservation** · завершити резервування · *proposed* — an administrator's act on someone else's reservation, with a reason the holder reads in their notifications: the hold ends, the holder's draft, when it has edits, is kept for them (DL-0225, DL-0415, DL-0514).
 
-**force release** · звільнити документ примусово · *proposed* — an administrator's act on someone else's ordinary hold: the hold ends, the holder's draft is kept for them, and the document is free (ADR-0006). A reserved hold is not forced; its reservation is ended, with a reason.
+**force release** · звільнити документ примусово · *proposed* — an administrator's act on someone else's ordinary hold: the hold ends, the holder's draft, when it has edits, is kept for them (DL-0514), and the document is free (ADR-0006). A reserved hold is not forced; its reservation is ended, with a reason.
 
-**accept the run** · погодити правки · *fixed* — make the current text the accepted baseline: every version of the run accepted in one act; the control's name (DL-0338).
+**accept the run** · погодити правки · *fixed* — make the current text the accepted baseline: every version of the run accepted in one act; the control's name (DL-0338), drawn on the review page as *Погодити N — стане M*, the versions accepted and the number that results (DL-0518).
 
 **run** · правки після останнього погодження · *proposed* — every version committed since the last acceptance, which one acceptance decides on (DL-0090, DL-0338).
 
 **anonymous editor** · анонімний редактор · *fixed* — how a page names a person who has no display name (DL-0339).
 
-**edit author** · автор правки · *fixed* — the person whose edit last wrote a line; *Show edit authors* · *Показувати авторів правок* is the toggle that names one beside each line (DL-0040, DL-0489).
+**edit author** · автор правки · *fixed* — the person whose edit last wrote a line, named in the right margin beside a paragraph the comparison changed, and nowhere beside one it did not; *Show edit authors* · *Показувати авторів правок* is the checkbox at the top of that column, as its title (DL-0040, DL-0489, DL-0504).
 
 **formatting only** · лише форматування · *proposed* — the mark of a change that altered a sentence's look, not its words or what it points at (DL-0331).
 
 **former user** · колишній користувач · *proposed* — how a page names an erased person (DL-0108).
 
-**correct** · виправити · *proposed* — a reviewer's act on pending edits: take the document and change what they will not accept as it stands; the changes become the reviewer's own version (ADR-0014).
+**correct** · виправити · *proposed* — what a correction notice describes: a holder of *accept* taking a document with pending edits, as any holder does with *edit*, and changing what they will not accept as it stands; the changes become the reviewer's own version (ADR-0014). No control carries the name (DL-0521).
 
 **return without accepting** · повернути без погодження · *proposed* — a reviewer's act: the run stays pending and its authors are notified with the reviewer's reason; recorded in the passport like an acceptance (DL-0114).
 
@@ -178,7 +182,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **distinct approver check** · перевірка окремого затверджувача · *proposed* — an organisation's setting: when on, nobody who accepted any run since the previous edition may make the next one canonical (DL-0101, DL-0115).
 
-**make canonical** · затвердити · *proposed* — end a freeze by making the latest accepted version the next edition.
+**make canonical** · затвердити · *proposed* — make the latest accepted version the next edition, whether or not the document is frozen — a freeze ends with it — while nobody holds it; confirmed in a window naming the version, the edition it becomes and that it cannot be undone (DL-0513, DL-0515).
 
 **author-only** · лише для автора · *proposed* — a document that has never had a group linked: only its creator reaches it, and administrators see it; the first linked group ends it (ADR-0007).
 
@@ -186,27 +190,35 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **undo a contribution** · скасувати правку · *proposed* — a reviewer's act on the pending run: the reversal of one version (*undo this edit*) or of one author's edits since the last acceptance, applied to the reviewer's draft and committed as their version. Sentences a later version changed are left for editing by hand. Nothing is erased (ADR-0015).
 
-**undo this edit** · скасувати цю правку · *proposed* — the History tab's control for one version of the pending run (ADR-0015).
+**undo this edit** · скасувати цю правку · *proposed* — the review page's control, in its panel, for one version of the pending run (ADR-0015, DL-0518).
 
-**undo all of this author's edits** · скасувати всі правки цього автора · *proposed* — the History tab's control for one author's versions in the pending run (ADR-0015).
+**undo all of this author's edits** · скасувати всі правки цього автора · *proposed* — the review page's control, in its panel, for one author's versions in the pending run (ADR-0015, DL-0518).
 
-**compare** · порівняти · *proposed* — show two versions of a document, or versions of two documents, word by word inside the rendered text (DL-0170, DL-0187).
+**compare** · порівняти · *proposed* — show two versions of a document, or versions of two documents, word by word inside the rendered text (DL-0170, DL-0187); on two versions, *‹* and *›* step to the pair before and after (DL-0508).
 
-**history** · історія · *proposed* — the tab listing a document's versions and events; how far back a reader sees depends on their history rights, and a holder of *accept* sees the pending run's versions there (DL-0251).
+**history** · історія · *proposed* — the page listing a document's versions and events, an icon in the document's heading (DL-0518); how far back a reader sees depends on their history rights, and a holder of *accept* sees the pending run's versions there (DL-0251).
 
 **archive / restore** · архівувати / відновити · *proposed* — put a document away, reached by administrators alone and read only, every act refused; restore makes it active again as it was (DL-0084, DL-0450).
 
 **retire** (a document type) · вивести з ужитку · *proposed* — keep a type on the documents that carry it and stop offering it for a new document, a copy or a change of type (DL-0235, DL-10-001).
 
-**export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version, composed from a scope, formats and a view.
+**export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version, composed from a scope, formats and a view, on a page of the document's own whose heading names the version exported (DL-0519); the file's name and its own words in the document's language (DL-0502).
 
-**embedded appendices** · додатки у документі · *proposed* — an export's appendices after the document's body and before its attachment list (DL-0193); in PDF each starts a page of its own. The dialog's choice reads *у документі*.
+**embedded appendices** · додатки у документі · *proposed* — an export's appendices after the document's body and before its attachment list (DL-0193); in PDF each starts a page of its own. The export page's choice reads *у документі*.
 
-**separate appendices** · додатки окремими файлами · *proposed* — an export's appendices each as a file of its own in the zip, named by its number and title (DL-0193). The dialog's choice reads *окремими файлами*; appendices exported without the document always go so.
+**separate appendices** · додатки окремими файлами · *proposed* — an export's appendices each as a file of its own in the zip, named by its number and title (DL-0193). The export page's choice reads *окремими файлами*; appendices exported without the document always go so.
 
-**edit the whole document** · редагувати весь документ · *proposed* — open one editor over the whole body or appendix.
+**edit** · редагувати · *proposed* — the act on the latest version that opens the one editor, over the whole body or appendix; there is no editor over one section (DL-0517, DL-0518).
 
-**edit a section** · редагувати розділ · *proposed* — open an editor over one section: a `#` heading at any depth and the lines it leads, its subsections included; several may be open at once. Every editor writes into the same draft.
+**review page** · сторінка розгляду · *proposed* — where a holder of *accept* with a run pending reads the run with its change authors, the run's versions with their summaries in the panel, the part operations and *revert*, and accepts or returns it; opened by *Розглянути* on the latest version (DL-0518).
+
+**review** · розглянути · *proposed* — the act on the latest version that opens the review page, for a holder of *accept* while a run is pending (DL-0518).
+
+**path of versions** · шлях версій · *proposed* — the line across the document page that shows where the document stands: its points and the arcs between them, each opening its page; a person sees only the points and arcs their rights reach (DL-0518, DL-0522).
+
+**point / arc** · точка / відрізок правок · *proposed* — a point of the path is one version — canonical, latest accepted, latest, or the holder's draft — and opens it to read; an arc is the edits between two points and opens their comparison (DL-0518).
+
+**more** · більше · *proposed* — the icon (⋯) in the document's heading behind which the administrator's acts stand, drawn to administrators alone (DL-0522).
 
 **inactivity prompt** · запитання про бездіяльність · *proposed* — *are you still working?*, asked in the editor of a hold idle past the organisation's timeout; unanswered, the hold is released ten minutes later, the draft kept (DL-0377). Never asked of a reserved hold.
 
@@ -216,9 +228,11 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **blocked** · заблоковано · *proposed* — the state of a blocked membership, account or tenant; of an organisation, *заблокована*.
 
-**block my account** · заблокувати мій обліковий запис · *proposed* — a person's own block, from the user menu (ST-0066): every organisation closes to them; in release 0.1 nothing in the platform lifts it — a platform administrator asks the installation's operator, who lifts it in the database (DL-0254).
+**block my account** · заблокувати мій обліковий запис · *proposed* — a person's own block, at the foot of their account page (ST-0066, DL-0499): every organisation closes to them; in release 0.1 nothing in the platform lifts it — a platform administrator asks the installation's operator, who lifts it in the database (DL-0254).
 
-**account** · обліковий запис · *proposed* — a person's own sign-in to the platform, one per address, whatever organisations they belong to.
+**account** · обліковий запис · *proposed* — a person's own sign-in to the platform, one per address, whatever organisations they belong to. Its page, *My account* · *Мій обліковий запис* in the user menu, shows the address, holds the interface language and *block my account* (DL-0500, ST-0076).
+
+**interface language** · мова інтерфейсу · *proposed* — Ukrainian or English, each person's own choice on their account page, kept as their preference; without one, the installation's default. A document's language — its text, numbering and exports — is the document's own and never follows it (DL-0498, DL-0501).
 
 **invite by email** · запросити електронною поштою · *proposed* — how a person enters an organisation (DL-0107): an administrator gives an address and the groups to join; the person is a member at once and gets an **invitation**.
 
@@ -240,7 +254,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **reviewer** · погоджувач · *proposed* — accepts edits, and edits: may correct wording first, including their own (ADR-0016). *(Рецензент reads as academic; погоджувач is the corporate role.)*
 
-**approver** · затверджувач · *proposed* — holds *make canonical*: ends a freeze by making the latest accepted version the next edition. The approving body's own procedure happens outside the platform.
+**approver** · затверджувач · *proposed* — holds *make canonical*: makes the latest accepted version the next edition, frozen or not (DL-0515). The approving body's own procedure happens outside the platform.
 
 
 **pending edits viewer** · переглядач неприйнятих правок · *proposed* — holds *view pending*: may see committed but unaccepted changes.

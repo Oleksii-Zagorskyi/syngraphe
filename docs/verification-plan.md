@@ -47,6 +47,8 @@ Most entries are resolved by spikes in Epic 1. Three rules bind them.
 
 **Status.** Proven — 2026-09-27: ProseMirror, used directly, passes V-02 and V-03 in full; three instances on one page edit three sections independently, each with a source-view switch; ranges load and return as sections; paste reaches application code before it enters the document, where pasted images become uploaded files (DL-0232). Tiptap, Milkdown and Lexical were measured beside it and Slate screened out; the choice and the alternatives are ADR-0010, accepted with ADR-0004.
 
+**Since.** The product opens one editor, over the whole document; there is no section editor (DL-0517). What the claim proved — several instances on one page, a range loaded and returned — stands as measured.
+
 ### V-02 — The constrained editor round-trips the whitelist losslessly, tables included
 
 **Claim.** Every construct in the whitelist survives editor → Markdown → editor unchanged, and everything outside it is refused.

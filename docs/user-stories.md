@@ -54,14 +54,28 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Their group memberships apply as they stood. A self-blocked account (ST-0066) stays blocked: only a platform administrator lifts that.
 
 **ST-0066** — As any user, I block my own account, so that nobody can use it while I cannot.
+- *Block my account…* stands apart at the foot of my account page (ST-0076), confirmed before it acts; the user menu does not offer it (DL-0499, DL-0500). To the last platform administrator the control is drawn disabled with its reason (DL-0315, DL-0233).
 - It blocks every membership I hold; only a platform administrator can lift it, and not through the interface in this release — the database is the recovery path (DL-0254, backlog B-033). There is no deleting an account (backlog B-022).
 - Blocking myself ends my holds and reservations; my drafts are kept (DL-0256).
+
+**ST-0076** — As any user, I choose the language of the interface I see, Ukrainian or English, on my account page, so that I meet the platform in my own language.
+- My account page is `/account/`, reached from the user menu as *My account* · *Мій обліковий запис*. It shows my email address, read-only; the interface's language with *Apply*; and, apart at its foot, *Block my account…* (ST-0066) — nothing more of a profile (DL-0499, DL-0500).
+- The choice is stored as my own preference and applies to every page I open; until I choose, I see the installation's default language (DL-0498, DL-0501).
+- Pages before sign-in use the installation's default, except a reset or invitation page opened from its link, which uses the preference of the person the link belongs to (DL-0501).
+- An email to me goes in my language, fixed when it is queued; an invitation goes in the installation's default (DL-0501, ASR-17). A version's change summary stays in the language its writer left it in (DL-0321).
+- A document's own language — its text, its numbering, its exports — is the document's and does not follow my choice (DL-0498, DL-0502).
 
 **ST-0005** — As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to — so that people see and do exactly what their job requires (ADR-0007).
 - Rights: a viewing ladder (view canonical, view accepted, view pending, edit, create and edit), history rights (view previous canonical versions, view all history), acts (accept, freeze and unfreeze, and reserve for editing, each of which includes edit (ADR-0016); make canonical, which includes the accepted view it approves), and part rights (create or delete appendices; upload, replace or delete attachments).
 - A person holds the union of the rights of their groups linked to a document; nothing is granted to a person directly.
 - I cannot change a document's links while someone is editing it; I see who it is and ask them to finish, or force the release as a last resort (ST-0030); for a reserved document, I end the reservation with a reason (ST-0070).
 - *Synthetic example:* a finance policy linked to *Accountants* (view canonical), *Finance reviewers* (accept) and *Executives* (make canonical).
+
+**ST-0077** — As a tenant administrator, I open a member's page, so that I see in one place which groups they are in and what they may do on each document.
+- Reached from the member's address on the users page, which names them by the address alone (DL-0403, DL-0505). Nothing new is stored and no right is added: the page reads what the groups and links already say.
+- It lists the member's groups, which I change there with the same acts as a group's *members…*, and a read-only table of documents per folder with the rights held. An archived document is left out, its links taking effect only on restore; an author-only document is listed for the person who created it, noted *author*.
+- For an administrator it shows one line, *Administrator: reads every document in the organisation*, in place of the rows (ADR-0007).
+- It shows the membership's own state, never the person's own block (DL-0398). A blocked member's page shows their state and groups; I may take them out of a group and not add them to one, and the table stands under *blocked: none of this applies now*.
 
 **ST-0006** — As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links — so that I can answer who could see a document at any past date and who granted that.
 - The answer is retrievable for a date in the past, not only for now (ASR-18).
@@ -88,7 +102,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Documents and organisation
 
 **ST-0009** — As a user holding *create and edit*, I create a document by giving it a title, a language, a type and a folder, so that work can begin on it. *(skeleton)*
-- Language comes from a fixed list; a document carries exactly one. The folder may be the root.
+- Language comes from a fixed list; a document carries exactly one. The form offers the installation's default language first, until my organisation has a language of its own; it follows neither my interface language nor the list's order (DL-0512). The folder may be the root.
 - Only I can reach it until the tenant administrator links groups to it, who is notified; from the first link I reach it through my groups (ADR-0007).
 - The new document's text is the organisation's document template: its section headings and any starting text (DL-0169).
 
@@ -112,6 +126,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - People see only folders holding, at any depth, a document they may read; administrators see all (DL-0206). Folders sort alphabetically.
 
 **ST-0067** — As a user holding *create and edit*, I copy a document I can read into a new one, so that a similar policy starts from existing text.
+- I start it from the document list — *Copy* · *Копіювати* on the document's row — not from the document's page (DL-0520).
 - I choose the version: canonical, accepted, or pending edits (the default), among those I may see. The copy starts with that text and no history, no accepted or canonical version.
 - I choose which appendices to copy — none, all, or some. Attachments are never copied, and I am told so.
 - The copy is author-only until groups are linked, like any new document. Administrators see where it came from: source, version number, commit, time and who copied it.
@@ -120,7 +135,8 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - A search box finds documents by their titles and their appendices' titles, never by text; results are grouped by full folder path, and the folder pane shows only folders with results.
 - I always browse inside a folder, the organisation's root included (DL-0197). *In edit* and *In review* are views of their own, showing only the folders that hold matching documents.
 - Each row starts with the document's number, `#7`.
-- Each row shows the canonical version, linking to it, and the latest version I may see beyond it, linking where the title does (DL-0208); icons for appendices and attachments; the title opens the reading view, the pencil the edit tab. Export is on the document page, not the list.
+- Each row shows the canonical version, linking to it, and the latest version I may see beyond it, linking where the title does (DL-0208); icons for appendices and attachments; the title opens the reading view, the pencil the editor. Export is on the document page, not the list.
+- Copying a document and comparing two documents start from the list: *Copy* on each row, *Compare documents…* for the pair (DL-0520, ST-0067, ST-0064).
 - With *create and edit*, the list offers *create document*.
 
 **ST-0014** — As a reviewer, I see each document's current state in the list, so that I decide whether to review now or wait for more edits to arrive.
@@ -144,12 +160,13 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Editing
 
 **ST-0017** — As an editor, I open an editor on a document and hold it, so that I can change it without anyone else changing it underneath me. *(skeleton)*
-- Opening the edit tab takes the hold when nobody holds the document — the tab sends it as it mounts the editor (DL-0319); there is no separate button for it (ADR-0006), except on a tab reached from another site, which shows *Start editing* (DL-0325).
-- While I hold it, nobody else can open its edit tab. Holds are over the whole document.
+- *Edit* · *Редагувати* on the latest version opens the whole document's editor (DL-0517, DL-0518) and takes the hold when nobody holds the document — the page sends it as it mounts the editor (DL-0319); there is no separate button for it (ADR-0006), except when the editor is reached from another site, which shows *Start editing* (DL-0325).
+- While I hold it, nobody else can open its editor. Holds are over the whole document.
+- My draft in progress is a point of the document's path, numbered as the version it will become, shown to me alone; leaving it for another version keeps the draft and the hold (DL-0518).
 
 **ST-0018** — As any user of a document, I see that it is *held* · *зайнятий* — someone is editing it — in the document list and on the document, so that I know to wait (DL-0262).
-- I see the fact, not the person; for an ordinary hold only a tenant administrator sees who holds it (ADR-0006).
-- A reserved document reads *reserved for editing, since* its date; if I hold *edit* or *accept* on it I also see who reserved it, so I know whom to ask (DL-0226).
+- If I hold *edit* or *accept* on it, or administer the organisation, I see who holds it, for every hold, ordinary or reserved — *редагує {name}* under the latest version, and as the reason beside a disabled *Edit* — so I know whom to ask; anyone else who may read it sees the fact alone (DL-0516).
+- A reserved document reads *reserved for editing, since* its date (DL-0226).
 - The content of the edits is never visible until a version is committed.
 
 **ST-0069** — As an editor holding *reserve for editing*, which includes *edit* (ADR-0016), I reserve a document I am editing, so that I can mature the next iteration over days or weeks and let peers see it only when it is ready.
@@ -174,22 +191,18 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Closing the browser, or losing it, loses nothing.
 - Because a user arriving from Word **will** look for it, the interface states that the work is captured rather than leaving the absence to be inferred.
 
-**ST-0059** — As an editor, I open an editor on just one section, so that a small correction in a long policy does not put the rest of the text in front of me.
-- Every heading, at any depth, has its own editor, spanning its subsections; I may open up to five at once, the same section twice in two tabs but never a section and one inside it, and the whole-document editor opens once they are closed. Text above the first heading opens only in the whole-document editor (DL-0418).
-- All of them write into my one draft, and I send the document for review as a whole — never one section.
-- A heading I type inside a section editor becomes a section of its own once I close the editor.
-- If the same text is being edited in another tab, the editor that fell behind stops and shows me my unsaved text as changes against the current draft, so I can carry it over by hand (DL-0167).
+**ST-0059** — *withdrawn 2026-11-02 (DL-0517). Identifier retired, never reused.*
 
-**ST-0060** — As an editor, I switch an editor to Markdown source and type or paste Markdown there, so that text I prepared elsewhere keeps its formatting.
-- Formatted text is the default; the source view is always one step away, in the whole-document and the section editors alike.
+**ST-0060** — As an editor, I switch the editor to Markdown source and type or paste Markdown there, so that text I prepared elsewhere keeps its formatting.
+- Formatted text is the default; the source view is always one step away.
 - The source view shows each paragraph as one line, as I would write it; how the platform stores sentences is never visible.
 
 **ST-0061** — As an editor, I add, rename, reorder and delete a document's appendices, as my groups' part rights allow, so that material that belongs with the policy is approved with it.
 - An appendix has a title I type, including any number (DL-0165); the title names it in the interface and in an exported file and is never printed in the document.
-- An appendix holds one `#` section, and I edit it with the same editors as the body.
+- An appendix holds one `#` section, and I edit it with the same editor as the body.
 - Creating and deleting need the part rights (ADR-0007); renaming and reordering need only *edit*.
 - Appendices are listed in the order I added them until I reorder them.
-- I change them in the edit tab's own parts panel while I hold the document, and type into an appendix from its own page's *Edit* tab; nothing changes in the document until I finish editing (DL-0442, DL-0443).
+- I change them in the editor's own parts panel while I hold the document, and type into an appendix from *Edit* on its own page; nothing changes in the document until I finish editing (DL-0442, DL-0443).
 - An appendix I added and never sent, I can always delete again; one with an editor open is not deleted.
 
 **ST-0062** — As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, as my groups' part rights allow, so that the files people need sit beside the policy they belong to.
@@ -199,10 +212,12 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - As the author of a document no group is linked to yet, I may upload and replace attachments (DL-0445).
 
 **ST-0021** — As an editor, I undo changes I have just made, so that a wrong turn costs seconds.
-- *Undo* and *redo* are buttons in every editor's toolbar as well as the usual keys, because people arriving from Word look for them (DL-0241).
+- *Undo* and *redo* are buttons in the editor's toolbar as well as the usual keys, because people arriving from Word look for them (DL-0241).
 
 **ST-0022** — As an editor, I discard my edits, so that work I have decided against does not reach the document.
-- Offered in the edit tab whenever I hold the document, and on the send-for-review screen beside *continue editing* (DL-0237). Confirmed before it acts, in a box that says the whole draft will be thrown away.
+- Offered among the acts beneath my draft whenever I hold the document (DL-0518), and on the send-for-review screen beside *continue editing* (DL-0237).
+- While I have no edits — no captured text, no part operation, no title page change — the control reads *Release the document* · *Звільнити документ* and releases the hold without confirmation, unless a reservation would end with it; a hold with no edits keeps nothing when it ends. After the first edit it is *Discard my edits…* (DL-0510, DL-0514).
+- *Discard my edits…* is confirmed in a window over the page, which says the whole draft, text and files, is thrown away and cannot be undone, with *Discard my edits* and *Back to editing* · *Повернутись до редагування*; a kept draft is discarded the same way (DL-0513).
 - It discards everything in the draft: text, and any attachment or appendix added, replaced, reordered or deleted. A file I deleted and then discarded is still there.
 
 **ST-0023** — As an editor, I see a clause number beside every paragraph, so that I can tell a colleague exactly which passage I mean.
@@ -230,13 +245,13 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - An image that exists only as a web address is left out of the paste, the rest of the pasted text goes in, and a one-line notice says the image was not pasted and to copy the image itself and paste it (DL-0232, DL-11-005).
 
 **ST-0029** — As an editor, I press *finish editing*, see what my changes introduce, and either continue editing or commit. *(skeleton)*
-- The commit carries a summary I may edit before sending. It is for whoever reviews the run, and shows with the version in pending edits (DL-0197) — or, for a version I accepted in the same act, in its history entry (DL-0222).
+- The commit carries a summary I may edit before sending. It is for whoever reviews the run, and shows with the version in the review page's panel (DL-0509) — or, for a version I accepted in the same act, in its history entry (DL-0222).
 - In release 0.1 the screen shows my changes, the part operations and the summary, which starts from a mechanical draft naming the sections I touched; the agent's analyses arrive in release 0.2 on the same screen (DL-0261).
 - If I also hold *accept*, the screen offers *accept as N.M* — my version and the acceptance of the whole run, other editors' versions included, in one act — and *create version N.M-X*, which leaves it pending; each shows the number that results, such as *accept as 2.4* and *create version 2.3-1* on a document accepted at 2.3 (DL-0222).
 - Finishing ends a reservation (DL-0220).
 
 **ST-0030** — As a tenant administrator, I release a document held by someone who has gone quiet, so that work is not blocked by an absence.
-- I see who holds it; for a reserved document, so do holders of *edit* or *accept* on it (DL-0226).
+- I see who holds it; so do holders of *edit* or *accept* on it, for every hold (DL-0516).
 - I can also end a reservation, giving a reason; its holder is notified with who, when and why, and the act is audited (DL-0225, ST-0070).
 - A hold is also released on its own after a period without activity — 30 minutes unless I set another for my organisation — once its holder has been asked whether they are still working and has not answered. A reserved hold is not (ADR-0009).
 - I am notified when a reservation starts, and I can list every reservation with its holder and start date (DL-0226, DL-0227).
@@ -247,18 +262,21 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Review and acceptance
 
 **ST-0031** — As a reviewer, I read everything committed since the last acceptance, in order, with each change attributed to its author. *(skeleton)*
-- Authorship shows behind a toggle, so the same diff can be read with or without it.
+- I read it on the review page, reached by *Розглянути* on the latest version, offered to a holder of *accept* while a run is pending (DL-0518).
+- Authorship shows behind a checkbox, *Show edit authors*, so the same diff can be read with or without it: each author's name stands in the right margin beside the paragraph they changed, and nothing beside a paragraph without changes (DL-0504).
 - Changes are marked word by word inside the formatted text, the way a word processor tracks changes; a change to formatting alone is marked as such (DL-0170).
-- As an editor I see my own draft the same way, as *my edits*.
+- As an editor I see my own draft the same way, as *my edits* — a switch inside the editor (DL-0518).
 - Both views show the whole document with the changes marked in place (DL-0195).
 
 **ST-0032** — As a holder of a history right on a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not.
 - Each entry shows the version, the event — edit, acceptance, return, freeze, canonisation — and who acted (DL-0197).
-- Each version opens as a historical page in a new window: the reading view and export, never editing, and *compare with* any other version, the latest included (DL-0195).
-- A comparison of a version with the one before it offers *previous* and *next*, moving the pair one version back or forward — `0.0-4` against `0.0-3` becomes `0.0-3` against `0.0-2`, or `0.0-5` against `0.0-4` — so a long history is read edit by edit; a version the reader may not see is skipped, and at either end of the history the button stands disabled (DL-0361).
+- Each version opens as a historical page — from here in a new window, from its point on the path in the same one, the path above it (DL-0522): the reading view and export, never editing, and *compare with* any other version, the latest included (DL-0195).
+- The history opens from *History*, an icon in the document page's heading; the path of versions on the page opens the comparison of the canonical version with the latest accepted, and of the latest accepted with the latest (DL-0518).
+- Every comparison of two versions offers *‹* and *›* — *previous* and *next* as their tooltips and accessible names: for a comparison of X and Y, *‹* opens the version before X against X, and *›* opens Y against the version after Y — so a long history is read edit by edit; a version the reader may not see is skipped (DL-0209), and each stands disabled when no such version exists (DL-0508).
 
 **ST-0033** — As a reviewer, I compare any two versions directly, so that I am not forced to read a long run one step at a time.
 - The comparison shows the newer version's whole text with the changes marked, links to both versions, appendices compared in pairs I pick, and each attachment with both files and whether it changed (DL-0208).
+- It carries *‹* and *›* like every comparison of two versions, so from any pair I step to the neighbouring ones (DL-0508); any other pair I open from *History* (DL-0518).
 
 **ST-0034** — As a reviewer, I see that an image changed and view the old and new side by side, so that I never accept a change I could not see.
 
@@ -268,6 +286,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The author whose part operation I reversed is told in their correction notice (ADR-0014).
 
 **ST-0035** — As a reviewer, I correct wording I find unacceptable and accept the result, so that a single sentence does not cost a round trip. *(skeleton)*
+- I correct through *Edit* · *Редагувати*, as any editor does; there is no act of its own for it. Finishing, I am offered *accept as* on my own version (DL-0521, ST-0029).
 - My correction is committed as mine and is visible as such.
 - I hold the document's fate, so introducing an edit and accepting it are both mine to do.
 - My correction is never silent: the acceptance that makes it authoritative — mine, or another reviewer's — generates a **correction notice** for every author whose lines I replaced or removed, one per author listing all of them, and I have no discretion over it (ADR-0001, ADR-0014). The durable rejection record the notice later feeds arrives in stage 2 (DL-0076).
@@ -287,7 +306,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Off by default. The approver must have accepted **none** of the runs since the previous canonical edition — not merely not the last one (DL-0115).
 
 **ST-0037** — As a reviewer, I undo one pending version, or everything one author contributed since the last acceptance, so that work that should not have entered can be removed without retyping it (ADR-0015).
-- I start it from the History tab: *undo this edit* on a version after the last acceptance, or *undo all of this author's edits* for an author of the run.
+- I start it from the review page's panel, which lists the run's versions with their summaries: *undo this edit* on a version after the last acceptance, or *undo all of this author's edits* for an author of the run (DL-0518).
 - The reversal is computed automatically and goes into my draft — the one I have open, or a new one that takes the document. It becomes my version when I finish editing, and each author whose text I removed receives a correction notice at the acceptance (ADR-0014). Nothing disappears from the history (ASR-02).
 - A sentence a later version changed is not reverted: it is left as it is and listed in my draft for me to edit by hand. Choosing sentence by sentence, or word by word, is ordinary editing.
 
@@ -300,13 +319,15 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - I may say what it waits for. Editors cannot open an editor while it is frozen; holders of *accept* can, and accept their fixes as the next number, *1.4* (DL-0189, ADR-0016).
 - The freeze right includes *edit*, so I read what I freeze and may work on it like any editor before I freeze it (ADR-0016).
 
-**ST-0039** — As a holder of the make-canonical right, I make a frozen document canonical, so that its latest accepted version becomes the next edition — *2.0*. *(skeleton)*
-- Refused while content versions since the latest acceptance are unaccepted (DL-0267).
+**ST-0039** — As a holder of the make-canonical right, I make a document canonical, so that its latest accepted version becomes the next edition — *2.0*. *(skeleton)*
+- The document need not be frozen first: a freeze is for an approval that takes time, and ends by this act or by *unfreeze* (DL-0515, DL-0189).
+- Refused while anybody holds the document (DL-0419) or content versions since the latest acceptance are unaccepted (DL-0267).
+- *Make canonical as N.0…* · *Затвердити як N.0…* stands beneath the latest accepted version on the document page and is confirmed in a window naming the version, the edition it becomes and that it cannot be undone, with *Затвердити як N.0* and *Скасувати* (DL-0513, DL-0518).
 - One person records the decision; the approving body's own procedure — a board, for example — happens outside the platform.
 - The person who froze the document may be the person who makes it canonical. With the check in ST-0053 switched on, the approver must have accepted none of the runs since the previous edition (DL-0115).
 
 **ST-0064** — As any reader, I compare two different documents — a version of each that I may read — so that I can see how a copy or a sibling policy differs from the original (DL-0187).
-- Started from the document list or from either document; the comparison is the same word-level view as between versions.
+- Started from the document list's *Compare documents…*, not from either document's page (DL-0520); the comparison is the same word-level view as between versions, without *‹* and *›* (DL-0508).
 - To compare appendices I pick one from each document myself; the platform never pairs them.
 
 **ST-0040** — As a holder of the freeze right, I unfreeze a document, so that editing resumes once what it waited for is resolved without an approval.
@@ -314,14 +335,14 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0041** — As a holder of *view previous canonical versions*, I see the list of canonical editions and compare any two, so that I can answer what changed between version 1.0 and version 2.0.
 - This is the question the previous tool could not answer, and it is why editions are a first-class thing rather than a note in the margin.
-- Met by the History tab, which lists the editions alone for this right, an edition's historical page and the compare page; no separate list or picker (DL-0245).
+- Met by *History*, an icon in the document page's heading, which lists the editions alone for this right, an edition's historical page and the compare page; no separate list or picker (DL-0245, DL-0518).
 
 ---
 
 ## Reading and export
 
 **ST-0042** — As a reader, I read a document, with its numbering and outline, and always know which version I am reading. *(skeleton)*
-- I see the latest version my rights allow — canonical, accepted or pending — named on the page, with a link to the latest canonical version (DL-0209). A reader who may see only canonical text never sees pending edits or diffs.
+- I see the latest version my rights allow — canonical, accepted or pending — named in the page's heading, with a link to the latest canonical version (DL-0209, DL-0518). A reader who may see only canonical text never sees pending edits or diffs, and sees no path of versions.
 
 **ST-0043** — As a reader, I follow a mention of another document as a link when I have access to it.
 - When I do not, the mention reads as ordinary text and offers no way through (ASR-16).
@@ -329,7 +350,9 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0044** — As any reader of a document, I see an automatically maintained *see also* listing the documents it links to, filtered the same way.
 
 **ST-0045** — As a reader, I export a stated version to PDF, to Word or to Markdown, so that I can circulate it outside the platform. *(skeleton)*
+- Export is a page of the document's own, opened by the *Export* icon in the heading; its heading shows the version that will be exported, following the view I choose (DL-0519).
 - The export names the version it is of.
+- Everything of the export's own is in the document's language, not mine and not the installation's: the file's name, its stance and suffix, the zip's entries, the title page's words and the attachment list; a word the catalogue lacks in that language falls back to English (DL-0502).
 - Numbering, structure and images survive into all three formats.
 - I choose one format, and what to include — the document, its appendices (embedded or as separate files), its attachments — all included by default; parts the document lacks are not offered. Several files come as one zip. The view: canonical, accepted, pending edits, or my edits with or without marks, as my rights allow (DL-0193, DL-0209).
 - The title page and a table of the attachments — title, file name, hash — are generated; attachments themselves never go inside a text export.
@@ -353,7 +376,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Committed versions awaiting my review, acceptances of work I wrote, a run of mine returned with the reviewer's reason, a correction notice listing my lines and parts a reviewer's version changed (ADR-0014), frozen documents awaiting a decision, a hold of mine about to be released for inactivity, groups I was added to, and — for a tenant administrator — a document created or copied and not yet linked to any group.
 
 **ST-0048** — As any user, I receive an email for the same events, so that I notice them without visiting the platform.
-- It names the document, versions, people and the event, and links to the platform; it never contains text of the document (DL-0205).
+- It names the document, versions, people and the event, and links to the platform; it never contains text of the document (DL-0205). It is written in my interface language, fixed when it is queued (DL-0501).
 - Sent from my organisation's own address if it has one, otherwise the platform's; with neither configured, no email is sent (DL-0202, DL-0203).
 - Each email is queued, tried up to three times five minutes apart, and logged; a final failure notifies the administrators in the application.
 
@@ -372,7 +395,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 ## The walking skeleton
 
-The stories marked *(skeleton)* in order: bootstrap the first administrator → create a tenant → sign in → create a document → open an editor → write text → work captured without saving → send for review and commit → read the pending changes → correct and accept → accept the run → freeze it → make it canonical → read it → export it.
+The stories marked *(skeleton)* in order: bootstrap the first administrator → create a tenant → sign in → create a document → open an editor → write text → work captured without saving → send for review and commit → read the pending changes → correct and accept → accept the run → make it canonical → read it → export it.
 
 They carry one document through the whole cycle for one person. Everything else thickens that path: more people, more rights, more organisation, more ways to look at the same history. The build order is `story-mapping.md`.
 
@@ -394,7 +417,6 @@ Named here so the boundary is explicit rather than inferred from absence.
 | MCP server for external agents | backlog B-007 |
 | Automatic review of connected documents | backlog B-002 |
 | Tenant-wide entity registry | backlog B-012 |
-| English interface | backlog B-008 |
 | Per-tenant email sending domains | backlog B-009 |
 
 The role directory is the one generated view that **is** in stage 1, because with human marking it is a parser rather than an agent (ST-0027).

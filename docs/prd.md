@@ -14,7 +14,7 @@ date: 2026-09-21
 
 ## Goal
 
-An enterprise collaborative authoring platform where teams of human and AI editors create, review, approve and maintain authoritative documents. One cycle, end to end: **edit → commit → review → accept → edition → canonical → read and export.** Git is the substrate and is invisible; the interface has its own vocabulary in Ukrainian.
+An enterprise collaborative authoring platform where teams of human and AI editors create, review, approve and maintain authoritative documents. One cycle, end to end: **edit → commit → review → accept → edition → canonical → read and export.** Git is the substrate and is invisible; the interface has its own vocabulary, in Ukrainian and in English, each person choosing which they see (DL-0498).
 
 ## Target users
 
@@ -53,7 +53,7 @@ Named by the action performed, never by corporate title (DL-0017). A person hold
 | editor | edits, commits; with *reserve for editing*, keeps a document for weeks | whole document |
 | reviewer | accepts changes; edits, and corrects before accepting, including their own (ADR-0016) | whole document |
 | decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
-| approver | makes a frozen document canonical | document |
+| approver | makes an accepted document canonical, frozen or not (DL-0515) | document |
 | pending edits viewer | sees committed, unaccepted changes | whole document |
 | tenant administrator | users, document sets, role assignments, heuristic selection, the document template and its title page layout, the organisation's stylesheet (DL-0169, DL-0230, DL-0462, DL-0464) | tenant |
 | platform administrator | the platform, the seeded heuristic catalogue, the base prompts | platform |
@@ -68,7 +68,7 @@ Two AI actors, not roles a person holds. The **companion** runs actions for the 
 
 One editing sequence per document. No branches, no forks, no merges, and therefore no conflicts (ADR-0003).
 
-1. An editor **takes the document** for editing. Nobody else edits it meanwhile. They edit it whole, or open an editor on any section — several at once — and every editor writes into the one draft (DL-0167). Formatted text is the default; a Markdown source view is always available.
+1. An editor **takes the document** for editing. Nobody else edits it meanwhile. *Edit* opens the whole document in the editor at once — there is no section editor (DL-0517) — and the editor writes into the one draft. Formatted text is the default; a Markdown source view is always available.
 2. Edits are **captured continuously** — there is no Save control. The draft persists so a closed laptop loses nothing; it is not yet a version and nobody else can see it.
 3. **Undo** works within the editing session.
 4. From release 0.2, at any point the editor may **call companion actions** — individually, not all of them — to answer *"what do my changes introduce so far?"*. Results are cached against the content, so asking twice about unchanged text costs nothing.
@@ -78,7 +78,7 @@ One editing sequence per document. No branches, no forks, no merges, and therefo
 
 Going back is only ever forward: an unwanted change in the pending run is undone by a reviewer — one version, or all of one author's — into the reviewer's draft, and committed as the reviewer's version; sentences a later version changed are left for the reviewer to edit (ADR-0015). History is never erased.
 
-An ordinary **hold is released after a period without activity**, once its holder has been asked whether they are still working, and can be released by the tenant administrator; the interrupted draft is kept, not discarded (ADR-0006). Everyone sees that a document is held; for an ordinary hold only the tenant administrator sees by whom. Holds cover the whole document — there is no smaller unit (DL-0091).
+An ordinary **hold is released after a period without activity**, once its holder has been asked whether they are still working, and can be released by the tenant administrator; the interrupted draft is kept, not discarded (ADR-0006). Everyone who may read the document sees that it is held; holders of *edit* or *accept* on it, and administrators, see by whom, for every hold (DL-0516). Holds cover the whole document — there is no smaller unit (DL-0091).
 
 **A holder may reserve the document for editing** to mature it over days or weeks (ADR-0009): the reservation is the same hold without the inactivity release, taken by a member of a group holding *reserve for editing*, and ended by finishing, discarding, cancelling, or an administrator breaking the glass with a stated reason. As for any hold, the document cannot be frozen or re-linked meanwhile, and a reservation also keeps others from reviewing it; readers see that it is reserved and since when, and holders of *edit* or *accept* on it, and administrators, see by whom. When to end it is agreed between people, outside the platform. A holder who also holds *accept* finishes in one act — *accept as N.M* — or leaves the version pending — *create version N.M-X*; for a document accepted at 2.3, *accept as 2.4* and *create version 2.3-1* (DL-0222).
 
@@ -138,7 +138,7 @@ English names are canonical; every translation, the Ukrainian interface names in
 
 **Four of the five are *edits*, not document states.** The user is not switching between five documents; there is one document and a filter over which layers of edits are shown, with authorship toggled on top. That is how the tool being replaced works, and the interface follows it rather than the substrate.
 
-**Authorship is visible to everyone**, behind a *Show edit authors* toggle so a diff can be read without it (DL-0040). A **time machine** steps through versions with a visual boundary between accepted history and pending edits.
+**Authorship is visible to everyone**, behind a *Show edit authors* checkbox so a diff can be read without it; ticked, it names each changed paragraph's author in the margin beside it (DL-0040, DL-0504). A **time machine** steps through versions with a visual boundary between accepted history and pending edits.
 
 ## Acceptance
 
@@ -154,7 +154,7 @@ Acceptance is a **document-level act** covering the whole run since the last acc
 
 ## Editions
 
-A document is **frozen** while something outside it is resolved — an approval, a discussion with whoever approves, work elsewhere — and only its reviewers may edit it meanwhile (DL-0189). The freeze ends by **making it canonical**, which makes the latest accepted version the next **edition**, or by unfreezing it. A frozen document cannot be made canonical while any Statement entry is open (DL-0010). A new editing cycle may start against a canonical document at any time.
+**Making a document canonical** makes its latest accepted version the next **edition**, while nobody holds it and nothing committed since that acceptance awaits review; it needs no freeze first (DL-0515). A document is **frozen** while something outside it is resolved — an approval that takes time, a discussion with whoever approves, work elsewhere — and only its reviewers may edit it meanwhile (DL-0189). The freeze ends by making the document canonical, or by unfreezing it. A document cannot be made canonical while any Statement entry is open (DL-0010). A new editing cycle may start against a canonical document at any time.
 
 ## What the agents look for
 
@@ -210,7 +210,7 @@ Architecture is designed for both now so stage 2 does not rebuild stage 1 (DL-00
 
 ## Scope
 
-**In:** multi-tenancy with schema isolation; the linear cycle above on dummy documents; Ukrainian interface and per-document language; the entity layer, AI-proposed and human-confirmed, with read-only derived views; manual cross-document links; canonical documents readable as wiki pages; appendices and attachments; section editing; export to Markdown, PDF and DOCX, composed by scope and view (DL-0172); heuristics and both agents; stances, time machine, presence, author toggle.
+**In:** multi-tenancy with schema isolation; the linear cycle above on dummy documents; the interface in Ukrainian or English per person (DL-0498), and per-document language; the entity layer, AI-proposed and human-confirmed, with read-only derived views; manual cross-document links; canonical documents readable as wiki pages; appendices and attachments; export to Markdown, PDF and DOCX, composed by scope and view and written in the document's language (DL-0172, DL-0502); heuristics and both agents; stances, time machine, presence, the edit-authors checkbox.
 
 **Out:** everything in [`backlog.md`](backlog.md) — Word import, automatic review of connected documents, repository-scope views, style linting, tenant-authored heuristics, the MCP server, and work items derived from the views. Plus per-tenant role-set configuration and board voting.
 

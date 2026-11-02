@@ -72,7 +72,7 @@ No branches, no forks, no merges (ADR-0003). Editing is exclusive while the docu
 
 ## ASR-06 — Git vocabulary never reaches the user *(constraint)*
 
-The substrate is invisible; the interface has its own Ukrainian terms (DL-0003, DL-0047).
+The substrate is invisible; the interface has its own terms, Ukrainian and English (DL-0003, DL-0047, DL-0498).
 
 *Forbids:* commit, branch, merge, repository or ref in any user-facing surface, error messages included.
 
@@ -96,7 +96,7 @@ The role directory, control directory, contradictions, ambiguities and blind-spo
 
 ## ASR-10 — A document's language is fixed; the platform's is not *(constraint)*
 
-Each document carries exactly one language; the platform handles any (DL-0003). The interface is Ukrainian.
+Each document carries exactly one language; the platform handles any (DL-0003). The interface is Ukrainian or English, each person's own choice (DL-0498); a document's exports are in the document's language, never the person's (DL-0502).
 
 *Forbids:* language assumptions in storage, search, sentence splitting or rendering; interface strings outside the translation layer.
 
@@ -189,13 +189,13 @@ Proposed with their reasoning in DL-0151 and approved as proposed in DL-0216; st
 ## ASR-21 — Interactive operations stay within a waiting budget *(scenario)*
 
 - **Source**: An editor or a reader
-- **Stimulus**: A keystroke in the editor; committing a finished session — *send for review*, *create version* or *accept as*; opening a document to read; opening the edit tab to an editable text
+- **Stimulus**: A keystroke in the editor; committing a finished session — *send for review*, *create version* or *accept as*; opening a document to read; opening a document to edit
 - **Environment**: Normal operation, a forty-page document, within the size and load envelope of ASR-23
-- **Artifact**: The editor, the commit path including normalisation, the read view, the edit tab
+- **Artifact**: The editor, the commit path including normalisation, the read view, the editor's opening
 - **Response**: The character appears; the commit lands; the document renders; the editor is ready to type in
-- **Response measure**: At the 95th percentile — keystroke to screen **≤ 50 ms**; finishing to a committed version **≤ 5 s**; opening a document to its first render **≤ 2 s**; opening the edit tab to the whole document's editor ready **≤ 2 s** (DL-0484)
+- **Response measure**: At the 95th percentile — keystroke to screen **≤ 50 ms**; finishing to a committed version **≤ 5 s**; opening a document to its first render **≤ 2 s**; *Edit* to the whole document's editor ready **≤ 2 s** (DL-0484)
 
-Fifty milliseconds is below what a typist perceives. Five seconds is tolerable for an act performed once per editing session; two seconds is the ordinary budget for opening a page, the edit tab's as a reading page's. *Forbids:* running blame, an export or any agent call inside any of these paths — authorship is read from its cache, and rendering to PDF is the worker's.
+Fifty milliseconds is below what a typist perceives. Five seconds is tolerable for an act performed once per editing session; two seconds is the ordinary budget for opening a page, the editor's as a reading page's. *Forbids:* running blame, an export or any agent call inside any of these paths — authorship is read from its cache, and rendering to PDF is the worker's.
 
 ## ASR-22 — A crash loses seconds of typing, not a session *(scenario)*
 

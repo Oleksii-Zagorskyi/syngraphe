@@ -8,7 +8,8 @@ date: 2026-09-27
 supersedes:
   - ADR-0003 (in part — the platform resolving sentences a later author built on, and per-author undo as a conflict interface)
   - ADR-0001 (in part — the per-author undo as a sentence-level instrument)
-superseded_by: []
+superseded_by:
+  - DL-0522 (in part — the undo controls stand on the review page, not History)
 ---
 
 # ADR-0015: Undoing a contribution is a reviewer's act on the pending run, applied to the reviewer's draft

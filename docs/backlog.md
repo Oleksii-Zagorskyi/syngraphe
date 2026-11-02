@@ -23,7 +23,9 @@ Ideas worth keeping that are not in the current scope. An entry earns a place by
 
 ## B-008 — English interface
 
-The platform launches in Ukrainian; an English translation may follow (DL-0061). Nothing about it is designed now. The only thing held from the start is the invariant that interface strings live outside the code (ASR-10), which is cheap to keep and expensive to retrofit.
+The invariant held from the start: interface strings live outside the code (ASR-10), which is cheap to keep and expensive to retrofit.
+
+**Taken up for release 0.1 (DL-0498):** each person chooses Ukrainian or English for the interface on their account page; the installation's language stays the default.
 
 ## B-015 — Stale cross-reference detection
 
@@ -89,7 +91,7 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **Why it is parked.** Written before the cycle works end to end it would describe an intended interface, and every later story would make it wrong.
 
-**What has to be true before it is taken up.** **The review cycle works end to end**: take, edit, send for review, correct, accept, freeze and approve, on the development host.
+**What has to be true before it is taken up.** **The review cycle works end to end**: take, edit, send for review, correct, accept and approve, on the development host.
 
 ## B-017 — Data retention and erasure procedure
 
@@ -386,35 +388,37 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** Authors replace images often enough that the extra step is noticed.
 
-## B-053 — The *Edit* tab of an archived document for an administrator
+## B-053 — *Edit* on an archived document for an administrator
 
-**Idea.** The document page draws *Edit* by the right alone, so an administrator who holds *edit* through a group sees it on an archived document; the tab answers *Nothing to show here*, as every act on an archived document does (DL-0450). Draw it only where the tab opens, as the appendix page already does.
+**Idea.** The document page draws *Edit* by the right alone, so an administrator who holds *edit* through a group sees it on an archived document; it answers *Nothing to show here*, as every act on an archived document does (DL-0450). Draw it only where it opens, as the appendix page already does.
 
-**Why it is parked.** Nothing is written or lost: the tab refuses, and the archived tag says why; the mismatch is the page's, between a right and a state.
+**Why it is parked.** Nothing is written or lost: the act refuses, and the archived tag says why; the mismatch is the page's, between a right and a state.
 
-**What has to be true before it is taken up.** An administrator reports meeting the dead tab, or the document page's tabs are next changed.
+**What has to be true before it is taken up.** An administrator reports meeting the dead act, or the document page's acts are next changed.
+
+**Taken up (DL-0518):** *Редагувати* is not drawn on an archived document, which is read-only to everyone (DL-0450).
 
 ## B-054 — The parts' screens laid out evenly
 
-**Idea.** Six small layout faults seen walking the parts: the parts panel's two headings drawn at different sizes, and an attachment's title in heading type, larger than an appendix's; the editor's toolbar running past the centre column on an appendix's edit tab; a panel act taken from an appendix's page returning to the document's edit tab rather than the appendix; the finishing screen's part rows in number order rather than the list's order after a move, its summary field too narrow for the summary it drafts, and its *new* and *open* links in different columns; the View tab's panel bulleting appendices and not attachments; the compare page's appendix pickers wrapping in the panel.
+**Idea.** Six small layout faults seen walking the parts: the parts panel's two headings drawn at different sizes, and an attachment's title in heading type, larger than an appendix's; the editor's toolbar running past the centre column in an appendix's editor; a panel act taken from an appendix's page returning to the document's editor rather than the appendix; the finishing screen's part rows in number order rather than the list's order after a move, its summary field too narrow for the summary it drafts, and its *new* and *open* links in different columns; the reading view's panel bulleting appendices and not attachments; the compare page's appendix pickers wrapping in the panel.
 
 **Why it is parked.** Each one reads; none blocks an act or hides one, and every act was walked through them.
 
 **What has to be true before it is taken up.** The parts' screens are next changed, or a person reports one of them in use.
 
-## B-055 — The edit tab on texts of extreme shape
+## B-055 — The editor on texts of extreme shape
 
-**Idea.** Measure opening the edit tab on texts whose shape costs the editor most, and bring each within a budget: 30,000 one-line list items — 210 KB, under ASR-23's 300 KB but some six hundred pages against its hundred — take about 16 s to open as the whole document's editor on a developer's machine, against about 0.8 s for the forty-page corpus of 254 KB; a single paragraph near 300 KB, a table of many rows and a list nested to the editor's depth are the other shapes to measure.
+**Idea.** Measure opening the editor on texts whose shape costs it most, and bring each within a budget: 30,000 one-line list items — 210 KB, under ASR-23's 300 KB but some six hundred pages against its hundred — take about 16 s to open as the whole document's editor on a developer's machine, against about 0.8 s for the forty-page corpus of 254 KB; a single paragraph near 300 KB, a table of many rows and a list nested to the editor's depth are the other shapes to measure.
 
-**Why it is parked.** ASR-21 promises its times at forty pages, and the measured list lies beyond ASR-23's envelope by its length, where no promise is made without revising ASR-23 first (DL-0484); every document expected in the first release is far smaller, and a section's own editor opens on its section alone.
+**Why it is parked.** ASR-21 promises its times at forty pages, and the measured list lies beyond ASR-23's envelope by its length, where no promise is made without revising ASR-23 first (DL-0484); every document expected in the first release is far smaller.
 
-**What has to be true before it is taken up.** A document near the limit is held by an organisation, or an editor reports a wait opening the edit tab on a long document.
+**What has to be true before it is taken up.** A document near the limit is held by an organisation, or an editor reports a wait opening the editor on a long document.
 
 ## B-056 — Edit authors on the compare page
 
-**Idea.** The *Show edit authors* toggle on the page comparing two versions of a document: each line of the newer version named by whoever last wrote it, from the same on-demand rows as the historical page (DL-0266), so a reader stepping across several edits by several people sees whose each change is. A line edited twice inside the range names the later editor; a removed line names nobody.
+**Idea.** The *Show edit authors* checkbox on the page comparing two versions of a document: each line of the newer version named by whoever last wrote it, from the same on-demand rows as the historical page (DL-0266), so a reader stepping across several edits by several people sees whose each change is. A line edited twice inside the range names the later editor; a removed line names nobody.
 
-**Why it is parked.** The pending tab already names the authors of the run awaiting acceptance, and the historical page those of any version a reader opens; the comparison across a longer range is a use nobody has yet asked for in practice.
+**Why it is parked.** The review page already names the authors of the run awaiting acceptance, and the historical page those of any version a reader opens; the comparison across a longer range is a use nobody has yet asked for in practice.
 
 **What has to be true before it is taken up.** A reviewer or an administrator asks who made the changes between two editions, and stepping through the historical pages does not answer it.
 

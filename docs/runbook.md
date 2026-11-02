@@ -84,13 +84,13 @@ $C run --rm --no-deps -v /path/to/folders:/srv/load:ro web \
 
 ### Making a document canonical
 
-A loaded document, or any accepted one, becomes its next edition by command (DL-0350): the member named freezes it and makes it canonical through the same acts as the document page.
+A loaded document, or any accepted one, becomes its next edition by command (DL-0350): the act itself needs no freeze (DL-0515), but the command freezes first, so that the operator's reason stands on the freeze with the approval and is shown to readers, and then makes it canonical through the same acts as the document page.
 
 ```bash
 $C exec web python manage.py make_canonical --tenant N --document M --as ADDRESS --reason "…"
 ```
 
-The member must hold *freeze* and *make canonical* on the document through a group. Where the organisation requires a distinct approver, name a member who accepted none of the runs since the previous edition; the loading member accepted the loaded version, so name another. The command prints `document M · edition N.0`; run again on a document already at its edition, it prints `document M · edition N.0 already made — skipped` and changes nothing. Nothing is frozen when a refusal can be known beforehand — versions waiting for review, a refused approver, a reason of more than one line or 500 characters, a tag already bearing the next edition's number — and the refusal is named, as it is for a document with nothing accepted at all (`nothing_accepted`). A document already frozen is made canonical under its freeze, and `--reason` is not used. **Readers holding *view accepted* are lowered to *view canonical* only after each of their documents has an edition**; in the other order the documents disappear for them.
+The member must hold *make canonical* on the document through a group, and *freeze* only because the command freezes. Where the organisation requires a distinct approver, name a member who accepted none of the runs since the previous edition; the loading member accepted the loaded version, so name another. The command prints `document M · edition N.0`; run again on a document already at its edition, it prints `document M · edition N.0 already made — skipped` and changes nothing. Nothing is frozen when a refusal can be known beforehand — versions waiting for review, a refused approver, a reason of more than one line or 500 characters, a tag already bearing the next edition's number — and the refusal is named, as it is for a document with nothing accepted at all (`nothing_accepted`). A document already frozen is made canonical under its freeze, and `--reason` is not used. **Readers holding *view accepted* are lowered to *view canonical* only after each of their documents has an edition**; in the other order the documents disappear for them.
 
 ### A freeze nobody can end
 
@@ -100,7 +100,7 @@ A holder of *freeze and unfreeze* ends a freeze with *Unfreeze*, and a holder of
 $C exec web python manage.py end_freeze --tenant N --document M --reason "…"
 ```
 
-The command prints `document M · freeze ended`; the freeze ends as *unfrozen*, the numbering unchanged, and the reason is written to the audit log. A document that is not frozen is reported — `document M is not frozen` — and nothing changes. **An edition made by mistake is never removed**: the correction is edited, accepted, frozen and made canonical as the next edition, and the record keeps both.
+The command prints `document M · freeze ended`; the freeze ends as *unfrozen*, the numbering unchanged, and the reason is written to the audit log. A document that is not frozen is reported — `document M is not frozen` — and nothing changes. **An edition made by mistake is never removed**: the correction is edited, accepted and made canonical as the next edition, and the record keeps both.
 
 ### Help as work in progress
 
@@ -263,7 +263,7 @@ A hold ends when its holder finishes. One that stays open — the holder has lef
 docker compose exec web python manage.py release_hold --tenant N --document M --reason "…"
 ```
 
-It marks the hold *forced*, **keeps the draft**, and records the release, with its reason, in the audit log. It waits for the document's writer lock, so it never releases a hold in the middle of a commit. **Never delete a hold or a draft row** — the draft is the holder's text. In the interface the same release is the document page's *More ▾ › force release*, for a tenant or platform administrator, and the holder ends their own hold with *Discard my edits*.
+It marks the hold *forced*, **keeps the draft**, and records the release, with its reason, in the audit log. It waits for the document's writer lock, so it never releases a hold in the middle of a commit. **Never delete a hold or a draft row** — the draft is the holder's text. In the interface the same release is *Звільнити документ примусово* behind the document heading's *More* icon, for a tenant or platform administrator (DL-0522), and the holder ends their own hold with *Release the document*, or *Discard my edits* once something is edited (DL-0510).
 
 A holder who cannot finish because *an editor is still open* first closes their other tabs on the document: an open tab keeps its editor open, however long. An editor whose page went away without closing it — a closed laptop, a crashed browser — is closed by the worker within about four minutes: silent for three, found by the check that runs every minute. If the wait lasts longer, the worker is not running.
 
@@ -297,7 +297,7 @@ The reading view and every export render the text of a version the platform comm
 
 The person who asked sees the reason on the job's page.
 
-- **The text holds what the platform does not accept**, with the constructs named as the editor names them and their codes. The document's text is corrected in the editor, sent for review and accepted like any other change; where the refused version is the canonical one, the correction is also frozen and made canonical as the next edition (§ Making a document canonical), since a reader of canonical text exports nothing else. The export is then asked for again. An operator does not edit the repository.
+- **The text holds what the platform does not accept**, with the constructs named as the editor names them and their codes. The document's text is corrected in the editor, sent for review and accepted like any other change; where the refused version is the canonical one, the correction is also made canonical as the next edition (§ Making a document canonical), since a reader of canonical text exports nothing else. The export is then asked for again. An operator does not edit the repository.
 - **The version asked for is no longer one you may export**: the person lost the right between asking and the run. This is not a fault.
 - **Your draft has been finished or discarded since you asked**: a *my edits* export whose draft was sent for review or discarded before the run. Not a fault; the person exports another version.
 - **The chosen version has no attachments to export**: attachments alone were asked of a version that has none. Not a fault.

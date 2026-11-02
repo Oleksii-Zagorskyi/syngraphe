@@ -9,6 +9,8 @@ supersedes:
   - ADR-0003 (in part — hold expiry)
 superseded_by:
   - ADR-0009 (in part — reserved holds, who sees their holder, who can end someone else's session, the send-for-review screen for a holder of accept)
+  - DL-0516 (in part — who sees the holder's name: holders of edit or accept, and administrators, for every hold)
+  - DL-0517 (in part — the section editors: one editor over the whole document)
 ---
 
 # ADR-0006: The editing surface — many editors over one draft, one hold, released on inactivity
