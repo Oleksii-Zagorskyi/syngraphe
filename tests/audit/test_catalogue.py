@@ -51,7 +51,7 @@ def test_catalogue_covers_the_audit_log(
         "refused": client.get(
             PAGE, {"since": "2026-03-04", "until": "2026-03-03"}
         ).content.decode(),
-        "the frame": client.get("/administration/").content.decode(),
+        "the frame": client.get("/administration/", follow=True).content.decode(),
     }
     # The format string, whose id never matches the page as drawn; the actors' kinds.
     own = ["The newest", "events matching", "person", "the platform"]

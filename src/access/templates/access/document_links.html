@@ -13,7 +13,7 @@
       <tr{% if row.archived %} class="archived"{% endif %}>
         <td>{{ row.document.number }}</td>
         <td>
-          {{ row.document.title }}
+          <a href="/document/{{ row.document.number }}/">{{ row.document.title }}</a>
           {% if row.document.author_only %}<span class="tag author-only">{% translate "author-only" %}</span>
           {% timezone display_timezone %}<div class="muted">{% blocktranslate with name=row.creator date=row.document.created_at|date:"j E" %}Created by {{ name }}, {{ date }} — only they can reach it until a group is linked.{% endblocktranslate %}</div>{% endtimezone %}{% endif %}
           {% if row.archived %}<div class="muted">{% translate "Archived — its links take effect on restore." %}</div>{% endif %}

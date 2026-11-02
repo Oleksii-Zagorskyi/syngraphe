@@ -89,7 +89,7 @@ def tenant_settings(request: HttpRequest) -> HttpResponse:
         form.add_error("attachment_max_mb", str(refused))
         return _page(request, form, status=400)
     response = HttpResponse(status=303)
-    response["Location"] = PAGE
+    response["Location"] = PAGE + "?applied=1"
     return response
 
 
@@ -102,5 +102,11 @@ def _initial(tenant: Tenant) -> dict[str, Any]:
 
 
 def _page(request: HttpRequest, form: SettingsForm, *, status: int = 200) -> HttpResponse:
-    context = {**frame(request), "form": form, "page_url": PAGE}
+    context = {
+        **frame(request),
+        "form": form,
+        "page_url": PAGE,
+        # A saved change's answer alone; a refused one is never *Applied*.
+        "applied": request.method == "GET" and bool(request.GET.get("applied")),
+    }
     return render(request, "tenancy/settings.html", context, status=status)

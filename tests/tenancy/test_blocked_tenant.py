@@ -116,4 +116,5 @@ def test_closed_to_members_open_to_platform_administrators(
     ):
         assert client.get("/").status_code == 302
         for page in _pages(document.number):
-            assert client.get(page).status_code == 200, page
+            # The landing opens its first section (DL-0511); followed, it is a page as the rest.
+            assert client.get(page, follow=True).status_code == 200, page

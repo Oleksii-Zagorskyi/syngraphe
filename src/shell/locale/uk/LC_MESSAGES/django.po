@@ -4793,3 +4793,6 @@ msgstr "заблоковано: зараз нічого з цього не ді�
 msgctxt "a member's page"
 msgid "(author)"
 msgstr "(автор)"
+
+msgid "Close"
+msgstr "Закрити"

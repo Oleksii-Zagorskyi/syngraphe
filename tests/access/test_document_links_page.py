@@ -227,3 +227,17 @@ def test_the_page_reads_every_hold_at_once(
     one = held(1)
     three = held(2)
     assert three == one
+
+
+def test_the_title_opens_the_document(
+    migrated_tenant: Any, member_of: Any, make_document: Any
+) -> None:
+    """Each title links to its document, an archived one's too (DL-0507)."""
+    client, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    document = make_document(title="Synthetic example", created_by=admin)
+    archived = make_document(title="Synthetic archive", created_by=admin, state="archived")
+
+    body = client.get(URL).content.decode()
+
+    for row in (document, archived):
+        assert f'<a href="/document/{row.number}/">{row.title}</a>' in body

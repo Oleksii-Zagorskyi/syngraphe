@@ -8,11 +8,12 @@
     {% for field in form %}
     <div class="box">
       {% if field.name == "require_distinct_approver" %}<label>{{ field }} {{ field.label }}</label>{% else %}<label for="{{ field.id_for_label }}">{{ field.label }}</label> {{ field }}{% endif %}
-      <p class="note">{{ field.help_text }}</p>
+      {% if field.help_text not in field.errors %}<p class="note">{{ field.help_text }}</p>{% endif %}
       {% for error in field.errors %}<p class="err">{{ error }}</p>{% endfor %}
     </div>
     {% endfor %}
     <button class="btn primary" type="submit">{% translate "Apply" %}</button>
+    {% if applied %}<p class="note" role="status">{% translate "Applied" %}</p>{% endif %}
   </form>
 </div>
 {% endblock %}

@@ -215,7 +215,7 @@ def test_pages_without_document_text_never_read_it(
     platform = signed_in_without_tenant("p.admin@example.test", is_platform_admin=True)
 
     with CaptureQueriesContext(connection) as unrelated:
-        assert platform.get("/administration/").status_code == 200
+        assert platform.get("/administration/", follow=True).status_code == 200
         assert reader.get("/folder/1/").status_code == 200
     with CaptureQueriesContext(connection) as viewed:
         assert reader.get(f"/document/{people.document.number}/").status_code == 200

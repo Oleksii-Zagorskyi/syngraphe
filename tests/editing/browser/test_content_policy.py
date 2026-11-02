@@ -148,7 +148,8 @@ def test_the_pages_run_under_the_policy(
     as_administrator = [
         "/folder/1/",
         "/search/?q=Synthetic",
-        "/administration/",
+        # The landing opens this, its first section (DL-0511).
+        "/administration/tenant/users/",
         "/administration/tenant/folders/",
         "/help/",
         "/help/markdown/",

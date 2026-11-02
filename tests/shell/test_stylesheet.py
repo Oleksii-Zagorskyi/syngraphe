@@ -51,3 +51,19 @@ def test_the_help_list_stands_beside_the_page() -> None:
     # pages.md § Help, DL-0365: the list of pages beside the page it opened.
     declarations = rule(".help-page")
     assert declarations is not None and "display:grid" in declarations.replace(" ", "")
+
+
+def test_the_chips_wrap_and_the_textareas_fill_their_box() -> None:
+    """The links page's group chips stand inline and wrap; the stylesheet's and the template's
+    textareas take their box's width; a refusal's line has its colour outside a card too
+    (DL-0511)."""
+    chips = rule(".chips")
+    assert chips is not None and "display:flex" in chips and "flex-wrap:wrap" in chips
+    chip = rule(".chip")
+    assert chip is not None and "display:inline-flex" in chip
+    # A chip's own inner text carries no second border.
+    assert rule(".chips span") is None and rule(".chips>span") is not None
+    boxes = rule("#stylesheet-text,textarea.outline")
+    assert boxes is not None and "width:100%" in boxes
+    assert rule("#tenant-settings .err") is not None
+    assert rule("#dialog .members") is not None

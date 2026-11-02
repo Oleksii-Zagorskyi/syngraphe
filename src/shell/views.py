@@ -122,11 +122,15 @@ def frame(request: HttpRequest) -> dict[str, Any]:
 
 @login_required
 def administration(request: HttpRequest) -> HttpResponse:
-    """The two-pane frame: *Platform* for platform administrators, *Organisation* for
-    administrators of the chosen organisation; anyone else gets the not-found answer."""
+    """The first section the person may use (DL-0511): the platform's *Hosts* for a platform
+    administrator, the organisation's *Users* for its administrator — each the first link of its
+    pane, every section drawing the frame; anyone else gets the not-found answer."""
     if not _is_administrator(request):
         return not_found(request)
-    return render(request, "shell/administration.html", frame(request))
+    # On an organisation's own domain the platform's sections are not there to use.
+    if _is_platform_admin(request) and not getattr(request, "tenant_from_domain", True):
+        return HttpResponseRedirect("/administration/platform/hosts/")
+    return HttpResponseRedirect("/administration/tenant/users/")
 
 
 @login_required

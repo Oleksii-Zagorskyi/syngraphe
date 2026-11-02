@@ -1,6 +1,7 @@
 {% load i18n %}
 <section class="members" id="members">
   <h2>{% translate "Members" %} · {{ group.name }}</h2>
+  <form method="get" action="/administration/tenant/groups/" class="close"><button class="btn" type="submit">{% translate "Close" %}</button></form>
   <ul>
     {% for member in members %}
     <li>

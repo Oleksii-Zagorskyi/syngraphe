@@ -66,7 +66,7 @@ def test_settings_are_saved_and_audited(migrated_tenant: Any, member_of: Any) ->
         },
     )
 
-    assert saved.status_code == 303 and saved["Location"] == PAGE
+    assert saved.status_code == 303 and saved["Location"] == PAGE + "?applied=1"
     tenant = _tenant(migrated_tenant)
     assert tenant.attachment_max_bytes == 8 * MB
     assert tenant.hold_inactivity_minutes == 60
@@ -285,3 +285,46 @@ def test_the_cap_is_bounded_by_what_the_row_holds(
     saved = admin.post(PAGE, {"attachment_max_mb": "2047", "hold_inactivity_minutes": "30"})
     assert saved.status_code == 303
     assert _tenant(migrated_tenant).attachment_max_bytes == 2047 * MB
+
+
+def test_a_refused_bound_is_named_once(migrated_tenant: Any, member_of: Any, settings: Any) -> None:
+    """The bound a refused value breaks is said once, under its field — not again as the help
+    line (DL-0511)."""
+    settings.UPLOAD_MAX_BYTES = 20 * MB
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+
+    refused = admin.post(PAGE, {"attachment_max_mb": "0", "hold_inactivity_minutes": "30"})
+
+    page = html.unescape(refused.content.decode())
+    assert refused.status_code == 400
+    assert page.count("From 1 to 20 MB") == 1
+    assert re.search(r'<p class="err">[^<]*From 1 to 20 MB', page)
+
+
+def test_an_applied_change_says_so(migrated_tenant: Any, member_of: Any) -> None:
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+
+    saved = admin.post(PAGE, {"attachment_max_mb": "6", "hold_inactivity_minutes": "30"})
+
+    assert saved.status_code == 303 and saved["Location"] == PAGE + "?applied=1"
+    applied = admin.get(saved["Location"]).content.decode()
+    assert '<p class="note" role="status">' in applied
+    assert 'role="status"' not in admin.get(PAGE).content.decode()
+
+
+def test_an_error_of_another_kind_keeps_the_bound(
+    migrated_tenant: Any, member_of: Any, settings: Any
+) -> None:
+    """A value that is not a number says so, and the bound stays to read; *Applied* belongs to
+    a saved change alone, never to a refused one."""
+    settings.UPLOAD_MAX_BYTES = 20 * MB
+    admin, _, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+
+    refused = admin.post(
+        PAGE + "?applied=1", {"attachment_max_mb": "abc", "hold_inactivity_minutes": "30"}
+    )
+
+    page = html.unescape(refused.content.decode())
+    assert refused.status_code == 400
+    assert "From 1 to 20 MB" in page
+    assert 'role="status"' not in page

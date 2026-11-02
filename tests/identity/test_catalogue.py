@@ -192,7 +192,8 @@ def test_catalogue_covers_people_pages(
     )
     User.objects.filter(email="s.synthetic@example.test").update(self_blocked=True)
     for page in (*platform_pages, "/administration/"):
-        bodies[page] = platform.get(page).content.decode()
+        bodies[page] = platform.get(page, follow=True).content.decode()
+        assert "<html" in bodies[page], page
     bodies["appoint refused"] = platform.post(
         f"/administration/platform/tenants/{migrated_tenant.number}/appoint/",
         {"email": "nobody.here@example.test"},

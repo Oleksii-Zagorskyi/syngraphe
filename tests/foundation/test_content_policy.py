@@ -197,7 +197,8 @@ def test_the_routes_carry_the_policy(
     assert answers["/health/"].status_code in (200, 503)
     assert answers["/no-such-page/"].status_code == 404
     assert answers["/folder/1/"].status_code == 200
-    assert answers["/administration/"].status_code == 200
+    # The landing opens its first section; the redirect carries the policy as any answer does.
+    assert answers["/administration/"].status_code == 302
     assert answers[admin_path].status_code == 200
     assert answers["/help/"].status_code == 200
     switched = answers[f"POST {SWITCH} on first.example.test"]

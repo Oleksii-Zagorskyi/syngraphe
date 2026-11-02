@@ -33,7 +33,7 @@ def message_ids(catalogue: str) -> list[str]:
 def test_single_membership_shows_name_no_switcher(signed_in: Any, tenant: Any) -> None:
     client, _ = signed_in("an.admin@example.test", tenant=tenant, is_tenant_admin=True)
 
-    response = client.get("/administration/")
+    response = client.get("/administration/", follow=True)
     body = response.content.decode()
 
     assert response.status_code == 200
@@ -56,7 +56,7 @@ def test_administration_hidden_from_members(signed_in: Any, tenant: Any) -> None
 def test_platform_admin_sees_both_panes(signed_in: Any, tenant: Any) -> None:
     client, _ = signed_in("an.operator@example.test", is_platform_admin=True)
 
-    response = client.get("/administration/")
+    response = client.get("/administration/", follow=True)
     body = response.content.decode()
 
     assert response.status_code == 200
@@ -72,7 +72,7 @@ def test_platform_admin_sees_both_panes(signed_in: Any, tenant: Any) -> None:
 def test_tenant_admin_sees_the_organisation_pane_only(signed_in: Any, tenant: Any) -> None:
     client, _ = signed_in("an.admin@example.test", tenant=tenant, is_tenant_admin=True)
 
-    body = client.get("/administration/").content.decode()
+    body = client.get("/administration/", follow=True).content.decode()
 
     assert 'class="pane organisation"' in body
     assert 'class="pane platform"' not in body
@@ -106,7 +106,7 @@ def test_organisation_selector_writes_the_session(signed_in: Any, tenant: Any) -
 
     assert response.status_code == 302
     assert client.session["tenant_number"] == tenant.number
-    assert tenant.name in client.get("/administration/").content.decode()
+    assert tenant.name in client.get("/administration/", follow=True).content.decode()
 
 
 def test_selector_lists_blocked_organisations_marked(
@@ -124,7 +124,7 @@ def test_selector_lists_blocked_organisations_marked(
         name="Synthetic, being set up", state="migrating", actor_kind="system"
     )
 
-    page = client.get("/administration/").content.decode()
+    page = client.get("/administration/", follow=True).content.decode()
     chosen = client.post("/administration/organisation/", {"organisation": tenant.number})
     refused = client.post("/administration/organisation/", {"organisation": setting_up.number})
 
@@ -150,7 +150,7 @@ def test_selector_is_closed_to_others_like_a_missing_page(signed_in: Any, tenant
 def test_a_demoted_administrator_loses_the_chosen_organisation(signed_in: Any, tenant: Any) -> None:
     client, user = signed_in("an.operator@example.test", is_platform_admin=True)
     client.post("/administration/organisation/", {"organisation": tenant.number})
-    assert tenant.name in client.get("/administration/").content.decode()
+    assert tenant.name in client.get("/administration/", follow=True).content.decode()
 
     user.is_platform_admin = False
     user.save()
@@ -168,7 +168,7 @@ def test_no_selector_on_the_organisations_own_domain(signed_in: Any, tenant: Any
     client, _ = signed_in("an.operator@example.test", is_platform_admin=True)
     client.defaults["HTTP_HOST"] = "docs.example.test"
 
-    body = client.get("/administration/").content.decode()
+    body = client.get("/administration/", follow=True).content.decode()
     posted = client.post("/administration/organisation/", {"organisation": tenant.number})
 
     assert 'class="pane platform"' in body
@@ -207,7 +207,9 @@ def test_catalogue_covers_the_shell(signed_in: Any, tenant: Any, settings: Any) 
     assert ids, "the catalogue has message ids"
 
     for path in ("/", "/administration/", "/no-such-page/"):
-        body = client.get(path).content.decode()
+        # The landing opens its first section, whose page is the one read.
+        body = client.get(path, follow=path == "/administration/").content.decode()
+        assert path == "/" or "<html" in body, path
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", body)]
         assert leaked == [], f"{path} shows message ids verbatim: {leaked}"
 
@@ -273,3 +275,22 @@ def test_health_without_backup_state(client: Any, tmp_path: Path, settings: Any)
         "last_archived": None,
         "wal_waiting_bytes": None,
     }
+
+
+def test_the_landing_opens_the_first_section(signed_in: Any, tenant: Any) -> None:
+    """`/administration/` opens the first section the person may use (DL-0511): the platform's
+    *Hosts* for a platform administrator, the organisation's *Users* for its administrator; to a
+    member it is not there."""
+    platform, _ = signed_in("an.operator@example.test", is_platform_admin=True)
+    admin, _ = signed_in("an.admin@example.test", tenant=tenant, is_tenant_admin=True)
+    member, _ = signed_in("a.member@example.test", tenant=tenant)
+
+    to_platform = platform.get("/administration/")
+    to_users = admin.get("/administration/")
+
+    assert (to_platform.status_code, to_platform["Location"]) == (
+        302,
+        "/administration/platform/hosts/",
+    )
+    assert (to_users.status_code, to_users["Location"]) == (302, "/administration/tenant/users/")
+    assert member.get("/administration/").status_code == 404

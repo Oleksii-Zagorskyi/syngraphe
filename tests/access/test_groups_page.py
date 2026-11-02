@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
@@ -145,6 +146,7 @@ def test_members_page_without_htmx_is_the_whole_page(migrated_tenant: Any, membe
     fragment = client.get(f"{GROUPS}{group.id}/members/", headers={"HX-Request": "true"})
 
     assert "<html" in whole and 'id="members"' in whole
+    assert 'action="/administration/tenant/groups/" class="close"' in whole
     assert "<html" not in fragment.content.decode()
 
 
@@ -165,3 +167,28 @@ def test_platform_administrator_edits_the_chosen_organisation(
     session.save()
 
     assert client.get(GROUPS).status_code == 200
+
+
+def test_the_members_block_stands_above_the_grid(
+    migrated_tenant: Any, member_of: Any, settings: Any
+) -> None:
+    """A group's members open in a block at the top of the section, in view (DL-0506)."""
+    settings.LANGUAGE_CODE = "en"
+    from access.models import AccessGroup
+    from tenancy.schemas import schema_context
+
+    client, admin, _ = member_of("an.admin@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(name="Editors", created_by=admin, actor_kind="user")
+
+    body = client.get(GROUPS).content.decode()
+
+    assert body.index('id="dialog"') < body.index('<table class="grid"')
+    assert 'hx-swap="innerHTML show:#dialog:top"' in body
+    fragment = client.get(f"{GROUPS}{group.id}/members/", headers={"HX-Request": "true"})
+    close = re.search(
+        r'<form method="get" action="/administration/tenant/groups/"[^>]*>'
+        r"\s*<button[^>]*>([^<]+)</button>",
+        fragment.content.decode(),
+    )
+    assert close is not None and close.group(1) == "Close"

@@ -34,7 +34,7 @@ def test_catalogue_covers_the_settings_page(member_of: Any, settings: Any) -> No
         "over the bounds": admin.post(
             page, {"attachment_max_mb": "100000", "hold_inactivity_minutes": "481"}
         ).content.decode(),
-        "the frame": admin.get("/administration/").content.decode(),
+        "the frame": admin.get("/administration/", follow=True).content.decode(),
     }
     # The bounds are format strings, whose ids never match the page as drawn.
     own = [

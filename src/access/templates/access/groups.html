@@ -10,6 +10,7 @@
     <input type="text" id="name" name="name" maxlength="100" required placeholder="{% translate 'New group' %}" value="{{ form.name.value|default:'' }}">
     <button class="btn primary" type="submit">{% translate "Create" %}</button>
   </form>
+  <div id="dialog">{% if dialog %}{% include "access/group_members.html" with group=dialog.group members=dialog.members candidates=dialog.candidates %}{% endif %}</div>
   <table class="grid">
     <thead>
       <tr>
@@ -31,7 +32,7 @@
           </form>
         </td>
         {% endfor %}
-        <td><a href="{{ groups_url }}{{ row.group.id }}/members/" hx-get="{{ groups_url }}{{ row.group.id }}/members/" hx-target="#dialog" hx-swap="innerHTML">{% translate "members…" %}</a></td>
+        <td><a href="{{ groups_url }}{{ row.group.id }}/members/" hx-get="{{ groups_url }}{{ row.group.id }}/members/" hx-target="#dialog" hx-swap="innerHTML show:#dialog:top">{% translate "members…" %}</a></td>
       </tr>
       {% empty %}
       <tr><td colspan="{{ columns|length|add:2 }}" class="muted">{% translate "No groups yet." %}</td></tr>
@@ -39,5 +40,4 @@
     </tbody>
   </table>
 </div>
-<div id="dialog">{% if dialog %}{% include "access/group_members.html" with group=dialog.group members=dialog.members candidates=dialog.candidates %}{% endif %}</div>
 {% endblock %}

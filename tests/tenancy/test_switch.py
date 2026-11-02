@@ -230,7 +230,7 @@ def test_the_switcher_never_names_another_organisation(
     client.force_login(person)
     client.post("/administration/organisation/", {"organisation": migrated_tenant.number})
 
-    page = client.get("/administration/").content.decode()
+    page = client.get("/administration/", follow=True).content.decode()
 
     switcher = page.split('class="switcher"', 1)[1].split("</form>", 1)[0]
     selected = re.findall(r"<option[^>]*selected[^>]*>([^<]*)<", switcher)

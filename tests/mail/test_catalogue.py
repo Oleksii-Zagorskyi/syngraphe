@@ -76,7 +76,7 @@ def test_catalogue_covers_the_mail_pages(member_of: Any, sender: Any, settings: 
         },
     )
     bodies["in the clear"] = clear.content.decode()
-    bodies["frame"] = client.get("/administration/").content.decode()
+    bodies["frame"] = client.get("/administration/", follow=True).content.decode()
     admin, _, _ = member_of("t.synthetic@example.test", is_tenant_admin=True)
     bodies["the organisation's page"] = admin.get(
         "/administration/tenant/sending-address/"

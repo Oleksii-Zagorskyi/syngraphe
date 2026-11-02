@@ -133,3 +133,125 @@ def test_a_title_field_holds_a_title(
     )
 
     assert room >= 0, f"the field scrolls its text by {-room} px"
+
+
+def _policed_fixture() -> Any:
+    """The content policy's fixture, loaded by path: a test module is not importable by name
+    under `--import-mode=importlib`."""
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location(
+        "content_policy_fixtures_layout", Path(__file__).resolve().parent / "test_content_policy.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_policy = _policed_fixture()
+policed = _policy.policed
+
+
+def test_the_members_block_opens_in_view(
+    browser_server: str, policed: Any, member_of: Any, migrated_tenant: Any
+) -> None:
+    """*members…* of a group low on a long grid opens the block above the grid, in view, and
+    *Close* takes it away (DL-0506)."""
+    from access.models import AccessGroup
+    from tenancy.schemas import schema_context
+
+    page, violations, documents, console = policed
+    page.set_viewport_size(VIEWPORT)
+    client, admin, _ = member_of("an.administrator@example.test", is_tenant_admin=True)
+    with schema_context(migrated_tenant.number):
+        for n in range(30):
+            AccessGroup.objects.create(
+                name=f"Synthetic group {n:02}", created_by=admin, actor_kind="user"
+            )
+    _sign_in(page, browser_server, client)
+    page.goto(f"{browser_server}/administration/tenant/groups/", wait_until="load")
+
+    with page.expect_response(lambda r: "/members/" in r.url):
+        page.locator('a[href$="/members/"]').last.click()
+    # htmx scrolls after the swap settles; a block never brought into view times the wait out.
+    page.wait_for_function(
+        "() => { const b = document.querySelector('#dialog .members');"
+        " return b !== null && b.getBoundingClientRect().top > -1; }",
+        timeout=5000,
+    )
+    placed = page.evaluate(
+        """() => ({
+          top: document.querySelector('#dialog .members').getBoundingClientRect().top,
+          grid: document.querySelector('table.grid').getBoundingClientRect().top,
+        })"""
+    )
+
+    # In view, to within the sub-pixel the scroll may leave; above the grid.
+    assert -1 < placed["top"] < placed["grid"], placed
+    with page.expect_navigation(wait_until="load"):
+        page.click("#dialog .members form.close button")
+    assert page.locator("#dialog .members").count() == 0
+    _policy._assert_nothing_refused(violations, console)
+
+
+def test_the_chips_share_a_line(
+    browser_server: str, policed: Any, member_of: Any, migrated_tenant: Any, make_document: Any
+) -> None:
+    """A document linked to three groups draws its three chips on one line (DL-0511)."""
+    from access.models import AccessGroup, DocumentGroup
+    from tenancy.schemas import schema_context
+
+    page, violations, documents, console = policed
+    page.set_viewport_size(VIEWPORT)
+    client, admin, _ = member_of("an.administrator@example.test", is_tenant_admin=True)
+    document = make_document(title="Synthetic example", created_by=admin)
+    with schema_context(migrated_tenant.number):
+        for name in ("Readers", "Editors", "Reviewers"):
+            group = AccessGroup.objects.create(name=name, created_by=admin, actor_kind="user")
+            DocumentGroup.link(document, group, by=admin)
+    _sign_in(page, browser_server, client)
+    page.goto(f"{browser_server}/administration/tenant/document-links/", wait_until="load")
+
+    tops = page.evaluate(
+        "() => [...document.querySelectorAll('.chips > .chip')]"
+        ".map(c => c.getBoundingClientRect().top)"
+    )
+
+    assert len(tops) == 3 and len(set(tops)) == 1, tops
+    _policy._assert_nothing_refused(violations, console)
+
+
+def test_the_textareas_take_the_width(browser_server: str, policed: Any, member_of: Any) -> None:
+    """The stylesheet's box and the template's outline take the width of what holds them
+    (DL-0511)."""
+    page, violations, documents, console = policed
+    page.set_viewport_size(VIEWPORT)
+    client, _, _ = member_of("an.administrator@example.test", is_tenant_admin=True)
+    _sign_in(page, browser_server, client)
+
+    widths = []
+    for path, selector in (
+        ("/administration/tenant/styles/", "#stylesheet-text"),
+        ("/administration/tenant/template/", "textarea.outline"),
+    ):
+        page.goto(f"{browser_server}{path}", wait_until="load")
+        widths.append(
+            page.evaluate(
+                f"""() => {{
+                  const box = document.querySelector('{selector}');
+                  const around = box.parentElement;
+                  const style = getComputedStyle(around);
+                  return [box.getBoundingClientRect().width,
+                          around.clientWidth - parseFloat(style.paddingLeft)
+                            - parseFloat(style.paddingRight)];
+                }}"""
+            )
+        )
+
+    for box, form in widths:
+        assert abs(box - form) < 2, widths
+    _policy._assert_nothing_refused(violations, console)
