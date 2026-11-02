@@ -188,3 +188,101 @@ def _page(
         "invite_url": INVITE_URL,
     }
     return render(request, "identity/invite.html", context)
+
+
+@never_cache
+@login_required
+def member(request: HttpRequest, membership_id: uuid.UUID) -> HttpResponse:
+    """One member's page (DL-0505, ST-0077): their groups, changed here, and what the groups and
+    the documents' links give them per folder — read only, the membership's own state shown,
+    never the person's own block (DL-0398)."""
+    if request.method != "GET":
+        return not_found(request)
+    membership = _membership(request, membership_id)
+    if membership is None:
+        return not_found(request)
+    return render(request, "identity/member.html", _member_context(request, membership))
+
+
+@never_cache
+@login_required
+def member_groups(request: HttpRequest, membership_id: uuid.UUID) -> HttpResponse:
+    """*Add* or *Remove* one group from the member's page, as the groups page's *members…* does:
+    a blocked membership may be taken out of a group and joins none (DL-0505)."""
+    from access.forms import GroupChoiceForm
+
+    if request.method != "POST":
+        return not_found(request)
+    membership = _membership(request, membership_id)
+    if membership is None:
+        return not_found(request)
+    form = GroupChoiceForm(request.POST)
+    if not form.is_valid():
+        return not_found(request)
+    group = AccessGroup.objects.filter(pk=form.cleaned_data["group"]).first()
+    if group is None:
+        return not_found(request)
+    actor = cast(User, request.user)
+    if form.cleaned_data["action"] == "remove":
+        group.remove_member(membership, by=actor)
+    elif membership.state != MembershipState.ACTIVE:
+        return not_found(request)
+    else:
+        group.add_member(membership, by=actor)
+    context = _member_context(request, membership)
+    if getattr(request, "htmx", False):
+        return render(request, "identity/member_groups.html", context)
+    return render(request, "identity/member.html", context)
+
+
+def _member_context(request: HttpRequest, membership: Membership) -> dict[str, Any]:
+    """The member's groups, the groups they could join, and — unless they administer the
+    organisation, which their page says in one line — a row per document their groups reach,
+    under its folder in tree order."""
+    from access.models import GroupMember
+    from access.rights import GRID, LABELS, member_rights
+    from documents.models import Document
+    from documents.tree import Tree
+
+    joined = set(
+        GroupMember.objects.filter(membership=membership).values_list("group_id", flat=True)
+    )
+    groups = list(AccessGroup.objects.order_by("name"))
+    shown = membership_for_administrator(membership)
+    context: dict[str, Any] = {
+        **frame(request),
+        "membership": membership,
+        "shown": shown,
+        "member_url": f"{USERS_URL}{membership.pk}/",
+        "groups": [g for g in groups if g.pk in joined],
+        "candidates": [g for g in groups if g.pk not in joined]
+        if membership.state == MembershipState.ACTIVE
+        else [],
+        "blocked": membership.state != MembershipState.ACTIVE,
+        "columns": [{"right": r.value, "label": LABELS[r]} for r in GRID],
+    }
+    if membership.is_tenant_admin:
+        return context
+    held = member_rights(membership)
+    documents = Document.objects.filter(pk__in=held).select_related("folder").order_by("number")
+    by_folder: dict[Any, list[Document]] = {}
+    for document in documents:
+        by_folder.setdefault(document.folder_id, []).append(document)
+    tenant = getattr(request, "tenant", None)
+    tree = Tree(tenant.name if tenant is not None else "")
+    context["folders"] = [
+        {
+            "path": tree.path_of(node.folder),
+            "rows": [
+                {
+                    "document": document,
+                    "author": document.author_only and document.created_by_id == membership.user_id,
+                    "cells": [{"right": r.value, "held": r in held[document.pk]} for r in GRID],
+                }
+                for document in by_folder[node.folder.pk]
+            ],
+        }
+        for node in tree.flat()
+        if node.folder.pk in by_folder
+    ]
+    return context

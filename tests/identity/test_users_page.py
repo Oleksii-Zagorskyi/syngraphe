@@ -88,3 +88,23 @@ def test_closed_to_members(
             posted = client.post(page, {"email": "someone.new@example.test"})
             assert posted.status_code == 404, page
     assert not Invitation.objects.exists()
+
+
+def test_the_address_opens_the_members_page(migrated_tenant: Any, member_of: Any) -> None:
+    """Row 1: every row's address is a link to `/administration/tenant/users/<id>/`, and the link
+    opens the page. `test_invited_and_added_rows_alike` keeps passing: its uuid mask strips the
+    href's id as it strips the acts'."""
+    admin, _, admin_membership = member_of("t.admin@example.test", is_tenant_admin=True)
+    _, _, membership = member_of("a.member@example.test")
+
+    response = admin.get("/administration/tenant/users/")
+
+    assert response.status_code == 200
+    body = response.content.decode()
+    for row, email in (
+        (membership, "a.member@example.test"),
+        (admin_membership, "t.admin@example.test"),
+    ):
+        href = f"/administration/tenant/users/{row.id}/"
+        assert f'<a href="{href}">{email}</a>' in body
+        assert admin.get(href).status_code == 200

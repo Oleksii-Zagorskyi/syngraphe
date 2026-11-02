@@ -4783,3 +4783,13 @@ msgstr "Застосовано"
 
 msgid "Choose one of the interface languages offered."
 msgstr "Оберіть одну із запропонованих мов інтерфейсу."
+
+msgid "Administrator: reads every document in the organisation"
+msgstr "Адміністратор: читає всі документи організації"
+
+msgid "blocked: none of this applies now"
+msgstr "заблоковано: зараз нічого з цього не діє"
+
+msgctxt "a member's page"
+msgid "(author)"
+msgstr "(автор)"

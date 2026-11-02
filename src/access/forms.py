@@ -30,6 +30,15 @@ class MemberForm(forms.Form):
     )
 
 
+class GroupChoiceForm(forms.Form):
+    """A group to add a member to or take them out of, from the member's own page (DL-0505)."""
+
+    group = forms.UUIDField()
+    action = forms.ChoiceField(
+        choices=[("add", "add"), ("remove", "remove")], required=False, initial="add"
+    )
+
+
 class LinkForm(forms.Form):
     group = forms.UUIDField()
     action = forms.ChoiceField(choices=[("link", "link"), ("unlink", "unlink")])

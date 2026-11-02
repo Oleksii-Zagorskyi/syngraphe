@@ -194,6 +194,51 @@ def rights_on_many(user: Any, document_ids: Iterable[Any]) -> dict[Any, frozense
     return result
 
 
+def member_rights(membership: Membership) -> dict[Any, frozenset[Right]]:
+    """What `membership`'s groups and the documents' links give it, per active document, in the
+    tenant the connection is set to (DL-0505): each linked group's implied rights, taken group by
+    group, and the author's own reach on an author-only document its person created, linked or
+    not. Read from the groups alone — never through the person's own block, which an
+    organisation's page does not show (DL-0398) — and whatever the membership's own state. An
+    administrator's reading is not here: their page names it in one line."""
+    from access.models import DocumentGroup, GroupMember, GroupRight
+    from documents.models import Document, DocumentState
+
+    groups = set(
+        GroupMember.objects.filter(membership=membership).values_list("group_id", flat=True)
+    )
+    links = list(
+        DocumentGroup.objects.filter(group_id__in=groups).values_list("document_id", "group_id")
+    )
+    granted: dict[Any, set[Right]] = {}
+    for group_id, right in GroupRight.objects.filter(group_id__in=groups).values_list(
+        "group_id", "right"
+    ):
+        granted.setdefault(group_id, set()).add(Right(right))
+    groups_of: dict[Any, list[Any]] = {}
+    for document_id, group_id in links:
+        groups_of.setdefault(document_id, []).append(group_id)
+    own = set(
+        Document.objects.filter(author_only=True, created_by_id=membership.user_id).values_list(
+            "id", flat=True
+        )
+    )
+    active = Document.objects.filter(
+        pk__in=set(groups_of) | own, state=DocumentState.ACTIVE
+    ).values_list("id", flat=True)
+    result: dict[Any, frozenset[Right]] = {}
+    for document_id in active:
+        rights: set[Right] = set()
+        for group_id in groups_of.get(document_id, []):
+            rights |= implied(granted.get(group_id, set()))
+        if document_id in own:
+            rights |= AUTHOR_ONLY
+        # A link whose groups hold nothing that reaches the document gives the member nothing.
+        if rights:
+            result[document_id] = frozenset(rights)
+    return result
+
+
 # Every step of the ladder above canonical text lets a person read a document as it now stands.
 BEYOND_CANONICAL = frozenset(LADDER[1:])
 

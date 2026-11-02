@@ -132,6 +132,7 @@ UNREACHED: dict[str, str] = {
 BODIES: dict[str, dict[str, str]] = {
     "group_rights": {"right": "accept", "action": "grant"},
     "document_link": {"group": "{group_id}", "action": "link"},
+    "member_groups": {"group": "{group_id}", "action": "add"},
     "folder_new": {"parent": "1", "name": "Synthetic folder"},
 }
 QUERIES: dict[str, str] = {

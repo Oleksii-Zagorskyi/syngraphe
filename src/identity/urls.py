@@ -18,6 +18,12 @@ urlpatterns = [
     ),
     path("administration/tenant/users/", users.users, name="users"),
     path("administration/tenant/users/invite/", users.invite, name="invite"),
+    path("administration/tenant/users/<uuid:membership_id>/", users.member, name="member"),
+    path(
+        "administration/tenant/users/<uuid:membership_id>/groups/",
+        users.member_groups,
+        name="member_groups",
+    ),
     path(
         "administration/tenant/users/<uuid:membership_id>/block/",
         users.block,

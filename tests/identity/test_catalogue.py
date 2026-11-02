@@ -153,6 +153,17 @@ def test_catalogue_covers_people_pages(
     bodies["the last platform administrator's own block"] = platform.get(
         "/account/block/"
     ).content.decode()
+    # A member's page: an ordinary member, an administrator, a blocked membership (DL-0505).
+    from identity.models import Membership
+
+    for label, membership in (
+        ("a member's page", Membership.objects.get(user__email="q.synthetic@example.test")),
+        ("an administrator's page", Membership.objects.get(user=admin_user)),
+        ("a blocked member's page", blocked),
+    ):
+        page = admin.get(f"/administration/tenant/users/{membership.pk}/")
+        assert page.status_code == 200, label
+        bodies[label] = page.content.decode()
     # The account page: a member's, the last platform administrator's, a refused value, applied.
     bodies["my account"] = member_client.get("/account/").content.decode()
     bodies["the last platform administrator's account"] = platform.get("/account/").content.decode()

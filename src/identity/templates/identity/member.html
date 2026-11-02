@@ -1,0 +1,30 @@
+{% extends "shell/administration.html" %}
+{% load i18n %}
+{% block title %}{{ shown.email }} · Syngraphē{% endblock %}
+{% block section %}
+<div id="member">
+  <h1>{{ shown.email }}</h1>
+  <p class="state" data-state="{{ shown.state }}">{% if shown.state == "blocked" %}{% translate "blocked" context "membership" %}{% else %}{% translate "active" context "membership" %}{% endif %}</p>
+  {% include "identity/member_groups.html" %}
+  {% if blocked %}<p class="note">{% translate "blocked: none of this applies now" %}</p>{% endif %}
+  {% if membership.is_tenant_admin %}
+  <p class="note" data-administrator>{% translate "Administrator: reads every document in the organisation" %}</p>
+  {% else %}
+  <table class="grid member-rights">
+    <thead>
+      <tr><th>{% translate "Document" %}</th>{% for column in columns %}<th data-right="{{ column.right }}" class="rotated"><span>{{ column.label }}</span></th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for folder in folders %}
+      <tr class="folder"><th colspan="{{ columns|length|add:1 }}">{{ folder.path }}</th></tr>
+      {% for row in folder.rows %}
+      <tr data-document="{{ row.document.number }}"><th scope="row"><span class="id">#{{ row.document.number }}</span> <a href="/document/{{ row.document.number }}/">{{ row.document.title }}</a>{% if row.author %} <span class="note">{% translate "(author)" context "a member's page" %}</span>{% endif %}</th>{% for cell in row.cells %}<td data-right="{{ cell.right }}" class="right">{% if cell.held %}✓{% endif %}</td>{% endfor %}</tr>
+      {% endfor %}
+      {% empty %}
+      <tr><td colspan="{{ columns|length|add:1 }}" class="muted">{% translate "No documents yet." %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}
