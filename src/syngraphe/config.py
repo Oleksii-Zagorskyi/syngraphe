@@ -25,17 +25,30 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 IPNetwork = ipaddress.IPv4Network | ipaddress.IPv6Network
 
 
+# The interface languages the catalogue serves: the message ids' own and the Ukrainian.
+LANGUAGE_CODES = ("uk", "en")
+
+
 class ConfigurationError(Exception):
     """Raised with every missing and malformed key at once."""
 
-    def __init__(self, missing: list[str], malformed: list[str]) -> None:
+    def __init__(
+        self, missing: list[str], malformed: list[str], allowed: Mapping[str, str] | None = None
+    ) -> None:
         self.missing = sorted(missing)
         self.malformed = sorted(malformed)
+        allowed = allowed or {}
         parts = []
         if self.missing:
             parts.append("missing: " + ", ".join(self.missing))
         if self.malformed:
-            parts.append("malformed: " + ", ".join(self.malformed))
+            parts.append(
+                "malformed: "
+                + ", ".join(
+                    f"{key} (one of {allowed[key]})" if key in allowed else key
+                    for key in self.malformed
+                )
+            )
         super().__init__("Configuration incomplete — " + "; ".join(parts))
 
 
@@ -70,6 +83,8 @@ class _Reader:
         self.environ = environ
         self.missing: list[str] = []
         self.malformed: list[str] = []
+        # What a malformed key may hold, where the values are few enough to name.
+        self.allowed: dict[str, str] = {}
 
     def raw(self, key: str, default: str | None = None) -> str | None:
         value = self.environ.get(key)
@@ -142,6 +157,14 @@ class _Reader:
                 self.malformed.append(key)
         return value
 
+    def language(self, key: str) -> str:
+        """One of the interface languages the catalogue serves."""
+        value = self.string(key)
+        if value and value not in LANGUAGE_CODES:
+            self.malformed.append(key)
+            self.allowed[key] = ", ".join(LANGUAGE_CODES)
+        return value
+
     def size(self, key: str, default: str) -> int:
         """A size in bytes, written plainly or with a suffix counted in powers of 1024, as
         pgBackRest counts them: `2GiB` and `2GB` are the same size."""
@@ -192,7 +215,7 @@ def load(environ: Mapping[str, str] | None = None) -> Config:
         git_repo_root=reader.directory("GIT_REPO_ROOT"),
         trusted_proxies=reader.networks("TRUSTED_PROXIES"),
         display_timezone=reader.timezone("DISPLAY_TIMEZONE"),
-        default_language=reader.string("DEFAULT_LANGUAGE"),
+        default_language=reader.language("DEFAULT_LANGUAGE"),
         backup_state_dir=Path(reader.string("BACKUP_STATE_DIR", "/srv/backup-state")),
         backup_lock_timeout=reader.seconds("BACKUP_LOCK_TIMEOUT", "30"),
         backup_wal_alert=reader.size("BACKUP_WAL_ALERT", "2GiB"),
@@ -204,5 +227,5 @@ def load(environ: Mapping[str, str] | None = None) -> Config:
         upload_max_bytes=reader.integer("UPLOAD_MAX_MB", "20", minimum=1) * 1024 * 1024,
     )
     if reader.missing or reader.malformed:
-        raise ConfigurationError(reader.missing, reader.malformed)
+        raise ConfigurationError(reader.missing, reader.malformed, reader.allowed)
     return config

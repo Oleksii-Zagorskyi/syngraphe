@@ -164,3 +164,15 @@ def test_help_work_in_progress_malformed() -> None:
     with pytest.raises(config.ConfigurationError) as caught:
         config.load(dict(COMPLETE, HELP_WORK_IN_PROGRESS="maybe"))
     assert caught.value.malformed == ["HELP_WORK_IN_PROGRESS"]
+
+
+def test_default_language_is_one_of_the_two() -> None:
+    """The interface's default is one of the languages the catalogue serves (DL-0498); any other
+    value is refused at start with the key and the two values named."""
+    assert config.load(dict(COMPLETE, DEFAULT_LANGUAGE="en")).default_language == "en"
+    with pytest.raises(config.ConfigurationError) as caught:
+        config.load(dict(COMPLETE, DEFAULT_LANGUAGE="de"))
+
+    assert caught.value.malformed == ["DEFAULT_LANGUAGE"]
+    assert "DEFAULT_LANGUAGE" in str(caught.value)
+    assert "uk" in str(caught.value) and "en" in str(caught.value)

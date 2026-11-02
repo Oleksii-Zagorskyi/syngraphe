@@ -1,0 +1,27 @@
+{% extends "shell/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "My account" %} · Syngraphē{% endblock %}
+{% block content %}
+<section class="dlg account">
+  <h1>{% translate "My account" %}</h1>
+  <p><span class="muted">{% translate "Email address" %}</span> {{ user.email }}</p>
+  <form method="post" action="/account/">
+    {% csrf_token %}
+    {% if refused %}<p class="err" role="alert">{% translate "Choose one of the interface languages offered." %}</p>{% endif %}
+    <label for="language">{% translate "Language" %}</label>
+    <select id="language" name="language">{% for code, name in languages %}<option value="{{ code }}"{% if code == chosen %} selected{% endif %} lang="{{ code }}">{{ name }}</option>{% endfor %}</select>
+    <button class="btn primary" type="submit">{% translate "Apply" %}</button>
+    {% if applied %}<p class="note" role="status">{% translate "Applied" %}</p>{% endif %}
+  </form>
+  {% if not user.self_blocked %}
+  <div class="foot">
+    {% if last %}
+    <span class="btn disabled" aria-disabled="true">{% translate "Block my account…" %}</span>
+    <p class="note">{% translate "The last platform administrator cannot block their own account." %}</p>
+    {% else %}
+    <a class="btn" href="/account/block/">{% translate "Block my account…" %}</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

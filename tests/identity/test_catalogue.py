@@ -153,6 +153,15 @@ def test_catalogue_covers_people_pages(
     bodies["the last platform administrator's own block"] = platform.get(
         "/account/block/"
     ).content.decode()
+    # The account page: a member's, the last platform administrator's, a refused value, applied.
+    bodies["my account"] = member_client.get("/account/").content.decode()
+    bodies["the last platform administrator's account"] = platform.get("/account/").content.decode()
+    bodies["my account, refused"] = member_client.post(
+        "/account/", {"language": "xx"}
+    ).content.decode()
+    applied = member_client.post("/account/", {"language": "uk"})
+    assert applied.status_code == 303
+    bodies["my account, applied"] = member_client.get(applied["Location"]).content.decode()
     session = platform.session
     session.pop("tenant_number", None)
     session.save()

@@ -6,6 +6,7 @@ urlpatterns = [
     path("setup/", setup.setup, name="setup"),
     path("signin/", signin.signin, name="signin"),
     path("signout/", signin.signout, name="signout"),
+    path("account/", account.account, name="account"),
     path("account/block/", account.block_account, name="block_account"),
     path("preferences/show-author/", preferences.show_author, name="preference_show_author"),
     path("preferences/outline-width/", preferences.outline_width, name="preference_outline_width"),

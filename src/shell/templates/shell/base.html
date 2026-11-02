@@ -30,7 +30,7 @@
     {% if user.is_authenticated %}
     <div class="user">
       <span class="muted">{{ user.email }}</span>
-      {% block user_menu %}{% if views.my_reservations %}<a class="muted" href="/my-reservations/">{% translate "My reservations" %}</a>{% endif %}{% if not user.self_blocked %}<a class="muted" href="/account/block/">{% translate "Block my account…" %}</a>{% endif %}{% endblock %}
+      {% block user_menu %}{% if views.my_reservations %}<a class="muted" href="/my-reservations/">{% translate "My reservations" %}</a>{% endif %}<a class="muted" href="/account/">{% translate "My account" %}</a>{% endblock %}
       <form method="post" action="/signout/" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Sign out" %}</button></form>
     </div>
     {% endif %}

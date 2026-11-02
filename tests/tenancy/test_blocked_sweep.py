@@ -75,6 +75,7 @@ EXEMPT: dict[str, str] = {
     "setup": "the installation's first run, before any organisation",
     "signin": "signing in reads no organisation's content",
     "signout": "signing out reads no organisation's content",
+    "account": "a person's own account (its POST writes the actor's own language)",
     "block_account": "a person's own account (its POST blocks the actor's own account)",
     "reset_request": "a person's own account",
     "reset_password": "a person's own account, reached by its token",

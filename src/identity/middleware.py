@@ -1,4 +1,5 @@
-"""The framework's own administration interface, confined (DL-0210)."""
+"""The request's interface language (DL-0501), and the framework's own administration interface,
+confined (DL-0210)."""
 
 from __future__ import annotations
 
@@ -6,9 +7,34 @@ from collections.abc import Callable
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
+from django.utils import translation
 
 from audit.record import record
+from identity.language import language_of
 from shell.views import not_found
+from tenancy.middleware import EXEMPT_PATHS
+
+
+class LanguageMiddleware:
+    """Each request in its person's interface language, the default before sign-in. The thread's
+    language is set back on the way out, whatever happens, so the next request served on it
+    never inherits this one's."""
+
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
+        self.get_response = get_response
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        # The health probe answers whatever state the database is in; it reads no person.
+        if request.path in EXEMPT_PATHS:
+            return self.get_response(request)
+        language = language_of(getattr(request, "user", None))
+        translation.activate(language)
+        # What the `i18n` context processor reads: the page's `lang` follows.
+        request.LANGUAGE_CODE = language
+        try:
+            return self.get_response(request)
+        finally:
+            translation.deactivate()
 
 
 class FrameworkAdminMiddleware:

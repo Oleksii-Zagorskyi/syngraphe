@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from celery.schedules import crontab
+from django.conf.locale import LANG_INFO
 
 from syngraphe import config
 
@@ -57,6 +58,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "tenancy.middleware.TenancyMiddleware",
+    # The person's own interface language, once they are known (DL-0501).
+    "identity.middleware.LanguageMiddleware",
     "identity.middleware.FrameworkAdminMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -212,6 +215,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = _CONFIG.default_language
+# The interface languages a person may choose (DL-0498), each named in itself.
+LANGUAGES = [(code, LANG_INFO[code]["name_local"]) for code in config.LANGUAGE_CODES]
 # One catalogue for every app; message ids are English and the catalogue carries Ukrainian.
 LOCALE_PATHS = [BASE_DIR / "shell" / "locale"]
 TIME_ZONE = "UTC"

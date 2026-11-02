@@ -191,15 +191,17 @@ def test_self_block_is_one_transaction(
         assert Hold.objects.get(pk=hold.pk).released_at is None
 
 
-def test_the_menu_offers_it_to_everyone_signed_in(migrated_tenant: Any, member_of: Any) -> None:
+def test_the_menu_opens_the_account_page(migrated_tenant: Any, member_of: Any) -> None:
+    """The user menu offers *My account*, where the block now stands apart (DL-0499, DL-0500)."""
     client, _, _ = member_of("a.member@example.test")
 
     page = client.get("/folder/1/").content.decode()
 
-    assert f'href="{BLOCK}"' in page and "Block my account…" in page
-    assert (
-        f'href="{BLOCK}"'
-        not in Client(headers={"host": "127.0.0.1"}).get("/signin/").content.decode()
+    assert 'href="/account/"' in page and "My account" in page
+    assert f'href="{BLOCK}"' not in page
+    assert f'href="{BLOCK}"' in client.get("/account/").content.decode()
+    assert 'href="/account/"' not in (
+        Client(headers={"host": "127.0.0.1"}).get("/signin/").content.decode()
     )
 
 

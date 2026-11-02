@@ -4773,3 +4773,12 @@ msgstr "… ще %(count)s"
 
 msgid "Settings, access history and the audit log"
 msgstr "Налаштування, історія доступу і журнал аудиту"
+
+msgid "My account"
+msgstr "Мій обліковий запис"
+
+msgid "Applied"
+msgstr "Застосовано"
+
+msgid "Choose one of the interface languages offered."
+msgstr "Оберіть одну із запропонованих мов інтерфейсу."
