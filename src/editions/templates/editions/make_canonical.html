@@ -4,7 +4,7 @@
 <div class="make-canonical-confirm">
   <h2>{% translate "Make canonical" %}</h2>
   {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-  <p>{% blocktranslate with accepted=accepted number=number %}Version {{ accepted }} becomes edition {{ number }}, and the freeze ends. An edition is never undone: the next one supersedes it.{% endblocktranslate %}</p>
+  <p>{% if frozen %}{% blocktranslate with accepted=accepted number=number %}Version {{ accepted }} becomes edition {{ number }}, and the freeze ends.{% endblocktranslate %}{% else %}{% blocktranslate with accepted=accepted number=number %}Version {{ accepted }} becomes edition {{ number }}.{% endblocktranslate %}{% endif %} {% translate "An edition is never undone: the next one supersedes it." %}</p>
   <form method="post" action="/document/{{ document.number }}/make-canonical/">
     {% csrf_token %}
     <input type="hidden" name="confirmed" value="{{ confirmed }}">

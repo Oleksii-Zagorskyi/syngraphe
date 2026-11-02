@@ -177,7 +177,7 @@ def _via(via: str) -> dict[str, str]:
 
 class CanonicalRefused(Exception):
     """*Make canonical* the document's state or the person's rights do not allow; `reason` names
-    why: `not_permitted`, `not_frozen`, `nothing_accepted`, `unaccepted_changes`,
+    why: `not_permitted`, `held`, `nothing_accepted`, `unaccepted_changes`,
     `distinct_approver`, `accepted_changed`. It never names a pending number (DL-0234)."""
 
     def __init__(self, reason: str) -> None:
@@ -200,18 +200,15 @@ def _since_edition(document: Document) -> list[Acceptance]:
     return [a for a in acceptances if review.number_key(a.number) > floor]
 
 
-def canonical_refusal(document: Document, user: User, *, once_frozen: bool = False) -> str | None:
+def canonical_refusal(document: Document, user: User) -> str | None:
     """Why `user` may not make `document` canonical now, or `None`, in the act's order: the
-    right; a freeze; an acceptance since the previous edition; no content version since the
-    latest acceptance (DL-0267); with the tenant's check on, an approver who accepted none of the
-    runs since the previous edition (DL-0115). `once_frozen` asks what would refuse it once
-    frozen, so a command freezes nothing it could not then make canonical."""
+    right; a hold; an acceptance since the previous edition; no content version since the latest
+    acceptance (DL-0267); with the tenant's check on, an approver who accepted none of the runs
+    since the previous edition (DL-0115). A freeze is not asked for (DL-0515)."""
     if document.state != DocumentState.ACTIVE or Right.MAKE_CANONICAL not in rights_on(
         user, document
     ):
         return "not_permitted"
-    if not once_frozen and open_freeze(document) is None:
-        return "not_frozen"
     # Ending the freeze beneath a holder changes their rules mid-session: it waits (DL-0419).
     if holds.open_hold(document) is not None:
         return "held"
@@ -352,7 +349,7 @@ def derive_approval(document: Document, sha: str, derivation: ApprovalDerivation
     repo = gitstore.open_repository(holds.tenant_number(), document.number)
     if tagged(repo, entry.number) is None:
         _tag(repo, sha, derivation)
-    return _edition_rows(document, sha, derivation)
+    return _edition_rows(document, sha, derivation, repair=True)
 
 
 def _tag(repo: pygit2.Repository, sha: str, derivation: ApprovalDerivation) -> None:
@@ -370,17 +367,25 @@ def _tag(repo: pygit2.Repository, sha: str, derivation: ApprovalDerivation) -> N
 
 
 def _edition_rows(
-    document: Document, sha: str, derivation: ApprovalDerivation, *, via: str = ""
+    document: Document,
+    sha: str,
+    derivation: ApprovalDerivation,
+    *,
+    via: str = "",
+    repair: bool,
 ) -> Edition:
     """The approval's version row, its `EDITION` and the freeze's end, in one transaction: an
-    edition is never recorded with its freeze still open."""
+    edition is never recorded with its freeze still open. With no freeze open the edition keeps
+    one begun and ended at the approval: the approval's own when it is made (DL-0515), a repair's
+    when a stopped approval is settled or the rows lost it (`repair`, DL-0355)."""
     entry, approver = derivation.entry, derivation.approver
     assert entry.number is not None
     repo = gitstore.open_repository(holds.tenant_number(), document.number)
     with transaction.atomic():
         freeze = derivation.freeze
+        unfrozen = freeze is None
         if freeze is None:
-            freeze = _derived_freeze(document, derivation)
+            freeze = _derived_freeze(document, derivation, repair=repair)
         approval = Version.objects.filter(document=document, commit_sha=sha).first()
         if approval is None:
             approval = documents.derive_version(document, gitstore.commit_at(repo, sha), approver)
@@ -404,6 +409,8 @@ def _edition_rows(
                     "edition": entry.number,
                     "commit": sha,
                     **_via(via),
+                    # The approval froze nothing: its freeze is its own (DL-0515).
+                    **({"freeze": "none open"} if unfrozen and not repair else {}),
                 },
                 tenant=Tenant.objects.get(number=holds.tenant_number()),
             )
@@ -421,9 +428,10 @@ def _edition_rows(
     return edition
 
 
-def _derived_freeze(document: Document, derivation: ApprovalDerivation) -> Freeze:
-    """The freeze an approval proves, where the rows lost it (DL-0355): frozen and ended at the
-    approval's time by the approver, made canonical, no reason — audited as the platform's."""
+def _derived_freeze(document: Document, derivation: ApprovalDerivation, *, repair: bool) -> Freeze:
+    """A freeze begun and ended at the approval's time by the approver, made canonical, no
+    reason: an approval's own where none was open (DL-0515), audited with the approval; a
+    repair's where the rows lost it (DL-0355), audited as the platform's derivation."""
     entry = derivation.entry
     freeze = Freeze.objects.create(
         document=document,
@@ -434,14 +442,15 @@ def _derived_freeze(document: Document, derivation: ApprovalDerivation) -> Freez
         ended_by=derivation.approver,
         ended_at=entry.at,
     )
-    record(
-        actor=None,
-        action="document.freeze_derived",
-        obj=document,
-        before=None,
-        after={"number": document.number, "freeze": str(freeze.pk), "edition": entry.number},
-        tenant=Tenant.objects.get(number=holds.tenant_number()),
-    )
+    if repair:
+        record(
+            actor=None,
+            action="document.freeze_derived",
+            obj=document,
+            before=None,
+            after={"number": document.number, "freeze": str(freeze.pk), "edition": entry.number},
+            tenant=Tenant.objects.get(number=holds.tenant_number()),
+        )
     return freeze
 
 
@@ -517,8 +526,8 @@ def make_canonical_locked(
         accepted = target[0]
         if confirmed is not None and accepted.commit_sha != confirmed:
             raise CanonicalRefused("accepted_changed")
+        # `None` with no freeze open: the approval writes its own (DL-0515).
         freeze = open_freeze(locked)
-        assert freeze is not None
         head = gitstore.head(repo)
         assert head is not None
         number = next_edition(review.passport_at(repo, head))
@@ -550,7 +559,7 @@ def make_canonical_locked(
     _tag(repo, sha, derivation)
     _fault(2, fault_at)
     # (3) The version and `EDITION` rows, audited, and the freeze ended.
-    edition = _edition_rows(document, sha, derivation, via=via)
+    edition = _edition_rows(document, sha, derivation, via=via, repair=False)
     _fault(3, fault_at)
     # The edition's rows kept beside the new head's (DL-0266), as an acceptance asks.
     for kept in (accepted.commit_sha, sha):

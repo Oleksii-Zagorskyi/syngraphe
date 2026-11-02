@@ -369,3 +369,53 @@ def test_a_freeze_and_its_unfreeze_keep_their_place_within_one_second(
     with schema_context(migrated_tenant.number):
         events = [e.event for e in entries(everything, document)]
     assert events == ["created", "freeze", "unfreeze", "edit"]
+
+
+def test_an_unfrozen_approval_draws_no_freeze(
+    migrated_tenant: Any, cast: Any, link_group: Any, member_of: Any, commit_version: Any
+) -> None:
+    """Row 6: the first edition, made with no freeze open, is listed with no freeze entry — its
+    row exists and is not drawn; the second, made under a real freeze, keeps its freeze where it
+    began."""
+    from editions import services as editions
+    from editions.models import Freeze
+    from review import services
+    from review.history import entries
+
+    people = _people(cast, link_group)
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        services.accept(document, people["r"])
+        editions.make_canonical(document, people["r"])
+    commit_version(document, people["a"], SECOND, "edit")
+    with schema_context(migrated_tenant.number):
+        services.accept(document, people["r"])
+        editions.freeze(document, people["r"], REASON)
+        editions.make_canonical(document, people["r"])
+    everything = _reader(
+        member_of, link_group, people, [Right.VIEW_PENDING, Right.VIEW_ALL_HISTORY], "all"
+    )
+
+    with schema_context(migrated_tenant.number):
+        listed = entries(everything, document)
+        freezes = list(Freeze.objects.filter(document=document).order_by("frozen_at"))
+
+    assert [e.event for e in listed] == [
+        "created",
+        "edit",
+        "acceptance",
+        "approval",
+        "edit",
+        "acceptance",
+        "freeze",
+        "approval",
+    ]
+    assert [e.number for e in listed if e.event == "approval"] == ["1.0", "2.0"]
+    # Two freeze rows stand — the approval's own and the real one; the tab draws the real one.
+    assert len(freezes) == 2
+    assert freezes[0].frozen_at == freezes[0].ended_at and freezes[0].reason == ""
+    # The real one carries its reason; within its second it may be zero-length too.
+    assert freezes[1].reason == REASON
+    [drawn] = [e for e in listed if e.event == "freeze"]
+    assert drawn.at == freezes[1].frozen_at

@@ -1013,12 +1013,17 @@ msgstr "Затвердити"
 
 #: editions/templates/editions/make_canonical.html:7
 #, python-format
-msgid ""
-"Version %(accepted)s becomes edition %(number)s, and the freeze ends. An "
-"edition is never undone: the next one supersedes it."
-msgstr ""
-"Версія %(accepted)s стане редакцією %(number)s, а заморожування завершиться. "
-"Редакцію не скасовують: її замінює наступна."
+msgid "Version %(accepted)s becomes edition %(number)s, and the freeze ends."
+msgstr "Версія %(accepted)s стане редакцією %(number)s, а заморожування завершиться."
+
+#: editions/templates/editions/make_canonical.html:7
+#, python-format
+msgid "Version %(accepted)s becomes edition %(number)s."
+msgstr "Версія %(accepted)s стане редакцією %(number)s."
+
+#: editions/templates/editions/make_canonical.html:7
+msgid "An edition is never undone: the next one supersedes it."
+msgstr "Редакцію не скасовують: її замінює наступна."
 
 #: editions/templates/editions/make_canonical.html:11
 #, python-format
@@ -1037,10 +1042,6 @@ msgstr "Документ зайнятий; заморозьте його, кол
 #, python-format
 msgid "The reason is one line of at most %(count)s characters."
 msgstr "Причина — один рядок, не більше %(count)s символів."
-
-#: editions/views.py:36
-msgid "Freeze the document first."
-msgstr "Спершу заморозьте документ."
 
 #: editions/views.py:37
 msgid "Nothing new has been accepted to make canonical."

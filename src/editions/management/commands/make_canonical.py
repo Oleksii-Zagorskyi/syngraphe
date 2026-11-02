@@ -72,7 +72,7 @@ class Command(BaseCommand):
             if Right.FREEZE not in rights_on(user, document):
                 raise services.CanonicalRefused("not_permitted")
             if open_freeze(document) is None:
-                refused = services.canonical_refusal(document, user, once_frozen=True)
+                refused = services.canonical_refusal(document, user)
                 latest = latest_edition(document)
                 if refused == "nothing_accepted" and latest is not None:
                     self.stdout.write(

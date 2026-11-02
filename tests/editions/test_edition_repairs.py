@@ -440,20 +440,37 @@ def test_the_confirmation_refuses_after_a_stopped_approval(
     assert "becomes edition" not in body
 
 
+GONE = "Freeze the document first."
+
+
+def _control(page: str) -> str:
+    """The attributes of the *Make canonical* control, as drawn on the document page."""
+    return page.split('data-command="make-canonical"')[1].split(">")[0]
+
+
+# replaces tests/editions/test_edition_repairs.py::test_the_refusals_are_drawn_with_their_reasons
 def test_the_refusals_are_drawn_with_their_reasons(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
 ) -> None:
-    from editions import services as editions
+    """Row 4: with `0.1` accepted and no freeze, the control is enabled and no reason drawn; with a
+    version waiting, the reason is the review's, never a freeze's."""
+    from editions.models import open_freeze
 
     settings.LANGUAGE_CODE = "en"
     people = edition_cast()
-    commit_version(people.document, people["a"], FIRST, "edit")
+    document = people.document
+    url = f"/document/{document.number}/"
+    commit_version(document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
-        review.accept(people.document, people["r"])
-    page = people.clients["p"].get(f"/document/{people.document.number}/").content.decode()
-    assert "Freeze the document first." in page
-    commit_version(people.document, people["a"], SECOND, "edit")
-    with schema_context(migrated_tenant.number):
-        editions.freeze(people.document, people["p"], REASON)
-    page = people.clients["p"].get(f"/document/{people.document.number}/").content.decode()
+        review.accept(document, people["r"])
+        assert open_freeze(document) is None
+
+    page = people.clients["p"].get(url).content.decode()
+    assert GONE not in page
+    assert "disabled" not in _control(page)
+
+    commit_version(document, people["a"], SECOND, "edit")
+    page = people.clients["p"].get(url).content.decode()
     assert "Changes are waiting for review; they must be accepted first." in page
+    assert "disabled" in _control(page)
+    assert GONE not in page

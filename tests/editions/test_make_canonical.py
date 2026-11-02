@@ -8,6 +8,9 @@ People and groups are synthetic examples; the text is invented.
 
 from __future__ import annotations
 
+import html
+import inspect
+import re
 from typing import Any
 
 import pygit2
@@ -45,121 +48,6 @@ def _tag(migrated_tenant: Any, document: Any, name: str) -> pygit2.Tag | None:
 
 def _passport(repository: Any, document: Any) -> list[bundle.PassportEntry]:
     return bundle.passport_entries(repository.read(document, "passport.md"))
-
-
-def test_edition_is_a_tagged_passport_commit(
-    migrated_tenant: Any,
-    edition_cast: Any,
-    commit_version: Any,
-    repository: Any,
-) -> None:
-    from editing import numbering
-    from editions import services as editions
-    from editions.models import Edition, Freeze, open_freeze
-    from review.state import state
-
-    people = edition_cast()
-    document, approver = people.document, people["p"]
-    commit_version(document, people["a"], FIRST, "edit")
-    with schema_context(migrated_tenant.number):
-        review.accept(document, people["r"])
-    approved = commit_version(document, people["a"], SECOND, "edit")
-    with schema_context(migrated_tenant.number):
-        assert review.accept(document, people["r"]).number == "0.2"
-        freeze = editions.freeze(document, approver, REASON)
-    before = repository.head(document)
-    passport_before = repository.read(document, "passport.md")
-
-    with schema_context(migrated_tenant.number):
-        edition = editions.make_canonical(document, approver)
-
-    head = repository.head(document)
-    # One commit of kind `approval` on top of the `0.2` acceptance, the text unchanged.
-    assert repository.kinds(document) == [
-        "created",
-        "edit",
-        "acceptance",
-        "edit",
-        "acceptance",
-        "approval",
-    ]
-    assert repository.parent(document, head) == before
-    assert repository.read(document, "document.md", head) == repository.read(
-        document, "document.md", approved.commit_sha
-    )
-    # The passport gains `## approval 1.0`, every earlier byte kept.
-    passport = repository.read(document, "passport.md", head)
-    assert passport.startswith(passport_before)
-    last = _passport(repository, document)[-1]
-    assert last.kind == "approval"
-    assert last.number == "1.0"
-    assert last.edition == "1.0"
-    assert last.version == approved.commit_sha
-    assert last.by == str(approver.pk)
-    assert approver.email not in passport
-
-    # An annotated tag `1.0` on the approval commit, by the approver's identity (DL-0260).
-    tag = _tag(migrated_tenant, document, "1.0")
-    assert tag is not None
-    assert str(tag.peel(pygit2.Commit).id) == head
-    assert tag.tagger.name == str(approver.pk)
-    assert tag.tagger.email == f"{approver.pk}@{DOMAIN}"
-
-    with schema_context(migrated_tenant.number):
-        row = Edition.objects.get()
-        assert row.pk == edition.pk
-        assert row.number == "1.0"
-        assert row.version_id == approved.pk
-        assert row.approval_version.commit_sha == head
-        assert row.approval_version.kind == "approval"
-        assert row.freeze_id == freeze.pk
-        assert row.approved_by_id == approver.pk
-        assert row.approved_at is not None
-
-        ended = Freeze.objects.get(pk=freeze.pk)
-        assert ended.ended_by_kind == "made_canonical"
-        assert ended.ended_at is not None
-        assert open_freeze(document) is None
-
-        assert state(document) == "canonical"
-        assert numbering.edition(document) == "1.0"
-        assert numbering.accepted(document) == "1.0"
-        # No longer frozen: the control's reason is the first refusal again.
-        assert editions.canonical_refusal(document, approver) == "not_frozen"
-
-    event = AuditEvent.objects.get(action="document.made_canonical")
-    assert event.actor_id == approver.pk
-    assert event.object_id == document.pk
-
-
-def test_needs_a_freeze(
-    migrated_tenant: Any, edition_cast: Any, commit_version: Any, repository: Any
-) -> None:
-    from editions import services as editions
-    from editions.models import Edition
-
-    people = edition_cast()
-    document, approver = people.document, people["p"]
-    commit_version(document, people["a"], FIRST, "edit")
-    with schema_context(migrated_tenant.number):
-        review.accept(document, people["r"])
-    head = repository.head(document)
-
-    with schema_context(migrated_tenant.number):
-        assert editions.canonical_refusal(document, approver) == "not_frozen"
-        with pytest.raises(editions.CanonicalRefused) as refused:
-            editions.make_canonical(document, approver)
-        assert refused.value.reason == "not_frozen"
-        assert not Edition.objects.exists()
-
-    # Nothing written: no commit, no tag, no audit.
-    assert repository.head(document) == head
-    assert _tag(migrated_tenant, document, "1.0") is None
-    assert not AuditEvent.objects.filter(action="document.made_canonical").exists()
-    # The control is drawn disabled with its reason.
-    page = people.clients["p"].get(f"/document/{document.number}/").content.decode()
-    control = page.split('data-command="make-canonical"')[1].split(">")[0]
-    assert "disabled" in control
 
 
 def test_refused_over_unaccepted_versions_without_the_number(
@@ -383,3 +271,236 @@ def test_a_notice_after_an_edition_numbers_its_versions_from_it(
     body = client.get(f"/notifications/{notification.pk}/").content.decode()
     assert "1.0-1" in body and "1.0-2" in body
     assert "0.1-" not in body
+
+
+TAIL = "An edition is never undone: the next one supersedes it."
+
+
+def _control(page: str) -> str:
+    """The attributes of the *Make canonical* control, as drawn on the document page."""
+    return page.split('data-command="make-canonical"')[1].split(">")[0]
+
+
+# replaces tests/editions/test_make_canonical.py::test_edition_is_a_tagged_passport_commit
+def test_edition_is_a_tagged_passport_commit(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    repository: Any,
+) -> None:
+    """Row 3: on a frozen document the open freeze ends at the approval, as before; afterwards the
+    control's reason is `nothing_accepted`, no longer a freeze."""
+    from editing import numbering
+    from editions import services as editions
+    from editions.models import Edition, Freeze, open_freeze
+    from review.state import state
+
+    people = edition_cast()
+    document, approver = people.document, people["p"]
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+    approved = commit_version(document, people["a"], SECOND, "edit")
+    with schema_context(migrated_tenant.number):
+        assert review.accept(document, people["r"]).number == "0.2"
+        freeze = editions.freeze(document, approver, REASON)
+    before = repository.head(document)
+    passport_before = repository.read(document, "passport.md")
+
+    with schema_context(migrated_tenant.number):
+        edition = editions.make_canonical(document, approver)
+
+    head = repository.head(document)
+    # One commit of kind `approval` on top of the `0.2` acceptance, the text unchanged.
+    assert repository.kinds(document) == [
+        "created",
+        "edit",
+        "acceptance",
+        "edit",
+        "acceptance",
+        "approval",
+    ]
+    assert repository.parent(document, head) == before
+    assert repository.read(document, "document.md", head) == repository.read(
+        document, "document.md", approved.commit_sha
+    )
+    # The passport gains `## approval 1.0`, every earlier byte kept.
+    passport = repository.read(document, "passport.md", head)
+    assert passport.startswith(passport_before)
+    last = _passport(repository, document)[-1]
+    assert last.kind == "approval"
+    assert last.number == "1.0"
+    assert last.edition == "1.0"
+    assert last.version == approved.commit_sha
+    assert last.by == str(approver.pk)
+    assert approver.email not in passport
+
+    # An annotated tag `1.0` on the approval commit, by the approver's identity (DL-0260).
+    tag = _tag(migrated_tenant, document, "1.0")
+    assert tag is not None
+    assert str(tag.peel(pygit2.Commit).id) == head
+    assert tag.tagger.name == str(approver.pk)
+    assert tag.tagger.email == f"{approver.pk}@{DOMAIN}"
+
+    with schema_context(migrated_tenant.number):
+        row = Edition.objects.get()
+        assert row.pk == edition.pk
+        assert row.number == "1.0"
+        assert row.version_id == approved.pk
+        assert row.approval_version.commit_sha == head
+        assert row.approval_version.kind == "approval"
+        assert row.freeze_id == freeze.pk
+        assert row.approved_by_id == approver.pk
+        assert row.approved_at is not None
+
+        ended = Freeze.objects.get(pk=freeze.pk)
+        assert ended.ended_by_kind == "made_canonical"
+        assert ended.ended_at is not None
+        assert open_freeze(document) is None
+
+        assert state(document) == "canonical"
+        assert numbering.edition(document) == "1.0"
+        assert numbering.accepted(document) == "1.0"
+        # Nothing accepted since the edition: the control's reason is that, never a freeze
+        # (DL-0515).
+        assert editions.canonical_refusal(document, approver) == "nothing_accepted"
+
+    event = AuditEvent.objects.get(action="document.made_canonical")
+    assert event.actor_id == approver.pk
+    assert event.object_id == document.pk
+    # A freeze was open: the approval's details carry no `freeze` key, as before.
+    assert "freeze" not in (event.after or {})
+
+
+# replaces tests/editions/test_make_canonical.py::test_needs_a_freeze
+def test_needs_no_freeze(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, repository: Any
+) -> None:
+    """Rows 1 and 2: with an acceptance since the last edition, nothing unaccepted, nobody holding
+    it and no freeze open, the refusal is `None` and the control enabled; the act makes the edition
+    with a freeze row of its own — begun and ended at the approval, by the approver, made canonical,
+    no reason — audited as the approval alone, never as `document.freeze_derived`."""
+    from editions import services as editions
+    from editions.models import Edition, Freeze, open_freeze
+
+    people = edition_cast()
+    document, approver = people.document, people["p"]
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+        assert open_freeze(document) is None
+        assert editions.canonical_refusal(document, approver) is None
+    before = repository.head(document)
+    page = people.clients["p"].get(f"/document/{document.number}/").content.decode()
+    assert "disabled" not in _control(page)
+
+    with schema_context(migrated_tenant.number):
+        edition = editions.make_canonical(document, approver)
+
+    head = repository.head(document)
+    assert repository.parent(document, head) == before
+    assert repository.kinds(document)[-1] == "approval"
+    last = _passport(repository, document)[-1]
+    assert (last.kind, last.number, last.edition) == ("approval", "1.0", "1.0")
+    tag = _tag(migrated_tenant, document, "1.0")
+    assert tag is not None and str(tag.peel(pygit2.Commit).id) == head
+    with schema_context(migrated_tenant.number):
+        row = Edition.objects.get()
+        assert row.pk == edition.pk and row.number == "1.0"
+        assert row.approved_by_id == approver.pk
+        freeze = Freeze.objects.get(pk=row.freeze_id)
+        assert Freeze.objects.filter(document=document).count() == 1
+        assert freeze.frozen_at == freeze.ended_at == row.approved_at
+        assert freeze.frozen_at.microsecond == 0
+        assert freeze.frozen_by_id == freeze.ended_by_id == approver.pk
+        assert freeze.ended_by_kind == "made_canonical"
+        assert freeze.reason == ""
+        assert open_freeze(document) is None
+        assert editions.canonical_refusal(document, approver) == "nothing_accepted"
+
+    made = AuditEvent.objects.get(action="document.made_canonical")
+    assert made.actor_id == approver.pk
+    assert made.object_id == document.pk
+    assert (made.after or {}).get("freeze") == "none open"
+    assert not AuditEvent.objects.filter(action="document.freeze_derived").exists()
+
+
+def test_the_refusals_in_order(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    """Row 4: with no freeze open, each refusal of the act's order — `not_permitted`, `held`,
+    `nothing_accepted`, `unaccepted_changes`, `distinct_approver` — and never `not_frozen`; the
+    view's table has no such key and the service no `once_frozen` keyword."""
+    from editing import holds
+    from editions import services as editions
+    from editions.models import open_freeze
+    from editions.views import CANONICAL_REFUSALS
+
+    migrated_tenant.require_distinct_approver = True
+    migrated_tenant.save()
+    people = edition_cast(editors=("a",), reviewers=("r", "p"), approvers=("p", "t"))
+    document = people.document
+    seen: list[tuple[str, str | None]] = []
+
+    with schema_context(migrated_tenant.number):
+        seen.append(("editor", editions.canonical_refusal(document, people["a"])))
+        seen.append(("nothing accepted", editions.canonical_refusal(document, people["t"])))
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        assert review.accept(document, people["p"]).number == "0.1"
+        seen.append(("accepted by another", editions.canonical_refusal(document, people["t"])))
+        seen.append(("accepted by oneself", editions.canonical_refusal(document, people["p"])))
+    commit_version(document, people["a"], SECOND, "edit")
+    with schema_context(migrated_tenant.number):
+        seen.append(("a version waits", editions.canonical_refusal(document, people["t"])))
+        # Before the approver's own acceptance counts against them.
+        seen.append(("a version waits, oneself", editions.canonical_refusal(document, people["p"])))
+        holds.take(document, people["a"])
+        seen.append(("held", editions.canonical_refusal(document, people["t"])))
+        with pytest.raises(editions.CanonicalRefused) as refused:
+            editions.make_canonical(document, people["t"])
+        assert open_freeze(document) is None
+
+    assert seen == [
+        ("editor", "not_permitted"),
+        ("nothing accepted", "nothing_accepted"),
+        ("accepted by another", None),
+        ("accepted by oneself", "distinct_approver"),
+        ("a version waits", "unaccepted_changes"),
+        ("a version waits, oneself", "unaccepted_changes"),
+        ("held", "held"),
+    ]
+    assert refused.value.reason == "held"
+    assert "not_frozen" not in CANONICAL_REFUSALS
+    assert "once_frozen" not in inspect.signature(editions.canonical_refusal).parameters
+
+
+def test_the_confirmation_names_the_freeze_only_when_open(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """Row 5: *Version 0.1 becomes edition 1.0.* with no freeze open; *…, and the freeze ends.*
+    with one; the tail *An edition is never undone…* in both, in one paragraph."""
+    from editions import services as editions
+
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+    client = people.clients["p"]
+    url = f"/document/{document.number}/make-canonical/"
+
+    unfrozen = client.get(url)
+    with schema_context(migrated_tenant.number):
+        editions.freeze(document, people["p"], REASON)
+    frozen = client.get(url)
+
+    assert unfrozen.status_code == 200
+    body = re.sub(r"\s+", " ", html.unescape(unfrozen.content.decode()))
+    assert f"Version 0.1 becomes edition 1.0. {TAIL}" in body
+    assert "and the freeze ends" not in body
+    assert frozen.status_code == 200
+    body = re.sub(r"\s+", " ", html.unescape(frozen.content.decode()))
+    assert f"Version 0.1 becomes edition 1.0, and the freeze ends. {TAIL}" in body
+    assert "Version 0.1 becomes edition 1.0." not in body

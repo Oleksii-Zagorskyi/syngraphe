@@ -12,6 +12,7 @@ from typing import Any
 import pygit2
 import pytest
 
+from audit.models import AuditEvent
 from documents import bundle, gitstore, reconcile
 from documents.identity import identity_for
 from review import services as review
@@ -135,37 +136,6 @@ def test_reconciler_derives_edition(
     _assert_edition_complete(migrated_tenant, people, repository, accepted, freeze, head)
 
 
-def test_the_next_act_after_a_stop_settles_the_approval_first(
-    migrated_tenant: Any, edition_cast: Any, commit_version: Any, repository: Any
-) -> None:
-    """Stopped after the passport commit, then *make canonical* again: `settle_head` derives the
-    stopped approval under the lock — no `RecordIncomplete`, no second approval
-    commit, no second edition; the retry is refused because the edition is already made."""
-    from editions import services as editions
-    from editions.models import Edition
-
-    people = edition_cast()
-    document = people.document
-    accepted, freeze = _frozen_and_accepted(migrated_tenant, people, commit_version)
-    with schema_context(migrated_tenant.number):
-        with pytest.raises(review.InjectedFault):
-            editions.make_canonical(document, people["p"], fault_at=1)
-    head = repository.head(document)
-
-    with schema_context(migrated_tenant.number):
-        try:
-            editions.make_canonical(document, people["p"])
-        except review.RecordIncomplete as incomplete:  # pragma: no cover — the failure reported
-            pytest.fail(f"the stopped approval was not settled: {incomplete}")
-        except editions.CanonicalRefused as refused:
-            # The settled approval ended the freeze, so the retry meets the first refusal.
-            assert refused.reason == "not_frozen"
-        else:
-            pytest.fail("a second edition was made over the stopped one")
-        assert list(Edition.objects.values_list("number", flat=True)) == ["1.0"]
-    _assert_edition_complete(migrated_tenant, people, repository, accepted, freeze, head)
-
-
 def test_a_version_after_a_stop_settles_the_approval_first(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any, repository: Any
 ) -> None:
@@ -229,3 +199,77 @@ def test_tag_without_passport_reported(
     assert _tag(migrated_tenant, document, "1.0") is not None
     with schema_context(migrated_tenant.number):
         assert not Edition.objects.exists()
+
+
+def _accepted_unfrozen(migrated_tenant: Any, people: Any, commit_version: Any) -> Any:
+    """`0.1` accepted and no freeze open: the accepted content version."""
+    from editions.models import open_freeze
+
+    accepted = commit_version(people.document, people["a"], WRITTEN, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(people.document, people["r"])
+        assert open_freeze(people.document) is None
+    return accepted
+
+
+# replaces tests/editions/test_edition_crash.py
+#   ::test_the_next_act_after_a_stop_settles_the_approval_first
+def test_the_next_act_after_a_stop_settles_the_approval_first(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, repository: Any
+) -> None:
+    """Row 9: stopped after the passport commit of an unfrozen approval, then *make canonical*
+    again: `settle_head` derives the stopped approval under the lock — no `RecordIncomplete`, no
+    second approval commit, no second edition; its zero-length freeze is derived as a repair and
+    `document.freeze_derived` audited; the retry meets `nothing_accepted`."""
+    from editions import services as editions
+    from editions.models import Edition, Freeze, open_freeze
+
+    people = edition_cast()
+    document, approver = people.document, people["p"]
+    accepted = _accepted_unfrozen(migrated_tenant, people, commit_version)
+    with schema_context(migrated_tenant.number):
+        with pytest.raises(review.InjectedFault):
+            editions.make_canonical(document, approver, fault_at=1)
+        assert not Edition.objects.exists()
+        assert not Freeze.objects.filter(document=document).exists()
+    head = repository.head(document)
+
+    with schema_context(migrated_tenant.number):
+        try:
+            editions.make_canonical(document, approver)
+        except review.RecordIncomplete as incomplete:  # pragma: no cover — the failure reported
+            pytest.fail(f"the stopped approval was not settled: {incomplete}")
+        except editions.CanonicalRefused as refused:
+            # The settled approval made the edition, so the retry meets the next refusal.
+            assert refused.reason == "nothing_accepted"
+        else:
+            pytest.fail("a second edition was made over the stopped one")
+
+        assert list(Edition.objects.values_list("number", flat=True)) == ["1.0"]
+        edition = Edition.objects.get()
+        assert edition.version_id == accepted.pk
+        assert edition.approval_version.commit_sha == head
+        assert edition.approval_version.kind == "approval"
+        assert edition.approved_by_id == approver.pk
+        freeze = Freeze.objects.get(pk=edition.freeze_id)
+        assert Freeze.objects.filter(document=document).count() == 1
+        assert freeze.frozen_at == freeze.ended_at == edition.approved_at
+        assert freeze.frozen_by_id == freeze.ended_by_id == approver.pk
+        assert (freeze.reason, freeze.ended_by_kind) == ("", "made_canonical")
+        assert open_freeze(document) is None
+
+    # The repository as a whole act leaves it: one approval at `head`, tagged by the approver.
+    assert repository.head(document) == head
+    assert repository.kinds(document).count("approval") == 1
+    tag = _tag(migrated_tenant, document, "1.0")
+    assert tag is not None
+    assert str(tag.peel(pygit2.Commit).id) == head
+    assert tag.tagger.name == str(approver.pk)
+
+    # The settlement is a repair: the derived freeze is audited beside the approval's line.
+    derived = AuditEvent.objects.filter(action="document.freeze_derived")
+    assert derived.count() == 1
+    assert (derived.get().after or {}).get("freeze") == str(freeze.pk)
+    made = AuditEvent.objects.get(action="document.made_canonical")
+    assert made.actor_id == approver.pk
+    assert made.object_id == document.pk

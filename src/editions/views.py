@@ -19,7 +19,7 @@ from access.rights import Right, rights_on
 from documents.locks import LockTimeout
 from documents.models import Document, DocumentState
 from editions import services
-from editions.models import REASON_MAX
+from editions.models import REASON_MAX, open_freeze
 from identity.models import User
 from review.services import RecordIncomplete
 from shell.views import not_found
@@ -36,7 +36,6 @@ REFUSALS = {
     ),
 }
 CANONICAL_REFUSALS = {
-    "not_frozen": lambda: _("Freeze the document first."),
     "held": lambda: _("The document is held; make it canonical once it is released."),
     "nothing_accepted": lambda: _("Nothing new has been accepted to make canonical."),
     # Never the pending number: an approver may not see pending edits (DL-0234).
@@ -152,6 +151,8 @@ def _confirmation(
         "accepted": target[1],
         "confirmed": target[0].commit_sha,
         "number": services.next_edition(passport_at(repo, head) if head else []),
+        # Read as the confirmation is drawn; the act reads the state again under the lock.
+        "frozen": open_freeze(document) is not None,
         "error": error,
     }
     return render(request, "editions/make_canonical.html", context, status=status)

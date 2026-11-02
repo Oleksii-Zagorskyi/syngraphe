@@ -206,3 +206,25 @@ def test_catalogue_covers_the_refusal_screens(
     body = finish.content.decode()
     assert "Заморожено" in body
     _assert_translated("finish refused while frozen", body)
+
+
+def test_catalogue_covers_the_unfrozen_confirmation(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """*Make canonical* asked of an accepted document no freeze holds (DL-0515): its sentence and
+    the shared tail in Ukrainian, nothing of a freeze said."""
+    from review import services as review
+
+    settings.LANGUAGE_CODE = "uk"
+    people = edition_cast()
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+
+    confirmation = people.clients["p"].get(f"/document/{document.number}/make-canonical/")
+
+    assert confirmation.status_code == 200
+    body = confirmation.content.decode()
+    _assert_translated("unfrozen confirmation", body)
+    assert "заморожування" not in body

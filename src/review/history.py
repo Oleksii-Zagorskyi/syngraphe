@@ -234,6 +234,14 @@ def _freezes(past: Ceiling, rows: dict[str, Version]) -> list[tuple[datetime, En
     for freeze in Freeze.objects.filter(document=past.document).select_related(
         "frozen_by", "ended_by"
     ):
+        # Begun and ended at its approval, and never frozen by anyone: the approval's own, where
+        # none was open (DL-0515); the edition is the entry for it. A real freeze made canonical
+        # within its second is zero-length too, and has its freezing's event.
+        if (
+            freeze.frozen_at == freeze.ended_at
+            and ("document.frozen", str(freeze.pk)) not in audited
+        ):
+            continue
         edition = editions.get(freeze.pk)
         if (
             not accepted_reader
