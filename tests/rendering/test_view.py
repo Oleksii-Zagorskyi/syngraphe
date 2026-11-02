@@ -1,10 +1,10 @@
 """The View tab (DL-0352, DL-0356): `/document/M/` shows the version the reader may see, rendered
-with its clause numbers, under a header naming its number — *Viewing the 0.1 version*, *Viewing
-the 0.1-1 version* — after the page's own gates; `/document/M/info/` stays *Info*. At an edition,
+with its clause numbers, under a header naming its number — *Viewing version 0.1*, *Viewing
+version 0.1-1* — after the page's own gates; `/document/M/info/` stays *Info*. At an edition,
 each reader reads their own version under its header; the diff views render through the same
 renderer.
 
-The suite renders in `uk`: *View* is *Перегляд*, *Viewing the … version* *Перегляд версії …*.
+The suite renders in `uk`: *View* is *Перегляд*, *Viewing version …* *Перегляд версії …*.
 People, groups and titles are synthetic examples; every text is invented.
 """
 

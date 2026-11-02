@@ -177,11 +177,11 @@ msgid "group"
 msgstr "група"
 
 #: access/templates/access/groups.html:30
-msgid "included"
+msgid "included in a right the group holds"
 msgstr "включено"
 
 #: access/templates/access/groups.html:30
-msgid "needs edit"
+msgid "needs the edit right"
 msgstr "потребує права редагування"
 
 #: access/templates/access/groups.html:34
@@ -483,7 +483,7 @@ msgid "a text longer than the platform accepts"
 msgstr "текст, довший, ніж приймає платформа"
 
 #: editing/messages.py:41
-msgid "a table cell spanning several"
+msgid "a table cell spanning several columns or rows"
 msgstr "об’єднана клітинка таблиці"
 
 #: editing/messages.py:45
@@ -560,11 +560,11 @@ msgid "Source view"
 msgstr "Вихідний текст"
 
 #: editing/messages.py:64
-msgid "Rich text"
+msgid "Formatted text"
 msgstr "Форматований текст"
 
 #: editing/messages.py:65
-msgid "Paste converted"
+msgid "Paste the converted text"
 msgstr "Вставити перетворене"
 
 #: editing/messages.py:66 editing/templates/editing/finish.html:5
@@ -644,7 +644,7 @@ msgid "line %(line)s: %(construct)s"
 msgstr "рядок %(line)s: %(construct)s"
 
 #: editing/messages.py:92
-msgid "cells beyond the header row dropped"
+msgid "the cells past the header's last column dropped"
 msgstr "клітинки понад рядок заголовків відкинуто"
 
 #: editing/messages.py:93
@@ -782,7 +782,7 @@ msgid "The summary is at most %(count)s characters."
 msgstr "Підсумок — не більше %(count)s символів."
 
 #: editing/summary.py:73
-msgid "Begin the summary with something other than a word and a colon."
+msgid "The summary cannot begin with a word and a colon."
 msgstr "Підсумок не може починатися зі слова з двокрапкою."
 
 #: editing/templates/editing/edit_tab.html:4
@@ -1236,7 +1236,7 @@ msgstr "Затверджено: %(name)s, %(date)s; редакція %(number)s"
 
 #: rendering/export/compose.py:325
 #, python-format
-msgid "Not approved — %(stance)s to edition %(number)s"
+msgid "Not approved — %(stance)s after edition %(number)s"
 msgstr "Не затверджено — %(stance)s до редакції %(number)s"
 
 #: rendering/export/compose.py:345 rendering/export/compose.py:397
@@ -1460,7 +1460,7 @@ msgstr "Перегляд канонічної версії %(number)s"
 
 #: rendering/templates/rendering/view.html:2
 #, python-format
-msgid "Viewing the %(number)s version"
+msgid "Viewing version %(number)s"
 msgstr "Перегляд версії %(number)s"
 
 #: rendering/templates/rendering/view.html:2
@@ -1968,7 +1968,7 @@ msgstr "Лист не вдалося надіслати."
 
 #: mail/views/common.py
 #, python-format
-msgid "The key sending passwords are kept under is not set: %(keys)s."
+msgid "The key the sending passwords are encrypted under is not set: %(keys)s."
 msgstr "Ключ, під яким зберігаються паролі надсилання, не задано: %(keys)s."
 
 #: mail/forms.py
@@ -2025,7 +2025,7 @@ msgid "not needed"
 msgstr "не потрібен"
 
 #: shell/templates/shell/base.html documents/templates/documents/view_list.html
-msgid "In edit"
+msgid "Being edited"
 msgstr "У редагуванні"
 
 #: shell/templates/shell/base.html documents/templates/documents/view_list.html
@@ -2350,9 +2350,9 @@ msgstr "Останнього активного адміністратора о�
 
 #: identity/templates/identity/block_confirm.html
 msgid ""
-"As a member, the person reaches nothing in each organisation chosen, and "
-"every document they hold or have reserved there is released, their draft "
-"kept. Their groups stay as they are, and apply again when the block is lifted."
+"The person reaches nothing in each organisation chosen, and every document "
+"they hold or have reserved there is released, their draft kept. Their groups"
+" stay as they are, and apply again when the block is lifted."
 msgstr ""
 "Як учасник особа не матиме доступу до жодної вибраної організації; кожен "
 "документ, який вона там зайняла чи зарезервувала, звільниться, а її чернетка "
@@ -2543,7 +2543,7 @@ msgid "blocked their own account"
 msgstr "обліковий запис заблоковано власником"
 
 #: tenancy/forms.py
-msgid "This person has blocked their own account; the role cannot be granted to it."
+msgid "This person has blocked their own account; the role cannot be granted."
 msgstr "Ця особа заблокувала власний обліковий запис; роль не можна надати."
 
 #: review/state.py
@@ -2716,7 +2716,7 @@ msgid "This reservation has changed since the page was opened. Read it again bef
 msgstr "Відколи сторінку відкрито, резервування змінилося. Перегляньте його ще раз, перш ніж завершувати."
 
 #: editing/templates/editing/reservations.html
-msgid "Reserved by whom"
+msgid "Reserved by"
 msgstr "Ким зарезервовано"
 
 #: editing/templates/editing/draft_readonly.html
@@ -2991,11 +2991,14 @@ msgid "open the current document"
 msgstr "відкрити поточний документ"
 
 #: review/templates/review/history.html
-msgid "Canonical editions only — your groups hold view previous canonical versions."
+msgid ""
+"Canonical editions only — your groups hold “view previous canonical "
+"versions”."
 msgstr "Лише канонічні редакції — ваші групи мають право «перегляд попередніх редакцій»."
 
 #: review/templates/review/history.html
-msgid "The pending run only — your groups hold accept without a history right."
+msgid ""
+"The pending run only — your groups hold “accept” without a history right."
 msgstr "Лише правки після останнього погодження — ваші групи мають право «погодження» без права на історію."
 
 #: review/templates/review/history.html
@@ -3049,7 +3052,7 @@ msgstr "повернення без погодження"
 
 #: review/views/history.py
 msgctxt "history event"
-msgid "canonisation"
+msgid "made canonical"
 msgstr "затвердження"
 
 #: review/views/history.py
@@ -3181,7 +3184,7 @@ msgstr "зображення, якого документ не містить"
 
 #: editing/messages.py
 #, python-format
-msgid "appendix «%(title)s», line %(line)s: %(construct)s"
+msgid "appendix “%(title)s”, line %(line)s: %(construct)s"
 msgstr "додаток «%(title)s», рядок %(line)s: %(construct)s"
 
 #: editing/views/finish.py
@@ -3190,7 +3193,9 @@ msgstr "Чернетка посилається на зображення, як�
 
 #: editing/views/finish.py
 #, python-format
-msgid "The appendix «%(title)s» must begin with its heading and hold no other heading of the first level; correct it in the appendix's editor."
+msgid ""
+"The appendix “%(title)s” must begin with its heading and hold no other "
+"heading of the first level; correct it in the appendix's editor."
 msgstr "Додаток «%(title)s» має починатися зі свого заголовка й не містити інших заголовків першого рівня; виправте це в редакторі додатка."
 
 #: editing/views/finish.py
@@ -3425,7 +3430,7 @@ msgstr ""
 
 #: editing/messages.py
 #, python-format
-msgid "Paragraphs after it to be joined too: %(count)s."
+msgid "Paragraphs after it that will be joined too: %(count)s."
 msgstr "Ще пунктів, які буде з’єднано: %(count)s."
 
 #: rendering/templates/rendering/generated_views.html
@@ -3665,7 +3670,7 @@ msgid "Search"
 msgstr "Пошук"
 
 #: documents/templates/documents/search.html
-msgid "Searched in titles of documents and of their appendices — not in text."
+msgid "Searches the titles of documents and their appendices — not the text."
 msgstr "Пошук у назвах документів і їхніх додатків — не в тексті."
 
 #: review/state.py
@@ -3810,10 +3815,6 @@ msgid "Compare #%(first)s %(first_title)s%(first_tag)s with another document"
 msgstr "Порівняти #%(first)s %(first_title)s%(first_tag)s з іншим документом"
 
 #: rendering/templates/rendering/compare_documents.html
-msgid "with document"
-msgstr "з документом"
-
-#: rendering/templates/rendering/compare_documents.html
 msgid ""
 "Enter the number of the document to compare with: its newest version you "
 "may see is compared first, and you can then choose another."
@@ -3933,7 +3934,7 @@ msgstr "Порядок уже не відповідає вашій чернет�
 
 #: editing/views/parts.py
 #, python-format
-msgid "You do not hold the right to %(right)s."
+msgid "You do not hold the right “%(right)s”."
 msgstr "Ви не маєте права на %(right)s."
 
 #: editing/views/parts.py
@@ -3979,7 +3980,7 @@ msgid "new"
 msgstr "новий"
 
 #: editing/views/finish.py editing/views/edit_tab.py
-msgid "Part operations in this draft"
+msgid "Parts changed in this draft"
 msgstr "Зміни частин документа в цій чернетці"
 
 #: review/templates/review/pending.html
@@ -4020,7 +4021,7 @@ msgstr ""
 "завершите її через «Погодити як»."
 
 #: review/views/revert.py
-msgid "The run changed since the page was drawn — check it again."
+msgid "The run changed since the page was opened — check it again."
 msgstr "Правки змінилися, відколи сторінку відкрито, — перевірте їх ще раз."
 
 #: review/views/revert.py
@@ -4129,7 +4130,8 @@ msgstr "Шаблон не може містити зображення"
 
 #: documents/template_views.py
 #, python-format
-msgid "The template cannot be put in the platform's form in %(language)s"
+msgid ""
+"The platform could not prepare the template for a document in %(language)s"
 msgstr "Шаблон не вдається привести до форми платформи мовою «%(language)s»"
 
 #: documents/template_views.py
@@ -4473,7 +4475,7 @@ msgstr "Зразок не було підготовлено вчасно."
 
 #: rendering/styles_views.py
 #, python-format
-msgid "It could not be queued (%(error)s)."
+msgid "The sample could not be queued (%(error)s)."
 msgstr "Його не вдалося поставити в чергу (%(error)s)."
 
 #: rendering/templates/rendering/sample_status.html
@@ -4604,7 +4606,7 @@ msgstr "будь-який документ"
 msgid "Show"
 msgstr "Показати"
 
-msgid "The access history answers for today or earlier."
+msgid "Choose today or an earlier day."
 msgstr "Історія доступу відповідає на сьогодні або раніше."
 
 msgid "The document has no such edition."

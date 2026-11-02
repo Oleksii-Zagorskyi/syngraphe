@@ -154,8 +154,8 @@ def test_the_template_refuses_an_image_a_long_text_and_one_without_a_normal_form
     assert unformed.status_code == 400
     refused = html.unescape(unformed.content.decode())
     # About the whole outline, so no line is named.
-    assert "The template cannot be put in the platform's form in en" in refused
-    assert "Line 1: The template cannot" not in refused
+    assert "The platform could not prepare the template for a document in en" in refused
+    assert "Line 1: The platform could not" not in refused
     assert _events("template.changed") == []
 
 

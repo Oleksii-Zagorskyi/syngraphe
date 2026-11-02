@@ -25,7 +25,7 @@ def reason(document: object, user: User, code: str) -> str:
     from review.views.undo import reason as undo_reason
 
     return {
-        "run_changed": _("The run changed since the page was drawn — check it again."),
+        "run_changed": _("The run changed since the page was opened — check it again."),
         "nothing_to_revert": _("Nothing of this is left to revert."),
         "changed_in_draft": _(
             "Your draft has already changed this part: settle it in your draft first."

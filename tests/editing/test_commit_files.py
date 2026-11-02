@@ -294,7 +294,7 @@ def test_a_missing_image_is_refused_by_its_file_and_line(
     page = client.get(f"/document/{document.number}/edit/finish/").content.decode()
     assert "line 5: an image the document does not hold" in page
     # An appendix is named by its title, and a missing image is not refused text (DL-11-004).
-    assert "appendix «Synthetic», line 5: an image the document does not hold" in page
+    assert "appendix “Synthetic”, line 5: an image the document does not hold" in page
     assert "The draft refers to an image the document does not hold" in page
     assert "text the editor does not accept" not in page
 

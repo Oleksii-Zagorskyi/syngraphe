@@ -40,7 +40,7 @@ CONSTRUCTS = {
     "control-character": _("an invisible control character"),
     "reordering-mark": _("a mark that reorders text"),
     "too-large": _("a text longer than the platform accepts"),
-    "table-merged": _("a table cell spanning several"),
+    "table-merged": _("a table cell spanning several columns or rows"),
     "image-missing": _("an image the document does not hold"),
     "mention-id": _("a mention without a document number"),
 }
@@ -71,8 +71,8 @@ LABELS = {
     "undo": _("Undo"),
     "redo": _("Redo"),
     "source": _("Source view"),
-    "rich": _("Rich text"),
-    "paste_converted": _("Paste converted"),
+    "rich": _("Formatted text"),
+    "paste_converted": _("Paste the converted text"),
     "finish": _("Finish editing"),
     "start": _("Start editing"),
     "edit_whole": _("Edit the whole document"),
@@ -126,7 +126,7 @@ NOTICES = {
         "A stopped editor still holds your text; carry it over before the tab is drawn again."
     ),
     "line": _("line %(line)s: %(construct)s"),
-    "line_in_appendix": _("appendix «%(title)s», line %(line)s: %(construct)s"),
+    "line_in_appendix": _("appendix “%(title)s”, line %(line)s: %(construct)s"),
     "uploading": _("Uploading the image…"),
     "image_refused_one": _("Choose one image file."),
     "image_refused_too_large": _(
@@ -156,7 +156,7 @@ NOTICES = {
         "Lines %(first)s–%(last)s are one paragraph and will be joined; leave a blank line to "
         "start a new one."
     ),
-    "joined_more": _("Paragraphs after it to be joined too: %(count)s."),
+    "joined_more": _("Paragraphs after it that will be joined too: %(count)s."),
     "entities_full": _(
         "This document declares as many roles, actions and terms as the platform accepts."
     ),
@@ -165,7 +165,7 @@ NOTICES = {
 
 # What the source view's conversion does to each refused construct (DL-0171), for the help page.
 CONVERSIONS = {
-    "drop-extra-cells": _("cells beyond the header row dropped"),
+    "drop-extra-cells": _("the cells past the header's last column dropped"),
     "drop-id": _("the identifier dropped"),
     "drop-title": _("the title dropped"),
     "drop-with-notice": _("left out, with a notice"),

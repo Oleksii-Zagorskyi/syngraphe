@@ -5,7 +5,7 @@
 <section class="dlg">
   <h1>{% blocktranslate with address=person %}Block {{ address }}{% endblocktranslate %}</h1>
   {% if refused == "last_administrator" %}<p class="err" role="alert">{% translate "The organisation's last active administrator cannot be blocked." %}</p>{% elif refused == "busy" %}<p class="err" role="alert">{% translate "A document is being worked on. Try again in a moment." %}</p>{% endif %}
-  <p class="note">{% translate "As a member, the person reaches nothing in each organisation chosen, and every document they hold or have reserved there is released, their draft kept. Their groups stay as they are, and apply again when the block is lifted." %}</p>
+  <p class="note">{% translate "The person reaches nothing in each organisation chosen, and every document they hold or have reserved there is released, their draft kept. Their groups stay as they are, and apply again when the block is lifted." %}</p>
   <form method="post" novalidate>
     {% csrf_token %}
     <fieldset>

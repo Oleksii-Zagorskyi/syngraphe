@@ -7,7 +7,7 @@
     {% include "documents/tree.html" %}
     <div class="list-main">
   <div class="toolbar">{% include "documents/type_filter.html" %}</div>
-  <p class="note">{% translate "Searched in titles of documents and of their appendices — not in text." %}</p>
+  <p class="note">{% translate "Searches the titles of documents and their appendices — not the text." %}</p>
   {% for group in groups %}
   <section class="folder-group">
     <h2 class="folder-path">{{ group.path }}</h2>

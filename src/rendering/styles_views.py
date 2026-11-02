@@ -166,7 +166,7 @@ def sample(request: HttpRequest) -> HttpResponse:
     except Exception as error:
         logger.exception("a sample could not be queued", extra={"sample": str(made.pk)})
         made.state = ExportState.FAILED
-        made.failure_reason = _("It could not be queued (%(error)s).") % {
+        made.failure_reason = _("The sample could not be queued (%(error)s).") % {
             "error": error.__class__.__name__
         }
         made.save(update_fields=["state", "failure_reason"])

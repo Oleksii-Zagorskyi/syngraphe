@@ -27,7 +27,7 @@
           <form method="post" action="{{ groups_url }}{{ row.group.id }}/rights/" hx-post="{{ groups_url }}{{ row.group.id }}/rights/" hx-target="#groups" hx-select="#groups" hx-swap="outerHTML">{% csrf_token %}
             <input type="hidden" name="right" value="{{ cell.right }}">
             <input type="hidden" name="action" value="{% if cell.held %}revoke{% else %}grant{% endif %}">
-            <button class="icon" type="submit" aria-pressed="{% if cell.held %}true{% else %}false{% endif %}" aria-label="{{ cell.label }} — {{ row.group.name }}"{% if cell.state == "faint" %} title="{% translate 'included' %}"{% elif cell.state == "inert" %} title="{% translate 'needs edit' %}"{% endif %}>{% if cell.state %}✓{% endif %}</button>
+            <button class="icon" type="submit" aria-pressed="{% if cell.held %}true{% else %}false{% endif %}" aria-label="{{ cell.label }} — {{ row.group.name }}"{% if cell.state == "faint" %} title="{% translate 'included in a right the group holds' %}"{% elif cell.state == "inert" %} title="{% translate 'needs the edit right' %}"{% endif %}>{% if cell.state %}✓{% endif %}</button>
           </form>
         </td>
         {% endfor %}

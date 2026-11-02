@@ -116,7 +116,7 @@ def facts_for(job: Any, title: str, number: str, text: str = "") -> TitleFacts:
             "number": edition.number,
         }
     else:
-        approval = _("Not approved — %(stance)s to edition %(number)s") % {
+        approval = _("Not approved — %(stance)s after edition %(number)s") % {
             "stance": stance(job.view),
             "number": edition.number,
         }

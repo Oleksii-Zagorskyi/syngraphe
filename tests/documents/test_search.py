@@ -122,7 +122,7 @@ def test_titles_match_never_text(migrated_tenant: Any, member_of: Any, repo_root
 
     assert found(body) == [travel.number]
     assert headings(body) == ["A (synthetic example)"]
-    assert "Searched in titles of documents and of their appendices — not in text." in body
+    assert "Searches the titles of documents and their appendices — not the text." in body
     assert 'value="TRAVEL"' in body
 
 

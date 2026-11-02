@@ -155,7 +155,7 @@ def test_the_approval_line_is_always_there(
     # Off the canonical view: the edition the text departs from, and nothing that reads as approval.
     assert "Edition 1.0" in pending
     assert "Approved by" not in pending and "Approval date" not in pending
-    assert "Not approved — pending edits to edition 1.0" in pending
+    assert "Not approved — pending edits after edition 1.0" in pending
     # Before the first edition: none of the three.
     assert "Edition" not in never and "Approved by" not in never and "Approval date" not in never
     assert "Not yet approved" in never

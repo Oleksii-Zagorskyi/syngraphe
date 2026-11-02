@@ -1,5 +1,5 @@
 {% load i18n %}
-{% if version_number %}<p class="version">{% if version_stance == "canonical" %}{% blocktranslate with number=version_number %}Viewing canonical {{ number }}{% endblocktranslate %}{% else %}{% blocktranslate with number=version_number %}Viewing the {{ number }} version{% endblocktranslate %}{% if canonical_number %} · <a class="canonical" href="/document/{{ document.number }}/version/{{ canonical_number }}/" target="_blank" rel="noopener">{% blocktranslate with number=canonical_number %}open canonical {{ number }}{% endblocktranslate %}</a>{% endif %}{% endif %}</p>{% endif %}
+{% if version_number %}<p class="version">{% if version_stance == "canonical" %}{% blocktranslate with number=version_number %}Viewing canonical {{ number }}{% endblocktranslate %}{% else %}{% blocktranslate with number=version_number %}Viewing version {{ number }}{% endblocktranslate %}{% if canonical_number %} · <a class="canonical" href="/document/{{ document.number }}/version/{{ canonical_number }}/" target="_blank" rel="noopener">{% blocktranslate with number=canonical_number %}open canonical {{ number }}{% endblocktranslate %}</a>{% endif %}{% endif %}</p>{% endif %}
 <article class="document-text">
 {{ text }}
 </article>

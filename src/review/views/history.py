@@ -29,7 +29,7 @@ EVENTS = {
     "reviewer_edit": pgettext_lazy("history event", "a reviewer's version"),
     "acceptance": pgettext_lazy("history event", "acceptance"),
     "return": pgettext_lazy("history event", "return"),
-    "approval": pgettext_lazy("history event", "canonisation"),
+    "approval": pgettext_lazy("history event", "made canonical"),
     "freeze": pgettext_lazy("history event", "freeze"),
     "unfreeze": pgettext_lazy("history event", "unfreeze"),
 }

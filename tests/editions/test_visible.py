@@ -171,8 +171,8 @@ def test_header_names_the_version(
     commit_version: Any,
     settings: Any,
 ) -> None:
-    """DL-0352's wording: *Viewing the 1.1-1 version · open canonical 1.0*, *Viewing the 1.1
-    version · open canonical 1.0*, *Viewing canonical 1.0*."""
+    """DL-0352's wording: *Viewing version 1.1-1 · open canonical 1.0*, *Viewing version
+    1.1 · open canonical 1.0*, *Viewing canonical 1.0*."""
     settings.LANGUAGE_CODE = "en"
     made = _at_edition_accepted_pending(migrated_tenant, edition_cast, commit_version)
     document = made.people.document
@@ -180,17 +180,17 @@ def test_header_names_the_version(
     route = f"/document/{document.number}/"
 
     pending = _text(readers["pending"][0].get(route).content.decode())
-    assert "Viewing the 1.1-1 version" in pending
+    assert "Viewing version 1.1-1" in pending
     assert "open canonical 1.0" in pending
 
     accepted = _text(readers["accepted"][0].get(route).content.decode())
-    assert "Viewing the 1.1 version" in accepted
+    assert "Viewing version 1.1" in accepted
     assert "open canonical 1.0" in accepted
     assert "1.1-1" not in accepted
 
     canonical = _text(readers["canonical"][0].get(route).content.decode())
     assert "Viewing canonical 1.0" in canonical
-    assert "Viewing the" not in canonical
+    assert "Viewing version" not in canonical
     assert "1.1-1" not in canonical
     # The preview's wording is gone (DL-0352).
     for body in (pending, accepted, canonical):
@@ -205,8 +205,8 @@ def test_header_before_any_edition(
     commit_version: Any,
     settings: Any,
 ) -> None:
-    """Before any edition, *Viewing the 0.1 version* without the canonical segment; before any
-    acceptance with nothing pending, the created text's own number, *Viewing the 0.0 version*
+    """Before any edition, *Viewing version 0.1* without the canonical segment; before any
+    acceptance with nothing pending, the created text's own number, *Viewing version 0.0*
     (DL-0352, DL-0358)."""
     settings.LANGUAGE_CODE = "en"
     people = edition_cast()
@@ -215,13 +215,13 @@ def test_header_before_any_edition(
     route = f"/document/{document.number}/"
 
     created_only = _text(client.get(route).content.decode())
-    assert "Viewing the 0.0 version" in created_only
+    assert "Viewing version 0.0" in created_only
 
     commit_version(document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
         review.accept(document, people["r"])
     accepted = _text(client.get(route).content.decode())
-    assert "Viewing the 0.1 version" in accepted
+    assert "Viewing version 0.1" in accepted
     assert "open canonical" not in accepted
 
 

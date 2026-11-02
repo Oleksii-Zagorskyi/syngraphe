@@ -119,7 +119,7 @@ def test_refusals_at_finish_name_the_part(
         draft.save()
     answer = client.post(f"/document/{m}/edit/send/", {"summary": "A change"})
     assert answer.status_code == 409
-    assert "«Appendix one (example)»" in answer.content.decode()
+    assert "“Appendix one (example)”" in answer.content.decode()
 
     with schema_context(migrated_tenant.number):
         draft = Draft.objects.get(hold=holds.open_hold(document))

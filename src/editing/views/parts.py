@@ -57,7 +57,7 @@ REFUSALS = {
 
 def _said(refused: parts.PartRefused) -> str:
     if refused.reason == "no_right":
-        return _("You do not hold the right to %(right)s.") % {
+        return _("You do not hold the right “%(right)s”.") % {
             "right": LABELS[refused.detail["right"]]
         }
     if refused.reason == "too_large":

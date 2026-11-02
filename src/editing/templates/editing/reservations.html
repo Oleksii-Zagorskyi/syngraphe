@@ -6,7 +6,7 @@
   <h1>{% translate "Reservations" %}</h1>
   {% if reserved %}
   <table class="list">
-    <thead><tr><th>#</th><th>{% translate "Document" %}</th><th>{% translate "Reserved by whom" %}</th><th>{% translate "Reserved since" %}</th><th></th></tr></thead>
+    <thead><tr><th>#</th><th>{% translate "Document" %}</th><th>{% translate "Reserved by" %}</th><th>{% translate "Reserved since" %}</th><th></th></tr></thead>
     <tbody>{% timezone display_timezone %}
       {% for row in reserved %}{% with hold=row.hold %}
       <tr data-number="{{ hold.document.number }}"><td class="id">#{{ hold.document.number }}</td><td><a href="/document/{{ hold.document.number }}/">{{ hold.document.title }}</a></td><td>{{ row.holder }}</td><td>{{ hold.reserved_at|date:"DATE_FORMAT" }}</td><td>{% if hold.user_id != user.pk %}<a href="/document/{{ hold.document.number }}/edit/end-reservation/">{% translate "End the reservation…" %}</a>{% endif %}</td></tr>{% endwith %}

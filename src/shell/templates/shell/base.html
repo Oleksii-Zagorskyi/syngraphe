@@ -18,7 +18,7 @@
     <a class="logo" href="/">Syngraphē</a>
     <nav class="menu">
       {% block nav_documents %}{% if current_tenant and membership or current_tenant and is_platform_admin %}<a href="/folder/1/">{% translate "All documents" %}</a>{% endif %}{% endblock %}
-      {% block nav_in_edit %}{% with offered=views.in_edit %}{% if offered is not None %}{% if offered %}<a href="/in-edit/" data-nav="in-edit">{% translate "In edit" %}</a>{% else %}<a data-nav="in-edit" aria-disabled="true" class="disabled">{% translate "In edit" %}</a>{% endif %}{% endif %}{% endwith %}{% endblock %}
+      {% block nav_in_edit %}{% with offered=views.in_edit %}{% if offered is not None %}{% if offered %}<a href="/in-edit/" data-nav="in-edit">{% translate "Being edited" %}</a>{% else %}<a data-nav="in-edit" aria-disabled="true" class="disabled">{% translate "Being edited" %}</a>{% endif %}{% endif %}{% endwith %}{% endblock %}
       {% block nav_in_review %}{% with offered=views.in_review %}{% if offered is not None %}{% if offered %}<a href="/in-review/" data-nav="in-review">{% translate "In review" %}</a>{% else %}<a data-nav="in-review" aria-disabled="true" class="disabled">{% translate "In review" %}</a>{% endif %}{% endif %}{% endwith %}{% endblock %}
       {% block nav_help %}{% if user.is_authenticated %}<a href="/help/">{% translate "Help" %}</a>{% endif %}{% endblock %}
       {% if is_administrator %}<a href="/administration/">{% translate "Administration" %}</a>{% endif %}

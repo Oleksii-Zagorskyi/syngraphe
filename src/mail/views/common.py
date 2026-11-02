@@ -70,7 +70,7 @@ def save(request: HttpRequest, form: SenderForm, sender: MailSender | None, tena
         except ConfigurationError as error:
             form.add_error(
                 "password",
-                _("The key sending passwords are kept under is not set: %(keys)s.")
+                _("The key the sending passwords are encrypted under is not set: %(keys)s.")
                 % {"keys": ", ".join(error.missing + error.malformed)},
             )
             return False

@@ -67,7 +67,7 @@ class HistoryForm(forms.Form):
     def clean_on(self) -> Any:
         day = self.cleaned_data.get("on") or today()
         if day > today():
-            raise forms.ValidationError(_("The access history answers for today or earlier."))
+            raise forms.ValidationError(_("Choose today or an earlier day."))
         return day
 
     def clean(self) -> dict[str, Any]:

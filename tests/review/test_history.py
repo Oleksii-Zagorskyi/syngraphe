@@ -293,7 +293,7 @@ def test_the_tab(
     assert response.status_code == 200
     body = response.content.decode()
     shown = text_of(body)
-    for word in ("created", "edit", "acceptance", "canonisation", "freeze", "unfreeze"):
+    for word in ("created", "edit", "acceptance", "made canonical", "freeze", "unfreeze"):
         assert re.search(rf"\b{word}\b", shown), word
     for name in ("a", "b", "r", "p"):
         person = history.people[name]

@@ -76,7 +76,7 @@ class GrantForm(PersonByAddressForm):
         email = fold_email(self.cleaned_data["email"])
         if User.objects.filter(email=email, is_tombstoned=False, self_blocked=True).exists():
             raise forms.ValidationError(
-                _("This person has blocked their own account; the role cannot be granted to it.")
+                _("This person has blocked their own account; the role cannot be granted.")
             )
         return super().clean_email()
 

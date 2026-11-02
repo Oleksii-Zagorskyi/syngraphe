@@ -287,7 +287,7 @@ def returning(request: HttpRequest, document: Document, kept: Any) -> dict[str, 
     return shown | {
         "changes": changes,
         **drawn,
-        "parts_heading": gettext("Part operations in this draft"),
+        "parts_heading": gettext("Parts changed in this draft"),
     }
 
 

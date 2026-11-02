@@ -82,7 +82,7 @@ def _screen(
         number=finishing.number,
         entity_changes=finishing.entities,
         **finishing.parts,
-        parts_heading=_("Part operations in this draft"),
+        parts_heading=_("Parts changed in this draft"),
         accept_number=numbering.next_accepted(document) if reviewer else "",
         run=_run(document) if reviewer else [],
         reviewer=reviewer,
@@ -134,7 +134,7 @@ def _refused(
     if isinstance(refused, services.AppendixHeading):
         # An appendix's text is its one top-level section (ADR-0005), named by its title.
         reason = _(
-            "The appendix «%(title)s» must begin with its heading and hold no other heading of "
+            "The appendix “%(title)s” must begin with its heading and hold no other heading of "
             "the first level; correct it in the appendix's editor."
         ) % {"title": refused.title}
         context = _context(document, "edit", reason=reason, refusals=[])
@@ -345,7 +345,7 @@ def my_edits(request: HttpRequest, number: int) -> HttpResponse:
         changes=mark_safe(changes),  # noqa: S308
         entity_changes=listed,
         **drawn,
-        parts_heading=_("Part operations in this draft"),
+        parts_heading=_("Parts changed in this draft"),
     )
     return render(request, "editing/my_edits.html", context)
 

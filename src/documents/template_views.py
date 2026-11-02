@@ -40,7 +40,7 @@ def refusal_text(refusal: TemplateRefusal) -> str:
     if refusal.code == "normal-form":
         # About the whole outline, so it names no line.
         language = Language.objects.filter(code=refusal.language).first()
-        return _("The template cannot be put in the platform's form in %(language)s") % {
+        return _("The platform could not prepare the template for a document in %(language)s") % {
             "language": language.label if language else refusal.language
         }
     named = OWN_REFUSALS.get(refusal.code) or CONSTRUCTS.get(refusal.code)

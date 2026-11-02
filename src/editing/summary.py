@@ -71,5 +71,5 @@ def problem(summary: str) -> str | None:
     if len(text) > SUMMARY_MAX:
         return _("The summary is at most %(count)s characters.") % {"count": SUMMARY_MAX}
     if TRAILER_SHAPE.match(text):
-        return _("Begin the summary with something other than a word and a colon.")
+        return _("The summary cannot begin with a word and a colon.")
     return None

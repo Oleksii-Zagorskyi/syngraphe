@@ -2,8 +2,8 @@
 {% load i18n tz %}
 {% block tab %}
 <div class="history">
-  {% if editions_only %}<p class="muted">{% translate "Canonical editions only — your groups hold view previous canonical versions." %}</p>{% endif %}
-  {% if run_only %}<p class="muted">{% translate "The pending run only — your groups hold accept without a history right." %}</p>{% endif %}
+  {% if editions_only %}<p class="muted">{% translate "Canonical editions only — your groups hold “view previous canonical versions”." %}</p>{% endif %}
+  {% if run_only %}<p class="muted">{% translate "The pending run only — your groups hold “accept” without a history right." %}</p>{% endif %}
   {% if rows %}
   <table class="entries">
     <thead><tr><th>{% translate "Version" %}</th><th>{% translate "Event" %}</th><th>{% translate "Who" %}</th><th>{% translate "When" %}</th><th></th></tr></thead>
