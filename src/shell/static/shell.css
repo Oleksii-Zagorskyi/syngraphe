@@ -218,7 +218,20 @@ input[type=email],input[name=reason]{min-width:min(100%,24em)}
 .card input.mono{font-family:ui-monospace,monospace}
 .card .err{color:#a33;font-size:12px;margin-top:3px}
 .card .go{margin-top:18px;display:flex;justify-content:flex-end}
-.by{border-bottom:1px dotted var(--accent)}
+/* Edit authors stand in the right margin, small and grey, beside what they changed (DL-0504):
+   the name is a float on the pseudo-element, never a positioned block, which would pull a clause
+   number off its gutter. The text keeps its column and gives the margin room beside it. */
+.show-authors .document-text{margin-right:calc(8.5rem + 32px)}
+.document-text .by::before{content:attr(data-author);float:right;clear:right;width:8.5rem;margin-right:calc(-8.5rem - 48px);font-size:11px;font-weight:normal;line-height:1.4;color:var(--muted);text-align:left}
+/* A paragraph of several authors names each at its sentence's end; so does a table's cell. */
+.document-text :has(> span.by ~ span.by) > span.by::before,.document-text :is(td,th) .by::before{content:none}
+.document-text :has(> span.by ~ span.by) > span.by::after,.document-text :is(td,th) .by::after{content:" " attr(data-author);font-size:11px;font-weight:normal;color:var(--muted)}
+.document-text tr.by::before{content:none}
+.document-text tr.by::after{content:attr(data-author);display:table-cell;border:0;padding:0 0 0 8px;vertical-align:top;white-space:nowrap;font-size:11px;color:var(--muted)}
+/* The checkbox is the names' column's title. */
+.pending>.show-author{float:right;width:calc(8.5rem + 32px);margin:0 0 6px 12px}
+.show-author-title{font-size:12px;color:var(--muted)}
+.show-author-title input{vertical-align:middle;margin:0 4px 0 0}
 .format-changed{background:var(--mark);cursor:pointer}
 .format-changed::after{content:attr(data-label);font-size:11px;color:var(--muted);margin-left:4px}
 .format-changed .format-old{display:none}

@@ -74,7 +74,10 @@ def test_authors_arrive_on_reload(
 
     assert NOTE not in again
     author = history.people["a"].display_name or "anonymous editor"
-    assert again.count(f'data-author="{author}"') >= 2
+    # Against 0.0-1, 0.0-2 added one paragraph: it alone names its edit author (DL-0504).
+    assert again.count(f'data-author="{author}"') == 1
+    named = re.search(rf'<p\b[^>]*data-author="{author}"[^>]*>(.*?)</p>', again, re.S)
+    assert named is not None and _page.ONLY_IN_SECOND in named.group(1)
     # The outline still reaches the headings and clauses it links to.
     assert 'id="' in again.split('class="document-text"', 1)[1]
 
@@ -151,10 +154,66 @@ def test_the_toggle_on_the_historical_page(
     assert 'action="/preferences/show-author/"' in page
     assert f'name="next" value="{url}"' in page
     assert "Show edit authors" in page
+    # A checkbox, the column's title, submitted by the platform's own script (DL-0504, DL-0493).
+    box = re.search(r'<input type="checkbox"[^>]*>', page)
+    assert box is not None and "checked" not in box.group(0)
+    assert 'name="show_author" value="on"' in page
+    assert re.search(r'<script src="[^"]*show-author\.js" defer></script>', page)
+    assert "<button" not in page.split('class="show-author inline"')[1].split("</form>")[0]
 
     turned = viewer.client.post("/preferences/show-author/", {"show_author": "on", "next": url})
     assert turned.status_code == 302 and turned["Location"] == url
-    assert NOTE in viewer.client.get(url).content.decode()
+    on = viewer.client.get(url).content.decode()
+    assert NOTE in on
+    box = re.search(r'<input type="checkbox"[^>]*>', on)
+    assert box is not None and "checked" in box.group(0)
+    assert 'name="show_author" value="off"' in on
+
+
+def test_a_changed_paragraph_names_its_author_against_the_version_before(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+    settings: Any,
+    asked: list[tuple[Any, ...]],
+) -> None:
+    """A version names the authors of the paragraphs it changed against the version before it
+    in the reader's reach, and nothing beside a paragraph it left alone; the first version within
+    the reader's reach has nothing before it, so every paragraph is named (DL-0504, DL-0209)."""
+    from editing.tasks import compute_authorship_at
+    from identity.models import User
+
+    settings.LANGUAGE_CODE = "en"
+    history = _page.standard_history(migrated_tenant, edition_cast, commit_version)
+    User.objects.filter(pk=history.people["a"].pk).update(display_name="Synthetic Editor A")
+    User.objects.filter(pk=history.people["b"].pk).update(display_name="Synthetic Editor B")
+
+    def drawn(client: Any, url: str) -> dict[str, str]:
+        client.get(url)
+        compute_authorship_at(*asked[-1])
+        page = client.get(url).content.decode()
+        text = page.split('class="document-text"')[1].split("</article>")[0]
+        return {
+            re.sub(r"<[^>]+>", "", body).strip(): who
+            for who, body in re.findall(
+                r'<(?:p|h1|li)\b[^>]*data-author="([^"]+)"[^>]*>(.*?)</(?:p|h1|li)>', text, re.S
+            )
+        }
+
+    viewer = _page.reader(member_of, link_group, history.people, "viewer", _page.READER_I)
+    _showing_authors(viewer.client)
+    sixth = drawn(viewer.client, f"/document/{history.document.number}/version/1.0-2/")
+    assert list(sixth.values()) == ["Synthetic Editor B"]
+    assert "order they arrive" in next(iter(sixth))
+
+    # A reader of canonical editions alone reaches 1.0 first: nothing before it to compare with.
+    editions = _page.reader(member_of, link_group, history.people, "editions", _page.READER_II)
+    _showing_authors(editions.client)
+    first = drawn(editions.client, f"/document/{history.document.number}/version/1.0/")
+    assert len(first) >= 4
+    assert set(first.values()) == {"Synthetic Editor A"}
 
 
 def test_each_line_names_its_own_edit_author(
@@ -192,10 +251,12 @@ def test_each_line_names_its_own_edit_author(
             r'<(?:p|li)\b[^>]*data-author="([^"]+)"[^>]*>(.*?)</(?:p|li)>', page, re.S
         )
     )
-    first = next(text for text in named if "made in writing" in text)
-    last = next(text for text in named if "order they arrive" in text)
+    # Against the version before (1.0-2), only the list changed: its items name their edit
+    # author, the paragraphs left as they were name nobody (DL-0504).
     item = next(text for text in named if "first synthetic item" in text)
-    assert (named[first], named[last], named[item]) == (a, b, b)
+    assert named[item] == b
+    assert not any("made in writing" in text or "order they arrive" in text for text in named)
+    assert a not in page.split('class="document-text"')[1].split("</article>")[0]
     assert re.search(r'<li\b[^>]*class="by"[^>]*data-author=', page) or re.search(
         r'<li\b[^>]*data-author="[^"]+"[^>]*class="by"', page
     )
@@ -271,3 +332,43 @@ def test_the_text_reads_when_the_authors_cannot_be_asked(
         assert not client.exists(key)
     finally:
         client.close()
+
+
+def test_an_unreadable_version_before_draws_the_page_unnamed(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+    settings: Any,
+    asked: list[tuple[Any, ...]],
+    monkeypatch: Any,
+) -> None:
+    """The version before is read only to tell what changed: when it cannot be read, the shown
+    version is still drawn, its text without names, rather than answered as missing."""
+    from documents import gitstore
+    from editing.tasks import compute_authorship_at
+
+    settings.LANGUAGE_CODE = "en"
+    history = _page.standard_history(migrated_tenant, edition_cast, commit_version)
+    viewer = _page.reader(member_of, link_group, history.people, "viewer", _page.READER_I)
+    _showing_authors(viewer.client)
+    url = f"/document/{history.document.number}/version/1.0-2/"
+    viewer.client.get(url)
+    compute_authorship_at(*asked[-1])
+    before = history.versions["1.0-1"].commit_sha
+    read = gitstore.read
+
+    def failing(repo: Any, path: str, sha: str) -> bytes:
+        if sha == before:
+            raise ValueError("a synthetic unreadable version")
+        return read(repo, path, sha)
+
+    monkeypatch.setattr("rendering.views.gitstore.read", failing)
+
+    answer = viewer.client.get(url)
+
+    assert answer.status_code == 200
+    page = answer.content.decode()
+    assert "order they arrive" in page
+    assert "data-author" not in page.split('class="document-text"')[1]

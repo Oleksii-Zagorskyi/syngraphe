@@ -183,6 +183,17 @@ def _matched(a: list[str], b: list[str]) -> list[tuple[int, int]]:
     return found
 
 
+def changed_lines(old: list[str], new: list[str]) -> set[int]:
+    """The indices of `new`'s lines that `old` does not hold where they stand: those of a
+    `replace` or an `insert` opcode."""
+    return {
+        j
+        for tag, _, _, j1, j2 in opcodes(old, new)
+        if tag in ("replace", "insert")
+        for j in range(j1, j2)
+    }
+
+
 def opcodes(a: list[str], b: list[str]) -> list[Opcode]:
     """Opcodes in `SequenceMatcher`'s form for `a` against `b`, bounded as the module says."""
     found: list[Opcode] = []
@@ -650,7 +661,16 @@ def _render_changes(old: bytes, new: bytes, authors: Mapping[int, str] | None) -
         if line is not None:
             by_block.setdefault(line.block, []).append(j)
 
+    def changed(lines: list[int]) -> bool:
+        """Whether any of these new lines is rewritten, inserted or has removed words beside it."""
+        return any(
+            j in plan.rewritten or j in plan.inserted or j in before or j in after for j in lines
+        )
+
     def by(lines: list[int], pieces: list[Token]) -> list[Token]:
+        # Only a changed line names its edit author: no change, no change author (DL-0504).
+        if not changed(lines):
+            return pieces
         names = {authors.get(j) for j in lines} if authors else {None}
         if len(names) != 1 or None in names:
             return pieces
@@ -703,10 +723,8 @@ def _render_changes(old: bytes, new: bytes, authors: Mapping[int, str] | None) -
 
     def several(span: list[int], piece: list[Token]) -> list[Token]:
         """Lines a mark spans: compared as one text, the old words against the new."""
-        if not any(
-            j in plan.rewritten or j in plan.inserted or j in before or j in after for j in span
-        ):
-            return by(span, piece)
+        if not changed(span):
+            return piece
         earlier = "\n".join(text for j in span for text in old_side(j))
         now_text = "\n".join(now[j].text for j in span)  # type: ignore[union-attr]
         if not earlier:

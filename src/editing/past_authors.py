@@ -143,14 +143,21 @@ def _by_line(inline: Any, first: int, authors: Mapping[int, str]) -> None:
     inline.children = children
 
 
-def by_author(tokens: Sequence[Any], authors: Mapping[int, str]) -> None:
+def by_author(
+    tokens: Sequence[Any], authors: Mapping[int, str], *, changed: set[int] | None = None
+) -> None:
     """Name its edit author on each block of the reading view's `tokens` whose lines share one —
-    `data-author`, a title on hover and the pending tab's cue (`by`) — and on each sentence of a
+    `data-author`, a title on hover and the margin's name (`by`) — and on each sentence of a
     paragraph whose lines have several. A tight list's paragraph is
     not drawn, so its item carries the name, as it carries the clause's anchor. The tokens keep
-    their anchors, so the outline and the generated views still reach every heading and clause."""
+    their anchors, so the outline and the generated views still reach every heading and clause.
+
+    `changed` holds the lines changed against the version before; a block none of whose lines it
+    holds names nobody (DL-0504). `None` — nothing before to compare with — names every block."""
     for i, token in enumerate(tokens):
         if token.type not in NAMED_BLOCKS or not token.map:
+            continue
+        if changed is not None and not changed.intersection(range(*token.map)):
             continue
         names = {authors[n] for n in range(*token.map) if n in authors}
         if len(names) > 1 and token.type == "paragraph_open":

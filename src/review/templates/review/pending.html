@@ -1,7 +1,7 @@
 {% extends "documents/page.html" %}
-{% load i18n tz %}
+{% load i18n static tz %}
 {% block tab %}
-<div class="pending">
+<div class="pending{% if show_author %} show-authors{% endif %}">
   {% if acts %}
   <p class="acts">{% if acts.correct %}<button class="btn" type="button" disabled data-command="correct">{% translate "Correct" %}</button> <span class="muted">{{ acts.correct }}</span>{% else %}<a class="btn" href="/document/{{ document.number }}/edit/" data-command="correct">{% translate "Correct" %}</a>{% endif %}
   {% if acts.accept %}<button class="btn primary" type="button" disabled>{% translate "Accept the run" %}</button> <span class="muted">{{ acts.accept }}</span>{% else %}<a class="btn primary" href="/document/{{ document.number }}/pending/accept/" data-command="accept">{% translate "Accept the run" %}</a>{% endif %}
@@ -12,8 +12,9 @@
     <input type="hidden" name="next" value="{{ request.path }}">
     <input type="hidden" name="show_author" value="{% if show_author %}off{% else %}on{% endif %}">
     <a class="help-link" href="/help/review/">?</a>
-    <button class="btn" type="submit" aria-pressed="{% if show_author %}true{% else %}false{% endif %}">{% translate "Show edit authors" %}</button>
+    <label class="show-author-title"><input type="checkbox" name="show_author_box"{% if show_author %} checked{% endif %}> {% translate "Show edit authors" %}</label>
   </form>
+  <script src="{% static 'show-author.js' %}" defer></script>
   {% if run %}
   <ol class="run">
     {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}, {{ version.at|timezone:display_timezone|date:"j M Y, H:i" }}</span>{% if version.parts %}<br><span class="parts-line">{% translate "Parts:" %} {% for row in version.parts %}{% include "editing/part_label.html" %}{% if not forloop.last %}; {% endif %}{% endfor %}</span>{% endif %}</li>{% endfor %}

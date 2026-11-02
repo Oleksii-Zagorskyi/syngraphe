@@ -136,10 +136,12 @@ def test_base_without_rows_renders_and_queues_nothing(
         member_of, new_document, link_group
     )
     show_author(client)
-    # Never accepted: the `created` commit's lines are the creator's.
+    # Never accepted: the run is measured from the `created` commit, and only what the run
+    # changed names its author — the run's own (DL-0504).
     commit_version(document, author_a, FIRST, "edit")
     page = client.get(f"/document/{document.number}/pending/").content.decode()
-    assert '<span class="by" data-author="Погоджувач Р" title="Погоджувач Р">' in page
+    assert '<span class="by" data-author="Автор А" title="Автор А"><ins>' in page
+    assert 'data-author="Погоджувач Р"' not in page
     # Accepted, the accepted version without rows: its lines render without an author.
     accepted_directly(document, reviewer)
     commit_version(document, author_b, SECOND, "edit")
@@ -214,8 +216,9 @@ def test_base_lines_take_the_accepted_versions_rows(
     commit_version: Any,
     accepted_directly: Any,
 ) -> None:
-    """The heading to the creator, an unchanged base line to who wrote it, a base line moved in
-    the run to who wrote it rather than the mover, the changed line to the run's author."""
+    """An unchanged heading names nobody (DL-0504); a base line with removed words beside it
+    names who wrote it, a base line moved in the run who wrote it rather than the mover, the
+    changed line the run's author."""
     from documents import gitstore
     from editing import authorship
 
@@ -240,7 +243,8 @@ def test_base_lines_take_the_accepted_versions_rows(
     show_author(client)
     changes = client.get(f"/document/{document.number}/pending/").content.decode()
     changes = changes.split('class="changes document-text"', 1)[1]
-    assert 'data-author="Погоджувач Р" title="Погоджувач Р">Загальні положення' in changes
+    assert 'data-author="Погоджувач Р"' not in changes
+    # The base line the moved sentence was struck beside stands among changes: its writer named.
     assert 'title="Автор А">Строк розгляду становить десять днів.</span>' in changes
     # Moved within the run: shown where it went, still its writer's.
     assert 'title="Автор А"><ins>Заяву подають письмово.</ins></span>' in changes
@@ -408,3 +412,26 @@ def test_the_run_dates_each_version_in_the_display_timezone(
 
     assert "14 Oct 2026, 01:30" in page
     assert "13 Oct 2026, 22:30" not in page
+
+
+def test_the_checkbox_is_the_columns_title(
+    member_of: Any, new_document: Any, link_group: Any, commit_version: Any, settings: Any
+) -> None:
+    """*Show edit authors* is a checkbox standing as the names' column title, saved by the
+    platform's own script (DL-0504, DL-0493); the hidden value carries what the box means."""
+    settings.LANGUAGE_CODE = "en"
+    client, _, author_a, _, document = reviewer_and_authors(member_of, new_document, link_group)
+    commit_version(document, author_a, FIRST, "edit")
+    url = f"/document/{document.number}/pending/"
+    page = client.get(url).content.decode()
+    form = page.split('class="show-author"')[1].split("</form>")[0]
+    assert 'action="/preferences/show-author/"' in page
+    assert f'name="next" value="{url}"' in form
+    assert 'name="show_author" value="on"' in form
+    assert re.search(r'<input type="checkbox"(?![^>]*checked)[^>]*>', form)
+    assert "Show edit authors" in form and "<button" not in form
+    assert re.search(r'<script src="[^"]*show-author\.js" defer></script>', page)
+    show_author(client)
+    form = client.get(url).content.decode().split('class="show-author"')[1].split("</form>")[0]
+    assert 'name="show_author" value="off"' in form
+    assert re.search(r'<input type="checkbox"[^>]*checked[^>]*>', form)

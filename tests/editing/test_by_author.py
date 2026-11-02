@@ -59,3 +59,27 @@ def test_a_mark_across_two_lines_keeps_the_text_whole() -> None:
 
     assert "data-author" not in html
     assert "<em>sentence. Second</em>" in html
+
+
+def test_only_a_changed_block_is_named() -> None:
+    """Against the version before, a paragraph none of whose lines changed names nobody: no
+    change, no change author (DL-0504)."""
+    tokens = labelled("First sentence.\n\nSecond paragraph.\nIts second sentence.\n")
+    authors = {0: "Author A", 2: "Author B", 3: "Author B"}
+    by_author(tokens, authors, changed={3})
+
+    html = render_tokens(tokens)
+
+    assert [n for n, _ in named(html)] == ["Author B"]
+    assert 'data-author="Author A"' not in html
+    assert html.count('class="by"') == 1
+
+
+def test_the_first_version_names_every_block() -> None:
+    """With nothing before it within the reader's reach, every block is named."""
+    tokens = labelled("First sentence.\n\nSecond paragraph.\n")
+    by_author(tokens, {0: "Author A", 2: "Author B"}, changed=None)
+
+    html = render_tokens(tokens)
+
+    assert [n for n, _ in named(html)] == ["Author A", "Author B"]

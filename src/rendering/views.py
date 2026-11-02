@@ -29,6 +29,7 @@ from audit.record import record
 from documents import bundle, gitstore
 from documents.models import Document, Version
 from documents.parts import appendices, attachments
+from editing.diffview import changed_lines
 from editing.numbering import number_of
 from editing.past_authors import ask, authors_at, by_author
 from editions.visible import visible as visible_to
@@ -60,11 +61,14 @@ def view_context(
     version: Version | None = None,
     number: str | None = None,
     authors: Callable[[int], dict[int, str] | None] | None = None,
+    before: Version | None = None,
 ) -> dict[str, Any] | None:
     """What the tab shows — or, with `version`, what the historical page shows of a version the
     caller resolved through the reader's ceiling, and its `number` (DL-0195) — or `None` when
     there is nothing the person may be shown. `authors`, given the lines before the body, names
-    each body line's edit author; its answer, or `None` while there is none, is `authors`."""
+    each body line's edit author; its answer, or `None` while there is none, is `authors`. With
+    `before`, the version before the one shown, only the blocks changed against it are named
+    (DL-0504)."""
     try:
         if version is None:
             visible = visible_to(request.user, document)
@@ -93,7 +97,19 @@ def view_context(
     anchor_clauses(tokens)
     named = authors(text[: len(text) - len(body)].count("\n")) if authors else None
     if named:
-        by_author(tokens, named)
+        changed: set[int] | None = None
+        if before is not None:
+            try:
+                earlier = gitstore.read(repo, "document.md", before.commit_sha).decode("utf-8")
+                changed = changed_lines(bundle.parse(earlier)[1].split("\n"), body.split("\n"))
+            except UNREADABLE:
+                # The version before only tells what changed: without it the text is drawn
+                # unnamed, never answered as missing.
+                logger.exception(
+                    "a document's text could not be read", extra={"document": document.number}
+                )
+                changed = set()
+        by_author(tokens, named, changed=changed)
     # The mentions read once, from the tokens of every text, and the generated views over the
     # body and each appendix, derived from the version shown (DL-0448).
     reader, views = appendix.generated(
@@ -193,12 +209,16 @@ def historical(request: HttpRequest, number: int, version_number: str) -> HttpRe
 
     document, version, past = found
     asking = show_author(request.user)
+    reach = past.reachable()
+    # The version before this one in the reader's reach (DL-0209); none for the first within it.
+    at = next((k for k, (_, v) in enumerate(reach) if v.pk == version.pk), None)
     shown = view_context(
         request,
         document,
         version=version,
         number=past.number(version),
         authors=(lambda offset: authors_at(document, version, offset)) if asking else None,
+        before=reach[at - 1][1] if asking and at else None,
     )
     if shown is None:
         return not_found(request)
@@ -206,7 +226,7 @@ def historical(request: HttpRequest, number: int, version_number: str) -> HttpRe
     waiting = asking and shown["authors"] is None and shown["has_text"]
     if waiting:
         ask(request.tenant.number, document, version)  # type: ignore[attr-defined]
-    others = [n for n, v in past.reachable() if v.pk != version.pk]
+    others = [n for n, v in reach if v.pk != version.pk]
     context = {
         **shown,
         "document": document,
@@ -242,11 +262,11 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     """Two versions on a page of their own (ST-0033, DL-0208, DL-0233): the newer one's whole
     text with its changes against the older marked in place, whichever order they were asked in;
     the attachments of both, each file at each version and whether it changed; *previous* and
-    *next* on a pair consecutive among the content versions the reader may see (DL-0361). Both
-    versions resolve through the reader's ceiling, read once; one version asked against itself, by
-    one number or two, opens that version's page; a reader who may see one version is offered no
-    comparison. With `with`, two documents instead, in the reader's order (`_compare_documents`,
-    DL-0452)."""
+    *next* on every pair, stepping out of it among the versions the reader may see (DL-0508).
+    Both versions resolve through the reader's ceiling, read once; one version asked against
+    itself, by one number or two, opens that version's page; a reader who may see one version is
+    offered no comparison. With `with`, two documents instead, in the reader's order
+    (`_compare_documents`, DL-0452)."""
     from documents.parts import changed_between
     from documents.views import readable_document
     from editing.diffview import render_changes
@@ -292,7 +312,6 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     def link(a: int, b: int) -> str:
         return f"/document/{document.number}/compare/?from={seen[a][0]}&to={seen[b][0]}"
 
-    consecutive = j == i + 1
     context = {
         "document": document,
         "older": older_number,
@@ -300,9 +319,8 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
         "older_link": _version_link(document, older_number),
         "newer_link": _version_link(document, newer_number),
         "numbers": [n for n, _v in seen],
-        "consecutive": consecutive,
-        "previous": link(i - 1, i) if consecutive and i > 0 else "",
-        "next": link(j, j + 1) if consecutive and j + 1 < len(seen) else "",
+        "previous": link(i - 1, i) if i > 0 else "",
+        "next": link(j, j + 1) if j + 1 < len(seen) else "",
         "parts": changed_between(older, newer),
         "older_appendices": appendices(older),
         "newer_appendices": appendices(newer),

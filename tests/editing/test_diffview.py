@@ -179,15 +179,36 @@ def test_a_sense_change_keeps_its_formatting() -> None:
 
 
 def test_each_line_carries_its_author() -> None:
+    """Only a changed line names its edit author (DL-0504): no change, no change author."""
     old = "Перше речення.\nДруге речення.\n"
     new = "Перше речення.\nДруге змінене речення.\nТретє речення.\n"
     html = render_changes(old.encode(), new.encode(), authors={0: "Автор А", 2: "Автор Б"})
-    assert '<span class="by" data-author="Автор А" title="Автор А">Перше речення.</span>' in html
     assert (
         '<span class="by" data-author="Автор Б" title="Автор Б"><ins>Третє речення.</ins>' in html
     )
+    # The unchanged first line is drawn bare, though the mapping names its author.
+    assert "Перше речення." in html
+    assert 'data-author="Автор А"' not in html
     # A line the mapping does not name carries no author.
-    assert html.count('class="by"') == 2
+    assert html.count('class="by"') == 1
+
+
+def test_only_a_changed_row_names_its_author() -> None:
+    old = "| А | Б |\n| --- | --- |\n| 1 | 2 |\n| 3 | 4 |\n"
+    new = "| А | Б |\n| --- | --- |\n| 1 | 2 |\n| 3 | 5 |\n"
+    html = render_changes(old.encode(), new.encode(), authors={2: "Автор А", 3: "Автор Б"})
+    assert 'data-author="Автор Б"' in html
+    assert 'data-author="Автор А"' not in html
+
+
+def test_changed_lines_are_the_new_lines_a_replace_or_an_insert_holds() -> None:
+    from editing.diffview import changed_lines
+
+    old = ["Перше.", "Друге.", "Третє."]
+    assert changed_lines(old, ["Перше.", "Друге змінене.", "Третє.", "Четверте."]) == {1, 3}
+    assert changed_lines(old, old) == set()
+    # A removed line leaves nothing in the new text to name.
+    assert changed_lines(old, ["Перше.", "Третє."]) == set()
 
 
 def test_an_image_inserted_or_removed_shows() -> None:

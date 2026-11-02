@@ -75,9 +75,24 @@ def test_previous_and_next_move_the_pair(
     first = _steps(client.get(f"/document/{n}/compare/?from=0.0&to=0.0-1").content.decode())
     assert first["previous"] is None
     assert first["next"] == f"/document/{n}/compare/?from=0.0-1&to=0.0-2"
-    # A pair that is not consecutive has no stepping.
+    # Any pair steps out of itself: the version before X against X, Y against the one after
+    # it (DL-0508).
     apart = client.get(f"/document/{n}/compare/?from=0.0-1&to=0.0-4").content.decode()
-    assert 'class="step' not in apart
+    assert _steps(apart) == {
+        "previous": f"/document/{n}/compare/?from=0.0&to=0.0-1",
+        "next": f"/document/{n}/compare/?from=0.0-4&to=0.0-5",
+    }
+    # Drawn as the glyphs, named and titled by the words.
+    for step, glyph in (("previous", "‹"), ("next", "›")):
+        drawn = re.search(rf'<a class="step {step}"[^>]*>([^<]*)</a>', apart)
+        assert drawn is not None and drawn.group(1) == glyph
+        assert f'title="{step}"' in drawn.group(0) and f'aria-label="{step}"' in drawn.group(0)
+    wide = client.get(f"/document/{n}/compare/?from=0.0&to=0.0-5").content.decode()
+    assert _steps(wide) == {"previous": None, "next": None}
+    for step in ("previous", "next"):
+        button = re.search(rf'<button class="step {step}"[^>]*>', wide)
+        assert button is not None and f'aria-label="{step}"' in button.group(0)
+    assert "←" not in apart and "→" not in apart
 
 
 def test_versions_the_reader_may_not_see_are_skipped(
@@ -111,3 +126,6 @@ def test_versions_the_reader_may_not_see_are_skipped(
     later = client.get(f"/document/{n}/compare/?from=2.0&to=3.0")
     assert later.status_code == 200
     assert _steps(later.content.decode())["next"] is None
+    # Not consecutive in the history either way: the steps still move to what the reader sees.
+    across = _steps(client.get(f"/document/{n}/compare/?from=2.0&to=3.0").content.decode())
+    assert across["previous"] == f"/document/{n}/compare/?from=1.0&to=2.0"
