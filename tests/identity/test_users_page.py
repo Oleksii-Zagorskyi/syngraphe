@@ -91,7 +91,7 @@ def test_closed_to_members(
 
 
 def test_the_address_opens_the_members_page(migrated_tenant: Any, member_of: Any) -> None:
-    """Row 1: every row's address is a link to `/administration/tenant/users/<id>/`, and the link
+    """Every row's address is a link to `/administration/tenant/users/<id>/`, and the link
     opens the page. `test_invited_and_added_rows_alike` keeps passing: its uuid mask strips the
     href's id as it strips the acts'."""
     admin, _, admin_membership = member_of("t.admin@example.test", is_tenant_admin=True)

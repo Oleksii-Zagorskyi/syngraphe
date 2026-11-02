@@ -452,7 +452,7 @@ def _control(page: str) -> str:
 def test_the_refusals_are_drawn_with_their_reasons(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
 ) -> None:
-    """Row 4: with `0.1` accepted and no freeze, the control is enabled and no reason drawn; with a
+    """With `0.1` accepted and no freeze, the control is enabled and no reason drawn; with a
     version waiting, the reason is the review's, never a freeze's."""
     from editions.models import open_freeze
 

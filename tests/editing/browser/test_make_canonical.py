@@ -45,7 +45,7 @@ def test_the_confirmation_runs_under_the_policy(
     commit_version: Any,
     settings: Any,
 ) -> None:
-    """Row 10a: the confirmation of an unfrozen, accepted document loads at 200 for the approver,
+    """The confirmation of an unfrozen, accepted document loads at 200 for the approver,
     without *and the freeze ends*; no violation."""
     from editions.models import open_freeze
 

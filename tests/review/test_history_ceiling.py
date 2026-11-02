@@ -374,7 +374,7 @@ def test_a_freeze_and_its_unfreeze_keep_their_place_within_one_second(
 def test_an_unfrozen_approval_draws_no_freeze(
     migrated_tenant: Any, cast: Any, link_group: Any, member_of: Any, commit_version: Any
 ) -> None:
-    """Row 6: the first edition, made with no freeze open, is listed with no freeze entry — its
+    """The first edition, made with no freeze open, is listed with no freeze entry — its
     row exists and is not drawn; the second, made under a real freeze, keeps its freeze where it
     began."""
     from editions import services as editions

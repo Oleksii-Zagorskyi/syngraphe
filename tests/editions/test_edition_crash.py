@@ -217,7 +217,7 @@ def _accepted_unfrozen(migrated_tenant: Any, people: Any, commit_version: Any) -
 def test_the_next_act_after_a_stop_settles_the_approval_first(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any, repository: Any
 ) -> None:
-    """Row 9: stopped after the passport commit of an unfrozen approval, then *make canonical*
+    """Stopped after the passport commit of an unfrozen approval, then *make canonical*
     again: `settle_head` derives the stopped approval under the lock — no `RecordIncomplete`, no
     second approval commit, no second edition; its zero-length freeze is derived as a repair and
     `document.freeze_derived` audited; the retry meets `nothing_accepted`."""

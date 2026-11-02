@@ -2,7 +2,7 @@
 
 ## The History tab
 
-*History* lists a document's versions, newest first: each with its number, what happened — an edit, a reviewer's version, an acceptance, a return, a canonisation — who acted and when, and the freezes and unfreezes between them. A line marks where the accepted text ends: above it is the work not yet accepted.
+*History* lists a document's versions, newest first: each with its number, what happened — an edit, a reviewer's version, an acceptance, a return, an edition made canonical — who acted and when, and the freezes and unfreezes between them. A line marks where the accepted text ends: above it is the work not yet accepted.
 
 What you see depends on your groups' rights. *View all history* shows every version your reading right reaches. *View previous canonical versions* shows the editions alone. *Accept* without a history right shows the versions since the last acceptance. Without any of these rights the tab is not shown.
 
@@ -12,7 +12,7 @@ What you see depends on your groups' rights. *View all history* shows every vers
 
 ## Comparing two versions
 
-A comparison shows the newer of two versions in full, with its changes against the older marked in place. Attachments cannot be compared: each is listed with its file in both versions and whether it was added, changed — its file, title or file name — removed or unchanged. When the two versions follow each other, *previous* and *next* move the pair one version back or forward, skipping the versions you may not see.
+A comparison shows the newer of two versions in full, with its changes against the older marked in place. Attachments cannot be compared: each is listed with its file in both versions and whether it was added, changed — its file, title or file name — removed or unchanged. On every comparison of two versions, *‹* opens the version before the older against it and *›* the newer against the version after it, skipping the versions you may not see; each stands disabled where there is no such version.
 
 Appendices are compared in pairs. In the comparison's right pane, pick an appendix of each version and choose *Compare appendices*: the newer one is shown in full with its changes against the older marked, each named by its version and title, and *Back to the comparison* returns. The appendices of two different documents are compared the same way.
 

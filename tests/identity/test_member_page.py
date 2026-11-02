@@ -105,7 +105,7 @@ def _other_tenants_administrator(make_tenant_schema: Any) -> tuple[Client, Any]:
 def test_the_page_lists_groups_and_rights_per_folder(
     migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:
-    """Row 2: the address as heading; the state; the member's groups with *Remove*; *Add* of the
+    """The address as heading; the state; the member's groups with *Remove*; *Add* of the
     other groups; folders in tree order; a row per active document ticked from `implied()`; the
     unlinked author-only document noted *author*; the archived document absent."""
     from access.models import DocumentGroup
@@ -175,7 +175,7 @@ def test_the_page_lists_groups_and_rights_per_folder(
 
 
 def test_add_and_remove_post_to_the_members_route(migrated_tenant: Any, member_of: Any) -> None:
-    """Rows 3 and 4: an *add* under `HX-Request` answers the fragment alone and writes the row,
+    """An *add* under `HX-Request` answers the fragment alone and writes the row,
     audited as `add_member` audits; a *remove* without it answers the whole page, the row gone."""
     from access.models import AccessChange, GroupMember
 
@@ -225,7 +225,7 @@ def test_add_and_remove_post_to_the_members_route(migrated_tenant: Any, member_o
 
 
 def test_a_blocked_members_page(migrated_tenant: Any, member_of: Any, make_document: Any) -> None:
-    """Rows 5 and 6: the state line says blocked; *Remove* offered and no *Add*; the table stands
+    """The state line says blocked; *Remove* offered and no *Add*; the table stands
     under *blocked: none of this applies now*; an *add* is refused as `group_members` refuses it."""
     from access.models import DocumentGroup, GroupMember
     from identity.models import MembershipState
@@ -273,7 +273,7 @@ def test_a_blocked_members_page(migrated_tenant: Any, member_of: Any, make_docum
 def test_a_persons_own_block_shows_through_nothing(
     migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:
-    """Row 7: a self-blocked person's active membership reads *active*, and the groups' rights are
+    """A self-blocked person's active membership reads *active*, and the groups' rights are
     ticked — the table never reads the person's own block (DL-0398)."""
     from access.models import DocumentGroup
     from identity.models import User
@@ -302,7 +302,7 @@ def test_a_persons_own_block_shows_through_nothing(
 def test_an_administrators_page_is_one_line(
     migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:
-    """Row 8: a tenant administrator's own membership draws *Administrator: reads every document
+    """A tenant administrator's own membership draws *Administrator: reads every document
     in the organisation* and no rights table; the groups block is drawn."""
     from access.models import DocumentGroup
 
@@ -329,7 +329,7 @@ def test_an_administrators_page_is_one_line(
 def test_closed_to_members_and_other_tenants(
     migrated_tenant: Any, member_of: Any, make_tenant_schema: Any
 ) -> None:
-    """Rows 6a and 9: an ordinary member, another organisation's administrator and an unknown
+    """An ordinary member, another organisation's administrator and an unknown
     uuid each meet the not-found answer, on the page and on the route; a GET to the route and a
     POST to the page likewise; no row is written by any of them."""
     from access.models import GroupMember

@@ -37,7 +37,7 @@ ADD_BUTTON = '#member-groups form[data-act="add"] button[type="submit"]'
 def test_the_members_page_runs_under_the_policy(
     browser_server: str, policed: Any, migrated_tenant: Any, member_of: Any
 ) -> None:
-    """Row 12: the page loads with no violation; *Add* of a group swaps `#member-groups` without a
+    """The page loads with no violation; *Add* of a group swaps `#member-groups` without a
     full load — the one request is htmx's, with `HX-Request`."""
     from access.models import AccessGroup, GroupMember
 

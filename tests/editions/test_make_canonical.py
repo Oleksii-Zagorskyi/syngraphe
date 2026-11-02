@@ -288,7 +288,7 @@ def test_edition_is_a_tagged_passport_commit(
     commit_version: Any,
     repository: Any,
 ) -> None:
-    """Row 3: on a frozen document the open freeze ends at the approval, as before; afterwards the
+    """On a frozen document the open freeze ends at the approval, as before; afterwards the
     control's reason is `nothing_accepted`, no longer a freeze."""
     from editing import numbering
     from editions import services as editions
@@ -376,7 +376,7 @@ def test_edition_is_a_tagged_passport_commit(
 def test_needs_no_freeze(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any, repository: Any
 ) -> None:
-    """Rows 1 and 2: with an acceptance since the last edition, nothing unaccepted, nobody holding
+    """With an acceptance since the last edition, nothing unaccepted, nobody holding
     it and no freeze open, the refusal is `None` and the control enabled; the act makes the edition
     with a freeze row of its own — begun and ended at the approval, by the approver, made canonical,
     no reason — audited as the approval alone, never as `document.freeze_derived`."""
@@ -428,7 +428,7 @@ def test_needs_no_freeze(
 def test_the_refusals_in_order(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any
 ) -> None:
-    """Row 4: with no freeze open, each refusal of the act's order — `not_permitted`, `held`,
+    """With no freeze open, each refusal of the act's order — `not_permitted`, `held`,
     `nothing_accepted`, `unaccepted_changes`, `distinct_approver` — and never `not_frozen`; the
     view's table has no such key and the service no `once_frozen` keyword."""
     from editing import holds
@@ -478,7 +478,7 @@ def test_the_refusals_in_order(
 def test_the_confirmation_names_the_freeze_only_when_open(
     migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
 ) -> None:
-    """Row 5: *Version 0.1 becomes edition 1.0.* with no freeze open; *…, and the freeze ends.*
+    """*Version 0.1 becomes edition 1.0.* with no freeze open; *…, and the freeze ends.*
     with one; the tail *An edition is never undone…* in both, in one paragraph."""
     from editions import services as editions
 

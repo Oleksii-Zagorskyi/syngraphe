@@ -1,6 +1,6 @@
 # Settings, access history and the audit log
 
-What the record answers for: an organisation's own limits, who could read a document on a past day, every act on the platform, and who last edited each line of a past version.
+What the record holds: an organisation's own limits, who could read a document on a past day, every act on the platform, and who last edited each changed paragraph of a past version.
 
 ## Settings
 
@@ -10,7 +10,7 @@ Administration › *Settings* holds three of the organisation's own rules, for i
 - **Inactivity timeout** — how long an editor may stay idle before being asked *Are you still working?*, from 5 to 480 minutes. A reserved document is never released for inactivity.
 - **Distinct approver check** — when on, nobody who accepted any of the runs since the previous edition may make the next one canonical: a second person stands behind every text that becomes authoritative.
 
-*Apply* sets them; a value outside its bound is refused with the bound named. A change governs the next act and the next check of an idle editor; it releases or asks nothing by itself. Every change is recorded with the settings it changed.
+*Apply* sets them and the page says *Applied*; a value outside its bound is refused, the bound named once, under its field. A change governs the next act and the next check of an idle editor; it releases or asks nothing by itself. Every change is recorded with the settings it changed.
 
 ## Access history
 
@@ -26,4 +26,4 @@ Administration › *Audit log*, for platform administrators on the platform's ow
 
 ## Edit authors on a past version
 
-*Show edit authors* — on *Pending edits* and on a past version's page alike — names who last edited each line, on hovering it. A past version's edit authors are worked out when first asked for: the page says so and shows the text without them; reload it in a moment. They are kept for a day.
+*Show edit authors* — on *Pending edits* and on a past version's page alike — names in the right margin who last edited each changed paragraph. A past version's edit authors are worked out when first asked for: the page says so and shows the text without them; reload it in a moment. They are kept for a day.

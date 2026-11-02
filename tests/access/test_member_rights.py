@@ -1,8 +1,8 @@
 """`member_rights(membership)`: the rights a membership holds on each active document through its
 groups and the documents' links, with the author's own reach, read from the rows alone — never
 through `_person()`, so neither the membership's state nor the person's own block changes it, and
-an administrator's membership gets its groups' rights, not the administrators' reading (DD-8 of
-the interface touches, DL-0398).
+an administrator's membership gets its groups' rights, not the administrators' reading (DL-0505,
+DL-0398).
 
 People, groups and titles are synthetic examples.
 """
@@ -39,7 +39,7 @@ def _group(name: str, rights: list[Right], members: list[Any], admin: Any) -> An
 def test_member_rights_reads_the_groups_alone(
     migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:
-    """Row 13: the union of `implied()` group by group over the linked groups, plus the author's
+    """The union of `implied()` group by group over the linked groups, plus the author's
     reach on an unlinked author-only document; active documents only; a document reached by
     nothing absent. A self-blocked person, a blocked membership and an administrator each get the
     groups' rights and nothing else."""
