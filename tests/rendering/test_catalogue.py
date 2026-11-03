@@ -1,7 +1,7 @@
 """Every page and screen of reading and export renders in Ukrainian from the one catalogue: the view
 with its outline, panel and header, the *Info* state line, the export dialog with its offers and
 refusal, the job's page in each of its states, the help pages for reading and exporting, two
-documents compared, the picker, and the starts on the document page and the list; the export's
+documents compared and the list's start; the export's
 appendices, an appendix of a past version, and the compare page's appendix pickers with a pair's
 page.
 
@@ -148,8 +148,7 @@ def test_catalogue_covers_comparing_two_documents(
     kit: Any,
     settings: Any,
 ) -> None:
-    """Two documents compared, the picker, and the starts on the document page and the list, in
-    Ukrainian."""
+    """Two documents compared and the list's start, in Ukrainian."""
     settings.LANGUAGE_CODE = "uk"
     tenant = migrated_tenant.number
     people = edition_cast()
@@ -165,7 +164,6 @@ def test_catalogue_covers_comparing_two_documents(
 
     for name, path in (
         ("two documents", f"/document/{first.number}/compare/?with={second.number}"),
-        ("the picker", f"/document/{first.number}/compare/?with="),
         ("the list", "/folder/1/"),
     ):
         response = client.get(path)

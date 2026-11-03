@@ -594,3 +594,105 @@ def test_a_copy_carries_the_title_page_text_of_the_version_copied(
     with zipfile.ZipFile(tmp_path / "copy.docx") as produced:
         words = produced.read("word/document.xml").decode()
     assert "Register entry: EX-1 (synthetic)" in words and "EX-2" not in words
+
+
+def _listed(migrated_tenant: Any, source: Any, count: int, right: Any) -> tuple[Any, list[Any]]:
+    """`count` more documents in the root folder and a group holding `right` linked to each."""
+    from access.models import AccessGroup, DocumentGroup
+    from documents import services
+    from documents.models import Document, DocumentType, Folder
+
+    with schema_context(migrated_tenant.number):
+        group = AccessGroup.objects.create(
+            name=f"List readers {Document.objects.count()} (synthetic example)",
+            created_by=source.user,
+            actor_kind="user",
+        )
+        group.grant(right, by=source.user)
+        made = []
+        for n in range(count):
+            document = services.create_document(
+                source.user,
+                f"Synthetic listed document {n}",
+                "uk",
+                DocumentType.objects.get(code="document"),
+                Folder.objects.get(number=1),
+            )
+            DocumentGroup.link(document, group, by=source.user)
+            made.append(document)
+    return group, made
+
+
+def _joined(migrated_tenant: Any, source: Any, membership: Any, *groups: Any) -> None:
+    with schema_context(migrated_tenant.number):
+        for group in groups:
+            group.add_member(membership, by=source.user)
+
+
+def test_copy_on_the_list(
+    migrated_tenant: Any,
+    member_of: Any,
+    source: Any,
+    settings: Any,
+    django_assert_num_queries: Any,
+) -> None:
+    """⧉ on a row whose document has a version the reader may see, to a holder of *create and
+    edit*; none on a row whose record cannot be read, which shows no version; no column for a
+    reader who may not create (DL-0520). The offer is read once per list, never per row."""
+    from access.models import AccessGroup
+    from access.rights import Right
+    from documents import gitstore
+
+    settings.LANGUAGE_CODE = "en"
+    readable, (seen,) = _listed(migrated_tenant, source, 1, Right.VIEW_PENDING)
+    blind, (unseen,) = _listed(migrated_tenant, source, 1, Right.VIEW_PENDING)
+    creator, _, creating = member_of("list.creator@example.test")
+    reader, _, reading = member_of("list.reader@example.test")
+    with schema_context(migrated_tenant.number):
+        creators = AccessGroup.objects.create(
+            name="List creators (synthetic example)", created_by=source.user, actor_kind="user"
+        )
+        creators.grant(Right.CREATE_AND_EDIT, by=source.user)
+    _joined(migrated_tenant, source, creating, creators, readable, blind)
+    _joined(migrated_tenant, source, reading, readable, blind)
+
+    # Its repository away: listed, its versions unread, nothing to copy.
+    path = gitstore.repository_path(migrated_tenant.number, unseen.number)
+    parked = path.with_name(path.name + ".parked")
+    path.rename(parked)
+    try:
+        page = creator.get("/folder/1/").content.decode()
+    finally:
+        parked.rename(path)
+    rows = dict(re.findall(r'<tr class="document" data-number="(\d+)">(.*?)</tr>', page, re.S))
+    cell = rows[str(seen.number)].split('<td class="copy">', 1)[1]
+    assert f'<a class="icon" href="/document/{seen.number}/copy/"' in cell
+    assert str(unseen.number) in rows and "/copy/" not in rows[str(unseen.number)]
+    assert '<th class="copy">' in page
+
+    listed = reader.get("/folder/1/").content.decode()
+    assert "/copy/" not in listed and '<th class="copy">' not in listed
+
+    # Ten copyable rows cost what one does.
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
+    with CaptureQueriesContext(connection) as one:
+        creator.get("/folder/1/")
+    more, _ = _listed(migrated_tenant, source, 9, Right.VIEW_PENDING)
+    _joined(migrated_tenant, source, creating, more)
+    with django_assert_num_queries(len(one.captured_queries)):
+        ten = creator.get("/folder/1/").content.decode()
+    # The nine new rows, the first, and the second now its repository is back.
+    assert ten.count("/copy/") == 11
+
+
+def test_no_copy_on_the_page(migrated_tenant: Any, source: Any, settings: Any) -> None:
+    """The document's page offers neither copying nor comparing with another document: both
+    start from the list (DL-0520)."""
+    settings.LANGUAGE_CODE = "en"
+    number = source.document.number
+    page = html.unescape(source.client.get(f"/document/{number}/").content.decode())
+    assert f"/document/{number}/copy/" not in page
+    assert "with=" not in page and "Compare with another document" not in page
+    assert "Copy" not in re.sub(r"<[^>]*>", " ", page)

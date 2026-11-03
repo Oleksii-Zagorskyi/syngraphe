@@ -181,11 +181,12 @@ def folder(request: HttpRequest, number: int) -> HttpResponse:
     selected = next((n.folder for n in tree.flat() if n.folder.number == number), None)
     if selected is None:
         return not_found(request)
+    creating = can_create(request.user, tenant)
     context = {
-        **_rows(request.user, shown, administrator=administrator),
+        **_rows(request.user, shown, administrator=administrator, copying=creating),
         **_pane(request, tree, selected),
         **_sorting(request),
-        "can_create": can_create(request.user, tenant),
+        "can_create": creating,
         "administrator": administrator,
         "folder": selected,
         # The type filter's choices beside the search box (DL-0236).
@@ -276,13 +277,19 @@ def _pane(
 
 
 def _rows(
-    user: Any, shown: list[Document], seen: Any = None, *, administrator: bool = False
+    user: Any,
+    shown: list[Document],
+    seen: Any = None,
+    *,
+    administrator: bool = False,
+    copying: bool = False,
 ) -> dict[str, Any]:
     """A list's rows — the numbers, the parts, the state tags of each document and whether its
     reader may edit it — and whether the *Latest* and ✎ columns are drawn; shared by the folder,
     the two views and search. `administrator` says
     whether the reader administers the organisation, one of the facts that decide whether a
-    holder is named (`review.state.hold_tag`)."""
+    holder is named (`review.state.hold_tag`). `copying` says the reader may create documents,
+    which the folder's list alone offers a copy by (DL-0520)."""
     seen = _versions(user, shown) if seen is None else seen
     parts = _parts({pk: s.version for pk, s in seen.items() if s is not None})
     # The state tags after the title, each to those it concerns (DL-0233, DL-0351).
@@ -300,6 +307,11 @@ def _rows(
             "tags": shown_tags.get(document.pk, []),
             # The ✎ cell, for a holder of *edit* on this row alone.
             "editable": Right.EDIT in beyond.get(document.pk, frozenset()),
+            # ⧉ where the reader sees a version to copy: the list's own reading, not the copy
+            # form's offers, which it reads again when opened.
+            "copyable": copying
+            and seen.get(document.pk) is not None
+            and document.state == DocumentState.ACTIVE,
         }
         for document in shown
     ]
@@ -309,6 +321,7 @@ def _rows(
         # (DL-0233); the ✎ column only where a listed row is editable (DL-0236).
         "latest_column": any(held & BEYOND_CANONICAL for held in beyond.values()),
         "pencil_column": any(row["editable"] for row in rows),
+        "copy_column": any(row["copyable"] for row in rows),
     }
 
 

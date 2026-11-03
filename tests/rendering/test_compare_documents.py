@@ -1,6 +1,6 @@
 """Comparing two documents (ST-0064, DL-0187, DL-0452): the second document's whole text marked
 against the first's, each version resolved through its own document's ceiling, each document's
-attachments listed apart at its version; the picker; the three starts.
+attachments listed apart at its version; no picker, the list naming both; the three starts.
 
 People, groups, titles and texts are synthetic examples; every text is invented.
 """
@@ -169,18 +169,12 @@ def test_the_address_rules(two: Any, member_of: Any, link_group: Any, settings: 
     malformed = client.get(f"{base}?from=1.0&with=x{b}&to=1.0")
     superscript = client.get(f"{base}?from=1.0&with=²&to=1.0")
     newest = client.get(f"{base}?from=1.0&with={b}")
-    picker = client.get(f"{base}?from=1.0&with=")
-    one_document = client.get(f"{base}?from=1.0&with=&to=1.0-1")
     only_a_has = client.get(f"{base}?from=1.0&with={b}&to=1.0-2")
     from_newest = client.get(f"{base}?with={b}&to=1.0")
 
     assert itself.status_code == 302 and itself["Location"] == f"{base}?from=1.0&to=1.0-1"
     assert malformed.status_code == 404 and superscript.status_code == 404
     assert f"with #{b} 1.0-1" in _text(newest.content.decode())
-    shown = picker.content.decode()
-    assert picker.status_code == 200 and 'name="with" value=""' in shown
-    assert 'class="changes' not in shown and 'name="to"' not in shown
-    assert "Comparing 1.0 with 1.0-1 — read only" in _text(one_document.content.decode())
     assert only_a_has.status_code == 404
     assert f"Comparing #{a} 1.0-2 with #{b} 1.0" in _text(from_newest.content.decode())
 
@@ -196,9 +190,28 @@ def test_the_address_rules(two: Any, member_of: Any, link_group: Any, settings: 
     # Another document typed over the one shown: its `to` belonged to the old one and is dropped.
     changed = client.get(f"{base}?from=1.0&with={b}&was=99&to=1.0-2")
     assert f"Comparing #{a} 1.0 with #{b} 1.0-1" in _text(changed.content.decode())
-    cleared = client.get(f"{base}?from=1.0&with=&was={b}&to=1.0-1")
-    assert cleared.status_code == 200 and 'class="changes' not in cleared.content.decode()
-    assert 'name="with" value=""' in cleared.content.decode()
+
+
+def test_no_picker(two: Any, member_of: Any, link_group: Any, settings: Any) -> None:
+    """Two documents are compared only once both are named, from the list (DL-0520): an empty
+    `with` — asked, or the field cleared over a pair shown — is nothing to show; a number is the
+    comparison as built, its field required."""
+    settings.LANGUAGE_CODE = "en"
+    client = _reader(member_of, link_group, two, [two.a, two.b], HISTORY, "no-picker")
+    a, b = two.a.number, two.b.number
+    base = f"/document/{a}/compare/"
+
+    assert client.get(f"{base}?with=").status_code == 404
+    assert client.get(f"{base}?from=1.0&with=").status_code == 404
+    assert client.get(f"{base}?from=1.0&with=&to=1.0-1").status_code == 404
+    assert client.get(f"{base}?from=1.0&with=&was={b}&to=1.0-1").status_code == 404
+    named = client.get(f"{base}?with={b}&to=1.0")
+    assert named.status_code == 200
+    shown = named.content.decode()
+    assert f"Comparing #{a} 1.0-2 with #{b} 1.0" in _text(shown)
+    assert re.search(r'<input type="text" name="with" value="\d+"[^>]* required>', shown)
+    started = client.get(f"/compare/?first={a}&second={b}")
+    assert started.status_code == 302 and started["Location"] == f"{base}?with={b}"
 
 
 def test_a_version_asked_by_an_earlier_number(

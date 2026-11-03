@@ -283,13 +283,16 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     document = readable_document(request, number)
     if document is None:
         return not_found(request)
-    # Another document named, or the picker asked for (DL-0452). A `to` belongs to the
-    # second document the choosers showed, `was`: typed over or cleared, that `to` is dropped.
+    # Another document named (DL-0452); both are named on the list before a pair is drawn, so
+    # an empty one is nothing to show (DL-0520). A `to` belongs to the second document the
+    # choosers showed, `was`: typed over, that `to` is dropped.
     other = request.GET.get("with")
-    to = request.GET.get("to", "")
-    if other is not None and request.GET.get("was", other) != other:
-        to = ""
-    if other is not None and (other != "" or not to):
+    if other is not None:
+        if other == "":
+            return not_found(request)
+        to = request.GET.get("to", "")
+        if request.GET.get("was", other) != other:
+            to = ""
         return _compare_documents(request, document, other, to)
     asked = request.GET.get("from", ""), request.GET.get("to", "")
     try:
@@ -358,8 +361,7 @@ def _compare_documents(
     """Two documents compared (ST-0064, DL-0452): the second's whole text at `to` marked against
     the first's at `from`, in the reader's order, each version resolved through its own document's
     ceiling and missing ones taken as that document's newest the reader reaches; each document's
-    attachments at its version, unpaired. `other` empty: the picker, no text drawn. The same
-    document named twice: its own comparison."""
+    attachments at its version, unpaired. The same document named twice: its own comparison."""
     from urllib.parse import urlencode
 
     from documents.views import readable_document
@@ -367,17 +369,17 @@ def _compare_documents(
     from review.history import ceiling
 
     asked_from = request.GET.get("from", "")
-    if other and not (other.isascii() and other.isdigit() and len(other) <= 9):
+    if not (other.isascii() and other.isdigit() and len(other) <= 9):
         return not_found(request)
     second = None
-    if other and int(other) != first.number:
+    if int(other) != first.number:
         second = readable_document(request, int(other))
         if second is None:
             return not_found(request)
     try:
         first_past = ceiling(request.user, first)
         first_seen = first_past.reachable()
-        if other and second is None:
+        if second is None:
             # The document named as its own second: its own comparison, a missing side its
             # newest version the reader reaches.
             newest = first_seen[-1][0] if first_seen else ""
@@ -397,10 +399,6 @@ def _compare_documents(
             "older": asked_from,
             "first_numbers": [n for n, _v in first_seen],
         }
-        if second is None:
-            # Two documents compared stand under the first's heading and path (DL-0522).
-            context["frame"] = frame(request, first, here="", shown=asked_from)
-            return render(request, "rendering/compare_documents.html", context)
         second_past = ceiling(request.user, second)
         second_seen = second_past.reachable()
         newer = second_past.version(asked_to) if asked_to else None

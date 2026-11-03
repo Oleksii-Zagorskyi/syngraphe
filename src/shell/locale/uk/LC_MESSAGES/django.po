@@ -3642,7 +3642,7 @@ msgstr "Ваше редагування завершено %(date)s: ви заа
 msgid "Your editing was ended on %(date)s when %(name)s archived the document."
 msgstr "Ваше редагування завершено %(date)s: документ заархівовано — %(name)s."
 
-#: documents/templates/documents/copy_act.html
+#: documents/templates/documents/list.html
 msgid "Copy"
 msgstr "Копіювати"
 
@@ -3720,14 +3720,6 @@ msgstr "Скопійовано з"
 #: rendering/templates/rendering/compare_documents.html
 msgid "Comparing %(first)s %(older)s with %(second)s %(newer)s — read only"
 msgstr "Порівняння %(first)s %(older)s з %(second)s %(newer)s — лише для читання"
-
-#: rendering/templates/rendering/compare_documents.html
-msgid ""
-"Enter the number of the document to compare with: its newest version you "
-"may see is compared first, and you can then choose another."
-msgstr ""
-"Укажіть номер документа для порівняння: спершу порівнюється його найновіша "
-"доступна вам версія, потім можна вибрати іншу."
 
 #: documents/templates/documents/list.html
 msgid "Compare documents…"
