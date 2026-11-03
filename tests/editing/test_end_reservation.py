@@ -171,7 +171,9 @@ def test_end_with_a_reason(migrated_tenant: Any, reserved: Reserved, settings: A
     body = page.content.decode()
     assert form_posting_to(body, url)
     assert has_reason_field(body)
-    shown = text_of(body)
+    # The page's own sentence names the holder by address (DL-0434); the frame above it — band
+    # and tags — names people as every page of the document does.
+    shown = text_of(body.split('<section class="end-reservation">', 1)[1])
     assert reserved.holder.email in shown and reserved.holder.display_name not in shown
     assert date_shown(shown, reserved.hold.reserved_at, settings.DISPLAY_TIMEZONE)
 
@@ -324,11 +326,12 @@ def test_the_notice_names_the_administrator_through_person(
     reserved.holder.display_name = ""
     reserved.holder.save(update_fields=["display_name"])
     number = reserved.document.number
-    for page in (
-        reserved.admin_client.get(f"/document/{number}/edit/end-reservation/"),
-        reserved.admin_client.get("/administration/tenant/reservations/"),
+    end_page = reserved.admin_client.get(f"/document/{number}/edit/end-reservation/")
+    for body in (
+        # The page's own sentence, below the document's frame.
+        end_page.content.decode().split('<section class="end-reservation">', 1)[1],
+        reserved.admin_client.get("/administration/tenant/reservations/").content.decode(),
     ):
-        body = page.content.decode()
         assert reserved.holder.email in body
         assert "anonymous editor" not in body
     reserved.admin_client.post(

@@ -19,6 +19,7 @@ from django.views.decorators.cache import never_cache
 from access.rights import Right, rights_on
 from documents.locks import LockTimeout
 from documents.models import Document
+from documents.path import frame
 from editing import holds, numbering, services, summary
 from editing.messages import DRAFT_LIMITS
 from editing.messages import for_the_editor as messages_for_the_editor
@@ -76,6 +77,13 @@ def _screen(
     context = _context(
         document,
         "edit",
+        # The heading names the number the screen's form will give, a stopped finish's included.
+        frame=frame(
+            request,
+            document,
+            here="finish",
+            shown=_("%(number)s — draft") % {"number": finishing.number},
+        ),
         head=gitstore.head(gitstore.open_repository(holds.tenant_number(), document.number)),
         changes=mark_safe(finishing.changes),  # noqa: S308 — built from escaped text alone
         summary=more.pop("summary", finishing.summary),
@@ -342,6 +350,7 @@ def my_edits(request: HttpRequest, number: int) -> HttpResponse:
     context = _context(
         document,
         "my-edits",
+        frame=frame(request, document, here="draft"),
         changes=mark_safe(changes),  # noqa: S308
         entity_changes=listed,
         **drawn,

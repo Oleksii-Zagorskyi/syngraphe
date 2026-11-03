@@ -169,18 +169,21 @@ def test_pending_needs_view_pending(
     assert f"/document/{document.number}/pending/" not in page
 
 
-def test_the_tabs_are_the_documents_on_pending_and_its_confirmation(
+def test_the_frame_on_pending_and_its_confirmations(
     member_of: Any, new_document: Any, link_group: Any, commit_version: Any
 ) -> None:
-    """The pending tab and the accept confirmation draw the tab bar every other tab draws: *Edit*
-    to a holder of *edit* (DL-0208)."""
+    """The review page and its two confirmations draw the document's frame, the run's arc
+    outlined and the heading naming it (DL-0518, DL-0522)."""
     client, _, author_a, _, document = reviewer_and_authors(member_of, new_document, link_group)
     commit_version(document, author_a, FIRST, "edit")
-    edit = f'href="/document/{document.number}/edit/"'
-    for address in ("pending/", "pending/accept/"):
+    for address in ("pending/", "pending/accept/", "pending/return/"):
         page = client.get(f"/document/{document.number}/{address}").content.decode()
-        tabs = page.split('<nav class="tabs">', 1)[1].split("</nav>", 1)[0]
-        assert edit in tabs, address
+        assert (
+            f'<a class="go" href="/document/{document.number}/pending/" data-go="run-arc"'
+            ' aria-current="location">'
+        ) in page, address
+        assert '<span class="version-number">0.0 → 0.0-1</span>' in page, address
+        assert 'class="tabs"' not in page, address
 
 
 def test_empty_run(

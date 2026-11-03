@@ -1,6 +1,6 @@
 {% extends "documents/page.html" %}
 {% load i18n %}
-{% block tab %}
+{% block body %}
 <div class="finish">
   <h2>{% translate "Finish editing" %}</h2>
   <p class="muted">{% translate "Your changes, marked in the text. The summary is for the reviewer and is kept with the version; it starts from the sections you changed." %}</p>
@@ -11,8 +11,7 @@
     {% csrf_token %}
     <label for="summary">{% translate "Change summary" %}</label>
     <input type="text" id="summary" name="summary" value="{{ summary }}" maxlength="{{ summary_max }}" required>
-    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-    {% if reviewer %}
+      {% if reviewer %}
     {% if run %}
     <p class="muted">{% translate "Accepting also accepts the versions waiting before yours:" %}</p>
     <ol class="run">

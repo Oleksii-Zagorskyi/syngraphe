@@ -26,6 +26,7 @@ from documents import gitstore
 from documents.holds import held_by
 from documents.models import Document, DocumentState, Version, VersionKind
 from documents.parts import lists_at, part_operations
+from documents.path import frame
 from documents.views import ABSENT, is_member
 from editing import holds, numbering
 from editing.authorship import DOCUMENT_FILE, blame_at
@@ -220,6 +221,7 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         }
     context = {
         "document": document,
+        "frame": frame(request, document, here="review"),
         "tab": "pending",
         "can_edit": Right.EDIT in rights,
         "holding": held_by(document, request.user),

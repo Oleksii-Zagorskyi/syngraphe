@@ -124,10 +124,10 @@ def test_a_tab_from_elsewhere_waits_for_start_editing(
     page.wait_for_selector("button[data-command=start]")
     with schema_context(migrated_tenant.number):
         assert not Hold.objects.filter(document=document).exists()
-    assert not page.is_visible(f'nav.tabs a[href="/document/{document.number}/my-edits/"]')
+    assert not page.is_visible("[data-parts-panel]")
     page.click("button[data-command=start]")
-    # The take gives the holder their tab at once, before the page is drawn again.
-    page.wait_for_selector(f'nav.tabs a[href="/document/{document.number}/my-edits/"]')
+    # The take gives the holder their parts panel at once, before the page is drawn again.
+    page.wait_for_selector("[data-parts-panel]", state="visible")
     page.click("button[data-command=edit-whole]")
     page.wait_for_function("() => document.getElementById('editor').editor !== undefined")
     with schema_context(migrated_tenant.number):

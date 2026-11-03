@@ -1,9 +1,8 @@
 {% extends "documents/page.html" %}
 {% load i18n %}
-{% block tab %}
+{% block body %}
 <div class="accept-confirm">
   <h2>{% translate "Accept the run" %}</h2>
-  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
   <p>{% blocktranslate with number=number %}The versions below will be accepted as {{ number }}.{% endblocktranslate %}</p>
   <ol class="run">
     {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}</span></li>{% endfor %}

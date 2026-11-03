@@ -18,6 +18,7 @@ from access.rights import Right, rights_on
 from documents.holds import held_by
 from documents.locks import LockTimeout
 from documents.models import Document
+from documents.path import frame
 from editing import numbering
 from editing.reservations import ReasonRefused
 from identity.models import User
@@ -50,6 +51,7 @@ def _confirmation(
     accepted = numbering.accepted(document)
     context: dict[str, Any] = {
         "document": document,
+        "frame": frame(request, document, here="review"),
         "tab": "pending",
         "can_edit": Right.EDIT in rights_on(request.user, document),
         "holding": held_by(document, request.user),

@@ -38,6 +38,7 @@ from documents.models import (
     PartKind,
     Version,
 )
+from documents.path import frame
 from documents.services import ChoiceGone, CreationStopped, create_document
 from documents.template import TemplateRefused
 from identity.models import User
@@ -497,6 +498,7 @@ def render_page(
         "tab": tab,
         "error": error,
         "folder_path": tree.path_of(document.folder),
+        "frame": frame(request, document, here="latest" if tab == "view" else "info"),
     }
     if tab == "view":
         from rendering.views import view_context

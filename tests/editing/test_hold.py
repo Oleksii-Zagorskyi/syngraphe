@@ -5,7 +5,6 @@ Group names, people and titles are synthetic examples."""
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 import pytest
@@ -63,18 +62,16 @@ def test_opening_the_tab_takes_the_hold(
     assert draft.content["document.md"] == bundle.parse(stored)[1]
     assert holds.join(draft.content["frontmatter"], draft.content["document.md"]) == stored
     assert draft.content["frontmatter"]["title"] == document.title
-    # Drawn before the hold: *My edits* hidden, for the editor's take to reveal.
-    tabs = re.search(r'<nav class="tabs">.*?</nav>', page.content.decode(), re.S)
-    assert tabs is not None
-    assert tabs.group(0) == (
-        f'<nav class="tabs"><a href="/document/{document.number}/">View</a>'
-        f'<a href="/document/{document.number}/edit/" aria-current="page">'
-        f'Edit</a><a href="/document/{document.number}/my-edits/" hidden data-my-edits>'
-        f'My edits</a><a href="/document/{document.number}/pending/">Pending edits</a>'
-        f'<a href="/document/{document.number}/info/">Info</a></nav>'
-    )
-    info = client.get(f"/document/{document.number}/info/").content.decode()
-    assert f'<a href="/document/{document.number}/info/" aria-current="page">Info</a>' in info
+    # Drawn before the hold, from elsewhere: no draft point yet; once held, the draft point is
+    # drawn and outlined, the heading naming the draft (DL-0518).
+    before = page.content.decode()
+    assert 'data-go="draft"' not in before and 'class="tabs"' not in before
+    after = client.get(f"/document/{document.number}/edit/").content.decode()
+    assert (
+        f'<a class="go" href="/document/{document.number}/edit/" data-go="draft"'
+        ' aria-current="location">0.0-1</a>'
+    ) in after
+    assert '<span class="version-number">0.0-1 — draft</span>' in after
 
 
 def test_held_tab_for_others(

@@ -1,0 +1,15 @@
+{% load i18n static review editions editing corpus %}{# The frame of every page of a document: bands, heading, icons and the path of versions (DL-0518, DL-0522). `frame` is documents.path.frame's answer, computed here when the view passed none. #}{% if not frame %}{% document_frame document as frame %}{% endif %}
+  {% freeze_band document %}
+  {% hold_band document %}
+  {% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+  {# The folder's path, each folder linked; the organisation's name for the root #}
+  {% folder_crumbs document as crumbs %}<nav class="breadcrumb">{% for folder in crumbs %}<a href="/folder/{{ folder.number }}/">{{ folder.name }}</a> /{% if not forloop.last %} {% endif %}{% empty %}<a href="/folder/1/">{{ current_tenant.name }}</a> /{% endfor %}</nav>
+  <div class="title-row">
+    <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% if frame.shown %} <span class="version-number">{{ frame.shown }}</span>{% endif %}{% state_tag document %}</h1>
+    <span class="head-icons">{% for icon in frame.icons %}<a class="icon-btn" href="{{ icon.href }}" aria-label="{{ icon.label }}" title="{{ icon.label }}">{% if icon.name == "export" %}<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3M3 12v2h10v-2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>{% elif icon.name == "history" %}<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3.5A4.5 4.5 0 1 1 3.6 7M8 5.5V8l2 1.5M2 4.5 3.6 7 6 5.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>{% else %}<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v4M8 4.6v.8" stroke="currentColor" stroke-width="1.6"/></svg>{% endif %}</a>{% endfor %}</span>
+  </div>
+  {% if frame.path %}<nav class="path" aria-label="{% translate 'Document path' %}">
+    <ol class="cycle">{% for item in frame.path %}{% if item.kind == "point" %}<li class="point {{ item.key }}{% if item.here %} here{% endif %}"><a class="go" href="{{ item.href }}" data-go="{{ item.key }}"{% if item.here %} aria-current="location"{% endif %}>{{ item.number }}</a><span class="sub">{{ item.caption }}{% if item.caption and item.sub %} · {% endif %}{{ item.sub }}</span></li>{% elif item.key %}<li class="seg {{ item.key }}{% if item.here %} here{% endif %}"><a class="go" href="{{ item.href }}" data-go="{{ item.key }}"{% if item.here %} aria-current="location"{% endif %}>{{ item.caption }}</a><span class="sub">{{ item.sub }}</span></li>{% else %}<li class="seg draft" aria-hidden="true"></li>{% endif %}{% endfor %}</ol>
+    {% for item in frame.path %}{% if item.here and item.acts %}<div class="acts-row"><span class="elbow" aria-hidden="true"></span><div class="phase-acts" data-acts-for="{{ item.key }}"></div></div>{% endif %}{% endfor %}
+  </nav>
+  <script src="{% static 'documents/path.js' %}" defer></script>{% endif %}

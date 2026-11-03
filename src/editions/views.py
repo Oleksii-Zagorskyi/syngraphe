@@ -18,6 +18,7 @@ from django.views.decorators.cache import never_cache
 from access.rights import Right, rights_on
 from documents.locks import LockTimeout
 from documents.models import Document, DocumentState
+from documents.path import frame
 from editions import services
 from editions.models import REASON_MAX, open_freeze
 from identity.models import User
@@ -145,6 +146,7 @@ def _confirmation(
     head = gitstore.head(repo)
     context = {
         "document": document,
+        "frame": frame(request, document, here="accepted"),
         "tab": "",
         "can_edit": Right.EDIT in rights_on(user, document),
         "holding": held_by(document, user),

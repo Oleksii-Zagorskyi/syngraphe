@@ -14,6 +14,7 @@ from django.views.decorators.cache import never_cache
 
 from access.rights import Right, rights_on
 from documents.holds import held_by
+from documents.path import frame
 from documents.views import readable_document
 from identity.naming import person
 from rendering.views import UNREADABLE
@@ -113,6 +114,7 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         return not_found(request)
     context = {
         "document": document,
+        "frame": frame(request, document, here="history"),
         "tab": "history",
         "can_edit": Right.EDIT in rights,
         "holding": held_by(document, request.user),

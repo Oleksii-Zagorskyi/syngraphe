@@ -182,9 +182,9 @@ def test_refusals(
     hold = open_hold(migrated_tenant, frozen)
     assert hold is not None and hold.reserved_at is None
     tab = reviewer_client.get(f"/document/{frozen.number}/edit/").content.decode()
-    # The band above the tabs names the freeze already; the tab itself draws the button,
+    # The band above the frame names the freeze already; the page itself draws the button,
     # disabled, and says why.
-    in_tab = tab.split('<nav class="tabs">', 1)[1]
+    in_tab = tab.split('<nav class="path"', 1)[1]
     assert disabled_button(in_tab)
     drawn = text_of(in_tab)
     assert "Frozen" in drawn

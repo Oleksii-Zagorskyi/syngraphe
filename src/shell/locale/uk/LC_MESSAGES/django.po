@@ -2650,10 +2650,6 @@ msgstr "Причина: «%(reason)s»"
 msgid "Your editing of this document was ended, and your draft was kept."
 msgstr "Ваше редагування цього документа завершено, чернетку залишено."
 
-#: editing/templates/editing/band.html
-msgid "Open it in the edit tab"
-msgstr "Відкрити її у вкладці редагування"
-
 #: editing/templates/editing/draft_readonly.html
 #, python-format
 msgid "Your editing was ended for inactivity on %(date)s."
@@ -2903,7 +2899,7 @@ msgstr "Перерване завершення редагування дове�
 msgid "The document is held; make it canonical once it is released."
 msgstr "Документ зайнятий; затвердьте його, коли його звільнять."
 
-#: documents/templates/documents/tabs.html
+#: documents/path.py
 msgid "History"
 msgstr "Історія"
 
@@ -4803,3 +4799,60 @@ msgstr "Оберіть організацію"
 
 msgid "The document is frozen, so your draft can only be read: it is shown as changes against the text you choose."
 msgstr "Документ заморожено, тож вашу чернетку можна лише прочитати: її показано як зміни відносно обраного тексту."
+
+#: documents/templates/documents/frame.html
+msgid "Document path"
+msgstr "Шлях документа"
+
+#: documents/path.py
+msgctxt "a point of the path"
+msgid "canonical version"
+msgstr "канонічна"
+
+#: documents/path.py
+msgctxt "a point of the path"
+msgid "latest accepted"
+msgstr "погоджена"
+
+#: documents/path.py
+msgctxt "a point of the path"
+msgid "latest version"
+msgstr "остання"
+
+#: documents/path.py
+msgctxt "a point of the path"
+msgid "your draft"
+msgstr "ваша чернетка"
+
+#: documents/path.py
+msgctxt "a point of the path"
+msgid "kept draft"
+msgstr "залишена"
+
+#: documents/path.py
+#, python-format
+msgctxt "the draft's other number"
+msgid "or %(number)s"
+msgstr "або %(number)s"
+
+#: documents/path.py
+msgctxt "an arc of the path"
+msgid "edits between versions"
+msgstr "правки"
+
+#: documents/path.py
+#, python-format
+msgid "%(count)s version"
+msgid_plural "%(count)s versions"
+msgstr[0] "%(count)s версія"
+msgstr[1] "%(count)s версії"
+msgstr[2] "%(count)s версій"
+
+#: documents/path.py
+#, python-format
+msgid "%(number)s — draft"
+msgstr "%(number)s — чернетка"
+
+#: editing/templates/editing/band.html
+msgid "Open your draft"
+msgstr "Відкрити чернетку"

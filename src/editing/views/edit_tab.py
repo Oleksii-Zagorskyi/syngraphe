@@ -17,6 +17,7 @@ from django.views.decorators.cache import never_cache
 from access.rights import Right, rights_on_many
 from documents.locks import LockTimeout
 from documents.models import Document, DocumentState
+from documents.path import frame
 from documents.views import ABSENT
 from editing import holds, messages
 from identity.models import User
@@ -103,14 +104,19 @@ def tab_response(
             return render(
                 request,
                 "editing/draft_readonly.html",
-                context | returning(request, document, kept, read_only=not may_take),
+                context
+                | {"frame": frame(request, document, here="kept")}
+                | returning(request, document, kept, read_only=not may_take),
             )
     if frozen is not None and not accepts:
         # While frozen only holders of *accept* edit (ADR-0016); the tab says why and offers
         # nothing.
         context["frozen"] = frozen
+        # A holder whose document was frozen while they held it stands on their draft point.
+        context["frame"] = frame(request, document, here="draft" if holding else "latest")
         return render(request, "editing/held_by_other.html", context)
     if hold is not None and hold.user_id != request.user.pk:
+        context["frame"] = frame(request, document, here="latest")
         return render(request, "editing/held_by_other.html", context)
     context["reservation"] = _reservation(request, document, hold, frozen, context)
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
@@ -130,6 +136,13 @@ def tab_response(
         context["undo"] = hold.draft.content.get("undo")
     # The title page's switch and text in the panel, as the draft has them (DL-0463, DL-0476).
     context["title_page"] = title_page.state(document, hold if holding else None)
+    # The page is served before the editor takes the hold on mount (DL-0325): the draft point is
+    # drawn for the take to come.
+    taking = own and not holding
+    on_draft = holding or taking
+    context["frame"] = frame(
+        request, document, here="draft" if on_draft else "latest", taking=taking
+    )
     context |= extra or {}
     return render(request, "editing/edit_tab.html", context, status=status)
 

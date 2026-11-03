@@ -198,7 +198,9 @@ def test_my_edits_tab_shows_the_draft_to_its_holder(
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
     set_draft(migrated_tenant, document, BODY.replace("The second term.", "Another second term."))
     body = client.get(f"/document/{document.number}/my-edits/").content.decode()
-    assert "<ins>" in body and f'href="/document/{document.number}/my-edits/"' in body
+    assert "<ins>" in body
+    # The page stands on the holder's draft point (DL-0518).
+    assert 'data-go="draft" aria-current="location"' in body
     other, _, _ = member_of("another.editor@example.test")
     assert other.get(f"/document/{document.number}/my-edits/").status_code == 404
 

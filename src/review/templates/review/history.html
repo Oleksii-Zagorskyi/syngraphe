@@ -1,6 +1,6 @@
 {% extends "documents/page.html" %}
 {% load i18n tz %}
-{% block tab %}
+{% block body %}
 <div class="history">
   {% if editions_only %}<p class="muted">{% translate "Canonical editions only — your groups hold “view previous canonical versions”." %}</p>{% endif %}
   {% if run_only %}<p class="muted">{% translate "The pending run only — your groups hold “accept” without a history right." %}</p>{% endif %}

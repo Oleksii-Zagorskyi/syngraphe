@@ -1,6 +1,6 @@
 {% extends "documents/page.html" %}
 {% load i18n static tz %}
-{% block tab %}
+{% block body %}
 <div class="pending{% if show_author %} show-authors{% endif %}">
   {% if acts %}
   <p class="acts">{% if acts.correct %}<button class="btn" type="button" disabled data-command="correct">{% translate "Correct" %}</button> <span class="muted">{{ acts.correct }}</span>{% else %}<a class="btn" href="/document/{{ document.number }}/edit/" data-command="correct">{% translate "Correct" %}</a>{% endif %}

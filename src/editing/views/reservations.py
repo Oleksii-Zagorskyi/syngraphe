@@ -15,6 +15,7 @@ from django.views.decorators.cache import never_cache
 
 from access.rights import Right, holds_anywhere, readable
 from documents.locks import LockTimeout
+from documents.path import frame
 from documents.views import is_member
 from editing import holds, reservations
 from editing.models import Hold
@@ -188,6 +189,7 @@ def end(request: HttpRequest, number: int) -> HttpResponse:
     context = {
         "hold": hold,
         "document": hold.document,
+        "frame": frame(request, hold.document, here="end-reservation"),
         # By address, as every administration page names a person (DL-0434).
         "holder": hold.user.email,
         "reason": "",

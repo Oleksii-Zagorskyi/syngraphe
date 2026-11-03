@@ -382,3 +382,38 @@ def test_a_part_staged_after_a_stop_is_kept(
         text = gitstore.read(repo, "document.md", version.commit_sha).decode()
         assert bundle.parse(text)[0].attachments[0]["title"] == "Renamed form (example)"
         assert Version.objects.filter(document=document, commit_sha=stopped).exists()
+
+
+def test_the_screens_heading_names_the_number_its_form_gives(
+    migrated_tenant: Any, member_of: Any, new_document: Any, settings: Any
+) -> None:
+    """A finish stopped past its commit, the commit's row derived since: the screen's form gives
+    the stopped version's own number, and the heading names the same draft number."""
+    from documents import gitstore
+    from documents import services as documents
+    from editing import services
+    from editing.models import Draft, Hold
+
+    settings.LANGUAGE_CODE = "en"
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    client.post(f"/document/{document.number}/edit/take/")
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=document)
+        draft = Draft.objects.get(hold=hold)
+        draft.content = {
+            **draft.content,
+            "document.md": draft.content["document.md"] + "\nA new sentence.\n",
+        }
+        draft.save()
+        with pytest.raises(services.InjectedFault):
+            services.commit_draft(hold, author, "Extended", fault_at=1)
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        head = gitstore.head(repo)
+        assert head is not None
+        documents.derive_version(document, gitstore.commit_at(repo, head), author)
+        assert services.finish(hold).number == "0.0-1"
+
+    body = client.get(f"/document/{document.number}/edit/finish/").content.decode()
+
+    assert '<span class="version-number">0.0-1 — draft</span>' in body

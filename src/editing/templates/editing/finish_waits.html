@@ -1,6 +1,6 @@
 {% extends "documents/page.html" %}
 {% load i18n %}
-{% block tab %}
+{% block body %}
 <p class="held" role="status">{{ reason }}</p>
 {% if refusals %}<ul class="refusals">{% for line in refusals %}<li>{{ line }}</li>{% endfor %}</ul>
 <p><a href="/help/markdown/">{% translate "What the editor accepts" %}</a></p>{% endif %}

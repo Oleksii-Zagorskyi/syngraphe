@@ -122,14 +122,9 @@ def article(body: str) -> str:
     return found.group(1)
 
 
-def tab(body: str, label: str) -> str:
-    """The opening tag of the tab link whose text is `label`."""
-    found = re.search(rf"(<a\b[^>]*>)\s*{label}\s*</a>", body)
-    assert found is not None, f"no tab {label}"
-    return found.group(1)
-
-
-def test_accepted_reader_sees_the_view_tab(accepted: Any, reader: Any) -> None:
+def test_accepted_reader_reads_the_latest_point(accepted: Any, reader: Any) -> None:
+    """The document's address is the latest version the reader may see, its point outlined on
+    the path; Info is an icon in the heading (DL-0518)."""
     document = accepted.document
     client = reader(Right.VIEW_ACCEPTED, document)
 
@@ -137,12 +132,12 @@ def test_accepted_reader_sees_the_view_tab(accepted: Any, reader: Any) -> None:
 
     assert response.status_code == 200
     body = response.content.decode()
-    view = tab(body, "Перегляд")
-    assert f'href="/document/{document.number}/"' in view
-    assert 'aria-current="page"' in view
-    assert 'aria-current="page"' not in tab(body, "Відомості")
-    # View comes first in the tab row.
-    assert body.index(view) < body.index(tab(body, "Відомості"))
+    assert (
+        f'<a class="go" href="/document/{document.number}/" data-go="latest"'
+        ' aria-current="location">0.1</a>'
+    ) in body
+    assert f'<a class="icon-btn" href="/document/{document.number}/info/"' in body
+    assert 'class="tabs"' not in body
     assert "Перегляд версії 0.1" in body
     text = article(body)
     assert re.search(r'<h1 id="h-1"><span class="num">1</span> General provisions</h1>', text)
@@ -192,11 +187,12 @@ def test_pending_edit_is_not_the_accepted_readers(
     )
 
 
-def test_the_header_names_the_readers_version_on_every_tab(
+def test_the_header_names_the_readers_version_on_every_page_that_reads_one(
     migrated_tenant: Any, accepted: Any, reader: Any
 ) -> None:
     """The document's header follows the view's rule (DL-0209, `pages.md § Document page`): the
-    latest version the reader may see stands after the title, on *View* and on *Info* alike."""
+    latest version the reader may see stands after the title on the document's address; Info reads
+    no version and names none (DL-0518)."""
     document = accepted.document
     _commit(migrated_tenant.number, document, accepted.operator, BODY + f"\n{PENDING_SENTENCE}\n")
     accepted_client = reader(Right.VIEW_ACCEPTED, document)
@@ -207,12 +203,14 @@ def test_the_header_names_the_readers_version_on_every_tab(
         assert found is not None
         return found.group(1)
 
-    for path in (f"/document/{document.number}/", f"/document/{document.number}/info/"):
-        assert re.search(r'<span class="version-number">0\.1</span>', header(accepted_client, path))
-        assert '<span class="version-number">0.1-1</span>' in header(pending_client, path)
-    # The tabs and pages beyond *View* and *Info* share the header, and its version with it.
-    assert '<span class="version-number">0.1-1</span>' in header(
-        pending_client, f"/document/{document.number}/pending/"
+    path = f"/document/{document.number}/"
+    assert re.search(r'<span class="version-number">0\.1</span>', header(accepted_client, path))
+    assert '<span class="version-number">0.1-1</span>' in header(pending_client, path)
+    for client in (accepted_client, pending_client):
+        assert "version-number" not in header(client, f"{path}info/")
+    # The run's page names its arc, from the accepted version to the run's head.
+    assert '<span class="version-number">0.1 → 0.1-1</span>' in header(
+        pending_client, f"{path}pending/"
     )
     editor = reader(Right.EDIT, document)
     assert '<span class="version-number">0.1-1</span>' in header(
@@ -251,8 +249,9 @@ def test_info_stays_info(accepted: Any, reader: Any) -> None:
 
     assert response.status_code == 200
     body = response.content.decode()
-    assert 'aria-current="page"' in tab(body, "Відомості")
-    assert 'aria-current="page"' not in tab(body, "Перегляд")
+    # Info stands on no point of the path: nothing is outlined, and no text is drawn.
+    assert 'data-go="latest"' in body
+    assert 'aria-current="location"' not in body
     assert 'class="document-text"' not in body
 
 

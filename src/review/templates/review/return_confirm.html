@@ -1,9 +1,8 @@
 {% extends "documents/page.html" %}
 {% load i18n %}
-{% block tab %}
+{% block body %}
 <div class="return-confirm">
   <h2>{% translate "Return without accepting" %}</h2>
-  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
   <p>{% translate "The versions below go back to their authors without being accepted. They stay pending, and the authors are told your reason." %}</p>
   <ol class="run">
     {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}</span></li>{% endfor %}

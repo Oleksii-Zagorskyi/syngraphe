@@ -92,22 +92,43 @@ def _state_of(
 ) -> State:
     if document.pk not in reviewed:
         return State.NO_REVIEWER_ASSIGNED
-    repo = gitstore.open_repository(holds.tenant_number(), document.number)
-    head = gitstore.head(repo)
-    if head is None:
+    since = _since(document, latest, content, returns)
+    if since is None:
         return State.NEW
-    if latest is not None:
-        # From the acceptance's own commit: a return of the run it accepted lies before it.
-        base = latest.version.commit_sha
-    else:
-        base = str(next(iter(gitstore.history(repo))).id)
-    since = [sha for sha in services.commits_after(repo, base, head) if sha in content | returns]
     if since and since[-1] in returns:
         # A return with no content version after it: the run is back with its authors.
         return State.RETURNED
     if any(sha in content for sha in since):
         return State.AWAITING_REVIEW
     return State.ACCEPTED if latest is not None else State.NEW
+
+
+def _since(
+    document: Document, latest: Acceptance | None, content: set[str], returns: set[str]
+) -> list[str] | None:
+    """The content and return commits since the latest acceptance, oldest first; `None` before
+    the first commit."""
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    head = gitstore.head(repo)
+    if head is None:
+        return None
+    if latest is not None:
+        # From the acceptance's own commit: a return of the run it accepted lies before it.
+        base = latest.version.commit_sha
+    else:
+        base = str(next(iter(gitstore.history(repo))).id)
+    return [sha for sha in services.commits_after(repo, base, head) if sha in content | returns]
+
+
+def returned(document: Document) -> bool:
+    """Whether the run is back with its authors — a return with no content version after it —
+    whether or not the document is frozen or has a reviewer, which the state reads first: the
+    path marks a returned run as returned (DL-0518)."""
+    _, latest, content, returns = _rows([document])
+    since = _since(document, latest.get(document.pk), content[document.pk], returns[document.pk])
+    if not since:
+        return False
+    return since[-1] in returns[document.pk]
 
 
 def since_edition(document_ids: Iterable[Any], latest: dict[Any, Acceptance]) -> set[Any]:

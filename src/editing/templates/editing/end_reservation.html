@@ -1,9 +1,9 @@
-{% extends "shell/base.html" %}
+{% extends "documents/page.html" %}
 {% load i18n tz %}
 {% block title %}{% translate "End the reservation" %} · Syngraphē{% endblock %}
-{% block content %}
-<section class="content">
-  <h1>{% translate "End the reservation" %}</h1>
+{% block body %}
+<section class="end-reservation">
+  <h2>{% translate "End the reservation" %}</h2>
   {% timezone display_timezone %}<p>{% blocktranslate with number=document.number title=document.title name=holder date=hold.reserved_at|date:"j E Y" %}#{{ number }} {{ title }} is reserved for editing by {{ name }} since {{ date }}.{% endblocktranslate %}</p>{% endtimezone %}
   <p class="muted">{% translate "Ending it frees the document for others. The draft is kept for the person editing, who is told who ended it, when and why." %}</p>
   {% if changed %}<p class="notice error" role="alert">{% translate "This reservation has changed since the page was opened. Read it again before ending it." %}</p>{% endif %}

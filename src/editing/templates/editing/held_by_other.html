@@ -1,6 +1,6 @@
 {% extends "documents/page.html" %}
 {% load i18n %}
-{% block tab %}
+{% block body %}
 {% if frozen %}
 <p class="held frozen">{% if frozen.reason %}{% blocktranslate with reason=frozen.reason %}Frozen — “{{ reason }}” — until it is unfrozen or made canonical.{% endblocktranslate %}{% else %}{% translate "Frozen — until it is unfrozen or made canonical." %}{% endif %}</p>
 {% else %}

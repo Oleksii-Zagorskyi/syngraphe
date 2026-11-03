@@ -28,6 +28,31 @@ def folder_crumbs(document: Document) -> list[Folder]:
     return Tree("").ancestry(document.folder)
 
 
+# Where a page of the family stands on the path, from the page's own `tab`, for a page whose view
+# passes no frame of its own — the finishing screen's waits among them.
+TAB_HERE = {
+    "view": "latest",
+    "info": "info",
+    "edit": "draft",
+    "my-edits": "draft",
+    "pending": "review",
+    "history": "history",
+}
+
+
+@register.simple_tag(takes_context=True)
+def document_frame(context: Any, document: Document) -> Any:
+    """The frame of `document`'s page when its view passed none (`documents.path.frame`)."""
+    from documents.holds import held_by
+    from documents.path import frame
+
+    request = context["request"]
+    here = TAB_HERE.get(context.get("tab", ""), "")
+    if here == "draft" and not held_by(document, request.user):
+        here = "latest"
+    return frame(request, document, here=here)
+
+
 @register.simple_tag
 def archived_tag(document: Document) -> SafeString | str:
     """The *archived* tag, for the historical, compare and export pages, which draw no state tags;

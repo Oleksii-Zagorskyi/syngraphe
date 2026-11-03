@@ -298,9 +298,10 @@ def test_the_tab(
     for name in ("a", "b", "r", "p"):
         person = history.people[name]
         assert person.display_name in shown or person.email in shown, name
-    # Each version linked to its historical page, in a new tab.
+    # Each version linked to its historical page, in a new tab — the list's links, not the path's.
+    listed = body.split('<div class="history">', 1)[1]
     for shown_number in ("0.0", "0.0-1", "0.0-2", "0.1", "0.2", "1.0", "1.0-1", "1.0-2"):
-        links = anchors(body, f"/document/{number}/version/{shown_number}/")
+        links = anchors(listed, f"/document/{number}/version/{shown_number}/")
         assert links, shown_number
         assert all('target="_blank"' in tag for tag in links), shown_number
     # Newest first.
