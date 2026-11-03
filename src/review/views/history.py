@@ -82,10 +82,10 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         "can_edit": Right.EDIT in rights,
         "holding": held_by(document, request.user),
         "rows": _rows(found),
+        # What the rows reach for a reader without *view all history* (DL-0524, DL-0534).
         "editions_only": Right.VIEW_PREVIOUS_CANONICAL in rights
-        and Right.VIEW_ALL_HISTORY not in rights
-        and Right.ACCEPT not in rights,
-        "run_only": Right.ACCEPT in rights
-        and not rights & {Right.VIEW_ALL_HISTORY, Right.VIEW_PREVIOUS_CANONICAL},
+        and not rights & {Right.VIEW_ALL_HISTORY, Right.EDIT},
+        "from_edition": Right.EDIT in rights and Right.VIEW_ALL_HISTORY not in rights,
+        "and_editions": Right.VIEW_PREVIOUS_CANONICAL in rights,
     }
     return render(request, "review/history.html", context)

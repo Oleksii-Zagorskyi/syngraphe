@@ -242,8 +242,9 @@ def test_entries_by_right(
     # (ii): the edition's approval alone.
     assert [(e.event, e.number) for e in listed["ii"]] == [("approval", "1.0")]
 
-    # (iii): the run alone.
+    # (iii): *accept* includes *edit*, so from the edition's approval up (DL-0534).
     assert [(e.event, e.number, e.version.pk) for e in listed["iii"]] == [
+        ("approval", "1.0", history.edition.approval_version.pk),
         ("edit", "1.0-1", v["1.0-1"].pk),
         ("edit", "1.0-2", v["1.0-2"].pk),
     ]
@@ -443,3 +444,117 @@ def test_the_kept_draft_compares_with_the_history(
     options = against_options(page.content.decode())
     for wanted in ("0.1", "0.1-1", "0.0-1"):
         assert offers(options, wanted), (wanted, options)
+
+
+# History for every holder of *edit*, from the latest edition up (DL-0524, DL-0534).
+
+
+@pytest.mark.parametrize("held", [[Right.EDIT], [Right.ACCEPT]])
+def test_an_editor_reads_history_from_the_edition(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+    held: list[Any],
+) -> None:
+    """A holder of *edit* — or of *accept*, which includes it — without a history right: the
+    History icon, and History's rows from the edition's approval up: the edition, the run after
+    it; nothing older."""
+    from access.rights import rights_on
+    from review import history as review_history
+
+    history = standard_history(migrated_tenant, edition_cast, commit_version)
+    client, user = reader(member_of, link_group, history, "history-editor", held)
+    with schema_context(migrated_tenant.number):
+        assert review_history.has_tab(rights_on(user, history.document))
+        rows = [(e.number, e.event) for e in review_history.entries(user, history.document)]
+
+    assert rows == [("1.0", "approval"), ("1.0-1", "edit"), ("1.0-2", "edit")], rows
+    page = client.get(f"/document/{history.document.number}/").content.decode()
+    assert f'href="/document/{history.document.number}/history/"' in page
+    listed = client.get(f"/document/{history.document.number}/history/")
+    assert listed.status_code == 200
+
+
+def test_an_editor_reaches_nothing_older(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+) -> None:
+    history = standard_history(migrated_tenant, edition_cast, commit_version)
+    client, _ = reader(member_of, link_group, history, "history-editor", [Right.EDIT])
+    n = history.document.number
+
+    # 0.2 is the edition's own version, which 1.0 made canonical: reached.
+    for number in ("0.0", "0.0-2", "0.1"):
+        assert client.get(f"/document/{n}/version/{number}/").status_code == 404, number
+    assert client.get(f"/document/{n}/compare/?from=0.1&to=1.0-1").status_code == 404
+
+
+def test_every_row_an_editor_sees_opens(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+) -> None:
+    from review import history as review_history
+
+    history = standard_history(migrated_tenant, edition_cast, commit_version)
+    client, user = reader(member_of, link_group, history, "history-editor", [Right.EDIT])
+    n = history.document.number
+    with schema_context(migrated_tenant.number):
+        numbers = [e.number for e in review_history.entries(user, history.document)]
+
+    assert numbers
+    for number in numbers:
+        assert client.get(f"/document/{n}/version/{number}/").status_code == 200, number
+    assert client.get(f"/document/{n}/compare/?from=1.0&to=1.0-2").status_code == 200
+
+
+def test_an_editor_with_no_edition_reads_every_version(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    from review import history as review_history
+
+    people = edition_cast(editors=("a",), reviewers=(), approvers=())
+    commit_version(people.document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        rows = [e.number for e in review_history.entries(people["a"], people.document)]
+
+    assert rows == ["0.0", "0.0-1"], rows
+
+
+def test_an_editor_reads_from_the_latest_of_two_editions(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+) -> None:
+    """Two editions, 1.0 and 2.0, a run after 2.0: an editor's rows start at 2.0's approval, the
+    note says so, and 1.0 opens nowhere."""
+    from editions import services as editions
+    from review import history as review_history
+    from review import services as review
+
+    history = standard_history(migrated_tenant, edition_cast, commit_version)
+    with schema_context(migrated_tenant.number):
+        review.accept(history.document, history.people["r"])
+        second = editions.make_canonical(history.document, history.people["p"])
+        assert second.number == "2.0"
+    commit_version(history.document, history.people["a"], FIRST, "edit")
+    client, user = reader(member_of, link_group, history, "history-editor", [Right.EDIT])
+    n = history.document.number
+    with schema_context(migrated_tenant.number):
+        rows = [(e.number, e.event) for e in review_history.entries(user, history.document)]
+
+    assert rows == [("2.0", "approval"), ("2.0-1", "edit")], rows
+    page = client.get(f"/document/{n}/history/").content.decode()
+    assert "Від останньої канонічної редакції" in page
+    assert client.get(f"/document/{n}/version/1.0/").status_code == 404
+    assert client.get(f"/document/{n}/compare/?from=1.0&to=2.0").status_code == 404
+    assert client.get(f"/document/{n}/version/2.0/").status_code == 200

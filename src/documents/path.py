@@ -797,15 +797,19 @@ def _kept_acts(
     return acts
 
 
+# Who froze the document is named to these (DL-0236); *edit*, though it opens History (DL-0524),
+# does not name them.
+NAMES_WHO_FROZE = frozenset({Right.VIEW_ALL_HISTORY, Right.VIEW_PREVIOUS_CANONICAL, Right.ACCEPT})
+
+
 def _marks(rights: frozenset[Right], situation: _Situation, user: Any) -> list[Mark]:
     """The freeze and someone else's hold, under the latest version: who froze it to holders of a
-    history right and administrators (DL-0236); who holds it to those DL-0516 names."""
+    history right or *accept* and administrators (DL-0236); who holds it to those DL-0516 names."""
     from identity.naming import person
-    from review.history import has_tab
 
     marks = []
     if situation.freeze is not None:
-        if has_tab(rights) or situation.administrator:
+        if rights & NAMES_WHO_FROZE or situation.administrator:
             text = gettext("frozen by %(name)s") % {"name": person(situation.freeze.frozen_by)}
         else:
             text = gettext("frozen")

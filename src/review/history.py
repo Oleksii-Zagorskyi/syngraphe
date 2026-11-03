@@ -9,9 +9,11 @@ every edition, *view all history* every content version up to the latest the rea
 reaches. A passport commit is never opened as a version: its entry opens the version it decides
 on.
 
-**The tab's breadth** is the history rights' and *accept*'s: every entry within the ceiling to a
+**The tab's breadth** is the history rights' and *edit*'s: every entry within the ceiling to a
 holder of *view all history*, the canonisations to a holder of *view previous canonical versions*,
-the pending run to a holder of *accept* (DL-0251); nobody else holds the tab.
+and to a holder of *edit* — however held, *accept* included — every entry from the latest
+edition's approval up, the edition's versions since within the ceiling as well; with no edition
+yet, every version (DL-0524, DL-0534). Nobody else holds the tab.
 
 A page reads the ceiling once, as a `Ceiling`, and asks it everything: a forbidden number then
 costs exactly what a missing one does, so neither answer tells the other apart (ADR-0008).
@@ -29,7 +31,10 @@ from editing import numbering
 
 CONTENT = (VersionKind.CREATED, VersionKind.EDIT, VersionKind.REVIEWER_EDIT)
 PASSPORT = (VersionKind.ACCEPTANCE, VersionKind.RETURN, VersionKind.APPROVAL)
-HISTORY_RIGHTS = frozenset({Right.VIEW_ALL_HISTORY, Right.VIEW_PREVIOUS_CANONICAL, Right.ACCEPT})
+# *Accept* includes *edit* (ADR-0016), so *edit* covers its holders too (DL-0524, DL-0534).
+HISTORY_RIGHTS = frozenset(
+    {Right.VIEW_ALL_HISTORY, Right.VIEW_PREVIOUS_CANONICAL, Right.ACCEPT, Right.EDIT}
+)
 
 
 @dataclass(frozen=True)
@@ -130,7 +135,26 @@ def ceiling(user: Any, document: Document) -> Ceiling:
         )
     if cap is not None and Right.VIEW_ALL_HISTORY in rights and cap in content:
         reach.update(content[: content.index(cap) + 1])
+    if cap is not None and Right.EDIT in rights and cap in content:
+        # An edition whose version the history does not hold yet widens nothing.
+        start = 0 if edition is None else len(content)
+        if edition is not None and edition.version.commit_sha in content:
+            start = content.index(edition.version.commit_sha)
+        reach.update(content[start : content.index(cap) + 1])
     return Ceiling(document, rights, history, frozenset(reach), accepted)
+
+
+def _since_edition(past: Ceiling) -> int:
+    """The position in the history of the latest edition's approval, from which a holder of
+    *edit* reads History; `0` before the first edition."""
+    from editions.visible import latest_edition
+
+    edition = latest_edition(past.document)
+    if edition is None:
+        return 0
+    approval = edition.approval_version.commit_sha
+    shas = [c.sha for c in past.history.commits]
+    return shas.index(approval) if approval in shas else len(shas)
 
 
 def version_for(user: Any, document: Document, number: str) -> Version | None:
@@ -160,6 +184,7 @@ def entries(user: Any, document: Document) -> list[Entry]:
 
     everything = Right.VIEW_ALL_HISTORY in rights
     run = {v.commit_sha for v in services.run(document)} if Right.ACCEPT in rights else set()
+    since = _since_edition(past) if Right.EDIT in rights and not everything else None
     rows = {
         v.commit_sha: v for v in Version.objects.filter(document=document).select_related("author")
     }
@@ -167,7 +192,7 @@ def entries(user: Any, document: Document) -> list[Entry]:
     # never learns whether accepted work lies beyond the edition (DL-0209).
     accepted = past.accepted if Right.VIEW_ACCEPTED in rights else None
     found: list[tuple[datetime, Entry]] = []
-    for commit in past.history.commits:
+    for position, commit in enumerate(past.history.commits):
         version = rows.get(commit.sha)
         if version is None:
             # A commit whose row is not derived yet is not part of the history until it is.
@@ -179,7 +204,8 @@ def entries(user: Any, document: Document) -> list[Entry]:
             canonisation = Right.VIEW_PREVIOUS_CANONICAL in rights and (
                 commit.kind == VersionKind.APPROVAL and target in past.reach
             )
-            shown = canonisation or commit.sha in run
+            from_edition = since is not None and position >= since and target in past.reach
+            shown = canonisation or commit.sha in run or from_edition
         if not shown:
             continue
         entry = Entry(

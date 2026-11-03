@@ -2921,8 +2921,13 @@ msgstr "Лише канонічні редакції — ваші групи м�
 
 #: review/templates/review/history.html
 msgid ""
-"The pending run only — your groups hold “accept” without a history right."
-msgstr "Лише правки після останнього погодження — ваші групи мають право «погодження» без права на історію."
+"From the latest canonical edition up — your groups hold “edit” without a history right."
+msgstr "Від останньої канонічної редакції — ваші групи мають право «редагування» без права на історію."
+
+#: review/templates/review/history.html
+msgid ""
+"The earlier canonical editions, and everything from the latest one up — your groups hold “edit” and “view previous canonical versions”."
+msgstr "Попередні канонічні редакції й усе від останньої — ваші групи мають права «редагування» і «перегляд попередніх редакцій»."
 
 #: review/templates/review/history.html
 msgid "Version"

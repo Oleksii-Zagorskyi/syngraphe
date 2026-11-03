@@ -79,7 +79,7 @@ ICONS: dict[str, list[tuple[str, str, str]]] = {
     "canonical_only": TWO_ICONS,
     "view_accepted": TWO_ICONS,
     "view_pending": TWO_ICONS,
-    "edit": TWO_ICONS,
+    "edit": THREE_ICONS,
     "accept": THREE_ICONS,
     "approver": THREE_ICONS,
     "administrator": THREE_ICONS,
@@ -791,8 +791,8 @@ def test_the_kept_point_is_never_beside_a_draft_point(
 def test_the_icons_by_reader(
     migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
 ) -> None:
-    """Export, then History only with `has_tab` (a history right or *accept*), then Info — to
-    every reader, the one with no path included."""
+    """Export, then History only with `has_tab` (a history right or *edit*, which *accept*
+    includes — DL-0524), then Info — to every reader, the one with no path included."""
     scene = _cast(migrated_tenant, member_of, new_document)
     _build("canonical", scene, commit_version)
     n = scene.number
@@ -802,7 +802,7 @@ def test_the_icons_by_reader(
         "canonical_only": TWO_ICONS,
         "view_accepted": TWO_ICONS,
         "view_pending": TWO_ICONS,
-        "edit": TWO_ICONS,
+        "edit": THREE_ICONS,
         "accept": THREE_ICONS,
         "approver": THREE_ICONS,
         "administrator": THREE_ICONS,

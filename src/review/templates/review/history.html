@@ -3,7 +3,7 @@
 {% block body %}
 <div class="history">
   {% if editions_only %}<p class="muted">{% translate "Canonical editions only — your groups hold “view previous canonical versions”." %}</p>{% endif %}
-  {% if run_only %}<p class="muted">{% translate "The pending run only — your groups hold “accept” without a history right." %}</p>{% endif %}
+  {% if from_edition %}<p class="muted">{% if and_editions %}{% translate "The earlier canonical editions, and everything from the latest one up — your groups hold “edit” and “view previous canonical versions”." %}{% else %}{% translate "From the latest canonical edition up — your groups hold “edit” without a history right." %}{% endif %}</p>{% endif %}
   {% if rows %}
   <table class="entries">
     <thead><tr><th>{% translate "Version" %}</th><th>{% translate "Event" %}</th><th>{% translate "Who" %}</th><th>{% translate "When" %}</th><th></th></tr></thead>

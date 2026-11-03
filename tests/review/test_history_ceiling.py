@@ -292,8 +292,9 @@ def test_a_return_is_listed_within_each_readers_reach(
         # The return concerns pending work: beyond a reader of accepted text.
         assert "return" not in [e.event for e in entries(accepted_only, document)]
         assert "return" not in [e.event for e in entries(editions_only, document)]
-        # *Accept* without a history right: the run's versions alone, no passport entry.
-        assert [e.event for e in entries(people["r"], document)] == ["edit"]
+        # *Accept* without a history right: with no edition yet, every version, as a holder of
+        # *edit* reads History (DL-0534).
+        assert "return" in [e.event for e in entries(people["r"], document)]
 
 
 def test_a_recreated_row_keeps_the_order_of_git(
