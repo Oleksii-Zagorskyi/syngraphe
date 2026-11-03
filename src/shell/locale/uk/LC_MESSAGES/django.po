@@ -314,11 +314,6 @@ msgstr "Експорт"
 
 #: documents/templates/documents/page.html:16
 #: documents/templates/documents/page.html:23
-msgid "View"
-msgstr "Перегляд"
-
-#: documents/templates/documents/page.html:16
-#: documents/templates/documents/page.html:23
 msgid "Edit"
 msgstr "Редагування"
 
@@ -326,11 +321,6 @@ msgstr "Редагування"
 #: documents/templates/documents/page.html:23
 msgid "My edits"
 msgstr "Мої правки"
-
-#: documents/templates/documents/page.html:16
-#: documents/templates/documents/page.html:23
-msgid "Pending edits"
-msgstr "Всі неприйняті правки"
 
 #: documents/templates/documents/page.html:16
 #: documents/templates/documents/page.html:23
@@ -1301,12 +1291,6 @@ msgstr "У вибраній версії немає вкладених файл�
 #: rendering/export/job.py:126
 msgid "The file could not be made. Try again, or tell the operator."
 msgstr "Файл не вдалося створити. Спробуйте ще раз або повідомте оператора."
-
-#: rendering/templates/rendering/export.html:6
-#: rendering/templates/rendering/export_job.html:6
-#, python-format
-msgid "Export — #%(number)s"
-msgstr "Експорт — #%(number)s"
 
 #: rendering/templates/rendering/export.html:12
 msgid "What"
@@ -3790,18 +3774,6 @@ msgstr "Скопійовано з"
 #: rendering/templates/rendering/compare_documents.html
 msgid "Comparing %(first)s %(older)s with %(second)s %(newer)s — read only"
 msgstr "Порівняння %(first)s %(older)s з %(second)s %(newer)s — лише для читання"
-
-#: rendering/templates/rendering/compare_documents.html
-msgid ""
-"Compare #%(first)s %(first_title)s%(first_tag)s with #%(second)s "
-"%(second_title)s%(second_tag)s"
-msgstr ""
-"Порівняти #%(first)s %(first_title)s%(first_tag)s з #%(second)s "
-"%(second_title)s%(second_tag)s"
-
-#: rendering/templates/rendering/compare_documents.html
-msgid "Compare #%(first)s %(first_title)s%(first_tag)s with another document"
-msgstr "Порівняти #%(first)s %(first_title)s%(first_tag)s з іншим документом"
 
 #: rendering/templates/rendering/compare_documents.html
 msgid ""

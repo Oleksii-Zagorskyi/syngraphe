@@ -92,7 +92,8 @@ def test_previous_and_next_move_the_pair(
     for step in ("previous", "next"):
         button = re.search(rf'<button class="step {step}"[^>]*>', wide)
         assert button is not None and f'aria-label="{step}"' in button.group(0)
-    assert "←" not in apart and "→" not in apart
+    steps = apart.split('<span class="steps">', 1)[1].split("</span>", 1)[0]
+    assert "←" not in steps and "→" not in steps
 
 
 def test_versions_the_reader_may_not_see_are_skipped(

@@ -42,7 +42,15 @@
     }
   };
 
+  // The heading names the version that will be exported, following the view chosen (DL-0519).
+  const heading = document.querySelector("h1 .version-number");
+  const following = () => {
+    const view = form.querySelector('input[name="view"]:checked, input[type="hidden"][name="view"]');
+    if (heading && view && view.dataset.number) heading.textContent = view.dataset.number;
+  };
+
   form.addEventListener("change", update);
+  form.addEventListener("change", following);
   update();
 
   // A help box closes at a click anywhere else, and one opening closes the others (DL-0233).

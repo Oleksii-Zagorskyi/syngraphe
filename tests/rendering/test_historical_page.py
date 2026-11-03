@@ -140,10 +140,12 @@ def test_historical_page(
     # The heading's outline link.
     assert re.search(r'<a\b[^>]*\bhref="#[^"]+"', body)
     assert 'href="#h-1"' in body
-    # Read-only, and no tab bar of the live document.
+    # Read-only: no tabs, nothing to edit; the run's arc on the path is this reader's way to it.
     assert f'href="/document/{number}/edit/"' not in body
-    assert f'href="/document/{number}/pending/"' not in body
-    assert f'href="/document/{number}/history/"' not in body
+    assert 'class="tabs"' not in body
+    # History is the heading's icon alone.
+    assert body.count(f'href="/document/{number}/history/"') == 1
+    assert f'<a class="icon-btn" href="/document/{number}/history/"' in body
     assert links_to(body, f"/document/{number}/version/0.0-2/export/")
 
 

@@ -5,14 +5,12 @@
 {% block content %}
 <section class="content document appendix-page">
   {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
-  {% block bands %}{% freeze_band document %}{% hold_band document %}{% endblock %}
-  {% folder_crumbs document as crumbs %}<nav class="breadcrumb">{% for folder in crumbs %}<a href="/folder/{{ folder.number }}/">{{ folder.name }}</a> /{% if not forloop.last %} {% endif %}{% empty %}<a href="/folder/1/">{{ current_tenant.name }}</a> /{% endfor %}</nav>
-  {# The appendix's title, after its document's — the number is internal (DL-0444) #}
-  <h1><a href="/document/{{ document.number }}/"><span class="id">#{{ document.number }}</span> {{ document.title }}</a> › {{ appendix.title }}{% block number %}{% if version_number %} <span class="version-number">{{ version_number }}</span>{% endif %}{% endblock %}{% archived_tag document %}</h1>
+  {# The document's frame, its path in appendix mode; the appendix's title after the document's — the number is internal (DL-0444, DL-0522) #}
+  {% include "documents/frame.html" %}
+  {% block banner %}{% endblock %}
   <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
     {% include "rendering/panes_outline.html" %}
     <div class="centre">
-      {% block tabs %}{% include "rendering/appendix_tabs.html" %}{% endblock %}
       {% block text %}{% include "rendering/view.html" %}{% endblock %}
     </div>
     {% block panel %}{% include "rendering/panes_panel.html" %}{% endblock %}

@@ -254,9 +254,6 @@ def _a_document_along_its_path(
     )
 
 
-# The pages asserted to draw the frame's path.
-FRAMED = ("", "info/", "history/", "pending/", "pending/accept/", "pending/return/", "edit/")
-FRAMED += ("edit/finish/", "my-edits/", "make-canonical/", "edit/end-reservation/")
 # Pages that read no version: the frame's heading names none (DL-0518).
 NO_VERSION = ("info/", "history/", "edit/end-reservation/")
 
@@ -312,6 +309,19 @@ def test_the_document_pages_run_under_the_policy(
     _sign_in(page, browser_server, built.reviewer)
     for path in holding:
         opened(path)
+    # The export page's heading follows the view chosen, without a request (DL-0519).
+    page.goto(f"{browser_server}/document/{n}/export/", wait_until="networkidle")
+    requested = len(documents)
+    views = page.locator('input[type=radio][name="view"]')
+    assert views.count() >= 2
+    views.nth(1).check()
+    followed = (
+        page.locator("h1 .version-number").inner_text(),
+        views.nth(1).get_attribute("data-number"),
+    )
+    page.wait_for_timeout(300)
+    stayed = [url for url, _ in documents[requested:]]
+    answers["(the export's views)"] = 200
 
     # The reviewer's draft thrown away, the run accepted: an acceptance since the edition, so
     # making canonical opens its confirmation. The editor left first, so its reload never takes
@@ -347,7 +357,9 @@ def test_the_document_pages_run_under_the_policy(
     assert len(documents) == len(answers), [url for url, _ in documents]
     _assert_headers(documents)
     _assert_nothing_refused(violations, console)
-    assert {p for p, (path, _) in shapes.items() if p in FRAMED and not path} == set()
+    assert {p for p, (path, _) in shapes.items() if not path} == set()
+    assert followed[0] == followed[1], followed
+    assert stayed == [], stayed
     assert {p for p, (_, version) in shapes.items() if p in NO_VERSION and version} == set()
 
 

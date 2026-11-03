@@ -379,3 +379,142 @@ def test_more_to_administrators(
     assert free is not None
     assert f'href="/administration/tenant/document-links/#link-{n}"' in free
     assert "force-release" not in free and "end-reservation" not in free
+
+
+def _historian(migrated_tenant: Any, member_of: Any, built: Any) -> Any:
+    """A reader of every version: *view all history* and *view pending*."""
+    from access.rights import Right
+    from identity.models import Membership
+
+    client, user, membership = member_of("a.historian@example.test")
+    _linked(
+        migrated_tenant.number,
+        built.document,
+        [Right.VIEW_ALL_HISTORY, Right.VIEW_PENDING],
+        [membership],
+        built.author_user,
+    )
+    assert Membership.objects.filter(user=user).exists()
+    return client
+
+
+def test_the_point_is_outlined(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """A version's page stands on the point that names it, or on none; the banner stays; it
+    exports that version from the icon (DL-0518, DL-0519)."""
+    built = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+    client = _historian(migrated_tenant, member_of, built)
+    n = built.n
+
+    canonical = client.get(f"/document/{n}/version/1.0/").content.decode()
+    between = client.get(f"/document/{n}/version/1.1-1/").content.decode()
+
+    outlined = [m[1] for m in GO.findall(canonical) if m[2]]
+    assert outlined == ["canonical"]
+    assert _shown(canonical) == "1.0"
+    assert "Historical version 1.0 — read only" in canonical
+    assert (f"/document/{n}/version/1.0/export/", "Export") in _icons(canonical)
+    assert 'class="button" href' not in canonical.split('class="document-actions"', 1)[-1][:200]
+    assert [m for m in GO.findall(between) if m[2]] == []
+    assert _shown(between) == "1.1-1"
+
+
+def test_the_arc_is_outlined(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """A comparison stands on the arc that is its pair, or on none; the heading names the pair."""
+    built = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+    client = _historian(migrated_tenant, member_of, built)
+    n = built.n
+
+    arc = client.get(f"/document/{n}/compare/?from=1.0&to=1.1").content.decode()
+    other = client.get(f"/document/{n}/compare/?from=1.0&to=1.1-1").content.decode()
+
+    assert [m[1] for m in GO.findall(arc) if m[2]] == ["history-arc"]
+    assert _shown(arc) == "1.0 → 1.1"
+    assert [m for m in GO.findall(other) if m[2]] == []
+    assert _shown(other) == "1.0 → 1.1-1"
+
+
+def test_the_export_page_carries_the_frame(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """The export page draws the document's frame, its heading the first view offered; each view
+    carries its number for the heading to follow (DL-0519)."""
+    built = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+
+    body = built.reviewer.get(f"/document/{built.n}/export/").content.decode()
+    views = re.findall(r'name="view" value="([a-z_]+)" data-number="([^"]*)"', body)
+
+    assert '<nav class="path"' in body
+    assert len(views) >= 2
+    assert _shown(body) == views[0][1]
+    assert all(number for _, number in views if _ != "my_edits")
+
+
+def test_appendix_mode(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """An appendix the canonical version does not list: its point is drawn without a link; the
+    versions that list it open the appendix at that version (DL-0522)."""
+    from documents.path import frame
+    from identity.models import Membership
+
+    built = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+    commit_version(
+        built.document,
+        built.author_user,
+        FOURTH,
+        files={"appendices/2.md": b"# A synthetic form\n\nThe form is filled in by hand.\n"},
+        appendices=[{"number": 2, "title": "A synthetic form (example)"}],
+    )
+    from django.test import RequestFactory
+
+    request = RequestFactory().get(f"/document/{built.n}/appendix/2/")
+    request.user = built.reviewer_user
+    request.tenant = migrated_tenant
+    request.membership = Membership.objects.get(user=built.reviewer_user)
+    with schema_context(migrated_tenant.number):
+        drawn = frame(request, built.document, here="latest", appendix=2, subtitle="A form")
+
+    assert drawn.path is not None
+    points = {i.key: i.href for i in drawn.path if i.kind == "point"}
+    n = built.n
+    assert points == {"canonical": "", "accepted": "", "latest": f"/document/{n}/appendix/2/"}
+    acts = [a.command for i in drawn.path for a in i.acts]
+    assert acts == ["edit"]
+    assert drawn.more is None
+
+
+def test_the_export_job_names_the_version_exported(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    queued_exports: Any,
+) -> None:
+    """The job's page names the version that is being exported, not the latest."""
+    built = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+
+    asked = built.reviewer.post(
+        f"/document/{built.n}/export/", {"document": "on", "format": "pdf", "view": "canonical"}
+    )
+    page = built.reviewer.get(asked["Location"]).content.decode()
+
+    assert asked.status_code == 302
+    assert _shown(page) == "1.0"
+
+
+def test_an_export_at_an_aliased_number_stands_on_its_point(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """A version accepted keeps its pending number as an alias: exported at the alias, the page
+    names and stands on the point by its number, as the version's own page does."""
+    built = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+    client = _historian(migrated_tenant, member_of, built)
+
+    page = client.get(f"/document/{built.n}/version/1.0-1/export/").content.decode()
+
+    assert _shown(page) == "1.1"
+    assert [m[1] for m in GO.findall(page) if m[2]] == ["accepted"]

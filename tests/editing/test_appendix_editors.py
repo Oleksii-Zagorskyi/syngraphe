@@ -200,10 +200,12 @@ def test_a_draft_only_appendix_has_an_edit_tab(
     html = page.content.decode()
     assert "Holiday calendar (example)" in re.sub(r"<[^>]+>", "", html.split("</h1>")[0])
     assert "data-parts-panel" in html
-    tabs = re.search(r'<nav class="tabs">.*?</nav>', html, re.S)
-    assert tabs
-    assert f'href="/document/{document.number}/appendix/{number}/"' not in tabs.group(0)
-    assert f'href="/document/{document.number}/appendix/{number}/edit/"' in tabs.group(0)
+    # The document's path for the appendix: the draft opens its editor, and no version the
+    # reader may open lists it yet, so no point opens its page.
+    path = re.search(r'<nav class="path".*?</nav>', html, re.S)
+    assert path
+    assert f'href="/document/{document.number}/appendix/{number}/"' not in path.group(0)
+    assert f'href="/document/{document.number}/appendix/{number}/edit/"' in path.group(0)
     assert f'data-load="/document/{document.number}/appendix/{number}/edit/load/"' in html
     assert "Holiday calendar" in html[html.index("data-draft-view") :]
 

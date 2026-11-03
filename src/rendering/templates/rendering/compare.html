@@ -4,8 +4,8 @@
 {% block title %}#{{ document.number }} {{ older }} · {{ newer }} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document compare">
+  {% include "documents/frame.html" %}
   <p class="band historical" role="status">{% blocktranslate with older=older_link newer=newer_link %}Comparing {{ older }} with {{ newer }} — read only{% endblocktranslate %}</p>
-  <h1><span class="id">#{{ document.number }}</span> {{ document.title }}{% archived_tag document %}</h1>
   <form class="compare-pair" method="get" action="/document/{{ document.number }}/compare/">
     <label>{% translate "From" context "compare" %} <select name="from">{% for number in numbers %}<option value="{{ number }}"{% if number == older %} selected{% endif %}>{{ number }}</option>{% endfor %}</select></label>
     <label>{% translate "To" context "compare" %} <select name="to">{% for number in numbers %}<option value="{{ number }}"{% if number == newer %} selected{% endif %}>{{ number }}</option>{% endfor %}</select></label>

@@ -22,13 +22,13 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.cache import never_cache
 from markdown_it.token import Token
 
-from access.rights import Right, rights_on_many
+from access.rights import rights_on_many
 from documents import gitstore
-from documents.models import Document, DocumentState, Version
+from documents.models import Document, Version
 from documents.parts import Appendix, appendices, attachments
+from documents.path import frame as document_frame
 from documents.views import readable_document
 from editions.visible import visible as visible_to
-from identity.models import User
 from rendering import directory, mentions, reading
 from rendering.outline import anchor_clauses, outline
 from rendering.renderer import RenderContext, labelled, render_tokens
@@ -188,7 +188,6 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
     """`/document/<n>/appendix/<p>/`: appendix `p` of the version the reader may see (DL-0209);
     *Nothing to show here* for an appendix that version does not list, as for a document the
     reader may not read."""
-    from editing import holds
 
     document = readable_document(request, number)
     if document is None:
@@ -200,15 +199,19 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
     if context is None:
         return not_found(request)
     rights = rights_on_many(request.user, [document.pk]).get(document.pk, frozenset())
-    hold = holds.open_hold(document)
     context.update(
         document=document,
-        tab="view",
+        frame=document_frame(
+            request,
+            document,
+            here="latest",
+            appendix=part,
+            subtitle=context["appendix"].title,
+            rights=rights,
+            seen=visible,
+        ),
         version_stance=visible.stance,
         canonical_number=visible.canonical,
-        can_edit=Right.EDIT in rights and document.state == DocumentState.ACTIVE,
-        holding=hold is not None and hold.user_id == cast(User, request.user).pk,
-        view_listed=True,
     )
     return render(request, "rendering/appendix.html", context)
 
@@ -234,6 +237,15 @@ def historical(request: HttpRequest, number: int, version_number: str, part: int
         return not_found(request)
     context.update(
         document=document,
+        frame=document_frame(
+            request,
+            document,
+            here="",
+            at=shown,
+            shown=shown,
+            appendix=part,
+            subtitle=context["appendix"].title,
+        ),
         version_path=f"/document/{document.number}/version/{shown}/",
     )
     return render(request, "rendering/appendix_historical.html", context)

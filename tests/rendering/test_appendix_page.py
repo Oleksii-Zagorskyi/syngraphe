@@ -73,7 +73,9 @@ def test_the_appendix_page(
         html = answer.content.decode()
         heading = re.search(r"<h1>.*?</h1>", html, re.S)
         assert heading
-        title = re.sub(r"<[^>]+>", "", heading.group(0))
+        # The appendix after its document, then the version; the state tags follow.
+        before_tags = heading.group(0).split('<span class="tag"', 1)[0]
+        title = re.sub(r"<[^>]+>", "", before_tags)
         assert " ".join(title.split()) == f"#{m} Synthetic leave rules › {TITLE} {number}"
         assert f'<a href="/document/{m}/">' in heading.group(0)
         text = html[html.index('class="document-text"') :]
@@ -84,27 +86,26 @@ def test_the_appendix_page(
         assert "1.1 Thresholds" in flat
         assert "1-1" in flat and "1.1-1" in flat
         assert 'id="outline-pane"' in html
-        for absent in ("/export/", "/copy/", "/archive/", "Freeze", "Make canonical", "More ▾"):
-            assert absent not in html[: html.index('class="document-text"')], absent
-        tabs = re.search(r'<nav class="tabs">.*?</nav>', html, re.S)
-        assert tabs
-    reader_tabs = re.search(
-        r'<nav class="tabs">.*?</nav>',
-        reader_client.get(f"/document/{m}/appendix/2/").content.decode(),
-        re.S,
-    )
-    assert reader_tabs
-    links = re.findall(r'<a href="([^"]+)"[^>]*>([^<]+)</a>', reader_tabs.group(0))
-    assert links[0] == (f"/document/{m}/appendix/2/", "View")
-    assert (f"/document/{m}/pending/", "Pending edits") in links
-    assert f"/document/{m}/appendix/2/edit/" not in [href for href, _ in links]
-    assert "aria-current" not in reader_tabs.group(0).split("Pending edits")[0].split("View")[1]
-    holder_tabs = re.search(
-        r'<nav class="tabs">.*?</nav>',
-        holder_client.get(f"/document/{m}/appendix/2/").content.decode(),
-        re.S,
-    )
-    assert holder_tabs and f'href="/document/{m}/appendix/2/edit/"' in holder_tabs.group(0)
+        # No document act on an appendix's page (DL-0207); the icons are the document's (DL-0443).
+        above = html[: html.index('class="document-text"')]
+        for absent in ("/copy/", "/archive/", 'data-command="approve"', 'data-command="freeze"'):
+            assert absent not in above, absent
+        assert '<details class="more">' not in above and 'data-command="review"' not in above
+        assert f'<a class="icon-btn" href="/document/{m}/export/"' in above
+        assert 'class="tabs"' not in html
+    # The document's path for the appendix: the latest opens the appendix, outlined; the run's
+    # arc stays the document's; the reader has no editor to open.
+    reader_page = reader_client.get(f"/document/{m}/appendix/2/").content.decode()
+    path = re.search(r'<nav class="path".*?</nav>', reader_page, re.S)
+    assert path
+    assert (
+        f'<a class="go" href="/document/{m}/appendix/2/" data-go="latest" aria-current="location">'
+    ) in path.group(0)
+    assert f'href="/document/{m}/pending/"' in path.group(0)
+    assert f"/document/{m}/appendix/2/edit/" not in path.group(0)
+    # The holder's draft opens the appendix's editor.
+    holder_page = holder_client.get(f"/document/{m}/appendix/2/").content.decode()
+    assert f'href="/document/{m}/appendix/2/edit/" data-go="draft"' in holder_page
 
 
 def test_unlisted_appendices_are_missing(

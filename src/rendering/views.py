@@ -29,6 +29,7 @@ from audit.record import record
 from documents import bundle, gitstore
 from documents.models import Document, Version
 from documents.parts import appendices, attachments
+from documents.path import frame
 from editing.diffview import changed_lines
 from editing.numbering import number_of
 from editing.past_authors import ask, authors_at, by_author
@@ -230,6 +231,13 @@ def historical(request: HttpRequest, number: int, version_number: str) -> HttpRe
     context = {
         **shown,
         "document": document,
+        "frame": frame(
+            request,
+            document,
+            here="",
+            at=shown["version_number"],
+            shown=shown["version_number"],
+        ),
         "version_path": f"/document/{document.number}/version/{shown['version_number']}/",
         "others": others[::-1],
         "show_author": asking,
@@ -314,6 +322,7 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
 
     context = {
         "document": document,
+        "frame": frame(request, document, here="", pair=(older_number, newer_number)),
         "older": older_number,
         "newer": newer_number,
         "older_link": _version_link(document, older_number),
@@ -383,11 +392,14 @@ def _compare_documents(
         asked_from = first_past.number(older)
         context: dict[str, Any] = {
             "first": first,
+            "document": first,
             "second": second,
             "older": asked_from,
             "first_numbers": [n for n, _v in first_seen],
         }
         if second is None:
+            # Two documents compared stand under the first's heading and path (DL-0522).
+            context["frame"] = frame(request, first, here="", shown=asked_from)
             return render(request, "rendering/compare_documents.html", context)
         second_past = ceiling(request.user, second)
         second_seen = second_past.reachable()
@@ -402,6 +414,9 @@ def _compare_documents(
         newer_body = _body(tenant.number, second, newer)
         context |= {
             "newer": asked_to,
+            "frame": frame(
+                request, first, here="", shown=f"{asked_from} → #{second.number} {asked_to}"
+            ),
             "first_link": _document_link(first),
             "older_link": _version_link(first, asked_from),
             "second_link": _document_link(second),
@@ -538,8 +553,19 @@ def export(request: HttpRequest, number: int, version_number: str | None = None)
         return not_found(request)
     if not offered:
         return not_found(request)
+    # The export page's heading names the version to be exported, the first offered until a view
+    # is chosen (DL-0519); at a version, that version's point.
     context: dict[str, Any] = {
         "document": document,
+        "frame": (
+            frame(request, document, here="export", shown=offered[0].number)
+            if version is None
+            # By the number its history gives it, as the version's own page names it: an alias
+            # in the address stands on the version's point.
+            else frame(
+                request, document, here="", at=past.number(version), shown=past.number(version)
+            )
+        ),
         "offers": offered,
         "parts": parts,
         "appendices": appendices,
@@ -727,7 +753,20 @@ def export_status(request: HttpRequest, number: int, job_id: str) -> HttpRespons
     job = _own_job(request, number, job_id)
     if job is None:
         return not_found(request)
-    context = {"document": job.document, "job": job, "file": artifact(job)}
+    from rendering.export.compose import number_of
+
+    # The job's page names the version being exported as it was asked for (DL-0519).
+    context = {
+        "document": job.document,
+        "frame": frame(
+            request,
+            job.document,
+            here="export",
+            shown=number_of(job.document, job.version, job.view),
+        ),
+        "job": job,
+        "file": artifact(job),
+    }
     template = "rendering/export_status.html" if request.htmx else "rendering/export_job.html"  # type: ignore[attr-defined]
     return render(request, template, context)
 

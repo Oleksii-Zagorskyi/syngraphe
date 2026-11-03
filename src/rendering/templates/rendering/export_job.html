@@ -2,9 +2,9 @@
 {% load i18n %}
 {% block title %}{% translate "Export" %} — #{{ document.number }} · Syngraphē{% endblock %}
 {% block content %}
-<section class="content export">
-  <h1>{% blocktranslate with number=document.number %}Export — #{{ number }}{% endblocktranslate %}</h1>
-  <p><a href="/document/{{ document.number }}/">{{ document.title }}</a></p>
+<section class="content document export">
+  {% include "documents/frame.html" %}
+  <h2>{% translate "Export" %}</h2>
   {% include "rendering/export_status.html" %}
 </section>
 {% endblock %}

@@ -103,8 +103,22 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
     own = request.headers.get("Sec-Fetch-Site") in ("same-origin", "none")
     words = messages.for_the_editor()
     words["labels"] = {**words["labels"], "edit_whole": str(EDIT_WHOLE)}
+    from documents.path import frame
+
+    taking = own and not holding
     context = {
         "document": document,
+        # The document's path for this appendix: the holder stands on their draft (DL-0522).
+        "frame": frame(
+            request,
+            document,
+            here="draft" if holding or taking else "latest",
+            taking=taking,
+            appendix=part,
+            subtitle=entry["title"],
+            rights=rights,
+            seen=shown,
+        ),
         "appendix": {"number": part, "title": entry["title"]},
         "tab": "edit",
         "can_edit": True,

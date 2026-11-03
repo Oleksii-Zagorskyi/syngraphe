@@ -105,6 +105,8 @@ class Frame:
     more: list[Act] | None = None
     windows: dict[str, dict[str, Any]] = field(default_factory=dict)
     open_window: str = ""
+    # What follows the document's title in the heading: an appendix's own title.
+    subtitle: str = ""
 
 
 def frame(
@@ -117,12 +119,19 @@ def frame(
     taking: bool = False,
     rights: frozenset[Right] | None = None,
     seen: Any = UNREAD,
+    at: str | None = None,
+    pair: tuple[str, str] | None = None,
+    subtitle: str = "",
 ) -> Frame:
     """The frame of `document`'s page at position `here` for the request's reader. `shown` the
     heading's version where the page knows it better than the path; `taking` when the page is
     served to a person whose editor takes the hold as it mounts (DL-0325), so the draft point is
     drawn for them; `rights` and `seen` (`editions.visible.visible`) where the view read them
-    already. A record that cannot be read costs the path and the version, never the page."""
+    already. A page of one version passes `at`, its number, and stands on the point that names
+    it, if any; a comparison passes `pair`, and stands on the arc that is that pair, if any.
+    `appendix`, an appendix's number, draws the document's path for that appendix's pages
+    (DL-0522): its points open the appendix at their version, and *Edit* its editor.
+    A record that cannot be read costs the path and the version, never the page."""
     from access.views import administers
     from editions.visible import visible
     from rendering.views import UNREADABLE
@@ -130,26 +139,38 @@ def frame(
     user = request.user
     rights = rights if rights is not None else rights_on(user, document)
     icons = _icons(document, rights)
+    if at is not None:
+        # A version's page exports that version.
+        export = f"/document/{document.number}/version/{at}/export/"
+        icons = [replace(i, href=export) if i.name == "export" else i for i in icons]
     administrator = administers(request)
     try:
         seen = visible(user, document) if seen is UNREAD else seen
-        path, numbers = _path(document, user, rights, seen, here=here, taking=taking)
+        path, numbers = _path(
+            document, user, rights, seen, here=here, taking=taking, at=at, pair=pair
+        )
         situation = _Situation.of(document, user, rights, administrator)
         windows: dict[str, dict[str, Any]] = {}
+        if path is not None and appendix is not None:
+            path = _in_appendix(document, path, appendix)
         if path is not None and document.state == DocumentState.ACTIVE:
-            path = _with_acts(document, user, rights, seen, path, situation, windows)
-        more = _more(document, situation) if administrator else None
+            path = _with_acts(
+                document, user, rights, seen, path, situation, windows, appendix=appendix
+            )
+        # An appendix's page offers no document act (DL-0207).
+        more = _more(document, situation) if administrator and appendix is None else None
     except UNREADABLE:
         logger.exception(
             "a document's version could not be read", extra={"document": document.number}
         )
-        return Frame(shown=shown or "", icons=icons, path=None)
+        return Frame(shown=shown or "", icons=icons, path=None, subtitle=subtitle)
     return Frame(
         shown=shown if shown is not None else _shown(here, numbers),
         icons=icons,
         path=path,
         more=more,
         windows=windows,
+        subtitle=subtitle,
     )
 
 
@@ -178,6 +199,8 @@ def _path(
     *,
     here: str,
     taking: bool,
+    at: str | None = None,
+    pair: tuple[str, str] | None = None,
 ) -> tuple[list[Item] | None, dict[str, str]]:
     """The path and the numbers the heading may name: `latest`, each point's by its key, the
     draft's, and each arc's ends."""
@@ -328,6 +351,16 @@ def _path(
             )
 
     target = renamed.get(ALIASES.get(here, here), ALIASES.get(here, here))
+    if at is not None:
+        # A version's own page stands on the point that names it, or on none.
+        target = next((i.key for i in items if i.kind == "point" and i.number == at), "")
+    if pair is not None:
+        # A comparison stands on the arc that is its pair, or on none.
+        shown_pair = f"{pair[0]} → {pair[1]}"
+        target = next(
+            (key for key in ("history-arc", "run-arc") if numbers.get(key) == shown_pair), ""
+        )
+        numbers["pair"] = shown_pair
     if target:
         items = [_outlined(item) if item.key == target else item for item in items]
     return items, numbers
@@ -335,6 +368,48 @@ def _path(
 
 def _outlined(item: Item) -> Item:
     return replace(item, here=True)
+
+
+def _in_appendix(document: Document, path: list[Item], part: int) -> list[Item]:
+    """The path's points opening appendix `part` at their version (DL-0522): the latest at the
+    appendix's address, a past version at its historical appendix page, the draft at the
+    appendix's editor; a version that does not list the appendix drawn without a link. The arcs
+    keep the document's comparison."""
+    from documents.models import PartIndex, PartKind
+    from editing import numbering
+
+    base = f"/document/{document.number}/"
+    history = numbering.history(document)
+    shas = {
+        item.number: history.aliases.get(item.number)
+        for item in path
+        if item.kind == "point" and item.key not in ("draft", "kept")
+    }
+    listing = set(
+        PartIndex.objects.filter(
+            version__document=document,
+            version__commit_sha__in=[sha for sha in shas.values() if sha],
+            kind=PartKind.APPENDIX,
+            part_number=part,
+        ).values_list("version__commit_sha", flat=True)
+    )
+    out = []
+    for item in path:
+        if item.kind != "point":
+            out.append(item)
+        elif item.key == "latest":
+            # A draft's own appendix has no page until a version lists it.
+            listed = shas.get(item.number) in listing
+            out.append(replace(item, href=f"{base}appendix/{part}/" if listed else ""))
+        elif item.key == "draft":
+            out.append(replace(item, href=f"{base}appendix/{part}/edit/"))
+        elif item.key == "kept":
+            out.append(item)
+        else:
+            listed = shas.get(item.number) in listing
+            href = f"{base}version/{item.number}/appendix/{part}/" if listed else ""
+            out.append(replace(item, href=href))
+    return out
 
 
 @dataclass(frozen=True)
@@ -409,6 +484,8 @@ def _with_acts(
     path: list[Item],
     situation: _Situation,
     windows: dict[str, dict[str, Any]],
+    *,
+    appendix: int | None = None,
 ) -> list[Item]:
     """Each point with its acts, and the marks under the latest (DL-0518, DL-0233): the latest
     carries *Edit* and *Review the run*; the latest accepted — the canonical point while nothing
@@ -421,9 +498,10 @@ def _with_acts(
         acts: list[Act] = []
         marks: list[Mark] = []
         if item.kind == "point" and item.key == "latest":
-            acts += _latest_acts(document, user, rights, pending, situation)
+            acts += _latest_acts(document, user, rights, pending, situation, appendix=appendix)
             marks = _marks(rights, situation, user)
-        if item.kind == "point" and item.origin == accepted_origin:
+        # An appendix's page carries *Edit* and the draft's acts alone (DL-0207, DL-0522).
+        if item.kind == "point" and item.origin == accepted_origin and appendix is None:
             # The window's two repository reads are paid only where its act is drawn.
             acts += _accepted_acts(
                 document, user, rights, seen, situation, windows if item.here else None
@@ -440,8 +518,11 @@ def _latest_acts(
     rights: frozenset[Right],
     pending: bool,
     situation: _Situation,
+    *,
+    appendix: int | None = None,
 ) -> list[Act]:
     base = f"/document/{document.number}/"
+    editor = f"{base}appendix/{appendix}/edit/" if appendix is not None else f"{base}edit/"
     acts = []
     own = situation.hold is not None and not situation.held_by_another(user)
     if Right.EDIT in rights and not own:
@@ -454,14 +535,14 @@ def _latest_acts(
             Act(
                 pgettext("the act on the latest version", "Edit"),
                 "edit",
-                href=f"{base}edit/",
+                href=editor,
                 reason=reason,
                 primary=not (Right.ACCEPT in rights and pending),
             )
         )
     # The review page opens while someone else holds the document and disables its own acts
     # (DL-0522), so this act is never disabled.
-    if Right.ACCEPT in rights and pending:
+    if Right.ACCEPT in rights and pending and appendix is None:
         acts.append(Act(gettext("Review the run"), "review", href=f"{base}pending/", primary=True))
     return acts
 
@@ -644,6 +725,8 @@ def _shown(here: str, numbers: dict[str, str]) -> str:
     if here in ("review", "run-arc"):
         # With nothing pending the review page stands over the latest version.
         return numbers.get("run-arc", numbers.get("latest", ""))
+    if "pair" in numbers:
+        return numbers["pair"]
     if here in ("history-arc", "canonical", "accepted"):
         return numbers.get(here, "")
     return numbers.get("latest", "")

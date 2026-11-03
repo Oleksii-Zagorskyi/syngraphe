@@ -1,9 +1,8 @@
 {% extends "rendering/appendix.html" %}
 {% load i18n %}
 {% block title %}#{{ document.number }} {{ document.title }} › {{ appendix.title }} {{ version_number }} · Syngraphē{% endblock %}
-{# An appendix as a past version had it: the historical banner, no tabs, no act (DL-0195). #}
-{% block bands %}<p class="band historical" role="status">{% blocktranslate with number=version_number %}Historical version {{ number }} — read only{% endblocktranslate %} · <a href="/document/{{ document.number }}/">{% translate "open the current document" %}</a></p>{% endblock %}
-{% block tabs %}{% endblock %}
+{# An appendix as a past version had it: the historical banner under the document's path (DL-0195, DL-0522). #}
+{% block banner %}<p class="band historical" role="status">{% blocktranslate with number=version_number %}Historical version {{ number }} — read only{% endblocktranslate %} · <a href="/document/{{ document.number }}/">{% translate "open the current document" %}</a></p>{% endblock %}
 {% block text %}<article class="document-text">
 {{ text }}
 </article>{% endblock %}

@@ -2,9 +2,9 @@
 {% load corpus i18n static %}
 {% block title %}{% translate "Export" %} — #{{ document.number }} · Syngraphē{% endblock %}
 {% block content %}
-<section class="content export">
-  <h1>{% blocktranslate with number=document.number %}Export — #{{ number }}{% endblocktranslate %}{% archived_tag document %}</h1>
-  <p><a href="/document/{{ document.number }}/">{{ document.title }}</a></p>
+<section class="content document export">
+  {% include "documents/frame.html" %}
+  <h2>{% translate "Export" %}</h2>
   {% if refusal %}<p class="notice refusal" role="alert">{{ refusal }}</p>{% endif %}
   <form method="post" action="{{ action }}" class="export-dialog">
     {% csrf_token %}
@@ -26,7 +26,7 @@
       <legend>{% translate "View" context "export" %} <details class="hint"><summary aria-label="{% translate 'The views' %}">?</summary><p>{% translate "Which version to export, among those you may read. Marked changes are measured against the version before it in the chain, named beside each." %}</p></details></legend>
       {% for offer in offers %}
       <div class="offer" data-view="{{ offer.view }}">
-        {% if offers|length == 1 %}<input type="hidden" name="view" value="{{ offer.view }}" data-images="{{ offer.images|yesno:'true,false' }}" data-appendix-images="{{ offer.appendix_images|yesno:'true,false' }}"><span class="single">{% include "rendering/export_offer.html" %}</span>{% else %}<label><input type="radio" name="view" value="{{ offer.view }}" data-images="{{ offer.images|yesno:'true,false' }}" data-appendix-images="{{ offer.appendix_images|yesno:'true,false' }}"{% if forloop.first %} checked{% endif %}> {% include "rendering/export_offer.html" %}</label>{% endif %}
+        {% if offers|length == 1 %}<input type="hidden" name="view" value="{{ offer.view }}" data-number="{{ offer.number }}" data-images="{{ offer.images|yesno:'true,false' }}" data-appendix-images="{{ offer.appendix_images|yesno:'true,false' }}"><span class="single">{% include "rendering/export_offer.html" %}</span>{% else %}<label><input type="radio" name="view" value="{{ offer.view }}" data-number="{{ offer.number }}" data-images="{{ offer.images|yesno:'true,false' }}" data-appendix-images="{{ offer.appendix_images|yesno:'true,false' }}"{% if forloop.first %} checked{% endif %}> {% include "rendering/export_offer.html" %}</label>{% endif %}
         {% if offer.baseline %}<span class="changes" data-changes="{{ offer.view }}">{% translate "Changes" %}:
           <label><input type="radio" name="changes-{{ offer.view }}" value="marked"{% if offer.marked_by_default %} checked{% endif %}> {% blocktranslate with number=offer.baseline_number %}marked against {{ number }}{% endblocktranslate %}</label>
           <label><input type="radio" name="changes-{{ offer.view }}" value="clean"{% if not offer.marked_by_default %} checked{% endif %}> {% translate "clean text" %}</label></span>{% endif %}

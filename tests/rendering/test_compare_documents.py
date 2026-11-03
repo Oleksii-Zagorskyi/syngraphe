@@ -237,20 +237,21 @@ def test_an_administrator_compares_an_archived_document(
     page = admin.get(f"/document/{a}/compare/?from=1.0&with={b}&to=1.0")
 
     assert page.status_code == 200
-    heading = re.search(r"<h1>(.*?)</h1>", page.content.decode(), re.S)
-    assert heading is not None
-    after_second = heading.group(1).split("Synthetic leave rules for contractors", 1)[1]
-    assert after_second.lstrip().startswith('<span class="tag" data-state="archived"')
-    assert heading.group(1).count('data-state="archived"') == 1
-    # The first archived too: each tag beside its own document's title.
+    # The heading is the first document's (DL-0522); the second is named by the banner, its
+    # *archived* tag beside it.
+    tag = '<span class="tag" data-state="archived"'
+    body = page.content.decode()
+    heading = re.search(r"<h1>(.*?)</h1>", body, re.S)
+    banner = re.search(r'<p class="band historical" role="status">(.*?)</p>', body, re.S)
+    assert heading is not None and banner is not None
+    assert f"#{b} 1.0" in heading.group(1) and tag not in heading.group(1)
+    assert banner.group(1).count(tag) == 1
+    # The first archived too: its tag in the heading, among its state tags.
     with schema_context(migrated_tenant.number):
         archive.archive(two.a, administrator)
     both = admin.get(f"/document/{a}/compare/?from=1.0&with={b}&to=1.0").content.decode()
     heading = re.search(r"<h1>(.*?)</h1>", both, re.S)
-    assert heading is not None
-    tag = '<span class="tag" data-state="archived"'
-    assert re.search(rf"Synthetic leave rules\s*{re.escape(tag)}", heading.group(1))
-    assert re.search(rf"for contractors\s*{re.escape(tag)}", heading.group(1))
+    assert heading is not None and tag in heading.group(1)
     assert "<del>ten</del><ins>fifteen</ins>" in page.content.decode()
     assert reader.get(f"/document/{a}/compare/?from=1.0&with={b}&to=1.0").status_code == 404
 

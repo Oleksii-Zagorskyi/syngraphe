@@ -4,9 +4,8 @@
 {% block title %}#{{ first.number }} {{ older }}{% if second %} · #{{ second.number }} {{ newer }}{% endif %} · Syngraphē{% endblock %}
 {% block content %}
 <section class="content document compare compare-documents">
-  {% if second %}<p class="band historical" role="status">{% blocktranslate with first=first_link older=older_link second=second_link newer=newer_link %}Comparing {{ first }} {{ older }} with {{ second }} {{ newer }} — read only{% endblocktranslate %}</p>{% endif %}
-  {% archived_tag first as first_tag %}{% if second %}{% archived_tag second as second_tag %}{% endif %}
-  <h1>{% if second %}{% blocktranslate trimmed with first=first.number first_title=first.title second=second.number second_title=second.title %}Compare #{{ first }} {{ first_title }}{{ first_tag }} with #{{ second }} {{ second_title }}{{ second_tag }}{% endblocktranslate %}{% else %}{% blocktranslate trimmed with first=first.number first_title=first.title %}Compare #{{ first }} {{ first_title }}{{ first_tag }} with another document{% endblocktranslate %}{% endif %}</h1>
+  {% include "documents/frame.html" %}
+  {% if second %}<p class="band historical" role="status">{% blocktranslate with first=first_link older=older_link second=second_link newer=newer_link %}Comparing {{ first }} {{ older }} with {{ second }} {{ newer }} — read only{% endblocktranslate %}{% archived_tag second %}</p>{% endif %}
   <form class="compare-pair" method="get" action="/document/{{ first.number }}/compare/">
     <label>{% translate "From" context "compare" %} <select name="from">{% for number in first_numbers %}<option value="{{ number }}"{% if number == older %} selected{% endif %}>{{ number }}</option>{% endfor %}</select></label>
     <label>{% translate "with #" %} <input type="text" name="with" value="{% if second %}{{ second.number }}{% endif %}" inputmode="numeric" size="5"></label>{% if second %}<input type="hidden" name="was" value="{{ second.number }}">{% endif %}
