@@ -43,7 +43,7 @@ def test_a_right_on_the_grid_is_a_target(browser_server: str, page: Any, member_
     assert min(heights) >= 20, heights
 
 
-def test_the_bar_fits_with_the_switcher(
+def test_the_bar_fits_with_the_organisations_link(
     browser_server: str, page: Any, member_of: Any, make_tenant_schema: Any
 ) -> None:
     """A member of two organisations, one of them named at length: the bar's items move to a
@@ -59,17 +59,17 @@ def test_the_bar_fits_with_the_switcher(
     page.goto(f"{browser_server}/folder/1/", wait_until="load")
     layout = page.evaluate(
         """() => ({
-          switcher: !!document.querySelector('form.switcher select'),
+          linked: !!document.querySelector('header.shell a.organisation'),
           overflow: document.documentElement.scrollWidth - window.innerWidth,
           broken: [...document.querySelectorAll(
-              'header.shell .menu a, header.shell .organisation, header.shell .user > *')]
+              'header.shell .menu a, header.shell .organisation, header.shell .account-link')]
             .filter(e => e.getClientRects().length > 1
                       || e.getBoundingClientRect().height > 40)
             .map(e => e.textContent.trim()),
         })"""
     )
 
-    assert layout["switcher"], "the switcher was not drawn"
+    assert layout["linked"], "the organisation's link was not drawn"
     assert layout["overflow"] <= 0, layout
     assert layout["broken"] == [], layout
 

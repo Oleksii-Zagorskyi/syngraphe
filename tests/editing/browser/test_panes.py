@@ -171,6 +171,12 @@ def _widths(page: Any) -> dict[str, float]:
     return {pane_id: drawn["panes"][pane_id]["box"]["width"] for pane_id in drawn["panes"]}
 
 
+def _toggle_kept(page: Any, pane_id: str) -> None:
+    """Toggle a pane and wait for its preference to be written, so a reload reads it."""
+    with page.expect_response(lambda r: "-shut/" in r.url):
+        _toggle(page, pane_id)
+
+
 def test_a_collapse_is_kept(
     browser_server: str, page: Any, member_of: Any, new_document: Any, commit_version: Any
 ) -> None:
@@ -187,7 +193,7 @@ def test_a_collapse_is_kept(
     _goto(page, first_url)
     assert _widths(page)["outline-pane"] > STRIP, _widths(page)
     assert _widths(page)["panel"] > STRIP, _widths(page)
-    _toggle(page, "outline-pane")
+    _toggle_kept(page, "outline-pane")
     assert _widths(page)["outline-pane"] <= STRIP, _widths(page)
 
     page.reload(wait_until="load")
@@ -202,12 +208,12 @@ def test_a_collapse_is_kept(
 
     # The panel apart from the outline: collapsing it leaves the outline as it was, and each
     # survives the reload on its own.
-    _toggle(page, "panel")
+    _toggle_kept(page, "panel")
     page.reload(wait_until="load")
     both = _widths(page)
     assert both["outline-pane"] <= STRIP and both["panel"] <= STRIP, both
 
-    _toggle(page, "outline-pane")
+    _toggle_kept(page, "outline-pane")
     page.reload(wait_until="load")
     expanded = _widths(page)
     assert expanded["outline-pane"] > STRIP, expanded

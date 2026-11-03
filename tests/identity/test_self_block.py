@@ -205,12 +205,13 @@ def test_self_block_is_one_transaction(
 
 
 def test_the_menu_opens_the_account_page(migrated_tenant: Any, member_of: Any) -> None:
-    """The user menu offers *My account*, where the block now stands apart (DL-0499, DL-0500)."""
+    """The menu row's own name opens the account page, where the block now stands apart (DL-0499,
+    DL-0500, DL-0525)."""
     client, _, _ = member_of("a.member@example.test")
 
     page = client.get("/folder/1/").content.decode()
 
-    assert 'href="/account/"' in page and "My account" in page
+    assert '<a class="account-link" href="/account/">a.member@example.test</a>' in page
     assert f'href="{BLOCK}"' not in page
     assert f'href="{BLOCK}"' in client.get("/account/").content.decode()
     assert 'href="/account/"' not in (

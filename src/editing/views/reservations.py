@@ -91,7 +91,10 @@ def my_reservations(request: HttpRequest) -> HttpResponse:
         request.method != "GET"
         or getattr(request, "tenant", None) is None
         or not is_member(request)
-        or not holds_anywhere(request.user, Right.RESERVE_FOR_EDITING)
+        or not (
+            holds_anywhere(request.user, Right.RESERVE_FOR_EDITING)
+            or reservations.holds_one(cast(User, request.user))
+        )
     ):
         return not_found(request)
     reserved = (

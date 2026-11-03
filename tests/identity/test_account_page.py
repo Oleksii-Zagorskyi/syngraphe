@@ -118,3 +118,18 @@ def test_a_blocked_person_sees_no_block(member_of: Any) -> None:
     body = page.content.decode()
     assert "Block my account" not in body
     assert 'name="language"' in body
+
+
+def test_sign_out_is_on_the_account_page(member_of: Any) -> None:
+    """*Sign out* is a POST form on the account page, and nowhere in the menu row (DL-0525)."""
+    client, _, _ = member_of("a.member@example.test")
+
+    page = client.get(ACCOUNT).content.decode()
+    row, _, content = page.partition("</header>")
+
+    assert 'action="/signout/"' not in row
+    assert re.search(
+        r'<form method="post" action="/signout/"[^>]*>.*?csrfmiddlewaretoken', content, re.DOTALL
+    )
+    client.post("/signout/")
+    assert client.get(ACCOUNT).status_code == 302

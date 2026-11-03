@@ -87,6 +87,7 @@ EXEMPT: dict[str, str] = {
     "preference_panel_shut": "a person's own preference",
     "preference_folder_tree_width": "a person's own preference",
     "switch_organisation": "the organisation switcher: which organisations a person reaches",
+    "organisations": "the organisation switcher's list: which organisations a person reaches",
     "choose_organisation": "the platform's organisation selector",
     "help": "the help pages are the product's, not an organisation's",
     "help_page": "the help pages are the product's, not an organisation's",

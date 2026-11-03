@@ -54,12 +54,12 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Their group memberships apply as they stood. A self-blocked account (ST-0066) stays blocked: only a platform administrator lifts that.
 
 **ST-0066** — As any user, I block my own account, so that nobody can use it while I cannot.
-- *Block my account…* stands apart at the foot of my account page (ST-0076), confirmed before it acts; the user menu does not offer it (DL-0499, DL-0500). To the last platform administrator the control is drawn disabled with its reason (DL-0315, DL-0233).
+- *Block my account…* stands apart at the foot of my account page (ST-0076), confirmed before it acts; the menu row does not offer it (DL-0499, DL-0500). To the last platform administrator the control is drawn disabled with its reason (DL-0315, DL-0233).
 - It blocks every membership I hold; only a platform administrator can lift it, and not through the interface in this release — the database is the recovery path (DL-0254, backlog B-033). There is no deleting an account (backlog B-022).
 - Blocking myself ends my holds and reservations; my drafts with edits are kept (DL-0256, DL-0514).
 
 **ST-0076** — As any user, I choose the language of the interface I see, Ukrainian or English, on my account page, so that I meet the platform in my own language.
-- My account page is `/account/`, reached from the user menu as *My account* · *Мій обліковий запис*. It shows my email address, read-only; the interface's language with *Apply*; and, apart at its foot, *Block my account…* (ST-0066) — nothing more of a profile (DL-0499, DL-0500).
+- My account page is `/account/`, reached from my display name — my address while I have none — at the end of the menu row (DL-0525); *Sign out* · *Вийти* stands there and nowhere else. It shows my email address, read-only; the interface's language with *Apply*; and, apart at its foot, *Block my account…* (ST-0066) — nothing more of a profile (DL-0499, DL-0500).
 - The choice is stored as my own preference and applies to every page I open; until I choose, I see the installation's default language (DL-0498, DL-0501).
 - Pages before sign-in use the installation's default, except a reset or invitation page opened from its link, which uses the preference of the person the link belongs to (DL-0501).
 - An email to me goes in my language, fixed when it is queued; an invitation goes in the installation's default (DL-0501, ASR-17). A version's change summary stays in the language its writer left it in (DL-0321).
@@ -88,7 +88,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The answer is retrievable for a date in the past, not only for now (ASR-18).
 
 **ST-0007** — As a user with memberships in several tenants, I switch between them, so that I work in one organisation at a time.
-- A user with one membership sees the tenant's name and no switcher.
+- A user with one membership sees the tenant's name, plain. With two or more active memberships the name is a link: it opens a window listing my organisations, each one a switch, and a page of its own with the same list when no script runs; the switch itself is a POST (DL-0525, DL-0497).
 - Nothing is visible, searchable or linkable across the boundary.
 
 **ST-0008** — As a user, I sign in with an email address and a password, so that the platform knows which rights I hold. *(skeleton)*
@@ -180,7 +180,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - I reserve from an editing session I already have; while someone else holds the document there is nothing to reserve, so reservations are never contested (DL-0218, DL-0219).
 - While it is reserved it is not released for inactivity; my draft waits between sittings, and I finish it once, producing one version (DL-0213).
 - I may cancel the reservation, which makes it an ordinary hold again.
-- I cannot reserve a frozen document (DL-0223). I may hold several reservations; each document is on its own, and my user menu lists them with their start dates (DL-0227, DL-0241).
+- I cannot reserve a frozen document (DL-0223). I may hold several reservations; each document is on its own, and *My reservations* in the menu row, drawn only while I hold one, lists them with their start dates (DL-0227, DL-0241, DL-0525).
 - While it is reserved, as while any hold lasts, nobody can freeze it or change its groups — and nobody else can review it; that is agreed with me outside the platform, or an administrator ends my reservation (DL-0223, DL-0224).
 
 **ST-0070** — As an editor whose reservation an administrator ended, I learn who ended it, when and why, and keep my work, so that weeks of editing are never lost.

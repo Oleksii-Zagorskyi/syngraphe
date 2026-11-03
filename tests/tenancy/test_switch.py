@@ -24,7 +24,8 @@ pytestmark = [
 ]
 
 SWITCH = "/organisation/switch/"
-NAMED = re.compile(r'<span class="organisation">([^<]*)</span>')
+NAMED = re.compile(r'<(?:span|a) class="organisation"[^>]*>([^<]*)</(?:span|a)>')
+LIST = "/organisation/"
 
 
 def _member_of_both(first: Any, second: Any, email: str = "two.places@example.test") -> Any:
@@ -87,7 +88,7 @@ def test_switch_on_the_platform_host(
     second = client.post(SWITCH, {"organisation": other.number})
     second_page = client.get("/folder/1/").content.decode()
 
-    assert 'class="switcher"' in first_page and 'name="organisation"' in first_page
+    assert f'href="{LIST}"' in first_page
     assert first.status_code == 302 and first["Location"] == "/"
     assert second.status_code == 302 and second["Location"] == "/"
     assert NAMED.findall(first_page) == [migrated_tenant.name]
@@ -219,7 +220,7 @@ def test_the_switcher_never_names_another_organisation(
     migrated_tenant: Any, make_tenant_schema: Any
 ) -> None:
     """A platform administrator who chose, through the selector, an organisation they are no member
-    of: the switcher shows that organisation as current, never one of their own."""
+    of: the organisation's link names that organisation, never one of their own."""
     from identity.models import User
 
     first = make_tenant_schema("First synthetic")
@@ -232,9 +233,7 @@ def test_the_switcher_never_names_another_organisation(
 
     page = client.get("/administration/", follow=True).content.decode()
 
-    switcher = page.split('class="switcher"', 1)[1].split("</form>", 1)[0]
-    selected = re.findall(r"<option[^>]*selected[^>]*>([^<]*)<", switcher)
-    assert selected == [migrated_tenant.name]
+    assert NAMED.findall(page) == [migrated_tenant.name]
 
 
 def test_one_membership_draws_no_switcher(migrated_tenant: Any) -> None:
@@ -248,7 +247,8 @@ def test_one_membership_draws_no_switcher(migrated_tenant: Any) -> None:
 
     page = client.get("/folder/1/").content.decode()
 
-    assert 'class="switcher"' not in page and NAMED.findall(page) == [migrated_tenant.name]
+    assert f'href="{LIST}"' not in page
+    assert NAMED.findall(page) == [migrated_tenant.name]
 
 
 def test_the_switcher_reads_in_ukrainian(
@@ -263,7 +263,77 @@ def test_the_switcher_reads_in_ukrainian(
     page = client.get("/folder/1/").content.decode()
     confirmation = client.get(f"{SWITCH}?to={other.number}").content.decode()
 
-    switcher = page.split('class="switcher"', 1)[1].split("</form>", 1)[0]
-    assert "Перейти" in switcher and "Switch" not in switcher
+    listed = client.get(LIST).content.decode()
+    assert "Оберіть організацію" in listed and "Choose an organisation" not in listed
+    assert 'aria-label="Оберіть організацію"' in page and "Choose an organisation" not in page
     assert "Switch" not in confirmation
     assert other.name in confirmation and "Work in" not in confirmation
+
+
+def test_the_list(migrated_tenant: Any, make_tenant_schema: Any) -> None:
+    """With two active memberships the organisation's name links the list; the list writes
+    nothing, and each organisation in it is a POST form with the token that switches (DL-0525)."""
+    other = make_tenant_schema("Another synthetic organisation")
+    person = _member_of_both(migrated_tenant, other)
+    client = Client(headers={"host": "127.0.0.1"}, enforce_csrf_checks=True)
+    client.force_login(person)
+    session = client.session
+    session["tenant_number"] = migrated_tenant.number
+    session.save()
+
+    page = client.get("/folder/1/").content.decode()
+    listed = client.get(LIST)
+    body = listed.content.decode()
+
+    assert f'<a class="organisation" href="{LIST}"' in page
+    assert listed.status_code == 200
+    assert client.session["tenant_number"] == migrated_tenant.number
+    forms = re.findall(
+        r'<form method="post" action="/organisation/switch/"[^>]*>(.*?)</form>', body, re.DOTALL
+    )
+    numbers = sorted(
+        int(n) for f in forms for n in re.findall(r'name="organisation" value="([0-9]+)"', f)
+    )
+    assert numbers == sorted([migrated_tenant.number, other.number])
+    assert all("csrfmiddlewaretoken" in f for f in forms)
+    token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', forms[0]).group(1)
+    switched = client.post(SWITCH, {"organisation": other.number, "csrfmiddlewaretoken": token})
+    assert switched.status_code == 302 and client.session["tenant_number"] == other.number
+
+
+@pytest.mark.parametrize("memberships", [0, 1])
+def test_the_list_answers_one_membership_or_none_as_missing(
+    migrated_tenant: Any, memberships: int
+) -> None:
+    from identity.models import Membership, User
+
+    person = User.objects.create_user("one.place@example.test", "test-only-not-a-password")
+    if memberships:
+        Membership.objects.create(tenant=migrated_tenant, user=person, actor_kind="system")
+    client = Client(headers={"host": "127.0.0.1"})
+    client.force_login(person)
+    missing = client.get("/no-such-page/")
+
+    for answer in (client.get(LIST), client.post(LIST)):
+        assert answer.status_code == 404 == missing.status_code
+        assert answer.content == missing.content
+
+
+def test_a_switch_is_never_a_get(migrated_tenant: Any, make_tenant_schema: Any) -> None:
+    """A GET to the switch draws its confirmation, a POST form, and changes nothing; a POST
+    without the token is refused (DL-0497)."""
+    other = make_tenant_schema("Another synthetic organisation")
+    person = _member_of_both(migrated_tenant, other)
+    client = Client(headers={"host": "127.0.0.1"}, enforce_csrf_checks=True)
+    client.force_login(person)
+    session = client.session
+    session["tenant_number"] = migrated_tenant.number
+    session.save()
+
+    asked = client.get(f"{SWITCH}?to={other.number}")
+    assert asked.status_code == 200
+    assert re.search(r'<form method="post" action="/organisation/switch/"', asked.content.decode())
+    assert client.session["tenant_number"] == migrated_tenant.number
+    refused = client.post(SWITCH, {"organisation": other.number})
+    assert refused.status_code == 403
+    assert client.session["tenant_number"] == migrated_tenant.number

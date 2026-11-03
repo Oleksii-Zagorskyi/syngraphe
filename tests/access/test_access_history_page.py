@@ -196,7 +196,10 @@ def test_people_by_address(migrated_tenant: Any, member_of: Any, make_document: 
 
     assert "named.editor@example.test" in page
     assert "linked 1 March 2026 by an.admin@example.test" in page
-    assert "Synthetic Person" not in page and "Synthetic Admin" not in page
+    # The reader's own name stands in the menu row; the page names nobody by it.
+    content = page.split("Synthetic Admin", 1)[-1]
+    assert page.count("Synthetic Admin") == 1
+    assert "Synthetic Person" not in page and "Synthetic Admin" not in content
 
 
 def test_refusals(migrated_tenant: Any, member_of: Any, make_document: Any) -> None:

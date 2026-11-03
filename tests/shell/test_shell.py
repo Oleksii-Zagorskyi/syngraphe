@@ -294,3 +294,41 @@ def test_the_landing_opens_the_first_section(signed_in: Any, tenant: Any) -> Non
     )
     assert (to_users.status_code, to_users["Location"]) == (302, "/administration/tenant/users/")
     assert member.get("/administration/").status_code == 404
+
+
+# The one row (DL-0525): the menu, the bell, the organisation and the person's own name.
+
+ROW = re.compile(r'<header class="shell">(.*?)</header>', re.DOTALL)
+
+
+def _row(body: str) -> str:
+    found = ROW.search(body)
+    assert found is not None, "no shell header on the page"
+    return found.group(1)
+
+
+@pytest.mark.parametrize("named", [True, False])
+def test_one_row(signed_in: Any, tenant: Any, named: bool) -> None:
+    """A member of one organisation without a reservation: the menu, *Help*, the bell, the
+    organisation's name plain, and their display name — or their address — linking the account
+    page; no *My reservations*, no *Sign out*, no switcher."""
+    from identity.models import User
+
+    client, user = signed_in("a.member@example.test", tenant=tenant)
+    if named:
+        User.objects.filter(pk=user.pk).update(display_name="Синтетична Особа")
+
+    row = _row(client.get("/folder/1/").content.decode())
+
+    shown = "Синтетична Особа" if named else "a.member@example.test"
+    link = rf'<a class="account-link" href="/account/"[^>]*>{re.escape(shown)}</a>'
+    assert re.search(link, row), row
+    assert 'href="/folder/1/"' in row and 'href="/help/"' in row
+    assert 'class="notifications"' in row
+    assert f'<span class="organisation">{tenant.name}</span>' in row
+    assert "/my-reservations/" not in row
+    assert 'action="/signout/"' not in row
+    assert "<select" not in row and 'class="user"' not in row
+    assert 'href="/organisation/"' not in row
+    order = [row.index(s) for s in ("/help/", 'class="notifications"', 'class="account-link"')]
+    assert order == sorted(order)

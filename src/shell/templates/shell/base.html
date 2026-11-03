@@ -20,20 +20,16 @@
       {% block nav_documents %}{% if current_tenant and membership or current_tenant and is_platform_admin %}<a href="/folder/1/">{% translate "All documents" %}</a>{% endif %}{% endblock %}
       {% block nav_in_edit %}{% with offered=views.in_edit %}{% if offered is not None %}{% if offered %}<a href="/in-edit/" data-nav="in-edit">{% translate "Being edited" %}</a>{% else %}<a data-nav="in-edit" aria-disabled="true" class="disabled">{% translate "Being edited" %}</a>{% endif %}{% endif %}{% endwith %}{% endblock %}
       {% block nav_in_review %}{% with offered=views.in_review %}{% if offered is not None %}{% if offered %}<a href="/in-review/" data-nav="in-review">{% translate "In review" %}</a>{% else %}<a data-nav="in-review" aria-disabled="true" class="disabled">{% translate "In review" %}</a>{% endif %}{% endif %}{% endwith %}{% endblock %}
+      {% if views.my_reservations %}<a href="/my-reservations/">{% translate "My reservations" %}</a>{% endif %}
       {% block nav_help %}{% if user.is_authenticated %}<a href="/help/">{% translate "Help" %}</a>{% endif %}{% endblock %}
       {% if is_administrator %}<a href="/administration/">{% translate "Administration" %}</a>{% endif %}
     </nav>
     <div class="spacer"></div>
     {% block notifications %}{% if unread_notifications is not None %}<a class="notifications" href="/notifications/" data-unread="{{ unread_notifications }}" aria-label="{% translate "Notifications" %}" title="{% translate "Notifications" %}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a4.5 4.5 0 0 0-4.5 4.5v3L2 11.5h12L12.5 9V6A4.5 4.5 0 0 0 8 1.5zM6.5 13a1.5 1.5 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>{% if unread_notifications %}<span class="count">{{ unread_notifications }}</span>{% endif %}</a>{% endif %}{% endblock %}
-    {% if current_tenant %}<span class="organisation">{{ current_tenant.name }}</span>{% endif %}
-    {% block switcher %}{% if organisations_of_person|length > 1 %}<form method="post" action="/organisation/switch/" class="switcher">{% csrf_token %}<label class="visually-hidden" for="switch-organisation">{% translate "Organisation" %}</label><select id="switch-organisation" name="organisation">{% if current_tenant and not organisations_of_person.holds_current %}<option value="" selected disabled>{{ current_tenant.name }}</option>{% elif not current_tenant %}<option value="" selected disabled>—</option>{% endif %}{% for organisation in organisations_of_person %}<option value="{{ organisation.tenant__number }}"{% if current_tenant and organisation.tenant__number == current_tenant.number %} selected{% endif %}>{{ organisation.tenant__name }}</option>{% endfor %}</select><button class="btn" type="submit">{% translate "Switch" context "organisation switcher" %}</button></form>{% endif %}{% endblock %}
-    {% if user.is_authenticated %}
-    <div class="user">
-      <span class="muted">{{ user.email }}</span>
-      {% block user_menu %}{% if views.my_reservations %}<a class="muted" href="/my-reservations/">{% translate "My reservations" %}</a>{% endif %}<a class="muted" href="/account/">{% translate "My account" %}</a>{% endblock %}
-      <form method="post" action="/signout/" class="inline">{% csrf_token %}<button class="btn" type="submit">{% translate "Sign out" %}</button></form>
-    </div>
-    {% endif %}
+    {# The organisation: a link to the list of one's organisations with two or more (DL-0525). #}
+    {% block switcher %}{% if organisations_of_person|length > 1 %}<a class="organisation" href="/organisation/" data-organisations>{% if current_tenant %}{{ current_tenant.name }}{% else %}{% translate "Choose an organisation" %}{% endif %}</a>{% elif current_tenant %}<span class="organisation">{{ current_tenant.name }}</span>{% endif %}{% endblock %}
+    {% if organisations_of_person|length > 1 %}<dialog id="organisations-window" aria-label="{% translate "Choose an organisation" %}"><h2>{% translate "Choose an organisation" %}</h2>{% include "shell/organisation_list.html" %}<button type="button" class="btn" data-close>{% translate "Close" %}</button></dialog><script src="{% static 'shell.js' %}" defer></script>{% endif %}
+    {% block user_menu %}{% if user.is_authenticated %}<a class="account-link" href="/account/">{% firstof user.display_name user.email %}</a>{% endif %}{% endblock %}
   </div>
 </header>
 {% endblock %}

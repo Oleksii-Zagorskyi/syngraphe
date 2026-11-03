@@ -367,3 +367,47 @@ def test_reserving_never_waits_for_the_person(
         worker.join(timeout=30)
     assert outcome and not isinstance(outcome[0], Exception), outcome
     assert open_hold(migrated_tenant, document).reserved_at is not None
+
+
+def test_my_reservations_only_with_one(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any
+) -> None:
+    """*My reservations* stands in the menu row only while the person holds a reservation, not
+    for holding the right alone (DL-0525)."""
+    from access.rights import Right
+
+    _, author, _ = member_of("author.synthetic@example.test")
+    client, _, membership = member_of("holder.synthetic@example.test")
+    document = new_document(author)
+    link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [membership], author)
+
+    def row() -> str:
+        return client.get("/folder/1/").content.decode().partition("</header>")[0]
+
+    assert "/my-reservations/" not in row()
+    assert client.post(f"/document/{document.number}/edit/take/").status_code == 200
+    assert client.post(f"/document/{document.number}/edit/reserve/").status_code == 302
+    assert 'href="/my-reservations/"' in row()
+
+
+def test_my_reservations_opens_while_one_is_held(
+    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any
+) -> None:
+    """A reservation outlives its holder's removal from the group that gave the right: the row
+    still offers *My reservations*, and the page it links answers (DL-0525)."""
+    from access.rights import Right
+    from tenancy.schemas import schema_context
+
+    _, author, _ = member_of("author.synthetic@example.test")
+    client, _, membership = member_of("holder.synthetic@example.test")
+    document = new_document(author)
+    group = link_group(document, [Right.EDIT, Right.RESERVE_FOR_EDITING], [membership], author)
+    assert client.post(f"/document/{document.number}/edit/take/").status_code == 200
+    assert client.post(f"/document/{document.number}/edit/reserve/").status_code == 302
+    with schema_context(migrated_tenant.number):
+        group.remove_member(membership, by=author)
+
+    row = client.get("/folder/1/").content.decode().partition("</header>")[0]
+
+    assert 'href="/my-reservations/"' in row
+    assert client.get("/my-reservations/").status_code == 200

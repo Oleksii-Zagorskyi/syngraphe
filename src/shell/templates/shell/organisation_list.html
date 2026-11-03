@@ -1,0 +1,10 @@
+{# The organisations a person reaches, each a POST that switches to it (DL-0497, DL-0525): drawn on the list's own page and in the shell's window. #}<ul class="organisation-list">
+  {% for organisation in organisations_of_person %}
+  <li>
+    <form method="post" action="/organisation/switch/" class="inline">{% csrf_token %}
+      <input type="hidden" name="organisation" value="{{ organisation.tenant__number }}">
+      <button class="linklike" type="submit"{% if current_tenant and organisation.tenant__number == current_tenant.number %} aria-current="true"{% endif %}>{{ organisation.tenant__name }}</button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>

@@ -21,6 +21,7 @@
     <button class="btn primary" type="submit">{% translate "Apply" %}</button>
     {% if applied %}<p class="note" role="status">{% translate "Applied" %}</p>{% endif %}
   </form>
+  <form method="post" action="/signout/" class="signout">{% csrf_token %}<button class="btn" type="submit">{% translate "Sign out" %}</button></form>
   {% if not user.self_blocked %}
   <div class="foot">
     {% if last %}

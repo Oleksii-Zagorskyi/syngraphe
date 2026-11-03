@@ -43,7 +43,7 @@ def test_the_account_page_runs_under_the_policy(
         page.click("form.language button[type=submit]")
 
     assert page.get_attribute("html", "lang") == "en"
-    assert page.locator(".user a[href='/account/']").inner_text() == "My account"
+    assert page.locator("a.account-link").inner_text() == "a.member@example.test"
     assert page.locator("[role=status]").inner_text() == "Applied"
     _policy._assert_headers(documents)
     _policy._assert_nothing_refused(violations, console)

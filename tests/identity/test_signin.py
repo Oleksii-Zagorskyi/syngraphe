@@ -215,8 +215,6 @@ def test_a_person_of_several_organisations_chooses_one(person: Any) -> None:
 
 
 def test_the_choice_of_an_organisation_is_in_ukrainian(person: Any, settings: Any) -> None:
-    from django.utils.translation import override, pgettext
-
     settings.LANGUAGE_CODE = "uk"
     person("two@example.test", "Synthetic Org A", "Synthetic Org B")
     client = Client(headers={"host": "127.0.0.1"}, REMOTE_ADDR="192.0.2.22")
@@ -224,7 +222,6 @@ def test_the_choice_of_an_organisation_is_in_ukrainian(person: Any, settings: An
 
     page = client.get("/").content.decode()
 
-    with override("uk"):
-        switch = pgettext("organisation switcher", "Switch")
     assert "Оберіть організацію" in page and "Choose an organisation" not in page
-    assert page.count(f">{switch}</button>") == 2 and switch != "Switch"
+    # Each organisation is a switch drawn as a link, named by the organisation (DL-0525).
+    assert page.count('class="linklike" type="submit">Synthetic Org') == 2

@@ -38,8 +38,7 @@ class _Views:
     """Whether each of *In edit* and *In review* holds anything — `None` where its link is not
     drawn: no organisation, not a member, or the right on no document; read once a template
     asks, at most once a request, and from the view's own answer on its page (DL-0197). And
-    whether *My reservations* is drawn: for every holder of *reserve for editing*, whether or not
-    they reserve now (DL-0241)."""
+    whether *My reservations* is drawn: while the person holds a reservation (DL-0241, DL-0525)."""
 
     def __init__(self, request: HttpRequest) -> None:
         self.request = request
@@ -54,8 +53,9 @@ class _Views:
         if user is None or getattr(request, "tenant", None) is None or not is_member(request):
             return None
         if view == "my_reservations":
-            # Drawn for a holder of the right on some document, whether or not they reserve now.
-            return True if holds_anywhere(user, Right.RESERVE_FOR_EDITING) else None
+            from editing.reservations import holds_one
+
+            return True if holds_one(user) else None
         right, holds = (
             (Right.EDIT, any_in_edit) if view == "in_edit" else (Right.ACCEPT, any_in_review)
         )
@@ -78,7 +78,7 @@ class _Views:
 
 class _Organisations:
     """The organisations a person reaches through an active membership, read once a template asks
-    — the switcher, drawn for two or more (ST-0007, ADR-0008)."""
+    — the organisation's link and its list, drawn for two or more (ST-0007, ADR-0008, DL-0525)."""
 
     def __init__(self, request: HttpRequest) -> None:
         self.request = request
@@ -89,15 +89,6 @@ class _Organisations:
 
     def __len__(self) -> int:
         return len(self._read())
-
-    @property
-    def holds_current(self) -> bool:
-        """Whether the organisation the request names is one of the person's own — else the
-        switcher shows it as current rather than one of theirs."""
-        tenant = getattr(self.request, "tenant", None)
-        return tenant is not None and any(
-            row["tenant__number"] == tenant.number for row in self._read()
-        )
 
     def _read(self) -> list[Any]:
         if self._found is None:
@@ -116,6 +107,13 @@ class _Organisations:
 
 
 def shell(request: HttpRequest) -> dict[str, Any]:
+    from django.middleware.csrf import get_token
+
+    user = getattr(request, "user", None)
+    if user is not None and user.is_authenticated:
+        # Every signed-in page sets the token's cookie: the panes' and the folder tree's own
+        # requests read it, whether or not the page draws a form.
+        get_token(request)
     membership = getattr(request, "membership", None)
     is_platform_admin = bool(
         getattr(getattr(request, "user", None), "acts_as_platform_admin", False)

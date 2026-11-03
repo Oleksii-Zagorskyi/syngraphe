@@ -77,7 +77,7 @@ def test_each_request_takes_its_persons_language(member_of: Any, settings: Any) 
 
     page = client.get("/folder/1/").content
     assert _lang(page) == "en"
-    assert "My account" in page.decode()
+    assert "All documents" in page.decode()
 
     other, _, _ = member_of("no.choice@example.test")
     assert _lang(other.get("/folder/1/").content) == "uk"

@@ -3,7 +3,7 @@ answer for what may not be seen."""
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import redis
 from django.conf import settings
@@ -103,10 +103,25 @@ def root(request: HttpRequest) -> HttpResponse:
         from identity.models import Membership
 
         # A person of several organisations, none chosen: asked which (DL-0511), from the list
-        # the switcher draws, so nothing else is named.
+        # the shell's organisation link draws, so nothing else is named.
         if Membership.objects.active().filter(user=person).count() > 1:
             return render(request, "shell/organisations.html")
     return not_found(request)
+
+
+@never_cache
+@login_required
+def organisations(request: HttpRequest) -> HttpResponse:
+    """The organisations a person reaches through two or more active memberships, each a POST that
+    switches (DL-0525, DL-0497) — the page the shell's organisation link opens, and the window's
+    contents; a GET that writes nothing. One membership, or none, has no list."""
+    from identity.models import Membership, User
+
+    if request.method != "GET":
+        return not_found(request)
+    if Membership.objects.active().filter(user=cast(User, request.user)).count() < 2:
+        return not_found(request)
+    return render(request, "shell/organisations.html")
 
 
 def frame(request: HttpRequest) -> dict[str, Any]:

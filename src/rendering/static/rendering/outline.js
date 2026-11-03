@@ -77,6 +77,7 @@
       headers: { "X-CSRFToken": csrf() },
       credentials: "same-origin",
       redirect: "manual",
+      keepalive: true,
     });
 
   const expanded = (pane) => {

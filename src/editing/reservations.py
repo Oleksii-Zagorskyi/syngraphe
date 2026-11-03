@@ -206,3 +206,12 @@ def force_release(hold: Hold, administrator: User) -> bool:
         return holds.release(
             locked, ReleaseKind.FORCED, actor=administrator, released_by=administrator
         )
+
+
+def holds_one(user: User) -> bool:
+    """Whether the person holds a reservation in this organisation (DL-0525): what draws *My
+    reservations* in the menu row and opens its page, a reservation outliving the right that
+    took it. One query."""
+    return Hold.objects.filter(
+        user_id=user.pk, released_at__isnull=True, reserved_at__isnull=False
+    ).exists()
