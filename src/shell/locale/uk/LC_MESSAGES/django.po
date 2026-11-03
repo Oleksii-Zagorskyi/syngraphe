@@ -987,10 +987,6 @@ msgstr "Заморожено"
 msgid "frozen by %(name)s"
 msgstr "заморожено користувачем %(name)s"
 
-#: editions/templates/editions/controls.html:2
-msgid "Reason — what the document waits for (optional)"
-msgstr "Причина — на що чекає документ (необов’язково)"
-
 #: editions/templates/editions/controls.html:3
 #: editions/templates/editions/controls.html:4
 #, python-format
@@ -2614,10 +2610,6 @@ msgstr "Заморожено — зарезервуйте, коли докуме
 msgid "#%(number)s %(title)s was reserved for editing by %(name)s."
 msgstr "#%(number)s %(title)s зарезервовано для редагування: %(name)s."
 
-#: editing/templates/editing/hold_acts.html
-msgid "More ▾"
-msgstr "Більше ▾"
-
 #: editing/templates/editing/hold_acts.html editing/templates/editing/reservations.html
 #: access/templates/access/document_links.html
 msgid "End the reservation…"
@@ -3819,10 +3811,6 @@ msgstr ""
 "Укажіть номер документа для порівняння: спершу порівнюється його найновіша "
 "доступна вам версія, потім можна вибрати іншу."
 
-#: documents/templates/documents/compare_act.html
-msgid "Compare with another document"
-msgstr "Порівняти з іншим документом"
-
 #: documents/templates/documents/list.html
 msgid "Compare documents…"
 msgstr "Порівняти документи…"
@@ -4856,3 +4844,60 @@ msgstr "%(number)s — чернетка"
 #: editing/templates/editing/band.html
 msgid "Open your draft"
 msgstr "Відкрити чернетку"
+
+#: documents/path.py
+msgctxt "the act on the latest version"
+msgid "Edit"
+msgstr "Редагувати"
+
+#: documents/path.py
+msgid "Review the run"
+msgstr "Розглянути"
+
+#: documents/path.py
+#, python-format
+msgid "Make canonical as %(number)s…"
+msgstr "Затвердити як %(number)s…"
+
+#: documents/templates/documents/frame.html
+msgctxt "the administrator's menu"
+msgid "More actions"
+msgstr "Більше"
+
+#: documents/path.py
+#, python-format
+msgctxt "the mark under the latest version"
+msgid "%(name)s is editing"
+msgstr "редагує %(name)s"
+
+#: documents/path.py
+#, python-format
+msgctxt "the mark under the latest version"
+msgid "reserved by %(name)s"
+msgstr "зарезервував %(name)s"
+
+#: documents/path.py
+msgctxt "the mark under the latest version"
+msgid "someone is editing"
+msgstr "редагує інша людина"
+
+#: documents/path.py
+msgctxt "the mark under the latest version"
+msgid "reserved for editing"
+msgstr "зарезервовано для редагування"
+
+#: documents/path.py editing/templates/editing/held_by_other.html
+#, python-format
+msgctxt "the reason beside a disabled act"
+msgid "%(name)s is editing."
+msgstr "Редагує %(name)s."
+
+#: documents/path.py editing/templates/editing/held_by_other.html
+#, python-format
+msgctxt "the reason beside a disabled act"
+msgid "%(name)s has reserved it."
+msgstr "Зарезервував %(name)s."
+
+#: documents/templates/documents/act.html
+msgid "What a reservation does"
+msgstr "Що дає резервування"

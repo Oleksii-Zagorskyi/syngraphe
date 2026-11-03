@@ -116,9 +116,15 @@ def tab_response(
         context["frame"] = frame(request, document, here="draft" if holding else "latest")
         return render(request, "editing/held_by_other.html", context)
     if hold is not None and hold.user_id != request.user.pk:
+        from identity.naming import person
+
+        # Everyone who reaches this page holds *edit*, so the holder is named (DL-0516).
         context["frame"] = frame(request, document, here="latest")
+        context["holder"] = person(hold.user)
+        context["reserved"] = hold.reserved_at is not None
         return render(request, "editing/held_by_other.html", context)
-    context["reservation"] = _reservation(request, document, hold, frozen, context)
+    # The discard's sentence says a reservation ends with the draft (DL-0237).
+    context["reserved"] = holding and hold is not None and hold.reserved_at is not None
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     from editing.views.parts import panel
     from identity.views.preferences import PANEL_WIDTH, PANEL_WIDTH_MAX, PANEL_WIDTH_MIN
@@ -310,23 +316,6 @@ def returning(
         **drawn,
         "parts_heading": gettext("Parts changed in this draft"),
     }
-
-
-def _reservation(
-    request: HttpRequest, document: Document, hold: Any, frozen: Any, context: dict[str, Any]
-) -> dict[str, Any] | None:
-    """The tab's reservation control (ADR-0009): *Cancel the reservation* on the person's own
-    reservation; *Reserve for editing* to a holder of the right in an editing session — the one
-    path in (DL-0219) — disabled with the freeze's reason while frozen (DL-0252); nothing
-    otherwise."""
-    if hold is not None and hold.reserved_at is not None:
-        return {"reserved": True}
-    if not (context["holding"] or context["take_on_mount"]):
-        return None
-    rights = rights_on_many(request.user, [document.pk]).get(document.pk, frozenset())
-    if Right.RESERVE_FOR_EDITING not in rights:
-        return None
-    return {"reserved": False, "frozen": frozen}
 
 
 @never_cache

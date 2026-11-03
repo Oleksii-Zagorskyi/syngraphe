@@ -19,8 +19,6 @@ pytestmark = [
     pytest.mark.django_db(transaction=True, serialized_rollback=True),
 ]
 
-HELD = "This document is held"
-
 
 def open_rows(tenant: Any, document: Any) -> tuple[int, int]:
     from editing.models import Draft, Hold
@@ -89,7 +87,8 @@ def test_held_tab_for_others(
     page = other.get(f"/document/{document.number}/edit/")
     body = page.content.decode()
     assert page.status_code == 200
-    assert HELD in body
+    # A holder of *edit* learns who holds it (DL-0516), by name, never by address.
+    assert "is editing." in body.split('<p class="held">', 1)[1].split("</p>", 1)[0]
     assert 'id="editor"' not in body
     assert "the.holder" not in body
     assert other.post(f"/document/{document.number}/edit/take/").status_code == 409

@@ -7,6 +7,7 @@ People and groups are synthetic examples; the text is invented.
 
 from __future__ import annotations
 
+import html
 from typing import Any
 
 import pytest
@@ -92,6 +93,13 @@ def test_correct_is_disabled_while_someone_else_holds(
     pending = signed_in(migrated_tenant, people["r"]).get(f"/document/{document.number}/pending/")
     page = pending.content.decode()
     assert 'data-command="correct"' in page and 'disabled data-command="correct"' in page
+    # A holder of *accept* learns who holds it, on an ordinary hold too (DL-0516).
+    from identity.naming import person
+
+    with schema_context(migrated_tenant.number):
+        name = person(people["a"])
+    after = page.split('disabled data-command="correct"', 1)[1].split("</p>", 1)[0]
+    assert html.escape(f"{name} is editing.") in after or f"Редагує {html.escape(name)}." in after
 
 
 def test_create_version_is_a_reviewer_edit(

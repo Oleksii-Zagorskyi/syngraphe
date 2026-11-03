@@ -383,7 +383,7 @@ def test_the_end_reads_the_administrator_inside_the_act(
 def test_more_holds_the_act_the_hold_allows(
     migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, settings: Any
 ) -> None:
-    """*More ▾* holds *force release* on an ordinary hold and *end the reservation…* on a reserved
+    """*Більше* holds *force release* on an ordinary hold and *end the reservation…* on a reserved
     one; the holder, administrator or not, is offered neither — they finish, discard or cancel."""
     settings.LANGUAGE_CODE = "en"
     admin_client, admin, admin_membership = member_of(
@@ -404,9 +404,11 @@ def test_more_holds_the_act_the_hold_allows(
     page = other_client.get(f"/document/{number}/").content.decode()
     assert f'action="/document/{number}/edit/force-release/"' in page
     assert "/edit/end-reservation/" not in page
-    assert 'class="more"' not in admin_client.get(f"/document/{number}/").content.decode()
+    own = admin_client.get(f"/document/{number}/").content.decode()
+    assert "/edit/force-release/" not in own and "/edit/end-reservation/" not in own
     admin_client.post(f"/document/{number}/edit/reserve/")
-    assert 'class="more"' not in admin_client.get(f"/document/{number}/").content.decode()
+    own = admin_client.get(f"/document/{number}/").content.decode()
+    assert "/edit/force-release/" not in own and "/edit/end-reservation/" not in own
     page = other_client.get(f"/document/{number}/").content.decode()
     assert f'href="/document/{number}/edit/end-reservation/"' in page
     assert "/edit/force-release/" not in page

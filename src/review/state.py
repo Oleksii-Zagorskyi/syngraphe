@@ -58,8 +58,9 @@ LABELS = {
 }
 # The states a tag shows, and to whom: pending work only to those who may see it (DL-0233).
 PENDING_TAGS = frozenset({State.AWAITING_REVIEW, State.RETURNED, State.NO_REVIEWER_ASSIGNED})
-# Who may learn who reserved a document: those it keeps from editing or reviewing (DL-0226).
-NAMED_ON_A_RESERVATION = frozenset({Right.EDIT, Right.ACCEPT})
+# Who may learn who holds a document, on any hold: those it keeps from editing or reviewing, and
+# administrators beside them (DL-0516).
+NAMED_ON_A_HOLD = frozenset({Right.EDIT, Right.ACCEPT})
 
 
 class Tag(NamedTuple):
@@ -258,17 +259,17 @@ def reserved_since(moment: Any) -> str:
 
 def hold_tag(hold: Any, rights: frozenset[Right], *, administrator: bool) -> Tag:
     """The tag an open hold shows a reader with `rights`: the fact to everyone; the holder's name,
-    on an ordinary hold, to a tenant administrator or a platform administrator acting in the
-    organisation (ADR-0006, ADR-0007), and on a reservation also to holders of *edit* or *accept*
-    (DL-0226)."""
+    on every hold, ordinary or reserved, to holders of *edit* or *accept* and to a tenant
+    administrator or a platform administrator acting in the organisation (DL-0516, ADR-0007)."""
     from identity.naming import person
 
+    named = administrator or bool(rights & NAMED_ON_A_HOLD)
     if hold.reserved_at is None:
-        if administrator:
+        if named:
             return Tag(State.HELD, gettext("held by %(name)s") % {"name": person(hold.user)})
         return Tag(State.HELD, str(LABELS[State.HELD]))
     since = reserved_since(hold.reserved_at)
-    if administrator or rights & NAMED_ON_A_RESERVATION:
+    if named:
         return Tag(
             State.RESERVED,
             gettext("reserved for editing by %(name)s, since %(date)s")

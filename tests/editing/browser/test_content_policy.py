@@ -314,13 +314,23 @@ def test_the_document_pages_run_under_the_policy(
         opened(path)
 
     # The reviewer's draft thrown away, the run accepted: an acceptance since the edition, so
-    # making canonical opens its confirmation.
+    # making canonical opens its confirmation. The editor left first, so its reload never takes
+    # the document again after the discard.
+    page.goto("about:blank")
     discarded = built.reviewer.post(f"/document/{n}/edit/discard/")
     assert discarded.status_code == 302, discarded.status_code
     confirmation = built.reviewer.get(f"/document/{n}/pending/accept/")
     confirmed = confirmation.content.decode().split('name="confirmed" value="')[1][:40]
     accepted = built.reviewer.post(f"/document/{n}/pending/accept/", {"confirmed": confirmed})
     assert accepted.status_code == 302, accepted.status_code
+    # The approval's window opens over the page from its act and closes on *Cancel* (DL-0513).
+    answers["(the approval's window)"] = page.goto(
+        f"{browser_server}/document/{n}/", wait_until="load"
+    ).status
+    page.click("[data-window=approve]")
+    page.wait_for_selector("dialog#approve[open]")
+    page.click("dialog#approve [data-close]")
+    page.wait_for_function("() => !document.getElementById('approve').open")
     opened("make-canonical/")
 
     # The author holds it again and reserves it; the administrator ends the reservation.

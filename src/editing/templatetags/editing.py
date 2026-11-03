@@ -1,7 +1,7 @@
-"""The hold on the document page: its band (DL-0226, DL-0233) — a reservation says so across the
-top, with what waits until it ends, its holder reads that it is theirs, and an ordinary hold draws
-none, the state tag and the edit tab saying it — and the administrator's acts on it under *More ▾*
-(ADR-0006, DL-0214)."""
+"""The hold on the document's pages: its band (DL-0516, DL-0233) — a reservation says so across
+the top, with what waits until it ends, its holder reads that it is theirs, and an ordinary hold
+draws none, the state tag and the mark under the latest version saying it — and the
+administrator's acts on it in *More* (⋯) (ADR-0006, DL-0214, DL-0522)."""
 
 from __future__ import annotations
 
@@ -19,11 +19,11 @@ register = template.Library()
 def hold_band(context: dict[str, Any], document: Any) -> dict[str, Any]:
     """The band's context: `reserved`, the open reserved hold or `None`; `mine`, whether the reader
     holds it; `since`, its date; `by`, the holder's name, empty where the reader may not see it
-    (DL-0226); `kept`, whether the reader has a draft kept from an ended hold of theirs."""
+    (DL-0516); `kept`, whether the reader has a draft kept from an ended hold of theirs."""
     from access.views import administers
     from editing.holds import preserved_draft
     from identity.naming import person
-    from review.state import NAMED_ON_A_RESERVATION, reserved_since
+    from review.state import NAMED_ON_A_HOLD, reserved_since
 
     request = context["request"]
     hold = open_holds([document.pk]).get(document.pk)
@@ -39,7 +39,7 @@ def hold_band(context: dict[str, Any], document: Any) -> dict[str, Any]:
     if hold.reserved_at is None:
         return {"reserved": None}
     mine = hold.user_id == request.user.pk
-    named = administers(request) or bool(rights_on(request.user, document) & NAMED_ON_A_RESERVATION)
+    named = administers(request) or bool(rights_on(request.user, document) & NAMED_ON_A_HOLD)
     return {
         "reserved": hold,
         "mine": mine,
@@ -49,10 +49,10 @@ def hold_band(context: dict[str, Any], document: Any) -> dict[str, Any]:
 
 
 @register.inclusion_tag("editing/hold_acts.html", takes_context=True)
-def hold_acts(context: dict[str, Any], document: Any, menu: bool = False) -> dict[str, Any]:
-    """An administrator's acts on someone else's hold, as the document page's *More ▾* when
-    `menu` (ADR-0006, DL-0214): *end the reservation…* on a reserved hold, *force release* on an
-    ordinary one; nothing on a free document, to anyone else, or to the holder."""
+def hold_acts(context: dict[str, Any], document: Any) -> dict[str, Any]:
+    """An administrator's acts on someone else's hold, in the document's *More* (⋯) (ADR-0006,
+    DL-0214, DL-0522): *end the reservation…* on a reserved hold, *force release* on an ordinary
+    one; nothing on a free document, to anyone else, or to the holder."""
     from access.views import administers
 
     request = context["request"]
@@ -62,6 +62,5 @@ def hold_acts(context: dict[str, Any], document: Any, menu: bool = False) -> dic
     return {
         "hold": hold,
         "document": document,
-        "menu": menu,
         "csrf_token": context.get("csrf_token"),
     }

@@ -338,8 +338,9 @@ def test_refusals(migrated_tenant: Any, member_of: Any, source: Any, settings: A
     # A reader without *create and edit*; a creator who may not read the source.
     assert reader.get(f"/document/{source.document.number}/copy/").status_code == 404
     assert stranger.get(f"/document/{source.document.number}/copy/").status_code == 404
+    # The document's page offers no copy: copying starts from the list (DL-0520).
     page = source.client.get(f"/document/{source.document.number}/").content.decode()
-    assert f'href="/document/{source.document.number}/copy/"' in page
+    assert f'href="/document/{source.document.number}/copy/"' not in page
 
     with schema_context(migrated_tenant.number):
         archive.archive(source.document, source.user)
@@ -360,8 +361,7 @@ def test_refusals(migrated_tenant: Any, member_of: Any, source: Any, settings: A
         source.client.get(f"/document/{source.document.number}/").content.decode()
     )
     assert source.client.get(f"/document/{source.document.number}/copy/").status_code == 404
-    act = archived_page.split('class="document-actions"', 1)[1].split("</div>", 1)[0]
-    assert "Copy" in act and "disabled" in act and "archived — restore it first" in act
+    assert f'href="/document/{source.document.number}/copy/"' not in archived_page
 
 
 def test_administrators_read_the_source_on_info(

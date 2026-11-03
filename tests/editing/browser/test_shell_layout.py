@@ -90,17 +90,20 @@ def test_an_address_field_holds_an_address(browser_server: str, page: Any, membe
 
 
 def test_the_acts_stand_apart(
-    browser_server: str, page: Any, member_of: Any, new_document: Any
+    browser_server: str, page: Any, member_of: Any, new_document: Any, link_group: Any
 ) -> None:
-    """The document's acts above its tabs: no two of them touch on one line."""
-    client, author, _ = member_of("the.author@example.test", is_tenant_admin=True)
+    """The acts hung from the chosen version, on one line: no two of them touch."""
+    from access.rights import Right
+
+    client, author, membership = member_of("the.author@example.test", is_tenant_admin=True)
     document = new_document(author)
+    link_group(document, [Right.ACCEPT, Right.FREEZE, Right.MAKE_CANONICAL], [membership], author)
     _sign_in(page, browser_server, client)
 
     page.goto(f"{browser_server}/document/{document.number}/", wait_until="load")
     gaps = page.evaluate(
         """() => {
-          const acts = [...document.querySelector('.document-actions').children]
+          const acts = [...document.querySelector('nav.path .phase-acts').children]
             .map(e => e.getBoundingClientRect()).filter(r => r.width > 0);
           const gaps = [];
           for (let i = 1; i < acts.length; i++) {

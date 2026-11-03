@@ -445,7 +445,7 @@ GONE = "Freeze the document first."
 
 def _control(page: str) -> str:
     """The attributes of the *Make canonical* control, as drawn on the document page."""
-    return page.split('data-command="make-canonical"')[1].split(">")[0]
+    return page.split('data-command="approve"')[1].split(">")[0]
 
 
 # replaces tests/editions/test_edition_repairs.py::test_the_refusals_are_drawn_with_their_reasons
@@ -469,8 +469,23 @@ def test_the_refusals_are_drawn_with_their_reasons(
     assert GONE not in page
     assert "disabled" not in _control(page)
 
+    # A version waiting: the act stands on the latest accepted version, no longer the latest the
+    # page outlines, so it is read from the path itself, as that version's page draws it.
     commit_version(document, people["a"], SECOND, "edit")
-    page = people.clients["p"].get(url).content.decode()
-    assert "Changes are waiting for review; they must be accepted first." in page
-    assert "disabled" in _control(page)
-    assert GONE not in page
+    from django.test import RequestFactory
+    from django.utils import translation
+
+    from documents.path import frame
+    from identity.models import Membership
+
+    request = RequestFactory().get(url)
+    request.user = people["p"]
+    request.tenant = migrated_tenant
+    request.membership = Membership.objects.get(user=people["p"], tenant=migrated_tenant)
+    with schema_context(migrated_tenant.number), translation.override("en"):
+        path = frame(request, document, here="accepted").path
+    assert path is not None
+    approve = [a for item in path for a in item.acts if a.command == "approve"]
+    assert [a.reason for a in approve] == [
+        "Changes are waiting for review; they must be accepted first."
+    ]

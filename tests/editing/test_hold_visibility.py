@@ -1,7 +1,8 @@
-"""Who sees that a document is held or reserved, and who sees by whom (ADR-0006, DL-0226,
-DL-0262): *held* to every reader with the name to administrators alone; *reserved for editing,
-since* to every reader with the name to holders of *edit* or *accept* and to administrators; the
-reservation's band on the document page; the date in the display timezone.
+"""Who sees that a document is held or reserved, and who sees by whom (ADR-0006, DL-0262,
+DL-0516): the fact to every reader; the holder's name, for every hold, ordinary or reserved, to
+holders of *edit* or *accept* and to administrators — in the state tag, the mark under the latest
+version, the reservation's band and the reason beside a disabled *Edit*; the date in the display
+timezone.
 
 Group names, people and titles are synthetic examples."""
 
@@ -23,9 +24,8 @@ HOLDER = "Synthetic Holder H"
 ADDRESS = "the.holder@example.test"
 # Late on the 13th in UTC, already the 14th east of it: the date shown is the display zone's.
 RESERVED_AT = datetime(2026, 10, 13, 22, 30, tzinfo=UTC)
-# Who may learn the holder's name on an ordinary hold, and on a reservation (DL-0226).
-NAMED_ON_A_HOLD = {"administrator", "platform"}
-NAMED_ON_A_RESERVATION = {"editor", "administrator", "platform", "holder"}
+# Who may learn the holder's name, on any hold (DL-0516).
+NAMED = {"editor", "administrator", "platform", "holder"}
 
 
 def _cast(
@@ -77,26 +77,48 @@ def _pages(client: Any, document: Any) -> tuple[str, str]:
     return listed.content.decode(), page.content.decode()
 
 
-def test_held_by_rights(
+@pytest.mark.parametrize("reserved", [False, True], ids=["ordinary", "reserved"])
+def test_the_holder_named_by_right(
     migrated_tenant: Any,
     member_of: Any,
     new_document: Any,
     link_group: Any,
     make_tenant_schema: Any,
     settings: Any,
+    reserved: bool,
 ) -> None:
+    """The tag on the list and the page, the mark under the latest version, and the reason beside
+    the other editor's disabled *Edit*: the name where the reader is named, the fact elsewhere."""
+    from editing.models import Hold
+
     settings.LANGUAGE_CODE = "en"
+    settings.DISPLAY_TIMEZONE = "Europe/Kyiv"
     cast = _cast(migrated_tenant, member_of, new_document, link_group, make_tenant_schema)
+    if reserved:
+        with schema_context(migrated_tenant.number):
+            Hold.objects.filter(document=cast["document"]).update(reserved_at=RESERVED_AT)
     for who in ("reader", "pending", "editor", "administrator", "platform"):
-        tag = (
-            f'data-state="held">held by {HOLDER}<'
-            if who in NAMED_ON_A_HOLD
-            else 'data-state="held">held<'
-        )
-        for body in _pages(cast[who], cast["document"]):
+        named = who in NAMED
+        if reserved:
+            tag = (
+                f'data-state="reserved">reserved for editing by {HOLDER}, since 14 October 2026<'
+                if named
+                else 'data-state="reserved">reserved for editing, since 14 October 2026<'
+            )
+            mark = f"reserved by {HOLDER}" if named else "reserved for editing"
+        else:
+            tag = f'data-state="held">held by {HOLDER}<' if named else 'data-state="held">held<'
+            mark = f"{HOLDER} is editing" if named else "someone is editing"
+        listed, page = _pages(cast[who], cast["document"])
+        for body in (listed, page):
             assert tag in body, who
             assert ADDRESS not in body, who
-            assert 'class="band res"' not in body, who
+        assert f'<span class="held-mark">{mark}</span>' in page, who
+        if not reserved:
+            assert 'class="band res"' not in page, who
+    page = _pages(cast["editor"], cast["document"])[1]
+    reason = f"{HOLDER} has reserved it." if reserved else f"{HOLDER} is editing."
+    assert f'data-command="edit" disabled title="{reason}"' in page
 
 
 def test_reserved_by_rights(
@@ -116,7 +138,7 @@ def test_reserved_by_rights(
         Hold.objects.filter(document=cast["document"]).update(reserved_at=RESERVED_AT)
 
     for who in ("reader", "pending", "editor", "administrator", "platform", "holder"):
-        named = who in NAMED_ON_A_RESERVATION
+        named = who in NAMED
         tag = (
             f'data-state="reserved">reserved for editing by {HOLDER}, since 14 October 2026<'
             if named

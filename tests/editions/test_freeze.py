@@ -8,6 +8,7 @@ People and groups are synthetic examples; the text is invented.
 
 from __future__ import annotations
 
+import html
 from typing import Any
 
 import pytest
@@ -101,11 +102,13 @@ def test_freeze_refused_while_held(
         assert refused.value.reason == "held"
 
     number = people.document.number
-    for client, named in ((administrator, True), (people.clients["p"], False)):
+    # A holder of *freeze* holds *edit*, so the holder is named to both (DL-0516).
+    for client in (administrator, people.clients["p"]):
         page = client.get(f"/document/{number}/").content.decode()
         assert 'data-command="freeze"' in page
-        assert "disabled" in page.split('data-command="freeze"')[1].split(">")[0]
-        assert ("Synthetic Editor E" in page) is named
+        control = page.split('data-command="freeze"')[1].split(">")[0]
+        assert "disabled" in control
+        assert "Synthetic Editor E" in control
 
 
 def test_band_by_rights(
@@ -222,3 +225,30 @@ def test_freeze_needs_the_right(
     # Over HTTP the act answers as an address that does not exist.
     act = f"/document/{people.document.number}/freeze/"
     assert people.clients["a"].post(act).status_code == 404
+
+
+def test_the_toggle_on_the_path(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """*Freeze* asks no reason (DL-0518): its form posts nothing but the token, and the freeze
+    opens; once someone holds the document, *Unfreeze* waits with its reason."""
+    from editions.models import open_freeze
+
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    _accepted(migrated_tenant, people, commit_version)
+    number = people.document.number
+    client = people.clients["p"]
+
+    page = client.get(f"/document/{number}/").content.decode()
+    form = page.split(f'action="/document/{number}/freeze/"', 1)[1].split("</form>", 1)[0]
+    assert 'name="reason"' not in form and 'data-command="freeze"' in form
+    assert client.post(f"/document/{number}/freeze/").status_code == 302
+    with schema_context(migrated_tenant.number):
+        assert open_freeze(people.document) is not None
+        holds.take(people.document, people["r"])
+
+    page = html.unescape(client.get(f"/document/{number}/").content.decode())
+    control = page.split('data-command="unfreeze"', 1)[1].split(">", 1)[0]
+    assert "disabled" in control
+    assert "The document is held; unfreeze it once it is released." in control

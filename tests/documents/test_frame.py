@@ -320,3 +320,62 @@ def test_a_holder_on_a_frozen_document_stands_on_the_draft(
     body = built.author.get(f"/document/{built.n}/edit/").content.decode()
 
     assert 'data-go="draft" aria-current="location"' in body
+
+
+def test_more_to_administrators(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """*Більше* (⋯) to administrators alone (DL-0522): *Groups* locked with the holder's name
+    while the document is reserved or held, *End the reservation…* on a reservation, *Force
+    release* with the hold's own number on an ordinary hold, *Archive*; on a free document
+    *Groups* links to the document's row of the links page."""
+    from access.rights import Right
+    from editing import holds, reservations
+    from editing.models import Hold
+
+    built = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+    administrator, _, _ = member_of("an.administrator@example.test", is_tenant_admin=True)
+    _, keeper, keeper_membership = member_of("the.keeper@example.test")
+    keeper.display_name = "Synthetic Keeper K"
+    keeper.save(update_fields=["display_name"])
+    _linked(
+        migrated_tenant.number,
+        built.document,
+        [Right.RESERVE_FOR_EDITING],
+        [keeper_membership],
+        built.author_user,
+    )
+    n = built.n
+
+    def more(client: Any) -> str | None:
+        body = client.get(f"/document/{n}/").content.decode()
+        if '<details class="more">' not in body:
+            return None
+        return body.split('<details class="more">', 1)[1].split("</details>", 1)[0]
+
+    with schema_context(migrated_tenant.number):
+        reservations.reserve(holds.take(built.document, keeper), keeper)
+    reserved = more(administrator)
+    assert reserved is not None
+    assert 'data-command="groups" disabled title="Synthetic Keeper K has reserved it."' in reserved
+    assert f'href="/document/{n}/edit/end-reservation/"' in reserved
+    assert f'action="/document/{n}/archive/"' in reserved
+    assert more(built.reviewer) is None and more(built.reader) is None
+
+    with schema_context(migrated_tenant.number):
+        hold = Hold.objects.get(document=built.document, released_at__isnull=True)
+        Hold.objects.filter(pk=hold.pk).update(reserved_at=None)
+    held = more(administrator)
+    assert held is not None
+    assert 'disabled title="Synthetic Keeper K is editing."' in held
+    assert f'action="/document/{n}/edit/force-release/"' in held
+    assert f'name="hold" value="{hold.pk}"' in held
+
+    from django.db import transaction
+
+    with schema_context(migrated_tenant.number), transaction.atomic():
+        holds.release(Hold.objects.get(pk=hold.pk), holds.ReleaseKind.FINISHED)
+    free = more(administrator)
+    assert free is not None
+    assert f'href="/administration/tenant/document-links/#link-{n}"' in free
+    assert "force-release" not in free and "end-reservation" not in free

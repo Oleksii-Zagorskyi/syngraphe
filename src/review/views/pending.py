@@ -101,9 +101,9 @@ def _authors(
     return authors
 
 
-def _correct_blocked(document: Document, user: User) -> str:
-    """Why *Correct* cannot take the document now, or `""`: a reservation, naming its holder to a
-    holder of *accept* (DL-0226), or anyone else's hold, as a fact (ADR-0006)."""
+def _edit_blocked(document: Document, user: User) -> str:
+    """Why a reviewer's edit cannot take the document now, or `""`: a reservation, naming its
+    holder to a holder of *accept* (DL-0516), or anyone else's hold, as a fact (ADR-0006)."""
     from editing.models import Hold
     from review.views.accept import reason
 
@@ -112,7 +112,14 @@ def _correct_blocked(document: Document, user: User) -> str:
         return "" if services.run(document) else reason(document, user, "nothing_to_accept")
     if hold.reserved_at is not None:
         return reason(document, user, "reserved")
-    return _("This document is held: someone is editing it.")
+    from django.utils.translation import pgettext
+
+    from identity.naming import person
+
+    # Every caller holds *accept*, whom DL-0516 names the holder to.
+    return pgettext("the reason beside a disabled act", "%(name)s is editing.") % {
+        "name": person(hold.user)
+    }
 
 
 def readable_pending(
@@ -217,7 +224,7 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         acts = {
             "accept": reason(document, user, refused) if refused else "",
             "return": return_reason(document, user, refused_return) if refused_return else "",
-            "correct": _correct_blocked(document, user),
+            "correct": _edit_blocked(document, user),
         }
     context = {
         "document": document,

@@ -261,12 +261,10 @@ def test_the_three_starts(two: Any, member_of: Any, link_group: Any, settings: A
     only_a = _reader(member_of, link_group, two, [two.a], HISTORY, "first")
     a, b = two.a.number, two.b.number
 
-    # The document page: a link to the picker, from the version the page shows.
+    # The document page: no start of its own — comparing documents begins from the list
+    # (DL-0520).
     page = client.get(f"/document/{a}/").content.decode()
-    start = re.search(rf'href="(/document/{a}/compare/\?from=1\.0-2&amp;with=)"', page)
-    assert start is not None
-    picker = client.get(start.group(1).replace("&amp;", "&"))
-    assert picker.status_code == 200 and 'name="with" value=""' in picker.content.decode()
+    assert "&amp;with=" not in page
 
     # The historical page: its versions alone (DL-0488).
     historical = client.get(f"/document/{a}/version/1.0/").content.decode()

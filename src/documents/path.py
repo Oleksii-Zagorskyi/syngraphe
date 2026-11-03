@@ -9,14 +9,14 @@ every route an act posts to decides again under its own gate and locks.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from django.http import HttpRequest
 from django.utils.translation import gettext, ngettext, pgettext
 
 from access.rights import Right, rights_on
-from documents.models import Document
+from documents.models import Document, DocumentState
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,8 @@ REACHING = frozenset(
 ALIASES = {"review": "run-arc", "finish": "draft"}
 # The pages that read no version: the heading names none (DL-0518).
 NO_VERSION = frozenset({"history", "info", "end-reservation"})
+# `frame()`'s `seen` when the view did not read it.
+UNREAD: Any = object()
 
 
 @dataclass(frozen=True)
@@ -62,6 +64,16 @@ class Act:
     primary: bool = False
     window: str = ""
     hidden: bool = False
+    # The explanation behind the act's *?*, where it has one.
+    hint: str = ""
+
+
+@dataclass(frozen=True)
+class Mark:
+    """A hold or a freeze, in words under the latest version: `kind` is `held` or `frozen`."""
+
+    kind: str
+    text: str
 
 
 @dataclass(frozen=True)
@@ -76,8 +88,10 @@ class Item:
     sub: str
     href: str
     here: bool = False
-    marks: list[str] = field(default_factory=list)
+    marks: list[Mark] = field(default_factory=list)
     acts: list[Act] = field(default_factory=list)
+    # A point's first name — `canonical`, `accepted` — when it became the latest.
+    origin: str = ""
 
 
 @dataclass(frozen=True)
@@ -101,18 +115,30 @@ def frame(
     shown: str | None = None,
     appendix: int | None = None,
     taking: bool = False,
+    rights: frozenset[Right] | None = None,
+    seen: Any = UNREAD,
 ) -> Frame:
     """The frame of `document`'s page at position `here` for the request's reader. `shown` the
     heading's version where the page knows it better than the path; `taking` when the page is
     served to a person whose editor takes the hold as it mounts (DL-0325), so the draft point is
-    drawn for them. A record that cannot be read costs the path and the version, never the page."""
+    drawn for them; `rights` and `seen` (`editions.visible.visible`) where the view read them
+    already. A record that cannot be read costs the path and the version, never the page."""
+    from access.views import administers
+    from editions.visible import visible
     from rendering.views import UNREADABLE
 
     user = request.user
-    rights = rights_on(user, document)
+    rights = rights if rights is not None else rights_on(user, document)
     icons = _icons(document, rights)
+    administrator = administers(request)
     try:
-        path, numbers = _path(document, user, rights, here=here, taking=taking)
+        seen = visible(user, document) if seen is UNREAD else seen
+        path, numbers = _path(document, user, rights, seen, here=here, taking=taking)
+        situation = _Situation.of(document, user, rights, administrator)
+        windows: dict[str, dict[str, Any]] = {}
+        if path is not None and document.state == DocumentState.ACTIVE:
+            path = _with_acts(document, user, rights, seen, path, situation, windows)
+        more = _more(document, situation) if administrator else None
     except UNREADABLE:
         logger.exception(
             "a document's version could not be read", extra={"document": document.number}
@@ -122,6 +148,8 @@ def frame(
         shown=shown if shown is not None else _shown(here, numbers),
         icons=icons,
         path=path,
+        more=more,
+        windows=windows,
     )
 
 
@@ -143,15 +171,19 @@ def _point(key: str, number: str, caption: str, sub: str = "") -> dict[str, str]
 
 
 def _path(
-    document: Document, user: Any, rights: frozenset[Right], *, here: str, taking: bool
+    document: Document,
+    user: Any,
+    rights: frozenset[Right],
+    seen: Any,
+    *,
+    here: str,
+    taking: bool,
 ) -> tuple[list[Item] | None, dict[str, str]]:
     """The path and the numbers the heading may name: `latest`, each point's by its key, the
     draft's, and each arc's ends."""
     from documents.holds import held_by
     from editing import holds, numbering
-    from editions.visible import visible
 
-    seen = visible(user, document)
     if seen is None:
         return None, {}
     numbers: dict[str, str] = {"latest": seen.number}
@@ -234,7 +266,17 @@ def _path(
                 )
             )
         href = base if key == "latest" else f"{base}version/{point['number']}/"
-        items.append(Item("point", key, point["number"], point["caption"], point["sub"], href))
+        items.append(
+            Item(
+                "point",
+                key,
+                point["number"],
+                point["caption"],
+                point["sub"],
+                href,
+                origin=point["origin"],
+            )
+        )
         numbers[key] = point["number"]
     if "canonical" in by_origin and "accepted" in by_origin:
         numbers["history-arc"] = (
@@ -292,7 +334,304 @@ def _path(
 
 
 def _outlined(item: Item) -> Item:
-    return Item(item.kind, item.key, item.number, item.caption, item.sub, item.href, True)
+    return replace(item, here=True)
+
+
+@dataclass(frozen=True)
+class _Situation:
+    """What the acts and marks are decided from, read once: the open hold, the open freeze, and
+    whether this reader learns who holds the document (DL-0516)."""
+
+    hold: Any
+    freeze: Any
+    named: bool
+    administrator: bool
+
+    @classmethod
+    def of(
+        cls, document: Document, user: Any, rights: frozenset[Right], administrator: bool
+    ) -> _Situation:
+        from editing.holds import open_hold
+        from editions.models import open_freeze
+        from review.state import NAMED_ON_A_HOLD
+
+        return cls(
+            hold=open_hold(document),
+            freeze=open_freeze(document),
+            named=administrator or bool(rights & NAMED_ON_A_HOLD),
+            administrator=administrator,
+        )
+
+    def held_by_another(self, user: Any) -> bool:
+        return self.hold is not None and self.hold.user_id != getattr(user, "pk", None)
+
+    def held_reason(self, *, named: bool) -> str:
+        """Why an act waits while someone holds the document: the holder named or the fact."""
+        from identity.naming import person
+        from review.state import reserved_since
+
+        hold = self.hold
+        if hold.reserved_at is None:
+            if named:
+                return pgettext("the reason beside a disabled act", "%(name)s is editing.") % {
+                    "name": person(hold.user)
+                }
+            return gettext("This document is held: someone is editing it.")
+        if named:
+            return pgettext("the reason beside a disabled act", "%(name)s has reserved it.") % {
+                "name": person(hold.user)
+            }
+        return gettext("Reserved for editing since %(date)s.") % {
+            "date": reserved_since(hold.reserved_at)
+        }
+
+    def frozen_reason(self, *, for_editing: bool) -> str:
+        """Why editing or reserving waits while the document is frozen, with its reason."""
+        reason = self.freeze.reason
+        if for_editing:
+            if reason:
+                return gettext(
+                    "Frozen — “%(reason)s” — until it is unfrozen or made canonical."
+                ) % {"reason": reason}
+            return gettext("Frozen — until it is unfrozen or made canonical.")
+        if reason:
+            return gettext("Frozen: “%(reason)s” — reserve once it is unfrozen") % {
+                "reason": reason
+            }
+        return gettext("Frozen — reserve once it is unfrozen")
+
+
+def _with_acts(
+    document: Document,
+    user: Any,
+    rights: frozenset[Right],
+    seen: Any,
+    path: list[Item],
+    situation: _Situation,
+    windows: dict[str, dict[str, Any]],
+) -> list[Item]:
+    """Each point with its acts, and the marks under the latest (DL-0518, DL-0233): the latest
+    carries *Edit* and *Review the run*; the latest accepted — the canonical point while nothing
+    was accepted since it — *Make canonical as N.0…* and the freeze toggle; a point that is both
+    carries both; the draft, its holder's acts."""
+    pending = seen.stance == "pending"
+    accepted_origin = "accepted" if any(item.origin == "accepted" for item in path) else "canonical"
+    out = []
+    for item in path:
+        acts: list[Act] = []
+        marks: list[Mark] = []
+        if item.kind == "point" and item.key == "latest":
+            acts += _latest_acts(document, user, rights, pending, situation)
+            marks = _marks(rights, situation, user)
+        if item.kind == "point" and item.origin == accepted_origin:
+            # The window's two repository reads are paid only where its act is drawn.
+            acts += _accepted_acts(
+                document, user, rights, seen, situation, windows if item.here else None
+            )
+        if item.kind == "point" and item.key == "draft":
+            acts += _draft_acts(document, user, rights, situation)
+        out.append(replace(item, acts=acts, marks=marks) if acts or marks else item)
+    return out
+
+
+def _latest_acts(
+    document: Document,
+    user: Any,
+    rights: frozenset[Right],
+    pending: bool,
+    situation: _Situation,
+) -> list[Act]:
+    base = f"/document/{document.number}/"
+    acts = []
+    own = situation.hold is not None and not situation.held_by_another(user)
+    if Right.EDIT in rights and not own:
+        reason = ""
+        if situation.held_by_another(user):
+            reason = situation.held_reason(named=situation.named)
+        elif situation.freeze is not None and Right.ACCEPT not in rights:
+            reason = situation.frozen_reason(for_editing=True)
+        acts.append(
+            Act(
+                pgettext("the act on the latest version", "Edit"),
+                "edit",
+                href=f"{base}edit/",
+                reason=reason,
+                primary=not (Right.ACCEPT in rights and pending),
+            )
+        )
+    # The review page opens while someone else holds the document and disables its own acts
+    # (DL-0522), so this act is never disabled.
+    if Right.ACCEPT in rights and pending:
+        acts.append(Act(gettext("Review the run"), "review", href=f"{base}pending/", primary=True))
+    return acts
+
+
+def _accepted_acts(
+    document: Document,
+    user: Any,
+    rights: frozenset[Right],
+    seen: Any,
+    situation: _Situation,
+    windows: dict[str, dict[str, Any]] | None,
+) -> list[Act]:
+    from editions.services import canonical_refusal, edition_number_agrees
+    from editions.views import canonical_reason
+    from identity.naming import person
+    from rendering.views import UNREADABLE
+
+    base = f"/document/{document.number}/"
+    acts = []
+    if Right.MAKE_CANONICAL in rights:
+        major = int(seen.canonical.split(".")[0]) if seen.canonical else 0
+        incomplete = gettext(
+            "The document's record is incomplete; it cannot be changed until it is repaired."
+        )
+        try:
+            refused = canonical_refusal(document, user)
+            reason = canonical_reason(refused) if refused else ""
+            # A stopped approval, or a tag in the way: the window would name an edition that
+            # cannot be made, as the confirmation page refuses to.
+            if refused is None and not edition_number_agrees(document):
+                refused, reason = "incomplete", incomplete
+        except UNREADABLE:
+            logger.exception(
+                "a document's record could not be read", extra={"document": document.number}
+            )
+            refused, reason = "unreadable", incomplete
+        acts.append(
+            Act(
+                gettext("Make canonical as %(number)s…") % {"number": f"{major + 1}.0"},
+                "approve",
+                action=f"{base}make-canonical/",
+                method="get",
+                reason=reason,
+                primary=True,
+                window="approve",
+            )
+        )
+        if refused is None and windows is not None:
+            windows["approve"] = _approval(document, situation)
+    if Right.FREEZE in rights:
+        held = situation.hold is not None
+        if situation.freeze is None:
+            reason = ""
+            if held:
+                reason = (
+                    gettext("Held by %(name)s — freeze once it is released")
+                    % {"name": person(situation.hold.user)}
+                    if situation.named
+                    else gettext("Held — freeze once it is released")
+                )
+            acts.append(Act(gettext("Freeze"), "freeze", action=f"{base}freeze/", reason=reason))
+        else:
+            reason = (
+                gettext("The document is held; unfreeze it once it is released.") if held else ""
+            )
+            acts.append(
+                Act(gettext("Unfreeze"), "unfreeze", action=f"{base}unfreeze/", reason=reason)
+            )
+    return acts
+
+
+def _approval(document: Document, situation: _Situation) -> dict[str, Any]:
+    """What the approval's window names, as its confirmation page does
+    (`editions.views._confirmation`): the version, the edition it becomes, whether a freeze
+    ends, and the commit the act checks."""
+    from documents import gitstore
+    from editing.holds import tenant_number
+    from editions.services import canonical_target, next_edition
+    from review.services import passport_at
+
+    target = canonical_target(document)
+    assert target is not None
+    repo = gitstore.open_repository(tenant_number(), document.number)
+    head = gitstore.head(repo)
+    return {
+        "accepted": target[1],
+        "number": next_edition(passport_at(repo, head) if head else []),
+        "frozen": situation.freeze is not None,
+        "confirmed": target[0].commit_sha,
+    }
+
+
+def _draft_acts(
+    document: Document, user: Any, rights: frozenset[Right], situation: _Situation
+) -> list[Act]:
+    base = f"/document/{document.number}/"
+    acts = [
+        Act(gettext("Finish editing"), "finish", href=f"{base}edit/finish/", primary=True),
+    ]
+    if Right.RESERVE_FOR_EDITING in rights:
+        if situation.hold is not None and situation.hold.reserved_at is not None:
+            acts.append(
+                Act(
+                    gettext("Cancel the reservation"),
+                    "cancel-reservation",
+                    action=f"{base}edit/cancel-reservation/",
+                )
+            )
+        else:
+            reason = (
+                situation.frozen_reason(for_editing=False) if situation.freeze is not None else ""
+            )
+            acts.append(
+                Act(
+                    gettext("Reserve for editing"),
+                    "reserve",
+                    action=f"{base}edit/reserve/",
+                    reason=reason,
+                    hint=gettext(
+                        "Until the reservation ends, review, freezing and changes to the "
+                        "document's groups wait."
+                    ),
+                )
+            )
+    return acts
+
+
+def _marks(rights: frozenset[Right], situation: _Situation, user: Any) -> list[Mark]:
+    """The freeze and someone else's hold, under the latest version: who froze it to holders of a
+    history right and administrators (DL-0236); who holds it to those DL-0516 names."""
+    from identity.naming import person
+    from review.history import has_tab
+
+    marks = []
+    if situation.freeze is not None:
+        if has_tab(rights) or situation.administrator:
+            text = gettext("frozen by %(name)s") % {"name": person(situation.freeze.frozen_by)}
+        else:
+            text = gettext("frozen")
+        marks.append(Mark("frozen", text))
+    if situation.held_by_another(user):
+        hold, ctx = situation.hold, "the mark under the latest version"
+        if hold.reserved_at is None:
+            text = (
+                pgettext(ctx, "%(name)s is editing") % {"name": person(hold.user)}
+                if situation.named
+                else pgettext(ctx, "someone is editing")
+            )
+        else:
+            text = (
+                pgettext(ctx, "reserved by %(name)s") % {"name": person(hold.user)}
+                if situation.named
+                else pgettext(ctx, "reserved for editing")
+            )
+        marks.append(Mark("held", text))
+    return marks
+
+
+def _more(document: Document, situation: _Situation) -> list[Act]:
+    """*More* (⋯), the administrator's acts (DL-0522): *Groups* here, locked with the holder's name
+    while the document is held or reserved; archiving and the hold's acts are their own tags'."""
+    reason = situation.held_reason(named=True) if situation.hold is not None else ""
+    return [
+        Act(
+            gettext("Groups"),
+            "groups",
+            href=f"/administration/tenant/document-links/#link-{document.number}",
+            reason=reason,
+        )
+    ]
 
 
 def _shown(here: str, numbers: dict[str, str]) -> str:

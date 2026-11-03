@@ -57,6 +57,14 @@ GRANTS: dict[str, list[Right]] = {
 }
 # The readers whose rights include *edit*: the only ones a draft or kept point can reach.
 EDITING = ("edit", "accept", "approver")
+# How the pages name the people who can hold (synthetic examples); the rest stay unnamed.
+NAMES = {
+    "edit": "Synthetic Editor",
+    "accept": "Synthetic Reviewer",
+    "approver": "Synthetic Approver",
+    "administrator": "Synthetic Administrator",
+    "other": "Synthetic Other Editor",
+}
 # `review.history.has_tab`: a history right or *accept*.
 TWO_ICONS = [
     ("export", "Export", "/document/{n}/export/"),
@@ -294,6 +302,8 @@ class Scene:
     users: dict[str, Any] = field(default_factory=dict)
     memberships: dict[str, Any] = field(default_factory=dict)
     other: Any = None
+    # The commit of the content version `1.1` accepted, once the state has one.
+    accepted_sha: str = ""
 
     @property
     def number(self) -> int:
@@ -327,23 +337,19 @@ def _cast(migrated_tenant: Any, member_of: Any, new_document: Any) -> Scene:
     _, author, _ = member_of("author.synthetic@example.test")
     document = new_document(author, "Synthetic approval procedure")
     scene = Scene(migrated_tenant, document)
-    for name in READERS:
+    for name in (*READERS, "other"):
         _, user, membership = member_of(
             f"{name}.synthetic@example.test", is_tenant_admin=(name == "administrator")
         )
+        if name in NAMES:
+            user.display_name = NAMES[name]
+            user.save(update_fields=["display_name"])
         scene.users[name] = user
         scene.memberships[name] = membership
-        if GRANTS[name]:
-            _link(migrated_tenant, document, name, GRANTS[name], [membership], author)
-    _, scene.other, other_membership = member_of("other.editor.synthetic@example.test")
-    _link(
-        migrated_tenant,
-        document,
-        "other",
-        [Right.EDIT, Right.RESERVE_FOR_EDITING],
-        [other_membership],
-        author,
-    )
+        rights = GRANTS.get(name, [Right.EDIT, Right.RESERVE_FOR_EDITING])
+        if rights:
+            _link(migrated_tenant, document, name, rights, [membership], author)
+    scene.other = scene.users["other"]
     return scene
 
 
@@ -373,7 +379,8 @@ def _canonical(scene: Scene, commit_version: Any) -> None:
 def _accepted(scene: Scene, commit_version: Any) -> None:
     """`1.1` accepted over the second version, since edition `1.0`."""
     _canonical(scene, commit_version)
-    commit_version(scene.document, scene.users["edit"], SECOND, "edit")
+    second = commit_version(scene.document, scene.users["edit"], SECOND, "edit")
+    scene.accepted_sha = second.commit_sha
     assert _accept(scene).number == "1.1"
 
 
@@ -499,9 +506,7 @@ def _assert_cell(result: Any, scene: Scene, name: str, cell: Cell) -> None:
     assert _icons(result) == [(a, b, c.format(n=n)) for a, b, c in ICONS[name]], name
     if expected_shown is not UNSETTLED:
         assert result.shown == expected_shown, name
-    assert result.more is None and result.windows == {} and result.open_window == "", name
-    if result.path is not None:
-        assert all(item.marks == [] and item.acts == [] for item in result.path), name
+    assert result.open_window == "", name
 
 
 # --- the table -----------------------------------------------------------------------------------
@@ -803,3 +808,414 @@ def test_the_icons_by_reader(
         assert _icons(result) == [(a, b, c.format(n=n)) for a, b, c in icons], name
         assert result.shown == "", name
     assert _frame(frame, scene, "canonical_only", here="info").path is None
+
+
+# --- the acts, the marks, *More* and the approve window ------------------------------------------
+
+Act = tuple[str, str, str]  # (command, label, reason)
+
+EDIT = ("edit", "Edit", "")
+REVIEW = ("review", "Review the run", "")
+FINISH = ("finish", "Finish editing", "")
+FREEZE = ("freeze", "Freeze", "")
+UNFREEZE = ("unfreeze", "Unfreeze", "")
+APPROVE_20 = ("approve", "Make canonical as 2.0…", "")
+NOTHING_ACCEPTED = "Nothing new has been accepted to make canonical."
+WAITING = "Changes are waiting for review; they must be accepted first."
+HELD_FOR_CANONICAL = "The document is held; make it canonical once it is released."
+APPROVE_10_NOTHING = ("approve", "Make canonical as 1.0…", NOTHING_ACCEPTED)
+APPROVE_20_NOTHING = ("approve", "Make canonical as 2.0…", NOTHING_ACCEPTED)
+APPROVE_20_WAITING = ("approve", "Make canonical as 2.0…", WAITING)
+APPROVE_20_HELD = ("approve", "Make canonical as 2.0…", HELD_FOR_CANONICAL)
+OTHER = NAMES["other"]
+EDIT_HELD_BY_OTHER = ("edit", "Edit", f"{OTHER} is editing.")
+EDIT_RESERVED_BY_OTHER = ("edit", "Edit", f"{OTHER} has reserved it.")
+FREEZE_HELD_BY_OTHER = ("freeze", "Freeze", f"Held by {OTHER} — freeze once it is released")
+EDIT_FROZEN = (
+    "edit",
+    "Edit",
+    f"Frozen — “{FREEZE_REASON}” — until it is unfrozen or made canonical.",
+)
+GROUPS = ("groups", "Groups", "")
+GROUPS_HREF = "/administration/tenant/document-links/#link-{n}"
+
+Mark = tuple[str, str]
+FROZEN = ("frozen", "frozen")
+FROZEN_BY_APPROVER = ("frozen", f"frozen by {NAMES['approver']}")
+HELD_BY_OTHER = ("held", f"{OTHER} is editing")
+HELD_BY_SOMEONE = ("held", "someone is editing")
+RESERVED_BY_OTHER = ("held", f"reserved by {OTHER}")
+RESERVED = ("held", "reserved for editing")
+
+# Who reads the holder's name: a holder of *edit* or *accept*, or an administrator.
+NAMED = ("edit", "accept", "approver", "administrator")
+UNNAMED = ("view_accepted", "view_pending", "previous_canonical")
+
+# Each state: the acts by point key per reader (a point not listed carries none), the marks on
+# the `latest` point per reader (none when not listed), and `more`'s reason to the
+# administrator (`None` for no *More* at all). Readers not listed have no acts.
+ACTS: dict[str, dict[str, dict[str, list[Act]]]] = {
+    "new": {
+        "edit": {"latest": [EDIT]},
+        "accept": {"latest": [EDIT]},
+        # The one point is the created text, nobody's acceptance, renamed `latest`: the
+        # accepted point's acts hang on it, after the latest's.
+        "approver": {"latest": [EDIT, APPROVE_10_NOTHING, FREEZE]},
+    },
+    "canonical": {
+        "edit": {"latest": [EDIT]},
+        "accept": {"latest": [EDIT]},
+        # No accepted point: the canonical point, renamed `latest`, carries the approver's acts.
+        "approver": {"latest": [EDIT, APPROVE_20_NOTHING, FREEZE]},
+    },
+    "accepted": {
+        "edit": {"latest": [EDIT]},
+        "accept": {"latest": [EDIT]},
+        "approver": {"latest": [EDIT, APPROVE_20, FREEZE]},
+    },
+    "pending": {
+        "edit": {"latest": [EDIT]},
+        "accept": {"latest": [EDIT, REVIEW]},
+        "approver": {"latest": [EDIT, REVIEW], "accepted": [APPROVE_20_WAITING, FREEZE]},
+    },
+    "returned": {
+        "edit": {"latest": [EDIT]},
+        "accept": {"latest": [EDIT, REVIEW]},
+        # Nothing accepted since the edition: the canonical point is the approver's.
+        "approver": {"latest": [EDIT, REVIEW], "canonical": [APPROVE_20_NOTHING, FREEZE]},
+    },
+    "frozen": {
+        "edit": {"latest": [EDIT_FROZEN]},
+        "accept": {"latest": [EDIT, REVIEW]},
+        "approver": {"latest": [EDIT, REVIEW], "accepted": [APPROVE_20_WAITING, UNFREEZE]},
+    },
+    "held_by_other": {
+        "edit": {"latest": [EDIT_HELD_BY_OTHER]},
+        "accept": {"latest": [EDIT_HELD_BY_OTHER]},
+        "approver": {"latest": [EDIT_HELD_BY_OTHER, APPROVE_20_HELD, FREEZE_HELD_BY_OTHER]},
+    },
+    "reserved_by_other": {
+        "edit": {"latest": [EDIT_RESERVED_BY_OTHER]},
+        "accept": {"latest": [EDIT_RESERVED_BY_OTHER]},
+        "approver": {"latest": [EDIT_RESERVED_BY_OTHER, APPROVE_20_HELD, FREEZE_HELD_BY_OTHER]},
+    },
+    # No *Edit* to the holder; the draft point's *Finish editing*; the approver's own hold still
+    # stops the approve act and the freeze, and names them.
+    "held_by_reader": {
+        "edit": {"draft": [FINISH]},
+        "accept": {"draft": [FINISH]},
+        "approver": {
+            "latest": [
+                APPROVE_20_HELD,
+                ("freeze", "Freeze", f"Held by {NAMES['approver']} — freeze once it is released"),
+            ],
+            "draft": [FINISH],
+        },
+    },
+    # A kept draft, nobody holding: the acts of the accepted state; none on the kept point.
+    "kept": {
+        "edit": {"latest": [EDIT]},
+        "accept": {"latest": [EDIT]},
+        "approver": {"latest": [EDIT, APPROVE_20, FREEZE]},
+    },
+    # Archived: no acts on any point.
+    "archived": {},
+}
+MARKS: dict[str, dict[str, list[Mark]]] = {
+    "frozen": {
+        **{name: [FROZEN] for name in ("view_accepted", "view_pending", "edit")},
+        **{name: [FROZEN_BY_APPROVER] for name in ("accept", "approver", "administrator")},
+        "previous_canonical": [FROZEN_BY_APPROVER],
+    },
+    "held_by_other": {
+        **{name: [HELD_BY_OTHER] for name in NAMED},
+        **{name: [HELD_BY_SOMEONE] for name in UNNAMED},
+    },
+    "reserved_by_other": {
+        **{name: [RESERVED_BY_OTHER] for name in NAMED},
+        **{name: [RESERVED] for name in UNNAMED},
+    },
+}
+MORE: dict[str, str] = {
+    "held_by_other": f"{OTHER} is editing.",
+    "reserved_by_other": f"{OTHER} has reserved it.",
+}
+# The cells whose approve act is enabled: the window is filled.
+APPROVE_OPEN = {("accepted", "approver"), ("kept", "approver")}
+
+
+def _acts_of(result: Any) -> dict[str, list[Act]]:
+    """The acts of each point that carries any, by key."""
+    return {
+        item.key: [(a.command, a.label, a.reason) for a in item.acts]
+        for item in result.path or []
+        if item.acts
+    }
+
+
+def _marks_of(result: Any) -> dict[str, list[Mark]]:
+    return {
+        item.key: [(m.kind, m.text) for m in item.marks] for item in result.path or [] if item.marks
+    }
+
+
+def _assert_acts(result: Any, scene: Scene, state: str, name: str) -> None:
+    n = scene.number
+    assert _acts_of(result) == ACTS[state].get(name, {}), (state, name)
+    expected_marks = MARKS.get(state, {}).get(name, [])
+    expected = {"latest": expected_marks} if expected_marks else {}
+    assert _marks_of(result) == expected, (state, name)
+    if name == "administrator":
+        assert [(a.command, a.label, a.reason) for a in result.more] == [
+            ("groups", "Groups", MORE.get(state, ""))
+        ], state
+        assert result.more[0].href == GROUPS_HREF.format(n=n), state
+    else:
+        assert result.more is None, (state, name)
+    if (state, name) in APPROVE_OPEN:
+        assert result.windows == {
+            "approve": {
+                "accepted": "1.1",
+                "number": "2.0",
+                "frozen": False,
+                "confirmed": scene.accepted_sha,
+            }
+        }, (state, name)
+    else:
+        assert result.windows == {}, (state, name)
+
+
+@pytest.mark.parametrize("state", STATES)
+def test_the_acts_by_reader_and_state(
+    state: str, migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """One document per state; the acts of every point, the marks, *More* and the windows of
+    every reader's frame on it."""
+    scene = _cast(migrated_tenant, member_of, new_document)
+    _build(state, scene, commit_version)
+    from documents.path import frame
+
+    for name in READERS:
+        if TABLE[state][name][0] is SKIP:
+            continue
+        if state == "held_by_reader":
+            hold = _take(scene, scene.users[name])
+            try:
+                _assert_acts(_frame(frame, scene, name, here="latest"), scene, state, name)
+            finally:
+                _discard(scene, hold, scene.users[name])
+            continue
+        _assert_acts(_frame(frame, scene, name, here="latest"), scene, state, name)
+    # Edit is primary unless the reader holds *accept* and a run is pending; Review is primary.
+    if state in ("pending", "returned", "frozen"):
+        by_command = {
+            a.command: a.primary for a in _latest(_frame(frame, scene, "accept", here="latest"))
+        }
+        assert by_command == {"edit": False, "review": True}, state
+    if state in ("accepted", "held_by_other"):
+        assert [a.primary for a in _latest(_frame(frame, scene, "edit", here="latest"))] == [True]
+
+
+def _latest(result: Any) -> list[Any]:
+    return next(item.acts for item in result.path if item.key == "latest")
+
+
+def test_the_approve_window_on_a_frozen_and_an_unfrozen_document(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """`1.1` accepted since edition `1.0`, nothing pending: the approve act is enabled with or
+    without a freeze — a freeze is not asked for — and the window says which."""
+    from editions import services as editions
+
+    scene = _cast(migrated_tenant, member_of, new_document)
+    _build("accepted", scene, commit_version)
+    from documents.path import frame
+
+    window = {
+        "accepted": "1.1",
+        "number": "2.0",
+        "frozen": False,
+        "confirmed": scene.accepted_sha,
+    }
+    result = _frame(frame, scene, "approver", here="accepted")
+    assert result.windows == {"approve": window}
+    assert _acts_of(result) == {"latest": [EDIT, APPROVE_20, FREEZE]}
+
+    with schema_context(migrated_tenant.number):
+        editions.freeze(scene.document, scene.users["approver"], FREEZE_REASON)
+    result = _frame(frame, scene, "approver", here="accepted")
+    assert result.windows == {"approve": {**window, "frozen": True}}
+    assert _acts_of(result) == {"latest": [EDIT, APPROVE_20, UNFREEZE]}
+    assert _marks_of(result) == {"latest": [FROZEN_BY_APPROVER]}
+    # The one who may edit but not accept: Edit disabled by the freeze, the mark unnamed.
+    result = _frame(frame, scene, "edit", here="latest")
+    assert _acts_of(result) == {"latest": [EDIT_FROZEN]}
+    assert _marks_of(result) == {"latest": [FROZEN]}
+
+
+def test_a_merged_point_carries_the_union_of_acts(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """Nothing pending, accepted since the edition: the one `latest` point carries *Edit* (the
+    latest's), then *Approve* and the toggle (the accepted point's), each with its link or form."""
+    scene = _cast(migrated_tenant, member_of, new_document)
+    _build("accepted", scene, commit_version)
+    n = scene.number
+    from documents.path import frame
+
+    result = _frame(frame, scene, "approver", here="latest")
+    assert [item.key for item in result.path if item.acts] == ["latest"]
+    edit, approve, freeze = _latest(result)
+    assert (edit.command, edit.href, edit.primary, edit.window) == (
+        "edit",
+        f"/document/{n}/edit/",
+        True,
+        "",
+    )
+    assert (approve.command, approve.action, approve.method, approve.primary, approve.window) == (
+        "approve",
+        f"/document/{n}/make-canonical/",
+        "get",
+        True,
+        "approve",
+    )
+    assert not approve.fields
+    assert (freeze.command, freeze.action, freeze.method, freeze.primary) == (
+        "freeze",
+        f"/document/{n}/freeze/",
+        "post",
+        False,
+    )
+    assert not freeze.fields
+    assert all(not a.hidden for a in (edit, approve, freeze))
+
+
+def test_edit_is_not_drawn_to_the_holder_nor_on_an_archived_document(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    from documents import archive
+
+    scene = _cast(migrated_tenant, member_of, new_document)
+    _build("accepted", scene, commit_version)
+    from documents.path import frame
+
+    # The holder: the draft point's acts alone, and no mark for their own hold.
+    hold = _take(scene, scene.users["edit"])
+    result = _frame(frame, scene, "edit", here="finish")
+    assert _acts_of(result) == {"draft": [FINISH]}
+    assert _marks_of(result) == {}
+    draft = next(item for item in result.path if item.key == "draft")
+    [finish] = draft.acts
+    assert (finish.href, finish.primary, finish.reason) == (
+        f"/document/{scene.number}/edit/finish/",
+        True,
+        "",
+    )
+    _discard(scene, hold, scene.users["edit"])
+
+    # Archived: no acts on any point to the administrator, who alone reads it; *More* stands.
+    with schema_context(migrated_tenant.number):
+        assert archive.archive(scene.document, scene.users["administrator"]) is True
+    result = _frame(frame, scene, "administrator", here="latest")
+    assert [item.key for item in result.path] == ["canonical", "history-arc", "latest"]
+    assert _acts_of(result) == {}
+    assert [(a.command, a.reason) for a in result.more] == [("groups", "")]
+
+
+def test_the_reservations_acts_on_the_draft_point(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """A holder of *reserve for editing*: *Reserve for editing* while the hold is ordinary,
+    *Cancel the reservation* once reserved; under a freeze, *Reserve* is disabled with the
+    freeze's reason."""
+    from editing import reservations
+    from editions import services as editions
+
+    scene = _cast(migrated_tenant, member_of, new_document)
+    _build("accepted", scene, commit_version)
+    n = scene.number
+    from documents.path import frame
+
+    hold = _take(scene, scene.other)
+    result = _frame(frame, scene, "other", here="finish")
+    assert _acts_of(result) == {"draft": [FINISH, ("reserve", "Reserve for editing", "")]}
+    reserve = _latest_draft(result)[1]
+    assert (reserve.action, reserve.method) == (f"/document/{n}/edit/reserve/", "post")
+
+    with schema_context(migrated_tenant.number):
+        reservations.reserve(hold, scene.other)
+    result = _frame(frame, scene, "other", here="finish")
+    assert _acts_of(result) == {
+        "draft": [FINISH, ("cancel-reservation", "Cancel the reservation", "")]
+    }
+    cancel = _latest_draft(result)[1]
+    assert (cancel.action, cancel.method) == (f"/document/{n}/edit/cancel-reservation/", "post")
+    _discard(scene, hold, scene.other)
+
+    # Under a freeze only a holder of *accept* may take: the reviewer, given the right to reserve.
+    _link(
+        migrated_tenant,
+        scene.document,
+        "reserving reviewer",
+        [Right.RESERVE_FOR_EDITING],
+        [scene.memberships["accept"]],
+        scene.users["accept"],
+    )
+    with schema_context(migrated_tenant.number):
+        editions.freeze(scene.document, scene.users["approver"], FREEZE_REASON)
+    _take(scene, scene.users["accept"])
+    result = _frame(frame, scene, "accept", here="finish")
+    assert _acts_of(result) == {
+        "draft": [
+            FINISH,
+            (
+                "reserve",
+                "Reserve for editing",
+                f"Frozen: “{FREEZE_REASON}” — reserve once it is unfrozen",
+            ),
+        ]
+    }
+
+
+def _latest_draft(result: Any) -> list[Any]:
+    return next(item.acts for item in result.path if item.key == "draft")
+
+
+def test_the_marks_by_reader(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """A freeze and, under it, a reviewer's hold: the frozen mark first, named to those with the
+    history tab or administering; the held mark named to holders of *edit* or *accept* and to
+    administrators; nothing on the holder's own; the hold's reason before the freeze's on
+    *Edit*."""
+    from editions import services as editions
+
+    scene = _cast(migrated_tenant, member_of, new_document)
+    _build("accepted", scene, commit_version)
+    from documents.path import frame
+
+    with schema_context(migrated_tenant.number):
+        editions.freeze(scene.document, scene.users["approver"], FREEZE_REASON)
+    _take(scene, scene.users["accept"])
+    held = ("held", f"{NAMES['accept']} is editing")
+    expected = {
+        "view_accepted": [FROZEN, HELD_BY_SOMEONE],
+        "view_pending": [FROZEN, HELD_BY_SOMEONE],
+        "edit": [FROZEN, held],
+        # The holder: the freeze's mark, never their own hold's.
+        "accept": [FROZEN_BY_APPROVER],
+        "approver": [FROZEN_BY_APPROVER, held],
+        "administrator": [FROZEN_BY_APPROVER, held],
+        "previous_canonical": [FROZEN_BY_APPROVER, HELD_BY_SOMEONE],
+    }
+    for name, marks in expected.items():
+        result = _frame(frame, scene, name, here="latest")
+        assert _marks_of(result) == ({"latest": marks} if marks else {}), name
+    assert _frame(frame, scene, "canonical_only", here="latest").path is None
+    # The hold's reason comes before the freeze's.
+    result = _frame(frame, scene, "edit", here="latest")
+    assert _acts_of(result) == {"latest": [("edit", "Edit", f"{NAMES['accept']} is editing.")]}
+    result = _frame(frame, scene, "administrator", here="latest")
+    assert [(a.command, a.reason) for a in result.more] == [
+        ("groups", f"{NAMES['accept']} is editing.")
+    ]

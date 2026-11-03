@@ -166,7 +166,6 @@ def test_catalogue_covers_comparing_two_documents(
     for name, path in (
         ("two documents", f"/document/{first.number}/compare/?with={second.number}"),
         ("the picker", f"/document/{first.number}/compare/?with="),
-        ("the document page", f"/document/{first.number}/"),
         ("the list", "/folder/1/"),
     ):
         response = client.get(path)

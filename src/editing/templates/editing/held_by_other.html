@@ -4,6 +4,6 @@
 {% if frozen %}
 <p class="held frozen">{% if frozen.reason %}{% blocktranslate with reason=frozen.reason %}Frozen — “{{ reason }}” — until it is unfrozen or made canonical.{% endblocktranslate %}{% else %}{% translate "Frozen — until it is unfrozen or made canonical." %}{% endif %}</p>
 {% else %}
-<p class="held">{% translate "This document is held: someone is editing it." %}</p>
+<p class="held">{% if reserved %}{% blocktranslate context "the reason beside a disabled act" with name=holder %}{{ name }} has reserved it.{% endblocktranslate %}{% else %}{% blocktranslate context "the reason beside a disabled act" with name=holder %}{{ name }} is editing.{% endblocktranslate %}{% endif %}</p>
 {% endif %}
 {% endblock %}

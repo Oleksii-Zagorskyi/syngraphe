@@ -74,13 +74,13 @@ def _undo_blocked(document: Any, user: Any) -> str:
     never hidden (DL-0233)."""
     from review.undo import refusal
     from review.views.accept import reason
-    from review.views.pending import _correct_blocked
+    from review.views.pending import _edit_blocked
 
     refused = refusal(document, user)
     if refused == "reserved":
         return reason(document, user, "reserved")
     if refused == "held":
-        return _correct_blocked(document, user)
+        return _edit_blocked(document, user)
     if refused == "draft_kept":
         from review.views.undo import reason as undo_reason
 

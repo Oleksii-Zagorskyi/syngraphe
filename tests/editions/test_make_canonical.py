@@ -278,7 +278,7 @@ TAIL = "An edition is never undone: the next one supersedes it."
 
 def _control(page: str) -> str:
     """The attributes of the *Make canonical* control, as drawn on the document page."""
-    return page.split('data-command="make-canonical"')[1].split(">")[0]
+    return page.split('data-command="approve"')[1].split(">")[0]
 
 
 # replaces tests/editions/test_make_canonical.py::test_edition_is_a_tagged_passport_commit
@@ -504,3 +504,79 @@ def test_the_confirmation_names_the_freeze_only_when_open(
     body = re.sub(r"\s+", " ", html.unescape(frozen.content.decode()))
     assert f"Version 0.1 becomes edition 1.0, and the freeze ends. {TAIL}" in body
     assert "Version 0.1 becomes edition 1.0." not in body
+
+
+def test_the_window_approves(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """The path's *Make canonical as 1.0…* opens a window naming the version, the edition and
+    that it is never undone; its form makes the edition as the page's does, and a stale
+    confirmation is refused as built (DL-0513)."""
+    from editions.models import Edition
+
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+    client = people.clients["p"]
+
+    page = html.unescape(client.get(f"/document/{document.number}/").content.decode())
+    act = page.split('data-command="approve"', 1)[0].rsplit("<button", 1)[1]
+    window = page.split('<dialog id="approve"', 1)[1].split("</dialog>", 1)[0]
+    confirmed = re.search(r'name="confirmed" value="([0-9a-f]{40})"', window)
+
+    assert (
+        "Make canonical as 1.0…" in page
+        and "data-window" in page.split('data-command="approve"', 1)[1].split(">", 1)[0]
+    )
+    assert "disabled" not in act
+    assert f"Version 0.1 becomes edition 1.0. {TAIL}" in re.sub(r"\s+", " ", window)
+    assert confirmed is not None
+    stale = client.post(f"/document/{document.number}/make-canonical/", {"confirmed": "0" * 40})
+    assert stale.status_code == 409
+    made = client.post(
+        f"/document/{document.number}/make-canonical/", {"confirmed": confirmed.group(1)}
+    )
+    assert made.status_code == 302
+    with schema_context(migrated_tenant.number):
+        assert Edition.objects.filter(version__document=document, number="1.0").exists()
+
+
+def test_the_page_stands_without_script(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """Without script the act is a form that opens the confirmation page, which stands."""
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+    client = people.clients["p"]
+    url = f"/document/{document.number}/make-canonical/"
+
+    page = client.get(f"/document/{document.number}/").content.decode()
+
+    assert f'<form class="inline" method="get" action="{url}">' in page
+    assert client.get(url).status_code == 200
+
+
+def test_the_window_only_where_its_act_is_drawn(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """The window reads the repository to name its numbers: drawn on the page that outlines the
+    act's version, never on History or Info, which outline nothing."""
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    document = people.document
+    commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        review.accept(document, people["r"])
+    client = people.clients["p"]
+
+    assert '<dialog id="approve"' in client.get(f"/document/{document.number}/").content.decode()
+    for page in ("history/", "info/"):
+        body = client.get(f"/document/{document.number}/{page}").content.decode()
+        assert '<dialog id="approve"' not in body, page

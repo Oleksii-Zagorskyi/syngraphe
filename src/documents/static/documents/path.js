@@ -1,6 +1,6 @@
 // The path of versions: the outlined point's acts placed under it, hung from it by an elbow line
-// (DL-0518). Positions only; without this script the acts stand under the path's left edge and
-// every form still posts.
+// (DL-0518), and the windows its acts open. Without this script the acts stand under the path's
+// left edge and every form still posts.
 (() => {
   "use strict";
 
@@ -32,6 +32,22 @@
     elbow.style.height = `${-top + 10}px`;
     row.style.height = `${acts.getBoundingClientRect().height + 20}px`;
   }
+
+  // An act carrying `data-window` opens its window over the page; the window's own button
+  // closes it (DL-0513). Without script the act's form opens the confirmation page.
+  document.addEventListener("click", (event) => {
+    const opener = event.target.closest("[data-window]");
+    if (opener) {
+      const dialog = document.getElementById(opener.dataset.window);
+      if (dialog && typeof dialog.showModal === "function") {
+        event.preventDefault();
+        dialog.showModal();
+      }
+      return;
+    }
+    const closer = event.target.closest("dialog [data-close]");
+    if (closer) closer.closest("dialog").close();
+  });
 
   window.addEventListener("resize", placeElbow);
   placeElbow();

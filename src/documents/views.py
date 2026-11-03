@@ -491,14 +491,17 @@ def render_page(
     # The folder's path on the *Info* tab — a reader of the document sees every folder
     # above it (DL-0206); the breadcrumb draws its own, for every tab.
     tree = Tree(tenant.name if tenant is not None else "")
+    rights = rights_on(request.user, document)
     context: dict[str, Any] = {
         "document": document,
-        "can_edit": Right.EDIT in rights_on(request.user, document),
+        "can_edit": Right.EDIT in rights,
         "holding": held_by(document, request.user),
         "tab": tab,
         "error": error,
         "folder_path": tree.path_of(document.folder),
-        "frame": frame(request, document, here="latest" if tab == "view" else "info"),
+        "frame": frame(
+            request, document, here="latest" if tab == "view" else "info", rights=rights
+        ),
     }
     if tab == "view":
         from rendering.views import view_context

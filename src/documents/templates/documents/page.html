@@ -6,8 +6,6 @@
 <section class="content document">
   {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
   {% include "documents/frame.html" %}
-  {% edition_controls document %}
-  <div class="document-actions">{% copy_act document %}{% archive_act document %}{% compare_act document %}{% hold_acts document menu=True %}</div>
   {% if tab == "view" %}
   <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
     {% include "rendering/panes_outline.html" %}
