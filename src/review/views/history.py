@@ -36,23 +36,16 @@ EVENTS = {
 }
 
 
-def _rows(found: list[Any], run: dict[str, Any]) -> list[dict[str, Any]]:
-    """The tab's rows, newest first. The *accepted* line stands above the newest entry concerning
+def _rows(found: list[Any]) -> list[dict[str, Any]]:
+    """History's rows, newest first. The *accepted* line stands above the newest entry concerning
     the latest accepted version — its acceptance or its edition — so all that lies above the line
-    is work not yet accepted. A version of the pending run carries the undo controls to a holder
-    of *accept* (`run`, by commit): *undo this edit*, and *undo all of this author's edits* on the
-    author's newest version (ADR-0015, DL-0243, DL-0251)."""
+    is work not yet accepted. History lists and opens; the undo stands on the review page
+    (DL-0522)."""
     accepted = next((entry.target for entry in found if entry.boundary), None)
     newest = [entry for entry in reversed(found)]
     line = next((i for i, entry in enumerate(newest) if accepted and entry.target == accepted), -1)
-    authors_seen: set[Any] = set()
     rows = []
     for i, entry in enumerate(newest):
-        undo = None
-        if entry.version is not None and entry.version.commit_sha in run:
-            author = entry.version.author_id
-            undo = {"author": author, "all": author not in authors_seen}
-            authors_seen.add(author)
         rows.append(
             {
                 "number": entry.number,
@@ -62,30 +55,9 @@ def _rows(found: list[Any], run: dict[str, Any]) -> list[dict[str, Any]]:
                 "at": entry.at,
                 "opens": entry.version is not None,
                 "boundary": i == line,
-                "undo": undo,
             }
         )
     return rows
-
-
-def _undo_blocked(document: Any, user: Any) -> str:
-    """Why the undo controls cannot act now, or `""`: a reservation, named to a holder of
-    *accept* (DL-0226), or someone else's hold, as a fact (ADR-0006) — drawn disabled with it,
-    never hidden (DL-0233)."""
-    from review.undo import refusal
-    from review.views.accept import reason
-    from review.views.pending import _edit_blocked
-
-    refused = refusal(document, user)
-    if refused == "reserved":
-        return reason(document, user, "reserved")
-    if refused == "held":
-        return _edit_blocked(document, user)
-    if refused == "draft_kept":
-        from review.views.undo import reason as undo_reason
-
-        return undo_reason(document, user, "draft_kept")
-    return ""
 
 
 @never_cache
@@ -98,17 +70,8 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
     rights = rights_on(request.user, document)
     if not has_tab(rights):
         return not_found(request)
-    run: dict[str, Any] = {}
-    blocked = since = ""
     try:
         found = entries(request.user, document)
-        if Right.ACCEPT in rights:
-            from editing import numbering
-            from review import services
-
-            run = {v.commit_sha: v for v in services.run(document)}
-            blocked = _undo_blocked(document, request.user)
-            since = numbering.accepted(document)
     except UNREADABLE:
         logger.exception("a document's history could not be read", extra={"document": number})
         return not_found(request)
@@ -118,9 +81,7 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         "tab": "history",
         "can_edit": Right.EDIT in rights,
         "holding": held_by(document, request.user),
-        "rows": _rows(found, run),
-        "undo_blocked": blocked,
-        "since": since,
+        "rows": _rows(found),
         "editions_only": Right.VIEW_PREVIOUS_CANONICAL in rights
         and Right.VIEW_ALL_HISTORY not in rights
         and Right.ACCEPT not in rights,

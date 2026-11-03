@@ -309,6 +309,15 @@ def test_the_tab(
     oldest = body.index(f'href="/document/{number}/version/0.0-1/"')
     assert newest < oldest
     assert re.search(r'class="[^"]*\bboundary\b[^"]*"', body)
+    # The undo stands on the review page, not here, for a holder of *accept* too (DL-0522).
+    accepting, _ = reader(
+        member_of, link_group, history, "history-accept", [Right.ACCEPT, Right.VIEW_ALL_HISTORY]
+    )
+    held = accepting.get(f"/document/{number}/history/").content.decode()
+    assert held.count('target="_blank"') == body.count('target="_blank"')
+    assert "history/undo/" not in held and 'data-command="undo-version"' not in held
+    assert 'class="run-undo"' not in held and "Undo this edit" not in text_of(held)
+    assert "history/undo/" in accepting.get(f"/document/{number}/pending/").content.decode()
 
     page = client.get(f"/document/{number}/").content.decode()
     assert anchors(page, f"/document/{number}/history/")

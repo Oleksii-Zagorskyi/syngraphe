@@ -1,11 +1,15 @@
 {% extends "documents/page.html" %}
 {% load i18n static tz %}
 {% block body %}
+{# The review page (DL-0518, DL-0522): the run's text beside its outline, the run's versions in the panel with the undo, the acts above the text. #}
+<div class="panes review-panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
+{% include "rendering/panes_outline.html" %}
+<div class="centre">
 <div class="pending{% if show_author %} show-authors{% endif %}">
   {% if acts %}
-  <p class="acts">{% if acts.correct %}<button class="btn" type="button" disabled data-command="correct">{% translate "Correct" %}</button> <span class="muted">{{ acts.correct }}</span>{% else %}<a class="btn" href="/document/{{ document.number }}/edit/" data-command="correct">{% translate "Correct" %}</a>{% endif %}
-  {% if acts.accept %}<button class="btn primary" type="button" disabled>{% translate "Accept the run" %}</button> <span class="muted">{{ acts.accept }}</span>{% else %}<a class="btn primary" href="/document/{{ document.number }}/pending/accept/" data-command="accept">{% translate "Accept the run" %}</a>{% endif %}
-  {% if acts.return %}<button class="btn" type="button" disabled>{% translate "Return without accepting" %}</button> <span class="muted">{{ acts.return }}</span>{% else %}<a class="btn" href="/document/{{ document.number }}/pending/return/" data-command="return">{% translate "Return without accepting" %}</a>{% endif %}</p>
+  <div class="acts phase-acts">{% if acts.accept %}<span class="act"><button class="btn primary" type="button" disabled title="{{ acts.accept }}">{% blocktranslate with number=acts.head next=acts.becomes %}Accept {{ number }} — becomes {{ next }}{% endblocktranslate %}</button> <span class="muted reason">{{ acts.accept }}</span></span>{% else %}<span class="act"><a class="btn primary" href="/document/{{ document.number }}/pending/accept/" data-command="accept">{% blocktranslate with number=acts.head next=acts.becomes %}Accept {{ number }} — becomes {{ next }}{% endblocktranslate %}</a></span>{% endif %}
+  {% if acts.return %}<span class="act"><button class="btn" type="button" disabled title="{{ acts.return }}">{% translate "Return without accepting…" %}</button> <span class="muted reason">{{ acts.return }}</span></span>{% else %}<span class="act"><a class="btn" href="/document/{{ document.number }}/pending/return/" data-command="return">{% translate "Return without accepting…" %}</a></span>{% endif %}
+  {% for act in acts.path %}{% include "documents/act.html" %}{% endfor %}</div>
   {% endif %}
   <form method="post" action="/preferences/show-author/" class="show-author">
     {% csrf_token %}
@@ -15,15 +19,12 @@
     <label class="show-author-title"><input type="checkbox" name="show_author_box"{% if show_author %} checked{% endif %}> {% translate "Show edit authors" %}</label>
   </form>
   <script src="{% static 'show-author.js' %}" defer></script>
-  {% if run %}
-  <ol class="run">
-    {% for version in run %}<li data-number="{{ version.number }}"><span class="id">{{ version.number }}</span> {{ version.summary }} <span class="muted">— {{ version.author }}, {{ version.at|timezone:display_timezone|date:"j E Y, H:i" }}</span>{% if version.parts %}<br><span class="parts-line">{% translate "Parts:" %} {% for row in version.parts %}{% include "editing/part_label.html" %}{% if not forloop.last %}; {% endif %}{% endfor %}</span>{% endif %}</li>{% endfor %}
-  </ol>
-  {% else %}
-  <p class="nothing-pending">{% translate "Nothing awaits review." %}</p>
-  {% endif %}
   <div class="changes document-text">{{ changes }}</div>
   {% include "editing/part_changes.html" %}
   {% translate "Roles, actions and terms changed in the run" as heading %}{% include "editing/entity_changes.html" with heading=heading %}
 </div>
+</div>
+{% include "review/run_panel.html" %}
+</div>
+<script src="{% static 'rendering/outline.js' %}" defer></script>
 {% endblock %}

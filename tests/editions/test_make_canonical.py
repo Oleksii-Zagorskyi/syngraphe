@@ -239,6 +239,8 @@ def test_the_pending_tab_numbers_from_the_edition(
 
     assert "1.0-1" in body
     assert "0.1-1" not in body
+    # The act names the version accepted and the number it becomes, both from the edition.
+    assert re.search(r'data-command="accept">[^<]*1\.0-1 — [^<]*1\.1</a>', body)
 
 
 def test_a_notice_after_an_edition_numbers_its_versions_from_it(

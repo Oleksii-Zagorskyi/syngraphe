@@ -246,6 +246,10 @@ input[type=email],input[name=reason]{min-width:min(100%,24em)}
 .format-changed .format-old{display:none}
 .format-changed:focus .format-old{display:inline;text-decoration:line-through;color:var(--muted);margin-left:4px}
 .run{margin:0 0 12px;padding-left:18px}
+/* The review page's panel: each version its own paragraph, its undo under it. */
+.run-panel .run{list-style:none;padding:0 10px}
+.run-panel .run li+li{margin-top:12px}
+.run-undo{margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
 
 /* The notifications page: an unread entry in bold. */
 .notifications-list{list-style:none;margin:0;padding:0}

@@ -122,6 +122,25 @@ def _edit_blocked(document: Document, user: User) -> str:
     }
 
 
+def _undo_blocked(document: Document, user: User) -> str:
+    """Why the undo controls cannot act now, or `""`: a reservation, named to a holder of
+    *accept* (DL-0516), someone else's hold, named the same way, or a kept draft of the
+    reviewer's — drawn disabled with it, never hidden (DL-0233)."""
+    from review.undo import refusal
+    from review.views.accept import reason
+
+    refused = refusal(document, user)
+    if refused == "reserved":
+        return reason(document, user, "reserved")
+    if refused == "held":
+        return _edit_blocked(document, user)
+    if refused == "draft_kept":
+        from review.views.undo import reason as undo_reason
+
+        return undo_reason(document, user, "draft_kept")
+    return ""
+
+
 def readable_pending(
     request: HttpRequest, number: int, *, archived: bool = False
 ) -> Document | None:
@@ -164,6 +183,7 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
             "summary": version.summary,
             "author": person(version.author),
             "at": version.committed_at,
+            "author_id": version.author_id,
         }
         for n, version in enumerate(run, 1)
     ]
@@ -212,7 +232,9 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
             appendix_link=lambda n: "",
         )["part_rows"]
     rights = rights_on_many(request.user, [document.pk])[document.pk]
+    shown = frame(request, document, here="review", rights=rights)
     acts = None
+    undo_blocked = ""
     if Right.ACCEPT in rights:
         from review.views.accept import reason
 
@@ -224,11 +246,35 @@ def page(request: HttpRequest, number: int) -> HttpResponse:
         acts = {
             "accept": reason(document, user, refused) if refused else "",
             "return": return_reason(document, user, refused_return) if refused_return else "",
-            "correct": _edit_blocked(document, user),
+            "head": head_number,
+            "becomes": numbering.next_accepted(document),
+            # *Edit* and the freeze's toggle, the path's own acts, stand here as well (DL-0518).
+            "path": [
+                act
+                for item in (shown.path or [])
+                for act in item.acts
+                if act.command in ("edit", "freeze", "unfreeze")
+            ],
         }
+        # The undo beside each version (DL-0522): *undo this edit*, and on each author's newest
+        # *undo all of this author's edits* (ADR-0015, DL-0243).
+        undo_blocked = _undo_blocked(document, user)
+        seen_authors: set[Any] = set()
+        for row in reversed(versions):
+            row["undo"] = {"author": row["author_id"], "all": row["author_id"] not in seen_authors}
+            seen_authors.add(row["author_id"])
+    from rendering.outline import outline
+    from rendering.renderer import labelled
+    from rendering.views import panes
+
     context = {
         "document": document,
-        "frame": frame(request, document, here="review"),
+        "frame": shown,
+        **panes(request),
+        # The outline beside the run's text, read from the head's (DL-0518).
+        "headings": outline(labelled(head_body)),
+        "undo_blocked": undo_blocked,
+        "since": accepted,
         "tab": "pending",
         "can_edit": Right.EDIT in rights,
         "holding": held_by(document, request.user),

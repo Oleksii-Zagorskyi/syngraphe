@@ -1484,11 +1484,6 @@ msgstr "очікує на розгляд"
 msgid "no reviewer assigned"
 msgstr "погоджувача не призначено"
 
-#: review/templates/review/accept_confirm.html:5
-#: review/templates/review/pending.html:7
-msgid "Accept the run"
-msgstr "Погодити правки"
-
 #: review/templates/review/accept_confirm.html:7
 #, python-format
 msgid "The versions below will be accepted as %(number)s."
@@ -1532,10 +1527,6 @@ msgid ""
 msgstr ""
 "Текст не показано: ви більше не маєте права читати погоджений текст цього "
 "документа."
-
-#: review/templates/review/pending.html:6
-msgid "Correct"
-msgstr "Виправити"
 
 #: review/templates/review/pending.html:14
 msgid "Show edit authors"
@@ -3014,10 +3005,6 @@ msgstr "повернено"
 #: review/templates/review/history.html
 msgid "accepted"
 msgstr "погоджено"
-
-#: review/templates/review/pending.html
-msgid "Return without accepting"
-msgstr "Повернути без погодження"
 
 #: review/templates/review/return_confirm.html
 msgid "The versions below go back to their authors without being accepted. They stay pending, and the authors are told your reason."
@@ -4862,3 +4849,25 @@ msgstr "Документ #%(number)s, який ви редагували, заа
 #: editing/templates/editing/discard.html documents/templates/documents/frame.html
 msgid "Back to editing"
 msgstr "Повернутись до редагування"
+
+#: review/templates/review/pending.html
+#, python-format
+msgid "Accept %(number)s — becomes %(next)s"
+msgstr "Погодити %(number)s — стане %(next)s"
+
+#: review/templates/review/pending.html
+msgid "Return without accepting…"
+msgstr "Повернути без погодження…"
+
+#: review/templates/review/run_panel.html
+msgctxt "the review page's panel"
+msgid "Versions under review"
+msgstr "Версії"
+
+#: review/templates/review/accept_confirm.html
+msgid "Accept the run"
+msgstr "Погодити правки"
+
+#: review/templates/review/return_confirm.html
+msgid "Return without accepting"
+msgstr "Повернути без погодження"

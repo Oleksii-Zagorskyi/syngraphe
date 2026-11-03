@@ -8,6 +8,7 @@ People and groups are synthetic examples; the text is invented.
 from __future__ import annotations
 
 import html
+import re
 from typing import Any
 
 import pytest
@@ -64,7 +65,9 @@ def test_correct_takes_the_hold_with_the_notice(
     document, reviewer = people.document, people["r"]
     client = signed_in(migrated_tenant, reviewer)
     pending = client.get(f"/document/{document.number}/pending/").content.decode()
-    assert f'href="/document/{document.number}/edit/" data-command="correct"' in pending
+    # *Correct* is gone; a reviewer who changes the text uses *Edit* (DL-0521).
+    assert 'data-command="correct"' not in pending
+    assert f'href="/document/{document.number}/edit/" data-command="edit"' in pending
     tab = client.get(
         f"/document/{document.number}/edit/", headers={"Sec-Fetch-Site": "same-origin"}
     )
@@ -92,13 +95,13 @@ def test_correct_is_disabled_while_someone_else_holds(
     )
     pending = signed_in(migrated_tenant, people["r"]).get(f"/document/{document.number}/pending/")
     page = pending.content.decode()
-    assert 'data-command="correct"' in page and 'disabled data-command="correct"' in page
+    assert 'data-command="correct"' not in page and 'data-command="edit" disabled' in page
     # A holder of *accept* learns who holds it, on an ordinary hold too (DL-0516).
     from identity.naming import person
 
     with schema_context(migrated_tenant.number):
         name = person(people["a"])
-    after = page.split('disabled data-command="correct"', 1)[1].split("</p>", 1)[0]
+    after = page.split('data-command="edit" disabled', 1)[1].split("</div>", 1)[0]
     assert html.escape(f"{name} is editing.") in after or f"Редагує {html.escape(name)}." in after
 
 
@@ -425,7 +428,11 @@ def test_correct_is_disabled_while_reserved_and_with_nothing_pending(
     document = people.document
     reviewer = signed_in(migrated_tenant, people["r"])
     page = reviewer.get(f"/document/{document.number}/pending/").content.decode()
-    assert 'disabled data-command="correct"' in page
+    # Nothing pending: no act to accept and no *Correct*; the page says so.
+    assert 'data-command="correct"' not in page and 'data-command="accept"' not in page
+    assert 'class="nothing-pending"' in page
+    # The disabled act still reads whole: the head's number and the one it would become.
+    assert re.search(r'disabled title="[^"]*">\S+ 0\.0 — \S+ 0\.1</button>', page)
     commit_version(document, people["a"], FIRST, "edit")
     now = timezone.now()
     with schema_context(migrated_tenant.number):
@@ -434,4 +441,7 @@ def test_correct_is_disabled_while_reserved_and_with_nothing_pending(
             reserved_at=now,
         )  # fmt: skip
     page = reviewer.get(f"/document/{document.number}/pending/").content.decode()
-    assert 'disabled data-command="correct"' in page
+    # Held by the reviewer's own reservation: acceptance waits, its reason beside it.
+    acts = page.split('class="acts phase-acts"', 1)[1].split("</div>", 1)[0]
+    assert 'data-command="correct"' not in page and 'data-command="accept"' not in acts
+    assert '<button class="btn primary" type="button" disabled title="' in acts

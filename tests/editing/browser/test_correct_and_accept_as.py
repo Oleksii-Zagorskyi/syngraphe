@@ -1,5 +1,5 @@
-"""A reviewer corrects a pending run in Chromium and accepts it in one act: *Correct* on the pending
-tab takes the document, *Finish editing* opens the screen with *accept as 0.1*, and the document
+"""A reviewer corrects a pending run in Chromium and accepts it in one act: *Edit* on the review
+page takes the document, *Finish editing* opens the screen with *accept as 0.1*, and the document
 page then says what the acceptance gave (DL-0222, DL-0332). People are synthetic examples; the
 text is invented."""
 
@@ -57,7 +57,8 @@ def test_end_to_end(
     session = reviewer_client.cookies["sessionid"].value
     page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
     page.goto(f"{browser_server}/document/{document.number}/pending/")
-    page.click("a[data-command=correct]")
+    assert page.locator("[data-command=correct]").count() == 0
+    page.click(".phase-acts a[data-command=edit]")
     page.wait_for_url(f"**/document/{document.number}/edit/")
     page.wait_for_function(f"() => {EDITOR} !== undefined && {EDITOR}.view !== undefined")
     assert "your changes become a version of your own" in (page.text_content(".correcting") or "")
@@ -75,7 +76,7 @@ def test_end_to_end(
         acceptance = Acceptance.objects.get()
         assert acceptance.number == "0.1" and acceptance.reviewer_id == reviewer.pk
     page.goto(f"{browser_server}/document/{document.number}/pending/")
-    assert page.locator(".nothing-pending").count() == 1
+    assert page.locator(".run-panel .nothing-pending").count() == 1
     assert page.locator(".changes ins, .changes del").count() == 0
 
 

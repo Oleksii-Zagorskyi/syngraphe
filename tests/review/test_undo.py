@@ -141,7 +141,8 @@ def test_refusals(
         with pytest.raises(undo.UndoRefused) as refused:
             undo.apply(document, people["r"], author=people["a"])
         assert refused.value.reason == "held"
-    tab = client.get(f"/document/{document.number}/history/").content.decode()
+    # The undo stands on the review page (DL-0522).
+    tab = client.get(f"/document/{document.number}/pending/").content.decode()
     assert "disabled" in tab and "is editing" in tab
     with schema_context(migrated_tenant.number):
         reservations.reserve(held, people["b"])
@@ -173,8 +174,10 @@ def test_the_route_and_the_controls(
     document = people.document
     n = document.number
     client = signed_in(migrated_tenant, people["r"])
-    tab = client.get(f"/document/{n}/history/").content.decode()
+    tab = client.get(f"/document/{n}/pending/").content.decode()
     assert f'action="/document/{n}/history/undo/"' in tab
+    history = client.get(f"/document/{n}/history/").content.decode()
+    assert f'action="/document/{n}/history/undo/"' not in history
     assert "Undo this edit" in tab and "Undo all of" in tab
     # An editor without *accept* finds the route missing.
     editor = signed_in(migrated_tenant, people["b"])

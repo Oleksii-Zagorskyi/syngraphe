@@ -190,7 +190,7 @@ def test_a_kept_draft_disables_the_controls(
             with transaction.atomic():
                 holds.release(hold, ReleaseKind.INACTIVITY)
         assert undo.refusal(document, people["r"], author=people["a"]) == "draft_kept"
-    tab = signed_in(migrated_tenant, people["r"]).get(f"/document/{document.number}/history/")
+    tab = signed_in(migrated_tenant, people["r"]).get(f"/document/{document.number}/pending/")
     page = tab.content.decode()
     assert "take the document back" in page
     assert 'data-command="undo-version"' not in page
@@ -236,7 +236,7 @@ def test_a_version_outside_the_run_is_nothing_to_undo(
     # The accepted base: a version the reviewer may open, and none of the run.
     answer = client.post(f"/document/{document.number}/history/undo/", {"version": "0.1"})
     assert answer.status_code == 302
-    assert answer["Location"] == f"/document/{document.number}/history/"
+    assert answer["Location"] == f"/document/{document.number}/pending/"
     with schema_context(migrated_tenant.number):
         assert not Draft.objects.filter(hold__document=document).exists()
 

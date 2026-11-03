@@ -6,6 +6,7 @@ Groups, people and texts are synthetic examples.
 
 from __future__ import annotations
 
+import html
 import re
 from typing import Any
 
@@ -167,6 +168,18 @@ def test_pending_needs_view_pending(
     assert reader_client.get(f"/document/{document.number}/pending/").status_code == 404
     page = reader_client.get(f"/document/{document.number}/").content.decode()
     assert f"/document/{document.number}/pending/" not in page
+    # A reader of pending work without *accept* reads the run, its versions in the panel, and
+    # acts on none of it: no act row, no undo (DL-0522).
+    pending_client, _, pending_membership = member_of("the.watcher@example.test")
+    link_group(document, [Right.VIEW_PENDING], [pending_membership], author)
+    answer = pending_client.get(f"/document/{document.number}/pending/")
+    assert answer.status_code == 200
+    page = answer.content.decode()
+    panel = page.split('<aside class="panel run-panel"', 1)[1].split("</aside>", 1)[0]
+    assert '<li data-number="0.0-1">' in panel
+    assert "history/undo/" not in page and 'class="run-undo"' not in panel
+    assert 'class="acts phase-acts"' not in page
+    assert 'data-command="accept"' not in page and 'data-command="return"' not in page
 
 
 def test_the_frame_on_pending_and_its_confirmations(
@@ -438,3 +451,83 @@ def test_the_checkbox_is_the_columns_title(
     form = client.get(url).content.decode().split('class="show-author"')[1].split("</form>")[0]
     assert 'name="show_author" value="off"' in form
     assert re.search(r'<input type="checkbox"[^>]*checked[^>]*>', form)
+
+
+def test_the_review_page(
+    member_of: Any, new_document: Any, link_group: Any, commit_version: Any, settings: Any
+) -> None:
+    """The run's versions in the panel, each with *Undo this edit*, the author's newest with
+    *Undo all of this author's edits since*; the acts *Accept N — becomes M* and *Return without
+    accepting…*, no *Correct*; the outline beside the text (DL-0509, DL-0518, DL-0521)."""
+    settings.LANGUAGE_CODE = "en"
+    client, _, author_a, author_b, document = reviewer_and_authors(
+        member_of, new_document, link_group
+    )
+    from access.rights import Right
+
+    commit_version(document, author_a, FIRST, "edit")
+    commit_version(document, author_b, SECOND, "edit")
+    commit_version(document, author_a, THIRD, "edit")
+    n = document.number
+    # A reviewer who also freezes and edits, to read the path's acts in the page's row.
+    freezer, _, membership = member_of("the.freezer@example.test")
+    link_group(document, [Right.ACCEPT, Right.FREEZE, Right.EDIT], [membership], author_a)
+
+    page = freezer.get(f"/document/{n}/pending/").content.decode()
+    panel = page.split('<aside class="panel run-panel"', 1)[1].split("</aside>", 1)[0]
+    centre = page.split('<div class="centre', 1)[1].split('<aside class="panel run-panel"', 1)[0]
+    acts = centre.split('<div class="acts phase-acts">', 1)[1].split("</div>", 1)[0]
+
+    assert '<span class="version-number">0.0 → 0.0-3</span>' in page
+    rows = re.findall(r'<li data-number="([^"]+)"(.*?)</li>', panel, re.S)
+    assert [number for number, _ in rows] == ["0.0-1", "0.0-2", "0.0-3"]
+    assert all('data-command="undo-version"' in row for _, row in rows)
+    # *Undo all* under each author's newest only: B's 0.0-2 and A's 0.0-3, never A's 0.0-1.
+    assert ['data-command="undo-author"' in row for _, row in rows] == [False, True, True]
+    assert "Accept 0.0-3 — becomes 0.1" in acts and "Return without accepting…" in acts
+    assert 'data-command="edit"' in acts and 'data-command="freeze"' in acts
+    assert 'data-command="correct"' not in page and '<ol class="run">' not in centre
+    assert 'id="outline-pane"' in page
+    # The panel's edge stands on its left and widens it leftward, as the version page's does.
+    assert re.search(r'<div class="edge"[^>]*data-pane="run-panel" data-side="right"', page)
+    # A reviewer without *freeze* is offered no toggle.
+    assert 'data-command="freeze"' not in client.get(f"/document/{n}/pending/").content.decode()
+
+
+def test_the_review_page_opens_while_held(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """Someone else has reserved the document: the page opens, its acts and the undo disabled
+    with the holder named (DL-0516, DL-0522). (An ordinary hold leaves accepting open, as built:
+    *Accept* waits only on a reservation.)"""
+    from access.models import AccessGroup
+    from access.rights import Right
+    from editing import holds, reservations
+
+    settings.LANGUAGE_CODE = "en"
+    client, _, author_a, _, document = reviewer_and_authors(member_of, new_document, link_group)
+    commit_version(document, author_a, FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        for group in AccessGroup.objects.filter(granted__right=Right.EDIT):
+            group.grant(Right.RESERVE_FOR_EDITING, by=author_a)
+        reservations.reserve(holds.take(document, author_a), author_a)
+
+    response = client.get(f"/document/{document.number}/pending/")
+    page = html.unescape(response.content.decode())
+
+    assert response.status_code == 200
+    acts = page.split('<div class="acts phase-acts">', 1)[1].split("</div>", 1)[0]
+    assert 'data-command="accept"' not in page and 'data-command="return"' not in page
+    # Each of *Accept*, *Return* and *Edit* disabled, with the holder named beside it.
+    assert acts.count('disabled title="') == 3
+    # Each reason names the holder, in its title and beside the button.
+    assert acts.count("Автор А") == 6
+    assert 'data-command="edit" disabled' in acts
+    assert 'data-command="undo-version"' not in page
+    panel = page.split('<aside class="panel run-panel"', 1)[1].split("</aside>", 1)[0]
+    assert "Undo this edit" in panel and "Автор А" in panel.split("Undo this edit", 1)[1]

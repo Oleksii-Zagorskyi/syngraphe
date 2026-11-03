@@ -549,7 +549,8 @@ def test_acceptance_waits_for_a_revert(
     assert page.status_code == 200
     markup = page.content.decode()
     assert re.search(
-        r'<button class="btn primary" type="button" disabled>Accept the run</button>', markup
+        r'<button class="btn primary" type="button" disabled title="[^"]*">Accept [^<]+</button>',
+        markup,
     )
     assert (
         "A revert of parts waits in Synthetic Reviewer B’s draft: the run is accepted when they "

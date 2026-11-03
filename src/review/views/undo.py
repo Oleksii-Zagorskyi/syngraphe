@@ -1,8 +1,8 @@
 """*Undo this edit* and *undo all of this author's edits* (ST-0037, ADR-0015, DL-0243): a holder
-of *accept* posts from the History tab; the reversal is typed into their draft, which opens on the
-edit tab with what is left for their hand listed above the editor (DL-0380). The version is
-named by its number within the reviewer's ceiling, the author by their identifier among the
-run's own authors; anything else answers as missing."""
+of *accept* posts from the review page's panel (DL-0522); the reversal is typed into their
+draft, which opens on the edit tab with what is left for their hand listed above the editor
+(DL-0380). The version is named by its number within the reviewer's ceiling, the author by
+their identifier among the run's own authors; anything else answers as missing."""
 
 from __future__ import annotations
 
@@ -56,7 +56,8 @@ def undo_view(request: HttpRequest, number: int) -> HttpResponse:
     ):
         return not_found(request)
     user = cast(User, request.user)
-    history_tab = HttpResponseRedirect(f"/document/{document.number}/history/")
+    # A refusal goes back to the review page, where the undo stands (DL-0522).
+    review_page = HttpResponseRedirect(f"/document/{document.number}/pending/")
     version = author = None
     try:
         if request.POST.get("version"):
@@ -80,10 +81,10 @@ def undo_view(request: HttpRequest, number: int) -> HttpResponse:
         undo.apply(document, user, version=version, author=author)
     except undo.UndoRefused as refused:
         messages.error(request, reason(document, user, refused.reason))
-        return history_tab
+        return review_page
     except LockTimeout:
         messages.error(request, _("The document is busy. Try again in a moment."))
-        return history_tab
+        return review_page
     except (*UNREADABLE, authorship.AuthorshipError):
         logger.exception("a document's history could not be read", extra={"document": number})
         return not_found(request)
@@ -92,5 +93,5 @@ def undo_view(request: HttpRequest, number: int) -> HttpResponse:
             request,
             _("The document's record is incomplete; it cannot be changed until it is repaired."),
         )
-        return history_tab
+        return review_page
     return HttpResponseRedirect(f"/document/{document.number}/edit/")
