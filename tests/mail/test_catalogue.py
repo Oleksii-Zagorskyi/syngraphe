@@ -82,6 +82,8 @@ def test_catalogue_covers_the_mail_pages(member_of: Any, sender: Any, settings: 
         "/administration/tenant/sending-address/"
     ).content.decode()
     for name, body in bodies.items():
+        # An empty body leaks nothing: each is read only once it is a page.
+        assert "<html" in body, name
         shown = _review.text_of(body)
         leaked = [message for message in ids if message in shown]
         assert leaked == [], (name, leaked)

@@ -4,7 +4,7 @@
 
 The document list shows one folder at a time. The tree on its left holds the folders, starting with the organisation itself; the folder you are in is in bold. It shows only the folders that hold, at any depth, a document you may read; administrators see every folder. The triangle beside a folder shows or hides the folders under it. Drag the edge between the tree and the list to change its width; the width is kept for you.
 
-The list can be sorted by number or by title, either way round: choose a column's heading. Each row shows the document's type, its canonical version, the latest version you may see beyond it, whether it has appendices and attachments, and ✎ to open it for editing where you may edit it. *In edit* and *In review* group their documents by folder in the same way.
+The list can be sorted by number or by title, either way round: choose a column's heading. Each row shows the document's type, its canonical version, the latest version you may see beyond it, whether it has appendices and attachments, and ✎ to open it for editing where you may edit it. *Being edited* and *In review* group their documents by folder in the same way.
 
 A folder only says where a document appears. Moving a document between folders changes nothing in the document itself or in who may read it.
 

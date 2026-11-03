@@ -147,7 +147,7 @@ def test_the_page_lists_groups_and_rights_per_folder(
     assert f'data-group="{reviewers.id}"' not in groups
     assert groups.count(f'action="{_groups_of(membership)}"') >= 3  # two removes and the add
     assert groups.count(f'hx-post="{_groups_of(membership)}"') >= 3
-    assert 'hx-target="#member-groups"' in groups and 'hx-swap="outerHTML"' in groups
+    assert 'hx-target="#member"' in groups and 'hx-swap="outerHTML"' in groups
     assert len(REMOVE.findall(groups)) == 2
     assert 'data-act="add"' in groups
     assert _select_options(groups) == [str(reviewers.id)]
@@ -409,3 +409,36 @@ def test_a_link_granting_nothing_draws_no_row(
     body = admin.get(_page_of(membership)).content.decode()
 
     assert f'data-document="{document.number}"' not in body
+
+
+def test_a_change_of_groups_redraws_the_rights_beside_them(
+    migrated_tenant: Any, member_of: Any, make_document: Any
+) -> None:
+    """*Add* and *Remove* under `HX-Request` answer the groups and the rights table together:
+    a document the new group reaches appears with its ticks, and is gone again once the group
+    is left — no reload between."""
+    from access.models import DocumentGroup
+
+    admin, admin_user, _ = member_of("t.admin@example.test", is_tenant_admin=True)
+    _, _, membership = member_of(MEMBER)
+    document = make_document(title="Synthetic rules", created_by=admin_user, author_only=False)
+    with schema_context(migrated_tenant.number):
+        readers = _group("Readers", [Right.VIEW_CANONICAL], [], admin_user)
+        DocumentGroup.link(document, readers, by=admin_user)
+    hx = {"HX-Request": "true"}
+
+    added = admin.post(
+        _groups_of(membership), {"group": str(readers.id), "action": "add"}, headers=hx
+    ).content.decode()
+
+    assert "<html" not in added
+    assert f'data-group="{readers.id}"' in _block(added, "member-groups")
+    assert _ticks(_document_row(added, document)) == {Right.VIEW_CANONICAL}
+
+    removed = admin.post(
+        _groups_of(membership), {"group": str(readers.id), "action": "remove"}, headers=hx
+    ).content.decode()
+
+    assert f'data-group="{readers.id}"' not in _block(removed, "member-groups")
+    assert '<table class="grid member-rights">' in removed
+    assert f'data-document="{document.number}"' not in removed

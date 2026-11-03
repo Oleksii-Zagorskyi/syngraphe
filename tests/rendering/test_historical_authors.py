@@ -15,6 +15,8 @@ from typing import Any
 
 import pytest
 
+from access.rights import Right
+
 _spec = importlib.util.spec_from_file_location(
     "historical_authors_page", Path(__file__).resolve().parent / "test_historical_page.py"
 )
@@ -159,7 +161,10 @@ def test_the_toggle_on_the_historical_page(
     assert box is not None and "checked" not in box.group(0)
     assert 'name="show_author" value="on"' in page
     assert re.search(r'<script src="[^"]*show-author\.js" defer></script>', page)
-    assert "<button" not in page.split('class="show-author inline"')[1].split("</form>")[0]
+    assert "<button" not in page.split('class="show-author"')[1].split("</form>")[0]
+    # It heads the text's column, not the row of actions above the panes.
+    assert page.index('<div class="centre') < page.index('class="show-author"')
+    assert page.index('class="show-author"') < page.index('<article class="document-text"')
 
     turned = viewer.client.post("/preferences/show-author/", {"show_author": "on", "next": url})
     assert turned.status_code == 302 and turned["Location"] == url
@@ -214,6 +219,59 @@ def test_a_changed_paragraph_names_its_author_against_the_version_before(
     first = drawn(editions.client, f"/document/{history.document.number}/version/1.0/")
     assert len(first) >= 4
     assert set(first.values()) == {"Synthetic Editor A"}
+
+
+def test_a_reader_of_the_last_two_versions_compares_within_their_reach(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    commit_version: Any,
+    member_of: Any,
+    link_group: Any,
+    settings: Any,
+    asked: list[tuple[Any, ...]],
+) -> None:
+    """A reader whose *view pending* alone reaches the edition and the two versions after it, and
+    nothing before: each later version names the paragraph it changed against the one before it
+    and leaves the rest bare; the edition has nothing within reach before it, so it names every
+    paragraph."""
+    from editing.tasks import compute_authorship_at
+    from identity.models import User
+
+    settings.LANGUAGE_CODE = "en"
+    history = _page.standard_history(migrated_tenant, edition_cast, commit_version)
+    User.objects.filter(pk=history.people["a"].pk).update(display_name="Synthetic Editor A")
+    User.objects.filter(pk=history.people["b"].pk).update(display_name="Synthetic Editor B")
+    pending = _page.reader(member_of, link_group, history.people, "pending", [Right.VIEW_PENDING])
+    _showing_authors(pending.client)
+    number = history.document.number
+    # The version before the edition in the whole history is beyond this reader's reach.
+    assert pending.client.get(f"/document/{number}/version/0.0-3/").status_code == 404
+
+    def drawn(url: str) -> tuple[dict[str, str], int]:
+        pending.client.get(url)
+        compute_authorship_at(*asked[-1])
+        page = pending.client.get(url).content.decode()
+        text = page.split('class="document-text"')[1].split("</article>")[0]
+        named = {
+            re.sub(r"<[^>]+>", "", body).strip(): who
+            for who, body in re.findall(
+                r'<(?:p|h1|li)\b[^>]*data-author="([^"]+)"[^>]*>(.*?)</(?:p|h1|li)>', text, re.S
+            )
+        }
+        return named, len(re.findall(r"<(?:p|h1|li)\b", text))
+
+    last, blocks = drawn(f"/document/{number}/version/1.0-2/")
+    assert list(last.values()) == ["Synthetic Editor B"], last
+    assert "order they arrive" in next(iter(last))
+    assert blocks > 1
+
+    middle, _ = drawn(f"/document/{number}/version/1.0-1/")
+    assert list(middle.values()) == ["Synthetic Editor A"], middle
+    assert "officer in charge" in next(iter(middle))
+
+    first, blocks = drawn(f"/document/{number}/version/1.0/")
+    assert len(first) == blocks, first
+    assert set(first.values()) == {"Synthetic Editor A"}, first
 
 
 def test_each_line_names_its_own_edit_author(

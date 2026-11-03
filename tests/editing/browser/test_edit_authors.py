@@ -117,6 +117,47 @@ def test_the_name_stands_in_the_margin(
     _policy._assert_nothing_refused(violations, console)
 
 
+# The checkbox's box against the text's box and the names' column beside it.
+TITLE = """() => {
+  const form = document.querySelector('form.show-author').getBoundingClientRect();
+  const text = document.querySelector('.document-text').getBoundingClientRect();
+  const panel = document.querySelector('.panes .panel');
+  return {
+    form: {left: form.left, right: form.right, bottom: form.bottom},
+    text: {right: text.right, top: text.top},
+    panel: panel ? panel.getBoundingClientRect().left : null,
+    viewport: window.innerWidth,
+  };
+}"""
+
+
+def test_the_checkbox_heads_the_names_column(
+    browser_server: str,
+    policed: Any,
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    queued_authorship: list[Any],
+) -> None:
+    """On the historical page the checkbox is the names' column's title: right of the text's box,
+    above its first line, and it stays there when the window narrows."""
+    page, violations, documents, console = policed
+    client, document = _history(migrated_tenant, member_of, new_document, commit_version)
+    _policy._sign_in(page, browser_server, client)
+    page.goto(f"{browser_server}/document/{document.number}/version/0.0-2/", wait_until="load")
+
+    for width in (1400, 1100):
+        page.set_viewport_size({"width": width, "height": 900})
+        drawn = page.evaluate(TITLE)
+        assert drawn["form"]["left"] >= drawn["text"]["right"], (width, drawn)
+        assert drawn["form"]["right"] <= drawn["viewport"], (width, drawn)
+        assert drawn["panel"] is None or drawn["form"]["right"] <= drawn["panel"], (width, drawn)
+        assert drawn["form"]["bottom"] <= drawn["text"]["top"] + 1, (width, drawn)
+    _policy._assert_headers(documents)
+    _policy._assert_nothing_refused(violations, console)
+
+
 def test_the_checkbox_saves_and_redraws(
     browser_server: str,
     policed: Any,
@@ -146,6 +187,37 @@ def test_the_checkbox_saves_and_redraws(
           .querySelector('.num').getBoundingClientRect().left"""
     )
     assert with_names["num"] is not None and abs(num - with_names["num"]) < 1
+    _policy._assert_headers(documents)
+    _policy._assert_nothing_refused(violations, console)
+
+
+def test_the_pending_tabs_checkbox_runs_under_the_policy(
+    browser_server: str,
+    policed: Any,
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    queued_authorship: list[Any],
+) -> None:
+    """The pending tab's checkbox heads the names' column and saves through the platform's own
+    script: unticked, the tab returns without names, and nothing is refused."""
+    page, violations, documents, console = policed
+    client, document = _history(migrated_tenant, member_of, new_document, commit_version)
+    _policy._sign_in(page, browser_server, client)
+    url = f"{browser_server}/document/{document.number}/pending/"
+
+    answer = page.goto(url, wait_until="load")
+    assert answer.status == 200, answer.status
+    assert page.is_checked("form.show-author input[type=checkbox]")
+    with page.expect_response(lambda r: r.url.endswith("/preferences/show-author/")) as saved:
+        page.uncheck("form.show-author input[type=checkbox]")
+    page.wait_for_load_state("load")
+    page.wait_for_function("() => !document.querySelector('form.show-author input').checked")
+
+    assert saved.value.status == 302
+    assert page.url == url
+    assert page.locator(".pending.show-authors").count() == 0
     _policy._assert_headers(documents)
     _policy._assert_nothing_refused(violations, console)
 

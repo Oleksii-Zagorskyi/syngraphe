@@ -1,6 +1,7 @@
 """The member's page under the content policy (DL-0493, DL-0505): Chromium opens it with the
 listener of `test_content_policy.py` installed; choosing a group in *Add* and submitting swaps
-`#member-groups` through htmx — one document response, no full load — and nothing is refused.
+the member's section through htmx — one document response, no full load — the rights the group
+gives drawn with it, and nothing is refused.
 
 People and groups are synthetic examples at `@example.test`."""
 
@@ -35,11 +36,13 @@ ADD_BUTTON = '#member-groups form[data-act="add"] button[type="submit"]'
 
 
 def test_the_members_page_runs_under_the_policy(
-    browser_server: str, policed: Any, migrated_tenant: Any, member_of: Any
+    browser_server: str, policed: Any, migrated_tenant: Any, member_of: Any, make_document: Any
 ) -> None:
-    """The page loads with no violation; *Add* of a group swaps `#member-groups` without a
-    full load — the one request is htmx's, with `HX-Request`."""
-    from access.models import AccessGroup, GroupMember
+    """The page loads with no violation; *Add* of a group swaps the member's section without a
+    full load — the one request is htmx's, with `HX-Request` — and the document the group reaches
+    is in the rights table at once."""
+    from access.models import AccessGroup, DocumentGroup, GroupMember
+    from access.rights import Right
 
     page, violations, documents, console = policed
     administrator, admin_user, _ = member_of("an.administrator@example.test", is_tenant_admin=True)
@@ -52,11 +55,17 @@ def test_the_members_page_runs_under_the_policy(
         reviewers = AccessGroup.objects.create(
             name="Reviewers", created_by=admin_user, actor_kind="user"
         )
+        reviewers.grant(Right.VIEW_CANONICAL, by=admin_user)
+    document = make_document(title="Synthetic rules", created_by=admin_user, author_only=False)
+    with schema_context(migrated_tenant.number):
+        DocumentGroup.link(document, reviewers, by=admin_user)
     _policy._sign_in(page, browser_server, administrator)
     url = f"{browser_server}/administration/tenant/users/{membership.id}/"
 
+    row = f'table.member-rights tr[data-document="{document.number}"]'
     answer = page.goto(url, wait_until="load")
     assert answer.status == 200, answer.status
+    assert page.query_selector(row) is None
     page.wait_for_function(f"() => document.querySelector('{ADD_SELECT}') !== null", timeout=5000)
     page.select_option(ADD_SELECT, str(reviewers.id))
     with page.expect_response(
@@ -74,6 +83,7 @@ def test_the_members_page_runs_under_the_policy(
     # The page itself was the only document response: the swap was no full load.
     assert [seen for seen, _ in documents] == [url]
     assert page.query_selector(f'#member-groups li[data-group="{editors.id}"]') is not None
+    assert page.query_selector(f'{row} td[data-right="view_canonical"]').inner_text() == "✓"
     _policy._assert_headers(documents)
     _policy._assert_nothing_refused(violations, console)
     with schema_context(migrated_tenant.number):

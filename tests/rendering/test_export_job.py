@@ -872,10 +872,12 @@ def _exported_in(
     exports: Any,
     kit: Any,
     language: str,
+    *,
+    marked: bool = False,
 ) -> tuple[str, list[str], str]:
     """A canonical document in `language` with a title page and one attachment, exported as PDF
     with its attachment by a reader with no preference: the zip's name, its entries, and the
-    title page's text."""
+    title page's text. `marked`: a pending version after the edition, exported marked."""
     from pypdf import PdfReader
 
     from documents.models import Document
@@ -894,11 +896,14 @@ def _exported_in(
         review.accept(people.document, people["r"])
         editions.freeze(people.document, people["p"], "Synthetic reason")
         editions.make_canonical(people.document, people["p"])
-    client, _ = kit.reader(member_of, link_group, people, [Right.VIEW_CANONICAL], "words")
-    response = client.post(
-        f"/document/{people.document.number}/export/",
-        {"document": "on", "attachments": "on", "format": "pdf", "view": "canonical"},
-    )
+    form = {"document": "on", "attachments": "on", "format": "pdf", "view": "canonical"}
+    right = Right.VIEW_CANONICAL
+    if marked:
+        commit_version(people.document, people["a"], kit.FOURTH, "edit")
+        form |= {"view": "pending_edits", "changes-pending_edits": "marked"}
+        right = Right.VIEW_PENDING
+    client, _ = kit.reader(member_of, link_group, people, [right], "words")
+    response = client.post(f"/document/{people.document.number}/export/", form)
     assert response.status_code == 302
     job = kit.run_job(migrated_tenant.number, exports[0][1])
     assert job.state == "done", job.failure_reason
@@ -953,7 +958,36 @@ def test_a_ukrainian_document_exports_in_ukrainian(
 
     assert "канонічна_версія" in name, name
     assert all(CYRILLIC.search(entry.split("_—_")[0]) for entry in entries), entries
+    assert "Затверджено" in title_page, title_page
     assert "Type:" not in title_page and "Approved" not in title_page, title_page
+
+
+def test_a_marked_english_export_names_its_marks_in_english(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    exports: Any,
+    kit: Any,
+    settings: Any,
+) -> None:
+    """The stance and the marks' suffix of the file's name are the document's language too."""
+    settings.LANGUAGE_CODE = "uk"
+    name, _, _ = _exported_in(
+        migrated_tenant,
+        edition_cast,
+        member_of,
+        link_group,
+        commit_version,
+        exports,
+        kit,
+        "en",
+        marked=True,
+    )
+
+    assert name.endswith("_—_pending_edits-marked.zip"), name
+    assert not CYRILLIC.search(name), name
 
 
 def test_a_language_without_a_catalogue_falls_to_english(
@@ -969,12 +1003,13 @@ def test_a_language_without_a_catalogue_falls_to_english(
     """A document language the catalogue does not serve exports in English, never in the
     installation's language."""
     settings.LANGUAGE_CODE = "uk"
-    name, entries, _ = _exported_in(
+    name, entries, title_page = _exported_in(
         migrated_tenant, edition_cast, member_of, link_group, commit_version, exports, kit, "de"
     )
 
     assert "canonical_version" in name and not CYRILLIC.search(name), name
     assert entries == ["attachment-1_—_time-limits.txt", "document.pdf"], entries
+    assert "Approved" in title_page and not CYRILLIC.search(title_page), title_page
 
 
 def test_a_refusal_is_in_the_requesters_language(

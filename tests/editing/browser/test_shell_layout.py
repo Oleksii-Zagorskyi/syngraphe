@@ -255,3 +255,30 @@ def test_the_textareas_take_the_width(browser_server: str, policed: Any, member_
     for box, form in widths:
         assert abs(box - form) < 2, widths
     _policy._assert_nothing_refused(violations, console)
+
+
+def test_the_settings_page_runs_under_the_policy(
+    browser_server: str, policed: Any, member_of: Any
+) -> None:
+    """The organisation's settings refuse a value out of bounds beside its field, then apply a
+    good one and say *Applied*, with nothing refused (DL-0511)."""
+    page, violations, documents, console = policed
+    client, _, _ = member_of("an.administrator@example.test", is_tenant_admin=True)
+    _sign_in(page, browser_server, client)
+    url = f"{browser_server}/administration/tenant/settings/"
+
+    page.goto(url, wait_until="load")
+    page.fill("input[name=attachment_max_mb]", "0")
+    with page.expect_navigation(wait_until="load"):
+        page.click("#tenant-settings button[type=submit]")
+    assert page.locator("#tenant-settings .err").count() >= 1
+    assert page.locator('#tenant-settings [role="status"]').count() == 0
+
+    page.fill("input[name=attachment_max_mb]", "6")
+    with page.expect_navigation(wait_until="load"):
+        page.click("#tenant-settings button[type=submit]")
+    assert page.url == url + "?applied=1"
+    assert page.locator('#tenant-settings [role="status"]').count() == 1
+    assert page.locator("#tenant-settings .err").count() == 0
+    _policy._assert_headers(documents)
+    _policy._assert_nothing_refused(violations, console)

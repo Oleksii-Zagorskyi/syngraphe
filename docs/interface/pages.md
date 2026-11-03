@@ -43,7 +43,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | [Sign-in pages](#sign-in-pages) | — | ST-0007, ST-0008, ST-0054, ST-0055, ST-0057 | **0.1** |
 | [Account page](#account-page) | `/account/` | ST-0066, ST-0076 | **0.1** |
 | [Document list](#document-list) | `/folder/7/`; `/` opens the root, `/folder/1/` | ST-0009, ST-0012, ST-0013, ST-0014, ST-0018, ST-0051, ST-0052, ST-0064, ST-0067 | **0.1** |
-| [In edit, In review](#in-edit-in-review) | `/in-edit/`, `/in-review/` | ST-0013, ST-0014 | **0.1** |
+| [Being edited, In review](#being-edited-in-review) | `/in-edit/`, `/in-review/` | ST-0013, ST-0014 | **0.1** |
 | [Search results](#search-results) | `/search/?q=…&type=…` | ST-0013 | **0.1** |
 | [Document page](#document-page) | `/document/12/` — the latest version the reader may see; beneath it `edit/` the draft's page, `pending/` the review page, `history/`, `info/`, `my-edits/` (DL-0522) | ST-0005, ST-0010, ST-0014, ST-0015, ST-0016, ST-0017, ST-0018, ST-0019, ST-0020, ST-0021, ST-0022, ST-0023, ST-0024, ST-0026, ST-0027, ST-0028, ST-0029, ST-0030, ST-0031, ST-0032, ST-0033, ST-0034, ST-0035, ST-0036, ST-0037, ST-0038, ST-0039, ST-0040, ST-0041, ST-0042, ST-0043, ST-0044, ST-0051, ST-0052, ST-0053, ST-0058, ST-0060, ST-0061, ST-0062, ST-0063, ST-0069, ST-0070 | **0.1** |
 | [Appendix page](#appendix-page) | `/document/12/appendix/3/` | ST-0023, ST-0061 | **0.1** |
@@ -62,14 +62,14 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 
 ```
 +------------------------------------------------------------------------------+
-| logo | All documents | In edit | In review | Help | Administration | (!3) | tenant ▾ | me ▾ |
+| logo | All documents | Being edited | In review | Help | Administration | (!3) | tenant ▾ | me ▾ |
 +------------------------------------------------------------------------------+
 ```
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | *All documents* | **0.1** | — | ST-0013 | Epic 3 |
-| *In edit* — documents the user may edit that have versions after their latest canonical edition | **0.1** — shown to holders of *edit* on any document, disabled when empty, no count (DL-0197) | *edit* | ST-0013 | Epics 14, 10 |
+| *Being edited* — documents the user may edit that have versions after their latest canonical edition | **0.1** — shown to holders of *edit* on any document, disabled when empty, no count (DL-0197) | *edit* | ST-0013 | Epics 14, 10 |
 | *In review* — documents awaiting review the user may accept; a returned run leaves it until a version is sent after the return (DL-0420) | **0.1** — likewise | *accept* | ST-0014 | Epics 14, 15, 10 |
 | *Help* | **0.1** | — | ST-0019 | Epic 4 |
 | *Administration* | **0.1** | tenant or platform administrator | — | Epic 2 |
@@ -135,7 +135,7 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 
 An archived document leaves the list for everyone, administrators included; they reach it through Administration › Archive (DL-0233).
 
-## In edit, In review
+## Being edited, In review
 
 The document list's shape, each a page of its own reached from the menu, without the type filter — choosing a type opens search across every folder, which would leave the view: matching documents grouped under a heading per folder path, the groups alphabetical, sorting within each group; the folder tree shows only folders holding matches (DL-0197, DL-0207). An empty view reads *No documents here.*; to anyone the menu does not offer it, its address answers *Nothing to show here*.
 
@@ -145,12 +145,12 @@ The document list's shape, each a page of its own reached from the menu, without
 
 ## Search results
 
-As *In edit*: results grouped under a heading per folder path, alphabetical groups, sorting within each group, the tree cut to *folders with found documents*. A group left empty by the reader's rights, and its folder, are not drawn.
+As *Being edited*: results grouped under a heading per folder path, alphabetical groups, sorting within each group, the tree cut to *folders with found documents*. A group left empty by the reader's rights, and its folder, are not drawn.
 
 | Region | Release | Stories | Built by |
 |---|---|---|---|
 | grouped results, filtered tree | **0.1** | ST-0013 | Epic 10 |
-| search box — keeps the words searched; the note *Searched in titles of documents and of their appendices, not in text.* | **0.1** | ST-0013 | Epic 10 |
+| search box — keeps the words searched; the note *Searches the titles of documents and their appendices — not the text.* | **0.1** | ST-0013 | Epic 10 |
 | filter by type — as on the document list; alone it lists every document of the type the user may open, with words it narrows them | **0.1** | ST-0013 | Epic 10 |
 | nothing found — *No documents here.* | **0.1** | ST-0013 | Epic 10 |
 

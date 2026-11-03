@@ -208,7 +208,8 @@ def member(request: HttpRequest, membership_id: uuid.UUID) -> HttpResponse:
 @login_required
 def member_groups(request: HttpRequest, membership_id: uuid.UUID) -> HttpResponse:
     """*Add* or *Remove* one group from the member's page, as the groups page's *members…* does:
-    a blocked membership may be taken out of a group and joins none (DL-0505)."""
+    a blocked membership may be taken out of a group and joins none (DL-0505). Under htmx the
+    answer is the member's whole section, so the rights beside the groups are redrawn with them."""
     from access.forms import GroupChoiceForm
 
     if request.method != "POST":
@@ -231,7 +232,7 @@ def member_groups(request: HttpRequest, membership_id: uuid.UUID) -> HttpRespons
         group.add_member(membership, by=actor)
     context = _member_context(request, membership)
     if getattr(request, "htmx", False):
-        return render(request, "identity/member_groups.html", context)
+        return render(request, "identity/member_detail.html", context)
     return render(request, "identity/member.html", context)
 
 

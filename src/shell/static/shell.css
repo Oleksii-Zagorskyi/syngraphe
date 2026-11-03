@@ -238,6 +238,7 @@ input[type=email],input[name=reason]{min-width:min(100%,24em)}
 .document-text tr.by::after{content:attr(data-author);display:table-cell;border:0;padding:0 0 0 8px;vertical-align:top;white-space:nowrap;font-size:11px;color:var(--muted)}
 /* The checkbox is the names' column's title. */
 .pending>.show-author{float:right;width:calc(8.5rem + 32px);margin:0 0 6px 12px}
+.centre>.show-author{width:calc(8.5rem + 32px);margin:0 0 6px auto}
 .show-author-title{font-size:12px;color:var(--muted)}
 .show-author-title input{vertical-align:middle;margin:0 4px 0 0}
 .format-changed{background:var(--mark);cursor:pointer}

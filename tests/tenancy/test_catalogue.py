@@ -26,7 +26,10 @@ def test_catalogue_covers_the_settings_page(member_of: Any, settings: Any) -> No
     admin, _, _ = member_of("t.synthetic@example.test", is_tenant_admin=True)
     ids = _review.message_ids(_review.CATALOGUE.read_text(encoding="utf-8"))
     page = "/administration/tenant/settings/"
+    saved = admin.post(page, {"attachment_max_mb": "6", "hold_inactivity_minutes": "30"})
+    assert saved.status_code == 303, saved.status_code
     bodies = {
+        "applied": admin.get(saved["Location"]).content.decode(),
         "as stored": admin.get(page).content.decode(),
         "under the bounds": admin.post(
             page, {"attachment_max_mb": "0", "hold_inactivity_minutes": "4"}
@@ -36,6 +39,7 @@ def test_catalogue_covers_the_settings_page(member_of: Any, settings: Any) -> No
         ).content.decode(),
         "the frame": admin.get("/administration/", follow=True).content.decode(),
     }
+    assert 'role="status"' in bodies["applied"] and "Застосовано" in bodies["applied"]
     # The bounds are format strings, whose ids never match the page as drawn.
     own = [
         "Attachment size cap",
@@ -45,6 +49,8 @@ def test_catalogue_covers_the_settings_page(member_of: Any, settings: Any) -> No
         "From 5 to",
     ]
     for name, body in bodies.items():
+        # An empty body leaks nothing: each is read only once it is a page.
+        assert "<html" in body, name
         shown = _review.text_of(body)
         leaked = [message for message in [*ids, *own] if message in shown]
         assert leaked == [], (name, leaked)

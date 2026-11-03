@@ -1,7 +1,7 @@
-"""Making canonical (ST-0039, DL-0183, DL-0234, DL-0260, DL-0267): refused until the document is
-frozen and every content version since the latest acceptance is accepted; then the approval is a
+"""Making canonical (ST-0039, DL-0183, DL-0234, DL-0260, DL-0267, DL-0515): refused until every
+content version since the latest acceptance is accepted, frozen or not; then the approval is a
 passport commit of kind `approval`, tagged with the edition's number by the approver, recorded as
-an `EDITION`, the freeze ended and the act audited; the numbering continues from the edition.
+an `EDITION`, an open freeze ended and the act audited; the numbering continues from the edition.
 
 People and groups are synthetic examples; the text is invented.
 """

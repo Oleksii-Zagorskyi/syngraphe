@@ -11,4 +11,4 @@ On the administrative tab, *Mark all as read* marks every entry read; an adminis
 
 **By email.** Each notification — but one about an email that failed — is also sent as an email when your organisation or the platform has a sending address; the email holds what the entry holds, and its link opens the entry itself, marking it read. Without an address, notifications stay in the platform alone.
 
-**The menu's views.** *In review* lists the documents awaiting review that you may accept, frozen ones included; a returned one leaves it until a version is sent after the return; *In edit* those you may edit whose text has moved beyond their latest edition. Each is shown only to someone who may accept, or edit, some document, and is drawn dimmed while it is empty.
+**The menu's views.** *In review* lists the documents awaiting review that you may accept, frozen ones included; a returned one leaves it until a version is sent after the return; *Being edited* those you may edit whose text has moved beyond their latest edition. Each is shown only to someone who may accept, or edit, some document, and is drawn dimmed while it is empty.

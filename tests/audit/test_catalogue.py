@@ -56,6 +56,8 @@ def test_catalogue_covers_the_audit_log(
     # The format string, whose id never matches the page as drawn; the actors' kinds.
     own = ["The newest", "events matching", "person", "the platform"]
     for name, body in bodies.items():
+        # An empty body leaks nothing: each is read only once it is a page.
+        assert "<html" in body, name
         shown = _review.text_of(body)
         leaked = [message for message in [*ids, *own] if message in shown]
         assert leaked == [], (name, leaked)

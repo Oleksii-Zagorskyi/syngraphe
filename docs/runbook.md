@@ -108,7 +108,7 @@ The command prints `document M · freeze ended`; the freeze ends as *unfrozen*, 
 
 ### The default language
 
-`DEFAULT_LANGUAGE` in `.env` is the installation's interface language, `uk` or `en`: the language of every page before sign-in but a reset or invitation page opened from its link, of every person who has not chosen their own on *My account*, and always of an invitation and of the sender's test email. Any other value is refused by `web` and `worker` as a configuration error, naming the key; `$C up -d web worker` applies a change.
+`DEFAULT_LANGUAGE` in `.env` is the installation's interface language, `uk` or `en`: the language of every page before sign-in but a reset or invitation page opened from its link, of every person who has not chosen their own on *My account*, and always of an invitation and of the sender's test email. Any other value is refused by `web`, `worker` and `render` as a configuration error, naming the key; `$C up -d web worker render` applies a change.
 
 ### The upload maximum
 
