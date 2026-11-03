@@ -6,7 +6,6 @@ holder's alone, for an editor of the holder's own draft."""
 from __future__ import annotations
 
 import json
-import re
 from datetime import timedelta
 from typing import Any, cast
 
@@ -18,7 +17,7 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 
 from documents.locks import LockTimeout, document_lock
-from editing import holds, sections
+from editing import holds
 from editing.markdown import load_spec
 from editing.models import Draft, Hold, OpenEditor
 from editing.views.draft import range_hash
@@ -35,7 +34,6 @@ SILENT_AFTER = timedelta(minutes=3)
 # then answers busy, which the editor retries.
 CAPTURE_LOCK_SECONDS = 5
 # Two line endings in a row at a text's end: the blank line before the next heading.
-BLANK_LINE_AT_END = re.compile(r"(?:\r\n|\r|\n){2}$")
 
 
 def _payload(request: HttpRequest) -> dict[str, Any]:
@@ -163,7 +161,6 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
     """The capture itself; with `close`, the editor closed in the same write — what a closing
     page sends, since it never reads an answer before sending its close."""
     now = timezone.now()
-    gone = renumbered = False
     with transaction.atomic():
         draft = Draft.objects.select_for_update().filter(pk=editor.draft_id).first()
         locked = OpenEditor.objects.select_for_update().filter(pk=editor.pk).first()
@@ -177,55 +174,27 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
         if text is None:
             return _gone(locked, now)
         whole: str = text
-        span = sections.span_of(locked.range)
-        found = sections.extent(whole, *span) if span is not None else None
-        if span is not None and found is None:
-            # The headings this editor spans are gone — removed by another editor's text.
-            return _stale(locked, now, close)
-        current_text = sections.section_text(whole, found) if found is not None else whole
-        stored = _kept_apart(body, current_text) if found is not None else body
-        current, new = range_hash(current_text), range_hash(stored)
+        current, new = range_hash(whole), range_hash(body)
         # The same text again — a retry whose first answer was lost, or the flush a closing page
         # repeats — is accepted as it stands, whatever base the editor sent.
-        if current != new:
+        wrote = current != new
+        if wrote:
             if current != base or locked.base_hash != base:
                 return _stale(locked, now, close)
-            changed = sections.splice(whole, found, stored) if found is not None else stored
-            # Each section is within the size allowed; the draft its capture leaves must be too.
-            if len(changed.encode("utf-8")) > load_spec().max_bytes:
+            if len(body.encode("utf-8")) > load_spec().max_bytes:
                 return JsonResponse({"too_large": True}, status=413)
-            draft.content = {**draft.content, locked.file: changed}
+            draft.content = {**draft.content, locked.file: body}
             draft.save(update_fields=["content", "updated_at"])
             Hold.objects.filter(pk=hold.pk).update(last_activity_at=now)
-            if span is not None:
-                moved = sections.shift(whole, changed, span[0])
-                _renumber(locked, span, moved)
-                # The page's other *edit* buttons read the sections it drew before this capture:
-                # a heading added, removed or moved to another level changes them.
-                renumbered = moved != 0 or [r.level for r in sections.ranges(whole)] != [
-                    r.level for r in sections.ranges(changed)
-                ]
-                if not _leads_with_a_heading(stored):
-                    # Its own heading is gone: it names no section now, and must not name the
-                    # next one. Its text is captured; the editor closes, and the tab says so.
-                    close = True
-                    gone = True
         locked.base_hash = new
         locked.last_seen_at = now
         if close:
             locked.closed_at = now
-        locked.save(update_fields=["range", "base_hash", "last_seen_at", "closed_at"])
-    answer: dict[str, Any] = {"base_hash": new}
-    if renumbered:
-        answer["sections_changed"] = True
-    if gone:
-        answer["closed"] = True
-    return JsonResponse(answer)
-
-
-def _leads_with_a_heading(text: str) -> bool:
-    found = sections.ranges(text)
-    return bool(found) and found[0].start == 0
+        locked.save(update_fields=["base_hash", "last_seen_at", "closed_at"])
+    # `edited` when this capture wrote text: the editor keeps it as its own dirty flag, on which
+    # *My edits* is offered (DL-0518). Comparing the whole draft with the head on every capture
+    # held the lock too long on a long text; the page and the release read `has_edits` instead.
+    return JsonResponse({"base_hash": new, "edited": wrote})
 
 
 def _stale(locked: OpenEditor, now: Any, close: bool) -> HttpResponse:
@@ -235,35 +204,6 @@ def _stale(locked: OpenEditor, now: Any, close: bool) -> HttpResponse:
         locked.closed_at = now
         locked.save(update_fields=["closed_at"])
     return JsonResponse({"stale": True}, status=409)
-
-
-def _kept_apart(text: str, current: str) -> str:
-    """A section's captured text, the blank line that parted it from the next heading kept: the
-    editor's serialiser ends a text with one newline, and the section's lines end with two."""
-    ending = BLANK_LINE_AT_END.search(current)
-    if ending and text and not BLANK_LINE_AT_END.search(text):
-        return text.rstrip("\r\n") + ending.group(0)
-    return text
-
-
-def _renumber(editor: OpenEditor, span: tuple[int, int], shift: int) -> None:
-    """After a splice that added or removed `shift` headings inside `editor`'s span, in the same
-    write: its own span counts them, and every other open editor of the same file whose ordinal
-    lies after it still names its heading (ADR-0006)."""
-    if not shift:
-        return
-    ordinal, count = span
-    editor.range = sections.span_name(ordinal, max(1, count + shift))
-    others = (
-        OpenEditor.objects.select_for_update()
-        .filter(draft_id=editor.draft_id, file=editor.file, closed_at__isnull=True)
-        .exclude(pk=editor.pk)
-    )
-    for other in others:
-        found = sections.span_of(other.range)
-        if found is not None and found[0] > ordinal:
-            other.range = sections.span_name(found[0] + shift, found[1])
-            other.save(update_fields=["range"])
 
 
 @never_cache
@@ -332,11 +272,9 @@ def settings_for_the_editor() -> dict[str, float]:
 @never_cache
 @login_required
 def changes(request: HttpRequest, number: int) -> HttpResponse:
-    """What a stopped editor shows (ADR-0006): the person's unsaved text as changes against its
-    range of the draft as it now stands, to carry over by hand, and the way to open the range
-    again; the editor's own holder alone. The text is shown as typed where the whitelist refuses
-    it, where its lines are gone, and with `alone` — an editor the server closed when its capture
-    removed its own heading, whose ordinal names another section now."""
+    """What a stopped editor shows (ADR-0006): the person's unsaved text as changes against the
+    draft as it now stands, to carry over by hand, and the way to open the editor again; the
+    editor's own holder alone. The text is shown as typed where the whitelist refuses it."""
     from django.shortcuts import render
     from django.utils.safestring import mark_safe
 
@@ -364,17 +302,8 @@ def changes(request: HttpRequest, number: int) -> HttpResponse:
                 return _gone(editor, timezone.now())
     except LockTimeout:
         return JsonResponse({"busy": True}, status=503)
-    whole: str = text
-    span = sections.span_of(editor.range)
-    found_range = sections.extent(whole, *span) if span is not None else None
+    current: str = text
     context: dict[str, Any] = {"number": number}
-    if (span is not None and found_range is None) or _payload(request).get("alone") is True:
-        # Its lines are gone from the draft, or its heading went in a capture that closed it: the
-        # text alone, nothing to compare it with.
-        context["typed"] = body
-        html = render(request, "editing/stopped_editor.html", context).content.decode("utf-8")
-        return JsonResponse({"html": html})
-    current = sections.section_text(whole, found_range) if found_range is not None else whole
     if validate(body) or validate(current):
         context["typed"] = body
     else:

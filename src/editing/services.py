@@ -456,6 +456,16 @@ def holds_later_work(draft: Draft, repo: pygit2.Repository, commit: str, lists: 
         return True
 
 
+def has_edits(hold: Hold) -> bool:
+    """Whether the hold's draft holds anything the head does not — captured text, a part
+    operation, a title page change: *no edits* is its negation (DL-0510). The head read once, the
+    lists once, as `holds_later_work` compares them."""
+    document = hold.document
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    head = gitstore.head(repo) or hold.draft.base_commit
+    return holds_later_work(hold.draft, repo, head, _lists(document))
+
+
 def draft_text(hold: Hold) -> tuple[str, str, str]:
     """The head's sha and body, and the draft normalised against it — the text *my edits* shows
     and exports; `DraftRefused` for a draft the whitelist refuses, `MissingImages` for one that

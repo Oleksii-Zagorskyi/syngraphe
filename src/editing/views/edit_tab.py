@@ -125,6 +125,11 @@ def tab_response(
         return render(request, "editing/held_by_other.html", context)
     # The discard's sentence says a reservation ends with the draft (DL-0237).
     context["reserved"] = holding and hold is not None and hold.reserved_at is not None
+    # Whether the draft differs from the head yet: *My edits* waits for the first edit.
+    if holding and hold is not None:
+        from editing.services import has_edits
+
+        context["edited"] = has_edits(hold)
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     from editing.views.parts import panel
     from identity.views.preferences import PANEL_WIDTH, PANEL_WIDTH_MAX, PANEL_WIDTH_MIN
@@ -137,6 +142,14 @@ def tab_response(
         request, "panel_width", PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX
     )
     context["panel_bounds"] = (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX)
+    # The outline beside the editor, as on a version's page (DL-0518): the draft's headings, or
+    # the head's before the hold.
+    from rendering.outline import outline
+    from rendering.renderer import labelled
+    from rendering.views import panes
+
+    context |= {k: v for k, v in panes(request).items() if k.startswith("outline")}
+    context["headings"] = outline(labelled(_outline_text(document, hold if holding else None)))
     if holding and hold is not None:
         # What an undo left for the holder's hand, beside the text and never in it (DL-0380).
         context["undo"] = hold.draft.content.get("undo")
@@ -151,6 +164,23 @@ def tab_response(
     )
     context |= extra or {}
     return render(request, "editing/edit_tab.html", context, status=status)
+
+
+def _outline_text(document: Document, hold: Any) -> str:
+    """The text the outline beside the editor reads: the holder's draft, or the head's before the
+    hold; empty where there is none, or the whitelist refuses it."""
+    from documents import gitstore
+    from editing.markdown.validator import validate
+
+    if hold is not None:
+        body: str = hold.draft.content[holds.BODY]
+    else:
+        repo = gitstore.open_repository(holds.tenant_number(), document.number)
+        head = gitstore.head(repo)
+        if head is None:
+            return ""
+        _, body = holds.split(gitstore.read(repo, holds.BODY, head).decode("utf-8"))
+    return "" if validate(body) else body
 
 
 def _draft_view(document: Document, hold: Any, user: Any) -> Any:

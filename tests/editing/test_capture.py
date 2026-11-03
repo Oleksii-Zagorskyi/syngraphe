@@ -338,8 +338,9 @@ def sectioned(migrated_tenant: Any, member_of: Any, new_document: Any) -> tuple[
     return client, document
 
 
-def section(client: Any, document: Any, ordinal: int) -> dict[str, Any]:
-    response = post(client, document, "load", range=f"section:{ordinal}")
+def whole(client: Any, document: Any) -> dict[str, Any]:
+    """A tab's whole editor on the draft."""
+    response = post(client, document, "load", range="whole")
     assert response.status_code == 200, response.content
     loaded: dict[str, Any] = response.json()
     return loaded
@@ -353,39 +354,13 @@ def draft_body(tenant: Any, document: Any) -> str:
     return body
 
 
-def test_disjoint_ranges_both_capture(
+def test_a_second_tabs_capture_is_stale(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
-    """Editors over two sections never conflict (DL-0167): each capture lands in its own range."""
+    """Two tabs, each with the whole editor: the second to capture finds the text changed under
+    it, and its text is not written (ADR-0006)."""
     client, document = sectioned(migrated_tenant, member_of, new_document)
-    first, second = section(client, document, 0), section(client, document, 1)
-    assert first["body"].startswith("# First section")
-    assert second["body"].startswith("# Second section")
-    one = first["body"].replace("Lead sentence of the first", "New sentence of the first")
-    two = second["body"].replace("Lead sentence of the second", "New sentence of the second")
-    answered = [send(client, document, first, one), send(client, document, second, two)]
-    assert [a.status_code for a in answered] == [200, 200]
-    body = draft_body(migrated_tenant, document)
-    assert "New sentence of the first" in body and "New sentence of the second" in body
-    assert body.startswith("An introductory sentence.\n\n# First section")
-    assert "Lead sentence of the third section." in body
-    with schema_context(migrated_tenant.number):
-        from editing.models import OpenEditor
-
-        assert (
-            OpenEditor.objects.get(pk=first["editor"]).base_hash == answered[0].json()["base_hash"]
-        )
-        assert (
-            OpenEditor.objects.get(pk=second["editor"]).base_hash == answered[1].json()["base_hash"]
-        )
-
-
-def test_same_range_second_is_stale(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """Two editors on one section: the second to capture finds its range changed (DL-0167)."""
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    first, second = section(client, document, 1), section(client, document, 1)
+    first, second = whole(client, document), whole(client, document)
     assert send(client, document, first, first["body"] + "\nAddition one.\n").status_code == 200
     late = send(client, document, second, second["body"] + "\nAddition two.\n")
     assert late.status_code == 409 and late.json() == {"stale": True}
@@ -393,107 +368,15 @@ def test_same_range_second_is_stale(
     assert "Addition one." in body and "Addition two." not in body
 
 
-def test_a_later_section_captures_after_an_earlier_one_grew(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """An editor names its section by the heading's ordinal; when an earlier section grows by ten
-    sentences and gains a heading, the later editor is renumbered in the same write and still lands
-    in its own section."""
-    from editing.models import OpenEditor
-
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    first, third = section(client, document, 0), section(client, document, 2)
-    grown = first["body"] + "".join(f"\nAn additional sentence {n}.\n" for n in range(10))
-    answered = send(client, document, first, grown)
-    assert answered.status_code == 200
-    first = {**first, "base_hash": answered.json()["base_hash"]}
-    with_heading = grown + "\n# New section\n\nA sentence of the new section.\n"
-    assert send(client, document, first, with_heading).status_code == 200
-    with schema_context(migrated_tenant.number):
-        assert OpenEditor.objects.get(pk=third["editor"]).range == "section:3"
-    changed = third["body"].replace("Lead sentence of the third", "New sentence of the third")
-    assert send(client, document, third, changed).status_code == 200
-    body = draft_body(migrated_tenant, document)
-    assert "An additional sentence 9." in body and "# New section" in body
-    assert "New sentence of the third section." in body
-    assert body.index("# New section") < body.index("# Second section")
-    assert body.rstrip().endswith("New sentence of the third section.")
-
-
-ADJACENT = "# First section\n\nThe first sentence.\n\n# Second section\n\nThe second sentence.\n"
-
-
-def test_a_section_keeps_the_blank_line_before_the_next(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """The editor sends its text with one final newline; the blank line that parted the section
-    from the next heading stays."""
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    from editing.models import Draft
-
-    with schema_context(migrated_tenant.number):
-        draft = Draft.objects.get(hold__document=document)
-        draft.content = {**draft.content, "document.md": ADJACENT}
-        draft.save()
-    first = section(client, document, 0)
-    sent = "# First section\n\nAn altered sentence.\n"
-    assert send(client, document, first, sent).status_code == 200
-    assert draft_body(migrated_tenant, document) == ADJACENT.replace(
-        "The first sentence.", "An altered sentence."
-    )
-
-
-def test_a_typed_heading_keeps_the_editor_whole(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """A heading typed into a section editor does not split it (DL-0167): its span counts the new
-    heading, and its next capture lands over both."""
-    from editing.models import OpenEditor
-
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    editor = section(client, document, 1)
-    grown = editor["body"] + "\n# Inserted section\n\nA sentence.\n\n"
-    answered = send(client, document, editor, grown)
-    assert answered.status_code == 200
-    with schema_context(migrated_tenant.number):
-        assert OpenEditor.objects.get(pk=editor["editor"]).range == "section:1:2"
-    editor = {**editor, "base_hash": answered.json()["base_hash"]}
-    again = grown.replace("Inserted", "Renamed")
-    assert send(client, document, editor, again).status_code == 200
-    body = draft_body(migrated_tenant, document)
-    assert "# Renamed section" in body and "# Inserted section" not in body
-    assert body.index("# Renamed section") < body.index("# Third section")
-
-
-def test_an_editor_that_removes_its_own_heading_is_closed(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """Its text is captured, and the editor closed in the same write: it no longer names a
-    section, and must not name the next one."""
-    from editing.models import OpenEditor
-
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    second, third = section(client, document, 1), section(client, document, 2)
-    headless = second["body"].replace("# Second section\n\n", "")
-    answered = send(client, document, second, headless)
-    assert answered.status_code == 200 and answered.json().get("closed") is True
-    assert "Lead sentence of the second section." in draft_body(migrated_tenant, document)
-    with schema_context(migrated_tenant.number):
-        assert OpenEditor.objects.get(pk=second["editor"]).closed_at is not None
-        assert OpenEditor.objects.get(pk=third["editor"]).range == "section:1"
-    changed = third["body"].replace("Lead sentence of the third", "New sentence of the third")
-    assert send(client, document, third, changed).status_code == 200
-
-
 def test_changes_shows_the_stopped_text_to_its_holder_alone(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
-    """The stopped editor's view: its text as changes against its range now; refused for another
+    """The stopped editor's view: its text as changes against the draft now; refused for another
     person, a text no draft can hold, or one over the size allowed."""
     from editing.markdown import load_spec
 
     client, document = sectioned(migrated_tenant, member_of, new_document)
-    editor = section(client, document, 0)
+    editor = whole(client, document)
     answer = post(
         client, document, "changes", editor=editor["editor"], body=editor["body"] + "New.\n"
     )
@@ -509,56 +392,20 @@ def test_changes_shows_the_stopped_text_to_its_holder_alone(
     )
 
 
-def test_changes_shows_the_text_alone_once_its_heading_went(
+def test_the_answer_says_whether_the_draft_has_edits(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
-    """An editor the server closed because its capture removed its own heading still names an
-    ordinal, now another section's: with `alone`, its later text is shown as typed and compared
-    with nothing."""
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    second = section(client, document, 1)
-    headless = second["body"].replace("# Second section\n\n", "")
-    assert send(client, document, second, headless).json().get("closed") is True
-    later = headless + "Typed later.\n"
-    shown = post(client, document, "changes", editor=second["editor"], body=later, alone=True)
-    assert shown.status_code == 200
-    html = shown.json()["html"]
-    assert "Typed later." in html and "<ins" not in html and "Third section" not in html
-    # The sentence says what is shown: the text as typed, not changes.
-    assert "як зміни" not in html and "так, як ви його набрали" in html
+    """The capture's answer carries `edited`: true when this capture wrote text into the draft,
+    false when it brought nothing new — the editor's own flag, on which *My edits* is offered;
+    whether the draft differs from the head is the page's and the release's to read."""
+    client, document, loaded = opened(member_of, new_document)
+    same = send(client, document, loaded, loaded["body"])
+    changed = send(client, document, loaded, loaded["body"] + "\nA new sentence.\n")
+    loaded["base_hash"] = changed.json()["base_hash"]
+    back = send(client, document, loaded, loaded["body"])
 
-
-def test_section_captures_keep_the_draft_within_its_size(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """Each section's text is within the size allowed, and so must be the draft its capture
-    leaves: one that would grow the draft past it is refused as too large, the draft as it was."""
-    from editing.markdown import load_spec
-
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    first, second = section(client, document, 0), section(client, document, 1)
-    filler = "word " * (load_spec().max_bytes * 6 // 10 // len(b"word "))
-    assert send(client, document, first, first["body"] + filler + "\n").status_code == 200
-    before = draft_body(migrated_tenant, document)
-    refused = send(client, document, second, second["body"] + filler + "\n")
-    assert refused.status_code == 413 and refused.json() == {"too_large": True}
-    assert draft_body(migrated_tenant, document) == before
-    assert len(before.encode()) <= load_spec().max_bytes
-
-
-def test_a_heading_level_changed_tells_the_page(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """A subsection raised to a section changes the spans though not their number: the page is told
-    its sections changed."""
-    from editing.models import Draft
-
-    client, document = sectioned(migrated_tenant, member_of, new_document)
-    with schema_context(migrated_tenant.number):
-        draft = Draft.objects.get(hold__document=document)
-        body = "# A\n\nA sentence.\n\n## B\n\nA sentence.\n\n# C\n\nA sentence.\n"
-        draft.content = {**draft.content, "document.md": body}
-        draft.save()
-    editor = section(client, document, 1)
-    answered = send(client, document, editor, editor["body"].replace("## B", "# B"))
-    assert answered.status_code == 200 and answered.json().get("sections_changed") is True
+    assert same.status_code == changed.status_code == back.status_code == 200
+    again = send(
+        client, document, {**loaded, "base_hash": back.json()["base_hash"]}, loaded["body"]
+    )
+    assert [r.json()["edited"] for r in (same, changed, back, again)] == [False, True, True, False]

@@ -59,7 +59,6 @@ def test_end_to_end(
     page.goto(f"{browser_server}/document/{document.number}/pending/")
     page.click("a[data-command=correct]")
     page.wait_for_url(f"**/document/{document.number}/edit/")
-    page.click("button[data-command=edit-whole]")
     page.wait_for_function(f"() => {EDITOR} !== undefined && {EDITOR}.view !== undefined")
     assert "your changes become a version of your own" in (page.text_content(".correcting") or "")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
@@ -103,7 +102,6 @@ def test_enter_in_the_summary_accepts_nothing(
     session = client.cookies["sessionid"].value
     page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
     page.goto(f"{browser_server}/document/{document.number}/edit/")
-    page.click("button[data-command=edit-whole]")
     page.wait_for_function(f"() => {EDITOR} !== undefined && {EDITOR}.view !== undefined")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")

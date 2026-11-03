@@ -89,26 +89,25 @@ def test_editors_open_on_the_appendix_file(
     from editing.models import OpenEditor
 
     client, _, document = setup(member_of, new_document, link_group, commit_version)
-    assert load(client, document, "section:0").status_code == 200
+    assert load(client, document, "whole").status_code == 200
     whole = load(client, document, "whole", appendix=2)
     assert whole.status_code == 200, whole.content
     assert whole.json()["body"] == APPENDIX
     with schema_context(migrated_tenant.number):
         editor = OpenEditor.objects.get(pk=whole.json()["editor"])
         assert editor.file == "appendices/2.md"
-    post(client, f"/document/{document.number}/edit/close/", {"editor": whole.json()["editor"]})
-    section = load(client, document, "section:1", appendix=2)
-    assert section.status_code == 200, section.content
-    assert section.json()["body"].startswith("## Thresholds")
-    assert load(client, document, "whole", appendix=2).status_code == 409
+    # Only the whole appendix opens (DL-0517).
+    assert load(client, document, "section:1", appendix=2).status_code == 404
 
 
 def test_captures_land_in_the_appendix(
     migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
 ) -> None:
     client, _, document = setup(member_of, new_document, link_group, commit_version)
-    opened = load(client, document, "section:1", appendix=2).json()
-    typed = "## Thresholds\n\nThe threshold sentence, revised.\n\n"
+    opened = load(client, document, "whole", appendix=2).json()
+    typed = APPENDIX.replace(
+        "## Thresholds\n", "## Thresholds\n\nThe threshold sentence, revised.\n"
+    )
     answer = post(
         client,
         f"/document/{document.number}/edit/capture/",
@@ -121,7 +120,7 @@ def test_captures_land_in_the_appendix(
     shown = post(
         client,
         f"/document/{document.number}/edit/changes/",
-        {"editor": opened["editor"], "body": "## Thresholds\n\nAnother wording.\n"},
+        {"editor": opened["editor"], "body": APPENDIX + "\nAnother wording.\n"},
     )
     assert shown.status_code == 200
     assert "Another wording." in shown.json()["html"]
@@ -166,19 +165,6 @@ def test_an_unlisted_appendix_takes_no_capture(
         assert OpenEditor.objects.get(pk=opened["editor"]).closed_at is not None
     again = load(client, document, "whole", appendix=2)
     assert again.status_code == 409 and again.json() == {"closed": True}
-
-
-def test_the_section_cap_spans_files(
-    migrated_tenant: Any, member_of: Any, new_document: Any, link_group: Any, commit_version: Any
-) -> None:
-    client, _, document = setup(member_of, new_document, link_group, commit_version)
-    for ordinal in range(3):
-        assert load(client, document, f"section:{ordinal}").status_code == 200
-    for ordinal in (1, 2):
-        assert load(client, document, f"section:{ordinal}", appendix=2).status_code == 200
-    sixth = load(client, document, "section:3")
-    assert sixth.status_code == 409 and sixth.json() == {"too_many": True}
-    assert load(client, document, "whole", appendix=1).status_code == 200
 
 
 def test_a_draft_only_appendix_has_an_edit_tab(

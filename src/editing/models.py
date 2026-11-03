@@ -131,10 +131,10 @@ class DraftFile(models.Model):
 
 
 class OpenEditor(models.Model):
-    """An editor open on a range of the draft, known by its heartbeat; open while `closed_at` is
-    null. Its captures are taken only while the range still hashes to `base_hash`. `range` is
-    `whole`, or a section editor's span by its heading's ordinal — `section:<n>`, or
-    `section:<n>:<count>` when its text holds more headings than its own (`editing.sections`)."""
+    """An editor open on the draft, known by its heartbeat; open while `closed_at` is null. Its
+    captures are taken only while the text still hashes to `base_hash`. `range` is always
+    `whole`: an editor opens on the whole text (DL-0517); the column stays so the rows written
+    before are read as they stand, and dropping it would be a migration for nothing."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     draft = models.ForeignKey(Draft, on_delete=models.CASCADE, related_name="editors")

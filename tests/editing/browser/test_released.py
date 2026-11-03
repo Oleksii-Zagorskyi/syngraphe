@@ -1,6 +1,6 @@
 """A hold released while its tab is open, in Chromium (ADR-0006, DL-0225): an open editor says its
-editing was ended and leads back to the tab; a tab with no editor open is drawn again on its next
-*Edit*, showing the kept draft. Invented text."""
+editing was ended and leads back to the tab; a hold released before the editor opens draws the page
+again, showing the kept draft. Invented text."""
 
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ def test_an_open_editor_is_told_its_editing_was_ended(
     assert page.evaluate(f"{EDITOR}.view.editable") is False
 
 
-def test_a_tab_with_no_editor_is_drawn_again_on_edit(
+def test_a_hold_released_before_the_editor_opens_draws_the_kept_draft(
     browser_server: str,
     page: Any,
     migrated_tenant: Any,
@@ -56,16 +56,29 @@ def test_a_tab_with_no_editor_is_drawn_again_on_edit(
     new_document: Any,
     settings: Any,
 ) -> None:
+    """The hold forced free between the take and the editor's load, the draft holding an edit:
+    the load finds no hold, and the page drawn again offers the kept draft."""
+    import re
+
+    from editing.models import Draft
+
     settings.LANGUAGE_CODE = "en"
     client, author, _ = member_of("the.author@example.test")
     document = new_document(author)
     session = client.cookies["sessionid"].value
     page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
+
+    def released_first(route: Any) -> None:
+        with schema_context(migrated_tenant.number):
+            draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+            body = draft.content["document.md"] + "\nA synthetic sentence.\n"
+            draft.content = {**draft.content, "document.md": body}
+            draft.save()
+        force(migrated_tenant, document)
+        route.continue_()
+
+    page.route(re.compile(rf".*/document/{document.number}/edit/load/$"), released_first)
     page.goto(f"{browser_server}/document/{document.number}/edit/")
-    page.wait_for_function("() => document.getElementById('editor').offered !== undefined")
-    force(migrated_tenant, document)
-    with page.expect_navigation():
-        page.click("button[data-command=edit-whole]")
     page.wait_for_selector(".band.end")
     assert "Take the document back" in (page.text_content("body") or "")
     page.wait_for_load_state("networkidle")

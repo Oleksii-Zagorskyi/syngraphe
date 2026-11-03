@@ -86,7 +86,6 @@ def test_a_part_operation_keeps_the_typed_text(
 
     settings.LANGUAGE_CODE = "en"
     document = opened(browser_server, page, member_of, new_document, link_group)
-    page.click("button[data-command=edit-whole]")
     page.wait_for_function(f"() => {EDITOR} !== undefined")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")

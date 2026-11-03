@@ -12,21 +12,17 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy
 from django.views.decorators.cache import never_cache
 
 from access.rights import Right, rights_on_many
 from documents import bundle, gitstore
 from documents.models import Document
 from documents.parts import appendices
-from editing import holds, messages, parts
+from editing import holds, messages, parts, services
 from editing.views import draft as draft_views
 from editing.views import edit_tab
 from identity.models import User
 from shell.views import not_found
-
-# The whole editor's control, named for what it opens here.
-EDIT_WHOLE = gettext_lazy("Edit the whole appendix")
 
 
 def _head(document: Document) -> tuple[Any, str] | None:
@@ -102,7 +98,6 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
     shown = visible(user, document)
     own = request.headers.get("Sec-Fetch-Site") in ("same-origin", "none")
     words = messages.for_the_editor()
-    words["labels"] = {**words["labels"], "edit_whole": str(EDIT_WHOLE)}
     from documents.path import frame
 
     taking = own and not holding
@@ -131,6 +126,10 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
         "headings": outline(labelled(text)),
         "draft_view": _rendered(document, user, text, images),
         "load_path": f"/document/{document.number}/appendix/{part}/edit/load/",
+        "edited": holding and hold is not None and services.has_edits(hold),
+        # The discard's sentence says a reservation ends with the draft, as on the document's
+        # page (DL-0237).
+        "reserved": holding and hold is not None and hold.reserved_at is not None,
         "words": {**words, "capture": settings_for_the_editor()},
         "parts_panel": panel(document, user, hold if holding else None),
         **panes(request),

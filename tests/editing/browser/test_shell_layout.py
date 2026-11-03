@@ -285,3 +285,46 @@ def test_the_settings_page_runs_under_the_policy(
     assert page.locator("#tenant-settings .err").count() == 0
     _policy._assert_headers(documents)
     _policy._assert_nothing_refused(violations, console)
+
+
+def test_the_editor_is_as_wide_as_the_text(
+    browser_server: str, page: Any, editing: Any, migrated_tenant: Any
+) -> None:
+    """The editor's column on the draft's page and the text's on the version's page measure the
+    same at one window width (DL-0513)."""
+    document = editing("A synthetic sentence.\n")
+    editor = page.evaluate(
+        "() => document.querySelector('.panes.edit-panes > .centre').getBoundingClientRect().width"
+    )
+    page.goto(f"{browser_server}/document/{document.number}/", wait_until="load")
+    text = page.evaluate(
+        "() => document.querySelector('.panes > .centre').getBoundingClientRect().width"
+    )
+
+    assert abs(editor - text) < 1, (editor, text)
+
+
+def test_the_text_keeps_its_column_before_the_take(
+    browser_server: str, page: Any, member_of: Any, new_document: Any
+) -> None:
+    """A draft's page reached from elsewhere waits on *Start editing* with no parts panel yet: the
+    text keeps its column beside the outline, never the outline's edge track."""
+    import re
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    _sign_in(page, browser_server, client)
+
+    def as_from_elsewhere(route: Any) -> None:
+        response = route.fetch()
+        body = response.text().replace('data-take-on-mount="true"', 'data-take-on-mount="false"')
+        route.fulfill(response=response, body=body)
+
+    page.route(re.compile(rf".*/document/{document.number}/edit/$"), as_from_elsewhere)
+    page.goto(f"{browser_server}/document/{document.number}/edit/")
+    page.wait_for_selector("button[data-command=start]")
+    width = page.evaluate(
+        "() => document.querySelector('.panes.edit-panes > .centre').getBoundingClientRect().width"
+    )
+
+    assert width > 300, width

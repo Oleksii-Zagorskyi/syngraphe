@@ -178,22 +178,19 @@ def test_another_tenants_editing_is_not_found(
         assert OpenEditor.objects.get(pk=loaded["editor"]).closed_at is None
 
 
-def test_whole_and_section_editors_exclude_each_other(
+def test_only_the_whole_document_is_opened(
     migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> None:
-    """The whole-document editor cannot be opened while a section editor is, nor the reverse
-    (DL-0167); a section that does not exist cannot be opened."""
+    """Editing opens the whole document's editor and nothing else (DL-0517): a range other than
+    `whole` is no range. Each of the holder's tabs opens its own editor, as before; past the most
+    open at once the oldest are closed, and capture settles which text is stale (ADR-0006)."""
     import json
 
-    from editing.models import Draft
+    from editing.models import OpenEditor
 
     client, author, _ = member_of("the.author@example.test")
     document = new_document(author)
     client.post(f"/document/{document.number}/edit/take/")
-    with schema_context(migrated_tenant.number):
-        draft = Draft.objects.get(hold__document=document)
-        draft.content = {**draft.content, "document.md": "# Section\n\nA sentence.\n"}
-        draft.save()
 
     def load(range_: str) -> Any:
         return client.post(
@@ -202,59 +199,15 @@ def test_whole_and_section_editors_exclude_each_other(
             content_type="application/json",
         )
 
-    opened = load("section:0")
-    assert opened.status_code == 200 and opened.json()["body"] == "# Section\n\nA sentence.\n"
-    refused = load("whole")
-    assert refused.status_code == 409 and refused.json() == {"sections_open": 1}
-    client.post(
-        f"/document/{document.number}/edit/close/",
-        data=json.dumps({"editor": opened.json()["editor"]}),
-        content_type="application/json",
-    )
-    assert load("whole").status_code == 200
-    refused = load("section:0")
-    assert refused.status_code == 409 and refused.json() == {"whole_open": True}
-    assert load("section:7").status_code == 404
-    assert load("section:x").status_code == 404
-
-
-def test_overlapping_sections_and_too_many_are_refused(
-    migrated_tenant: Any, member_of: Any, new_document: Any
-) -> None:
-    """A section whose lines another open editor covers is refused, so two editors never stop
-    each other over a subsection; past the most open at once, a new section editor is refused,
-    never a live one closed; a long ordinal is no section."""
-    import json
-
-    from editing.models import Draft, OpenEditor
-
-    client, author, _ = member_of("the.author@example.test")
-    document = new_document(author)
-    client.post(f"/document/{document.number}/edit/take/")
-    body = "".join(f"# Section {n}\n\n## Subsection {n}\n\nA sentence.\n\n" for n in range(8))
-    with schema_context(migrated_tenant.number):
-        draft = Draft.objects.get(hold__document=document)
-        draft.content = {**draft.content, "document.md": body}
-        draft.save()
-
-    def load(range_: str) -> Any:
-        return client.post(
-            f"/document/{document.number}/edit/load/",
-            data=json.dumps({"range": range_}),
-            content_type="application/json",
-        )
-
-    assert load("section:0").status_code == 200
-    assert load("section:1").json() == {"overlaps": True}
-    # The same section again — a second tab — opens; capture settles which one stops.
-    assert load("section:0").status_code == 200
-    for ordinal in (2, 4, 6):
-        assert load(f"section:{ordinal}").status_code == 200
-    refused = load("section:10")
-    assert refused.status_code == 409 and refused.json() == {"too_many": True}
-    with schema_context(migrated_tenant.number):
-        assert OpenEditor.objects.filter(closed_at__isnull=True).count() == 5
+    assert load("section:0").status_code == 404
     assert load("section:" + "1" * 5000).status_code == 404
+    assert load("whole").status_code == 200
+    for _ in range(6):
+        assert load("whole").status_code == 200
+    with schema_context(migrated_tenant.number):
+        still = OpenEditor.objects.filter(closed_at__isnull=True)
+        assert still.count() == 5
+        assert set(still.values_list("range", flat=True)) == {"whole"}
 
 
 def test_load_returns_the_drafts_entities(

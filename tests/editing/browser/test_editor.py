@@ -128,7 +128,6 @@ def test_a_tab_from_elsewhere_waits_for_start_editing(
     page.click("button[data-command=start]")
     # The take gives the holder their parts panel at once, before the page is drawn again.
     page.wait_for_selector("[data-parts-panel]", state="visible")
-    page.click("button[data-command=edit-whole]")
     page.wait_for_function("() => document.getElementById('editor').editor !== undefined")
     with schema_context(migrated_tenant.number):
         assert Hold.objects.filter(document=document, released_at__isnull=True).count() == 1
@@ -166,3 +165,86 @@ def test_a_headings_number_stands_on_the_headings_line(editing: Any, page: Any) 
         " const t = r.getBoundingClientRect(); return [c.top, t.top]; }"
     )
     assert abs(number - title) < 4
+
+
+def test_the_editor_opens_on_arrival(editing: Any, page: Any) -> None:
+    """The whole document's editor is open when the page is, with no control to press and no
+    section editor anywhere (DL-0517)."""
+    editing("# A heading\n\nA synthetic sentence.\n")
+
+    assert page.evaluate(f"() => {EDITOR}.view.editable") is True
+    assert page.locator("button[data-command=edit-whole]").count() == 0
+    assert page.locator(".section-edit, .section-editor").count() == 0
+
+
+def test_my_edits_is_a_switch(editing: Any, page: Any, settings: Any) -> None:
+    """*My edits* stands in the editor's row, disabled with its reason until the first edit;
+    checked, it shows the draft's changes in place of the editor, and unchecked, the editor again
+    (DL-0518)."""
+    settings.LANGUAGE_CODE = "en"
+    # The draft as the head has it: nothing edited yet.
+    editing()
+    switch = page.locator("#editor input[data-command=my-edits]")
+
+    assert switch.is_disabled()
+    assert page.locator("#editor label.my-edits").get_attribute("title") == "After the first edit."
+    page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
+    page.focus(".ProseMirror")
+    with page.expect_response(lambda r: "/edit/capture/" in r.url):
+        page.keyboard.type(" A second sentence.", delay=10)
+    page.wait_for_function(
+        "() => !document.querySelector('#editor input[data-command=my-edits]').disabled"
+    )
+    switch.check()
+    page.wait_for_selector("#editor .my-edits-shown:not([hidden]) ins")
+    assert not page.is_visible(".ProseMirror")
+    switch.uncheck()
+    assert page.is_visible(".ProseMirror")
+
+
+def test_my_edits_when_signed_out(editing: Any, page: Any, settings: Any) -> None:
+    """A session that ended: *My edits* never draws the sign-in page in the editor's place; it
+    says so and stays unchecked."""
+    settings.LANGUAGE_CODE = "en"
+    editing("A synthetic sentence that is an edit.\n")
+    page.context.clear_cookies()
+    page.check("#editor input[data-command=my-edits]")
+    page.wait_for_function(
+        "() => !document.querySelector('#editor input[data-command=my-edits]').checked"
+    )
+
+    assert page.is_visible(".ProseMirror")
+    assert page.locator("#editor .my-edits-shown form").count() == 0
+
+
+def test_finish_pressed_while_the_editor_opens(
+    browser_server: str,
+    page: Any,
+    member_of: Any,
+    new_document: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """*Finish editing* pressed before the load answers waits for the editor, closes it, then
+    finishes — never leaving an editor open that the finish would wait on."""
+    import time
+
+    from editing.views import draft
+
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    session = client.cookies["sessionid"].value
+    page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
+    opened = draft._open
+
+    def slow(*args: Any, **kwargs: Any) -> Any:
+        # The editor's row written, the answer late: the window a click can fall into.
+        found = opened(*args, **kwargs)
+        time.sleep(1.5)
+        return found
+
+    monkeypatch.setattr(draft, "_open", slow)
+    page.goto(f"{browser_server}/document/{document.number}/edit/", wait_until="load")
+    page.click("nav.path a[data-command=finish]")
+    page.wait_for_url(f"**/document/{document.number}/edit/finish/")
+
+    assert "Finishing waits" not in (page.text_content("body") or "")

@@ -346,7 +346,6 @@ def test_an_image_in_an_appendix(
     session = client.cookies["sessionid"].value
     page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
     page.goto(f"{browser_server}/document/{document.number}/appendix/2/edit/")
-    page.click("button[data-command=edit-whole]")
     page.wait_for_function(f"() => {EDITOR} !== undefined")
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     data = invented_image("png")

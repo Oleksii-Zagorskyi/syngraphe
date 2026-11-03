@@ -173,22 +173,23 @@
   display: none;
 }
 
-/* The edit tab beside its own parts panel (DL-0442): the editor's column and the panel, as wide as
-   the person keeps the View tab's; the column alone until the hold is taken. */
+/* The draft's page in the version page's grid (DL-0513, DL-0518): the outline, the editor's column
+   and its own parts panel (DL-0442), each as wide as the person keeps them on a version's page, so
+   the editor is as wide as the text it edits; the panel's track empty until the hold is taken. */
 .panes.edit-panes {
-  grid-template-columns: minmax(0, 1fr) 6px var(--panel-width, 280px);
+  grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr) 6px var(--panel-width, 280px);
 }
 
 /* Collapsed to its edge: the track itself, since the kept width is set on the element. */
 .panes.edit-panes:has(#parts-panel.shut) {
-  grid-template-columns: minmax(0, 1fr) 6px 36px;
+  grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr) 6px 36px;
 }
 
 .panes.edit-panes:has(> .parts-panel[hidden]) {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr);
 }
 
-.panes.edit-panes:has(> .parts-panel[hidden]) > .edge {
+.panes.edit-panes:has(> .parts-panel[hidden]) > .edge[data-pane="parts-panel"] {
   display: none;
 }
 

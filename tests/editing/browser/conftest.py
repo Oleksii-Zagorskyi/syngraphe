@@ -21,10 +21,10 @@ def conformance_body() -> str:
     return CONFORMANCE.read_text(encoding="utf-8")
 
 
-# Every editor of a page — the whole document's and each section's — captured and closed, awaited,
-# so that the page sends nothing more: no heartbeat, no close as it goes.
+# The page's editor captured and closed, awaited, so that the page sends nothing more: no heartbeat,
+# no close as it goes.
 FINISH_EDITORS = """async () => {
-  for (const element of document.querySelectorAll('#editor, .section-editor')) {
+  for (const element of document.querySelectorAll('#editor')) {
     const editor = element.editor;
     if (editor && editor.capture) await editor.capture.finish().catch(() => null);
   }
@@ -103,7 +103,7 @@ def editing(
     browser_server: str, page: Any, migrated_tenant: Any, member_of: Any, new_document: Any
 ) -> Iterator[Callable[[str | None], Any]]:
     """Open the edit tab of a new document as its author, the draft's body set to `body` when
-    given; returns the document once the whole editor is opened by its control; `settled_pages`
+    given; returns the document once the whole editor has opened on arrival; `settled_pages`
     finishes it before the page and the server go."""
 
     def open_tab(body: str | None = None) -> Any:
@@ -120,9 +120,12 @@ def editing(
         session = client.cookies["sessionid"].value
         page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
         page.goto(f"{browser_server}/document/{document.number}/edit/")
-        # The tab opens on the draft as text; the whole editor is opened by its control.
-        page.click("button[data-command=edit-whole]")
-        page.wait_for_function("() => document.getElementById('editor').editor !== undefined")
+        # The whole document's editor opens on arrival (DL-0517): the take, the load and the
+        # editor's making, which the two waits around a click once shared — 60 seconds between
+        # them under a full run's load.
+        page.wait_for_function(
+            "() => document.getElementById('editor').editor !== undefined", timeout=60_000
+        )
         return document
 
     yield open_tab

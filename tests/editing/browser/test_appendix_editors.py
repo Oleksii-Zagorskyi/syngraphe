@@ -1,6 +1,6 @@
-"""An appendix edited in Chromium (ADR-0006, DL-0443): its edit tab offers section editors over
-its own text, and *finish editing* goes to the document's finishing screen, whose version holds
-the appendix's change. Invented text; the people are synthetic examples."""
+"""An appendix edited in Chromium (DL-0443, DL-0517): its page opens the appendix's whole editor on
+arrival, and *finish editing* on the draft's point goes to the document's finishing screen, whose
+version holds the appendix's change. Invented text; the people are synthetic examples."""
 
 from __future__ import annotations
 
@@ -12,8 +12,7 @@ from tenancy.schemas import schema_context
 
 pytestmark = pytest.mark.browser
 
-OFFERED = "() => document.getElementById('editor').offered !== undefined"
-SECTION = "document.querySelector('.section-editor[data-ordinal=\"0\"]')?.editor"
+EDITOR = "document.getElementById('editor').editor"
 
 
 def test_edit_an_appendix_and_finish(
@@ -38,19 +37,12 @@ def test_edit_an_appendix_and_finish(
     session = client.cookies["sessionid"].value
     page.context.add_cookies([{"name": "sessionid", "value": session, "url": browser_server}])
     page.goto(f"{browser_server}/document/{document.number}/appendix/2/edit/")
-    page.wait_for_function(OFFERED)
-    page.click("button[data-command=edit-section][data-ordinal='0']")
-    page.wait_for_function(f"() => {SECTION} !== undefined")
-    page.evaluate(f"{SECTION}.select({SECTION}.view.state.doc.content.size - 1)")
-    page.evaluate(f"{SECTION}.view.focus()")
+    page.wait_for_function(f"() => {EDITOR} !== undefined")
+    page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
+    page.evaluate(f"{EDITOR}.view.focus()")
     page.keyboard.type(" A sentence typed in the appendix.", delay=10)
-    with page.expect_navigation():
-        page.click(".section-editor button[data-command=close-section]")
-    page.wait_for_function(OFFERED)
-    page.wait_for_function(
-        "() => !document.querySelector('button[data-command=finish-all]').disabled"
-    )
-    page.click("button[data-command=finish-all]")
+    # The draft point's *Finish editing* captures and closes the editor first.
+    page.click("nav.path a[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     page.fill("textarea[name=summary], input[name=summary]", "An appendix sentence")
     page.click("button[name=choice][value=send]")

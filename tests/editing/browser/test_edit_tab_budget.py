@@ -66,7 +66,6 @@ def test_opening_the_edit_tab_at_forty_pages(
         # Each opening from a blank page, the previous editor closed before the clock starts.
         page.goto("about:blank")
         page.goto(address)
-        page.click("button[data-command=edit-whole]")
         page.wait_for_function("() => document.getElementById('editor').editor")
         # From the navigation's start: what the person waits from the address to typing.
         times.append(page.evaluate("performance.now()"))

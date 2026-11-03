@@ -2758,27 +2758,6 @@ msgstr "#%(number)s %(title)s: ваше редагування незабаро�
 msgid "Someone else holds the document now. Read its page again before forcing anything."
 msgstr "Тепер документ зайнятий іншою особою. Перегляньте його сторінку ще раз, перш ніж щось робити примусово."
 
-#: editing/messages.py
-msgid "Close this editor"
-msgstr "Закрити цей редактор"
-
-#: editing/messages.py
-msgid "Close the section editors first to edit the whole document."
-msgstr "Щоб редагувати весь документ, спершу закрийте редактори розділів."
-
-#: editing/messages.py
-msgid "Close the whole-document editor first to edit a section."
-msgstr "Щоб редагувати розділ, спершу закрийте редактор усього документа."
-
-#: editing/messages.py
-msgid "Finishing waits until every section editor is closed."
-msgstr "Завершити можна, коли закриються всі редактори розділів."
-
-#: editing/messages.py
-msgctxt "open a section's editor"
-msgid "Edit"
-msgstr "Редагувати"
-
 #: editing/templates/editing/discard.html
 msgid "Discard my edits…"
 msgstr "Відкинути мої правки…"
@@ -2807,10 +2786,6 @@ msgstr "Розморожено."
 msgid "The document is not frozen."
 msgstr "Документ не заморожено."
 
-#: editing/messages.py
-msgid "Edit the whole document"
-msgstr "Редагувати весь документ"
-
 #: editing/templates/editing/stopped_editor.html
 msgid ""
 "What you typed that was not captured is below, as changes against the text as it now stands; "
@@ -2822,22 +2797,6 @@ msgstr ""
 #: editing/templates/editing/stopped_editor.html
 msgid "This editor's text is below, as you typed it; carry over by hand what the draft lacks."
 msgstr "Текст цього редактора — нижче, так, як ви його набрали; перенесіть вручну те, чого бракує в чернетці."
-
-#: editing/messages.py
-msgid "Another editor is open on part of this section; close it first."
-msgstr "На частині цього розділу відкрито інший редактор; спершу закрийте його."
-
-#: editing/messages.py
-msgid "Close a section editor first: five are open."
-msgstr "Спершу закрийте один із редакторів розділів: відкрито п'ять."
-
-#: editing/messages.py
-msgid "The sections changed since the tab was drawn; close your editors to see them again."
-msgstr "Відколи вкладку показано, розділи змінилися; закрийте редактори, щоб побачити їх знову."
-
-#: editing/messages.py
-msgid "Closed. The section is drawn again once the other editors are closed."
-msgstr "Закрито. Розділ буде показано знову, щойно закриються інші редактори."
 
 #: editing/messages.py
 msgid "A stopped editor still holds your text; carry it over before the tab is drawn again."
@@ -3899,10 +3858,6 @@ msgstr "Ви не маєте права на %(right)s."
 msgid "%(name)s is %(size)s; this organisation’s limit is %(limit)s."
 msgstr "%(name)s має розмір %(size)s; обмеження цієї організації — %(limit)s."
 
-#: editing/views/appendix.py
-msgid "Edit the whole appendix"
-msgstr "Редагувати весь додаток"
-
 #: editing/templates/editing/part_label.html
 msgid "Appendices reordered"
 msgstr "Додатки впорядковано наново"
@@ -4873,3 +4828,12 @@ msgstr "Зарезервував %(name)s."
 #: documents/templates/documents/act.html
 msgid "What a reservation does"
 msgstr "Що дає резервування"
+
+#: editing/messages.py
+msgctxt "the editor's switch"
+msgid "My edits"
+msgstr "Мої правки"
+
+#: editing/messages.py
+msgid "After the first edit."
+msgstr "Після першої правки."

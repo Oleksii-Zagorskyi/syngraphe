@@ -76,8 +76,6 @@ export function capturing({ element, editor, words, disable }) {
   // The editor was closed on the server — silent too long, a laptop asleep: open a new one on
   // the draft, and carry on only when the draft is still what this editor last captured.
   async function reopen() {
-    // A section editor's range moves with the draft; it is opened again from the tab.
-    if (editor.draft.range && editor.draft.range !== "whole") return false;
     let response;
     try {
       response = await post(urls.load, {});
@@ -93,17 +91,16 @@ export function capturing({ element, editor, words, disable }) {
 
   // The editor can no longer capture: it is closed on the server first, so it keeps no other tab
   // from finishing, then disabled here.
-  // `alone` when the server has closed it with its section gone: the text is shown as typed.
-  function stop(alone = false) {
+  function stop() {
     stopped = true;
     clearTimeout(timer);
     prompt.hidden = true;
-    if (!alone) post(urls.close, { editor: editor.draft.editor }).catch(() => null);
+    post(urls.close, { editor: editor.draft.editor }).catch(() => null);
     show("stale");
     disable();
-    // The text it holds is never lost (ADR-0006): shown as changes against its range as it now
-    // stands, to carry over by hand, with the way to open the range again.
-    const shown = { editor: editor.draft.editor, body: editor.markdown(), ...(alone && { alone }) };
+    // The text it holds is never lost (ADR-0006): shown as changes against the draft as it now
+    // stands, to carry over by hand, with the way to open the editor again.
+    const shown = { editor: editor.draft.editor, body: editor.markdown() };
     post(urls.changes, shown)
       .then((response) => (response.ok ? response.json() : null))
       .then((answer) => {
@@ -177,22 +174,9 @@ export function capturing({ element, editor, words, disable }) {
     const answer = await response.json();
     base = answer.base_hash;
     sent = text;
-    if (answer.sections_changed) element.dispatchEvent(new CustomEvent("sections-changed", { bubbles: true }));
-    if (answer.closed && editor.markdown() !== sent) {
-      // Its own heading is gone and the server closed it, but what was typed since that capture
-      // left is not captured: it stops here, never closed over that text.
-      stop(true);
-      return "stale";
-    }
-    if (answer.closed) {
-      // Its own heading is gone: the text is captured and the editor closed by the server.
-      stopped = true;
-      clearTimeout(timer);
-      prompt.hidden = true;
-      show("captured");
-      disable();
-      element.dispatchEvent(new CustomEvent("editor-closed", { bubbles: true }));
-      return "captured";
+    // Whether the draft now differs from the head: the page swaps its acts by it (DL-0510).
+    if (typeof answer.edited === "boolean") {
+      element.dispatchEvent(new CustomEvent("draft-edited", { bubbles: true, detail: { edited: answer.edited } }));
     }
     // Typing is activity: the hold is no longer idle.
     prompt.hidden = true;

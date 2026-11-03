@@ -75,9 +75,7 @@ LABELS = {
     "paste_converted": _("Paste the converted text"),
     "finish": _("Finish editing"),
     "start": _("Start editing"),
-    "edit_whole": _("Edit the whole document"),
-    "edit_section": pgettext_lazy("open a section's editor", "Edit"),
-    "close_section": _("Close this editor"),
+    "my_edits": pgettext_lazy("the editor's switch", "My edits"),
     "image": _("Image"),
     "mention": _("Mention"),
     "mention_number": _("Document number"),
@@ -113,15 +111,7 @@ NOTICES = {
     "still_working_answer": _("I am still working"),
     "too_large": _("Not captured — the text is over the size allowed; shorten it to go on."),
     "others": _("Finishing waits until the other tabs editing this document are closed."),
-    "sections_open": _("Close the section editors first to edit the whole document."),
-    "whole_open": _("Close the whole-document editor first to edit a section."),
-    "close_sections": _("Finishing waits until every section editor is closed."),
-    "overlaps": _("Another editor is open on part of this section; close it first."),
-    "too_many": _("Close a section editor first: five are open."),
-    "sections_changed": _(
-        "The sections changed since the tab was drawn; close your editors to see them again."
-    ),
-    "section_closed": _("Closed. The section is drawn again once the other editors are closed."),
+    "after_first_edit": _("After the first edit."),
     "stopped_open": _(
         "A stopped editor still holds your text; carry it over before the tab is drawn again."
     ),

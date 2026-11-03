@@ -356,6 +356,10 @@ def my_edits(request: HttpRequest, number: int) -> HttpResponse:
         **drawn,
         parts_heading=_("Parts changed in this draft"),
     )
+    # The editor's *My edits* switch fetches the changes alone (DL-0518); the address answers its
+    # whole page as before (DL-0514).
+    if request.GET.get("fragment") == "1":
+        return render(request, "editing/my_edits_fragment.html", context)
     return render(request, "editing/my_edits.html", context)
 
 

@@ -352,7 +352,7 @@ def test_catalogue_covers_the_appendix_pages(
         leaked = [i for i in ids if re.search(rf"(?<![\w-]){re.escape(i)}(?![\w-])", text)]
         assert leaked == [], f"{name} shows message ids verbatim: {leaked}"
     # The page hands the editor its words as JSON, every letter beyond ASCII escaped.
-    assert json.dumps("Редагувати весь додаток")[1:-1] in editing
+    assert json.dumps("Завершити редагування")[1:-1] in editing
 
 
 @pytest.mark.integration

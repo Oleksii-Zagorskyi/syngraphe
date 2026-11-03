@@ -17,13 +17,15 @@ from django.views.decorators.cache import never_cache
 from documents import entities, gitstore
 from documents.locks import LockTimeout, document_lock
 from documents.models import Document
-from editing import holds, sections, services
+from editing import holds, services
 from editing.markdown.validator import validate
 from editing.models import OpenEditor
 from editing.views.edit_tab import editable
 from shell.views import not_found
 
 OPEN_EDITORS_MOST = 5
+# The one range an editor opens: the whole text (DL-0517). The column keeps it.
+WHOLE = "whole"
 LOAD_LOCK_SECONDS = 10
 
 
@@ -33,28 +35,23 @@ def range_hash(text: str) -> str:
 
 
 def _range(request: HttpRequest) -> str | None:
-    """The range the editor asks for — `whole`, the default, or `section:<ordinal>`; `None` for
-    anything else."""
+    """The range the editor asks for — `whole`, the default and the only one (DL-0517); `None`
+    for anything else."""
     data: Any = {}
     if request.content_type == "application/json":
         try:
             data = json.loads(request.body or b"{}")
         except (ValueError, RecursionError):
             return None
-    asked = data.get("range", sections.WHOLE) if isinstance(data, dict) else sections.WHOLE
-    if asked == sections.WHOLE:
-        return sections.WHOLE
-    return asked if isinstance(asked, str) and sections.ordinal_of(asked) is not None else None
+    asked = data.get("range", WHOLE) if isinstance(data, dict) else WHOLE
+    return WHOLE if asked == WHOLE else None
 
 
 @never_cache
 @login_required
 def load(request: HttpRequest, number: int) -> HttpResponse:
-    """For the holder alone: a new open editor on the whole body or on one section, and that
-    range's text with its verdict — `ok`, or `refused` with each refusal's code and line — and the
-    draft's declarations. The
-    whole-document editor is refused while a section editor is open, `409 {"sections_open": n}`,
-    and a section editor while the whole one is, `409 {"whole_open": true}` (ADR-0006)."""
+    """For the holder alone: a new open editor on the whole body, its text with its verdict — `ok`,
+    or `refused` with each refusal's code and line — and the draft's declarations."""
     document = editable(request, number)
     asked = _range(request)
     if document is None or request.method != "POST" or asked is None:
@@ -112,11 +109,9 @@ def _declared(draft: Any) -> list[dict[str, str]]:
 def _open(
     request: HttpRequest, document: Document, asked: str, *, file: str = holds.BODY
 ) -> tuple[OpenEditor, str] | HttpResponse | None:
-    """A new open editor on the holder's draft over `asked` of `file` — the body, or an appendix
-    the draft lists — and the text it saw; the refusal when the whole and a section of one file
-    would be open at once, when a section's lines are another open editor's, or past the most
-    section editors open at once on the draft, every file counted; `409` *closed* for an appendix
-    the draft no longer lists; `None` for anyone else, or a section the text does not have."""
+    """A new open editor on the holder's draft over the whole of `file` — the body, or an appendix
+    the draft lists — and the text it saw; `409` *closed* for an appendix the draft no longer
+    lists; `None` for anyone else."""
     from editing import parts
 
     hold = holds.open_hold(document)
@@ -130,52 +125,15 @@ def _open(
         if number is None or not parts.lists(draft, number):
             return JsonResponse({"closed": True}, status=409)
         body = parts.appendix_text(draft, number)
-    still_open = OpenEditor.objects.filter(draft=draft, closed_at__isnull=True)
-    same_file = still_open.filter(file=file)
-    if asked == sections.WHOLE:
-        open_sections = same_file.exclude(range=sections.WHOLE).count()
-        if open_sections:
-            return JsonResponse({"sections_open": open_sections}, status=409)
-        # The holder's tabs each open a whole editor; past a few, the oldest of the file's are
-        # closed — a capture from one would be refused as stale anyway once another has captured.
-        # Section editors are never closed for another: each may hold text no other has.
-        whole_ids = list(same_file.order_by("-last_seen_at").values_list("pk", flat=True))
-        if len(whole_ids) >= OPEN_EDITORS_MOST:
-            OpenEditor.objects.filter(pk__in=whole_ids[OPEN_EDITORS_MOST - 1 :]).update(
-                closed_at=timezone.now()
-            )
-        text = body
-    else:
-        found = sections.ranges(body)
-        ordinal = sections.ordinal_of(asked)
-        if ordinal is None or ordinal >= len(found):
-            return None
-        if same_file.filter(range=sections.WHOLE).exists():
-            return JsonResponse({"whole_open": True}, status=409)
-        wanted = found[ordinal]
-        # Two editors over the same section — two tabs — are the case capture settles: the later
-        # stops, its text kept (ADR-0006). A parent and its subsection open at once would stop
-        # each other over lines neither page shows whole, so they are refused.
-        for other in same_file:
-            span = sections.span_of(other.range)
-            covered = sections.extent(body, *span) if span is not None else None
-            same = covered is not None and (covered.start, covered.end) == (
-                wanted.start,
-                wanted.end,
-            )
-            if (
-                covered is not None
-                and not same
-                and covered.start < wanted.end
-                and wanted.start < covered.end
-            ):
-                return JsonResponse({"overlaps": True}, status=409)
-        # At most so many section editors on the draft, whatever file each is on (DL-0418).
-        if still_open.exclude(range=sections.WHOLE).count() >= OPEN_EDITORS_MOST:
-            return JsonResponse({"too_many": True}, status=409)
-        text = sections.section_text(body, wanted)
-        # The editor spans its subsections too; its range says how many headings it holds.
-        asked = sections.span_name(ordinal, sections.headings_in(text))
+    # The holder's tabs each open an editor; past a few, the oldest of the file's are closed — a
+    # capture from one would be refused as stale anyway once another has captured (ADR-0006).
+    same_file = OpenEditor.objects.filter(draft=draft, closed_at__isnull=True, file=file)
+    still = list(same_file.order_by("-last_seen_at").values_list("pk", flat=True))
+    if len(still) >= OPEN_EDITORS_MOST:
+        OpenEditor.objects.filter(pk__in=still[OPEN_EDITORS_MOST - 1 :]).update(
+            closed_at=timezone.now()
+        )
+    text = body
     editor = OpenEditor.objects.create(
         draft=draft,
         file=file,
