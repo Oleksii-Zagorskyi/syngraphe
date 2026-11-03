@@ -41,7 +41,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 |---|---|---|---|
 | [Shell](#shell) | on every page | ST-0007, ST-0013, ST-0014, ST-0019, ST-0047, ST-0069, ST-0076 | **0.1** |
 | [Sign-in pages](#sign-in-pages) | — | ST-0007, ST-0008, ST-0054, ST-0055, ST-0057 | **0.1** |
-| [Account page](#account-page) | `/account/` | ST-0066, ST-0076 | **0.1** |
+| [Account page](#account-page) | `/account/` | ST-0066, ST-0076, ST-0078 | **0.1** |
 | [Document list](#document-list) | `/folder/7/`; `/` opens the root, `/folder/1/` | ST-0009, ST-0012, ST-0013, ST-0014, ST-0018, ST-0051, ST-0052, ST-0064, ST-0067 | **0.1** |
 | [Being edited, In review](#being-edited-in-review) | `/in-edit/`, `/in-review/` | ST-0013, ST-0014 | **0.1** |
 | [Search results](#search-results) | `/search/?q=…&type=…` | ST-0013 | **0.1** |
@@ -96,6 +96,7 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | the person's email address, read-only | **0.1** | — | ST-0076 | Epic 20 |
+| the person's display name, with *Apply* — required, at most 200 characters; refused when another member of one of the person's organisations uses it, whatever its case or spaces, the refusal naming no organisation (DL-0523, DL-0537) | **0.1** | — | ST-0078 | Epic 22 |
 | the interface's language — Ukrainian or English, with *Apply*; kept as the person's own preference and applied to every page they open; without a choice, the installation's default; emails go in their recipient's language, an invitation in the installation's default; a version's change summary stays as its writer left it (DL-0498, DL-0501) | **0.1** | — | ST-0076 | Epic 20 |
 | *Block my account…*, apart at the page's foot — leading to the confirmation; to the last platform administrator drawn disabled with its reason (DL-0315, DL-0233, DL-0500) | **0.1** | — | ST-0066 | Epic 20 |
 

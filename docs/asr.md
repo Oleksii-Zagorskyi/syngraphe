@@ -157,6 +157,8 @@ No document links, analyses or searches cross a tenant boundary. A user holding 
 
 *Forbids:* any interface that distinguishes "user created" from "user added to this tenant", and any cross-tenant query at all. The email is the platform identifier, so the disclosure risk sits precisely where the convenience does.
 
+*Accepted residual:* an invitation is refused while the person it would bring in has a display name another member of the tenant already uses, so a tenant administrator can tell a known address from an unknown one when its name collides — and only then (DL-0538).
+
 ## ASR-18 — Every change is attributable, and authorisation is reconstructible *(scenario)*
 
 - **Source**: An auditor, a reviewer, or an administrator investigating

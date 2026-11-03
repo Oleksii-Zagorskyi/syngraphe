@@ -173,6 +173,37 @@ def test_catalogue_covers_people_pages(
     applied = member_client.post("/account/", {"language": "uk"})
     assert applied.status_code == 303
     bodies["my account, applied"] = member_client.get(applied["Location"]).content.decode()
+    # The display name: refused empty, too long and taken; applied (DL-0523).
+    bodies["my name, empty"] = member_client.post(
+        "/account/", {"display_name": " "}
+    ).content.decode()
+    bodies["my name, long"] = member_client.post(
+        "/account/", {"display_name": "и" * 201}
+    ).content.decode()
+    bodies["my name, unshowable"] = member_client.post(
+        "/account/", {"display_name": "Ім'я\x00"}
+    ).content.decode()
+    User.objects.filter(email="b.synthetic@example.test").update(display_name="Синтетичне ім'я")
+    bodies["my name, taken"] = member_client.post(
+        "/account/", {"display_name": "Синтетичне ім'я"}
+    ).content.decode()
+    from identity.models import Membership
+    from tenancy.models import Tenant
+
+    joining = User.objects.create_user(
+        "j.synthetic@example.test", "test-only-not-a-password", display_name="Синтетичне ім'я"
+    )
+    Membership.objects.create(
+        tenant=Tenant.objects.create(name="Синтетична інша", actor_kind="system"),
+        user=joining,
+        actor_kind="system",
+    )
+    bodies["invite, name taken"] = admin.post(
+        "/administration/tenant/users/invite/", {"email": "j.synthetic@example.test"}
+    ).content.decode()
+    named = member_client.post("/account/", {"display_name": "Інше синтетичне ім'я"})
+    assert named.status_code == 303
+    bodies["my name, applied"] = member_client.get(named["Location"]).content.decode()
     session = platform.session
     session.pop("tenant_number", None)
     session.save()

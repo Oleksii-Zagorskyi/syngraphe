@@ -40,7 +40,7 @@ def test_the_account_page_runs_under_the_policy(
     assert page.get_attribute("html", "lang") == "uk"
     page.select_option("select[name=language]", "en")
     with page.expect_navigation(wait_until="load"):
-        page.click("form[action='/account/'] button[type=submit]")
+        page.click("form.language button[type=submit]")
 
     assert page.get_attribute("html", "lang") == "en"
     assert page.locator(".user a[href='/account/']").inner_text() == "My account"

@@ -171,18 +171,26 @@ def invite(request: HttpRequest) -> HttpResponse:
             chosen,
             by=cast(User, request.user),
         )
+    except invitations.NameTaken:
+        return _page(request, form, name_taken=True)
     except invitations.Refused:
         return _page(request, form, refused=True)
     return _page(request, InviteForm(groups=groups), sent_to=form.cleaned_data["email"])
 
 
 def _page(
-    request: HttpRequest, form: InviteForm, *, refused: bool = False, sent_to: str = ""
+    request: HttpRequest,
+    form: InviteForm,
+    *,
+    refused: bool = False,
+    name_taken: bool = False,
+    sent_to: str = "",
 ) -> HttpResponse:
     context: dict[str, Any] = {
         **frame(request),
         "form": form,
         "refused": refused,
+        "name_taken": name_taken,
         "sent_to": sent_to,
         "users_url": USERS_URL,
         "invite_url": INVITE_URL,

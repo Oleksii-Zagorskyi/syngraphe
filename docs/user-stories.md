@@ -65,6 +65,13 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - An email to me goes in my language, fixed when it is queued; an invitation goes in the installation's default (DL-0501, ASR-17). A version's change summary stays in the language its writer left it in (DL-0321).
 - A document's own language — its text, its numbering, its exports — is the document's and does not follow my choice (DL-0498, DL-0502).
 
+**ST-0078** — As any user, I set my own display name on my account page, so that colleagues know me by the name I chose wherever the organisation's pages name a person (DL-0523).
+- My account page shows my display name with *Apply*: required, at most 200 characters, spaces at either end dropped. Edit authors, holders, histories and notifications name me by it; administration pages keep naming me by my address (DL-0434).
+- A name another active or blocked member of any of my organisations uses is refused, whatever its case or its spaces — *Another member already uses this name*, naming no organisation; nothing is saved. A name used only in an organisation I do not belong to is mine to take (DL-0537).
+- `create_member` checks a new person's name the same way. A person invited is created without a name and names themselves here; until then pages name them *anonymous editor* (DL-0339).
+- Joining an organisation keeps its names unique: an invitation, or `create_member`, that would bring me in while my name is used there is refused, without my name; I change it here first (DL-0537).
+- My account stays my address: there is no separate username.
+
 **ST-0005** — As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to — so that people see and do exactly what their job requires (ADR-0007).
 - Rights: a viewing ladder (view canonical, view accepted, view pending, edit, create and edit), history rights (view previous canonical versions, view all history), acts (accept, freeze and unfreeze, and reserve for editing, each of which includes edit (ADR-0016); make canonical, which includes the accepted view it approves), and part rights (create or delete appendices; upload, replace or delete attachments).
 - A person holds the union of the rights of their groups linked to a document; nothing is granted to a person directly.

@@ -13,7 +13,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 
 **Derived by `scripts/derive_coverage.py`** from the *Stories* column of each region table in `pages.md` and its *not yet drawn* marks, and from the stories of [`user-stories.md`](../user-stories.md) in their order — a withdrawn story and one outside release 0.1 left out; run it whenever either file changes. A region is named by its section — `› The draft's page` or `› The review page` for those subsections — then the region cell up to its first ` — ` or `; `, emphasis removed, cut at 58 characters; a region named as its section is the section alone. A story's title stops before its *so that* or at its sentence's end. A story is **drawn** when every region carrying it is drawn, **partly drawn** when some are, **not yet drawn** when none are. A region for a later release carries no 0.1 story (DL-0228).
 
-**74 stories:** 71 drawn · 0 partly drawn · 0 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
+**75 stories:** 72 drawn · 0 partly drawn · 0 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
 
 | # | Story | Where | Drawn |
 |---|---|---|---|
@@ -27,6 +27,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0072 | As a tenant administrator, I lift the block on a person's membership in my tenant | Administration — users | drawn |
 | ST-0066 | As any user, I block my own account | Account page — Block my account…, apart at the page's foot; Help — People and access; Administration — users | drawn |
 | ST-0076 | As any user, I choose the language of the interface I see, Ukrainian or English, on my account page | Shell — user menu; Account page — the person's email address, read-only; Account page — the interface's language; Help — People and access | drawn |
+| ST-0078 | As any user, I set my own display name on my account page | Account page — the person's display name, with Apply | drawn |
 | ST-0005 | As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to | Document page — Більше (⋯), the administrator's acts (DL-0522); Administration — groups; Administration — document links | drawn |
 | ST-0077 | As a tenant administrator, I open a member's page | Help — People and access; Administration — a member's page | drawn |
 | ST-0006 | As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links | Help — Settings, access history and the audit log; Administration — access history | drawn |

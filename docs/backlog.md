@@ -445,3 +445,12 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The route parses whatever any client sends and needs a home for what it receives — a new surface with a security reader of its own — while the browser tests and the walks already exercise every page under the policy.
 
 **What has to be true before it is taken up.** A page is found broken by the policy in a reader's browser, or the policy is to be tightened and its effect on real browsers measured first.
+
+## B-060 — A person's page, opened from their name
+
+**Idea.** A page of each person that the people of their organisations may open — their display name and what need to know allows beside it — with the display name, wherever a page draws it, a link to that page. Two members who share a name are then told apart by their pages, and the refusal of an identical name (DL-0523, DL-0537) can be revisited.
+
+**Why it is parked.** Release 0.1 names people by a display name alone and keeps names unique within each organisation instead (DL-0538); a person's page is part of the profile that stays a later design (DL-0499).
+
+**What has to be true before it is taken up.** The user profile is designed, or an organisation finds the refusal of a name its member really bears a burden.
+

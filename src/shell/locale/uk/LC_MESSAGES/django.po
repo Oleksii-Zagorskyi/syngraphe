@@ -4672,6 +4672,25 @@ msgstr "Мій обліковий запис"
 msgid "Applied"
 msgstr "Застосовано"
 
+msgid "Display name"
+msgstr "Ім’я для показу"
+
+msgid "Write the name your colleagues will see."
+msgstr "Напишіть ім’я, яке бачитимуть колеги."
+
+#, python-format
+msgid "The name is at most %(count)s characters."
+msgstr "Ім’я — не більше %(count)s символів."
+
+msgid "The name holds a character that cannot be shown."
+msgstr "Ім’я містить символ, який неможливо показати."
+
+msgid "Another member already uses this name."
+msgstr "Це ім’я вже використовує інший учасник."
+
+msgid "This person's display name is already used by a member of this organisation; they change it on their account page first."
+msgstr "Ім’я для показу цієї людини вже використовує учасник цієї організації; спершу вона змінює його на сторінці свого облікового запису."
+
 msgid "Choose one of the interface languages offered."
 msgstr "Оберіть одну із запропонованих мов інтерфейсу."
 

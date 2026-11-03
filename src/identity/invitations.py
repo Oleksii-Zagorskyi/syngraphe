@@ -19,6 +19,7 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
 from audit.record import record
+from identity import names
 from identity.models import Invitation, Membership, MembershipState, User, fold_email
 from identity.tokens import hash_token, new_token
 from mail import services as mail
@@ -36,6 +37,11 @@ INVITATION_LIFETIME = timedelta(days=7)
 class Refused(Exception):
     """The invitation cannot be sent: no sending address, the organisation is blocked, or the
     person's membership in it is. Nothing is written, and the page says one sentence either way."""
+
+
+class NameTaken(Refused):
+    """The person already has a display name that another member of the organisation uses
+    (DL-0537): nothing is written, and the page says so without the name."""
 
 
 def invite(tenant: Tenant, email: str, groups: Iterable[Any], *, by: User) -> Membership:
@@ -64,6 +70,11 @@ def invite(tenant: Tenant, email: str, groups: Iterable[Any], *, by: User) -> Me
         user = _person(address, by)
         membership = Membership.objects.select_for_update().filter(tenant=tenant, user=user).first()
         if membership is None:
+            # Joining keeps every name unique in the organisation (DL-0523, DL-0537).
+            if user.display_name:
+                names.lock(user.display_name)
+                if names.taken(user.display_name, [tenant], besides=user) is not None:
+                    raise NameTaken
             membership = Membership.objects.create(
                 tenant=tenant,
                 user=user,

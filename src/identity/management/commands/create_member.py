@@ -12,7 +12,7 @@ from django.core.validators import validate_email
 from django.db import transaction
 
 from audit.record import record
-from identity import generated
+from identity import generated, names
 from identity.managers import fold_email
 from identity.models import Membership, MembershipState, User
 from syngraphe.provenance import ActorKind
@@ -46,6 +46,14 @@ class Command(BaseCommand):
             user = User.objects.select_for_update().filter(email=address).first()
             password = None
             if user is None:
+                name = name.strip()
+                if name:
+                    # Unique within the organisation, as the account page checks it (DL-0523).
+                    names.lock(name)
+                    if names.taken(name, [organisation]) is not None:
+                        raise CommandError(
+                            f"the display name {name!r} is already used in {organisation.name}"
+                        )
                 user = User.objects.create_user(address, None, display_name=name)
                 password = _drawn(user)
                 user.set_password(password)
@@ -61,6 +69,14 @@ class Command(BaseCommand):
                     tenant=None,
                 )
                 lines.append(f"created user {address}")
+            elif (
+                user.display_name
+                and not Membership.objects.filter(tenant=organisation, user=user).exists()
+                and _taken(user, organisation)
+            ):
+                raise CommandError(
+                    f"{address}'s display name is already used in {organisation.name}"
+                )
             elif user.self_blocked:
                 raise CommandError(f"{address} is self-blocked")
             elif user.is_tombstoned:
@@ -108,3 +124,9 @@ def _drawn(user: User) -> str:
             continue
         return password
     raise CommandError(f"no generated password passed the validators in {ATTEMPTS} draws")
+
+
+def _taken(user: User, organisation: Tenant) -> bool:
+    """Whether joining would give the organisation two members of one name (DL-0537)."""
+    names.lock(user.display_name)
+    return names.taken(user.display_name, [organisation], besides=user) is not None

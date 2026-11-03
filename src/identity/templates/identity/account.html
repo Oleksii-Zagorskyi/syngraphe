@@ -5,7 +5,15 @@
 <section class="dlg account">
   <h1>{% translate "My account" %}</h1>
   <p><span class="muted">{% translate "Email address" %}</span> {{ user.email }}</p>
-  <form method="post" action="/account/">
+  <form method="post" action="/account/" class="display-name">
+    {% csrf_token %}
+    <label for="display-name">{% translate "Display name" %}</label>
+    <input id="display-name" name="display_name" value="{{ display_name }}" maxlength="{{ name_max }}" required{% if name_problem %} aria-invalid="true" aria-describedby="display-name-error"{% endif %}>
+    <button class="btn primary" type="submit">{% translate "Apply" %}</button>
+    {% if name_problem %}<p class="err" id="display-name-error" role="alert">{{ name_problem }}</p>{% endif %}
+    {% if named %}<p class="note" role="status">{% translate "Applied" %}</p>{% endif %}
+  </form>
+  <form method="post" action="/account/" class="language">
     {% csrf_token %}
     {% if refused %}<p class="err" role="alert">{% translate "Choose one of the interface languages offered." %}</p>{% endif %}
     <label for="language">{% translate "Language" %}</label>
