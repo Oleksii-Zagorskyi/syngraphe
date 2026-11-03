@@ -370,6 +370,9 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
                 ),
             )
         ),
+        # The newer text's outline beside it, its entries scrolling the marked text (DL-0527).
+        "headings": outline(labelled(newer_body)),
+        **panes(request),
     }
     return render(request, "rendering/compare.html", context)
 
@@ -455,6 +458,8 @@ def _compare_documents(
                     ),
                 )
             ),
+            "headings": outline(labelled(newer_body)),
+            **panes(request),
         }
     except UNREADABLE:
         logger.exception(

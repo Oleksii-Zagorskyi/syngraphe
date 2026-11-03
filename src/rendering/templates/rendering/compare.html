@@ -1,5 +1,5 @@
 {% extends "shell/base.html" %}
-{% load stylesheet corpus i18n %}
+{% load static stylesheet corpus i18n %}
 {% block document_styles %}{% organisation_stylesheet %}{% endblock %}
 {% block title %}#{{ document.number }} {{ older }} · {{ newer }} · Syngraphē{% endblock %}
 {% block content %}
@@ -12,15 +12,22 @@
     <button class="btn" type="submit">{% translate "Compare" %}</button>
     {% translate "previous" as previous_name %}{% translate "next" as next_name %}<span class="steps">{% if previous %}<a class="step previous" href="{{ previous }}" title="{{ previous_name }}" aria-label="{{ previous_name }}">‹</a>{% else %}<button class="step previous" type="button" disabled title="{{ previous_name }}" aria-label="{{ previous_name }}">‹</button>{% endif %} {% if next %}<a class="step next" href="{{ next }}" title="{{ next_name }}" aria-label="{{ next_name }}">›</a>{% else %}<button class="step next" type="button" disabled title="{{ next_name }}" aria-label="{{ next_name }}">›</button>{% endif %}</span>
   </form>
-  <div class="compare-panes">
-    <div class="changes document-text">{{ changes }}</div>
-    <aside class="panel" aria-label="{% translate 'Parts' %}">
+  <div class="panes" style="--outline-kept: {{ outline_width }}px; --panel-kept: {{ panel_width }}px">
+    {% include "rendering/panes_outline.html" %}
+    <div class="centre"><div class="changes document-text">{{ changes }}</div></div>
+    <div class="edge" role="separator" aria-orientation="vertical" data-drag="--panel-kept" data-pane="panel" data-side="right" data-min="{{ panel_bounds.0 }}" data-max="{{ panel_bounds.1 }}" data-keep="/preferences/panel-width/"></div>
+    <aside class="panel{% if panel_shut %} shut{% endif %}" id="panel" aria-label="{% translate 'Parts' %}">
+      <div class="pane-head"><button type="button" class="icon" data-pane-toggle="panel" data-keep-shut="/preferences/panel-shut/" aria-expanded="{% if panel_shut %}false{% else %}true{% endif %}" aria-label="{% translate 'Collapse the panel' %}">⇥</button></div>
+      <section class="pane-section" data-section="parts"><div class="section-head"><button type="button" class="section-name" data-section-toggle aria-expanded="true">{% translate "Parts" %}</button></div><div class="section-body">
       {% include "rendering/compare_appendix_pair.html" with from_appendices=older_appendices to_appendices=newer_appendices from_number=older to_number=newer %}
       <section class="attachments">
         <h2>{% translate "Attachments" %}</h2>
         {% if parts %}<ul>{% for part in parts %}<li data-change="{{ part.change }}">{% firstof part.newer.title part.older.title %}{% if part.older and part.newer and part.older.title != part.newer.title %} <span class="muted">({{ part.older.title }})</span>{% endif %} — {% if part.change == "added" %}{% translate "added" %}{% elif part.change == "changed" %}{% translate "changed" %}{% elif part.change == "removed" %}{% translate "removed" %}{% else %}{% translate "unchanged" %}{% endif %}<br>{% if part.older %}<a href="/document/{{ document.number }}/version/{{ older }}/attachment/{{ part.number }}/">{{ older }} · {{ part.older.file_name }}</a>{% endif %}{% if part.older and part.newer %} · {% endif %}{% if part.newer %}<a href="/document/{{ document.number }}/version/{{ newer }}/attachment/{{ part.number }}/">{{ newer }} · {{ part.newer.file_name }}</a>{% endif %}</li>{% endfor %}</ul>{% else %}<p>{% translate "No attachments" %}</p>{% endif %}
       </section>
+      </div></section>
     </aside>
   </div>
+  <script src="{% static 'rendering/outline.js' %}" defer></script>
+  <script src="{% static 'rendering/panel.js' %}" defer></script>
 </section>
 {% endblock %}

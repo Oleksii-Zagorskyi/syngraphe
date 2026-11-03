@@ -36,6 +36,37 @@
     if (layout && fit(layout) && !closed) openOver(layout, pane);
   });
 
+  // An outline entry whose heading id the text does not carry — the review page's marked text,
+  // the editor, a comparison — scrolls to the heading its number names, else to the heading at its
+  // place in the outline, resolved when clicked, so headings typed since are counted (DL-0527). A
+  // heading drawn as removed is not one of the text's.
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest(".outline a[href^='#']");
+    if (!link || document.getElementById(decodeURIComponent(link.hash.slice(1)))) return;
+    const centre = link.closest(".panes")?.querySelector(":scope > .centre");
+    const text =
+      centre?.querySelector(".ProseMirror") ||
+      centre?.querySelector(".changes") ||
+      centre?.querySelector(".document-text");
+    if (!text) return;
+    const headings = [...text.querySelectorAll("h1, h2, h3, h4, h5, h6")].filter(standing);
+    const label = link.querySelector(".num")?.textContent.trim();
+    let heading = label && headings.find((h) => h.querySelector(".num")?.textContent.trim() === label);
+    if (!heading) {
+      const entries = [...link.closest(".outline").querySelectorAll("a[href^='#']")];
+      heading = headings[entries.indexOf(link)];
+    }
+    if (!heading) return;
+    event.preventDefault();
+    heading.scrollIntoView({ block: "start" });
+  });
+
+  const standing = (heading) => {
+    const words = heading.cloneNode(true);
+    for (const gone of words.querySelectorAll("del, .num")) gone.remove();
+    return words.textContent.trim() !== "";
+  };
+
   // A collapsed pane is a strip, and the person's collapse is kept (DL-0526); a pane the narrow
   // window collapses is not the person's choice, so nothing is sent for it and it opens again
   // when the window allows.

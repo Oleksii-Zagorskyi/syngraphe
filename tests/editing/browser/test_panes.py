@@ -286,7 +286,7 @@ def test_a_narrow_window_keeps_the_text(
 # Every page with panes.
 
 
-@pytest.mark.parametrize("which", ["review", "draft"])
+@pytest.mark.parametrize("which", ["review", "draft", "compare"])
 def test_a_narrow_window_on_every_page(
     which: str,
     browser_server: str,
@@ -296,9 +296,10 @@ def test_a_narrow_window_on_every_page(
     link_group: Any,
     commit_version: Any,
     editing: Any,
+    migrated_tenant: Any,
 ) -> None:
-    """A narrow window on the review page, as a holder of *accept* with a run pending, and on the
-    draft's page as the holder."""
+    """A narrow window on the review page, as a holder of *accept* with a run pending, on the
+    draft's page as the holder, and on a comparison of two versions."""
     page.set_viewport_size(NARROW)
     if which == "review":
         from access.rights import Right
@@ -313,10 +314,29 @@ def test_a_narrow_window_on_every_page(
         url = f"{browser_server}/document/{document.number}/pending/"
         _goto(page, url)
         _narrow_window_keeps_the_text(page, url, "run-panel")
+    elif which == "compare":
+        client, author, _ = member_of("the.author@example.test")
+        document = new_document(author)
+        commit_version(document, author, BODY, "edit")
+        commit_version(document, author, BODY.replace("ten days", "five days"), "edit")
+        _sign_in(page, browser_server, client)
+        first, second = _two_newest(author, document, migrated_tenant)
+        url = f"{browser_server}/document/{document.number}/compare/?from={first}&to={second}"
+        _goto(page, url)
+        _narrow_window_keeps_the_text(page, url, "panel")
     else:
         document = editing(BODY)
         url = f"{browser_server}/document/{document.number}/edit/"
         _narrow_window_keeps_the_text(page, url, "parts-panel", EDITOR_READY)
+
+
+def _two_newest(user: Any, document: Any, tenant: Any) -> tuple[str, str]:
+    from review.history import reachable
+    from tenancy.schemas import schema_context
+
+    with schema_context(tenant.number):
+        numbers = [number for number, _version in reachable(user, document)]
+    return numbers[-2], numbers[-1]
 
 
 # The panel's sections stack and collapse on their own (DL-0536).
