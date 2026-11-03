@@ -8,7 +8,7 @@
   {# The document's frame, its path in appendix mode; the appendix's title after the document's — the number is internal (DL-0444, DL-0522) #}
   {% include "documents/frame.html" %}
   {% block banner %}{% endblock %}
-  <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
+  <div class="panes" style="--outline-kept: {{ outline_width }}px; --panel-kept: {{ panel_width }}px">
     {% include "rendering/panes_outline.html" %}
     <div class="centre">
       {% block text %}{% include "rendering/view.html" %}{% endblock %}

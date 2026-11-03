@@ -139,15 +139,34 @@ def view_context(
 
 
 def panes(request: HttpRequest) -> dict[str, Any]:
-    """The widths the person keeps for the outline and the panel, and their bounds."""
+    """The widths the person keeps for the outline and the panel, their bounds, and whether the
+    person keeps each collapsed (DL-0195, DL-0526) — read in one query."""
+    kept = dict(
+        UserPreference.objects.filter(user=cast(User, request.user), key__in=PANE_KEYS).values_list(
+            "key", "value"
+        )
+    )
     return {
-        "outline_width": _kept(
-            request, "outline_width", OUTLINE_WIDTH, OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX
+        "outline_width": _width(
+            kept.get("outline_width"), OUTLINE_WIDTH, OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX
         ),
         "outline_bounds": (OUTLINE_WIDTH_MIN, OUTLINE_WIDTH_MAX),
-        "panel_width": _kept(request, "panel_width", PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
+        "panel_width": _width(
+            kept.get("panel_width"), PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX
+        ),
         "panel_bounds": (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX),
+        "outline_shut": kept.get("outline_shut") == "on",
+        "panel_shut": kept.get("panel_shut") == "on",
     }
+
+
+PANE_KEYS = ("outline_width", "panel_width", "outline_shut", "panel_shut")
+
+
+def _width(kept: str | None, default: int, least: int, most: int) -> int:
+    if kept and kept.isdigit() and least <= int(kept) <= most:
+        return int(kept)
+    return default
 
 
 def _declared_at(repo: Any, commit: str, document: Document) -> list[Any]:

@@ -84,6 +84,28 @@ def panel_width(request: HttpRequest) -> HttpResponse:
     return _width(request, "panel_width", PANEL_WIDTH_MIN, PANEL_WIDTH_MAX)
 
 
+def _shut(request: HttpRequest, key: str) -> HttpResponse:
+    value = request.POST.get("shut", "")
+    if request.method != "POST" or value not in ON_OFF:
+        return not_found(request)
+    _keep(cast(User, request.user), key, value)
+    return HttpResponse(status=204)
+
+
+@login_required
+def outline_shut(request: HttpRequest) -> HttpResponse:
+    """Whether the person keeps the outline collapsed, `on` or `off` (DL-0526); a collapse the
+    narrow window makes is never sent."""
+    return _shut(request, "outline_shut")
+
+
+@login_required
+def panel_shut(request: HttpRequest) -> HttpResponse:
+    """Whether the person keeps the right panel collapsed, `on` or `off` (DL-0526): one for every
+    page's panel, as its width is."""
+    return _shut(request, "panel_shut")
+
+
 @login_required
 def folder_tree_width(request: HttpRequest) -> HttpResponse:
     """The folder tree's width beside the document list, in pixels, within its bounds."""

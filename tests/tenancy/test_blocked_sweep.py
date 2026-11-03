@@ -83,6 +83,8 @@ EXEMPT: dict[str, str] = {
     "preference_show_author": "a person's own preference",
     "preference_outline_width": "a person's own preference",
     "preference_panel_width": "a person's own preference",
+    "preference_outline_shut": "a person's own preference",
+    "preference_panel_shut": "a person's own preference",
     "preference_folder_tree_width": "a person's own preference",
     "switch_organisation": "the organisation switcher: which organisations a person reaches",
     "choose_organisation": "the platform's organisation selector",

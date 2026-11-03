@@ -1,7 +1,8 @@
 {% load i18n %}{# The edit tab's own panel (DL-0442): the draft's parts, each control drawn to a person who holds its right; hidden until the hold is taken. #}
-<div class="edge" role="separator" aria-orientation="vertical" data-drag="--panel-width" data-pane="parts-panel" data-side="right" data-min="{{ panel_bounds.0 }}" data-max="{{ panel_bounds.1 }}" data-keep="/preferences/panel-width/"></div>
-<aside class="panel parts-panel" id="parts-panel" data-parts-panel aria-label="{% translate 'Parts' %}"{% if not holding %} hidden{% endif %}>
-  <div class="pane-head"><strong>{% translate "Parts" %}</strong><button type="button" class="icon" data-pane-toggle="parts-panel" aria-expanded="true" aria-label="{% translate 'Collapse the panel' %}">⇥</button></div>
+<div class="edge" role="separator" aria-orientation="vertical" data-drag="--panel-kept" data-pane="parts-panel" data-side="right" data-min="{{ panel_bounds.0 }}" data-max="{{ panel_bounds.1 }}" data-keep="/preferences/panel-width/"></div>
+<aside class="panel parts-panel{% if panel_shut %} shut{% endif %}" id="parts-panel" data-parts-panel aria-label="{% translate 'Parts' %}"{% if not holding %} hidden{% endif %}>
+  <div class="pane-head"><button type="button" class="icon" data-pane-toggle="parts-panel" data-keep-shut="/preferences/panel-shut/" aria-expanded="{% if panel_shut %}false{% else %}true{% endif %}" aria-label="{% translate 'Collapse the panel' %}">⇥</button></div>
+  <section class="pane-section" data-section="parts"><div class="section-head"><button type="button" class="section-name" data-section-toggle aria-expanded="true">{% translate "Parts" %}</button></div><div class="section-body">
   <section class="appendices">
     <h2>{% translate "Appendices" %}</h2>
     {% if parts_panel.appendices %}<ul>{% for item in parts_panel.appendices %}<li data-appendix="{{ item.number }}">
@@ -26,4 +27,5 @@
     {% if parts_panel.can_upload %}<form method="post" action="/document/{{ document.number }}/edit/parts/attachment/" enctype="multipart/form-data" class="part-add">{% csrf_token %}<input name="title" required maxlength="500" aria-label="{% translate 'Title of the new attachment' %}" placeholder="{% translate 'Title of the new attachment' %}"> <input type="file" name="file" required aria-label="{% translate 'File' %}"> <button class="btn" type="submit">{% translate "Add" %}</button></form>{% endif %}
   </section>
   {% include "editing/title_page_panel.html" %}
+  </div></section>
 </aside>

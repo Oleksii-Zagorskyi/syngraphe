@@ -1,6 +1,6 @@
-{% load i18n %}<div class="edge" role="separator" aria-orientation="vertical" data-drag="--panel-width" data-pane="panel" data-side="right" data-min="{{ panel_bounds.0 }}" data-max="{{ panel_bounds.1 }}" data-keep="/preferences/panel-width/"></div>
-    <aside class="panel" id="panel" aria-label="{% translate 'Panel' %}">
-      <div class="pane-head"><div class="iconrow"><button type="button" class="on" data-panel-switch="parts" aria-pressed="true" title="{% translate 'Parts' %}">{% translate "Parts" %}</button><button type="button" data-panel-switch="generated" aria-pressed="false" title="{% translate 'Generated views' %}">{% translate "Generated views" %}</button></div><button type="button" class="icon" data-pane-toggle="panel" aria-expanded="true" aria-label="{% translate 'Collapse the panel' %}">⇥</button></div>
-      <div data-panel-pane="parts">{% include "documents/appendices.html" %}{% include "documents/attachments.html" %}</div>
-      <div data-panel-pane="generated" hidden>{% include "rendering/generated_views.html" %}</div>
+{% load i18n %}<div class="edge" role="separator" aria-orientation="vertical" data-drag="--panel-kept" data-pane="panel" data-side="right" data-min="{{ panel_bounds.0 }}" data-max="{{ panel_bounds.1 }}" data-keep="/preferences/panel-width/"></div>
+    <aside class="panel{% if panel_shut %} shut{% endif %}" id="panel" aria-label="{% translate 'Panel' %}">
+      <div class="pane-head"><button type="button" class="icon" data-pane-toggle="panel" data-keep-shut="/preferences/panel-shut/" aria-expanded="{% if panel_shut %}false{% else %}true{% endif %}" aria-label="{% translate 'Collapse the panel' %}">⇥</button></div>
+      <section class="pane-section" data-section="parts"><div class="section-head"><button type="button" class="section-name" data-section-toggle aria-expanded="true">{% translate "Parts" %}</button></div><div class="section-body">{% include "documents/appendices.html" %}{% include "documents/attachments.html" %}</div></section>
+      <section class="pane-section" data-section="generated"><div class="section-head"><button type="button" class="section-name" data-section-toggle aria-expanded="true">{% translate "Generated views" %}</button></div><div class="section-body">{% include "rendering/generated_views.html" %}</div></section>
     </aside>

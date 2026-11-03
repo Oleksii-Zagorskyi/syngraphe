@@ -126,8 +126,7 @@ def test_the_reading_view_runs_under_the_policy(
     _sign_in(page, browser_server, client)
 
     page.goto(f"{browser_server}/document/{document.number}/", wait_until="load")
-    page.click("[data-panel-switch=generated]")
-    assert page.is_visible("[data-panel-pane=generated]")
+    assert page.is_visible("[data-section=generated] .section-body")
     outline_width = page.evaluate(
         "() => getComputedStyle(document.querySelector('.panes'))"
         ".getPropertyValue('--outline-width')"

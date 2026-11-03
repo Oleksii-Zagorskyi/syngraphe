@@ -19,12 +19,130 @@
       return;
     }
     const shut = event.target.closest("[data-pane-toggle]");
-    if (shut) {
-      const pane = document.getElementById(shut.dataset.paneToggle);
-      const closed = pane.classList.toggle("shut");
-      shut.setAttribute("aria-expanded", String(!closed));
+    for (const over of document.querySelectorAll(".panes[data-narrow] > .over")) {
+      if (!over.contains(event.target) && shut?.dataset.paneToggle !== over.id) close(over);
     }
+    if (!shut) return;
+    const pane = document.getElementById(shut.dataset.paneToggle);
+    const layout = pane.closest(".panes");
+    if (layout?.hasAttribute("data-narrow")) {
+      if (pane.classList.contains("over")) close(pane);
+      else openOver(layout, pane);
+      return;
+    }
+    const closed = pane.classList.toggle("shut");
+    expanded(pane);
+    if (shut.dataset.keepShut) keep(shut.dataset.keepShut, closed);
+    if (layout && fit(layout) && !closed) openOver(layout, pane);
   });
+
+  // A collapsed pane is a strip, and the person's collapse is kept (DL-0526); a pane the narrow
+  // window collapses is not the person's choice, so nothing is sent for it and it opens again
+  // when the window allows.
+  const keep = (url, shut) =>
+    fetch(url, {
+      method: "POST",
+      body: new URLSearchParams({ shut: shut ? "on" : "off" }),
+      headers: { "X-CSRFToken": csrf() },
+      credentials: "same-origin",
+      redirect: "manual",
+    });
+
+  const expanded = (pane) => {
+    const toggle = document.querySelector(`[data-pane-toggle="${pane.id}"]`);
+    if (toggle) toggle.setAttribute("aria-expanded", String(!pane.classList.contains("shut")));
+  };
+
+  const sides = (layout) =>
+    [...layout.children].filter((child) => child.matches(".outline, .panel") && !child.hidden);
+
+  const pixels = (layout, property, fallback) =>
+    parseFloat(getComputedStyle(layout).getPropertyValue(property)) || fallback;
+
+  const kept = (layout, pane) =>
+    pane.matches(".outline")
+      ? pixels(layout, "--outline-kept", 250)
+      : pixels(layout, "--panel-kept", 280);
+
+  // The narrow rule: the text's own minimum, each edge, each pane the person keeps open at its
+  // kept width, each pane they keep collapsed as its strip.
+  const narrow = (layout) => {
+    let need = pixels(layout, "--text-min", 560);
+    for (const edge of layout.querySelectorAll(":scope > .edge")) {
+      if (getComputedStyle(edge).display !== "none") need += 6;
+    }
+    for (const pane of sides(layout)) {
+      const open = !pane.classList.contains("shut") || "narrowed" in pane.dataset;
+      need += open ? kept(layout, pane) : pixels(layout, "--pane-strip", 36);
+    }
+    return layout.clientWidth < need;
+  };
+
+  // Draws the panes for the window as it is; true when it has just turned narrow.
+  const fit = (layout) => {
+    const was = layout.hasAttribute("data-narrow");
+    const now = narrow(layout);
+    if (!now && !was) return false;
+    layout.toggleAttribute("data-narrow", now);
+    for (const pane of sides(layout)) {
+      if (now && !pane.classList.contains("shut") && !pane.classList.contains("over")) {
+        pane.classList.add("shut");
+        pane.dataset.narrowed = "";
+      } else if (!now) {
+        // A pane the person keeps collapsed goes back to its strip; a narrowed one opens, its
+        // sections with it, never as a column of closed names.
+        const narrowed = "narrowed" in pane.dataset;
+        if (pane.classList.contains("over") && !narrowed) pane.classList.add("shut");
+        pane.classList.remove("over");
+        if (narrowed) {
+          pane.classList.remove("shut");
+          const sections = [...pane.querySelectorAll(":scope > [data-section]")];
+          if (sections.every((section) => section.classList.contains("shut"))) {
+            for (const section of sections) {
+              section.classList.remove("shut");
+              const name = section.querySelector("[data-section-toggle]");
+              if (name) name.setAttribute("aria-expanded", "true");
+            }
+          }
+        }
+        delete pane.dataset.narrowed;
+      }
+      expanded(pane);
+    }
+    return now && !was;
+  };
+
+  const openOver = (layout, pane) => {
+    for (const other of layout.querySelectorAll(":scope > .over")) close(other);
+    layout.style.setProperty("--over-top", `${Math.max(0, -layout.getBoundingClientRect().top)}px`);
+    pane.classList.remove("shut");
+    pane.classList.add("over");
+    expanded(pane);
+  };
+
+  const close = (pane) => {
+    pane.classList.remove("over");
+    pane.classList.add("shut");
+    expanded(pane);
+  };
+
+  const layouts = () => document.querySelectorAll(".panes:not(.list-panes)");
+  const fitAll = () => {
+    for (const layout of layouts()) fit(layout);
+  };
+  const start = () => {
+    fitAll();
+    // A pane revealed later — the draft's parts panel once the hold is taken — is fitted too.
+    const watch = new MutationObserver(fitAll);
+    for (const layout of layouts()) {
+      for (const pane of sides(layout).concat([...layout.querySelectorAll(":scope > [hidden]")])) {
+        watch.observe(pane, { attributes: true, attributeFilter: ["hidden"] });
+      }
+    }
+    window.addEventListener("resize", fitAll);
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 
   document.addEventListener("pointerdown", (event) => {
     const edge = event.target.closest("[data-drag]");

@@ -7,7 +7,7 @@
   {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
   {% include "documents/frame.html" %}
   {% if tab == "view" %}
-  <div class="panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
+  <div class="panes" style="--outline-kept: {{ outline_width }}px; --panel-kept: {{ panel_width }}px">
     {% include "rendering/panes_outline.html" %}
     <div class="centre">
       {% include "rendering/view.html" %}

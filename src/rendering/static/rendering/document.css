@@ -70,13 +70,38 @@
 .attachments .file-name, .attachments .size { color: #777; font-size: 0.9em; margin-left: 0.5em; }
 /* The document page's panes (DL-0195): the outline, the text, the panel; each side pane collapses
    and its edge drags. */
-.panes { display: grid; grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr) 6px var(--panel-width, 280px); align-items: start; }
-.panes:has(#outline-pane.shut) { --outline-width: 36px; }
-.panes:has(#panel.shut) { --panel-width: 36px; }
+/* The page sets the widths the person keeps as `--outline-kept` and `--panel-kept`; the tracks read
+   them here, so a collapsed pane's strip outranks them (DL-0526). */
+.panes { --pane-strip: 36px; --text-min: 560px; --outline-width: var(--outline-kept, 250px); --panel-width: var(--panel-kept, 280px); display: grid; grid-template-columns: var(--outline-width, 250px) 6px minmax(0, 1fr) 6px var(--panel-width, 280px); align-items: start; }
+.panes:has(> .outline.shut), .panes[data-narrow] { --outline-width: var(--pane-strip); }
+.panes:has(> .panel.shut), .panes[data-narrow] { --panel-width: var(--pane-strip); }
+/* Each child keeps its track, so a pane opened over the text leaves the grid as it was. */
+.panes:not(.list-panes) { position: relative; }
+.panes:not(.list-panes) > .outline { grid-column: 1; }
+.panes:not(.list-panes) > .edge:not([data-side="right"]) { grid-column: 2; }
+.panes:not(.list-panes) > .centre { grid-column: 3; }
+.panes:not(.list-panes) > .edge[data-side="right"] { grid-column: 4; }
+.panes:not(.list-panes) > .panel { grid-column: 5; }
+/* In a window too narrow for the text and the open panes, a pane opens over the text. */
+.panes[data-narrow] > .over { position: absolute; top: var(--over-top, 0); z-index: 30; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18); }
+.panes[data-narrow] > .outline.over { left: 0; width: var(--outline-kept, 250px); }
+.panes[data-narrow] > .panel.over { right: 0; width: var(--panel-kept, 280px); }
 .panes .outline, .panes .panel { position: sticky; top: 0; max-height: 100vh; overflow: auto; min-width: 0; padding: 8px 10px; background: #fff; }
 /* A pane shut: its head's button stays, nothing else — never a shut node inside the outline. */
 .panes > .shut > :not(.pane-head) { display: none; }
 .panes > .shut > .pane-head > :not(button) { display: none; }
+.panes > .shut { padding: 8px 4px; }
+/* The panel's sections stand one under another, each under its name (DL-0536); in the strip only
+   the names stay, drawn vertically. */
+.pane-section + .pane-section { margin-top: 10px; padding-top: 6px; border-top: 1px solid #eee; }
+.section-name { border: 0; background: none; padding: 0; font: inherit; font-size: 12px; color: #777; cursor: pointer; text-align: left; }
+.section-name::before { content: "▾ "; }
+.pane-section.shut > .section-head .section-name::before { content: "▸ "; }
+.pane-section.shut > .section-body { display: none; }
+.panes > .panel.shut > .pane-section { display: block; margin: 10px 0 0; padding: 0; border: 0; }
+.panes > .panel.shut > .pane-section > .section-body { display: none; }
+.panes > .panel.shut .section-name { writing-mode: vertical-rl; }
+.panes > .panel.shut .section-name::before { content: none; }
 .panes .centre { min-width: 0; padding: 0 16px; }
 .panes .edge { align-self: stretch; cursor: col-resize; background: #e6e6e6; touch-action: none; }
 .pane-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; color: #777; font-size: 12px; }
@@ -87,9 +112,6 @@
 .outline .toggle { border: 0; background: none; cursor: pointer; padding: 0 2px; color: #777; }
 .outline a { color: inherit; text-decoration: none; }
 .outline .num { color: #777; margin-right: 4px; font-variant-numeric: tabular-nums; }
-.iconrow { display: flex; gap: 4px; flex-wrap: wrap; }
-.iconrow button { padding: 2px 6px; border: 1px solid #d4d4d4; border-radius: 3px; background: none; font: inherit; font-size: 14px; color: inherit; cursor: pointer; }
-.iconrow button.on { background: #555; color: #fff; }
 /* Changes in the diff views and in a marked export: a change of formatting alone shows the text as
    it now reads; its earlier form opens on focus in the browser and never prints. */
 .document-text ins { background: #dff0d8; text-decoration: none; }

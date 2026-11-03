@@ -11,6 +11,8 @@ urlpatterns = [
     path("preferences/show-author/", preferences.show_author, name="preference_show_author"),
     path("preferences/outline-width/", preferences.outline_width, name="preference_outline_width"),
     path("preferences/panel-width/", preferences.panel_width, name="preference_panel_width"),
+    path("preferences/outline-shut/", preferences.outline_shut, name="preference_outline_shut"),
+    path("preferences/panel-shut/", preferences.panel_shut, name="preference_panel_shut"),
     path(
         "preferences/folder-tree-width/",
         preferences.folder_tree_width,

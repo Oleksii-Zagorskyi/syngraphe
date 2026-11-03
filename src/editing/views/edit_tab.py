@@ -132,23 +132,16 @@ def tab_response(
         context["edited"] = has_edits(hold)
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     from editing.views.parts import panel
-    from identity.views.preferences import PANEL_WIDTH, PANEL_WIDTH_MAX, PANEL_WIDTH_MIN
-    from rendering.views import _kept
-
-    # The edit tab's own parts panel (DL-0442), as wide as the person keeps the View tab's; drawn
-    # hidden until a hold is taken — on mount or by *Start editing* — whose take reveals it.
-    context["parts_panel"] = panel(document, request.user, hold if holding else None)
-    context["panel_width"] = _kept(
-        request, "panel_width", PANEL_WIDTH, PANEL_WIDTH_MIN, PANEL_WIDTH_MAX
-    )
-    context["panel_bounds"] = (PANEL_WIDTH_MIN, PANEL_WIDTH_MAX)
-    # The outline beside the editor, as on a version's page (DL-0518): the draft's headings, or
-    # the head's before the hold.
     from rendering.outline import outline
     from rendering.renderer import labelled
     from rendering.views import panes
 
-    context |= {k: v for k, v in panes(request).items() if k.startswith("outline")}
+    # The edit tab's own parts panel (DL-0442), as wide and as collapsed as the person keeps a
+    # version page's; drawn hidden until a hold is taken — on mount or by *Start editing* — whose
+    # take reveals it. The outline beside the editor, as on a version's page (DL-0518): the
+    # draft's headings, or the head's before the hold.
+    context["parts_panel"] = panel(document, request.user, hold if holding else None)
+    context |= panes(request)
     context["headings"] = outline(labelled(_outline_text(document, hold if holding else None)))
     if holding and hold is not None:
         # What an undo left for the holder's hand, beside the text and never in it (DL-0380).

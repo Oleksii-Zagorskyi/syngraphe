@@ -1,5 +1,5 @@
-{% load i18n %}<nav class="outline" id="outline-pane" aria-label="{% translate 'Outline' %}">
-      <div class="pane-head"><span>{% translate "Outline" %}</span><button type="button" class="icon" data-pane-toggle="outline-pane" aria-expanded="true" aria-label="{% translate 'Collapse the outline' %}">⇤</button></div>
+{% load i18n %}<nav class="outline{% if outline_shut %} shut{% endif %}" id="outline-pane" aria-label="{% translate 'Outline' %}">
+      <div class="pane-head"><span>{% translate "Outline" %}</span><button type="button" class="icon" data-pane-toggle="outline-pane" data-keep-shut="/preferences/outline-shut/" aria-expanded="{% if outline_shut %}false{% else %}true{% endif %}" aria-label="{% translate 'Collapse the outline' %}">⇤</button></div>
       {% if headings %}<ul>{% include "rendering/outline.html" %}</ul>{% else %}<p class="muted">{% translate "No headings" %}</p>{% endif %}
     </nav>
-    <div class="edge" role="separator" aria-orientation="vertical" data-drag="--outline-width" data-pane="outline-pane" data-min="{{ outline_bounds.0 }}" data-max="{{ outline_bounds.1 }}" data-keep="/preferences/outline-width/"></div>
+    <div class="edge" role="separator" aria-orientation="vertical" data-drag="--outline-kept" data-pane="outline-pane" data-min="{{ outline_bounds.0 }}" data-max="{{ outline_bounds.1 }}" data-keep="/preferences/outline-width/"></div>

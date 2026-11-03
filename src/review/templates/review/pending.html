@@ -2,7 +2,7 @@
 {% load i18n static tz %}
 {% block body %}
 {# The review page (DL-0518, DL-0522): the run's text beside its outline, the run's versions in the panel with the undo, the acts above the text. #}
-<div class="panes review-panes" style="--outline-width: {{ outline_width }}px; --panel-width: {{ panel_width }}px">
+<div class="panes review-panes" style="--outline-kept: {{ outline_width }}px; --panel-kept: {{ panel_width }}px">
 {% include "rendering/panes_outline.html" %}
 <div class="centre">
 <div class="pending{% if show_author %} show-authors{% endif %}">
@@ -27,4 +27,5 @@
 {% include "review/run_panel.html" %}
 </div>
 <script src="{% static 'rendering/outline.js' %}" defer></script>
+<script src="{% static 'rendering/panel.js' %}" defer></script>
 {% endblock %}

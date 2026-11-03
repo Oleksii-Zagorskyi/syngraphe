@@ -226,7 +226,10 @@ def test_the_pending_tabs_checkbox_runs_under_the_policy(
             .getBoundingClientRect();
           const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
           const text = document.querySelector('.document-text').getBoundingClientRect();
-          return {hit: !!hit && !!hit.closest('form.show-author'), above: box.bottom <= text.top + 1};
+          return {
+            hit: !!hit && !!hit.closest('form.show-author'),
+            above: box.bottom <= text.top + 1,
+          };
         }"""
     )
     assert uncovered == {"hit": True, "above": True}, uncovered

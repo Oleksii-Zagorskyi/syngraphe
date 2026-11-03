@@ -79,9 +79,6 @@ h1 .version-number{color:var(--muted);font-weight:400;margin-left:6px}
 .tabs a{padding:6px 10px;text-decoration:none;color:inherit}
 .tabs a[aria-current=page]{border-bottom:2px solid var(--accent);font-weight:600}
 
-.iconrow{display:flex;gap:4px}
-.iconrow span{cursor:pointer;padding:3px 8px;border:1px solid var(--line);border-radius:3px;font-size:14px}
-.iconrow span.on{background:var(--accent);color:#fff}
 
 .item{padding:4px 0;border-bottom:1px dotted var(--line)}
 .sec{font-weight:600;margin-top:12px;display:flex;justify-content:space-between}
