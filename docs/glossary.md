@@ -210,13 +210,13 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **edit** · редагувати · *proposed* — the act on the latest version that opens the one editor, over the whole body or appendix; there is no editor over one section (DL-0517, DL-0518).
 
-**review page** · сторінка розгляду · *proposed* — where a holder of *accept* with a run pending reads the run with its change authors, the run's versions with their summaries in the panel, the part operations and *revert*, and accepts or returns it; opened by *Розглянути* on the latest version (DL-0518).
+**review page** · сторінка розгляду · *proposed* — where a holder of *accept* with a run pending reads the run with its change authors, the run's versions with their summaries in the panel, the part operations and *revert*, and accepts or returns it; opened by *Розглянути* on the latest version and by the run's arc, which to everyone else who may see pending edits opens the same page without its acts (DL-0518, DL-0522).
 
 **review** · розглянути · *proposed* — the act on the latest version that opens the review page, for a holder of *accept* while a run is pending (DL-0518).
 
 **path of versions** · шлях версій · *proposed* — the line across the document page that shows where the document stands: its points and the arcs between them, each opening its page; a person sees only the points and arcs their rights reach (DL-0518, DL-0522).
 
-**point / arc** · точка / відрізок правок · *proposed* — a point of the path is one version — canonical, latest accepted, latest, or the holder's draft — and opens it to read; an arc is the edits between two points and opens their comparison (DL-0518).
+**point / arc** · точка / відрізок правок · *proposed* — a point of the path is one version — canonical, latest accepted, latest, or the holder's draft — and opens it to read; an arc is the edits between two points — the first opens their comparison, the run's arc the review page (DL-0518, DL-0522).
 
 **more** · більше · *proposed* — the icon (⋯) in the document's heading behind which the administrator's acts stand, drawn to administrators alone (DL-0522).
 

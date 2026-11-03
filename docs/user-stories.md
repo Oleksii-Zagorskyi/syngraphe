@@ -133,7 +133,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0013** — As a user, I browse the document list and filter it by type and by folder, so that I find what I need in a corpus that grows.
 - A search box finds documents by their titles and their appendices' titles, never by text; results are grouped by full folder path, and the folder pane shows only folders with results.
-- I always browse inside a folder, the organisation's root included (DL-0197). *In edit* and *In review* are views of their own, showing only the folders that hold matching documents.
+- I always browse inside a folder, the organisation's root included (DL-0197). *Being edited* · *У редагуванні* and *In review* are views of their own, showing only the folders that hold matching documents.
 - Each row starts with the document's number, `#7`.
 - Each row shows the canonical version, linking to it, and the latest version I may see beyond it, linking where the title does (DL-0208); icons for appendices and attachments; the title opens the reading view, the pencil the editor. Export is on the document page, not the list.
 - Copying a document and comparing two documents start from the list: *Copy* on each row, *Compare documents…* for the pair (DL-0520, ST-0067, ST-0064).
@@ -271,7 +271,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0032** — As a holder of a history right on a document, I step through its versions one at a time, with a visible boundary between what has been accepted and what has not.
 - Each entry shows the version, the event — edit, acceptance, return, freeze, canonisation — and who acted (DL-0197).
 - Each version opens as a historical page — from here in a new window, from its point on the path in the same one, the path above it (DL-0522): the reading view and export, never editing, and *compare with* any other version, the latest included (DL-0195).
-- The history opens from *History*, an icon in the document page's heading; the path of versions on the page opens the comparison of the canonical version with the latest accepted, and of the latest accepted with the latest (DL-0518).
+- The history opens from *History*, an icon in the document page's heading; the path of versions on the page opens the comparison of the canonical version with the latest accepted, and the review page for the run from the latest accepted to the latest (DL-0518, DL-0522).
 - Every comparison of two versions offers *‹* and *›* — *previous* and *next* as their tooltips and accessible names: for a comparison of X and Y, *‹* opens the version before X against X, and *›* opens Y against the version after Y — so a long history is read edit by edit; a version the reader may not see is skipped (DL-0209), and each stands disabled when no such version exists (DL-0508).
 
 **ST-0033** — As a reviewer, I compare any two versions directly, so that I am not forced to read a long run one step at a time.
@@ -295,7 +295,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - The acceptance is recorded in the document itself, so it survives export and needs no second system to be believed.
 - Acceptance covers the whole document. Accepting only part of a run is a backlog refinement.
 - I may accept work I wrote myself; the record, not a rule, is what makes that accountable (DL-0092). Finishing my own session, I can do both in one act (ST-0029).
-- I cannot accept, return or correct while the document is reserved; the screen says it is reserved and by whom (DL-0224).
+- I cannot accept or return while the document is reserved; the screen says it is reserved and by whom (DL-0224). An ordinary hold leaves both open; it disables *Edit* and the undo, naming the holder (DL-0516).
 - Every author whose lines of the run a reviewer's version replaced or removed, or whose appendix or attachment operation it reversed, receives one **correction notice** for the acceptance — their text, the accepted text, and who changed it (ADR-0014).
 
 **ST-0052** — As a reviewer, I return a run without accepting it, giving a reason, so that I can decline work that needs rework instead of holding it or unpicking it sentence by sentence.

@@ -1,6 +1,6 @@
 # Exporting
 
-**Export** on a document's page makes a file of one stated version, which you then download. Only what you may read can be exported.
+**Export**, an icon beside a document's heading, opens a page of its own, which makes a file of one stated version for you to download. The page's heading names the version that will be exported and follows the view you choose. Only what you may read can be exported.
 
 - **What.** The **document**, its **appendices**, its **attachments**, or any of them. Appendices go **embedded** — after the body and before the attachment list, each numbered from 1 and starting a new page in PDF, their titles not printed — or **separate**, each a file of its own named by its number and title; appendices chosen without the document always go as separate files. When the version has attachments, the document's export ends with the **attachment list**: each attachment's title, file name and hash. Ticking *Attachments* also adds the files themselves.
 - **Format.** **PDF** and **DOCX** carry the numbers of the headings and clauses and page numbers at the foot; no page carries a header — the file's name says which document, version and view it holds, as does the title page where the document has one. The PDF also carries the outline in the viewer's sidebar. **Markdown** is the text as the source view shows it, its headings numbered, without the document's frontmatter, and never carries marked changes.
@@ -19,4 +19,4 @@ PDF and DOCX carry the document's images where its text holds them, a photograph
 
 ## The title page and the stylesheet
 
-Which details a title page shows, in which order and how aligned, is the organisation's *Title page layout*; whether a document has a title page, and its own text on it, are changed in the edit tab as part of a draft. The organisation's stylesheet sets how PDF and Word files look, as it does the reading view. *Template and styles* tells how both are set.
+Which details a title page shows, in which order and how aligned, is the organisation's *Title page layout*; whether a document has a title page, and its own text on it, are changed while editing, as part of a draft. The organisation's stylesheet sets how PDF and Word files look, as it does the reading view. *Template and styles* tells how both are set.

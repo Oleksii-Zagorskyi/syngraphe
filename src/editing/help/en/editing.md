@@ -1,12 +1,16 @@
 # Editing
 
+*Edit*, on the latest version of the document's path, opens the whole document in the editor at once. While you edit, the document is held for you, and your draft is a point of its own on the path, numbered as the version it will become; its acts stand beneath it.
+
 The editor has two views of the same text: the formatted view and the source view, which shows the text as Markdown with each paragraph on one line. Switch between them with the control above the text.
 
 What you type is kept a moment after you pause, and the indicator above the text says whether it was. If you close the page, your text is there when you come back.
 
 Text pasted from elsewhere is checked. A construct the editor does not accept is refused with its line named; in the source view a conversion is offered, shown before it is applied. The list of what the editor accepts is on its own page.
 
-When you are done, choose *Finish editing*.
+*My edits*, a checkbox in the editor's row, shows the whole document with your changes marked in place; it is enabled after your first edit.
+
+When you are done, choose *Finish editing*. Until your first edit, *Release the document* lets the document go and keeps nothing; after it, *Discard my edits…* throws your draft away, once you confirm in its window.
 
 ## Images
 
@@ -22,4 +26,4 @@ Select words and choose *Mention*, then type another document's number, to menti
 
 ## The title page
 
-While you hold the document, the panel on the right of the **Edit** tab has *Title page*: tick it to give the document a title page, or untick it to take the page away, and write the document's own *Title page text* — plain text, at most 500 characters and 8 lines, its line breaks kept. *Apply* puts both in your draft. They are changes of your draft like your text: the finishing screen, *My edits* and the reviewer's *Pending edits* list them, and they become part of the document with your version. A version that changes nothing else can be sent too. Undoing an author's edits keeps them, as it keeps a title. Which details the title page shows, and in which order, is the organisation's choice: *Template and styles* tells how it is set.
+While you hold the document, the panel on the right of the editor has *Title page*: tick it to give the document a title page, or untick it to take the page away, and write the document's own *Title page text* — plain text, at most 500 characters and 8 lines, its line breaks kept. *Apply* puts both in your draft. They are changes of your draft like your text: the finishing screen, *My edits* and the reviewer's review page list them, and they become part of the document with your version. A version that changes nothing else can be sent too. Undoing an author's edits keeps them, as it keeps a title. Which details the title page shows, and in which order, is the organisation's choice: *Template and styles* tells how it is set.
