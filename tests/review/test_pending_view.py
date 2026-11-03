@@ -1,5 +1,6 @@
-"""The *Pending edits* tab: the whole document, every change since the last acceptance marked in
-place and, with *show author* on, attributed (DL-0040, DL-0170, ASR-21).
+"""The review page, `pending/`: the whole document, every change since the last acceptance marked
+in place and, with *show author* on, attributed (DL-0040, DL-0170, ASR-21); the run's versions in
+its panel with the undo, and its acts (DL-0518, DL-0522).
 
 Groups, people and texts are synthetic examples.
 """
@@ -349,6 +350,67 @@ def test_a_changed_image_before_and_after(
         assert f'src="/document/{people.document.number}/image/{data_path[7:]}/"' in pair
     assert "0.1 —" in pair and "0.1-1 —" in pair
     assert "image changed" in page or "зображення змінено" in page
+
+
+def test_a_reader_of_pending_work_reads_the_whole_run(
+    migrated_tenant: Any, cast: Any, commit_version: Any, member_of: Any, link_group: Any
+) -> None:
+    """A holder of *view pending* without *accept* reads on the review page what a reviewer
+    reads — the change authors, the changed image's pair, the part operations — and acts on none
+    of it: no *revert*, no undo, no act row (DL-0522)."""
+    import hashlib
+
+    from access.rights import Right
+    from review import services
+
+    old, new = b"the accepted image", b"the run's image"
+    paths = [f"images/{hashlib.sha256(d).hexdigest()}.png" for d in (old, new)]
+    body = "# General provisions\n\nA request for approval is made in writing.\n"
+    people = cast(editors=("a",), reviewers=("r",))
+    document = people.document
+    commit_version(
+        document, people["a"], body + f"\n![A plan]({paths[0]})\n", "edit", files={paths[0]: old}
+    )
+    with schema_context(migrated_tenant.number):
+        services.accept(document, people["r"])
+    commit_version(
+        document,
+        people["a"],
+        body + "A copy goes to the applicant.\n" + f"\n![A plan]({paths[1]})\n",
+        "edit",
+        files={
+            paths[0]: None,
+            paths[1]: new,
+            "appendices/2.md": b"# A synthetic form\n\nThe form is filled in by hand.\n",
+        },
+        appendices=[{"number": 2, "title": "A synthetic form (example)"}],
+    )
+    reader, _, membership = member_of("pending.watcher@example.test")
+    link_group(document, [Right.VIEW_PENDING], [membership], people["a"])
+    show_author(reader)
+    n = document.number
+
+    answer = reader.get(f"/document/{n}/pending/")
+    assert answer.status_code == 200
+    page = answer.content.decode()
+    assert re.search(r'<span class="by" data-author="[^"]+"[^>]*><ins>A copy goes', page)
+    pair = page[page.index('<div class="imgpair">') :]
+    for data_path in paths:
+        assert f'src="/document/{n}/image/{data_path[7:]}/"' in pair
+    parts = page[page.index('<section class="part-changes">') :]
+    assert "A synthetic form (example)" in parts
+    # Read-only: nothing that acts on the run.
+    assert "/pending/revert/" not in page and "history/undo/" not in page
+    assert 'class="acts phase-acts"' not in page
+    # The reviewer's page over the same run carries what the reader's leaves out.
+    from django.test import Client
+
+    reviewer = Client(headers={"host": "127.0.0.1"})
+    reviewer.force_login(people["r"])
+    session = reviewer.session
+    session["tenant_number"] = migrated_tenant.number
+    session.save()
+    assert "/pending/revert/" in reviewer.get(f"/document/{n}/pending/").content.decode()
 
 
 def test_entity_changes_are_listed(

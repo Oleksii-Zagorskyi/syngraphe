@@ -32,7 +32,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0065** — As a platform administrator, I block a tenant, so that nobody but platform administrators can reach it.
 - A blocked tenant may have no users at all.
-- The block ends every hold and reservation in the tenant; drafts are kept (DL-0256).
+- The block ends every hold and reservation in the tenant; drafts with edits are kept (DL-0256, DL-0514).
 
 **ST-0071** — As a platform administrator, I lift a tenant's block, so that an organisation blocked by mistake or for a settled reason can work again.
 - Its memberships, groups and links apply as they stood; nothing is rebuilt by hand. The change is typed history, like the block.
@@ -48,7 +48,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Blocking sets the membership state; nothing about the person changes.
 - If I administer several tenants the person belongs to, I am asked which of them to block them in. I never see or touch tenants I do not administer; a platform administrator is notified when the person stays active elsewhere.
 - I cannot block a tenant's last active administrator. If that is me, I can block myself only when I am also its last active user.
-- The block ends every hold and reservation the person has on our documents; their drafts are kept, and each release is recorded with the block as its cause (DL-0256).
+- The block ends every hold and reservation the person has on our documents; their drafts with edits are kept, and each release is recorded with the block as its cause (DL-0256, DL-0514).
 
 **ST-0072** — As a tenant administrator, I lift the block on a person's membership in my tenant, so that someone who returns regains access through the groups they were in.
 - Their group memberships apply as they stood. A self-blocked account (ST-0066) stays blocked: only a platform administrator lifts that.
@@ -56,7 +56,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0066** — As any user, I block my own account, so that nobody can use it while I cannot.
 - *Block my account…* stands apart at the foot of my account page (ST-0076), confirmed before it acts; the user menu does not offer it (DL-0499, DL-0500). To the last platform administrator the control is drawn disabled with its reason (DL-0315, DL-0233).
 - It blocks every membership I hold; only a platform administrator can lift it, and not through the interface in this release — the database is the recovery path (DL-0254, backlog B-033). There is no deleting an account (backlog B-022).
-- Blocking myself ends my holds and reservations; my drafts are kept (DL-0256).
+- Blocking myself ends my holds and reservations; my drafts with edits are kept (DL-0256, DL-0514).
 
 **ST-0076** — As any user, I choose the language of the interface I see, Ukrainian or English, on my account page, so that I meet the platform in my own language.
 - My account page is `/account/`, reached from the user menu as *My account* · *Мій обліковий запис*. It shows my email address, read-only; the interface's language with *Apply*; and, apart at its foot, *Block my account…* (ST-0066) — nothing more of a profile (DL-0499, DL-0500).
@@ -255,7 +255,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - I can also end a reservation, giving a reason; its holder is notified with who, when and why, and the act is audited (DL-0225, ST-0070).
 - A hold is also released on its own after a period without activity — 30 minutes unless I set another for my organisation — once its holder has been asked whether they are still working and has not answered. A reserved hold is not (ADR-0009).
 - I am notified when a reservation starts, and I can list every reservation with its holder and start date (DL-0226, DL-0227).
-- The interrupted draft is kept, never discarded — unless a finish of the hold had stopped after its commit, which the release completes instead (DL-0414). If the document has not changed since the draft began — no new version and no acceptance — its holder takes it back and continues; otherwise it opens read-only as changes against the current text (DL-0318).
+- The interrupted draft, if it holds edits, is kept, never discarded — unless a finish of the hold had stopped after its commit, which the release completes instead (DL-0414). If the document has not changed since the draft began — no new version and no acceptance — its holder takes it back and continues; otherwise it opens read-only as changes against the current text (DL-0318).
 
 ---
 

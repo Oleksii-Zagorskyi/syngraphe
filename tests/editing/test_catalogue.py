@@ -138,9 +138,9 @@ def test_catalogue_covers_editing_together_pages(
     link_group: Any,
     settings: Any,
 ) -> None:
-    """The pages of reserving, ending a reservation, the kept draft's return, section editors'
-    tab and the notifications they write, in Ukrainian from the one catalogue: no message id
-    shown verbatim."""
+    """The pages of reserving, ending a reservation, the kept draft's return and the
+    notifications they write, in Ukrainian from the one catalogue: no message id shown
+    verbatim."""
     from access.rights import Right
     from editing.models import Draft, Hold
 

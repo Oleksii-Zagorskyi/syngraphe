@@ -823,8 +823,7 @@ EDIT = ("edit", "Edit", "")
 REVIEW = ("review", "Review the run", "")
 FINISH = ("finish", "Finish editing", "")
 # The draft point's acts to its holder with nothing edited yet: the disabled finish and the
-# finish link, one hidden; release and discard, one hidden; the taker (not holding) gets the
-# first two alone.
+# finish link, one hidden; release and discard, one hidden.
 FINISH_UNEDITED = ("finish", "Finish editing", "After the first edit.")
 RELEASE = ("release", "Release the document", "")
 DISCARD = ("discard", "Discard my edits…", "")

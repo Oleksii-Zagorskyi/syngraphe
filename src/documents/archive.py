@@ -1,8 +1,8 @@
 """Archiving and restoring a document (ST-0015, ST-0016, DL-0084, DL-0449): an administrator's
-acts, always allowed. Archiving releases an open hold as a force release does, the draft kept for
-its holder, and ends a reservation with the reason the platform writes (DL-0456); a freeze and a
-pending run are archived as they stand and restored so. Links stay, and apply as they stand on
-restore.
+acts, always allowed. Archiving releases an open hold as a force release does, a draft with edits
+kept for its holder (DL-0514), and ends a reservation with the reason the platform writes
+(DL-0456); a freeze and a pending run are archived as they stand and restored so. Links stay, and
+apply as they stand on restore.
 
 Each act takes the document's writer lock, settles its head, then decides under the row's lock
 (`review.services.settle_head`, the release-wide rule)."""
@@ -87,10 +87,10 @@ def _act(document: Document, by: User, to: str) -> bool:
 
 
 def _release_the_hold(document: Document, by: User) -> None:
-    """The open hold released as a force release releases it — the draft kept for its holder, a
-    reservation ended — with the platform's reason, while the document is still active, and the
-    holder told; a finish that stopped after its commit is completed instead, its reviewers told
-    (DL-0414)."""
+    """The open hold released as a force release releases it — a draft with edits kept for its
+    holder, a reservation ended — with the platform's reason, while the document is still active,
+    and the holder told; a finish that stopped after its commit is completed instead, its reviewers
+    told (DL-0414)."""
     from editing.holds import open_hold, release
     from editing.models import ReleaseKind
 

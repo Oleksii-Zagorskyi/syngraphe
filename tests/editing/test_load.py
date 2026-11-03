@@ -1,5 +1,5 @@
-"""`load` opens an editor on the whole draft or on one section of it, for its holder alone, with
-the validator's verdict and the draft's declarations."""
+"""`load` opens an editor on the whole draft, for its holder alone, with the validator's verdict
+and the draft's declarations; any other range is not found (DL-0517)."""
 
 from __future__ import annotations
 

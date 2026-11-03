@@ -4,6 +4,7 @@ Invented text."""
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
@@ -200,6 +201,49 @@ def test_my_edits_is_a_switch(editing: Any, page: Any, settings: Any) -> None:
     assert not page.is_visible(".ProseMirror")
     switch.uncheck()
     assert page.is_visible(".ProseMirror")
+
+
+@pytest.mark.parametrize("mode", ["rich", "source"])
+def test_my_edits_returns_to_the_mode_it_left(
+    editing: Any, page: Any, settings: Any, mode: str
+) -> None:
+    """Unchecked, *My edits* gives back the one text surface the editor's mode shows: never the
+    other, whose text no capture reads."""
+    settings.LANGUAGE_CODE = "en"
+    editing("A synthetic sentence that is an edit.\n")
+    if mode == "source":
+        page.click("#editor button[data-command=source]")
+    switch = page.locator("#editor input[data-command=my-edits]")
+    switch.check()
+    page.wait_for_selector("#editor .my-edits-shown:not([hidden])")
+    switch.uncheck()
+
+    rich, source = ".ProseMirror", "#editor textarea[data-field=source]"
+    assert page.is_visible(rich) is (mode == "rich")
+    assert page.is_visible(source) is (mode == "source")
+    assert not page.is_visible("#editor .my-edits-shown")
+
+
+def test_my_edits_waits_for_a_refused_capture(editing: Any, page: Any, settings: Any) -> None:
+    """A capture refused — the text too large — leaves the editor where it is: the switch stays
+    unchecked and the changes of an older draft are never shown in its place."""
+    settings.LANGUAGE_CODE = "en"
+    editing("A synthetic sentence that is an edit.\n")
+    fragments: list[str] = []
+    page.on("request", lambda r: fragments.append(r.url) if "fragment=1" in r.url else None)
+    page.route(re.compile(r".*/edit/capture/$"), lambda r: r.fulfill(status=413, body="{}"))
+    page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
+    page.focus(".ProseMirror")
+    page.keyboard.type(" Typed after the last capture.", delay=10)
+    page.check("#editor input[data-command=my-edits]")
+    page.wait_for_function(
+        "() => !document.querySelector('#editor input[data-command=my-edits]').checked"
+    )
+
+    assert page.is_visible(".ProseMirror")
+    assert not page.is_visible("#editor .my-edits-shown")
+    assert page.get_attribute(".capture-indicator", "data-state") == "too_large"
+    assert fragments == []
 
 
 def test_my_edits_when_signed_out(editing: Any, page: Any, settings: Any) -> None:

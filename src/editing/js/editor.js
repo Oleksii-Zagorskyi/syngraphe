@@ -455,15 +455,25 @@ async function offer(element, words, report, settle) {
       edited = edited || event.detail.edited || editor.markdown() !== opened;
       enable(edited);
     });
+    // Each surface's own visibility before the changes were shown: the mode decides which text
+    // surface is live, and only that one comes back.
+    let before = null;
     box.addEventListener("change", async () => {
       if (!box.checked) {
         shown.hidden = true;
-        surface.forEach((node) => { node.hidden = false; });
+        if (before) surface.forEach((node, i) => { node.hidden = before[i]; });
+        before = null;
         return;
       }
       box.disabled = true;
-      // What was typed is captured first, so the changes shown are the draft as it stands.
-      if (editor.capture.flush) await editor.capture.flush();
+      // What was typed is captured first, so the changes shown are the draft as it stands; a
+      // capture refused leaves the editor, its text and the indicator's word where they are.
+      const outcome = editor.capture.flush ? await editor.capture.flush() : "captured";
+      if (outcome !== "captured") {
+        box.disabled = false;
+        box.checked = false;
+        return;
+      }
       const response = await fetch(`${element.dataset.myEdits}?fragment=1`, { credentials: "same-origin" });
       box.disabled = false;
       // A session that ended answers with the sign-in page: never drawn in the editor's place.
@@ -473,6 +483,7 @@ async function offer(element, words, report, settle) {
         return;
       }
       shown.innerHTML = await response.text();
+      before = surface.map((node) => node.hidden);
       surface.forEach((node) => { node.hidden = true; });
       shown.hidden = false;
     });

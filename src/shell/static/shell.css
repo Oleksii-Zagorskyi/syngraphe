@@ -283,8 +283,7 @@ th a.sort{text-decoration:none;color:inherit}
 /* The list's *Compare documents…* — two numbers in the menu's panel */
 .menu-actions form{position:absolute;right:0;display:flex;gap:6px;align-items:center;margin:2px 0 0;padding:6px 10px;background:var(--panel);border:1px solid var(--line);z-index:2;white-space:nowrap}
 /* The document's frame: its heading with the icons, and the path of versions — points, the arcs of
-   edits between them, the chosen point's acts hung from it (DL-0518). From the interface session's
-   rounds 3 to 8, consolidated. */
+   edits between them, the chosen point's acts hung from it (DL-0518). */
 .title-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px}
 .title-row h1{margin-bottom:4px}
 .head-icons{display:inline-flex;gap:4px}

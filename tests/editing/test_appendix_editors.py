@@ -1,6 +1,6 @@
-"""An appendix's editors (ADR-0006, DL-0418): the whole-appendix and section editors open on the
-appendix's own file, capture into it, count against the draft's section editors across every
-file, and close — writing nothing — once the draft no longer lists the appendix. Titles and people
+"""An appendix's editor (ADR-0006, DL-0418, DL-0517): the whole-appendix editor opens on the
+appendix's own file, captures into it, and closes — writing nothing — once the draft no longer
+lists the appendix. Titles and people
 are synthetic examples; text is invented English."""
 
 from __future__ import annotations

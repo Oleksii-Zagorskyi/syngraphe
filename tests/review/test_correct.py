@@ -1,6 +1,7 @@
-"""Correcting as a reviewer (ST-0035, DL-0222, ADR-0014): *Correct* takes the document with the
-reviewer's notice, a holder of *accept* commits `reviewer_edit`, and the finishing screen offers
-*accept as N.M* and *create version N.M-X* where an editor sees *send for review*.
+"""Correcting as a reviewer (ST-0035, DL-0222, ADR-0014, DL-0521): the review page's *Edit* takes
+the document with the reviewer's notice, a holder of *accept* commits `reviewer_edit`, and the
+finishing screen offers *accept as N.M* and *create version N.M-X* where an editor sees *send for
+review*.
 
 People and groups are synthetic examples; the text is invented.
 """

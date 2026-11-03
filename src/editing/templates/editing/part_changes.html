@@ -15,5 +15,5 @@
       {% for row in frontmatter_rows %}<tr data-kind="frontmatter"><td colspan="3">{{ row.words }}</td>{% if revert_head %}{% include "editing/part_revert.html" %}{% endif %}</tr>{% endfor %}
     </tbody>
   </table>
-  {% if revert_head %}<p class="muted">{% translate "Reverting takes the document and becomes part of your correction." %}</p>{% endif %}
+  {% if revert_head %}<p class="muted">{% translate "Reverting takes the document and becomes part of your own version." %}</p>{% endif %}
 </section>{% endif %}

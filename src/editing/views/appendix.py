@@ -1,7 +1,7 @@
-"""An appendix's *Edit* tab (DL-0443, ADR-0006): the appendix's page drawn from the draft for the
-person editing — from the head before the hold — with the whole-appendix and section editors over
-its own file, and the draft's parts panel; `load` opens an editor on it. The editor is the
-document's: one draft, one finish.
+"""An appendix's editor page (DL-0443, ADR-0006, DL-0517): the appendix's page drawn from the
+draft for the person editing — from the head before the hold — under the document's path, with
+the whole appendix in one editor over its own file and the draft's parts panel; `load` opens it.
+The editor is the document's: one draft, one finish.
 """
 
 from __future__ import annotations

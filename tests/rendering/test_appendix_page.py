@@ -1,7 +1,8 @@
 """The appendix page (DL-0443, DL-0444): the document's frame for one appendix of the version its
-reader may see — its own outline, its numbers from 1 with nothing in front, the read-only panel,
-the tabs of DL-0443 and no document action; an appendix that version does not list costs what a
-missing one does. Titles and people are synthetic examples; text is invented English."""
+reader may see — its own outline, its numbers from 1 with nothing in front, the read-only panel, the
+document's path in appendix mode (DL-0522) and no document action; an appendix that version does not
+list costs what a missing one does. Titles and people are synthetic examples; text is invented
+English."""
 
 from __future__ import annotations
 
@@ -181,3 +182,49 @@ def test_mentions_in_an_appendix_are_filtered(
     assert f'href="/document/{open_.number}/"' in text
     assert f'href="/document/{gone.number}/"' not in text
     assert "the purchasing rules" in text
+
+
+def test_the_appendix_carries_the_documents_path(
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+    settings: Any,
+) -> None:
+    """An appendix listed at the canonical version and at the latest: each point opens the
+    appendix at its version, and the one act is *Edit*, to the appendix's editor — no approval,
+    no toggle, no review, no administrator's menu, whoever reads it (DL-0207, DL-0522)."""
+    from access.rights import Right
+    from editions import services as editions
+    from review import services as review
+
+    settings.LANGUAGE_CODE = "en"
+    _, author, _ = member_of("path.author@example.test")
+    editor_client, _, editing = member_of("path.editor@example.test")
+    reviewer_client, reviewer, reviewing = member_of("path.reviewer@example.test")
+    document = new_document(author, "Synthetic travel rules")
+    link_group(document, [Right.EDIT, Right.VIEW_PENDING], [editing], author)
+    link_group(document, [Right.ACCEPT, Right.FREEZE, Right.MAKE_CANONICAL], [reviewing], author)
+    committed(commit_version, document, author)
+    with schema_context(migrated_tenant.number):
+        review.accept(document, reviewer)
+        editions.make_canonical(document, reviewer)
+    committed(commit_version, document, author, APPENDIX + "\nA later appendix sentence.\n")
+    m = document.number
+
+    for client in (editor_client, reviewer_client):
+        page = client.get(f"/document/{m}/appendix/2/").content.decode()
+        path = re.search(r'<nav class="path".*?</nav>', page, re.S)
+        assert path
+        drawn = path.group(0)
+        # Each point that lists the appendix opens it at that version.
+        assert f'href="/document/{m}/version/1.0/appendix/2/" data-go="canonical"' in drawn
+        assert f'href="/document/{m}/appendix/2/" data-go="latest"' in drawn
+        commands = re.findall(r'data-command="([^"]+)"', drawn)
+        assert commands == ["edit"], commands
+        assert f'href="/document/{m}/appendix/2/edit/" data-command="edit"' in drawn
+        above = page[: page.index('class="document-text"')]
+        assert '<details class="more">' not in above
+        for absent in ("approve", "freeze", "unfreeze", "review"):
+            assert f'data-command="{absent}"' not in above, absent

@@ -2672,8 +2672,8 @@ msgid "I am still working"
 msgstr "Я ще працюю"
 
 #: editing/templates/editing/end_reservation.html
-msgid "Ending it frees the document for others. The draft is kept for the person editing, who is told who ended it, when and why."
-msgstr "Завершення звільняє документ для інших. Чернетку буде залишено для того, хто редагує, і цій людині повідомлять, хто, коли й чому завершив резервування."
+msgid "Ending it frees the document for others. A draft with edits is kept for the person editing, who is told who ended it, when and why."
+msgstr "Завершення звільняє документ для інших. Чернетку з правками буде залишено для того, хто редагує, і цій людині повідомлять, хто, коли й чому завершив резервування."
 
 #: editing/templates/editing/end_reservation.html
 msgid "This reservation has changed since the page was opened. Read it again before ending it."
@@ -3883,8 +3883,8 @@ msgid "Parts changed in the run"
 msgstr "Частини документа, змінені в правках після останнього погодження"
 
 #: editing/templates/editing/part_changes.html
-msgid "Reverting takes the document and becomes part of your correction."
-msgstr "Повернення як було бере документ на редагування й стає частиною вашого виправлення."
+msgid "Reverting takes the document and becomes part of your own version."
+msgstr "Повернення як було бере документ на редагування й стає частиною вашої власної версії."
 
 #: editing/templates/editing/part_revert.html
 msgid "revert"

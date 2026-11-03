@@ -1,7 +1,7 @@
-"""The draft as an editor opens it: `load` opens an editor on the whole draft or on one section of
-it (ADR-0006), recording it as an open editor with the hash of the range it saw, and hands it that
-range's text, the validator's verdict and the draft's declared roles, actions and terms, which
-*Mark* offers."""
+"""The draft as an editor opens it: `load` opens an editor on the whole draft (ADR-0006,
+DL-0517), recording it as an open editor with the hash of the text it saw, and hands it that
+text, the validator's verdict and the draft's declared roles, actions and terms, which *Mark*
+offers."""
 
 from __future__ import annotations
 
