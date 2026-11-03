@@ -19,6 +19,17 @@ pytestmark = [
 ]
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def post(client: Any, document: Any, route: str, **body: Any) -> Any:
     return client.post(
         f"/document/{document.number}/edit/{route}/",
@@ -159,6 +170,7 @@ def test_a_capture_after_the_hold_ended_is_closed(
     from editing.models import Draft, Hold, ReleaseKind
 
     client, document, loaded = opened(member_of, new_document)
+    _with_an_edit(migrated_tenant.number, document)
     with schema_context(migrated_tenant.number), transaction.atomic():
         Document.objects.select_for_update().get(pk=document.pk)
         holds.release(Hold.objects.get(document=document), ReleaseKind.FORCED, reason="Synthetic")

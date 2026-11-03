@@ -4837,3 +4837,28 @@ msgstr "Мої правки"
 #: editing/messages.py
 msgid "After the first edit."
 msgstr "Після першої правки."
+
+#: documents/path.py documents/templates/documents/frame.html
+msgid "Release the document"
+msgstr "Звільнити документ"
+
+#: documents/templates/documents/frame.html
+msgid "Releasing the document ends your reservation."
+msgstr "Звільнення документа завершить ваше резервування."
+
+#: editing/views/finish.py
+msgid "Your draft has edits — use Discard my edits…"
+msgstr "У чернетці є правки — скористайтеся «Відкинути мої правки…»."
+
+#: editing/views/finish.py
+msgid "You released the document."
+msgstr "Ви звільнили документ."
+
+#: notifications/events.py
+#, python-format
+msgid "Document #%(number)s, which you were editing, was archived by %(by)s."
+msgstr "Документ #%(number)s, який ви редагували, заархівовано — %(by)s."
+
+#: editing/templates/editing/discard.html documents/templates/documents/frame.html
+msgid "Back to editing"
+msgstr "Повернутись до редагування"

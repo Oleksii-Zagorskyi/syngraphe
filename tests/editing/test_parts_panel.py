@@ -23,6 +23,17 @@ FORM = b"a synthetic spreadsheet"
 OWN = {"HTTP_SEC_FETCH_SITE": "same-origin"}
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def entry(number: int, data: bytes, title: str = "Request form (example)") -> dict[str, Any]:
     return {
         "number": number,
@@ -292,6 +303,7 @@ def kept(tenant: Any, document: Any, admin: Any) -> None:
     """The open hold force-released by an administrator: its draft kept for its owner."""
     from editing import holds, reservations
 
+    _with_an_edit(tenant.number, document)
     with schema_context(tenant.number):
         reservations.force_release(holds.open_hold(document), admin)
 

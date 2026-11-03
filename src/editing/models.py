@@ -19,6 +19,9 @@ class ReleaseKind(models.TextChoices):
     # one act, held across two writes).
     ACCEPTING = "accepting", "accepting"
     DISCARDED = "discarded", "discarded"
+    # Let go by its holder with nothing edited: nothing was thrown away (DL-0510), and nothing is
+    # kept (DL-0514).
+    RELEASED = "released", "released"
     INACTIVITY = "inactivity", "inactivity"
     FORCED = "forced", "forced"
     BLOCKED = "blocked", "blocked"

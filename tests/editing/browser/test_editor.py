@@ -217,15 +217,17 @@ def test_my_edits_when_signed_out(editing: Any, page: Any, settings: Any) -> Non
     assert page.locator("#editor .my-edits-shown form").count() == 0
 
 
-def test_finish_pressed_while_the_editor_opens(
+def test_an_act_pressed_while_the_editor_opens(
     browser_server: str,
+    migrated_tenant: Any,
     page: Any,
     member_of: Any,
     new_document: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """*Finish editing* pressed before the load answers waits for the editor, closes it, then
-    finishes — never leaving an editor open that the finish would wait on."""
+    """An act pressed before the load answers — *Release the document*, nothing being edited yet —
+    waits for the editor, closes it, then posts: the hold is released, never refused for an editor
+    the page left open."""
     import time
 
     from editing.views import draft
@@ -244,7 +246,11 @@ def test_finish_pressed_while_the_editor_opens(
 
     monkeypatch.setattr(draft, "_open", slow)
     page.goto(f"{browser_server}/document/{document.number}/edit/", wait_until="load")
-    page.click("nav.path a[data-command=finish]")
-    page.wait_for_url(f"**/document/{document.number}/edit/finish/")
+    page.click("nav.path button[data-command=release]")
+    page.wait_for_url(f"**/document/{document.number}/")
 
-    assert "Finishing waits" not in (page.text_content("body") or "")
+    from editing.models import Hold
+    from tenancy.schemas import schema_context
+
+    with schema_context(migrated_tenant.number):
+        assert Hold.objects.get(document=document).release_kind == "released"

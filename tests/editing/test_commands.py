@@ -20,6 +20,17 @@ pytestmark = [
 ]
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def test_release_hold(migrated_tenant: Any, member_of: Any, new_document: Any) -> None:
     from audit.models import AuditEvent
     from editing.models import Draft, Hold
@@ -27,6 +38,7 @@ def test_release_hold(migrated_tenant: Any, member_of: Any, new_document: Any) -
     client, author, _ = member_of("the.author@example.test")
     document = new_document(author)
     client.post(f"/document/{document.number}/edit/take/")
+    _with_an_edit(migrated_tenant.number, document)
 
     call_command(
         "release_hold",

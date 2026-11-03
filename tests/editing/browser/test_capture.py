@@ -82,15 +82,16 @@ def test_finish_waits_while_text_is_not_captured(
     document = editing(START)
     page.route(re.compile(r".*/edit/capture/$"), lambda r: r.fulfill(status=500, body=""))
     type_at_end(page, " The second sentence.")
-    page.click("button[data-command=finish]")
+    page.click("#editor button[data-command=finish]")
     page.wait_for_selector(".capture-indicator[data-state=failed]", timeout=5000)
     assert page.url.endswith(f"/document/{document.number}/edit/")
     assert "The second sentence." in page.evaluate(f"{EDITOR}.markdown()")
     page.wait_for_function(
-        "() => !document.querySelector('button[data-command=finish]').disabled", timeout=5000
+        "() => !document.querySelector('#editor button[data-command=finish]').disabled",
+        timeout=5000,
     )
     page.unroute(re.compile(r".*/edit/capture/$"))
-    page.click("button[data-command=finish]")
+    page.click("#editor button[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     assert "The second sentence." in (page.text_content(".finish") or "")
 

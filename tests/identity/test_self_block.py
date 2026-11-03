@@ -40,6 +40,17 @@ LAST = "The last platform administrator cannot block their own account."
 PASSWORD = "test-only-not-a-password"
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def _document_held(tenant: Any, author: Any, user: Any, membership: Any, title: str) -> Any:
     """A document in `tenant` whose group gives `user` *edit*, and the hold `user` took on it."""
     from access.models import AccessGroup, DocumentGroup
@@ -64,7 +75,9 @@ def _document_held(tenant: Any, author: Any, user: Any, membership: Any, title: 
         group.grant(Right.EDIT, by=author)
         group.add_member(membership, by=author)
         DocumentGroup.link(document, group, by=author)
-        return holds.take(document, user)
+        hold = holds.take(document, user)
+    _with_an_edit(tenant.number, document)
+    return hold
 
 
 def test_self_block_closes_every_organisation(

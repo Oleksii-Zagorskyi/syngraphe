@@ -619,3 +619,39 @@ def test_the_frozen_kept_draft_is_in_ukrainian(
 
     ids = lint.message_ids(lint.CATALOGUE.read_text(encoding="utf-8"))
     assert [i for i in ids if i in shown] == []
+
+
+def test_the_kept_draft_is_a_point(
+    migrated_tenant: Any, scene: Scene, member_of: Any, link_group: Any, settings: Any
+) -> None:
+    """A kept draft is its holder's point on the path, outlined on `edit/` and marked *kept
+    draft*: *Take the document back* while the document has not moved; once it has, only
+    *Discard this draft…*; on a frozen document, to a holder without *accept*, no take-back
+    (DL-0522, DL-0511)."""
+    settings.LANGUAGE_CODE = "en"
+    number = scene.document.number
+    ended_reservation(migrated_tenant, scene)
+    page = scene.holder_client.get(f"/document/{number}/edit/").content.decode()
+    point = f'href="/document/{number}/edit/" data-go="kept" aria-current="location"'
+
+    assert point in page
+    assert 'data-command="take-back"' in page and 'data-command="discard-draft"' in page
+
+    _frozen(migrated_tenant, scene, member_of, link_group)
+    frozen = scene.holder_client.get(f"/document/{number}/edit/").content.decode()
+    assert point in frozen
+    assert 'data-command="take-back"' not in frozen and 'data-command="discard-draft"' in frozen
+
+
+def test_the_kept_draft_point_once_the_document_moved(
+    migrated_tenant: Any, scene: Scene, settings: Any
+) -> None:
+    settings.LANGUAGE_CODE = "en"
+    number = scene.document.number
+    ended_reservation(migrated_tenant, scene)
+    commit_version(migrated_tenant, scene.document, scene.other, "# Moved on\n\nA sentence.\n")
+
+    page = scene.holder_client.get(f"/document/{number}/edit/").content.decode()
+
+    assert 'data-go="kept" aria-current="location"' in page
+    assert 'data-command="take-back"' not in page and 'data-command="discard-draft"' in page

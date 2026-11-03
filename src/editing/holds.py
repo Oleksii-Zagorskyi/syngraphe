@@ -225,7 +225,9 @@ def release(
     reason: str = "",
     finish_completed: bool = False,
 ) -> bool:
-    """End `hold`, keeping its draft (ADR-0003); whether this call ended it. The caller holds the
+    """End `hold`, keeping its draft (ADR-0003) — unless it holds no edits, which a release of a
+    keeping kind, or *released*, deletes: an empty hold keeps nothing (DL-0514). Whether this
+    call ended it. The caller holds the
     document's writer lock and, inside a transaction, its row lock, as `take` does, so a release
     never falls between the steps of a commit. `released_by` is who forced or blocked it, when
     someone did; `actor` is who acted, for the audit trail, `None` for the platform or an
@@ -248,6 +250,22 @@ def release(
     locked.release_reason = reason
     locked.save(update_fields=["released_at", "release_kind", "released_by", "release_reason"])
     document = Document.objects.get(pk=locked.document_id)
+    draft = None
+    if kind in (*KEEPING, ReleaseKind.RELEASED):
+        # Locked before it is read: a capture writing the first edit commits first and is seen,
+        # and one arriving after waits, then finds the hold ended.
+        draft = Draft.objects.select_for_update().filter(hold=locked).first()
+    # Read before any deletion, so the audit says what there was.
+    state = draft_state(locked)
+    if draft is not None:
+        from editing.services import has_edits
+
+        # A draft with nothing in it is no work to keep, and nothing is offered back for it —
+        # whatever the kind, the draft decides (DL-0514).
+        if not has_edits(locked):
+            draft.files.all().delete()
+            draft.delete()
+            state["kept"] = False
     record(
         actor=actor,
         action="document.hold_released",
@@ -258,7 +276,7 @@ def release(
             "release_kind": kind.value,
             "reason": reason,
             "holder": str(locked.user_id),
-            **draft_state(locked),
+            **state,
             **({"finish_completed": True} if finish_completed else {}),
         },
         tenant=Tenant.objects.get(number=tenant_number()),

@@ -24,6 +24,17 @@ TEXT = "\nA synthetic sentence nobody managed to send.\n"
 BODY = "# Terms\n\nThe first synthetic sentence.\nThe second synthetic sentence.\n"
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def post(client: Any, document: Any, route: str, **body: Any) -> Any:
     return client.post(
         f"/document/{document.number}/edit/{route}/",
@@ -451,6 +462,7 @@ def test_a_release_goes_ahead_over_an_unreadable_repository(
     document = new_document(editor)
     link_group(document, [Right.EDIT], [editor_membership], editor)
     assert editor_client.post(f"/document/{document.number}/edit/take/").status_code == 200
+    _with_an_edit(migrated_tenant.number, document)
     path = Path(gitstore.repository_path(migrated_tenant.number, document.number))
     path.rename(path.with_name(path.name + "-gone"))
     try:

@@ -39,6 +39,17 @@ NEEDS = {
 PART_EVENTS = ("appendix.", "attachment.")
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -731,6 +742,7 @@ def test_an_unstaged_attachment_is_read_at_the_drafts_base(
     base = head_of(migrated_tenant, document)
     hold_a, draft_a = take(migrated_tenant, document, first)
     assert draft_a.base_commit == base
+    _with_an_edit(migrated_tenant.number, document)
 
     with schema_context(migrated_tenant.number):
         assert reservations.force_release(hold_a, admin) is True

@@ -54,6 +54,17 @@ ROW = re.compile(r'<tr data-row="member"[^>]*>.*?</tr>', re.DOTALL)
 INPUT = re.compile(r"<input\b[^>]*>", re.DOTALL)
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def block_url(membership: Any) -> str:
     return f"{USERS}{membership.id}/block/"
 
@@ -156,6 +167,7 @@ def holding(
     link_group(document, [Right.EDIT], [membership], admin)
     with schema_context(tenant.number):
         hold = holds.take(document, user)
+    _with_an_edit(tenant.number, document)
     return document, hold
 
 

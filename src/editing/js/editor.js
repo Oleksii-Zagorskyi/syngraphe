@@ -286,6 +286,36 @@ function editorFor(element, draft, words, report) {
   return editor;
 }
 
+// The page's acts that change the draft — *Finish editing*, the release and discard forms, the
+// parts panel's forms — each posted only once the editor has captured and closed, so the page
+// drawn again holds the typed text and no editor is left open for the server to wait on.
+function guardActs(offered) {
+  const closed = async () => (await offered)();
+  document.querySelectorAll("a[data-command=finish]").forEach((link) => {
+    link.addEventListener("click", async (event) => {
+      event.preventDefault();
+      if (await closed()) window.location.assign(link.href);
+    });
+  });
+  const forms = [
+    ...document.querySelectorAll("form[data-discard]"),
+    ...document.querySelectorAll("[data-parts-panel] form"),
+  ];
+  forms.forEach((form) => {
+    let sending = false;
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (sending) return;
+      sending = true;
+      if (!(await closed())) {
+        sending = false;
+        return;
+      }
+      form.submit();
+    });
+  });
+}
+
 // Mount the editor on the edit tab's element: take the hold, load the draft, and edit it. A tab
 // reached from another site takes nothing until the person asks (DL-0325).
 export async function mount(element) {
@@ -298,6 +328,13 @@ export async function mount(element) {
     await new Promise((resolve) => start.addEventListener("click", resolve, { once: true }));
     start.remove();
   }
+  // Every act that changes the draft waits for the editor from here: pressed while the hold is
+  // taken or the text loads, it is held until the editor has opened, captured and closed.
+  let settle = () => {};
+  const offered = new Promise((resolve) => {
+    settle = resolve;
+  });
+  guardActs(offered);
   const taken = await post(element.dataset.take, element);
   if (taken.status === 409) {
     window.location.reload();
@@ -305,15 +342,17 @@ export async function mount(element) {
   }
   if (taken.status !== 200) {
     report({ kind: "busy" });
+    // Nothing opened: an act goes ahead, and the server says what stands.
+    settle(async () => true);
     return null;
   }
-  return offer(element, words, report);
+  return offer(element, words, report, settle);
 }
 
 // The draft's page as it opens (DL-0517): the whole document's editor over the draft at once —
 // there is no section editor. The page's acts stand in the frame above it; each that changes the
 // draft waits until this editor has captured and closed.
-async function offer(element, words, report) {
+async function offer(element, words, report, settle) {
   const view = element.parentElement.querySelector("[data-draft-view]");
   // The editor's opening, awaited by every act that must find it closed: an act pressed while the
   // load is in flight waits for the editor it would otherwise leave open.
@@ -399,6 +438,11 @@ async function offer(element, words, report) {
       box.disabled = !edited;
       label.title = edited ? "" : words.notices.after_first_edit;
       label.classList.toggle("disabled", !edited);
+      // The draft point's pairs (DL-0510): *Release the document* and the disabled *Finish
+      // editing* before the first edit, *Discard my edits…* and *Finish editing* after.
+      document.querySelectorAll("nav.path [data-when]").forEach((act) => {
+        act.hidden = (act.dataset.when === "edited") !== edited;
+      });
     };
     // The page says whether the draft held edits when it was drawn; a capture that writes text
     // sets the editor's own flag, kept until the page is drawn again (DL-0518).
@@ -436,47 +480,10 @@ async function offer(element, words, report) {
     element.append(shown);
   }
 
-  // *Finish editing* and the discard, in the frame above the editor: each waits for the editor.
-  document.querySelectorAll("[data-command=finish]").forEach((link) => {
-    if (link.tagName !== "A") return;
-    link.addEventListener("click", async (event) => {
-      event.preventDefault();
-      if (await closedEditors()) window.location.assign(link.href);
-    });
-  });
-  document.querySelectorAll("form[data-discard]").forEach((form) => {
-    // Drawn hidden until the hold is taken: there is nothing to discard before.
-    const box = form.closest("details");
-    if (box) box.hidden = false;
-    let sending = false;
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (sending) return;
-      sending = true;
-      if (!(await closedEditors())) {
-        sending = false;
-        return;
-      }
-      form.submit();
-    });
-  });
-  // The parts panel: drawn hidden until the hold is taken, and each of its forms posted only once
-  // the editor has captured and closed, so the page drawn again holds the typed text.
+  // The parts panel, drawn hidden until the hold is taken.
   const parts = document.querySelector("[data-parts-panel]");
-  if (parts) {
-    parts.hidden = false;
-    let posting = false;
-    parts.querySelectorAll("form").forEach((form) => form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (posting) return;
-      posting = true;
-      if (!(await closedEditors())) {
-        posting = false;
-        return;
-      }
-      form.submit();
-    }));
-  }
+  if (parts) parts.hidden = false;
+  settle(closedEditors);
   element.offered = { openWhole };
   element.dispatchEvent(new CustomEvent("editor-offered", { bubbles: true }));
   opening = openWhole();

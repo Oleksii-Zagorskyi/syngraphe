@@ -467,9 +467,11 @@ def _build(state: str, scene: Scene, commit_version: Any) -> None:
 # --- reading the frame ---------------------------------------------------------------------------
 
 
-def _request(scene: Scene, name: str) -> Any:
+def _request(scene: Scene, name: str, query: dict[str, str] | None = None) -> Any:
     """A request as the middleware leaves it: `user`, `tenant`, `membership` with its user."""
-    request = RequestFactory().get(f"/document/{scene.number}/", headers={"host": "127.0.0.1"})
+    request = RequestFactory().get(
+        f"/document/{scene.number}/", query or {}, headers={"host": "127.0.0.1"}
+    )
     request.user = scene.users[name]
     request.tenant = scene.tenant
     membership = scene.memberships[name]
@@ -478,9 +480,11 @@ def _request(scene: Scene, name: str) -> Any:
     return request
 
 
-def _frame(frame: Any, scene: Scene, name: str, **given: Any) -> Any:
+def _frame(
+    frame: Any, scene: Scene, name: str, query: dict[str, str] | None = None, **given: Any
+) -> Any:
     with schema_context(scene.tenant.number), translation.override("en"):
-        return frame(_request(scene, name), scene.document, **given)
+        return frame(_request(scene, name, query), scene.document, **given)
 
 
 def _items(result: Any) -> list[Item] | None:
@@ -744,6 +748,7 @@ def test_taking_draws_the_draft_point_to_a_person_who_does_not_hold(
         ]
         assert _items(result) == _filled(expected, n), name
         assert result.shown == "1.1-1 — draft", name
+        assert _acts_of(result)["draft"] == DRAFT_ACTS_TAKING, name
     # Drawing it opened no hold.
     with schema_context(migrated_tenant.number):
         assert holds.open_hold(scene.document) is None
@@ -817,6 +822,20 @@ Act = tuple[str, str, str]  # (command, label, reason)
 EDIT = ("edit", "Edit", "")
 REVIEW = ("review", "Review the run", "")
 FINISH = ("finish", "Finish editing", "")
+# The draft point's acts to its holder with nothing edited yet: the disabled finish and the
+# finish link, one hidden; release and discard, one hidden; the taker (not holding) gets the
+# first two alone.
+FINISH_UNEDITED = ("finish", "Finish editing", "After the first edit.")
+RELEASE = ("release", "Release the document", "")
+DISCARD = ("discard", "Discard my edits…", "")
+# The page served for the take to come carries the holder's acts: the editor takes the hold as it
+# mounts and stays on the page.
+DRAFT_ACTS_TAKING = [FINISH_UNEDITED, FINISH, RELEASE, DISCARD]
+DRAFT_ACTS_HOLDING = [FINISH_UNEDITED, FINISH, RELEASE, DISCARD]
+# The kept point's acts: take back while the base is the head, then the kept draft's discard.
+TAKE_BACK = ("take-back", "Take the document back", "")
+DISCARD_DRAFT = ("discard-draft", "Discard this draft…", "")
+KEPT_ACTS = [TAKE_BACK, DISCARD_DRAFT]
 FREEZE = ("freeze", "Freeze", "")
 UNFREEZE = ("unfreeze", "Unfreeze", "")
 APPROVE_20 = ("approve", "Make canonical as 2.0…", "")
@@ -899,24 +918,25 @@ ACTS: dict[str, dict[str, dict[str, list[Act]]]] = {
         "accept": {"latest": [EDIT_RESERVED_BY_OTHER]},
         "approver": {"latest": [EDIT_RESERVED_BY_OTHER, APPROVE_20_HELD, FREEZE_HELD_BY_OTHER]},
     },
-    # No *Edit* to the holder; the draft point's *Finish editing*; the approver's own hold still
-    # stops the approve act and the freeze, and names them.
+    # No *Edit* to the holder; the draft point's acts; the approver's own hold still stops the
+    # approve act and the freeze, and names them.
     "held_by_reader": {
-        "edit": {"draft": [FINISH]},
-        "accept": {"draft": [FINISH]},
+        "edit": {"draft": DRAFT_ACTS_HOLDING},
+        "accept": {"draft": DRAFT_ACTS_HOLDING},
         "approver": {
             "latest": [
                 APPROVE_20_HELD,
                 ("freeze", "Freeze", f"Held by {NAMES['approver']} — freeze once it is released"),
             ],
-            "draft": [FINISH],
+            "draft": DRAFT_ACTS_HOLDING,
         },
     },
-    # A kept draft, nobody holding: the acts of the accepted state; none on the kept point.
+    # A kept draft (with an edit, which is what keeps it), nobody holding: the acts of the
+    # accepted state, and the kept point's own — the head unmoved, no freeze.
     "kept": {
-        "edit": {"latest": [EDIT]},
-        "accept": {"latest": [EDIT]},
-        "approver": {"latest": [EDIT, APPROVE_20, FREEZE]},
+        "edit": {"latest": [EDIT], "kept": KEPT_ACTS},
+        "accept": {"latest": [EDIT], "kept": KEPT_ACTS},
+        "approver": {"latest": [EDIT, APPROVE_20, FREEZE], "kept": KEPT_ACTS},
     },
     # Archived: no acts on any point.
     "archived": {},
@@ -1100,18 +1120,48 @@ def test_edit_is_not_drawn_to_the_holder_nor_on_an_archived_document(
     from documents.path import frame
 
     # The holder: the draft point's acts alone, and no mark for their own hold.
+    n = scene.number
     hold = _take(scene, scene.users["edit"])
     result = _frame(frame, scene, "edit", here="finish")
-    assert _acts_of(result) == {"draft": [FINISH]}
+    assert _acts_of(result) == {"draft": DRAFT_ACTS_HOLDING}
     assert _marks_of(result) == {}
-    draft = next(item for item in result.path if item.key == "draft")
-    [finish] = draft.acts
-    assert (finish.href, finish.primary, finish.reason) == (
-        f"/document/{scene.number}/edit/finish/",
-        True,
+    unedited, finish, release, discard = _latest_draft(result)
+    # Nothing edited yet: the disabled finish shows, the link is hidden; release shows, discard
+    # is hidden.
+    assert [(a.when, a.hidden) for a in (unedited, finish, release, discard)] == [
+        ("unedited", False),
+        ("edited", True),
+        ("unedited", False),
+        ("edited", True),
+    ]
+    assert (finish.href, finish.primary) == (f"/document/{n}/edit/finish/", True)
+    assert (release.action, release.method, release.fields, release.window) == (
+        f"/document/{n}/edit/discard/",
+        "post",
+        {"release": "1"},
         "",
     )
+    assert (discard.action, discard.method, discard.fields, discard.window) == (
+        "",
+        "get",
+        {"confirm": "discard"},
+        "discard",
+    )
+    assert result.windows == {"discard": {"reserved": False}}
+    # With an edit: the hidden ones swap; the windows stand.
+    _edit_draft(scene, hold)
+    result = _frame(frame, scene, "edit", here="finish")
+    assert _acts_of(result) == {"draft": DRAFT_ACTS_HOLDING}
+    assert [a.hidden for a in _latest_draft(result)] == [True, False, True, False]
+    assert result.windows == {"discard": {"reserved": False}}
+    # Outlined elsewhere, the draft's windows are not drawn.
+    assert _frame(frame, scene, "edit", here="latest").windows == {}
+    # Taking: the holder's acts for the hold the editor is about to take, and their window.
     _discard(scene, hold, scene.users["edit"])
+    result = _frame(frame, scene, "edit", here="finish", taking=True)
+    # Not holding, the reader is still offered Edit on the latest point.
+    assert _acts_of(result) == {"latest": [EDIT], "draft": DRAFT_ACTS_TAKING}
+    assert result.windows == {"discard": {"reserved": False}}
 
     # Archived: no acts on any point to the administrator, who alone reads it; *More* stands.
     with schema_context(migrated_tenant.number):
@@ -1138,18 +1188,29 @@ def test_the_reservations_acts_on_the_draft_point(
 
     hold = _take(scene, scene.other)
     result = _frame(frame, scene, "other", here="finish")
-    assert _acts_of(result) == {"draft": [FINISH, ("reserve", "Reserve for editing", "")]}
-    reserve = _latest_draft(result)[1]
+    assert _acts_of(result) == {
+        "draft": [*DRAFT_ACTS_HOLDING, ("reserve", "Reserve for editing", "")]
+    }
+    reserve = _latest_draft(result)[4]
     assert (reserve.action, reserve.method) == (f"/document/{n}/edit/reserve/", "post")
+    assert result.windows == {"discard": {"reserved": False}}
 
     with schema_context(migrated_tenant.number):
         reservations.reserve(hold, scene.other)
     result = _frame(frame, scene, "other", here="finish")
     assert _acts_of(result) == {
-        "draft": [FINISH, ("cancel-reservation", "Cancel the reservation", "")]
+        "draft": [*DRAFT_ACTS_HOLDING, ("cancel-reservation", "Cancel the reservation", "")]
     }
-    cancel = _latest_draft(result)[1]
+    release, cancel = _latest_draft(result)[2], _latest_draft(result)[4]
+    # Reserved: the release is confirmed first, since the reservation ends with it.
+    assert (release.action, release.method, release.fields, release.window) == (
+        "",
+        "get",
+        {"confirm": "release"},
+        "release",
+    )
     assert (cancel.action, cancel.method) == (f"/document/{n}/edit/cancel-reservation/", "post")
+    assert result.windows == {"discard": {"reserved": True}, "release": {"reserved": True}}
     _discard(scene, hold, scene.other)
 
     # Under a freeze only a holder of *accept* may take: the reviewer, given the right to reserve.
@@ -1167,7 +1228,7 @@ def test_the_reservations_acts_on_the_draft_point(
     result = _frame(frame, scene, "accept", here="finish")
     assert _acts_of(result) == {
         "draft": [
-            FINISH,
+            *DRAFT_ACTS_HOLDING,
             (
                 "reserve",
                 "Reserve for editing",
@@ -1175,6 +1236,75 @@ def test_the_reservations_acts_on_the_draft_point(
             ),
         ]
     }
+
+
+def test_the_kept_points_acts_and_the_open_window(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """The kept point: *Take the document back* while the draft's base is still the head and no
+    freeze is open (or the reader holds *accept*), then *Discard this draft…*; its window when
+    outlined; `open_window` from the request's `confirm` when it names a drawn window."""
+    from editions import services as editions
+
+    scene = _cast(migrated_tenant, member_of, new_document)
+    _build("accepted", scene, commit_version)
+    n = scene.number
+    _kept_for(scene, scene.users["edit"])
+    _kept_for(scene, scene.users["accept"])
+    from documents.path import frame
+
+    result = _frame(frame, scene, "edit", here="kept")
+    assert _acts_of(result) == {"latest": [EDIT], "kept": KEPT_ACTS}
+    take_back, discard_draft = next(i.acts for i in result.path if i.key == "kept")
+    assert (take_back.action, take_back.method, take_back.primary) == (
+        f"/document/{n}/edit/take-back/",
+        "post",
+        True,
+    )
+    assert (
+        discard_draft.action,
+        discard_draft.method,
+        discard_draft.fields,
+        discard_draft.window,
+    ) == (
+        "",
+        "get",
+        {"confirm": "discard-draft"},
+        "discard-draft",
+    )
+    assert result.windows == {"discard-draft": {"kept": True}}
+    assert result.open_window == ""
+    assert _frame(frame, scene, "edit", here="latest").windows == {}
+
+    # `confirm` opens a drawn window, and nothing else.
+    opened = _frame(frame, scene, "edit", here="kept", query={"confirm": "discard-draft"})
+    assert opened.open_window == "discard-draft"
+    assert _frame(frame, scene, "edit", here="kept", query={"confirm": "discard"}).open_window == ""
+    assert (
+        _frame(frame, scene, "edit", here="latest", query={"confirm": "discard-draft"}).open_window
+        == ""
+    )
+
+    # A freeze: no take-back for the editor, who lacks *accept*; still one for the reviewer.
+    with schema_context(migrated_tenant.number):
+        editions.freeze(scene.document, scene.users["approver"], FREEZE_REASON)
+    assert _acts_of(_frame(frame, scene, "edit", here="kept"))["kept"] == [DISCARD_DRAFT]
+    assert _acts_of(_frame(frame, scene, "accept", here="kept"))["kept"] == KEPT_ACTS
+    with schema_context(migrated_tenant.number):
+        editions.end_freeze(
+            scene.document, "Synthetic reason: unfrozen", user=scene.users["approver"]
+        )
+
+    # The head moved on: no take-back for anyone.
+    commit_version(scene.document, scene.users["approver"], THIRD, "edit")
+    assert _acts_of(_frame(frame, scene, "edit", here="kept"))["kept"] == [DISCARD_DRAFT]
+    assert _acts_of(_frame(frame, scene, "accept", here="kept"))["kept"] == [DISCARD_DRAFT]
+
+    # The holder's draft window opens the same way.
+    hold = _take(scene, scene.other)
+    held = _frame(frame, scene, "other", here="finish", query={"confirm": "discard"})
+    assert held.open_window == "discard"
+    _discard(scene, hold, scene.other)
 
 
 def _latest_draft(result: Any) -> list[Any]:

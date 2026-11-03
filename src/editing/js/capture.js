@@ -76,6 +76,10 @@ export function capturing({ element, editor, words, disable }) {
   // The editor was closed on the server — silent too long, a laptop asleep: open a new one on
   // the draft, and carry on only when the draft is still what this editor last captured.
   async function reopen() {
+    // Closed on purpose — finished, or stopped — it stays closed: a heartbeat or capture still in
+    // flight when it closed comes back *closed*, and must not open a new editor behind the act
+    // that closed it.
+    if (stopped) return false;
     let response;
     try {
       response = await post(urls.load, {});

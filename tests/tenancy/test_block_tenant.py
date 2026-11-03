@@ -38,6 +38,17 @@ pytestmark = [
 PAGE = "/administration/platform/tenants/"
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def _held(tenant: Any, member_of: Any, new_document: Any, link_group: Any, email: str) -> Any:
     from access.rights import Right
     from editing import holds
@@ -46,7 +57,9 @@ def _held(tenant: Any, member_of: Any, new_document: Any, link_group: Any, email
     document = new_document(editor)
     link_group(document, [Right.EDIT], [membership], editor)
     with schema_context(tenant.number):
-        return holds.take(document, editor)
+        hold = holds.take(document, editor)
+    _with_an_edit(tenant.number, document)
+    return hold
 
 
 def _platform(email: str = "p.admin@example.test") -> tuple[Client, Any]:

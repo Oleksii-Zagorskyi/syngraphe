@@ -459,11 +459,19 @@ def holds_later_work(draft: Draft, repo: pygit2.Repository, commit: str, lists: 
 def has_edits(hold: Hold) -> bool:
     """Whether the hold's draft holds anything the head does not — captured text, a part
     operation, a title page change: *no edits* is its negation (DL-0510). The head read once, the
-    lists once, as `holds_later_work` compares them."""
-    document = hold.document
-    repo = gitstore.open_repository(holds.tenant_number(), document.number)
-    head = gitstore.head(repo) or hold.draft.base_commit
-    return holds_later_work(hold.draft, repo, head, _lists(document))
+    lists once, as `holds_later_work` compares them. Never raises: what cannot be compared counts
+    as edited, so it is kept."""
+    try:
+        document = hold.document
+        draft = hold.draft
+        repo = gitstore.open_repository(holds.tenant_number(), document.number)
+        head = gitstore.head(repo) or draft.base_commit
+        lists = _lists(document)
+    except Exception:  # noqa: BLE001 — a release never fails on what a draft holds (DL-0256)
+        logger.exception("a hold whose draft cannot be compared", extra={"hold": str(hold.pk)})
+        # Unknown is kept: a draft is never thrown away for a repository that cannot be read.
+        return True
+    return holds_later_work(draft, repo, head, lists)
 
 
 def draft_text(hold: Hold) -> tuple[str, str, str]:
@@ -971,7 +979,12 @@ def finish_stopped(hold: Hold, *, actor: User | None, reason: str = "") -> bool:
     return True
 
 
-def discard(hold: Hold, user: User) -> str | None:
+class HasEdits(Exception):
+    """*Release the document* asked of a draft that holds edits: the page was drawn before the
+    first one, and the holder discards them instead (DL-0510)."""
+
+
+def discard(hold: Hold, user: User, *, release: bool = False) -> tuple[str, str | None]:
     """Throw the holder's draft away — its text and every staged file (DL-0180) — and release the
     hold `discarded`, a reservation ending with it (ADR-0009). What was thrown away is audited as a
     kept draft's discard is. A finish of the hold that stopped after its commit made a version no
@@ -979,7 +992,11 @@ def discard(hold: Hold, user: User) -> str | None:
     document's writer lock and, in a transaction, its row and the hold's. The sha of such a
     version, or `None`; `EditorsOpen` while an editor is open on the draft — it may hold text not
     yet captured, and the page closes its editors before it asks; `holds.NotEditable` for a hold
-    not the user's, or ended."""
+    not the user's, or ended. The draft decides, never the button (DL-0510): a draft with no
+    edits and no stopped finish is released `released`, nothing discarded and nothing kept;
+    `release` — *Release the document* pressed on a page drawn before the first edit — over a
+    draft with edits raises `HasEdits`, the hold untouched. Answers `("released", None)` or
+    `("discarded", <the stopped version's sha or None>)`."""
     from rendering.views import UNREADABLE
     from review.services import RecordIncomplete, settle_head
 
@@ -1001,7 +1018,7 @@ def discard(hold: Hold, user: User) -> str | None:
                 raise holds.NotEditable(document.number)
             if OpenEditor.objects.filter(draft__hold=locked, closed_at__isnull=True).exists():
                 raise EditorsOpen(locked.pk)
-            draft = Draft.objects.filter(hold=locked).first()
+            draft = Draft.objects.select_for_update().filter(hold=locked).first()
             try:
                 repo = gitstore.open_repository(tenant_number, document.number)
                 head = gitstore.head(repo)
@@ -1012,6 +1029,13 @@ def discard(hold: Hold, user: User) -> str | None:
                 )
             except UNREADABLE:
                 stopped = None
+            if stopped is None:
+                edited = draft is not None and has_edits(locked)
+                if not edited:
+                    holds.release(locked, ReleaseKind.RELEASED, actor=user)
+                    return "released", None
+                if release:
+                    raise HasEdits(locked.pk)
             # Released first, so the release records the draft's state; then the draft goes.
             holds.release(locked, ReleaseKind.DISCARDED, actor=user)
             if draft is not None:
@@ -1032,4 +1056,4 @@ def discard(hold: Hold, user: User) -> str | None:
                 draft.delete()
             if stopped is not None:
                 tell_reviewers(document, stopped, user)
-    return stopped
+    return "discarded", stopped

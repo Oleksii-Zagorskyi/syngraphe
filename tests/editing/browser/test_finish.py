@@ -26,7 +26,7 @@ def test_finish_end_to_end(
     page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
     page.focus(".ProseMirror")
     page.keyboard.type(" The second sentence.", delay=10)
-    page.click("button[data-command=finish]")
+    page.click("#editor button[data-command=finish]")
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     assert "the version waits as 0.0-1" in (page.text_content(".finish") or "")
     page.click("button[data-command=send]")

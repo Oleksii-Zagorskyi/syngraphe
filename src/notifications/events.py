@@ -145,10 +145,17 @@ def describe(row: Any, *, named: bool = True) -> str:
         }
     # No document attached — its number and who archived it, never its title (DL-0471).
     if event == Event.DOCUMENT_ARCHIVED:
-        return _(
-            "Document #%(number)s, which you were editing, was archived by %(by)s; your draft is"
-            " kept."
-        ) % {"number": facts.get("number", ""), "by": _named(facts, "by")}
+        archived = {"number": facts.get("number", ""), "by": _named(facts, "by")}
+        # Entries written before the fact carried it kept the draft whatever it held.
+        if facts.get("kept", True):
+            return (
+                _(
+                    "Document #%(number)s, which you were editing, was archived by %(by)s; your"
+                    " draft is kept."
+                )
+                % archived
+            )
+        return _("Document #%(number)s, which you were editing, was archived by %(by)s.") % archived
     if event == Event.ACCESS_GRANTED:
         group = _group(facts)
         if group:

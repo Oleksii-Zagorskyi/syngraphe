@@ -314,7 +314,7 @@ def test_the_holder_is_told(
     assert [n.user_id for n in told] == [held_user.pk, reserved_user.pk]
     for row, document in zip(told, (held_doc, reserved_doc), strict=True):
         assert row.category == "document" and row.document_id is None
-        assert row.facts == {"number": document.number, "by": str(admin.pk)}
+        assert row.facts == {"number": document.number, "by": str(admin.pk), "kept": True}
     page = held_client.get("/notifications/?tab=document").content.decode()
     assert (
         f"Document #{held_doc.number}, which you were editing, was archived by Synthetic"

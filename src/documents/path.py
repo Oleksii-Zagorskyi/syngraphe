@@ -66,6 +66,8 @@ class Act:
     hidden: bool = False
     # The explanation behind the act's *?*, where it has one.
     hint: str = ""
+    # `unedited` or `edited`: one of a pair the editor swaps at the draft's first edit (DL-0510).
+    when: str = ""
 
 
 @dataclass(frozen=True)
@@ -164,12 +166,16 @@ def frame(
             "a document's version could not be read", extra={"document": document.number}
         )
         return Frame(shown=shown or "", icons=icons, path=None, subtitle=subtitle)
+    # Without script a window's act asks for its page again with `?confirm=<window>`, which draws
+    # that window open; any other value is ignored, never echoed (DL-0513).
+    asked = request.GET.get("confirm", "")
     return Frame(
         shown=shown if shown is not None else _shown(here, numbers),
         icons=icons,
         path=path,
         more=more,
         windows=windows,
+        open_window=asked if asked in windows else "",
         subtitle=subtitle,
     )
 
@@ -507,7 +513,9 @@ def _with_acts(
                 document, user, rights, seen, situation, windows if item.here else None
             )
         if item.kind == "point" and item.key == "draft":
-            acts += _draft_acts(document, user, rights, situation)
+            acts += _draft_acts(document, user, rights, situation, windows if item.here else None)
+        if item.kind == "point" and item.key == "kept":
+            acts += _kept_acts(document, user, rights, situation, windows if item.here else None)
         out.append(replace(item, acts=acts, marks=marks) if acts or marks else item)
     return out
 
@@ -636,12 +644,86 @@ def _approval(document: Document, situation: _Situation) -> dict[str, Any]:
 
 
 def _draft_acts(
-    document: Document, user: Any, rights: frozenset[Right], situation: _Situation
+    document: Document,
+    user: Any,
+    rights: frozenset[Right],
+    situation: _Situation,
+    windows: dict[str, dict[str, Any]] | None,
 ) -> list[Act]:
+    """The draft's acts (DL-0510, DL-0518): *Finish editing* once something is edited, disabled
+    with its reason before; *Release the document* while nothing is — asking first when a
+    reservation would end — and *Discard my edits…* after, each pair drawn whole and swapped by
+    the editor at the first edit; the reservation's acts."""
+    from editing.services import has_edits
+
     base = f"/document/{document.number}/"
+    own = (
+        situation.hold
+        if situation.hold is not None and not situation.held_by_another(user)
+        else None
+    )
+    edited = own is not None and has_edits(own)
+    reserved = own is not None and own.reserved_at is not None
+    later = gettext("After the first edit.")
     acts = [
-        Act(gettext("Finish editing"), "finish", href=f"{base}edit/finish/", primary=True),
+        Act(
+            gettext("Finish editing"),
+            "finish",
+            reason=later,
+            primary=True,
+            hidden=edited,
+            when="unedited",
+        ),
+        Act(
+            gettext("Finish editing"),
+            "finish",
+            href=f"{base}edit/finish/",
+            primary=True,
+            hidden=not edited,
+            when="edited",
+        ),
     ]
+    # The page served for the take to come (DL-0325) carries them too: the editor takes the hold
+    # as it mounts and stays on the page.
+    if own is not None or situation.hold is None:
+        if reserved:
+            # Releasing ends the reservation: asked first, in its window.
+            release = Act(
+                gettext("Release the document"),
+                "release",
+                action="",
+                method="get",
+                fields={"confirm": "release"},
+                window="release",
+                hidden=edited,
+                when="unedited",
+            )
+        else:
+            release = Act(
+                gettext("Release the document"),
+                "release",
+                action=f"{base}edit/discard/",
+                fields={"release": "1"},
+                hidden=edited,
+                when="unedited",
+            )
+        acts += [
+            release,
+            Act(
+                gettext("Discard my edits…"),
+                "discard",
+                action="",
+                method="get",
+                fields={"confirm": "discard"},
+                window="discard",
+                hidden=not edited,
+                when="edited",
+            ),
+        ]
+        if windows is not None:
+            windows["discard"] = {"reserved": reserved}
+            if reserved:
+                windows["release"] = {"reserved": True}
     if Right.RESERVE_FOR_EDITING in rights:
         if situation.hold is not None and situation.hold.reserved_at is not None:
             acts.append(
@@ -667,6 +749,51 @@ def _draft_acts(
                     ),
                 )
             )
+    return acts
+
+
+def _kept_acts(
+    document: Document,
+    user: Any,
+    rights: frozenset[Right],
+    situation: _Situation,
+    windows: dict[str, dict[str, Any]] | None,
+) -> list[Act]:
+    """The kept draft's acts (DL-0522): *Take the document back* while nobody has committed since
+    the draft began and its holder may edit now — a frozen document only to a holder of *accept*
+    (DL-0511) — and *Discard this draft…*, in its window."""
+    from documents import gitstore
+    from editing import holds
+
+    base = f"/document/{document.number}/"
+    kept = holds.preserved_draft(document, user)
+    if kept is None:
+        return []
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    moved = kept.base_commit != gitstore.head(repo)
+    may_take = situation.freeze is None or Right.ACCEPT in rights
+    acts = []
+    if not moved and may_take:
+        acts.append(
+            Act(
+                gettext("Take the document back"),
+                "take-back",
+                action=f"{base}edit/take-back/",
+                primary=True,
+            )
+        )
+    acts.append(
+        Act(
+            gettext("Discard this draft…"),
+            "discard-draft",
+            action="",
+            method="get",
+            fields={"confirm": "discard-draft"},
+            window="discard-draft",
+        )
+    )
+    if windows is not None:
+        windows["discard-draft"] = {"kept": True}
     return acts
 
 

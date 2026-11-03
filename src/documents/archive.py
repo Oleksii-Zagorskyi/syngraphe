@@ -103,8 +103,12 @@ def _release_the_hold(document: Document, by: User) -> None:
         # A stopped finish completed instead: the holder's version awaits review; nothing of
         # theirs was ended.
         return
+    from editing.models import Draft
     from notifications.models import Category, Event
     from notifications.services import notify, others
+
+    # An empty hold keeps nothing (DL-0514): the entry promises a kept draft only where one is.
+    kept = Draft.objects.filter(hold=hold).exists()
 
     # No document attached: the holder may no longer open it, so the entry names its number
     # and who archived it, never its title (DL-0471); nobody is told of their own act.
@@ -113,5 +117,5 @@ def _release_the_hold(document: Document, by: User) -> None:
         category=Category.DOCUMENT,
         event=Event.DOCUMENT_ARCHIVED,
         actor=by,
-        facts={"number": document.number, "by": str(by.pk)},
+        facts={"number": document.number, "by": str(by.pk), "kept": kept},
     )

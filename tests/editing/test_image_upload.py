@@ -22,6 +22,17 @@ pytestmark = [
 BODY = "The first synthetic sentence.\n"
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def upload(client: Any, document: Any, data: bytes, name: str = "plan.png", **more: str) -> Any:
     from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -124,6 +135,7 @@ def test_upload_refusals(
     assert busy.status_code == 503 and busy.json() == {"busy": True}
 
     admin_client, _, _ = member_of("the.admin@example.test", is_tenant_admin=True)
+    _with_an_edit(migrated_tenant.number, document)
     with schema_context(migrated_tenant.number):
         hold = Hold.objects.get(document=document, released_at__isnull=True)
     forced = admin_client.post(
@@ -205,6 +217,7 @@ def test_a_kept_draft_shows_its_base_images(
         appendices=[{"number": 1, "title": "Synthetic appendix"}],
     )
     assert a_client.post(f"/document/{document.number}/edit/take/").status_code == 200
+    _with_an_edit(migrated_tenant.number, document)
     with schema_context(migrated_tenant.number):
         hold = Hold.objects.get(document=document, released_at__isnull=True)
     admin_client.post(f"/document/{document.number}/edit/force-release/", {"hold": str(hold.pk)})

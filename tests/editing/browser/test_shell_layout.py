@@ -107,7 +107,8 @@ def test_the_acts_stand_apart(
             .map(e => e.getBoundingClientRect()).filter(r => r.width > 0);
           const gaps = [];
           for (let i = 1; i < acts.length; i++) {
-            const sameLine = Math.abs(acts[i].top - acts[i - 1].top) < 4;
+            const middle = (r) => (r.top + r.bottom) / 2;
+            const sameLine = Math.abs(middle(acts[i]) - middle(acts[i - 1])) < 4;
             if (sameLine) gaps.push(acts[i].left - acts[i - 1].right);
           }
           return {count: acts.length, gaps};

@@ -27,6 +27,17 @@ B_ELSEWHERE = A_DELETES + "\nA paragraph of author B.\n"
 A_ADDS = B_ELSEWHERE + "\nA paragraph of author A.\n"
 
 
+def _with_an_edit(tenant: int, document: Any) -> None:
+    """The open hold's draft given an edit: a hold with no edits keeps nothing when it ends."""
+    from editing.models import Draft
+
+    with schema_context(tenant):
+        draft = Draft.objects.get(hold__document=document, hold__released_at__isnull=True)
+        body = draft.content["document.md"] + "\nAn invented sentence kept in the draft.\n"
+        draft.content = {**draft.content, "document.md": body}
+        draft.save()
+
+
 def signed_in(tenant: Any, user: Any) -> Client:
     client = Client(headers={"host": "127.0.0.1"})
     client.force_login(user)
@@ -171,6 +182,8 @@ def test_a_kept_draft_disables_the_controls(
     document = people.document
     with schema_context(migrated_tenant.number):
         hold = holds.take(document, people["r"])
+    _with_an_edit(migrated_tenant.number, document)
+    with schema_context(migrated_tenant.number):
         with document_lock(migrated_tenant.number, document.number):
             from django.db import transaction
 

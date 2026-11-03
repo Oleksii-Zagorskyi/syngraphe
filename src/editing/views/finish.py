@@ -382,7 +382,19 @@ def discard(request: HttpRequest, number: int) -> HttpResponse:
         return HttpResponseRedirect(f"/document/{number}/edit/") if held_it else not_found(request)
     document, hold = found
     try:
-        kept = services.discard(hold, cast(User, request.user))
+        outcome, kept = services.discard(
+            hold, cast(User, request.user), release="release" in request.POST
+        )
+    except services.HasEdits:
+        # The page offered *Release the document* before the first edit; the draft decides.
+        from editing.views.edit_tab import tab_response
+
+        return tab_response(
+            request,
+            document,
+            extra={"error": _("Your draft has edits — use Discard my edits…")},
+            status=409,
+        )
     except services.EditorsOpen:
         return _waiting(
             request,
@@ -399,7 +411,9 @@ def discard(request: HttpRequest, number: int) -> HttpResponse:
             _context(document, "edit", reason=reason),
             status=503,
         )
-    if kept is not None:
+    if outcome == "released":
+        messages.success(request, _("You released the document."))
+    elif kept is not None:
         messages.success(
             request,
             _(

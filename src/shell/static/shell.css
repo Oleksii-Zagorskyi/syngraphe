@@ -306,6 +306,8 @@ nav.path{position:relative;background:var(--panel);border:1px solid #dcdfe3;padd
 .phase-acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .acts-row.placed .phase-acts{position:absolute;top:18px;flex-wrap:nowrap;white-space:nowrap}
 .phase-acts .reason{font-size:12px;color:var(--muted)}
+.phase-acts>.act{display:inline-flex;align-items:center;gap:6px}
+.phase-acts>.act[hidden]{display:none}
 .cycle .sub>.held-mark,.cycle .sub>.frozen-mark{display:block}
 .held-mark{color:#8a5a00}
 .held-mark::before{content:"✎ "}
