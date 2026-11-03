@@ -218,6 +218,18 @@ def test_the_pending_tabs_checkbox_runs_under_the_policy(
     assert saved.value.status == 302
     assert page.url == url
     assert page.locator(".pending.show-authors").count() == 0
+    # Unticked, the text takes the column's width: the checkbox stands above it, never under it.
+    uncovered = page.evaluate(
+        """() => {
+          const box = document
+            .querySelector('form.show-author input[type=checkbox]')
+            .getBoundingClientRect();
+          const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          const text = document.querySelector('.document-text').getBoundingClientRect();
+          return {hit: !!hit && !!hit.closest('form.show-author'), above: box.bottom <= text.top + 1};
+        }"""
+    )
+    assert uncovered == {"hit": True, "above": True}, uncovered
     _policy._assert_headers(documents)
     _policy._assert_nothing_refused(violations, console)
 
