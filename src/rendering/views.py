@@ -9,6 +9,7 @@ start to it (DL-0452); the export dialog and its jobs."""
 from __future__ import annotations
 
 import logging
+import subprocess
 from collections.abc import Callable
 from typing import Any, cast
 
@@ -225,7 +226,7 @@ def historical(request: HttpRequest, number: int, version_number: str) -> HttpRe
     found = _version(request, number, version_number)
     if found is None:
         return not_found(request)
-    from review.views.pending import show_author
+    from editing.past_authors import show_author
 
     document, version, past = found
     asking = show_author(request.user)
@@ -334,10 +335,12 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
     try:
         repo = gitstore.open_repository(tenant.number, document.number)
         _, older_body = bundle.parse(gitstore.read(repo, "document.md", older.commit_sha).decode())
-        _, newer_body = bundle.parse(gitstore.read(repo, "document.md", newer.commit_sha).decode())
+        newer_text = gitstore.read(repo, "document.md", newer.commit_sha).decode()
+        _, newer_body = bundle.parse(newer_text)
     except UNREADABLE:
         logger.exception("a document's text could not be read", extra={"document": number})
         return not_found(request)
+    attributed, authors, too_long = _pair_authors(request, document, past, older, newer, newer_text)
 
     def link(a: int, b: int) -> str:
         return f"/document/{document.number}/compare/?from={seen[a][0]}&to={seen[b][0]}"
@@ -368,13 +371,57 @@ def compare(request: HttpRequest, number: int) -> HttpResponse:
                     images=reading.committed_images(document),
                     sides=(older_number, newer_number),
                 ),
+                authors=authors,
             )
         ),
+        "show_author": attributed,
+        "authors_too_long": too_long,
         # The newer text's outline beside it, its entries scrolling the marked text (DL-0527).
         "headings": outline(labelled(newer_body)),
         **panes(request),
     }
     return render(request, "rendering/compare.html", context)
+
+
+# The most versions a comparison names its edit authors across: a pair's authorship is worked out
+# on request, its cost growing with the versions between (DL-0528); measured on the generated
+# forty-page corpus at about seven milliseconds a version. A count, never a clock.
+PAIR_SPAN_MAX = 100
+
+
+def _pair_authors(
+    request: HttpRequest,
+    document: Document,
+    past: Any,
+    older: Version,
+    newer: Version,
+    newer_text: str,
+) -> tuple[bool, dict[int, str] | None, bool]:
+    """Whether the person keeps *Show edit authors* on; the newer body's lines by index to who
+    last edited each between the two versions; and whether the span is too long to name them."""
+    from editing.authorship import AuthorshipError
+    from editing.past_authors import authors_between, body_of, show_author
+    from review.history import CONTENT
+
+    if not show_author(request.user):
+        return False, None, False
+    content = [c.sha for c in past.history.commits if c.kind in CONTENT]
+    span = content.index(newer.commit_sha) - content.index(older.commit_sha)
+    if span > PAIR_SPAN_MAX:
+        return True, None, True
+    offset, _body = body_of(newer_text)
+    tenant = request.tenant  # type: ignore[attr-defined]
+    try:
+        named = authors_between(
+            tenant.number, document, newer.commit_sha, older, offset, name_base=False
+        )
+    except (AuthorshipError, subprocess.SubprocessError, OSError):
+        # The comparison stands without its names rather than failing.
+        logger.exception(
+            "a comparison's edit authors could not be read", extra={"document": document.number}
+        )
+        return True, None, False
+    return True, named, False
 
 
 def _compare_documents(

@@ -4690,6 +4690,9 @@ msgstr "Ім’я — не більше %(count)s символів."
 msgid "The name holds a character that cannot be shown."
 msgstr "Ім’я містить символ, який неможливо показати."
 
+msgid "Edit authors are not shown for a span this long."
+msgstr "Автори правок не показуються для такого довгого проміжку."
+
 msgid "Another member already uses this name."
 msgstr "Це ім’я вже використовує інший учасник."
 

@@ -128,7 +128,9 @@
 /* A historical page and the compare page: a fixed version, read only (DL-0195, DL-0233). */
 .band.historical { background: #eceff3; border-color: #b7c0cc; }
 .compare-pair { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 12px; }
-.compare-pair .steps { margin-left: auto; display: flex; gap: 8px; }
+.compare-pair .step { display: inline-flex; align-items: center; padding: 2px 4px; color: inherit; }
+.compare-pair button.step { border: 0; background: none; }
+.compare-pair .step[disabled] { opacity: 0.4; }
 
 /* An image stands alone in its paragraph, no wider than the text or the page. */
 .document-text img {

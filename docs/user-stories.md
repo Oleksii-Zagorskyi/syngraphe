@@ -284,7 +284,8 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0033** — As a reviewer, I compare any two versions directly, so that I am not forced to read a long run one step at a time.
 - The comparison shows the newer version's whole text with the changes marked, links to both versions, appendices compared in pairs I pick, and each attachment with both files and whether it changed (DL-0208).
-- It carries *‹* and *›* like every comparison of two versions, so from any pair I step to the neighbouring ones (DL-0508); any other pair I open from *History* (DL-0518).
+- It carries *‹* and *›* like every comparison of two versions, so from any pair I step to the neighbouring ones (DL-0508); any other pair I open from *History* (DL-0518). They stand inside the choosers' row as icons — *From ‹ {version} to › {version} Compare* — each beside the version it steps (DL-0528).
+- *Show edit authors*, the same preference as the review page's and a version's page's, names each changed paragraph of the newer text by who last edited it between the two versions, in the right margin (DL-0504, DL-0528); across more than a hundred versions the names are not drawn, and the page says so. Two documents compared carry no authors.
 
 **ST-0034** — As a reviewer, I see that an image changed and view the old and new side by side, so that I never accept a change I could not see.
 

@@ -136,3 +136,43 @@ def test_no_comparison_without_two_visible_versions(
         answer = history.get(f"/document/{n}/compare/{query}")
         assert answer.status_code == 404, query
         assert _unmasked(answer.content) == _unmasked(missing)
+
+
+def test_the_steps_stand_in_the_row(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any
+) -> None:
+    """*Від ‹ {ver} до › {ver} Порівняти*: each step beside the chooser it moves, drawn as an icon,
+    disabled at an end (DL-0528, DL-0508)."""
+    people = edition_cast()
+    commit_version(people.document, people["a"], FIRST, "edit")
+    commit_version(people.document, people["a"], CHANGED, "edit")
+    n = people.document.number
+    page = people.clients["r"].get(f"/document/{n}/compare/?from=0.0&to=0.0-1").content.decode()
+
+    row = re.search(r'<form class="compare-pair"[^>]*>(.*?)</form>', page, re.DOTALL)
+    assert row is not None
+    order = [
+        m.group(0)
+        for m in re.finditer(
+            r'name="from"|name="to"|class="step previous"|class="step next"|type="submit"',
+            row.group(1),
+        )
+    ]
+    assert order == [
+        'class="step previous"',
+        'name="from"',
+        'class="step next"',
+        'name="to"',
+        'type="submit"',
+    ], order
+    previous = re.search(r'<(a|button) class="step previous"[^>]*>(.*?)</\1>', row.group(1), re.S)
+    assert (
+        previous is not None and previous.group(1) == "button" and "disabled" in previous.group(0)
+    )
+    assert "<svg" in previous.group(2)
+    following = re.search(r'<(a|button) class="step next"[^>]*>(.*?)</\1>', row.group(1), re.S)
+    assert following is not None and following.group(1) == "a" and "<svg" in following.group(2)
+    assert f'href="/document/{n}/compare/?from=0.0-1&amp;to=0.0-2"' in following.group(0)
+    for field in ("from", "to"):
+        assert f'<label for="compare-{field}">' in row.group(1)
+        assert f'<select id="compare-{field}" name="{field}">' in row.group(1)

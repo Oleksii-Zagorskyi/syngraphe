@@ -422,6 +422,8 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** A reviewer or an administrator asks who made the changes between two editions, and stepping through the historical pages does not answer it.
 
+**Taken up in release 0.1 (DL-0528):** a comparison of two versions carries *Show edit authors*, the names worked out on request for spans of up to a hundred versions.
+
 ## B-057 — No invisible format character in a title or an entity's label
 
 **Idea.** DL-0490 applied: a document's title, an appendix's and an attachment's title, and an entity's label refuse every format character but the two joiners, as a reason and the title-page text do (DL-0483) — the marks that reorder text with them.

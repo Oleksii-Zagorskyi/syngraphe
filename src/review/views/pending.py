@@ -24,81 +24,26 @@ from django.views.decorators.cache import never_cache
 from access.rights import Right, rights_on_many
 from documents import gitstore
 from documents.holds import held_by
-from documents.models import Document, DocumentState, Version, VersionKind
+from documents.models import Document, DocumentState, Version
 from documents.parts import lists_at, part_operations
 from documents.path import frame
 from documents.views import ABSENT, is_member
 from editing import holds, numbering
-from editing.authorship import DOCUMENT_FILE, blame_at
+from editing.authorship import DOCUMENT_FILE
 from editing.diffview import render_changes
-from editing.models import LineAuthorship
-from identity.models import User, UserPreference
+from editing.past_authors import (
+    authors_between as _authors,
+)
+from editing.past_authors import (
+    body_of as _body,
+)
+from editing.past_authors import (
+    show_author,
+)
+from identity.models import User
 from identity.naming import person
 from review import services
 from shell.views import not_found
-
-SHOW_AUTHOR = "show_author"
-
-
-def show_author(user: Any) -> bool:
-    """Whether the person keeps *show author* on; off until they turn it on."""
-    return UserPreference.objects.filter(user_id=user.pk, key=SHOW_AUTHOR, value="on").exists()
-
-
-def _body(text: str) -> tuple[int, str]:
-    """The lines before `document.md`'s body, and the body."""
-    _frontmatter, body = holds.split(text)
-    return text[: len(text) - len(body)].count("\n"), body
-
-
-def _authors(
-    tenant_number: int,
-    document: Document,
-    head: str,
-    base: Version,
-    offset: int,
-    *,
-    path: str = DOCUMENT_FILE,
-    at_base: bool = True,
-) -> dict[int, str]:
-    """Each line of `path` at the head after its first `offset` — the body of `document.md`, or
-    an appendix's whole text — by its index, to the name of its author; an appendix the base does
-    not hold (`at_base` false) attributed from the run alone."""
-    lines = blame_at(
-        gitstore.repository_path(tenant_number, document.number),
-        head,
-        base=base.commit_sha if at_base else None,
-        path=path,
-    )
-    versions = {
-        v.commit_sha: v for v in Version.objects.filter(document=document).select_related("author")
-    }
-    base_rows: dict[int, Any] = {}
-    if base.kind != VersionKind.CREATED and at_base:
-        base_rows = dict(
-            LineAuthorship.objects.filter(version=base, file=path).values_list(
-                "line", "introduced_by__author"
-            )
-        )
-    people = {u.pk: u for u in User.objects.filter(pk__in=set(base_rows.values()))}
-    authors: dict[int, str] = {}
-    for n, line in enumerate(lines):
-        if n < offset or not line.text.strip():
-            continue
-        who: User | None
-        if line.commit == base.commit_sha:
-            if base.kind == VersionKind.CREATED:
-                who = base.author
-            else:
-                introduced = base_rows.get(line.orig_line or 0)
-                who = people.get(introduced) if introduced is not None else None
-        else:
-            version = versions.get(line.commit)
-            who = version.author if version is not None else None
-        name = person(who)
-        if name:
-            authors[n - offset] = name
-    return authors
 
 
 def _edit_blocked(document: Document, user: User) -> str:

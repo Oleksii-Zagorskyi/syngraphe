@@ -12,12 +12,15 @@ from typing import TYPE_CHECKING, Any
 from django.db.models import Q
 from django.utils import timezone
 
-from editing.authorship import DOCUMENT_FILE
+from documents import gitstore
+from documents.models import Version, VersionKind
+from editing.authorship import DOCUMENT_FILE, blame_at
 from editing.models import LineAuthorship
+from identity.models import User, UserPreference
 from identity.naming import person
 
 if TYPE_CHECKING:
-    from documents.models import Document, Version
+    from documents.models import Document
 
 logger = logging.getLogger(__name__)
 
@@ -172,3 +175,77 @@ def by_author(
         target.attrSet("data-author", name)
         target.attrSet("title", name)
         target.attrJoin("class", "by")
+
+
+# The edit authors of a pair of versions, worked out on request — the review page's run, a
+# comparison's span (DL-0504, DL-0528).
+
+SHOW_AUTHOR = "show_author"
+
+
+def show_author(user: Any) -> bool:
+    """Whether the person keeps *show author* on; off until they turn it on."""
+    return UserPreference.objects.filter(user_id=user.pk, key=SHOW_AUTHOR, value="on").exists()
+
+
+def body_of(text: str) -> tuple[int, str]:
+    """The lines before `document.md`'s body, and the body."""
+    from editing import holds
+
+    _frontmatter, body = holds.split(text)
+    return text[: len(text) - len(body)].count("\n"), body
+
+
+def authors_between(
+    tenant_number: int,
+    document: Document,
+    head: str,
+    base: Version,
+    offset: int,
+    *,
+    path: str = DOCUMENT_FILE,
+    at_base: bool = True,
+    name_base: bool = True,
+) -> dict[int, str]:
+    """Each line of `path` at the head after its first `offset` — the body of `document.md`, or
+    an appendix's whole text — by its index, to the name of its author; an appendix the base does
+    not hold (`at_base` false) attributed from the run alone. Without `name_base`, a line the base
+    already held — a moved one among them — names nobody: a comparison names only who edited a
+    line between its two versions (DL-0528)."""
+    lines = blame_at(
+        gitstore.repository_path(tenant_number, document.number),
+        head,
+        base=base.commit_sha if at_base else None,
+        path=path,
+    )
+    versions = {
+        v.commit_sha: v for v in Version.objects.filter(document=document).select_related("author")
+    }
+    base_rows: dict[int, Any] = {}
+    if base.kind != VersionKind.CREATED and at_base:
+        base_rows = dict(
+            LineAuthorship.objects.filter(version=base, file=path).values_list(
+                "line", "introduced_by__author"
+            )
+        )
+    people = {u.pk: u for u in User.objects.filter(pk__in=set(base_rows.values()))}
+    authors: dict[int, str] = {}
+    for n, line in enumerate(lines):
+        if n < offset or not line.text.strip():
+            continue
+        who: User | None
+        if line.commit == base.commit_sha:
+            if not name_base:
+                continue
+            if base.kind == VersionKind.CREATED:
+                who = base.author
+            else:
+                introduced = base_rows.get(line.orig_line or 0)
+                who = people.get(introduced) if introduced is not None else None
+        else:
+            version = versions.get(line.commit)
+            who = version.author if version is not None else None
+        name = person(who)
+        if name:
+            authors[n - offset] = name
+    return authors

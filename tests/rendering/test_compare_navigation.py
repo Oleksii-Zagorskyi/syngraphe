@@ -82,17 +82,17 @@ def test_previous_and_next_move_the_pair(
         "previous": f"/document/{n}/compare/?from=0.0&to=0.0-1",
         "next": f"/document/{n}/compare/?from=0.0-4&to=0.0-5",
     }
-    # Drawn as the glyphs, named and titled by the words.
-    for step, glyph in (("previous", "‹"), ("next", "›")):
-        drawn = re.search(rf'<a class="step {step}"[^>]*>([^<]*)</a>', apart)
-        assert drawn is not None and drawn.group(1) == glyph
+    # Drawn as icons, named and titled by the words (DL-0528).
+    for step in ("previous", "next"):
+        drawn = re.search(rf'<a class="step {step}"[^>]*>(.*?)</a>', apart, re.S)
+        assert drawn is not None and "<svg" in drawn.group(1)
         assert f'title="{step}"' in drawn.group(0) and f'aria-label="{step}"' in drawn.group(0)
     wide = client.get(f"/document/{n}/compare/?from=0.0&to=0.0-5").content.decode()
     assert _steps(wide) == {"previous": None, "next": None}
     for step in ("previous", "next"):
         button = re.search(rf'<button class="step {step}"[^>]*>', wide)
         assert button is not None and f'aria-label="{step}"' in button.group(0)
-    steps = apart.split('<span class="steps">', 1)[1].split("</span>", 1)[0]
+    steps = apart.split('<form class="compare-pair"', 1)[1].split("</form>", 1)[0]
     assert "←" not in steps and "→" not in steps
 
 
