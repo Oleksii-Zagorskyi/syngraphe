@@ -14,8 +14,10 @@ from django.views.decorators.cache import never_cache
 
 from access.rights import Right, rights_on
 from documents.holds import held_by
+from documents.models import VersionKind
 from documents.path import frame
 from documents.views import readable_document
+from editing.summary import first_line
 from identity.naming import person
 from rendering.views import UNREADABLE
 from review.history import entries, has_tab
@@ -24,6 +26,9 @@ from shell.views import not_found
 logger = logging.getLogger(__name__)
 
 # The words a history entry reads, by its event (DL-0197, `pages.md § The tabs`).
+# The versions whose summary an editor wrote.
+EDITED = (VersionKind.EDIT, VersionKind.REVIEWER_EDIT)
+
 EVENTS = {
     "created": pgettext_lazy("history event", "created"),
     "edit": pgettext_lazy("history event", "edit"),
@@ -54,6 +59,11 @@ def _rows(found: list[Any]) -> list[dict[str, Any]]:
                 "who": person(entry.actor),
                 "at": entry.at,
                 "opens": entry.version is not None,
+                # An editor's own words, the first line (DL-0532); the created version's and the
+                # passports' summaries are the platform's.
+                "summary": first_line(entry.version.summary)
+                if entry.version is not None and entry.event in EDITED
+                else "",
                 "boundary": i == line,
             }
         )

@@ -193,6 +193,15 @@ def message_with_kind(message: str, kind: Kind, trailers: Mapping[str, str] | No
     return f"{_checked_message(message)}\n\n{''.join(lines)}Kind: {kind.value}\n"
 
 
+def summary_of(message: str) -> str:
+    """The summary a commit's message carries: the whole message but its last paragraph of
+    trailers, the paragraph `kind_of` reads (DL-0532)."""
+    paragraphs = message.strip().split("\n\n")
+    if len(paragraphs) > 1 and kind_of(message) is not None:
+        paragraphs = paragraphs[:-1]
+    return "\n\n".join(paragraphs).strip()
+
+
 def kind_of(message: str) -> Kind | None:
     """The kind named by the trailers of a commit message — its last paragraph — or `None`."""
     paragraphs = message.strip().split("\n\n")

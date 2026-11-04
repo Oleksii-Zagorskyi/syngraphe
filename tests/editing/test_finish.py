@@ -76,7 +76,7 @@ def test_screen_shows_changes_summary_and_number(
     body = page.content.decode()
     assert page.status_code == 200
     assert "The second <ins>changed </ins>term" in body and "The first <ins>new </ins>" in body
-    assert 'value="Sections touched: Terms; Approval"' in body
+    assert ">Sections touched: Terms; Approval</textarea>" in body
     assert "the version waits as 0.0-2" in body
 
 
@@ -160,12 +160,14 @@ def test_a_summary_a_commit_cannot_carry_is_refused(
 ) -> None:
     client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
     set_draft(migrated_tenant, document, BODY.replace("The first term.", "An altered term."))
-    # Every character a line splits on, and every control character git refuses, is refused on
-    # the form, never by the commit.
+    # Every character a line splits on but the line feed, which starts the summary's body
+    # (DL-0532), and every control character git refuses, is refused on the form, never by the
+    # commit; so is a whole too long, or a body line a trailer would read as its own.
     for summary in (
         "",
         "Kind: edit",
-        "line\nsecond",
+        "first\n" + "x" * 5000,
+        "first\nRefs: a trailer",
         "x" * 501,
         "line\x0bsecond",
         "line\x00",
@@ -384,3 +386,17 @@ def row(page: str, key: str) -> str:
     found = re.search(rf'<tr data-kind="[a-z]+" data-key="{key}">.*?</tr>', page, re.S)
     assert found, key
     return found.group(0)
+
+
+def test_the_summary_stands_above(migrated_tenant: Any, member_of: Any, new_document: Any) -> None:
+    """The finishing screen draws the summary — ten lines, plain text — and its buttons above the
+    changes (DL-0532)."""
+    client, _, document = holding(migrated_tenant, member_of, new_document, BODY)
+    set_draft(migrated_tenant, document, BODY.replace("The first term.", "An altered term."))
+
+    body = client.get(f"/document/{document.number}/edit/finish/").content.decode()
+
+    field = re.search(r'<textarea id="summary" name="summary"([^>]*)>', body)
+    assert field is not None and 'rows="10"' in field.group(1)
+    assert body.index('id="summary"') < body.index('data-command="send"')
+    assert body.index('data-command="send"') < body.index('<div class="changes document-text">')

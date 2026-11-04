@@ -90,8 +90,8 @@ def test_enter_in_the_summary_accepts_nothing(
     settings: Any,
     queued_authorship: list[Any],
 ) -> None:
-    """Enter in the summary makes the version and leaves it waiting; accepting the run is never
-    the form's default."""
+    """Enter in the summary starts a line and submits nothing; *Create version* makes the version
+    and leaves it waiting; accepting the run is never the form's default."""
     from access.rights import Right
     from documents.models import Version
     from review.models import Acceptance
@@ -111,6 +111,11 @@ def test_enter_in_the_summary_accepts_nothing(
     page.wait_for_url(f"**/document/{document.number}/edit/finish/")
     page.focus("#summary")
     page.keyboard.press("Enter")
+    # Enter starts the summary's next line and submits nothing (DL-0532); making the version is
+    # its own button, never accepting.
+    assert page.url.endswith(f"/document/{document.number}/edit/finish/")
+    assert "\n" in page.input_value("#summary")
+    page.click("button[data-command=create]")
     page.wait_for_url(f"**/document/{document.number}/")
     with schema_context(migrated_tenant.number):
         assert not Acceptance.objects.exists()

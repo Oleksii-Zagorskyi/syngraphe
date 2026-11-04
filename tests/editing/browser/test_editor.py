@@ -77,9 +77,10 @@ def test_the_toolbar_offers_only_whitelisted_controls(editing: Any, page: Any) -
         ".editor-controls button[data-command]", "buttons => buttons.map(b => b.dataset.command)"
     )
     assert commands == [
+        "undo", "redo", "clear_formatting",
         "paragraph", "heading1", "heading2", "heading3", "heading4", "bullet_list",
         "ordered_list", "strong", "em", "underline", "quote", "note", "warning", "example",
-        "table", "add_row", "undo", "redo", "image", "link", "mark", "mention", "source", "finish",
+        "table", "add_row", "image", "link", "mark", "mention", "source", "finish",
     ]  # fmt: skip
 
 
@@ -298,3 +299,21 @@ def test_an_act_pressed_while_the_editor_opens(
 
     with schema_context(migrated_tenant.number):
         assert Hold.objects.get(document=document).release_kind == "released"
+
+
+def test_my_edits_label(editing: Any, page: Any) -> None:
+    """*My edits*: its box and its words one label, the box beside them, as every checkbox."""
+    editing()
+    gap = page.evaluate(
+        """() => {
+          const label = document.querySelector('label.my-edits');
+          const box = label.querySelector('input[type=checkbox]').getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(label);
+          const words = [...range.getClientRects()].filter((r) => r.left >= box.right - 1);
+          if (!words.length) return null;
+          return {width: box.width, gap: Math.min(...words.map((r) => r.left)) - box.right};
+        }"""
+    )
+    # The box drawn at its own size: an input stretched wide draws it far from its words.
+    assert gap is not None and gap["width"] <= 20 and gap["gap"] <= 6, gap

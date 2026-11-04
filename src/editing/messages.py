@@ -70,6 +70,7 @@ LABELS = {
     "link_address": _("Link address"),
     "undo": _("Undo"),
     "redo": _("Redo"),
+    "clear_formatting": _("Clear formatting"),
     "source": _("Source view"),
     "rich": _("Formatted text"),
     "paste_converted": _("Paste the converted text"),

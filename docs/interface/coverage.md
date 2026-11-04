@@ -13,7 +13,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 
 **Derived by `scripts/derive_coverage.py`** from the *Stories* column of each region table in `pages.md` and its *not yet drawn* marks, and from the stories of [`user-stories.md`](../user-stories.md) in their order — a withdrawn story and one outside release 0.1 left out; run it whenever either file changes. A region is named by its section — `› The draft's page` or `› The review page` for those subsections — then the region cell up to its first ` — ` or `; `, emphasis removed, cut at 58 characters; a region named as its section is the section alone. A story's title stops before its *so that* or at its sentence's end. A story is **drawn** when every region carrying it is drawn, **partly drawn** when some are, **not yet drawn** when none are. A region for a later release carries no 0.1 story (DL-0228).
 
-**75 stories:** 72 drawn · 0 partly drawn · 0 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
+**76 stories:** 73 drawn · 0 partly drawn · 0 not yet drawn. Without a region: ST-0073, ST-0074, ST-0075.
 
 | # | Story | Where | Drawn |
 |---|---|---|---|
@@ -56,6 +56,7 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0061 | As an editor, I add, rename, reorder and delete a document's appendices, as my groups' part rights allow | Document page — parts; Document page › The draft's page — the parts panel, on the right while holding the document; Appendix page — the page; Historical page — the appendices at that version, each on its own page; Help — Appendices and attachments | drawn |
 | ST-0062 | As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, as my groups' part rights allow | Document page — parts; Document page › The draft's page — the parts panel, on the right while holding the document; Help — Appendices and attachments; Administration — settings | drawn |
 | ST-0021 | As an editor, I undo changes I have just made | Document page › The draft's page — the editor, the whole document in it, open on arrival (DL-… | drawn |
+| ST-0079 | As an editor, I clear the formatting of a passage in one act | Document page › The draft's page — the editor, the whole document in it, open on arrival (DL-… | drawn |
 | ST-0022 | As an editor, I discard my edits | Document page › The draft's page — the draft's acts, on one line beneath its point (DL-0518):…; Send-for-review screen — the screen | drawn |
 | ST-0023 | As an editor, I see a clause number beside every paragraph | Document page › A version's page — the version's text; Appendix page — the page | drawn |
 | ST-0024 | As any reader of a document, I navigate by an outline of its sections and subsections | Document page — outline | drawn |

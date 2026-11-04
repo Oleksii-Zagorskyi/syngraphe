@@ -162,7 +162,7 @@ def derive_version(document: Document, commit: pygit2.Commit, author: User) -> V
             document=document,
             commit_sha=str(commit.id),
             author=author,
-            summary=commit.message.splitlines()[0][:500],
+            summary=gitstore.summary_of(commit.message),
             kind=VersionKind(kind.value),
             committed_at=datetime.fromtimestamp(commit.author.time, tz=UTC),
             actor_kind=ActorKind.USER,

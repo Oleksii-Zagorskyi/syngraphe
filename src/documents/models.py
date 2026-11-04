@@ -163,7 +163,8 @@ class Version(Provenanced):
     document = models.ForeignKey(Document, on_delete=models.PROTECT, related_name="versions")
     commit_sha = models.CharField(max_length=40, unique=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
-    summary = models.CharField(max_length=500)
+    # The whole summary, its first line the commit's subject (DL-0532).
+    summary = models.TextField()
     kind = models.CharField(max_length=13, choices=VersionKind.choices)
     committed_at = models.DateTimeField()
 

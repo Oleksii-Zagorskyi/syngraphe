@@ -85,6 +85,8 @@ def test_the_draft_shows_appendices_and_parts(
     m = document.number
     for path in (f"/document/{m}/my-edits/", f"/document/{m}/edit/finish/"):
         html = client.get(path).content.decode()
+        # The finishing screen's summary, which names the parts, stands above the changes.
+        html = html.rsplit("</form>", 1)[-1] if path.endswith("finish/") else html
         text = flat(html)
         assert text.index("revised.") < text.index("Appendix one (example)"), path
         one = html[html.index("Appendix one (example)") :]
@@ -94,7 +96,7 @@ def test_the_draft_shows_appendices_and_parts(
         assert f'href="/document/{m}/edit/parts/attachment/2/"' in html
         assert f'href="/document/{m}/appendix/{added}/edit/"' in html
     finish = client.get(f"/document/{m}/edit/finish/").content.decode()
-    summary = re.search(r'name="summary" value="([^"]*)"', finish)
+    summary = re.search(r'<textarea id="summary" name="summary"[^>]*>([^<]*)</textarea>', finish)
     assert summary and "Appendix one (example)" in summary.group(1)
 
 

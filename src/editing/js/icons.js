@@ -49,6 +49,7 @@ export const ICONS = {
   ),
   undo: svg(`<path d="M7 5L3.5 8.5 7 12"/><path d="M3.5 8.5H12a4.5 4.5 0 010 9H9"/>`),
   redo: svg(`<path d="M13 5l3.5 3.5L13 12"/><path d="M16.5 8.5H8a4.5 4.5 0 000 9h3"/>`),
+  clear_formatting: svg(`<path d="M5 4h10M10 4l-3 12"/><path d="M12 12l5 5M17 12l-5 5"/>`),
   link: svg(
     `<path d="M8.5 11.5a3.5 3.5 0 005 0l2.5-2.5a3.5 3.5 0 00-5-5l-1 1"/>` +
       `<path d="M11.5 8.5a3.5 3.5 0 00-5 0L4 11a3.5 3.5 0 005 5l1-1"/>`,

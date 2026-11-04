@@ -24,6 +24,7 @@ from editing import holds, numbering, services, summary
 from editing.messages import DRAFT_LIMITS
 from editing.messages import for_the_editor as messages_for_the_editor
 from editing.models import Draft, Hold, ReleaseKind
+from editing.summary import first_line
 from editing.views.edit_tab import editable
 from identity.models import User
 from review.services import RecordIncomplete
@@ -53,7 +54,11 @@ def _run(document: Document) -> list[dict[str, str]]:
 
     accepted = numbering.accepted(document)
     return [
-        {"number": f"{accepted}-{n}", "summary": v.summary, "author": person(v.author)}
+        {
+            "number": f"{accepted}-{n}",
+            "summary": first_line(v.summary),
+            "author": person(v.author),
+        }
         for n, v in enumerate(run(document), 1)
     ]
 
@@ -94,7 +99,7 @@ def _screen(
         accept_number=numbering.next_accepted(document) if reviewer else "",
         run=_run(document) if reviewer else [],
         reviewer=reviewer,
-        summary_max=summary.SUMMARY_MAX,
+        summary_whole_max=summary.SUMMARY_WHOLE_MAX,
         # The discard's box says a reservation ends with the draft (DL-0237).
         reserved=_reserved(document),
         **more,
@@ -223,7 +228,8 @@ def send(request: HttpRequest, number: int) -> HttpResponse:
     choice = request.POST.get("choice", "send")
     if choice not in CHOICES[_reviewer(request, document)]:
         return not_found(request)
-    message = request.POST.get("summary", "")
+    # A browser posts the `<textarea>`'s lines joined by CRLF; the commit takes line feeds.
+    message = summary.normalised(request.POST.get("summary", ""))
     user = cast(User, request.user)
     try:
         if choice == "accept":

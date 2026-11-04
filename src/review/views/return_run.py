@@ -21,6 +21,7 @@ from documents.models import Document
 from documents.path import frame
 from editing import numbering
 from editing.reservations import ReasonRefused
+from editing.summary import first_line
 from identity.models import User
 from identity.naming import person
 from review import services
@@ -56,7 +57,11 @@ def _confirmation(
         "can_edit": Right.EDIT in rights_on(request.user, document),
         "holding": held_by(document, request.user),
         "run": [
-            {"number": f"{accepted}-{n}", "summary": v.summary, "author": person(v.author)}
+            {
+                "number": f"{accepted}-{n}",
+                "summary": first_line(v.summary),
+                "author": person(v.author),
+            }
             for n, v in enumerate(pending, 1)
         ],
         # The run as listed: a confirmation always names the versions its page shows.

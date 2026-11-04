@@ -783,7 +783,7 @@ def commit_draft_locked(
             repo,
             changes,
             identity_for(user),
-            message.strip(),
+            summary.as_message(message),
             kind,
             trailers={"Normalizer": trailer(RULESET, lists).removeprefix("Normalizer: ")},
         )

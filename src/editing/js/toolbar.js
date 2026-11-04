@@ -1,4 +1,5 @@
-// The toolbar: headings, lists, bold, italic, underline, quotes, callouts, tables, undo and redo,
+// The toolbar: undo and redo, clear formatting, headings, lists, bold, italic, underline, quotes,
+// callouts, tables,
 // images, links, roles, actions and terms, and mentions. Buttons keep the selection through the
 // click by refusing the mousedown's default.
 import { setBlockType, toggleMark, wrapIn } from "prosemirror-commands";
@@ -7,6 +8,7 @@ import { wrapInList } from "prosemirror-schema-list";
 import { addRowAfter } from "prosemirror-tables";
 import { insertPoint } from "prosemirror-transform";
 
+import { clearFormatting } from "./clear.js";
 import { spec } from "./spec.js";
 import { picker } from "./entities.js";
 import { ICONS } from "./icons.js";
@@ -79,7 +81,11 @@ export function toolbar(view, schema, words, report, images = null, marking = nu
     command(view.state, view.dispatch, view);
     view.focus();
   };
+  // Undo, redo and *Clear formatting* first: the controls looked for first (DL-0531).
   const blocks = [
+    ["undo", undo],
+    ["redo", redo],
+    ["clear_formatting", clearFormatting(schema)],
     ["paragraph", setBlockType(schema.nodes.paragraph)],
     ...Array.from({ length: spec.headingMaxDepth }, (_, i) => [
       `heading${i + 1}`,
@@ -94,8 +100,6 @@ export function toolbar(view, schema, words, report, images = null, marking = nu
     ...spec.calloutTypes.map((type) => [type, wrapIn(schema.nodes.callout, { type })]),
     ["table", insertTable(schema)],
     ["add_row", addRowAfter],
-    ["undo", undo],
-    ["redo", redo],
   ];
   const label = (name) =>
     name.startsWith("heading") ? labels.heading.replace("%(level)s", name.slice("heading".length)) : labels[name];

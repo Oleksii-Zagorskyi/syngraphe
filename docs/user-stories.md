@@ -219,7 +219,11 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - As the author of a document no group is linked to yet, I may upload and replace attachments (DL-0445).
 
 **ST-0021** — As an editor, I undo changes I have just made, so that a wrong turn costs seconds.
-- *Undo* and *redo* are buttons in the editor's toolbar as well as the usual keys, because people arriving from Word look for them (DL-0241).
+- *Undo* and *redo* are buttons in the editor's toolbar as well as the usual keys, because people arriving from Word look for them (DL-0241); they are its first two controls, *Clear formatting* the third (DL-0531).
+
+**ST-0079** — As an editor, I clear the formatting of a passage in one act, so that text I pasted or moved reads as plain paragraphs again.
+- *Clear formatting* · *Очистити форматування* acts on my selection, or on the line my cursor stands in when nothing is selected: bold, italic, underline and links go; the lines leave lists, quotes and note blocks; headings become paragraphs — the same words, plain (DL-0531).
+- The roles, actions and terms I marked, and my mentions of other documents, stay: they say what the text declares, not how it looks. A table keeps its shape, its cells cleared of marks. One *undo* puts everything back.
 
 **ST-0022** — As an editor, I discard my edits, so that work I have decided against does not reach the document.
 - Offered among the acts beneath my draft whenever I hold the document (DL-0518), and on the send-for-review screen beside *continue editing* (DL-0237).
@@ -252,6 +256,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - An image that exists only as a web address is left out of the paste, the rest of the pasted text goes in, and a one-line notice says the image was not pasted and to copy the image itself and paste it (DL-0232, DL-11-005).
 
 **ST-0029** — As an editor, I press *finish editing*, see what my changes introduce, and either continue editing or commit. *(skeleton)*
+- The summary and the screen's buttons stand above my changes. The summary is plain text of several lines, in a field as wide as the editor and ten lines high: its first line is the commit's subject and what every list shows, the rest its body, drawn whole on the version's page and in the review page's panel; the first line is at most 500 characters, the whole at most 5,000, and no line may read as a trailer (DL-0532, DL-0535).
 - The commit carries a summary I may edit before sending. It is for whoever reviews the run, and shows with the version in the review page's panel (DL-0509) — or, for a version I accepted in the same act, in its history entry (DL-0222).
 - In release 0.1 the screen shows my changes, the part operations and the summary, which starts from a mechanical draft naming the sections I touched; the agent's analyses arrive in release 0.2 on the same screen (DL-0261).
 - If I also hold *accept*, the screen offers *accept as N.M* — my version and the acceptance of the whole run, other editors' versions included, in one act — and *create version N.M-X*, which leaves it pending; each shows the number that results, such as *accept as 2.4* and *create version 2.3-1* on a document accepted at 2.3 (DL-0222).

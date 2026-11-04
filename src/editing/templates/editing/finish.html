@@ -4,13 +4,10 @@
 <div class="finish">
   <h2>{% translate "Finish editing" %}</h2>
   <p class="muted">{% translate "Your changes, marked in the text. The summary is for the reviewer and is kept with the version; it starts from the sections you changed." %}</p>
-  <div class="changes document-text">{{ changes }}</div>
-  {% include "editing/part_changes.html" %}
-  {% translate "Roles, actions and terms this draft changes" as heading %}{% include "editing/entity_changes.html" with heading=heading %}
   <form method="post" action="/document/{{ document.number }}/edit/send/">
     {% csrf_token %}
     <label for="summary">{% translate "Change summary" %}</label>
-    <input type="text" id="summary" name="summary" value="{{ summary }}" maxlength="{{ summary_max }}" required>
+    <textarea id="summary" name="summary" rows="10" maxlength="{{ summary_whole_max }}" required>{{ summary }}</textarea>
       {% if reviewer %}
     {% if run %}
     <p class="muted">{% translate "Accepting also accepts the versions waiting before yours:" %}</p>
@@ -19,8 +16,6 @@
     </ol>
     {% endif %}
     <input type="hidden" name="head" value="{{ head }}">
-    {# Enter in the summary submits the first button: the version is made and waits, nothing is accepted. #}
-    <button type="submit" name="choice" value="create" hidden tabindex="-1" aria-hidden="true"></button>
     <p class="choice"><button class="btn primary" type="submit" name="choice" value="accept" data-command="accept">{% blocktranslate with number=accept_number %}Accept as {{ number }}{% endblocktranslate %}</button>
     <span class="muted">{% translate "the version is made and the whole run since the last acceptance is accepted" %}</span></p>
     <p class="choice"><button class="btn" type="submit" name="choice" value="create" data-command="create">{% blocktranslate with number=number %}Create version {{ number }}{% endblocktranslate %}</button>
@@ -30,6 +25,10 @@
     <span class="muted">{% blocktranslate with number=number %}the version waits as {{ number }}{% endblocktranslate %}</span></p>
     {% endif %}
   </form>
+  {# The summary and the choices above the changes: a reviewer reads why before what (DL-0532). #}
+  <div class="changes document-text">{{ changes }}</div>
+  {% include "editing/part_changes.html" %}
+  {% translate "Roles, actions and terms this draft changes" as heading %}{% include "editing/entity_changes.html" with heading=heading %}
   <p><a class="btn" href="/document/{{ document.number }}/edit/" data-command="continue">{% translate "Continue editing" %}</a></p>
 </div>
 {% endblock %}

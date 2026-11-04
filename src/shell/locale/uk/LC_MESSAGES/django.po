@@ -762,10 +762,6 @@ msgstr "Змінено розділи: %(sections)s"
 msgid "Write a summary of the change."
 msgstr "Напишіть підсумок змін."
 
-#: editing/summary.py:69
-msgid "The summary is one line."
-msgstr "Підсумок має бути одним рядком."
-
 #: editing/summary.py:71
 #, python-format
 msgid "The summary is at most %(count)s characters."
@@ -4672,6 +4668,20 @@ msgstr "Ім’я містить символ, який неможливо по�
 
 msgid "Edit authors are not shown for a span this long."
 msgstr "Автори правок не показуються для такого довгого проміжку."
+
+msgid "Clear formatting"
+msgstr "Очистити форматування"
+
+msgid "The summary holds a character that is not text."
+msgstr "Підсумок містить символ, що не є текстом."
+
+#, python-format
+msgid "The summary's first line is at most %(count)s characters."
+msgstr "Перший рядок підсумку — не більше %(count)s символів."
+
+#, python-format
+msgid "Line %(number)s of the summary cannot begin with a word and a colon."
+msgstr "Рядок %(number)s підсумку не може починатися зі слова й двокрапки."
 
 msgid "Another member already uses this name."
 msgstr "Це ім’я вже використовує інший учасник."

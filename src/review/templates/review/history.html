@@ -11,7 +11,7 @@
       {% timezone display_timezone %}
       {% for row in rows %}
       {% if row.boundary %}<tr class="boundary"><td colspan="5">{% translate "accepted" %} ↓</td></tr>{% endif %}
-      <tr data-event="{{ row.code }}"><td class="id">{{ row.number }}</td><td>{{ row.event }}</td><td>{{ row.who }}</td><td class="muted">{{ row.at|date:"j E Y, H:i" }}</td><td>{% if row.opens %}<a href="/document/{{ document.number }}/version/{{ row.number }}/" target="_blank" rel="noopener">{% translate "open" %} ↗</a>{% endif %}</td></tr>
+      <tr data-event="{{ row.code }}"><td class="id">{{ row.number }}</td><td>{{ row.event }}{% if row.summary %} <span class="muted summary">— {{ row.summary }}</span>{% endif %}</td><td>{{ row.who }}</td><td class="muted">{{ row.at|date:"j E Y, H:i" }}</td><td>{% if row.opens %}<a href="/document/{{ document.number }}/version/{{ row.number }}/" target="_blank" rel="noopener">{% translate "open" %} ↗</a>{% endif %}</td></tr>
       {% endfor %}
       {% endtimezone %}
     </tbody>

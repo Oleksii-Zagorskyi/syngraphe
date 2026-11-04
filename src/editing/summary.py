@@ -13,7 +13,12 @@ from editing.diffview import opcodes
 HEADING = re.compile(r"^#{1,6}[ \t]+(.*?)[ \t]*$")
 # A line a commit's trailers would read as their own: a word of letters and hyphens, a colon.
 TRAILER_SHAPE = re.compile(r"^[A-Za-z][A-Za-z0-9-]*:[ \t]")
+# The line breaks a line can end in unseen by a split on it: the next line, the line and the
+# paragraph separators.
+SEPARATORS = re.compile("[\x85\u2028\u2029]")
 SUMMARY_MAX = 500
+# The whole summary, its body included (DL-0535): the first line keeps `SUMMARY_MAX`.
+SUMMARY_WHOLE_MAX = 5000
 
 
 def _sections(lines: list[str]) -> list[str | None]:
@@ -59,17 +64,53 @@ def drafted(old: str, new: str, *, appendices: list[str] | tuple[str, ...] = ())
     return _("Sections touched: %(sections)s") % {"sections": "…"}
 
 
+def normalised(summary: str) -> str:
+    """The summary as a browser posts it, every line ending a line feed: a `<textarea>` joins its
+    lines with CRLF, which a commit's message refuses."""
+    return summary.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def as_message(summary: str) -> str:
+    """The commit's message for a summary: its first line the subject, the rest its body after a
+    blank line, as git reads a message (DL-0532)."""
+    first, _, rest = normalised(summary).strip().partition("\n")
+    rest = rest.strip("\n")
+    return f"{first.strip()}\n\n{rest}" if rest else first.strip()
+
+
+def first_line(summary: str) -> str:
+    """The line every list reads (DL-0532)."""
+    return summary.strip().split("\n", 1)[0]
+
+
 def problem(summary: str) -> str | None:
-    """What is wrong with a summary as the holder left it, or `None`."""
-    text = summary.strip()
+    """What is wrong with a summary as the holder left it, or `None`: the first line required, at
+    most `SUMMARY_MAX` and not shaped like a trailer; every line free of control characters and of
+    every line break but the line feed, none shaped like a trailer; the whole at most
+    `SUMMARY_WHOLE_MAX` (DL-0532, DL-0535)."""
+    text = normalised(summary).strip()
     if not text:
         return _("Write a summary of the change.")
-    # Every character a line splits on, not the newline alone: the version's summary is the
-    # commit's first line, read back by the same split.
-    if len(text.splitlines()) != 1 or CONTROL.search(text):
-        return _("The summary is one line.")
-    if len(text) > SUMMARY_MAX:
-        return _("The summary is at most %(count)s characters.") % {"count": SUMMARY_MAX}
-    if TRAILER_SHAPE.match(text):
+    lines = text.split("\n")
+    # Every character a line splits on but the line feed: the version's summary is read back from
+    # the commit by the same split.
+    if (
+        CONTROL.search(text)
+        or SEPARATORS.search(text)
+        or any(len(line.splitlines()) > 1 for line in lines)
+    ):
+        return _("The summary holds a character that is not text.")
+    if len(lines[0].strip()) > SUMMARY_MAX:
+        return _("The summary's first line is at most %(count)s characters.") % {
+            "count": SUMMARY_MAX
+        }
+    if len(text) > SUMMARY_WHOLE_MAX:
+        return _("The summary is at most %(count)s characters.") % {"count": SUMMARY_WHOLE_MAX}
+    if TRAILER_SHAPE.match(lines[0]):
         return _("The summary cannot begin with a word and a colon.")
+    for n, line in enumerate(lines[1:], 2):
+        if TRAILER_SHAPE.match(line.strip()):
+            return _("Line %(number)s of the summary cannot begin with a word and a colon.") % {
+                "number": n
+            }
     return None

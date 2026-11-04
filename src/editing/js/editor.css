@@ -32,7 +32,9 @@
   padding: 0;
 }
 
-.edit-tab .editor-controls input {
+/* The row's typed fields — a link's address, a mention's number — take room to type in; a
+   checkbox keeps its own size beside its words. */
+.edit-tab .editor-controls input:not([type="checkbox"]) {
   font: inherit;
   min-width: 16rem;
 }

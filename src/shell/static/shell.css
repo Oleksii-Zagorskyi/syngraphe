@@ -320,3 +320,6 @@ nav.path{position:relative;background:var(--panel);border:1px solid #dcdfe3;padd
 .held-mark::before{content:"✎ "}
 .frozen-mark{color:#1f5fa8}
 .frozen-mark::before{content:"❄ "}
+/* The change summary: plain text of several lines, as wide as the text it summarises (DL-0532). */
+.finish textarea#summary{display:block;width:100%;box-sizing:border-box;font:inherit;padding:6px 8px;margin:4px 0 10px}
+.version-summary{white-space:normal;margin:6px 0 10px;color:var(--ink)}

@@ -256,6 +256,8 @@ def historical(request: HttpRequest, number: int, version_number: str) -> HttpRe
         "others": others[::-1],
         "show_author": asking,
         "authors_waiting": waiting,
+        # The version's own summary, whole, under its band (DL-0532).
+        "version_summary": version.summary,
     }
     return render(request, "rendering/historical.html", context)
 
