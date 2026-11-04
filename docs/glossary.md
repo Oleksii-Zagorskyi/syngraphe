@@ -144,7 +144,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **accept as N.M** · погодити як N.M · *proposed* — for a holder of *accept*: commits the draft and accepts the whole run since the last acceptance in one act. The button carries the accepted number that results — *accept as 2.4* (DL-0222).
 
-**my reservations** · мої резервування · *proposed* — the list of documents a person has reserved for editing, each with its start date; in the user menu (DL-0241).
+**my reservations** · мої резервування · *proposed* — the list of documents a person has reserved for editing, each with its start date; in the menu row while they hold one (DL-0241, DL-0525).
 
 **reserve for editing** · зарезервувати для редагування · *proposed* — keep the document one holds for days or weeks: the hold is no longer released for inactivity. Taken from an open editing session, by a member of a group holding the right of the same name (ADR-0009).
 
@@ -162,7 +162,11 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **anonymous editor** · анонімний редактор · *fixed* — how a page names a person who has no display name (DL-0339).
 
-**edit author** · автор правки · *fixed* — the person whose edit last wrote a line, named in the right margin beside a paragraph the comparison changed, and nowhere beside one it did not; *Show edit authors* · *Показувати авторів правок* is the checkbox at the top of that column, as its title (DL-0040, DL-0489, DL-0504).
+**display name** · ім’я для показу · *proposed* — the name a person gives themselves on their account page, by which the organisation's pages name them; unique within each organisation they belong to; administration pages name a person by address instead (DL-0434, DL-0523, DL-0537).
+
+**edit author** · автор правки · *fixed* — the person whose edit last wrote a line — on a comparison of two versions, last wrote it between them (DL-0528) — named in the right margin beside a paragraph the comparison changed, and nowhere beside one it did not; *Show edit authors* · *Показувати авторів правок* is the checkbox at the top of that column, as its title (DL-0040, DL-0489, DL-0504, DL-0528).
+
+**clear formatting** · очистити форматування · *proposed* — the editor's act that leaves the selection, or the cursor's line, plain paragraphs of the same words: bold, italic, underline and links removed, lists, quotes and callouts lifted, headings made paragraphs; roles, actions, terms and mentions kept (DL-0531).
 
 **formatting only** · лише форматування · *proposed* — the mark of a change that altered a sentence's look, not its words or what it points at (DL-0331).
 
@@ -230,7 +234,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **block my account** · заблокувати мій обліковий запис · *proposed* — a person's own block, at the foot of their account page (ST-0066, DL-0499): every organisation closes to them; in release 0.1 nothing in the platform lifts it — a platform administrator asks the installation's operator, who lifts it in the database (DL-0254).
 
-**account** · обліковий запис · *proposed* — a person's own sign-in to the platform, one per address, whatever organisations they belong to. Its page, *My account* · *Мій обліковий запис* in the user menu, shows the address, holds the interface language and *block my account* (DL-0500, ST-0076).
+**account** · обліковий запис · *proposed* — a person's own sign-in to the platform, one per address, whatever organisations they belong to. Its page, opened from the person's display name at the end of the menu row, shows the address, holds the display name, the interface language, *sign out* and *block my account* (DL-0500, DL-0525, ST-0076).
 
 **interface language** · мова інтерфейсу · *proposed* — Ukrainian or English, each person's own choice on their account page, kept as their preference; without one, the installation's default. A document's language — its text, numbering and exports — is the document's own and never follows it (DL-0498, DL-0501).
 
@@ -240,7 +244,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **reset the password** · скинути пароль · *proposed* — set a new password through *Forgot your password?* · *Забули пароль?*: an email with a single-use link of one hour.
 
-**switch organisation** · перейти до іншої організації · *proposed* — choose, in the switcher beside the organisation's name, which of one's organisations to work in (ST-0007). The platform administrator's selector in the administration *chooses* the organisation its pane shows; the switcher changes where one works.
+**switch organisation** · перейти до іншої організації · *proposed* — choose, from the list the organisation's name opens in the menu row, which of one's organisations to work in (ST-0007, DL-0525). The platform administrator's selector in the administration *chooses* the organisation its pane shows; the list changes where one works.
 
 **being set up** · налаштовується · *proposed* — what the interface shows for a new organisation whose schema is not yet fully migrated, the state `migrating`: no request reaches it until the migration completes and it becomes active (DL-0280, DL-0287).
 

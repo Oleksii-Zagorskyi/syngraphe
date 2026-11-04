@@ -26,4 +26,4 @@ Administration › *Audit log*, for platform administrators on the platform's ow
 
 ## Edit authors on a past version
 
-*Show edit authors* — on the review page and on a past version's page alike — names in the right margin who last edited each changed paragraph. A past version's edit authors are worked out when first asked for: the page says so and shows the text without them; reload it in a moment. They are kept for a day.
+*Show edit authors* — on the review page, on a past version's page and on a comparison of two versions alike — names in the right margin who last edited each changed paragraph. A past version's edit authors are worked out when first asked for: the page says so and shows the text without them; reload it in a moment. They are kept for a day.

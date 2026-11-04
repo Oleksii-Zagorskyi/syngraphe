@@ -371,3 +371,31 @@ def test_accountability_help_page(member_of: Any, settings: Any) -> None:
         if language == "uk":
             leaked = [message for message in ids if message in catalogue.text_of(body)]
             assert leaked == [], leaked
+
+
+def test_the_help_reads_the_one_row_and_the_toolbar() -> None:
+    """The help names the account page by the person's name in the menu row, signs out there,
+    switches organisation from a list, and describes the toolbar's first three controls and
+    *Clear formatting* (DL-0525, DL-0531)."""
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2] / "src" / "editing" / "help"
+    for language, gone, words in (
+        (
+            "en",
+            ("*My account*", "switcher"),
+            ("*Undo*, *Redo* and *Clear formatting*", "*Sign out*"),
+        ),
+        (
+            "uk",
+            ("*Мій обліковий запис*", "у перемикачі поруч із назвою організації", "Перейти"),
+            ("*Скасувати*, *Повторити* й *Очистити форматування*", "*Вийти*"),
+        ),
+    ):
+        text = "\n".join(
+            p.read_text(encoding="utf-8") for p in sorted((root / language).glob("*.md"))
+        )
+        for word in gone:
+            assert word not in text, (language, word)
+        for word in words:
+            assert word in text, (language, word)

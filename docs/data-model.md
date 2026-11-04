@@ -39,7 +39,7 @@ erDiagram
     USER {
         uuid id PK
         string email UK "platform identifier"
-        string display_name "cleared on erasure; identifier kept"
+        string display_name "set by its holder on their account page; unique, compared in NFKC without case or spaces, among the active and blocked members of each organisation they belong to; cleared on erasure, identifier kept (DL-0523, DL-0537)"
         string password_hash
         bool is_platform_admin
         bool is_tombstoned "former user (DL-0108); the procedure is backlog B-017"
@@ -336,7 +336,7 @@ erDiagram
         uuid document FK
         string commit_sha UK
         uuid author FK "git author name is this id; email is {id}@users.noreply.syngraphe.local"
-        string summary "starts from a mechanical draft naming the sections touched; the author edits it (DL-0261); agent-drafted from 0.2"
+        text summary "the commit's message less its trailers: the first line its subject, at most 500 characters, the rest its body, the whole at most 5,000; starts from a mechanical draft naming the sections touched, the author edits it (DL-0261, DL-0532, DL-0535); agent-drafted from 0.2"
         string kind "created | edit | reviewer_edit | acceptance | return | approval — created: the first commit of a new or copied document (DL-0268); reviewer_edit: a content version committed by a holder of accept (ADR-0014); the last three are passport commits (DL-0260)"
         datetime committed_at
     }
@@ -450,7 +450,7 @@ erDiagram
 
 **`VERSION.commit_sha` is the join to git**, and the row is a cache of what the commit already says — rebuildable, never authoritative. **`VERSION.author` is the only link between a commit and a person** (DL-0088): git holds the identifier, this table holds the mapping, and nothing personal is in the repository at all. Removing a person's **name and address** from the database therefore anonymises the record without rewriting history — pseudonymisation by construction. It does not remove the person from the record: `created_by`, `ACCESS_CHANGE`, `ACCEPTANCE` and `EDITION` all reference the identifier, and emptying those would destroy the audit answers ASR-18 promises. The erasure shape is a **tombstone** — identifier kept, name and address gone, a *former user* label in their place — settled at DL-0108.
 
-**Each commit carries its kind** in a last paragraph of trailers, `Kind: created | edit | reviewer_edit | acceptance | return | approval`, the values of `VERSION.kind`, so a version row is derivable from its commit alone. A commit's summary — its first line — is written by the platform or by the author, never a title or a name. The reconciler derives rows for the content kinds from the trailer; a passport's kinds are derived from the passport.
+**Each commit carries its kind** in a last paragraph of trailers, `Kind: created | edit | reviewer_edit | acceptance | return | approval`, the values of `VERSION.kind`, so a version row is derivable from its commit alone. A commit's summary — its first line the subject, the lines after a blank line its body (DL-0532) — is written by the platform or by the author, never a title or a name; `VERSION.summary` holds it whole, and the lists read its first line. The reconciler derives rows for the content kinds from the trailer; a passport's kinds are derived from the passport.
 
 **The passport, `passport.md`, is an append-only file of decisions.** Its frontmatter holds `document` and `tenant`, the numbers the repository belongs to, which the reconciler checks before trusting a repository; then one `##` section per passport commit — `## acceptance 2.3`, `## return`, `## approval 3.0` — each with `at` (UTC, to the second), `by` (a user identifier), `version` (the content commit it decides on), and `reason` for a return, `edition` for an approval, one `name: value` line each. Identifiers only, never a name (DL-0088). A section is read back before it is committed, and the rows of an acceptance are derived only from a section exactly as the platform writes one: the passport alone changed, one section appended by its commit's author, numbered next, deciding on the last content version before it.
 

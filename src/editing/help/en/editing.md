@@ -4,13 +4,15 @@
 
 The editor has two views of the same text: the formatted view and the source view, which shows the text as Markdown with each paragraph on one line. Switch between them with the control above the text.
 
+The toolbar starts with *Undo*, *Redo* and *Clear formatting*. *Clear formatting* acts on the selection, or on the line the cursor stands in when nothing is selected: bold, italic, underline and links go, the lines leave lists, quotes and callouts, and headings become paragraphs — the same words, plain. The roles, actions and terms you marked, and mentions of other documents, stay; a table keeps its shape. One *Undo* puts it all back.
+
 What you type is kept a moment after you pause, and the indicator above the text says whether it was. If you close the page, your text is there when you come back.
 
 Text pasted from elsewhere is checked. A construct the editor does not accept is refused with its line named; in the source view a conversion is offered, shown before it is applied. The list of what the editor accepts is on its own page.
 
 *My edits*, a checkbox in the editor's row, shows the whole document with your changes marked in place; it is enabled after your first edit.
 
-When you are done, choose *Finish editing*. Until your first edit, *Release the document* lets the document go and keeps nothing; after it, *Discard my edits…* throws your draft away, once you confirm in its window.
+When you are done, choose *Finish editing*: the summary and its buttons stand above your changes. The summary is plain text of several lines — its first line is what every list of versions shows, at most 500 characters; the rest is kept with the version and read whole on its page and in the review page's panel, at most 5,000 characters in all. No line may begin with a word and a colon. Until your first edit, *Release the document* lets the document go and keeps nothing; after it, *Discard my edits…* throws your draft away, once you confirm in its window.
 
 ## Images
 

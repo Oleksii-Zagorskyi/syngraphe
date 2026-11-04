@@ -4,7 +4,7 @@
 
 *History*, an icon beside the document's heading, lists a document's versions, newest first: each with its number, what happened — an edit, a reviewer's version, an acceptance, a return, an edition made canonical — who acted and when, and the freezes and unfreezes between them. A line marks where the accepted text ends: above it is the work not yet accepted.
 
-What you see depends on your groups' rights. *View all history* shows every version your reading right reaches. *View previous canonical versions* shows the editions alone. *Accept* without a history right shows the versions since the last acceptance. Without any of these rights the icon is not shown. History lists, opens and compares; the undo stands on the review page.
+What you see depends on your groups' rights. *View all history* shows every version your reading right reaches. *View previous canonical versions* shows the editions alone. *Edit* — and every right that includes it, *accept* among them — shows everything from the latest canonical edition up, the edition included — while the document has no edition, every version; nothing older opens, and the freezes are listed with *view all history* alone. Without any of these rights the icon is not shown. History lists, opens and compares; the undo stands on the review page.
 
 ## A version on its own page
 
@@ -12,7 +12,9 @@ A point of the document's path opens its version in the same window; *open*, fro
 
 ## Comparing two versions
 
-A comparison shows the newer of two versions in full, with its changes against the older marked in place. Attachments cannot be compared: each is listed with its file in both versions and whether it was added, changed — its file, title or file name — removed or unchanged. On every comparison of two versions, *‹* opens the version before the older against it and *›* the newer against the version after it, skipping the versions you may not see; each stands disabled where there is no such version.
+A comparison shows the newer of two versions in full, with its changes against the older marked in place. Attachments cannot be compared: each is listed with its file in both versions and whether it was added, changed — its file, title or file name — removed or unchanged. On every comparison of two versions, *‹* — beside the older version's choice — opens the version before the older against it, and *›* — beside the newer's — the newer against the version after it, skipping the versions you may not see; each stands disabled where there is no such version. The outline of the newer text stands beside it, and the parts in the right pane.
+
+*Show edit authors* names, in the right margin, who last edited each changed paragraph between the two versions, as on the review page; a paragraph moved but not changed names nobody. Across more than a hundred versions the names are not drawn, and the page says so. Two documents compared carry no names.
 
 Appendices are compared in pairs. In the comparison's right pane, pick an appendix of each version and choose *Compare appendices*: the newer one is shown in full with its changes against the older marked, each named by its version and title, and *Back to the comparison* returns. The appendices of two different documents are compared the same way.
 

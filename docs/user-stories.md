@@ -222,7 +222,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - *Undo* and *redo* are buttons in the editor's toolbar as well as the usual keys, because people arriving from Word look for them (DL-0241); they are its first two controls, *Clear formatting* the third (DL-0531).
 
 **ST-0079** — As an editor, I clear the formatting of a passage in one act, so that text I pasted or moved reads as plain paragraphs again.
-- *Clear formatting* · *Очистити форматування* acts on my selection, or on the line my cursor stands in when nothing is selected: bold, italic, underline and links go; the lines leave lists, quotes and note blocks; headings become paragraphs — the same words, plain (DL-0531).
+- *Clear formatting* · *Очистити форматування* acts on my selection, or on the line my cursor stands in when nothing is selected: bold, italic, underline and links go; the lines leave lists, quotes and callouts; headings become paragraphs — the same words, plain (DL-0531).
 - The roles, actions and terms I marked, and my mentions of other documents, stay: they say what the text declares, not how it looks. A table keeps its shape, its cells cleared of marks. One *undo* puts everything back.
 
 **ST-0022** — As an editor, I discard my edits, so that work I have decided against does not reach the document.
