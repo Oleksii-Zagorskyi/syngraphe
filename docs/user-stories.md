@@ -351,7 +351,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 ## Reading and export
 
 **ST-0042** — As a reader, I read a document, with its numbering and outline, and always know which version I am reading. *(skeleton)*
-- I see the latest version my rights allow — canonical, accepted or pending — named in the page's heading, with a link to the latest canonical version (DL-0209, DL-0518). A reader who may see only canonical text never sees pending edits or diffs, and sees no path of versions.
+- I see the latest version my rights allow — canonical, accepted or pending — named in the page's heading; the path's canonical point opens the latest canonical version (DL-0209, DL-0518), and no line above the text repeats either. *Export* starts on the version I am reading (DL-0529). A reader who may see only canonical text never sees pending edits or diffs, and sees no path of versions.
 
 **ST-0043** — As a reader, I follow a mention of another document as a link when I have access to it.
 - When I do not, the mention reads as ordinary text and offers no way through (ASR-16).

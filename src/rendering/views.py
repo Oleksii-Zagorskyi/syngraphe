@@ -45,6 +45,7 @@ from identity.views.preferences import (
     PANEL_WIDTH_MIN,
 )
 from rendering import appendix, mentions, reading
+from rendering.models import ExportView
 from rendering.outline import anchor_clauses, outline
 from rendering.renderer import labelled, render_tokens
 from shell.views import not_found
@@ -76,14 +77,9 @@ def view_context(
             visible = visible_to(request.user, document)
             if visible is None:
                 return None
-            shown, number, stance, canonical = (
-                visible.version,
-                visible.number,
-                visible.stance,
-                visible.canonical,
-            )
+            shown, number = visible.version, visible.number
         else:
-            shown, stance, canonical = version, "", None
+            shown = version
             number = number or number_of(document, version)
         tenant = request.tenant  # type: ignore[attr-defined]
         repo = gitstore.open_repository(tenant.number, document.number)
@@ -125,8 +121,6 @@ def view_context(
     )
     return {
         "version_number": number,
-        "version_stance": stance,
-        "canonical_number": canonical,
         "appendices": listed,
         "attachments": attachments(shown),
         "headings": headings,
@@ -622,12 +616,13 @@ def export(request: HttpRequest, number: int, version_number: str | None = None)
         return not_found(request)
     if not offered:
         return not_found(request)
-    # The export page's heading names the version to be exported, the first offered until a view
-    # is chosen (DL-0519); at a version, that version's point.
+    selected = _starting_offer(offered, request.GET.get("view", ""))
+    # The export page's heading names the version to be exported, the view it starts on until
+    # another is chosen (DL-0519, DL-0529); at a version, that version's point.
     context: dict[str, Any] = {
         "document": document,
         "frame": (
-            frame(request, document, here="export", shown=offered[0].number)
+            frame(request, document, here="export", shown=selected.number)
             if version is None
             # By the number its history gives it, as the version's own page names it: an alias
             # in the address stands on the version's point.
@@ -636,6 +631,7 @@ def export(request: HttpRequest, number: int, version_number: str | None = None)
             )
         ),
         "offers": offered,
+        "selected": selected.view,
         "parts": parts,
         "appendices": appendices,
         "action": request.path,
@@ -654,6 +650,22 @@ def export(request: HttpRequest, number: int, version_number: str | None = None)
         context["refusal"] = _("Your previous export of this document is still being made.")
         return render(request, "rendering/export.html", context, status=400)
     return HttpResponseRedirect(f"/document/{document.number}/export/{job.pk}/")
+
+
+# The newest view first: what a reader of the latest version means by it (DL-0529).
+NEWEST_FIRST = (ExportView.PENDING_EDITS, ExportView.ACCEPTED, ExportView.CANONICAL)
+
+
+def _starting_offer(offered: list[Any], asked: str) -> Any:
+    """The offer the export page starts on: the view its link asked for, `latest` the newest the
+    person may export; anything else, or a view not offered, the first."""
+    if asked == "latest":
+        for view in NEWEST_FIRST:
+            found = next((o for o in offered if o.view == view), None)
+            if found is not None:
+                return found
+    found = next((o for o in offered if o.view == asked), None)
+    return found if found is not None else offered[0]
 
 
 def _waiting(request: HttpRequest, document: Document) -> bool:

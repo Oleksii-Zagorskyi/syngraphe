@@ -129,9 +129,9 @@ def test_the_path_is_drawn(
     # A point's link reads its number, an arc's its caption; the second line the rest.
     assert points == [
         ("canonical", "1.0", "canonical version"),
-        ("history-arc", "edits between versions", ""),
+        ("history-arc", "edits", ""),
         ("accepted", "1.1", "latest accepted"),
-        ("run-arc", "edits between versions", "2 versions"),
+        ("run-arc", "edits", "2 versions"),
         ("latest", "1.1-2", "latest version · awaiting review"),
     ]
     assert 'class="tabs"' not in body
@@ -277,7 +277,7 @@ def test_a_returned_run_reads_returned_under_a_freeze(
     body = built.reviewer.get(f"/document/{built.n}/").content.decode()
     points = re.findall(r'data-go="([^"]*)"[^>]*>([^<]*)</a><span class="sub">([^<]*)', body)
 
-    assert ("run-arc", "edits between versions", "returned") in points
+    assert ("run-arc", "edits", "returned") in points
     assert ("latest", "1.1-2", "latest version · returned") in points
 
 
@@ -518,3 +518,17 @@ def test_an_export_at_an_aliased_number_stands_on_its_point(
 
     assert _shown(page) == "1.1"
     assert [m[1] for m in GO.findall(page) if m[2]] == ["accepted"]
+
+
+def test_no_viewing_line(
+    migrated_tenant: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """The latest version's page draws no *Viewing version N* line — the path says it — and the
+    arc reads *edits*."""
+    path = _along_the_path(migrated_tenant, member_of, new_document, commit_version)
+
+    page = path.reviewer.get(f"/document/{path.n}/").content.decode()
+
+    assert '<p class="version">' not in page
+    assert "Viewing version" not in page and "Viewing canonical" not in page
+    assert "edits between versions" not in page and "edits" in page

@@ -19,15 +19,19 @@
     const box = row.getBoundingClientRect();
     const mark = at.getBoundingClientRect();
     const x = mark.left + mark.width / 2 - box.left;
-    const width = acts.getBoundingClientRect().width;
+    // The row wraps inside the frame, never past it: its acts and their reasons, and the elbow.
+    // Measured from the frame's own edge, never from where an earlier drawing left it.
+    acts.style.left = "0px";
+    acts.style.maxWidth = `${box.width}px`;
+    const width = Math.min(acts.getBoundingClientRect().width, box.width);
     // The line ends under its version, or starts there when the version sits too far left.
     const leftward = x - width >= 0;
-    const start = leftward ? x - width : x;
+    const start = Math.max(0, Math.min(leftward ? x - width : x, box.width - width));
     const top = mark.bottom - box.top + 2;
     acts.style.left = `${start}px`;
     elbow.classList.toggle("rightward", !leftward);
-    elbow.style.left = `${start}px`;
-    elbow.style.width = `${width}px`;
+    elbow.style.left = `${leftward ? start : x}px`;
+    elbow.style.width = `${leftward ? x - start : Math.max(0, Math.min(width, box.width - x))}px`;
     elbow.style.top = `${top}px`;
     elbow.style.height = `${-top + 10}px`;
     row.style.height = `${acts.getBoundingClientRect().height + 20}px`;

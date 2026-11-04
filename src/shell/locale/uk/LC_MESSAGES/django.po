@@ -1049,10 +1049,6 @@ msgstr ""
 msgid "What is accepted changed while you were confirming — check it again."
 msgstr "Поки ви підтверджували, погоджене змінилося — перевірте ще раз."
 
-#: editions/views.py:92
-msgid "Frozen."
-msgstr "Заморожено."
-
 #: editions/views.py:168
 #, python-format
 msgid "Made canonical as %(number)s."
@@ -1433,21 +1429,6 @@ msgstr "Заголовків немає"
 #: rendering/templates/rendering/panes_panel.html:3
 msgid "Collapse the panel"
 msgstr "Згорнути панель"
-
-#: rendering/templates/rendering/view.html:2
-#, python-format
-msgid "Viewing canonical %(number)s"
-msgstr "Перегляд канонічної версії %(number)s"
-
-#: rendering/templates/rendering/view.html:2
-#, python-format
-msgid "Viewing version %(number)s"
-msgstr "Перегляд версії %(number)s"
-
-#: rendering/templates/rendering/view.html:2
-#, python-format
-msgid "open canonical %(number)s"
-msgstr "відкрити канонічну версію %(number)s"
 
 #: rendering/views.py:129 rendering/views.py:134
 msgid "Your previous export of this document is still being made."
@@ -3370,7 +3351,6 @@ msgstr "більше ролей, дій і термінів, ніж прийма
 msgid "The draft marks %(what)s; remove some in the editor."
 msgstr "Чернетка позначає %(what)s; вилучіть частину в редакторі."
 
-
 #: documents/administration.py
 msgid "A label is one line of text, at most 100 characters."
 msgstr "Назва — один рядок тексту, не довше 100 символів."
@@ -4758,7 +4738,7 @@ msgstr "або %(number)s"
 
 #: documents/path.py
 msgctxt "an arc of the path"
-msgid "edits between versions"
+msgid "edits"
 msgstr "правки"
 
 #: documents/path.py

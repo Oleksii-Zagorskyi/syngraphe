@@ -93,7 +93,7 @@ def freeze(request: HttpRequest, number: int) -> HttpResponse:
     except RecordIncomplete:
         messages.error(request, _incomplete())
         return page
-    messages.success(request, _("Frozen."))
+    # The frozen band says it on the page drawn next; a notice would say it twice.
     return page
 
 

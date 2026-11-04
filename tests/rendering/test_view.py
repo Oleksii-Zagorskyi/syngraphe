@@ -1,10 +1,10 @@
 """The View tab (DL-0352, DL-0356): `/document/M/` shows the version the reader may see, rendered
-with its clause numbers, under a header naming its number — *Viewing version 0.1*, *Viewing
-version 0.1-1* — after the page's own gates; `/document/M/info/` stays *Info*. At an edition,
+with its clause numbers, under a heading naming its number — 0.1, 0.1-1 — after the page's own
+gates; `/document/M/info/` stays *Info*. At an edition,
 each reader reads their own version under its header; the diff views render through the same
 renderer.
 
-The suite renders in `uk`: *View* is *Перегляд*, *Viewing version …* *Перегляд версії …*.
+The suite renders in `uk`: *View* is *Перегляд*.
 People, groups and titles are synthetic examples; every text is invented.
 """
 
@@ -138,7 +138,7 @@ def test_accepted_reader_reads_the_latest_point(accepted: Any, reader: Any) -> N
     ) in body
     assert f'<a class="icon-btn" href="/document/{document.number}/info/"' in body
     assert 'class="tabs"' not in body
-    assert "Перегляд версії 0.1" in body
+    assert '<span class="version-number">0.1<' in body
     text = article(body)
     assert re.search(r'<h1 id="h-1"><span class="num">1</span> General provisions</h1>', text)
     assert re.search(r'<h2 id="h-1\.1"><span class="num">1\.1</span> Time limits</h2>', text)
@@ -159,7 +159,7 @@ def test_header_then_text_then_the_panels_attachments(accepted: Any, reader: Any
     body = reader(Right.VIEW_ACCEPTED, document).get(f"/document/{document.number}/")
     html = body.content.decode()
 
-    header = html.index("Перегляд версії 0.1")
+    header = html.index('<span class="version-number">0.1<')
     text = html.index('<article class="document-text">')
     panel = html.index('<aside class="panel"')
     attachments = html.index('<section class="attachments">')
@@ -177,10 +177,10 @@ def test_pending_edit_is_not_the_accepted_readers(
     as_accepted = accepted_client.get(f"/document/{document.number}/").content.decode()
     as_pending = pending_client.get(f"/document/{document.number}/").content.decode()
 
-    assert re.search(r"Перегляд версії 0\.1(?![-\d])", as_accepted)
+    assert '<span class="version-number">0.1<' in as_accepted
     assert PENDING_SENTENCE not in as_accepted
-    assert "Перегляд версії 0.1-1" in as_pending
-    assert not re.search(r"Перегляд версії 0\.1(?![-\d])", as_pending)
+    assert '<span class="version-number">0.1-1<' in as_pending
+    assert '<span class="version-number">0.1<' not in as_pending
     assert re.search(
         rf'<p id="c-1\.1-2"><span class="num">1\.1-2</span> {re.escape(PENDING_SENTENCE)}</p>',
         article(as_pending),
@@ -226,7 +226,7 @@ def test_pending_holder_with_nothing_pending_sees_the_accepted_version(
 
     body = client.get(f"/document/{document.number}/").content.decode()
 
-    assert re.search(r"Перегляд версії 0\.1(?![-\d])", body)
+    assert '<span class="version-number">0.1<' in body
 
 
 def test_no_edition_not_found(accepted: Any, reader: Any) -> None:
@@ -314,11 +314,14 @@ def test_view_by_rights(
 
     pages = {name: client.get(route).content.decode() for name, client in readers.items()}
 
-    assert "Перегляд версії 1.1-1" in pages["pending"]
-    assert "Перегляд версії 1.1" in pages["accepted"] and "1.1-1" not in pages["accepted"]
-    assert "Перегляд канонічної версії 1.0" in pages["canonical"]
+    assert '<span class="version-number">1.1-1<' in pages["pending"]
+    accepted = pages["accepted"]
+    assert '<span class="version-number">1.1<' in accepted and "1.1-1" not in accepted
+    assert '<span class="version-number">1.0<' in pages["canonical"]
+    # The path's canonical point opens the edition, where a line above the text once linked it.
     for name in ("pending", "accepted"):
-        assert "відкрити канонічну версію 1.0" in pages[name], name
+        assert 'href="/document/1/version/1.0/"' in pages[name], name
+        assert "відкрити канонічну версію" not in pages[name], name
     pending, accepted, canonical = (article(pages[n]) for n in ("pending", "accepted", "canonical"))
     assert '<div class="callout callout-note">' in pending
     assert "The register of requests" not in accepted

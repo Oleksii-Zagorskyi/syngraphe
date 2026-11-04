@@ -171,30 +171,32 @@ def test_header_names_the_version(
     commit_version: Any,
     settings: Any,
 ) -> None:
-    """DL-0352's wording: *Viewing version 1.1-1 · open canonical 1.0*, *Viewing version
-    1.1 · open canonical 1.0*, *Viewing canonical 1.0*."""
+    """The heading names the version each reader is shown (DL-0352, DL-0518): 1.1-1 to a reader
+    of pending work, 1.1 to a reader of accepted text, 1.0 to a reader of the canonical edition;
+    no *Viewing version* line repeats it."""
     settings.LANGUAGE_CODE = "en"
     made = _at_edition_accepted_pending(migrated_tenant, edition_cast, commit_version)
     document = made.people.document
     readers = _three_readers(member_of, link_group, made.people)
     route = f"/document/{document.number}/"
 
-    pending = _text(readers["pending"][0].get(route).content.decode())
-    assert "Viewing version 1.1-1" in pending
-    assert "open canonical 1.0" in pending
-
+    for reader, number in (("pending", "1.1-1"), ("accepted", "1.1"), ("canonical", "1.0")):
+        body = readers[reader][0].get(route).content.decode()
+        assert _shown(body) == number, reader
+        assert "Viewing version" not in body and "Viewing canonical" not in body, reader
     accepted = _text(readers["accepted"][0].get(route).content.decode())
-    assert "Viewing version 1.1" in accepted
-    assert "open canonical 1.0" in accepted
-    assert "1.1-1" not in accepted
-
     canonical = _text(readers["canonical"][0].get(route).content.decode())
-    assert "Viewing canonical 1.0" in canonical
-    assert "Viewing version" not in canonical
+    assert "1.1-1" not in accepted
     assert "1.1-1" not in canonical
     # The preview's wording is gone (DL-0352).
-    for body in (pending, accepted, canonical):
+    for body in (accepted, canonical):
         assert "Accepted version" not in body
+
+
+def _shown(body: str) -> str | None:
+    """The version the heading names."""
+    found = re.search(r'<span class="version-number">([^<]+)<', body)
+    return found.group(1).strip() if found else None
 
 
 def test_header_before_any_edition(
@@ -205,23 +207,21 @@ def test_header_before_any_edition(
     commit_version: Any,
     settings: Any,
 ) -> None:
-    """Before any edition, *Viewing version 0.1* without the canonical segment; before any
-    acceptance with nothing pending, the created text's own number, *Viewing version 0.0*
-    (DL-0352, DL-0358)."""
+    """Before any edition the heading names the latest accepted version; before any acceptance
+    with nothing pending, the created text's own number, 0.0 (DL-0352, DL-0358)."""
     settings.LANGUAGE_CODE = "en"
     people = edition_cast()
     document = people.document
     client, _ = _reader(member_of, link_group, document, Right.VIEW_ACCEPTED, people["a"], "reader")
     route = f"/document/{document.number}/"
 
-    created_only = _text(client.get(route).content.decode())
-    assert "Viewing version 0.0" in created_only
+    assert _shown(client.get(route).content.decode()) == "0.0"
 
     commit_version(document, people["a"], FIRST, "edit")
     with schema_context(migrated_tenant.number):
         review.accept(document, people["r"])
-    accepted = _text(client.get(route).content.decode())
-    assert "Viewing version 0.1" in accepted
+    accepted = client.get(route).content.decode()
+    assert _shown(accepted) == "0.1"
     assert "open canonical" not in accepted
 
 

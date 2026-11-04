@@ -117,34 +117,35 @@ def arc(key: str, caption: str, sub: str, href: str, here: bool = False) -> Item
 
 
 CANONICAL_10 = point("canonical", "1.0", "canonical version", "/document/{n}/version/1.0/")
-HISTORY_ARC_10_11 = arc(
-    "history-arc", "edits between versions", "", "/document/{n}/compare/?from=1.0&to=1.1"
-)
+HISTORY_ARC_10_11 = arc("history-arc", "edits", "", "/document/{n}/compare/?from=1.0&to=1.1")
 ACCEPTED_11 = point("accepted", "1.1", "latest accepted", "/document/{n}/version/1.1/")
 DASH = arc("", "", "", "")
 
 # No version beyond `0.0`: the created text, nobody's acceptance, is the latest the reader sees.
 LATEST_00 = [point("latest", "0.0", "latest version", "/document/{n}/", here=True)]
 # The canonical edition is the last word: one point.
-LATEST_10 = [point("latest", "1.0", "latest version", "/document/{n}/", here=True)]
-# Accepted since the edition: `canonical`, the history arc, `latest` (the accepted point renamed).
+LATEST_10 = [
+    point("latest", "1.0", "canonical version · latest version", "/document/{n}/", here=True)
+]
+# Accepted since the edition: `canonical`, the history arc, `latest` (the accepted point renamed,
+# reading both its captions).
 CANONICAL_THEN_11 = [
     CANONICAL_10,
     HISTORY_ARC_10_11,
-    point("latest", "1.1", "latest version", "/document/{n}/", here=True),
+    point("latest", "1.1", "latest accepted · latest version", "/document/{n}/", here=True),
 ]
 # A run of two awaiting review over `1.1`.
 PENDING_TWO = [
     CANONICAL_10,
     HISTORY_ARC_10_11,
     ACCEPTED_11,
-    arc("run-arc", "edits between versions", "2 versions", "/document/{n}/pending/"),
+    arc("run-arc", "edits", "2 versions", "/document/{n}/pending/"),
     point("latest", "1.1-2", "latest version", "/document/{n}/", sub="awaiting review", here=True),
 ]
 # A run of two over the edition `1.0`, returned: no accepted point, the run's arc from `canonical`.
 RETURNED_TWO = [
     CANONICAL_10,
-    arc("run-arc", "edits between versions", "returned", "/document/{n}/pending/"),
+    arc("run-arc", "edits", "returned", "/document/{n}/pending/"),
     point("latest", "1.0-2", "latest version", "/document/{n}/", sub="returned", here=True),
 ]
 # One version awaiting review over `1.1`, under a freeze: the freeze changes nothing here.
@@ -152,7 +153,7 @@ FROZEN_ONE = [
     CANONICAL_10,
     HISTORY_ARC_10_11,
     ACCEPTED_11,
-    arc("run-arc", "edits between versions", "1 version", "/document/{n}/pending/"),
+    arc("run-arc", "edits", "1 version", "/document/{n}/pending/"),
     point("latest", "1.1-1", "latest version", "/document/{n}/", sub="awaiting review", here=True),
 ]
 # The holder's draft after `1.1`: the dashed segment, then the draft point; `or 1.2` to an acceptor.
@@ -507,7 +508,11 @@ def _assert_cell(result: Any, scene: Scene, name: str, cell: Cell) -> None:
     expected_path, expected_shown = cell
     n = scene.number
     assert _items(result) == _filled(expected_path, n), name
-    assert _icons(result) == [(a, b, c.format(n=n)) for a, b, c in ICONS[name]], name
+    # On the latest version's page Export starts on the newest view the reader may export (DL-0529).
+    expected = [
+        (a, b, c.format(n=n) + ("?view=latest" if a == "export" else "")) for a, b, c in ICONS[name]
+    ]
+    assert _icons(result) == expected, name
     if expected_shown is not UNSETTLED:
         assert result.shown == expected_shown, name
     assert result.open_window == "", name
@@ -742,7 +747,7 @@ def test_taking_draws_the_draft_point_to_a_person_who_does_not_hold(
         result = _frame(frame, scene, name, here="finish", taking=True)
         expected = [
             *CANONICAL_THEN_11[:2],
-            point("latest", "1.1", "latest version", "/document/{n}/"),
+            point("latest", "1.1", "latest accepted · latest version", "/document/{n}/"),
             segment[0],
             (*segment[1][:6], True),
         ]
@@ -1095,7 +1100,8 @@ def test_a_merged_point_carries_the_union_of_acts(
         "approve",
         f"/document/{n}/make-canonical/",
         "get",
-        True,
+        # One primary act per point: *Edit*, with *Make canonical as N.0…* beside it.
+        False,
         "approve",
     )
     assert not approve.fields

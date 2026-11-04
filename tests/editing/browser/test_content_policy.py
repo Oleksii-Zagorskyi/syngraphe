@@ -362,6 +362,27 @@ def test_the_document_pages_run_under_the_policy(
     assert {p for p, (_, version) in shapes.items() if p in NO_VERSION and version} == set()
 
 
+def test_comparing_two_documents_runs_under_the_policy(
+    browser_server: str, policed: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """The comparison of two documents, its panes and its scripts, under the policy (DL-0527)."""
+    page, violations, documents, console = policed
+    client, author, _ = member_of("the.author@example.test")
+    first = new_document(author)
+    second = new_document(author, "Another synthetic procedure")
+    commit_version(second, author, "# A heading\n\nA synthetic sentence.\n", "edit")
+    _sign_in(page, browser_server, client)
+
+    opened = page.goto(
+        f"{browser_server}/document/{first.number}/compare/?with={second.number}", wait_until="load"
+    )
+
+    assert opened is not None and opened.status == 200
+    assert page.locator(".panes #outline-pane").count() == 1
+    _assert_headers(documents)
+    _assert_nothing_refused(violations, console)
+
+
 def test_the_listener_sees_a_violation(browser_server: str, policed: Any, member_of: Any) -> None:
     """The control: a sheet inserted by script is refused under `style-src 'self'`, and the
     listener records it — without this, a silent listener cannot be told from an absent one."""

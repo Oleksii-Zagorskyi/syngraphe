@@ -391,9 +391,9 @@ def test_canonical_reader_opens_the_edition(
     view = canonical.client.get(f"/document/{number}/")
 
     assert view.status_code == 200
-    # The reader views the edition itself, *Viewing canonical 1.0*, with no *open canonical*
-    # segment to link (DL-0352); the edition's own page opens for them all the same.
-    assert "Viewing canonical 1.0" in view.content.decode()
+    # The reader views the edition itself, the heading naming it (DL-0352); the edition's own
+    # page opens for them all the same.
+    assert '<span class="version-number">1.0<' in view.content.decode()
     assert canonical.client.get(f"/document/{number}/version/1.0/").status_code == 200
 
 

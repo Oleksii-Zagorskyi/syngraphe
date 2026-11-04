@@ -593,3 +593,23 @@ def test_the_review_page_opens_while_held(
     assert 'data-command="undo-version"' not in page
     panel = page.split('<aside class="panel run-panel"', 1)[1].split("</aside>", 1)[0]
     assert "Undo this edit" in panel and "Автор А" in panel.split("Undo this edit", 1)[1]
+
+
+def test_the_panel_links_its_versions(
+    member_of: Any, new_document: Any, link_group: Any, commit_version: Any
+) -> None:
+    """The review panel's versions are a bulleted list, each number a link to its version's page,
+    in the same window (DL-0530)."""
+    client, _, author_a, author_b, document = reviewer_and_authors(
+        member_of, new_document, link_group
+    )
+    commit_version(document, author_a, FIRST, "edit")
+    commit_version(document, author_b, THIRD, "edit")
+    page = client.get(f"/document/{document.number}/pending/").content.decode()
+
+    panel = page.split('id="run-panel"', 1)[1].split("</aside>", 1)[0]
+    assert '<ul class="run">' in panel and "<ol" not in panel
+    for number in ("0.0-1", "0.0-2"):
+        link = f'<a class="id" href="/document/{document.number}/version/{number}/">{number}</a>'
+        assert link in panel, number
+    assert 'target="_blank"' not in panel.split("</ul>", 1)[0]

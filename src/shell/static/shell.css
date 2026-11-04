@@ -23,6 +23,9 @@ header.shell .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;p
 .btn{border:1px solid var(--line);background:var(--panel);padding:4px 10px;border-radius:3px;cursor:pointer;font:inherit}
 
 .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.danger{background:#a4262c;color:#fff;border-color:#a4262c}
+/* Every window over the page dims what it covers. */
+dialog::backdrop{background:rgba(20,24,31,.45)}
 .icon{border:0;background:none;cursor:pointer;font-size:15px;padding:2px 4px}
 
 .split{display:grid;grid-template-columns:var(--l,250px) 6px 1fr;min-height:72vh;background:var(--panel)}
@@ -284,9 +287,10 @@ th a.sort{text-decoration:none;color:inherit}
 .menu-actions form{position:absolute;right:0;display:flex;gap:6px;align-items:center;margin:2px 0 0;padding:6px 10px;background:var(--panel);border:1px solid var(--line);z-index:2;white-space:nowrap}
 /* The document's frame: its heading with the icons, and the path of versions — points, the arcs of
    edits between them, the chosen point's acts hung from it (DL-0518). */
-.title-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px}
-.title-row h1{margin-bottom:4px}
-.head-icons{display:inline-flex;gap:4px}
+/* The heading's icons stay on the title's line; a long title and its tags wrap beside them. */
+.title-row{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:8px 16px}
+.title-row h1{margin-bottom:4px;flex:1;min-width:0}
+.head-icons{display:inline-flex;gap:4px;margin-left:auto;flex-shrink:0}
 .icon-btn{display:inline-block;border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:5px 7px;cursor:pointer;color:#444;line-height:0}
 .icon-btn:hover,.icon-btn:focus-visible{color:#111;border-color:#23303f}
 nav.path{position:relative;background:var(--panel);border:1px solid #dcdfe3;padding:10px 14px;margin:8px 0 12px}
@@ -307,9 +311,9 @@ nav.path{position:relative;background:var(--panel);border:1px solid #dcdfe3;padd
 .elbow{position:absolute;border-right:2px solid #9aa3ad;border-bottom:2px solid #9aa3ad;border-bottom-right-radius:4px;pointer-events:none}
 .elbow.rightward{border-right:0;border-left:2px solid #9aa3ad;border-bottom-right-radius:0;border-bottom-left-radius:4px}
 .phase-acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.acts-row.placed .phase-acts{position:absolute;top:18px;flex-wrap:nowrap;white-space:nowrap}
+.acts-row.placed .phase-acts{position:absolute;top:18px}
 .phase-acts .reason{font-size:12px;color:var(--muted)}
-.phase-acts>.act{display:inline-flex;align-items:center;gap:6px}
+.phase-acts>.act{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;max-width:100%}
 .phase-acts>.act[hidden]{display:none}
 .cycle .sub>.held-mark,.cycle .sub>.frozen-mark{display:block}
 .held-mark{color:#8a5a00}

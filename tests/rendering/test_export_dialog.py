@@ -339,3 +339,64 @@ def test_appendices_are_offered_where_a_version_lists_one(
     assert what.index('name="document"') < what.index('name="appendices"')
     assert re.search(r'name="appendices_mode" value="embedded" checked', what)
     assert re.search(r'name="appendices_mode" value="separate"(?! checked)', what)
+
+
+def _checked(body: str) -> list[str]:
+    return re.findall(r'<input type="radio" name="view" value="([a-z_]+)"[^>]*\bchecked\b', body)
+
+
+def test_export_starts_on_the_version_read(
+    migrated_tenant: Any,
+    edition_cast: Any,
+    member_of: Any,
+    link_group: Any,
+    commit_version: Any,
+    kit: Any,
+) -> None:
+    """Export starts on what the page shows (DL-0529): the latest version's page, the newest view
+    the reader may export; the draft's page, *My edits*; a version's page and a comparison, that
+    version; a view not offered, the first."""
+    from editing import holds
+    from review import services as review
+
+    number = migrated_tenant.number
+    people = edition_cast()
+    kit.canonical(number, people, commit_version, kit.FIRST)
+    kit.canonical(number, people, commit_version, kit.SECOND)
+    commit_version(people.document, people["a"], kit.THIRD, "edit")
+    with schema_context(number):
+        review.accept(people.document, people["r"])
+    commit_version(people.document, people["a"], kit.FOURTH, "edit")
+    rights = [Right.VIEW_PENDING, Right.VIEW_ALL_HISTORY, Right.EDIT]
+    client, user = kit.reader(member_of, link_group, people, rights, "history")
+    n = people.document.number
+
+    def export_href(path: str) -> str:
+        page = client.get(path).content.decode()
+        found = re.search(r'<a class="icon-btn" href="([^"]+)" aria-label="[^"]*"', page)
+        assert found is not None, path
+        return found.group(1).replace("&amp;", "&")
+
+    latest = export_href(f"/document/{n}/")
+    assert latest == f"/document/{n}/export/?view=latest"
+    assert _checked(client.get(latest).content.decode()) == ["pending_edits"]
+    assert export_href(f"/document/{n}/version/2.0/") == f"/document/{n}/version/2.0/export/"
+    compared = export_href(f"/document/{n}/compare/?from=1.0&to=2.1")
+    assert compared == f"/document/{n}/version/2.1/export/"
+    assert _checked(client.get(f"/document/{n}/export/?view=nothing").content.decode()) == [
+        "canonical"
+    ]
+    # *My edits* asked before any draft: the first offer.
+    assert _checked(client.get(f"/document/{n}/export/?view=my_edits").content.decode()) == [
+        "canonical"
+    ]
+    # A reader of accepted text: the newest they may export is the accepted version.
+    accepting, _ = kit.reader(member_of, link_group, people, [Right.VIEW_ACCEPTED], "accepted")
+    assert _checked(accepting.get(f"/document/{n}/export/?view=latest").content.decode()) == [
+        "accepted"
+    ]
+    with schema_context(number):
+        holds.take(people.document, user)
+    drafted = export_href(f"/document/{n}/edit/")
+    assert drafted == f"/document/{n}/export/?view=my_edits"
+    assert _checked(client.get(drafted).content.decode()) == ["my_edits"]

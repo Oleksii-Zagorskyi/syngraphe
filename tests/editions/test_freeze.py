@@ -252,3 +252,18 @@ def test_the_toggle_on_the_path(
     control = page.split('data-command="unfreeze"', 1)[1].split(">", 1)[0]
     assert "disabled" in control
     assert "The document is held; unfreeze it once it is released." in control
+
+
+def test_a_freeze_is_said_once(
+    migrated_tenant: Any, edition_cast: Any, commit_version: Any, settings: Any
+) -> None:
+    """The page drawn after a freeze says it in its band alone, with no notice repeating it."""
+    settings.LANGUAGE_CODE = "en"
+    people = edition_cast()
+    _accepted(migrated_tenant, people, commit_version)
+    number = people.document.number
+
+    page = people.clients["p"].post(f"/document/{number}/freeze/", follow=True).content.decode()
+
+    assert '<p class="band frozen"' in page
+    assert ">Frozen.</p>" not in page

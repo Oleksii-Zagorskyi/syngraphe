@@ -210,8 +210,6 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
             rights=rights,
             seen=visible,
         ),
-        version_stance=visible.stance,
-        canonical_number=visible.canonical,
     )
     return render(request, "rendering/appendix.html", context)
 

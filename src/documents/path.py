@@ -141,9 +141,17 @@ def frame(
     user = request.user
     rights = rights if rights is not None else rights_on(user, document)
     icons = _icons(document, rights)
-    if at is not None:
-        # A version's page exports that version.
-        export = f"/document/{document.number}/version/{at}/export/"
+    # Export starts on what the page shows (DL-0529): a version's page and a comparison's newer
+    # version export that version; the draft's page, *My edits*; the latest version's page, the
+    # newest view the reader may export.
+    export = None
+    if at is not None or pair is not None:
+        export = f"/document/{document.number}/version/{at if at is not None else pair[1]}/export/"  # type: ignore[index]
+    elif here in ("draft", "finish"):
+        export = f"/document/{document.number}/export/?view=my_edits"
+    elif here == "latest":
+        export = f"/document/{document.number}/export/?view=latest"
+    if export is not None:
         icons = [replace(i, href=export) if i.name == "export" else i for i in icons]
     administrator = administers(request)
     try:
@@ -252,15 +260,14 @@ def _path(
         )
     else:
         # The latest the reader sees is one of the points above; it takes the latest's name, so
-        # two points never name one version (DL-0518).
+        # two points never name one version (DL-0518), and reads both captions.
         for point in points:
             if point["number"] == seen.number:
                 renamed[point["key"]] = "latest"
                 numbers[point["key"]] = seen.number
-                point.update(
-                    _point("latest", seen.number, pgettext("a point of the path", "latest version"))
-                    | {"origin": point["origin"]}
-                )
+                latest = pgettext("a point of the path", "latest version")
+                caption = " · ".join(c for c in (point["caption"], latest) if c)
+                point.update(_point("latest", seen.number, caption) | {"origin": point["origin"]})
 
     items: list[Item] = []
     by_origin = {point["origin"]: point for point in points}
@@ -272,7 +279,7 @@ def _path(
                     "arc",
                     "history-arc",
                     "",
-                    pgettext("an arc of the path", "edits between versions"),
+                    pgettext("an arc of the path", "edits"),
                     "",
                     f"{base}compare/?from={by_origin['canonical']['number']}&to={point['number']}",
                 )
@@ -289,7 +296,7 @@ def _path(
                     "arc",
                     "run-arc",
                     "",
-                    pgettext("an arc of the path", "edits between versions"),
+                    pgettext("an arc of the path", "edits"),
                     sub,
                     f"{base}pending/",
                 )
@@ -594,7 +601,7 @@ def _accepted_acts(
                 action=f"{base}make-canonical/",
                 method="get",
                 reason=reason,
-                primary=True,
+                primary=False,
                 window="approve",
             )
         )

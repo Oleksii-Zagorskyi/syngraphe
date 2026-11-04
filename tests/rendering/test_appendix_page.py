@@ -92,7 +92,8 @@ def test_the_appendix_page(
         for absent in ("/copy/", "/archive/", 'data-command="approve"', 'data-command="freeze"'):
             assert absent not in above, absent
         assert '<details class="more">' not in above and 'data-command="review"' not in above
-        assert f'<a class="icon-btn" href="/document/{m}/export/"' in above
+        # Export starts on the latest view the reader may export (DL-0529).
+        assert f'<a class="icon-btn" href="/document/{m}/export/?view=latest"' in above
         assert 'class="tabs"' not in html
     # The document's path for the appendix: the latest opens the appendix, outlined; the run's
     # arc stays the document's; the reader has no editor to open.

@@ -226,5 +226,5 @@ def test_created_text_is_not_called_accepted(
     body = client.get(f"/document/{document.number}/").content.decode()
 
     # The document's first version is named 0.0 (DL-0358), never called accepted.
-    assert "Перегляд версії 0.0" in body
+    assert '<span class="version-number">0.0' in body
     assert "Погоджена версія" not in body
