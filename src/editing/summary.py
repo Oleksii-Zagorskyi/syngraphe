@@ -104,7 +104,8 @@ def problem(summary: str) -> str | None:
         return _("The summary's first line is at most %(count)s characters.") % {
             "count": SUMMARY_MAX
         }
-    if len(text) > SUMMARY_WHOLE_MAX:
+    # Measured as the summary is kept, the blank line before its body counted.
+    if len(as_message(text)) > SUMMARY_WHOLE_MAX:
         return _("The summary is at most %(count)s characters.") % {"count": SUMMARY_WHOLE_MAX}
     if TRAILER_SHAPE.match(lines[0]):
         return _("The summary cannot begin with a word and a colon.")

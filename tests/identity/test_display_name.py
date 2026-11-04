@@ -175,9 +175,13 @@ def test_two_saves_of_one_name(migrated_tenant: Any) -> None:
     first = _member(migrated_tenant, "the.first@example.test")
     second = _member(migrated_tenant, "the.second@example.test")
     outcome: list[Any] = []
+    backend: list[int] = []
+    entered = threading.Event()
 
     def save_second() -> None:
         try:
+            backend.append(_backend())
+            entered.set()
             outcome.append(names.rename(User.objects.get(pk=second.pk), NAME))
         finally:
             connection.close()
@@ -186,7 +190,8 @@ def test_two_saves_of_one_name(migrated_tenant: Any) -> None:
         assert names.rename(first, NAME) is None
         other = threading.Thread(target=save_second)
         other.start()
-        _wait_for_a_lock_wait()
+        assert entered.wait(timeout=10)
+        _wait_for_a_lock_wait(backend[0])
     other.join(timeout=30)
 
     assert outcome and outcome[0] is not None, outcome
@@ -287,8 +292,11 @@ def test_a_rename_waits_for_a_join_in_progress(migrated_tenant: Any) -> None:
     outcome: list[Any] = []
     entered = threading.Event()
 
+    backend: list[int] = []
+
     def rename() -> None:
         try:
+            backend.append(_backend())
             entered.set()
             outcome.append(names.rename(User.objects.get(pk=joining.pk), NAME))
         finally:
@@ -300,20 +308,32 @@ def test_a_rename_waits_for_a_join_in_progress(migrated_tenant: Any) -> None:
         other = threading.Thread(target=rename)
         other.start()
         assert entered.wait(timeout=10)
-        _wait_for_a_lock_wait()
+        _wait_for_a_lock_wait(backend[0])
     other.join(timeout=30)
 
     assert outcome and outcome[0] is not None, outcome
     assert User.objects.get(pk=joining.pk).display_name == ""
 
 
-def _wait_for_a_lock_wait() -> None:
-    """Until another connection waits on a lock — the second writer has reached it."""
+def _backend() -> int:
+    """The process id of this thread's own database connection."""
+    from django.db import connection
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pg_backend_pid()")
+        return int(cursor.fetchone()[0])
+
+
+def _wait_for_a_lock_wait(backend: int) -> None:
+    """Until the second writer's own connection waits on a lock — it has reached the lock, and no
+    other session's wait on the shared test server stands in for it."""
     from django.db import connection
 
     for _ in range(200):
         with connection.cursor() as cursor:
-            cursor.execute("SELECT count(*) FROM pg_locks WHERE NOT granted")
+            cursor.execute(
+                "SELECT count(*) FROM pg_locks WHERE pid = %s AND NOT granted", [backend]
+            )
             if cursor.fetchone()[0]:
                 return
         time.sleep(0.05)

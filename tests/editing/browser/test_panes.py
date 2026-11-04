@@ -520,3 +520,29 @@ def test_a_narrowed_panel_restored_shows_its_sections(
     drawn = _sections(page)
     assert drawn["panel"]["width"] >= OPEN
     assert all(section["body"]["shown"] for section in drawn["sections"].values()), drawn
+
+
+def test_the_review_panel_is_a_bulleted_list(
+    browser_server: str,
+    page: Any,
+    member_of: Any,
+    new_document: Any,
+    link_group: Any,
+    commit_version: Any,
+) -> None:
+    """The review panel's versions draw as a bulleted list (DL-0530)."""
+    from access.rights import Right
+
+    reviewer_client, reviewer, reviewer_membership = member_of("the.reviewer@example.test")
+    _, author, author_membership = member_of("the.author@example.test")
+    document = new_document(reviewer)
+    link_group(document, [Right.ACCEPT], [reviewer_membership], reviewer)
+    link_group(document, [Right.EDIT], [author_membership], reviewer)
+    commit_version(document, author, BODY, "edit")
+    _sign_in(page, browser_server, reviewer_client)
+    _goto(page, f"{browser_server}/document/{document.number}/pending/")
+
+    marker = page.evaluate(
+        "() => getComputedStyle(document.querySelector('#run-panel ul.run > li')).listStyleType"
+    )
+    assert marker == "disc", marker

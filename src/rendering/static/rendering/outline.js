@@ -49,7 +49,9 @@
       centre?.querySelector(".changes") ||
       centre?.querySelector(".document-text");
     if (!text) return;
-    const headings = [...text.querySelectorAll("h1, h2, h3, h4, h5, h6")].filter(standing);
+    const all = [...text.querySelectorAll("h1, h2, h3, h4, h5, h6")];
+    // The editor holds its headings alone; a marked text also draws the ones removed.
+    const headings = text.matches(".ProseMirror") ? all : all.filter(standing);
     const label = link.querySelector(".num")?.textContent.trim();
     let heading = label && headings.find((h) => h.querySelector(".num")?.textContent.trim() === label);
     if (!heading) {
@@ -61,9 +63,12 @@
     heading.scrollIntoView({ block: "start" });
   });
 
+  // A heading the newer text holds carries its number, an empty one included; a removed heading,
+  // drawn as its struck words, carries none.
   const standing = (heading) => {
+    if (heading.querySelector(".num")) return true;
     const words = heading.cloneNode(true);
-    for (const gone of words.querySelectorAll("del, .num")) gone.remove();
+    for (const gone of words.querySelectorAll("del")) gone.remove();
     return words.textContent.trim() !== "";
   };
 

@@ -156,3 +156,50 @@ def test_the_comparisons(
 
     assert page.locator(".panes #outline-pane").count() == 1
     _the_heading_scrolls(page, ".changes h2")
+
+
+def test_an_empty_heading_is_its_own_place(
+    browser_server: str,
+    page: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    migrated_tenant: Any,
+) -> None:
+    """An empty heading, numbered as every heading is: its entry scrolls to it, not to the next."""
+    page.set_viewport_size(WINDOW)
+    client, author, _ = member_of("the.author@example.test")
+    document = new_document(author)
+    empty = BODY.replace(
+        "## Section 7 of the synthetic rules\n\n",
+        "##\n\n## Section 7 of the synthetic rules\n\n",
+        1,
+    )
+    commit_version(document, author, BODY, "edit")
+    commit_version(document, author, empty, "edit")
+    numbers = _numbers(author, document, migrated_tenant)
+    _sign_in(page, browser_server, client)
+    page.goto(
+        f"{browser_server}/document/{document.number}/compare/?from={numbers[-2]}&to={numbers[-1]}",
+        wait_until="load",
+    )
+
+    label = page.evaluate(
+        """() => {
+          const words = (h) => h.textContent.replace(h.querySelector('.num').textContent, '');
+          const empty = [...document.querySelectorAll('.changes h2')].find(
+            (h) => h.querySelector('.num') && !words(h).trim());
+          return empty ? empty.querySelector('.num').textContent.trim() : null;
+        }"""
+    )
+    assert label, "no empty heading drawn"
+    page.locator("#outline-pane a", has=page.locator(f".num:text-is('{label}')")).click()
+    page.wait_for_function(
+        """(label) => {
+          const h = [...document.querySelectorAll('.changes h2')].find(
+            (x) => x.querySelector('.num') && x.querySelector('.num').textContent.trim() === label);
+          return h && Math.abs(h.getBoundingClientRect().top) < 2;
+        }""",
+        arg=label,
+        timeout=5000,
+    )

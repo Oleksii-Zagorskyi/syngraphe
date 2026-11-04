@@ -37,3 +37,37 @@ def test_finish_end_to_end(
         assert versions.count() == 1
         assert Hold.objects.get(document=document).release_kind == "finished"
     assert len(queued_authorship) == 1
+
+
+def test_a_summary_typed_on_three_lines(
+    editing: Any, page: Any, migrated_tenant: Any, settings: Any, queued_authorship: list[Any]
+) -> None:
+    """A summary typed in Chromium over three lines and sent: the commit's subject is its first
+    line, its body the other two; the version keeps the whole (DL-0532)."""
+    from documents import gitstore
+    from documents.models import Version
+
+    settings.LANGUAGE_CODE = "en"
+    document = editing("The first sentence.\n")
+    page.evaluate(f"{EDITOR}.select({EDITOR}.view.state.doc.content.size - 1)")
+    page.focus(".ProseMirror")
+    page.keyboard.type(" The second sentence.", delay=10)
+    page.click("#editor button[data-command=finish]")
+    page.wait_for_url(f"**/document/{document.number}/edit/finish/")
+    page.fill("#summary", "")
+    page.focus("#summary")
+    page.keyboard.type("A sentence added", delay=5)
+    page.keyboard.press("Enter")
+    page.keyboard.type("It completes the opening paragraph.", delay=5)
+    page.keyboard.press("Enter")
+    page.keyboard.type("Nothing else changed.", delay=5)
+    page.click("button[data-command=send]")
+    page.wait_for_url(f"**/document/{document.number}/")
+
+    with schema_context(migrated_tenant.number):
+        version = Version.objects.get(document=document, kind="edit")
+        repo = gitstore.open_repository(migrated_tenant.number, document.number)
+        message = gitstore.commit_at(repo, version.commit_sha).message
+    expected = "A sentence added\n\nIt completes the opening paragraph.\nNothing else changed."
+    assert message.startswith(expected + "\n\n"), message
+    assert version.summary == expected

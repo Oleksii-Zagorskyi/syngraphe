@@ -152,7 +152,8 @@ def _confirmation(
 @never_cache
 @login_required
 def invite(request: HttpRequest) -> HttpResponse:
-    """*Invite by email*: one page, one sentence whatever the address (ASR-17)."""
+    """*Invite by email*: one page, one sentence whatever the address (ASR-17), but for a person
+    whose display name a member here already uses, refused without naming either (DL-0538)."""
     if request.method not in ("GET", "POST") or not administers(request):
         return not_found(request)
     groups = list(AccessGroup.objects.order_by("name"))

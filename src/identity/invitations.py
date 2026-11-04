@@ -2,8 +2,10 @@
 that sets the password.
 
 A new address and one registered elsewhere are invited by the same steps and leave the same rows a
-tenant administrator can see, so nothing tells the two apart (ASR-17). A person who blocked their
-own account is invited as anyone; the block keeps them out until it is lifted (DL-0308).
+tenant administrator can see, so nothing tells the two apart (ASR-17) — except one refusal: a
+person whose display name a member here already uses is not joined, and the page says so without
+naming either (DL-0538). A person who blocked their own account is invited as anyone; the block
+keeps them out until it is lifted (DL-0308).
 """
 
 from __future__ import annotations

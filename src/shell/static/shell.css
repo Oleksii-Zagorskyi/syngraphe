@@ -250,7 +250,8 @@ input[type=email],input[name=reason]{min-width:min(100%,24em)}
 .format-changed:focus .format-old{display:inline;text-decoration:line-through;color:var(--muted);margin-left:4px}
 .run{margin:0 0 12px;padding-left:18px}
 /* The review page's panel: each version its own paragraph, its undo under it. */
-.run-panel .run{list-style:none;padding:0 10px}
+/* The run's versions, a bulleted list (DL-0530). */
+.run-panel .run{list-style:disc;padding:0 10px 0 22px}
 .run-panel .run li+li{margin-top:12px}
 .run-undo{margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
 

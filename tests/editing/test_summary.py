@@ -53,6 +53,9 @@ def test_the_rules_by_line() -> None:
     assert problem("x" * 501) is not None
     assert problem(f"{FIRST}\n" + "y" * 499) is None
     assert problem(f"{FIRST}\n" + "y" * 5000) is not None
+    # The limit holds for the summary as kept: the blank line the body gains counts.
+    assert problem("A\n" + "b" * 4998) is not None
+    assert problem("A\n\n" + "b" * 4997) is None
     assert problem(f"Refs: x\n{SECOND}") is not None
     assert problem(f"{FIRST}\nRefs: x") is not None
     assert problem(f"{FIRST}\nline\x0bwith a control") is not None
