@@ -43,7 +43,31 @@ def test_the_account_page_runs_under_the_policy(
         page.click("form.language button[type=submit]")
 
     assert page.get_attribute("html", "lang") == "en"
-    assert page.locator("a.account-link").inner_text() == "a.member@example.test"
+    assert page.get_attribute("a.account-link", "aria-label") == "a.member@example.test"
     assert page.locator("[role=status]").inner_text() == "Applied"
     _policy._assert_headers(documents)
     _policy._assert_nothing_refused(violations, console)
+
+
+ALIGNED = """() => {
+  const left = (selector) => document.querySelector(selector).getBoundingClientRect().left;
+  return {logo: left('header.shell .logo'), heading: left('main h1'), form: left('main form')};
+}"""
+
+
+@pytest.mark.parametrize("width", [1400, 900])
+def test_the_account_page_stands_inset_with_the_row(
+    browser_server: str, page: Any, member_of: Any, width: int
+) -> None:
+    """The account page's heading and its forms start where the menu row's logo does, never at
+    the window's edge."""
+    client, _, _ = member_of("a.member@example.test")
+    _policy._sign_in(page, browser_server, client)
+    page.set_viewport_size({"width": width, "height": 900})
+
+    page.goto(f"{browser_server}/account/", wait_until="load")
+
+    drawn = page.evaluate(ALIGNED)
+    assert drawn["logo"] >= 16, drawn
+    assert abs(drawn["heading"] - drawn["logo"]) <= 1, drawn
+    assert abs(drawn["form"] - drawn["logo"]) <= 1, drawn

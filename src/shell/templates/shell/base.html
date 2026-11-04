@@ -29,7 +29,8 @@
     {# The organisation: a link to the list of one's organisations with two or more (DL-0525). #}
     {% block switcher %}{% if organisations_of_person|length > 1 %}<a class="organisation" href="/organisation/" data-organisations>{% if current_tenant %}{{ current_tenant.name }}{% else %}{% translate "Choose an organisation" %}{% endif %}</a>{% elif current_tenant %}<span class="organisation">{{ current_tenant.name }}</span>{% endif %}{% endblock %}
     {% if organisations_of_person|length > 1 %}<dialog id="organisations-window" aria-label="{% translate "Choose an organisation" %}"><h2>{% translate "Choose an organisation" %}</h2>{% include "shell/organisation_list.html" %}<button type="button" class="btn" data-close>{% translate "Close" %}</button></dialog><script src="{% static 'shell.js' %}" defer></script>{% endif %}
-    {% block user_menu %}{% if user.is_authenticated %}<a class="account-link" href="/account/">{% firstof user.display_name user.email %}</a>{% endif %}{% endblock %}
+    {# The person icon: their name, or their address while they have none, is its label (DL-0541). #}
+    {% block user_menu %}{% if user.is_authenticated %}{% firstof user.display_name user.email as shown %}<a class="account-link" href="/account/" aria-label="{{ shown }}" title="{{ shown }}"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.5" r="2.75" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></a>{% endif %}{% endblock %}
   </div>
 </header>
 {% endblock %}

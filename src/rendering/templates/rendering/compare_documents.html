@@ -17,7 +17,7 @@
     <div class="centre"><div class="changes document-text">{{ changes }}</div></div>
     <div class="edge" role="separator" aria-orientation="vertical" data-drag="--panel-kept" data-pane="panel" data-side="right" data-min="{{ panel_bounds.0 }}" data-max="{{ panel_bounds.1 }}" data-keep="/preferences/panel-width/"></div>
     <aside class="panel{% if panel_shut %} shut{% endif %}" id="panel" aria-label="{% translate 'Parts' %}">
-      <div class="pane-head"><button type="button" class="icon" data-pane-toggle="panel" data-keep-shut="/preferences/panel-shut/" aria-expanded="{% if panel_shut %}false{% else %}true{% endif %}" aria-label="{% translate 'Collapse the panel' %}">⇥</button></div>
+      <div class="pane-head"><button type="button" class="icon" data-pane-toggle="panel" data-keep-shut="/preferences/panel-shut/" aria-expanded="{% if panel_shut %}false{% else %}true{% endif %}" data-collapse="{% translate 'Collapse the panel' %}" data-expand="{% translate 'Expand the panel' %}" aria-label="{% if panel_shut %}{% translate 'Expand the panel' %}{% else %}{% translate 'Collapse the panel' %}{% endif %}">⇥</button></div>
       <section class="pane-section" data-section="parts"><div class="section-head"><button type="button" class="section-name" data-section-toggle aria-expanded="true">{% translate "Parts" %}</button></div><div class="section-body">
       {% include "rendering/compare_appendix_pair.html" with document=first from_appendices=first_appendices to_appendices=second_appendices from_number=older to_number=newer with=second.number %}
       {% include "rendering/compare_document_attachments.html" with document=first number=older listed=first_attachments %}

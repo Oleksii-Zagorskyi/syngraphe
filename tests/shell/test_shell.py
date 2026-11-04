@@ -310,8 +310,9 @@ def _row(body: str) -> str:
 @pytest.mark.parametrize("named", [True, False])
 def test_one_row(signed_in: Any, tenant: Any, named: bool) -> None:
     """A member of one organisation without a reservation: the menu, *Help*, the bell, the
-    organisation's name plain, and their display name — or their address — linking the account
-    page; no *My reservations*, no *Sign out*, no switcher."""
+    organisation's name plain, and a person icon linking the account page, their display name —
+    or their address — its tooltip and label, never its text (DL-0541); no *My reservations*, no
+    *Sign out*, no switcher."""
     from identity.models import User
 
     client, user = signed_in("a.member@example.test", tenant=tenant)
@@ -321,7 +322,11 @@ def test_one_row(signed_in: Any, tenant: Any, named: bool) -> None:
     row = _row(client.get("/folder/1/").content.decode())
 
     shown = "Синтетична Особа" if named else "a.member@example.test"
-    link = rf'<a class="account-link" href="/account/"[^>]*>{re.escape(shown)}</a>'
+    name = re.escape(shown)
+    link = (
+        rf'<a class="account-link" href="/account/" aria-label="{name}" title="{name}">'
+        r'<svg [^>]*aria-hidden="true">.*?</svg></a>'
+    )
     assert re.search(link, row), row
     assert 'href="/folder/1/"' in row and 'href="/help/"' in row
     assert 'class="notifications"' in row

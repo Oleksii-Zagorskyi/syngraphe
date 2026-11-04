@@ -234,7 +234,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **block my account** · заблокувати мій обліковий запис · *proposed* — a person's own block, at the foot of their account page (ST-0066, DL-0499): every organisation closes to them; in release 0.1 nothing in the platform lifts it — a platform administrator asks the installation's operator, who lifts it in the database (DL-0254).
 
-**account** · обліковий запис · *proposed* — a person's own sign-in to the platform, one per address, whatever organisations they belong to. Its page, opened from the person's display name at the end of the menu row, shows the address, holds the display name, the interface language, *sign out* and *block my account* (DL-0500, DL-0525, ST-0076).
+**account** · обліковий запис · *proposed* — a person's own sign-in to the platform, one per address, whatever organisations they belong to. Its page, opened from the person icon at the end of the menu row, shows the address, holds the display name, the interface language, *sign out* and *block my account* (DL-0500, DL-0525, DL-0541, ST-0076).
 
 **interface language** · мова інтерфейсу · *proposed* — Ukrainian or English, each person's own choice on their account page, kept as their preference; without one, the installation's default. A document's language — its text, numbering and exports — is the document's own and never follows it (DL-0498, DL-0501).
 

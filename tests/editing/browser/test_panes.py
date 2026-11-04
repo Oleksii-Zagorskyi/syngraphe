@@ -546,3 +546,76 @@ def test_the_review_panel_is_a_bulleted_list(
         "() => getComputedStyle(document.querySelector('#run-panel ul.run > li')).listStyleType"
     )
     assert marker == "disc", marker
+
+
+# A collapse toggle names what it does now.
+
+
+def _label(page: Any, pane_id: str) -> str:
+    return page.get_attribute(f'[data-pane-toggle="{pane_id}"]', "aria-label") or ""
+
+
+@pytest.mark.parametrize(
+    ("pane_id", "collapse", "expand"),
+    [
+        ("outline-pane", "Згорнути зміст", "Розгорнути зміст"),
+        ("panel", "Згорнути панель", "Розгорнути панель"),
+    ],
+)
+def test_a_toggle_is_named_for_what_it_does(
+    browser_server: str,
+    page: Any,
+    member_of: Any,
+    new_document: Any,
+    commit_version: Any,
+    pane_id: str,
+    collapse: str,
+    expand: str,
+) -> None:
+    """Open, a pane's toggle reads *collapse*; collapsed, *expand* — when clicked, and when the
+    kept collapse is drawn by the server after a reload."""
+    page.set_viewport_size(WIDE)
+    _, document = _version_page(page, browser_server, member_of, new_document, commit_version)
+    _goto(page, f"{browser_server}/document/{document.number}/")
+    assert _label(page, pane_id) == collapse
+
+    _toggle_kept(page, pane_id)
+    assert _label(page, pane_id) == expand
+    page.reload(wait_until="load")
+    assert _label(page, pane_id) == expand
+
+    _toggle_kept(page, pane_id)
+    assert _label(page, pane_id) == collapse
+
+
+# The text keeps its measure in a wider column (DL-0540).
+
+TEXT_BOX = """() => {
+  const box = (e) => {
+    const r = e.getBoundingClientRect();
+    return {left: r.left, right: r.right, width: r.width};
+  };
+  return {
+    centre: box(document.querySelector('.panes > .centre')),
+    text: box(document.querySelector('.panes > .centre .document-text')),
+  };
+}"""
+
+
+def test_the_text_stands_centred_in_its_column(
+    browser_server: str, page: Any, member_of: Any, new_document: Any, commit_version: Any
+) -> None:
+    """With both panes collapsed at 1400 px the column is wider than the text: the text keeps its
+    measure and stands in the column's middle, the freed width on both sides."""
+    page.set_viewport_size(WIDE)
+    _, document = _version_page(page, browser_server, member_of, new_document, commit_version)
+    _goto(page, f"{browser_server}/document/{document.number}/")
+    _toggle(page, "outline-pane")
+    _toggle(page, "panel")
+
+    drawn = page.evaluate(TEXT_BOX)
+    centre, text = drawn["centre"], drawn["text"]
+    assert text["width"] < centre["width"] - 2 * OPEN, drawn
+    left = text["left"] - centre["left"]
+    right = centre["right"] - text["right"]
+    assert abs(left - right) <= NEAR, drawn

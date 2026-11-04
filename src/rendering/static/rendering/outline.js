@@ -85,9 +85,14 @@
       keepalive: true,
     });
 
+  // The toggle says what a click does now: collapse an open pane, expand a collapsed one.
   const expanded = (pane) => {
     const toggle = document.querySelector(`[data-pane-toggle="${pane.id}"]`);
-    if (toggle) toggle.setAttribute("aria-expanded", String(!pane.classList.contains("shut")));
+    if (!toggle) return;
+    const open = !pane.classList.contains("shut");
+    toggle.setAttribute("aria-expanded", String(open));
+    const label = open ? toggle.dataset.collapse : toggle.dataset.expand;
+    if (label) toggle.setAttribute("aria-label", label);
   };
 
   const sides = (layout) =>

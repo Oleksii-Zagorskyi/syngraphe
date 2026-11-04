@@ -62,7 +62,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 
 ```
 +------------------------------------------------------------------------------+
-| logo | All documents | Being edited | In review | My reservations | Help | Administration | (!3) | Organisation | Display name |
+| logo | All documents | Being edited | In review | My reservations | Help | Administration | (!3) | Organisation | 👤 |
 +------------------------------------------------------------------------------+
 ```
 
@@ -76,7 +76,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | *Administration* | **0.1** | tenant or platform administrator | — | Epic 2 |
 | notifications — unread count, opening the notifications page | **0.1** | — | ST-0047 | Epic 14 |
 | the organisation — its name, plain with one active membership; with two or more, a link opening a window that lists the person's organisations, each a POST that switches, and a page of its own, `/organisation/`, with the same list when no script runs; on a tenant's own domain, switching answers with a page carrying the link to the other tenant's domain, or to the platform's host, where the choice is confirmed (ADR-0008, DL-0497, DL-0525) | **0.1** | — | ST-0007 | Epic 8; the tenant's name Epic 2; the link and its list Epic 22 |
-| the person's display name — their address while they have none — ending the row, the link to their account page, where their own settings, *Sign out* and *Block my account…* live (DL-0499, DL-0500, DL-0523, DL-0525) | **0.1** | — | ST-0076, ST-0078 | Epic 2; the account page Epic 20; the name and the one row Epic 22 |
+| the person icon ending the row, the link to their account page, where their own settings, *Sign out* and *Block my account…* live; their display name — their address while they have none — its tooltip and accessible label, never its text (DL-0499, DL-0500, DL-0523, DL-0525, DL-0541) | **0.1** | — | ST-0076, ST-0078 | Epic 2; the account page Epic 20; the name and the one row Epic 22 |
 
 ## Sign-in pages
 
@@ -92,12 +92,12 @@ Sign in, accept an invitation, reset a password: small forms without navigation,
 
 ## Account page
 
-`/account/`, reached from the person's display name at the end of the menu row: the person's own settings and no more; the rest of a profile stays a later design (DL-0499, DL-0500, DL-0525).
+`/account/`, reached from the person icon at the end of the menu row: the person's own settings and no more; the rest of a profile stays a later design (DL-0499, DL-0500, DL-0525, DL-0541).
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|
 | the person's email address, read-only | **0.1** | — | ST-0076 | Epic 20 |
-| the person's display name, with *Apply* — required, at most 200 characters; refused when another member of one of the person's organisations uses it, whatever its case or spaces, the refusal naming no organisation (DL-0523, DL-0537) | **0.1** | — | ST-0078 | Epic 22 |
+| the person's display name, with *Apply* — required, at most 200 characters, so a name once given is changed, never cleared (DL-0539); refused when another member of one of the person's organisations uses it, whatever its case or spaces, the refusal naming no organisation (DL-0523, DL-0537) | **0.1** | — | ST-0078 | Epic 22 |
 | the interface's language — Ukrainian or English, with *Apply*; kept as the person's own preference and applied to every page they open; without a choice, the installation's default; emails go in their recipient's language, an invitation in the installation's default; a version's change summary stays as its writer left it (DL-0498, DL-0501) | **0.1** | — | ST-0076 | Epic 20 |
 | *Sign out* · *Вийти* — a POST, here and nowhere else (DL-0525) | **0.1** | — | ST-0076 | Epic 22 |
 | *Block my account…*, apart at the page's foot — leading to the confirmation; to the last platform administrator drawn disabled with its reason (DL-0315, DL-0233, DL-0500) | **0.1** | — | ST-0066 | Epic 20 |
@@ -182,7 +182,7 @@ Drawn for a holder of *accept* and *freeze* who holds the document with a draft 
 
 **A path of versions** shows where the document stands and puts each act beside the version it changes (DL-0518). Its points are the canonical version, the latest accepted version, the latest version and, to its holder alone, the draft in progress, numbered as the version it will become; between them two arcs of edits — canonical to the latest accepted, the latest accepted to the latest. **Every point and arc has a page and an address of its own** (DL-0522): a version's point opens that version to read — the latest version the reader may see at `/document/12/`, any other at its historical page, `/document/12/version/2.0/`; the first arc opens the comparison of its two versions, `/document/12/compare/?from=2.0&to=2.3`, and the run's arc the review page, `pending/`; the draft opens at `edit/`, History at `history/` and Info at `info/` — so a link in a notification or an email answers. **Each person sees only what their rights reach**: a reader of the canonical version alone sees no path — the path alone is withheld, the state tags stay. **The version shown stands in the heading on every page that reads a version**; History and Info show none. The outline and the right panel stay on every page that reads a version; leaving the draft for another point keeps the draft and the hold, as a hold already does.
 
-**In a window too narrow for the text and the open panes** — the text's own minimum, 560 px, plus each open pane's kept width — the panes are drawn collapsed, and one opens over the text, the text keeping its width, a click outside closing it again; that collapse is the window's, never kept as the person's (DL-0526).
+**In a window too narrow for the text and the open panes** — the text's own minimum, 560 px, plus each open pane's kept width — the panes are drawn collapsed, and one opens over the text, the text keeping its width, a click outside closing it again; that collapse is the window's, never kept as the person's (DL-0526). **In a window wider than the text**, panes collapsed or not, the text keeps its measure and stands centred in its column, the edit authors' margin counted with it (DL-0540).
 
 | Region | Release | Needs | Stories | Built by |
 |---|---|---|---|---|

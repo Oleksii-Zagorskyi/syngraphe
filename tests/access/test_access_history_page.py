@@ -190,16 +190,14 @@ def test_people_by_address(migrated_tenant: Any, member_of: Any, make_document: 
     story = _story(migrated_tenant, member_of, make_document)
     User.objects.filter(pk=story["admin"].pk).update(display_name="Synthetic Admin")
 
-    page = _text(
-        story["client"].get(PAGE, {"document": story["document"].number, "on": "2026-03-03"})
-    )
+    body = story["client"].get(PAGE, {"document": story["document"].number, "on": "2026-03-03"})
+    page = _text(body)
 
     assert "named.editor@example.test" in page
     assert "linked 1 March 2026 by an.admin@example.test" in page
-    # The reader's own name stands in the menu row; the page names nobody by it.
-    content = page.split("Synthetic Admin", 1)[-1]
-    assert page.count("Synthetic Admin") == 1
-    assert "Synthetic Person" not in page and "Synthetic Admin" not in content
+    # The reader's own name is the menu icon's label alone (DL-0541); the page names nobody by it.
+    assert "Synthetic Person" not in page and "Synthetic Admin" not in page
+    assert 'aria-label="Synthetic Admin"' in body.content.decode()
 
 
 def test_refusals(migrated_tenant: Any, member_of: Any, make_document: Any) -> None:

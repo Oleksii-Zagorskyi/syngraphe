@@ -124,6 +124,7 @@ def frame(
     at: str | None = None,
     pair: tuple[str, str] | None = None,
     subtitle: str = "",
+    edited: bool | None = None,
 ) -> Frame:
     """The frame of `document`'s page at position `here` for the request's reader. `shown` the
     heading's version where the page knows it better than the path; `taking` when the page is
@@ -133,6 +134,8 @@ def frame(
     it, if any; a comparison passes `pair`, and stands on the arc that is that pair, if any.
     `appendix`, an appendix's number, draws the document's path for that appendix's pages
     (DL-0522): its points open the appendix at their version, and *Edit* its editor.
+    `edited`, whether the reader's own draft holds edits, where the view has compared it already;
+    the comparison normalises the whole draft, so a page asks it once.
     A record that cannot be read costs the path and the version, never the page."""
     from access.views import administers
     from editions.visible import visible
@@ -159,7 +162,7 @@ def frame(
         path, numbers = _path(
             document, user, rights, seen, here=here, taking=taking, at=at, pair=pair
         )
-        situation = _Situation.of(document, user, rights, administrator)
+        situation = _Situation.of(document, user, rights, administrator, edited=edited)
         windows: dict[str, dict[str, Any]] = {}
         if path is not None and appendix is not None:
             path = _in_appendix(document, path, appendix)
@@ -434,10 +437,17 @@ class _Situation:
     freeze: Any
     named: bool
     administrator: bool
+    edited: bool | None = None
 
     @classmethod
     def of(
-        cls, document: Document, user: Any, rights: frozenset[Right], administrator: bool
+        cls,
+        document: Document,
+        user: Any,
+        rights: frozenset[Right],
+        administrator: bool,
+        *,
+        edited: bool | None = None,
     ) -> _Situation:
         from editing.holds import open_hold
         from editions.models import open_freeze
@@ -448,6 +458,7 @@ class _Situation:
             freeze=open_freeze(document),
             named=administrator or bool(rights & NAMED_ON_A_HOLD),
             administrator=administrator,
+            edited=edited,
         )
 
     def held_by_another(self, user: Any) -> bool:
@@ -669,7 +680,8 @@ def _draft_acts(
         if situation.hold is not None and not situation.held_by_another(user)
         else None
     )
-    edited = own is not None and has_edits(own)
+    known = situation.edited
+    edited = own is not None and (known if known is not None else has_edits(own))
     reserved = own is not None and own.reserved_at is not None
     later = gettext("After the first edit.")
     acts = [

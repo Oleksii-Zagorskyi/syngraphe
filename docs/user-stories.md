@@ -59,7 +59,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - Blocking myself ends my holds and reservations; my drafts with edits are kept (DL-0256, DL-0514).
 
 **ST-0076** — As any user, I choose the language of the interface I see, Ukrainian or English, on my account page, so that I meet the platform in my own language.
-- My account page is `/account/`, reached from my display name — my address while I have none — at the end of the menu row (DL-0525); *Sign out* · *Вийти* stands there and nowhere else. It shows my email address, read-only; the interface's language with *Apply*; and, apart at its foot, *Block my account…* (ST-0066) — nothing more of a profile (DL-0499, DL-0500).
+- My account page is `/account/`, reached from the person icon at the end of the menu row, which names me — by my display name, my address while I have none — when I point at it (DL-0525, DL-0541); *Sign out* · *Вийти* stands there and nowhere else. It shows my email address, read-only; the interface's language with *Apply*; and, apart at its foot, *Block my account…* (ST-0066) — nothing more of a profile (DL-0499, DL-0500).
 - The choice is stored as my own preference and applies to every page I open; until I choose, I see the installation's default language (DL-0498, DL-0501).
 - Pages before sign-in use the installation's default, except a reset or invitation page opened from its link, which uses the preference of the person the link belongs to (DL-0501).
 - An email to me goes in my language, fixed when it is queued; an invitation goes in the installation's default (DL-0501, ASR-17). A version's change summary stays in the language its writer left it in (DL-0321).

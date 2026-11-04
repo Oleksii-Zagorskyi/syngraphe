@@ -125,11 +125,13 @@ def tab_response(
         return render(request, "editing/held_by_other.html", context)
     # The discard's sentence says a reservation ends with the draft (DL-0237).
     context["reserved"] = holding and hold is not None and hold.reserved_at is not None
-    # Whether the draft differs from the head yet: *My edits* waits for the first edit.
+    # Whether the draft differs from the head yet: *My edits* waits for the first edit. Asked once
+    # and handed to the path, which draws the draft's acts from it.
+    edited: bool | None = None
     if holding and hold is not None:
         from editing.services import has_edits
 
-        context["edited"] = has_edits(hold)
+        edited = context["edited"] = has_edits(hold)
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     from editing.views.parts import panel
     from rendering.outline import outline
@@ -153,7 +155,11 @@ def tab_response(
     taking = own and not holding
     on_draft = holding or taking
     context["frame"] = frame(
-        request, document, here="draft" if on_draft else "latest", taking=taking
+        request,
+        document,
+        here="draft" if on_draft else "latest",
+        taking=taking,
+        edited=edited,
     )
     context |= extra or {}
     return render(request, "editing/edit_tab.html", context, status=status)

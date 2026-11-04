@@ -211,7 +211,7 @@ def test_the_menu_opens_the_account_page(migrated_tenant: Any, member_of: Any) -
 
     page = client.get("/folder/1/").content.decode()
 
-    assert '<a class="account-link" href="/account/">a.member@example.test</a>' in page
+    assert '<a class="account-link" href="/account/" aria-label="a.member@example.test"' in page
     assert f'href="{BLOCK}"' not in page
     assert f'href="{BLOCK}"' in client.get("/account/").content.decode()
     assert 'href="/account/"' not in (

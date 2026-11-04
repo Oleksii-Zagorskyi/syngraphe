@@ -1418,6 +1418,9 @@ msgstr "Зміст"
 msgid "Collapse the outline"
 msgstr "Згорнути зміст"
 
+msgid "Expand the outline"
+msgstr "Розгорнути зміст"
+
 #: rendering/templates/rendering/panes_outline.html:3
 msgid "No headings"
 msgstr "Заголовків немає"
@@ -1425,6 +1428,9 @@ msgstr "Заголовків немає"
 #: rendering/templates/rendering/panes_panel.html:3
 msgid "Collapse the panel"
 msgstr "Згорнути панель"
+
+msgid "Expand the panel"
+msgstr "Розгорнути панель"
 
 #: rendering/views.py:129 rendering/views.py:134
 msgid "Your previous export of this document is still being made."

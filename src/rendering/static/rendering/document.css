@@ -103,6 +103,10 @@
 .panes > .panel.shut .section-name { writing-mode: vertical-rl; }
 .panes > .panel.shut .section-name::before { content: none; }
 .panes .centre { min-width: 0; padding: 0 16px; }
+/* A column wider than the text keeps the text's measure and centres it, the edit authors' margin
+   counted with the text (DL-0540). */
+.panes:not(.list-panes) > .centre { --measure: 48rem; padding: 0 max(16px, calc((100% - var(--measure)) / 2)); }
+.panes:not(.list-panes) > .centre:is(.show-authors, :has(> .show-authors)) { --measure: calc(48rem + 8.5rem + 32px); }
 .panes .edge { align-self: stretch; cursor: col-resize; background: #e6e6e6; touch-action: none; }
 .pane-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; color: #777; font-size: 12px; }
 .outline ul { list-style: none; margin: 0; padding-left: 12px; }

@@ -26,8 +26,8 @@ Every release 0.1 story against the page regions that carry it, and whether [`mo
 | ST-0004 | As a tenant administrator, I block a user | Notifications — both tabs; Help — People and access; Administration — users | drawn |
 | ST-0072 | As a tenant administrator, I lift the block on a person's membership in my tenant | Administration — users | drawn |
 | ST-0066 | As any user, I block my own account | Account page — Block my account…, apart at the page's foot; Help — People and access; Administration — users | drawn |
-| ST-0076 | As any user, I choose the language of the interface I see, Ukrainian or English, on my account page | Shell — the person's display name; Account page — the person's email address, read-only; Account page — the interface's language; Account page — Sign out · Вийти; Help — People and access | drawn |
-| ST-0078 | As any user, I set my own display name on my account page | Shell — the person's display name; Account page — the person's display name, with Apply | drawn |
+| ST-0076 | As any user, I choose the language of the interface I see, Ukrainian or English, on my account page | Shell — the person icon ending the row, the link to their account …; Account page — the person's email address, read-only; Account page — the interface's language; Account page — Sign out · Вийти; Help — People and access | drawn |
+| ST-0078 | As any user, I set my own display name on my account page | Shell — the person icon ending the row, the link to their account …; Account page — the person's display name, with Apply | drawn |
 | ST-0005 | As a tenant administrator, I manage groups — their rights, their members, and the documents they are linked to | Document page — Більше (⋯), the administrator's acts (DL-0522); Administration — groups; Administration — document links | drawn |
 | ST-0077 | As a tenant administrator, I open a member's page | Help — People and access; Administration — a member's page | drawn |
 | ST-0006 | As a tenant administrator, I read the history of access changes — memberships, a group's rights, a document's links | Help — Settings, access history and the audit log; Administration — access history | drawn |
