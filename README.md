@@ -19,8 +19,8 @@ change.
 
 I am building it for a company I co-own, to replace exactly that arrangement.
 
-> **Status: in development.** Release 0.1, the editing, review and approval
-> cycle, is built on `main`; its production launch is next. The AI half — a
+> **Status: release 0.1.** The editing, review and approval cycle runs in its
+> first production installation. The AI half — a
 > companion that runs analyses for the editor as they work, and a reviewer
 > that checks a document, or a whole corpus, against a configurable set of
 > heuristics — is release 0.2, not yet started.
@@ -128,9 +128,13 @@ database and Redis reachable from the host — is
 editor's bundle built on the host. With it running,
 `uv sync --locked && npm ci && npm run build && uv run playwright install chromium`
 prepares the clone and
-`uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q`
+`uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run python scripts/check_record.py && uv run pytest -q -n auto -m "not budget" && uv run pytest -q -m budget --durations=0`
 is the check, the same line CI runs. Layout and conventions are in
 [`CLAUDE.md`](CLAUDE.md).
+
+A production installation runs a release tag behind a reverse proxy, with the
+production override, `deploy/compose.prod.yaml`. Its deploy, update, rollback
+and restore are in [the runbook](docs/runbook.md#deploy).
 
 ## Licence
 

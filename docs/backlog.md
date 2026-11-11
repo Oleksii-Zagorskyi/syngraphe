@@ -479,3 +479,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** `pgbackrest verify` does not report such a hole; recovery stops at it and the restore runs again to the end of the archive (DL-0314), and a full base backup taken at once after a store outage starts the archive again beyond it.
 
 **What has to be true before it is taken up.** A restore meets a hole the operator did not expect, or an archive is found with a hole older than the newest base backup that a restore to a point before that backup would need.
+
+## B-064 — The refused host, named in the log
+
+**Idea.** When the host check refuses a request as *Unknown address.*, log the name it refused, once for each name within a time window, so an operator sees which `Host` the proxy in front sends.
+
+**Why it is parked.** The refusal logs nothing, and the access logs record no host. A proxy that sends the wrong `Host` makes every page but `/health/` answer `400` with no line saying why. The runbook gives the cause and the check from outside (`docs/runbook.md § Deploy`, *Production*).
+
+**What has to be true before it is taken up.** An installation meets a refused host that the runbook's check does not explain, or a second installation goes behind a proxy that the operator does not configure.
