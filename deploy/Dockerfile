@@ -15,10 +15,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_PROJECT_ENVIRONMENT=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
-# git and gettext; weasyprint's Pango and HarfBuzz, and fonts that cover Cyrillic in every face,
-# italic included (ADR-0013).
+# git and gettext; curl for the pinned downloads below — rclone's server refuses Python's own client
+# (DL-0546); weasyprint's Pango and HarfBuzz, and fonts that cover Cyrillic in every face, italic
+# included (ADR-0013).
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git gettext \
+    && apt-get install -y --no-install-recommends git gettext curl \
        fontconfig fonts-dejavu-core fonts-dejavu-extra \
        libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 \
     && rm -rf /var/lib/apt/lists/*
@@ -33,7 +34,7 @@ ARG RCLONE_SHA256_ARM64=c6e9d4cf9c88b279f6ad80cd5675daebc068e404890fa7e191412c1b
 RUN arch="$(dpkg --print-architecture)" \
     && case "$arch" in amd64) sum="$RCLONE_SHA256_AMD64" ;; arm64) sum="$RCLONE_SHA256_ARM64" ;; \
        *) echo "no rclone for $arch" >&2; exit 1 ;; esac \
-    && python -c "import sys, urllib.request; urllib.request.urlretrieve(sys.argv[1], '/tmp/rclone.zip')" \
+    && curl -fsSL -o /tmp/rclone.zip \
        "https://downloads.rclone.org/v${RCLONE_VERSION}/rclone-v${RCLONE_VERSION}-linux-${arch}.zip" \
     && echo "$sum  /tmp/rclone.zip" | sha256sum -c - \
     && python -c "import sys, zipfile; zipfile.ZipFile('/tmp/rclone.zip').extract(sys.argv[1], '/tmp')" \
@@ -46,9 +47,8 @@ RUN arch="$(dpkg --print-architecture)" \
 ARG PANDOC_VERSION=3.9
 ARG PANDOC_SOURCE_SHA256=5a8c44ce2f4d0708babbabe09fb02b412ac4a96514654d45d70bdc4a41c81679
 RUN mkdir -p /usr/share/doc/pandoc \
-    && python -c "import sys, urllib.request; urllib.request.urlretrieve(sys.argv[1], sys.argv[2])" \
+    && curl -fsSL -o "/usr/share/doc/pandoc/pandoc-${PANDOC_VERSION}.tar.gz" \
        "https://hackage.haskell.org/package/pandoc-${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}.tar.gz" \
-       "/usr/share/doc/pandoc/pandoc-${PANDOC_VERSION}.tar.gz" \
     && echo "$PANDOC_SOURCE_SHA256  /usr/share/doc/pandoc/pandoc-${PANDOC_VERSION}.tar.gz" | sha256sum -c -
 
 RUN useradd --create-home --uid 1000 app \
