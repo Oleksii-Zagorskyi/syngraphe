@@ -91,6 +91,11 @@ class Draft(models.Model):
     # actions and terms — kept beside the text and never in it (DL-0380).
     content = models.JSONField()
     updated_at = models.DateTimeField(auto_now=True)
+    # What the edit tab opens with, so that it need not run the normalizer itself (DL-23-001):
+    # `{"key", "edited", "declared"}` — whether the draft holds edits, the declarations *Mark*
+    # offers, and a hash of every input they were read from. An answer whose key no longer matches
+    # is read again; nothing else trusts it.
+    opening = models.JSONField(null=True, blank=True)
 
     def __str__(self) -> str:
         return f"draft {self.pk}"

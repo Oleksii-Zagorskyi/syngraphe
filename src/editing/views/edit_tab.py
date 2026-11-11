@@ -69,7 +69,21 @@ def tab_response(
     status: int = 200,
 ) -> HttpResponse:
     """The tab drawn for a document the caller's gate opened; `extra` what a refused form keeps,
-    drawn with `status`."""
+    drawn with `status`. The draft is normalised and validated once however many parts of the
+    page ask of it (ASR-21)."""
+    from editing import services
+
+    with services.normalising_once():
+        return _tab_response(request, document, extra=extra, status=status)
+
+
+def _tab_response(
+    request: HttpRequest,
+    document: Document,
+    *,
+    extra: dict[str, Any] | None,
+    status: int,
+) -> HttpResponse:
     from editing import title_page
     from editing.views.capture import settings_for_the_editor as capture_settings
 
@@ -129,9 +143,8 @@ def tab_response(
     # and handed to the path, which draws the draft's acts from it.
     edited: bool | None = None
     if holding and hold is not None:
-        from editing.services import has_edits
-
-        edited = context["edited"] = has_edits(hold)
+        context["declared"], edited = opening(hold)
+        context["edited"] = edited
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     from editing.views.parts import panel
     from rendering.outline import outline
@@ -163,6 +176,16 @@ def tab_response(
     )
     context |= extra or {}
     return render(request, "editing/edit_tab.html", context, status=status)
+
+
+def opening(hold: Any) -> tuple[list[dict[str, str]] | None, bool]:
+    """For the holder's tab: the declarations *Mark* offers, handed to the editor so its `load`
+    reads none, and whether the draft holds edits — the draft's stored answers, or one pass of the
+    normalizer where they are stale (ASR-21, DL-23-001). `None` for declarations that do not read:
+    the tab is drawn all the same, and the editor asks `load`."""
+    from editing import services
+
+    return services.opening(hold)
 
 
 def _outline_text(document: Document, hold: Any) -> str:

@@ -1,11 +1,11 @@
 """The editing app's worker tasks: per-line authorship after each commit (DL-0135, ADR-0011); the
-sweep that closes editors whose page went away without closing them (ASR-22); and the release of
-holds left idle (ADR-0006, DL-0377)."""
+sweep that closes editors whose page went away without closing them (ASR-22); the release of
+holds left idle (ADR-0006, DL-0377); and the edit tab's answers after a capture (DL-23-001)."""
 
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from celery import shared_task
@@ -95,6 +95,23 @@ def sweep_authorship() -> int:
 def queue_authorship(tenant_number: int, document_number: int, commit_sha: str) -> None:
     """Ask the worker for the authorship of one commit; the request path never computes it."""
     compute_authorship.delay(tenant_number, document_number, commit_sha)
+
+
+@shared_task(name="editing.refresh_opening")
+def refresh_opening(tenant_number: int, hold: str, written_at: str) -> None:
+    """The edit tab's stored answers read again for the draft a capture wrote at `written_at`
+    (DL-23-001), so that its next opening reads them, not the draft; nothing when the draft was
+    written again since, or is gone."""
+    from editing import services
+
+    with schema_context(tenant_number):
+        services.refresh_opening(hold, datetime.fromisoformat(written_at))
+
+
+def queue_opening(tenant_number: int, hold: Any, written_at: datetime) -> None:
+    """Ask the worker for the edit tab's answers after a capture; no request waits on the
+    normalizer for them."""
+    refresh_opening.delay(tenant_number, str(hold), written_at.isoformat())
 
 
 @shared_task(name="editing.close_silent_editors")

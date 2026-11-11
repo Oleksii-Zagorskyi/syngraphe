@@ -6,6 +6,7 @@ holder's alone, for an editor of the holder's own draft."""
 from __future__ import annotations
 
 import json
+import logging
 from datetime import timedelta
 from typing import Any, cast
 
@@ -17,13 +18,15 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 
 from documents.locks import LockTimeout, document_lock
-from editing import holds
+from editing import holds, tasks
 from editing.markdown import load_spec
 from editing.models import Draft, Hold, OpenEditor
 from editing.views.draft import range_hash
 from editing.views.edit_tab import editable
 from identity.models import User
 from shell.views import not_found
+
+logger = logging.getLogger(__name__)
 
 # The pause after the last keystroke before a capture, the heartbeat's period, and how long an
 # editor may stay silent before it is closed: two seconds of typing at most are ever lost (ASR-22).
@@ -152,14 +155,27 @@ def capture(request: HttpRequest, number: int) -> HttpResponse:
         # The writer lock a commit of this draft holds from its check to the draft's deletion: a
         # capture never lands in a draft that is being committed and is about to go (DL-0318).
         with document_lock(holds.tenant_number(), number, timeout=CAPTURE_LOCK_SECONDS):
-            return _take(hold, editor, body, base, close=data.get("close") is True)
+            response, written = _take(hold, editor, body, base, close=data.get("close") is True)
     except LockTimeout:
         return JsonResponse({"busy": True}, status=503)
+    if written is not None:
+        # The edit tab's answers for the text just written, read by the worker once the lock is
+        # released, so that the next opening reads them, not the draft, and no request waits on
+        # the normalizer (DL-23-001). The capture stands whatever the broker says: an answer not
+        # refreshed costs one slower opening.
+        try:
+            tasks.queue_opening(holds.tenant_number(), hold.pk, written)
+        except Exception:  # noqa: BLE001 — a capture never fails after its text has landed
+            logger.warning("edit tab's answers not queued", extra={"hold": str(hold.pk)})
+    return response
 
 
-def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) -> HttpResponse:
-    """The capture itself; with `close`, the editor closed in the same write — what a closing
-    page sends, since it never reads an answer before sending its close."""
+def _take(
+    hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool
+) -> tuple[HttpResponse, Any]:
+    """The capture itself, and the draft's time when it wrote text, `None` when it did not; with
+    `close`, the editor closed in the same write — what a closing page sends, since it never reads
+    an answer before sending its close."""
     now = timezone.now()
     with transaction.atomic():
         draft = Draft.objects.select_for_update().filter(pk=editor.draft_id).first()
@@ -167,12 +183,12 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
         kind = Hold.objects.filter(pk=hold.pk).values_list("release_kind", flat=True).first()
         if kind:
             # Released while this capture waited for the lock: the editor says how.
-            return JsonResponse({"closed": True, "released": kind}, status=409)
+            return JsonResponse({"closed": True, "released": kind}, status=409), None
         if draft is None or locked is None or locked.closed_at is not None:
-            return JsonResponse({"closed": True}, status=409)
+            return JsonResponse({"closed": True}, status=409), None
         text = text_of(draft, locked.file)
         if text is None:
-            return _gone(locked, now)
+            return _gone(locked, now), None
         whole: str = text
         current, new = range_hash(whole), range_hash(body)
         # The same text again — a retry whose first answer was lost, or the flush a closing page
@@ -180,9 +196,9 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
         wrote = current != new
         if wrote:
             if current != base or locked.base_hash != base:
-                return _stale(locked, now, close)
+                return _stale(locked, now, close), None
             if len(body.encode("utf-8")) > load_spec().max_bytes:
-                return JsonResponse({"too_large": True}, status=413)
+                return JsonResponse({"too_large": True}, status=413), None
             draft.content = {**draft.content, locked.file: body}
             draft.save(update_fields=["content", "updated_at"])
             Hold.objects.filter(pk=hold.pk).update(last_activity_at=now)
@@ -192,9 +208,9 @@ def _take(hold: Hold, editor: OpenEditor, body: str, base: str, *, close: bool) 
             locked.closed_at = now
         locked.save(update_fields=["base_hash", "last_seen_at", "closed_at"])
     # `edited` when this capture wrote text: the editor keeps it as its own dirty flag, on which
-    # *My edits* is offered (DL-0518). Comparing the whole draft with the head on every capture
-    # held the lock too long on a long text; the page and the release read `has_edits` instead.
-    return JsonResponse({"base_hash": new, "edited": wrote})
+    # *My edits* is offered (DL-0518). Comparing the whole draft with the head under the lock held
+    # it too long on a long text: the comparison runs once the lock is released (DL-23-001).
+    return JsonResponse({"base_hash": new, "edited": wrote}), (draft.updated_at if wrote else None)
 
 
 def _stale(locked: OpenEditor, now: Any, close: bool) -> HttpResponse:
