@@ -67,3 +67,19 @@ def test_marking_replaces_an_entity_and_needs_text(
     assert "Select the words to mark first." in (page.text_content(".editor-status") or "")
     page.wait_for_timeout(200)
     assert "role-3" not in markdown()
+
+
+def test_the_picker_offers_what_the_page_declared(editing: Any, markdown: Any, page: Any) -> None:
+    """A span the draft already marks is offered from the declarations the page handed the editor;
+    its `load` asks for none, so the draft is normalised once per opening (DL-0484)."""
+    asked = []
+    page.on(
+        "request",
+        lambda r: asked.append(r.post_data_json) if r.url.endswith("/edit/load/") else None,
+    )
+    editing("[The clerk]{.role #clerk} files.\n\nThe clerk signs.\n")
+
+    assert asked == [{"range": "whole", "entities": False}]
+    mark(page, 19, 28)
+    page.click("button[data-entity=clerk]")
+    assert markdown() == "[The clerk]{.role #clerk} files.\n\n[The clerk]{.role #clerk} signs.\n"

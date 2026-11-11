@@ -1,6 +1,7 @@
 {% load i18n static %}{# The editor's mount, the same on the document's edit tab and an appendix's: only where it loads differs. #}
 {% csrf_token %}
 {{ words|json_script:"editor-words" }}
+{% if declared is not None %}{{ declared|json_script:"editor-declared" }}{% endif %}{# The holder's declarations, read with whether the draft holds edits: the editor's load then reads none. #}
 <link rel="stylesheet" href="{% static 'editing/editor.css' %}">
 <script src="{% static 'editing/editor.js' %}" defer></script>
 <div class="edit-tab" id="editor" data-take="/document/{{ document.number }}/edit/take/" data-load="{% if load_path %}{{ load_path }}{% else %}/document/{{ document.number }}/edit/load/{% endif %}" data-capture="/document/{{ document.number }}/edit/capture/" data-heartbeat="/document/{{ document.number }}/edit/heartbeat/" data-close="/document/{{ document.number }}/edit/close/" data-changes="/document/{{ document.number }}/edit/changes/" data-my-edits="/document/{{ document.number }}/my-edits/" data-edited="{% if edited %}true{% else %}false{% endif %}" data-finish="/document/{{ document.number }}/edit/finish/" data-help="/help/markdown/" data-image-upload="/document/{{ document.number }}/edit/image/" data-image="/document/{{ document.number }}/edit/image/" data-entities="/document/{{ document.number }}/edit/entities/" data-take-on-mount="{{ take_on_mount|yesno:'true,false' }}"></div>

@@ -17,6 +17,9 @@ import hashlib
 import json
 import logging
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, NoReturn
 
@@ -31,7 +34,7 @@ from documents.locks import document_lock
 from documents.models import Document, DocumentState, Version
 from editing import holds, numbering, parts, summary, tasks
 from editing.diffview import render_changes
-from editing.markdown.validator import Refusal, validate
+from editing.markdown.validator import Refusal, validate, validating_once
 from editing.models import (
     Draft,
     DraftFileKind,
@@ -229,15 +232,44 @@ def _accepted(draft: Draft) -> str:
     return body
 
 
+_ONCE: ContextVar[dict[tuple[str, str, Lists], bytes] | None] = ContextVar(
+    "normalised_once", default=None
+)
+
+
+@contextmanager
+def normalising_once() -> Iterator[None]:
+    """Within the block, the normalizer runs once for each head, body and lists, and each text is
+    validated once: an edit tab that asks whether the draft holds edits and what it declares reads
+    both from one pass over the draft, which is most of what opening it costs (ASR-21). Nothing
+    outlives the block; an inner block shares the outer one's."""
+    if _ONCE.get() is not None:
+        yield
+        return
+    token = _ONCE.set({})
+    try:
+        with validating_once():
+            yield
+    finally:
+        _ONCE.reset(token)
+
+
 def _normalised(head_body: str, body: str, lists: Lists) -> bytes:
     """`body` normalised against the head; `DraftRefused` as too large when its stored form would
     pass the size the platform accepts (DL-0329)."""
+    once = _ONCE.get()
+    key = (head_body, body, lists)
+    if once is not None and key in once:
+        return once[key]
     try:
-        return normalize(head_body.encode(), body, lists)
+        normalised = normalize(head_body.encode(), body, lists)
     except TooLarge as error:
         raise DraftRefused([Refusal(1, "too-large")]) from error
     except Emptied as error:
         raise DraftRefused(error.refusals) from error
+    if once is not None:
+        once[key] = normalised
+    return normalised
 
 
 CONTENT_KINDS = (gitstore.Kind.EDIT, gitstore.Kind.REVIEWER_EDIT)

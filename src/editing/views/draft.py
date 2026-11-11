@@ -34,17 +34,30 @@ def range_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _asked(request: HttpRequest) -> dict[str, Any] | None:
+    """The editor's JSON ask; empty for none, `None` for one that does not read."""
+    if request.content_type != "application/json":
+        return {}
+    try:
+        data = json.loads(request.body or b"{}")
+    except (ValueError, RecursionError):
+        return None
+    return data if isinstance(data, dict) else {}
+
+
 def _range(request: HttpRequest) -> str | None:
     """The range the editor asks for — `whole`, the default and the only one (DL-0517); `None`
     for anything else."""
-    data: Any = {}
-    if request.content_type == "application/json":
-        try:
-            data = json.loads(request.body or b"{}")
-        except (ValueError, RecursionError):
-            return None
-    asked = data.get("range", WHOLE) if isinstance(data, dict) else WHOLE
-    return WHOLE if asked == WHOLE else None
+    data = _asked(request)
+    if data is None:
+        return None
+    return WHOLE if data.get("range", WHOLE) == WHOLE else None
+
+
+def _declarations_asked(request: HttpRequest) -> bool:
+    """Whether the editor asks for the draft's declarations: always, unless its page handed them
+    over already (`"entities": false`), read from the same pass over the draft that page made."""
+    return (_asked(request) or {}).get("entities", True) is not False
 
 
 @never_cache
@@ -74,26 +87,25 @@ def opened_on(request: HttpRequest, document: Document, asked: str, file: str) -
         return opened
     editor, body = opened
     refusals = validate(body)
-    declared = _declared(editor.draft)
     verdict = (
         {"state": "refused", "refusals": [{"code": r.code, "line": r.line} for r in refusals]}
         if refusals
         else {"state": "ok"}
     )
-    return JsonResponse(
-        {
-            "body": body,
-            "verdict": verdict,
-            "editor": str(editor.pk),
-            "base_hash": editor.base_hash,
-            "range": editor.range,
-            # The picker offers the draft's own declarations (DL-0073).
-            "entities": declared,
-        }
-    )
+    answer: dict[str, Any] = {
+        "body": body,
+        "verdict": verdict,
+        "editor": str(editor.pk),
+        "base_hash": editor.base_hash,
+        "range": editor.range,
+    }
+    if _declarations_asked(request):
+        # The picker offers the draft's own declarations (DL-0073).
+        answer["entities"] = offered(editor.draft)
+    return JsonResponse(answer)
 
 
-def _declared(draft: Any) -> list[dict[str, str]]:
+def offered(draft: Any) -> list[dict[str, str]]:
     """What the picker offers, as declaring answers it: the declarations the commit of the draft
     will write; none for a file that does not read as one."""
     document = draft.hold.document

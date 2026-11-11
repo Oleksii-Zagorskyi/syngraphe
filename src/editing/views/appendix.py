@@ -18,7 +18,7 @@ from access.rights import Right, rights_on_many
 from documents import bundle, gitstore
 from documents.models import Document
 from documents.parts import appendices
-from editing import holds, messages, parts, services
+from editing import holds, messages, parts
 from editing.views import draft as draft_views
 from editing.views import edit_tab
 from identity.models import User
@@ -51,7 +51,15 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
     """The tab for a person with *edit*: for the person editing, appendix `part` of their draft —
     one their draft alone holds included; before the hold, the head's. Anyone else holding the
     document, a freeze closed to them or a kept draft of theirs is answered as the document's own
-    *Edit* tab answers it; an appendix the side shown does not list, *Nothing to show here*."""
+    *Edit* tab answers it; an appendix the side shown does not list, *Nothing to show here*. The
+    draft is normalised and validated once however many parts of the page ask of it (ASR-21)."""
+    from editing import services
+
+    with services.normalising_once():
+        return _page(request, number, part)
+
+
+def _page(request: HttpRequest, number: int, part: int) -> HttpResponse:
     from editing.views.capture import settings_for_the_editor
     from editing.views.parts import panel
     from editions.models import open_freeze
@@ -101,6 +109,9 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
     from documents.path import frame
 
     taking = own and not holding
+    # Asked once, for the path and the page alike, with the declarations from the same pass over
+    # the draft (ASR-21).
+    declared, edited = edit_tab.opening(hold) if holding and hold is not None else (None, False)
     context = {
         "document": document,
         # The document's path for this appendix: the holder stands on their draft (DL-0522).
@@ -113,6 +124,7 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
             subtitle=entry["title"],
             rights=rights,
             seen=shown,
+            edited=edited if holding else None,
         ),
         "appendix": {"number": part, "title": entry["title"]},
         "tab": "edit",
@@ -126,7 +138,8 @@ def page(request: HttpRequest, number: int, part: int) -> HttpResponse:
         "headings": outline(labelled(text)),
         "draft_view": _rendered(document, user, text, images),
         "load_path": f"/document/{document.number}/appendix/{part}/edit/load/",
-        "edited": holding and hold is not None and services.has_edits(hold),
+        "edited": edited,
+        "declared": declared,
         # The discard's sentence says a reservation ends with the draft, as on the document's
         # page (DL-0237).
         "reserved": holding and hold is not None and hold.reserved_at is not None,

@@ -6,6 +6,7 @@ itself or typed in, and otherwise on a *Start editing* the person presses (DL-03
 
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 from typing import Any, cast
 
@@ -22,6 +23,8 @@ from documents.views import ABSENT
 from editing import holds, messages
 from identity.models import User
 from shell.views import not_found
+
+logger = logging.getLogger(__name__)
 
 
 def editable(request: HttpRequest, number: int) -> Document | None:
@@ -69,7 +72,21 @@ def tab_response(
     status: int = 200,
 ) -> HttpResponse:
     """The tab drawn for a document the caller's gate opened; `extra` what a refused form keeps,
-    drawn with `status`."""
+    drawn with `status`. The draft is normalised and validated once however many parts of the
+    page ask of it (ASR-21)."""
+    from editing import services
+
+    with services.normalising_once():
+        return _tab_response(request, document, extra=extra, status=status)
+
+
+def _tab_response(
+    request: HttpRequest,
+    document: Document,
+    *,
+    extra: dict[str, Any] | None,
+    status: int,
+) -> HttpResponse:
     from editing import title_page
     from editing.views.capture import settings_for_the_editor as capture_settings
 
@@ -129,9 +146,8 @@ def tab_response(
     # and handed to the path, which draws the draft's acts from it.
     edited: bool | None = None
     if holding and hold is not None:
-        from editing.services import has_edits
-
-        edited = context["edited"] = has_edits(hold)
+        context["declared"], edited = opening(hold)
+        context["edited"] = edited
     context["draft_view"] = _draft_view(document, hold if holding else None, request.user)
     from editing.views.parts import panel
     from rendering.outline import outline
@@ -163,6 +179,23 @@ def tab_response(
     )
     context |= extra or {}
     return render(request, "editing/edit_tab.html", context, status=status)
+
+
+def opening(hold: Any) -> tuple[list[dict[str, str]] | None, bool]:
+    """For the holder's tab: the declarations *Mark* offers, handed to the editor so its `load`
+    reads none, and whether the draft holds edits — both from one pass of the normalizer over the
+    draft, the larger part of what opening the tab costs (ASR-21, DL-0484). `None` for
+    declarations that do not read: the tab is drawn all the same, and the editor asks `load`."""
+    from editing import services
+    from editing.views.draft import offered
+
+    with services.normalising_once():
+        try:
+            declared = offered(hold.draft)
+        except Exception:  # noqa: BLE001 — what only `load` answered may not cost the tab itself
+            logger.exception("declarations that do not read", extra={"hold": str(hold.pk)})
+            declared = None
+        return declared, services.has_edits(hold)
 
 
 def _outline_text(document: Document, hold: Any) -> str:

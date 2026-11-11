@@ -358,8 +358,16 @@ async function offer(element, words, report, settle) {
   // load is in flight waits for the editor it would otherwise leave open.
   let opening = Promise.resolve(null);
 
+  // The declarations *Mark* offers, when the page read them in its own pass over the draft: the
+  // load then asks for none, and the draft is normalised once per opening (DL-0484). A page drawn
+  // before the take has no draft to read, and the load answers them; so does any later opening,
+  // whose draft may declare more than the page read.
+  let pageDeclared = document.getElementById("editor-declared");
+
   async function openWhole() {
-    const loaded = await post(element.dataset.load, element, { range: "whole" });
+    const declared = pageDeclared;
+    pageDeclared = null;
+    const loaded = await post(element.dataset.load, element, declared ? { range: "whole", entities: false } : { range: "whole" });
     // The hold was released since the page was drawn: drawn again, it says how and offers the draft.
     if (loaded.status === 404) {
       redraw();
@@ -370,6 +378,7 @@ async function offer(element, words, report, settle) {
       return null;
     }
     if (view) view.hidden = true;
+    if (declared) loaded.data.entities = JSON.parse(declared.textContent);
     element.editor = editorFor(element, loaded.data, words, report);
     switchFor(element.editor);
     element.dispatchEvent(new CustomEvent("editor-ready", { bubbles: true }));
