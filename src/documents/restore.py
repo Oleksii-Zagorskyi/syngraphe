@@ -2,9 +2,10 @@
 
 Always a time: the earlier of the newest clean marker's start and the last moment known to be
 good. The end of the archive is known only roughly — the markers record when a segment was last
-archived, and `pgbackrest verify` reports a gap without its moment — so it never sets the target;
-it only warns. When PostgreSQL then ends recovery before reaching the time, the operator runs
-again to the end of the archive (DL-0314). A newer marker that lists failures is named; the
+archived, and `pgbackrest verify` shows a damaged or missing file a backup needs, not a segment
+missing between two that are present (DL-0545) — so it never sets the target; it only warns.
+When PostgreSQL then ends recovery before reaching the time, the operator runs again to the end
+of the archive (DL-0314). A newer marker that lists failures is named; the
 operator alone may choose it, giving up the repositories it lists.
 
 The plan's last line holds each variable as one word, a time target as `YYYY-MM-DDTHH:MM:SS+00`;

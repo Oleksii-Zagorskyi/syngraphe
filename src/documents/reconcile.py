@@ -249,8 +249,14 @@ class _Run:
         missing = self.versions_without_commit(document, {str(c.id) for c in commits})
         self.commits_without_rows(document, commits, replay=not missing)
         if commits:
+            # The head and the document's own row: true whatever older rows name.
             self.frontmatter(document, repo, commits[-1])
             self.parts(document, repo, commits[-1])
+        if missing:
+            # The later checks read the version rows, and some name commits that are gone: until
+            # they are pruned, what those checks would find is about history that no longer exists.
+            return
+        if commits:
             self.passport(document, repo, commits[-1])
             self.editions(document, repo, commits[-1])
             self.notices(document)

@@ -130,7 +130,8 @@ def test_the_plan_prints_all_three_and_ends_with_the_recovery() -> None:
 FAKE_COMPOSE = """#!/bin/sh
 for arg in "$@"; do printf '<%s>' "$arg"; done >> "$CALLS"; echo >> "$CALLS"
 case "$*" in
-  *backup*verify*) echo "archiveId: 16-1, total WAL checked: 3, total valid WAL: 3";
+  *backup*verify*) cat > /dev/null;
+                   echo "archiveId: 16-1, total WAL checked: 3, total valid WAL: 3";
                    exit "$VERIFY_EXIT" ;;
   *restore_plan*) cat > /dev/null; echo "governs: the newest clean marker";
                   echo "PGBACKREST_TYPE=time PGBACKREST_TARGET=2026-09-29T10:00:00+00" \\
@@ -179,6 +180,16 @@ def test_the_restore_passes_the_target_whole(tmp_path: Path) -> None:
     # argument, the space kept.
     assert "<-e><PGBACKREST_TARGET=2026-09-29 10:00:00+00>" in restore_call
     assert "<-e><PGBACKREST_TYPE=time>" in restore_call
+
+
+def test_the_answer_reaches_the_prompt_through_a_pipe(tmp_path: Path) -> None:
+    """`docker compose run` keeps its input open, with `-T` or without, so a one-off container
+    before the prompt would read the answer fed to the script; the fake's `verify` reads all it
+    is given, and the restore still runs."""
+    result, logged = _script(tmp_path, answer="restore\n")
+
+    assert result.returncode == 0, result.stderr.decode()
+    assert "--delta restore" in logged
 
 
 def test_nothing_is_written_without_the_word(tmp_path: Path) -> None:
