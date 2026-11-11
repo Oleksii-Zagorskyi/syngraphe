@@ -159,7 +159,10 @@ services:
   db:
     <<: *db-image
     # The log is archived by pgBackRest, asynchronously; a quiet segment is closed within five
-    # minutes. The entrypoint refuses to start with an unset credential.
+    # minutes. The entrypoint refuses to start with an unset credential. An init process, not
+    # PostgreSQL, adopts what the asynchronous archive detaches: as PID 1 the postmaster would
+    # take its failed exit for a crashed backend and restart every connection (DL-0544).
+    init: true
     entrypoint: ["db-entrypoint.sh"]
     command:
       - postgres
