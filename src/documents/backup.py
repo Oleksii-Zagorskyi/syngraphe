@@ -447,6 +447,9 @@ def store_from_environment(environ: dict[str, str] | None = None) -> RcloneStore
             "REGION": reader.string("BACKUP_S3_REGION", "us-east-1"),
             "ACCESS_KEY_ID": reader.string("BACKUP_S3_ACCESS_KEY"),
             "SECRET_ACCESS_KEY": reader.string("BACKUP_S3_SECRET_KEY"),
+            # The bucket is the operator's, made with the controls DL-0298 relies on; the
+            # platform's key may not create one, and rclone otherwise asks to (DL-0543).
+            "NO_CHECK_BUCKET": "true",
         }
         root = "/".join(
             p.strip("/")

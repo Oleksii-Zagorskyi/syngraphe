@@ -1,0 +1,17 @@
+# A restore rehearsed beside a running installation that shares its backup store: the rehearsal
+# reads the store and never writes it, and publishes nothing (DL-0496). Read last, under a project
+# name of the rehearsal's own, as
+# `docker compose -p <rehearsal> --env-file <its .env> -f compose.yaml -f deploy/compose.prod.yaml
+# -f deploy/compose.rehearsal.yaml`. `up` starts `db`, `web` and `redis`; `run` still starts the
+# other services' one-off containers, which the restore scripts use.
+services:
+  db:
+    command: ["postgres", "-c", "archive_mode=off"]
+  front:
+    profiles: ["never"]
+  worker:
+    profiles: ["never"]
+  backup:
+    profiles: ["never"]
+  render:
+    profiles: ["never"]

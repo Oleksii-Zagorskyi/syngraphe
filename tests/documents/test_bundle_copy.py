@@ -142,6 +142,51 @@ def test_the_store_names_every_missing_key() -> None:
     assert other.value.malformed == ["BACKUP_TARGET"]
 
 
+@pytest.mark.parametrize(
+    ("target", "keys", "check_bucket"),
+    [
+        (
+            "s3",
+            {
+                "BACKUP_S3_ENDPOINT": "https://s3.store.example",
+                "BACKUP_S3_BUCKET": "bucket",
+                "BACKUP_S3_PATH": "installation",
+                "BACKUP_S3_ACCESS_KEY": "key",
+                "BACKUP_S3_SECRET_KEY": "secret",
+            },
+            "true",
+        ),
+        (
+            "sftp",
+            {
+                "BACKUP_SFTP_HOST": "store.example",
+                "BACKUP_SFTP_USER": "backup",
+                "BACKUP_SFTP_PATH": "installation",
+                "BACKUP_SFTP_KNOWN_HOSTS": "store.example ssh-ed25519 AAAA",
+            },
+            None,
+        ),
+    ],
+)
+def test_the_store_never_creates_the_bucket(
+    monkeypatch: pytest.MonkeyPatch, target: str, keys: dict[str, str], check_bucket: str | None
+) -> None:
+    """A key confined to the bucket's objects writes the first bundle: the bundle tool neither
+    creates nor checks the bucket, which the operator makes (DL-0543)."""
+    monkeypatch.setattr(
+        backup.subprocess,
+        "run",
+        lambda args, **kwargs: subprocess.CompletedProcess(args, 0, stdout=b"obscured\n"),
+    )
+    monkeypatch.setattr(backup, "_known_hosts", lambda line: "/run/backup/known_hosts")
+
+    store = backup.store_from_environment(
+        {"BACKUP_TARGET": target, "BACKUP_BUNDLE_CRYPT_PASSWORD": "password", **keys}
+    )
+
+    assert store.environment.get("RCLONE_CONFIG_STORE_NO_CHECK_BUCKET") == check_bucket
+
+
 def test_a_repository_comes_back_from_its_chain(
     repo_root: Path, store: Any, state_dir: Path
 ) -> None:
