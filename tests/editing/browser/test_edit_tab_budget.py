@@ -1,20 +1,21 @@
 """Opening the edit tab to an editable text on the forty-page corpus (ASR-21, DL-0484): from the
 address to the whole document's editor ready, at the 95th percentile of twenty openings, at most
-2 s. Each opening is a document of its own, held by its author, read on the page's own clock from
-the navigation's start. Run in the budgets' step, alone, never beside the workers.
+2 s. Each opening is a document of its own, held by its author, its text written through the
+product's own capture as a person's is, with the worker's refresh it queues (DL-23-002); read on
+the page's own clock from the navigation's start. Run in the budgets' step, alone, never beside
+the workers.
 
 The corpus is invented."""
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any
 
 import pytest
-
-from tenancy.schemas import schema_context
 
 pytestmark = [pytest.mark.browser, pytest.mark.budget]
 
@@ -25,12 +26,17 @@ BUDGET_MS = 2_000
 
 @pytest.fixture
 def held_tab(
-    browser_server: str, page: Any, migrated_tenant: Any, member_of: Any, new_document: Any
+    browser_server: str,
+    page: Any,
+    migrated_tenant: Any,
+    member_of: Any,
+    new_document: Any,
+    queued_openings: list[Any],
 ) -> Iterator[Callable[[], str]]:
     """`held()`: the edit tab's address over a new draft of the forty-page corpus, held by its
     author, the browser signed in as them; the page not yet opened. Every open editor is finished
     on teardown."""
-    from editing.models import Draft
+    from editing.tasks import refresh_opening
 
     # The corpus file carries its own frontmatter, which a draft's body never holds.
     body = CORPUS.read_text(encoding="utf-8").partition("\n---\n")[2].removeprefix("\n")
@@ -40,12 +46,29 @@ def held_tab(
 
     def held() -> str:
         document = new_document(author)
-        assert client.post(f"/document/{document.number}/edit/take/").status_code == 200
-        with schema_context(migrated_tenant.number):
-            draft = Draft.objects.get(hold__document=document)
-            draft.content = {**draft.content, "document.md": body}
-            draft.save()
-        return f"{browser_server}/document/{document.number}/edit/"
+        address = f"/document/{document.number}/edit/"
+        assert client.post(f"{address}take/").status_code == 200
+        # Written as the person's editor writes it: an editor opened on the draft, the corpus
+        # captured, that editor closed in the same write.
+        opened = client.post(f"{address}load/").json()
+        captured = client.post(
+            f"{address}capture/",
+            json.dumps(
+                {
+                    "editor": opened["editor"],
+                    "base_hash": opened["base_hash"],
+                    "body": body,
+                    "close": True,
+                }
+            ),
+            content_type="application/json",
+        )
+        assert captured.status_code == 200, captured.content
+        # The worker's refresh that capture queued, run as the worker runs it.
+        for tenant, hold, written in queued_openings:
+            refresh_opening(tenant, str(hold), written.isoformat())
+        queued_openings.clear()
+        return f"{browser_server}{address}"
 
     yield held
     if not page.is_closed():

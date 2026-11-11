@@ -14,7 +14,6 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 
-from documents import entities, gitstore
 from documents.locks import LockTimeout, document_lock
 from documents.models import Document
 from editing import holds, services
@@ -108,14 +107,7 @@ def opened_on(request: HttpRequest, document: Document, asked: str, file: str) -
 def offered(draft: Any) -> list[dict[str, str]]:
     """What the picker offers, as declaring answers it: the declarations the commit of the draft
     will write; none for a file that does not read as one."""
-    document = draft.hold.document
-    repo = gitstore.open_repository(holds.tenant_number(), document.number)
-    head = gitstore.head(repo) or draft.base_commit
-    own = entities.readable(holds.draft_entities(draft, repo, head), document.number)
-    if own is None:
-        return []
-    found = services.draft_declarations(draft, repo, head, document, own)
-    return [{"kind": e.kind, "key": e.key, "label": e.label} for e in found.committed]
+    return services.declarations_offered(draft)
 
 
 def _open(

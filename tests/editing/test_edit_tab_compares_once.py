@@ -36,13 +36,14 @@ def test_one_opening_compares_the_draft_once(
             draft.content = {**draft.content, "document.md": draft.content["document.md"] + EDIT}
             draft.save()
     compared: list[Any] = []
-    real = services.holds_later_work
+    # The comparison itself, whichever of its callers asks it.
+    real = services.staged_changes
 
-    def counted(*args: Any, **kwargs: Any) -> bool:
+    def counted(*args: Any, **kwargs: Any) -> Any:
         compared.append(args)
         return real(*args, **kwargs)
 
-    monkeypatch.setattr(services, "holds_later_work", counted)
+    monkeypatch.setattr(services, "staged_changes", counted)
 
     page = client.get(f"/document/{document.number}/edit/").content.decode()
 

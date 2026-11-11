@@ -6,7 +6,6 @@ itself or typed in, and otherwise on a *Start editing* the person presses (DL-03
 
 from __future__ import annotations
 
-import logging
 from datetime import timedelta
 from typing import Any, cast
 
@@ -23,8 +22,6 @@ from documents.views import ABSENT
 from editing import holds, messages
 from identity.models import User
 from shell.views import not_found
-
-logger = logging.getLogger(__name__)
 
 
 def editable(request: HttpRequest, number: int) -> Document | None:
@@ -183,19 +180,12 @@ def _tab_response(
 
 def opening(hold: Any) -> tuple[list[dict[str, str]] | None, bool]:
     """For the holder's tab: the declarations *Mark* offers, handed to the editor so its `load`
-    reads none, and whether the draft holds edits — both from one pass of the normalizer over the
-    draft, the larger part of what opening the tab costs (ASR-21, DL-0484). `None` for
-    declarations that do not read: the tab is drawn all the same, and the editor asks `load`."""
+    reads none, and whether the draft holds edits — the draft's stored answers, or one pass of the
+    normalizer where they are stale (ASR-21, DL-23-001). `None` for declarations that do not read:
+    the tab is drawn all the same, and the editor asks `load`."""
     from editing import services
-    from editing.views.draft import offered
 
-    with services.normalising_once():
-        try:
-            declared = offered(hold.draft)
-        except Exception:  # noqa: BLE001 — what only `load` answered may not cost the tab itself
-            logger.exception("declarations that do not read", extra={"hold": str(hold.pk)})
-            declared = None
-        return declared, services.has_edits(hold)
+    return services.opening(hold)
 
 
 def _outline_text(document: Document, hold: Any) -> str:

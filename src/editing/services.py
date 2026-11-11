@@ -479,13 +479,20 @@ def holds_later_work(draft: Draft, repo: pygit2.Repository, commit: str, lists: 
     """Whether the draft holds anything `commit` does not — text, entities, appendices or files.
     A draft that cannot be committed as it stands is later work too: it is kept, never released
     as finished. Never raises: a release that asks must go ahead whatever the draft holds."""
+    known = _later_work(draft, repo, commit, lists)
+    return True if known is None else known
+
+
+def _later_work(draft: Draft, repo: pygit2.Repository, commit: str, lists: Lists) -> bool | None:
+    """`holds_later_work`'s answer, `None` where the comparison failed for a reason outside the
+    draft — an answer that may not be kept."""
     try:
         return bool(staged_changes(draft, repo, commit, lists))
     except (DraftRefused, NormalizerDefect, ValueError):
         return True
     except Exception:  # noqa: BLE001 — a release never fails on what a draft holds
         logger.exception("a draft that cannot be compared", extra={"draft": str(draft.pk)})
-        return True
+        return None
 
 
 def has_edits(hold: Hold) -> bool:
@@ -504,6 +511,154 @@ def has_edits(hold: Hold) -> bool:
         # Unknown is kept: a draft is never thrown away for a repository that cannot be read.
         return True
     return holds_later_work(draft, repo, head, lists)
+
+
+def declarations_offered(
+    draft: Draft, repo: pygit2.Repository | None = None, head: str | None = None
+) -> list[dict[str, str]]:
+    """What *Mark*'s picker offers, as declaring answers it: the declarations the commit of the
+    draft will write, read against `head` — the document's head by default; none for a file that
+    does not read as one."""
+    document = draft.hold.document
+    if repo is None:
+        repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    if head is None:
+        head = gitstore.head(repo) or draft.base_commit
+    own = entities.readable(holds.draft_entities(draft, repo, head), document.number)
+    if own is None:
+        return []
+    found = draft_declarations(draft, repo, head, document, own)
+    return [{"kind": e.kind, "key": e.key, "label": e.label} for e in found.committed]
+
+
+# The reading of the edit tab's stored answers, in their key: raised whenever a change to the code
+# that reads whether a draft holds edits or what it declares — the comparison, the span reader, the
+# declarations' shape — could answer differently for the same draft, so every stored answer is
+# read again (DL-23-001).
+OPENING_ANSWERS = 1
+
+
+@dataclass(frozen=True)
+class _Inputs:
+    """What the edit tab's answers are read from, read once, and the key over it."""
+
+    repo: pygit2.Repository
+    head: str
+    lists: Lists
+    key: str
+
+
+def _opening_inputs(hold: Hold) -> _Inputs:
+    document = hold.document
+    draft = hold.draft
+    repo = gitstore.open_repository(holds.tenant_number(), document.number)
+    head = gitstore.head(repo) or draft.base_commit
+    lists = _lists(document)
+    return _Inputs(repo, head, lists, _opening_key(draft, head, lists))
+
+
+def _opening_key(draft: Draft, head: str, lists: Lists) -> str:
+    """A hash of everything `staged_changes` and `draft_declarations` read: the draft's content and
+    base, the head, the staged files' rows, the sentence lists, and the rules the reading follows —
+    the normalizer's ruleset, the whitelist specification and `OPENING_ANSWERS`."""
+    from django.db.models import BooleanField, ExpressionWrapper, Q
+
+    from editing.markdown import raw_spec
+
+    held = ExpressionWrapper(Q(content__isnull=False), output_field=BooleanField())
+    rows = draft.files.annotate(held=held).order_by("at", "pk")
+    files = [
+        [str(pk), kind, path, operation, sha256, has]
+        for pk, kind, path, operation, sha256, has in rows.values_list(
+            "pk", "kind", "path", "operation", "sha256", "held"
+        )
+    ]
+    read = [
+        OPENING_ANSWERS,
+        RULESET,
+        raw_spec(),
+        head,
+        draft.base_commit,
+        draft.content,
+        files,
+        [lists.language, list(lists.never_final), list(lists.may_be_final)],
+    ]
+    encoded = json.dumps(read, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def opening(hold: Hold) -> tuple[list[dict[str, str]] | None, bool]:
+    """What the holder's edit tab opens with (DL-23-001): the declarations *Mark* offers — `None`
+    for ones that do not read, which the editor's `load` then answers — and whether the draft holds
+    edits. The draft's stored answers while their key matches; otherwise both read in one pass of
+    the normalizer, and stored when nothing outside the draft failed and nothing moved meanwhile."""
+    draft = hold.draft
+    try:
+        inputs: _Inputs | None = _opening_inputs(hold)
+    except Exception:  # noqa: BLE001 — the tab never fails on what its draft's inputs hold
+        logger.exception("a draft whose inputs cannot be read", extra={"hold": str(hold.pk)})
+        inputs = None
+    stored = draft.opening
+    if inputs is not None and isinstance(stored, dict) and stored.get("key") == inputs.key:
+        return stored.get("declared"), bool(stored.get("edited"))
+    with normalising_once():
+        try:
+            declared: list[dict[str, str]] | None = (
+                declarations_offered(draft, inputs.repo, inputs.head)
+                if inputs is not None
+                else declarations_offered(draft)
+            )
+        except Exception:  # noqa: BLE001 — what only `load` answered may not cost the tab itself
+            logger.exception("declarations that do not read", extra={"hold": str(hold.pk)})
+            declared = None
+        if inputs is None:
+            return declared, has_edits(hold)
+        edited = _later_work(draft, inputs.repo, inputs.head, inputs.lists)
+    if declared is not None and edited is not None:
+        _store_opening(hold, inputs, {"edited": edited, "declared": declared})
+    return declared, True if edited is None else edited
+
+
+def _store_opening(hold: Hold, inputs: _Inputs, answer: dict[str, Any]) -> None:
+    """Keep `answer` under the inputs' key, unless the head or the staged files moved while it was
+    read: an answer kept under a key must be the answer to that key."""
+    draft = hold.draft
+    try:
+        moved = _opening_inputs(hold).key != inputs.key
+    except Exception:  # noqa: BLE001 — not keeping an answer costs one slower opening
+        logger.exception("a draft whose inputs cannot be read", extra={"hold": str(hold.pk)})
+        return
+    if moved:
+        return
+    kept = {"key": inputs.key, **answer}
+    # Not `save`: the draft's own time is its holder's last write, not this answer's. Only on the
+    # draft as it was read: an answer read before a newer write never replaces that write's own.
+    Draft.objects.filter(pk=draft.pk, updated_at=draft.updated_at).update(opening=kept)
+    draft.opening = kept
+
+
+def refresh_opening(hold_pk: Any, written_at: Any) -> None:
+    """After the write at `written_at` to the hold's draft, its edit tab's answers read again and
+    stored, so that the next opening reads them rather than the draft (DL-23-001). Nothing when
+    the draft was written again since — that write's own refresh reads it — or is gone with its
+    hold. Run outside the document's writer lock; never raises, since the write it follows has
+    already landed."""
+    try:
+        hold = Hold.objects.select_related("document").filter(pk=hold_pk, release_kind="").first()
+        draft = Draft.objects.filter(hold_id=hold_pk).first() if hold is not None else None
+        if hold is None or draft is None or draft.updated_at != written_at:
+            return
+        hold.draft = draft
+        opening(hold)
+    except Exception:  # noqa: BLE001 — a missed refresh costs one slower opening, never a wrong one
+        from django.db import connection
+
+        from tenancy.schemas import current_tenant
+
+        logger.exception(
+            "an edit tab's answers not refreshed",
+            extra={"hold": str(hold_pk), "tenant": current_tenant(connection)},
+        )
 
 
 def draft_text(hold: Hold) -> tuple[str, str, str]:

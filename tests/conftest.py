@@ -768,3 +768,16 @@ def frontmatter_kinds(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
     fresh: dict[str, Any] = {}
     monkeypatch.setattr(parts, "FRONTMATTER_KINDS", fresh)
     return fresh
+
+
+# The edit tab's stored answers (DL-23-001).
+@pytest.fixture(autouse=True)
+def queued_openings(monkeypatch: pytest.MonkeyPatch) -> list[tuple[int, Any, Any]]:
+    """The edit tab's answers a capture asks the worker for, recorded rather than sent, as the
+    authorship's are; a test that needs them runs the job itself
+    (`tests/editing/test_edit_tab_opening.py::worked`)."""
+    queued: list[tuple[int, Any, Any]] = []
+    monkeypatch.setattr(
+        "editing.tasks.queue_opening", lambda *job: queued.append(job), raising=True
+    )
+    return queued
