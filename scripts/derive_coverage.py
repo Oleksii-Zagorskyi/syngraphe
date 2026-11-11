@@ -10,10 +10,11 @@ The rules, which `coverage.md`'s header states for its readers:
 - **Regions** are the rows of every table in `pages.md` whose first column is *Region*, *Tab*
   or *Section*; fenced blocks are skipped. A row's stories are its *Stories* cell;
   `ST-0019 to ST-0022` is a range.
-- **Where** names a region as the section heading it sits under — `Document page › The tabs`
-  and `Document page › The edit tab` for those subsections — then an em dash and the region
-  cell cut at its first ` — ` or `; `, emphasis and code marks removed, longer than 58
-  characters cut to 58 and an ellipsis; a region named as its section is the section alone.
+- **Where** names a region as the section heading it sits under — a page's `## ` heading, or
+  the page and its `### ` subsection, as `Document page › The draft's page` — then an em
+  dash and the region cell cut at its first ` — ` or `; `, emphasis and code marks removed,
+  longer than 58 characters cut to 58 and an ellipsis; a region named as its section is the
+  section alone.
   A story's regions are listed in the order `pages.md` gives them.
 - **Drawn**: a region is not yet drawn when its row says *not yet drawn* anywhere, in any
   case. A story is *drawn* when every region carrying it is drawn, *partly drawn* when some

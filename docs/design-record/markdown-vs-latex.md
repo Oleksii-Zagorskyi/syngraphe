@@ -3,8 +3,11 @@ tags:
   - technical-design
 aliases:
   - Markdown versus LaTeX
-status: draft
+status: adopted
 date: 2026-09-21
+outcome-note: >
+  The analysis behind DL-0046: Markdown was adopted as the stored form. The
+  body is the analysis as written on 2026-09-21 and is not edited.
 ---
 
 # Document format — Markdown or LaTeX

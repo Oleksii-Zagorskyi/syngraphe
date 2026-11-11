@@ -4,8 +4,12 @@ tags:
   - engineering
 aliases:
   - Linear workflow proposal
-status: draft
+status: adopted
 date: 2026-09-20
+outcome-note: >
+  The analysis behind ADR-0003: a single linear editing sequence per document,
+  with no branches and no merges, was adopted. The body is the analysis as
+  written on 2026-09-20 and is not edited.
 ---
 
 # Linear workflow — the owner's proposal, and what adopting it would cost

@@ -157,6 +157,12 @@ non-obvious, link the ADR or decision that made it.
 partial run, sanity-check before anything destructive, and abort rather than
 half-write.
 
+**A decision row states the product fact and its reason.** The rationale leads
+with the reason and names the alternative that lost; every pointer is an id; a
+row never describes how the work was run. A row that supersedes another changes
+the old row's status in the same commit, and `scripts/check_record.py log`
+checks the supersessions, the statuses and the ids.
+
 ## Commit messages
 
 **The 50/72 form.** A capitalised, imperative subject of about 50 characters,

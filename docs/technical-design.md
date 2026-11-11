@@ -3,14 +3,11 @@ tags:
   - technical-design
 aliases:
   - Syngraphē Technical Design
-status: draft
+status: active
 date: 2026-09-21
 ---
 
 # Technical Design — Syngraphē
-
-> [!note] Walking skeleton
-> Structurally complete, deliberately thin. Sections resting on unanswered questions name the question inline.
 
 ## Stack
 

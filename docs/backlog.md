@@ -456,3 +456,18 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** The user profile is designed, or an organisation finds the refusal of a name its member really bears a burden.
 
+## B-061 — What a platform administrator sees of an organisation's own controls
+
+**Idea.** Settle whether a platform administrator who does not administer an organisation is shown that organisation's administrator controls on a document page — *More*, and *Groups* beneath it — and draw the rule from what the role's other pages show.
+
+**Why it is parked.** Release 0.1 has one platform administrator, who also administers the organisation, so the two cases cannot be told apart in use, and the walk that met the question could not observe either.
+
+**What has to be true before it is taken up.** A second platform administrator exists, or one who does not administer an organisation opens its documents.
+
+## B-062 — The editor's outline following the text
+
+**Idea.** The outline beside the editor follows edits as they are made: a heading added, renamed or turned into a paragraph changes its entry at once, not at the next opening.
+
+**Why it is parked.** The outline is drawn when the edit tab opens; it is a navigation aid, and a person who changes headings sees it right again on reopening.
+
+**What has to be true before it is taken up.** A person is seen relying on an outline that has fallen out of date with the text they are editing.

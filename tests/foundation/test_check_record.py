@@ -687,3 +687,222 @@ def test_a_promoted_row_and_a_named_successor_read_as_history(
 
     assert [(f.path, f.line) for f in findings] == [("docs/prd.md", 4)]
     assert replaced in findings[0].message
+
+
+# --- log ----------------------------------------------------------------------------------------
+
+LOG_HEAD = [
+    "# Decision log",
+    "",
+    "| ID | Date | Question | Decision | Rationale | Impact | Status |",
+    "|----|------|----------|----------|-----------|--------|--------|",
+]
+
+
+def _dl(number: int) -> str:
+    """A planted row id, assembled so the ids check never meets one written out."""
+    return "DL-" + f"{number:04d}"
+
+
+def _row(row_id: str, question: str, status: str) -> str:
+    return f"| {row_id} | 2026-01-01 | {question} | d | r | i | {status} |"
+
+
+def _log_findings(check_record: ModuleType, root: Path) -> set[tuple[str, int, str]]:
+    return {(f.path, f.line, f.message) for f in check_record.check_log(root)}
+
+
+def test_log_supersession_both_ways(check_record: ModuleType, tmp_path: Path) -> None:
+    """A supersession is named on both rows; either side missing is a finding on the row that
+    makes the claim. A row's own note that it was superseded is not read as a claim."""
+    new, old = _dl(301), _dl(302)
+    claims, unnamed = _dl(303), _dl(304)
+    named, refiner = _dl(305), _dl(306)
+    noted, successor = _dl(307), _dl(308)
+    orphan, missing = _dl(309), _dl(399)
+    rows = [
+        _row(new, f"(Supersedes {old}.) q", "active"),
+        _row(old, "q", f"superseded — {new}"),
+        _row(claims, f"(Refines {old}; supersedes {unnamed} in part.) q", "active"),
+        _row(unnamed, "q", "active"),
+        _row(named, "q", f"partly superseded — {refiner} (the clause)"),
+        _row(refiner, f"(Refines {named}.) q", "active"),
+        _row(noted, f"(Superseded by {successor}.) q", f"superseded — {successor}"),
+        _row(successor, f"(Supersedes {noted}.) q", "active"),
+        _row(orphan, f"(Supersedes {missing}.) q", "active"),
+    ]
+    _plant(tmp_path, {LOG: LOG_HEAD + rows})
+    first = len(LOG_HEAD) + 1
+
+    assert _log_findings(check_record, tmp_path) == {
+        (
+            LOG,
+            first + 2,
+            f"{claims} supersedes {unnamed}, but {unnamed}'s status does not name {claims}",
+        ),
+        (
+            LOG,
+            first + 4,
+            f"{named}'s status names {refiner}, but {refiner} does not say it supersedes {named}",
+        ),
+        (LOG, first + 8, f"{orphan} supersedes {missing}, which no log holds"),
+    }
+
+
+def test_log_supersession_clean(check_record: ModuleType, tmp_path: Path) -> None:
+    """Both sides named, several rows in one status, a clause on a partial one: no finding."""
+    a, b, c = _dl(311), _dl(312), _dl(313)
+    rows = [
+        _row(a, f"(Supersedes {c} in part.) q", "active"),
+        _row(b, f"(Refines {a}; supersedes {c} in part.) q", "active"),
+        _row(c, "q", f"partly superseded — {a}, {b} (the shelf's height)"),
+    ]
+    _plant(tmp_path, {LOG: LOG_HEAD + rows})
+
+    assert _log_findings(check_record, tmp_path) == set()
+
+
+def test_log_adr_superseded_by(check_record: ModuleType, tmp_path: Path) -> None:
+    """A row that supersedes an ADR is listed in its `superseded_by`; each entry there exists."""
+    listed, unlisted, missing = _dl(321), _dl(322), _dl(399)
+    adr_listed, adr_empty, adr_dangling = "ADR-" + "0321", "ADR-" + "0322", "ADR-" + "0323"
+    _plant(
+        tmp_path,
+        {
+            LOG: LOG_HEAD
+            + [
+                _row(listed, f"(Supersedes {adr_listed} in part.) q", "active"),
+                _row(unlisted, f"(Supersedes {adr_empty}.) q", "active"),
+            ],
+            f"docs/adr/{adr_listed}-a-lamp.md": [
+                "---",
+                "status: accepted",
+                "superseded_by:",
+                f"  - {listed} (in part — the wick)",
+                "---",
+                "# A lamp",
+            ],
+            f"docs/adr/{adr_empty}-a-shelf.md": ["---", "superseded_by: []", "---", "# A shelf"],
+            f"docs/adr/{adr_dangling}-a-desk.md": [
+                "---",
+                "superseded_by:",
+                f"  - {missing} (in part — the drawer)",
+                "---",
+                "# A desk",
+            ],
+        },
+    )
+
+    assert _log_findings(check_record, tmp_path) == {
+        (
+            LOG,
+            len(LOG_HEAD) + 2,
+            f"{unlisted} supersedes {adr_empty}, but its superseded_by does not list {unlisted}",
+        ),
+        (
+            f"docs/adr/{adr_dangling}-a-desk.md",
+            3,
+            f"{adr_dangling}'s superseded_by names {missing}, which does not exist",
+        ),
+    }
+
+
+def test_log_statuses_from_the_closed_set(check_record: ModuleType, tmp_path: Path) -> None:
+    """The plain statuses pass; a conditional, a bare or an unlisted one is a finding."""
+    plain = [_dl(331), _dl(332), _dl(333)]
+    conditional, bare, other = _dl(334), _dl(335), _dl(336)
+    rows = [
+        _row(plain[0], "q", "active"),
+        _row(plain[1], "q", "deferred"),
+        _row(plain[2], "q", "withdrawn"),
+        _row(conditional, "q", f"active until built — then superseded by {plain[0]}"),
+        _row(bare, "q", "superseded"),
+        _row(other, "q", "resolved"),
+    ]
+    _plant(tmp_path, {LOG: LOG_HEAD + rows})
+    first = len(LOG_HEAD) + 1
+
+    assert {(path, line) for path, line, _ in _log_findings(check_record, tmp_path)} == {
+        (LOG, first + 3),
+        (LOG, first + 4),
+        (LOG, first + 5),
+    }
+
+
+def test_log_ids_unique_across_logs(check_record: ModuleType, tmp_path: Path) -> None:
+    """A release's closed log and the open one share one id sequence: an id twice is a finding."""
+    kept, twice = _dl(341), _dl(342)
+    closed = "docs/design-record/decision-log-0.1.md"
+    _plant(
+        tmp_path,
+        {
+            closed: LOG_HEAD + [_row(twice, "q", "active")],
+            LOG: LOG_HEAD + [_row(kept, "q", "active"), _row(twice, "q", "active")],
+        },
+    )
+
+    assert _log_findings(check_record, tmp_path) == {
+        (LOG, len(LOG_HEAD) + 2, f"{twice} is also at {closed}:{len(LOG_HEAD) + 1}"),
+    }
+
+
+def test_log_the_verbs_that_replace_a_row(check_record: ModuleType, tmp_path: Path) -> None:
+    """*Corrects*, *revises*, *rewrites* and *resolves* with a row for its object claim the row,
+    as *supersedes* does; *resolves* a story, a contradiction or a question does not, nor does
+    *refines*, and a clause ends at a sentence's end."""
+    fixer, fixed = _dl(361), _dl(362)
+    reviser, revised = _dl(363), _dl(364)
+    halver, halved = _dl(365), _dl(366)
+    story, beside = _dl(367), _dl(368)
+    asker, refined = _dl(369), _dl(370)
+    tension, kept = _dl(371), _dl(372)
+    rows = [
+        _row(fixer, f"(Corrects {fixed}'s last clause.) q", "active"),
+        _row(fixed, "q", f"partly superseded — {fixer} (its last clause)"),
+        _row(reviser, f"(Revises {revised}.) q", "active"),
+        _row(revised, "q", f"superseded — {reviser}"),
+        _row(halver, f"(Resolves the title-page half of {halved}.) q", "active"),
+        _row(halved, "q", f"partly superseded — {halver}"),
+        _row(story, f"(Resolves ST-{'0023'} against {beside}.) q", "active"),
+        _row(beside, "q", "active"),
+        _row(asker, f"(Resolves: Q18. Refines {refined}.) q", "active"),
+        _row(refined, "q", "active"),
+        _row(tension, f"(Refines {kept}; resolves its tension with {kept}.) q", "active"),
+        _row(kept, "q", f"partly superseded — {tension}"),
+    ]
+    _plant(tmp_path, {LOG: LOG_HEAD + rows})
+
+    assert _log_findings(check_record, tmp_path) == {
+        (
+            LOG,
+            len(LOG_HEAD) + 12,
+            f"{kept}'s status names {tension}, but {tension} does not say it supersedes {kept}",
+        ),
+    }
+
+
+def test_log_promoted_to_an_adr(check_record: ModuleType, tmp_path: Path) -> None:
+    """A row whose decision moved into an ADR names it, whole or in part; the ADR must exist."""
+    whole, part, ghost = _dl(351), _dl(352), _dl(353)
+    adr, missing = "ADR-" + "0351", "ADR-" + "0359"
+    _plant(
+        tmp_path,
+        {
+            LOG: LOG_HEAD
+            + [
+                _row(whole, "q", f"superseded — promoted to {adr}"),
+                _row(part, "q", f"partly superseded — promoted to {adr} (the shelf)"),
+                _row(ghost, "q", f"superseded — promoted to {missing}"),
+            ],
+            f"docs/adr/{adr}-a-lamp.md": ["---", "superseded_by: []", "---", "# A lamp"],
+        },
+    )
+
+    assert _log_findings(check_record, tmp_path) == {
+        (LOG, len(LOG_HEAD) + 3, f"{ghost} is promoted to {missing}, which does not exist"),
+    }
+
+
+def test_the_log_check_is_in_the_default_run(check_record: ModuleType) -> None:
+    """The log check runs with the others when none is named: the run CI makes."""
+    assert check_record.CHECKS["log"] is check_record.check_log

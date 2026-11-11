@@ -4,6 +4,7 @@ workspace/
 
 # Agent and editor state
 .claude/
+CLAUDE.local.md
 .obsidian/
 .vscode/
 .idea/

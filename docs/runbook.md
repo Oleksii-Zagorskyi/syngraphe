@@ -3,8 +3,7 @@ tags:
   - runbook
 aliases:
   - Syngraphē runbook
-status: draft
-fidelity: provisional
+status: active
 date: 2026-09-23
 ---
 

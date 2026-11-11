@@ -3,7 +3,7 @@ tags:
   - technical-design
 aliases:
   - Syngraphē data model
-status: draft
+status: active
 date: 2026-09-21
 ---
 

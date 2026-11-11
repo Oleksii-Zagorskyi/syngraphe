@@ -3,12 +3,13 @@ tags:
   - adr
 aliases:
   - ADR-0009 Reserving a document for editing
-status: approved
+status: accepted
 date: 2026-09-27
 supersedes:
   - ADR-0006 (in part — the release of a reserved hold, who sees its holder, and the send-for-review screen)
 superseded_by:
   - ADR-0016 (in part — reserve for editing includes edit)
+  - DL-0516 (in part — an ordinary hold names its holder as a reservation does, no longer by ADR-0006's rule)
 ---
 
 # ADR-0009: Reserving a document for editing — a hold that lasts, and finishing it in one act

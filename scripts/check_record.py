@@ -5,8 +5,8 @@ Usage, from the repository root:
     uv run python scripts/check_record.py [--root PATH] [CHECK ...]
 
 `--root` is the tree read, the repository root by default; `CHECK` is any of `ids`,
-`coverage`, `pages`, `help`, `routes`, `words`, and all six run when none is given. One line
-per finding, `path:line: check: message` (`line` 0 for a finding about a whole file), then
+`coverage`, `pages`, `help`, `routes`, `words`, `log`, and all seven run when none is given.
+One line per finding, `path:line: check: message` (`line` 0 for a finding about a whole file), then
 `N finding(s)`; exit 1 with any finding, 0 with none. The script reads and never writes.
 
 - **ids** — every cited decision row, ADR, story, verification claim and backlog row exists,
@@ -19,6 +19,15 @@ per finding, `path:line: check: message` (`line` 0 for a finding about a whole f
   bullet, and every other route is one the script knows to leave out.
 - **words** — the glossary's never-used words are absent from the help pages and the `uk`
   catalogue, and a term on an English help page has its Ukrainian term on the Ukrainian one.
+- **log** — across every decision log of the design record and the ADRs' frontmatter: a row
+  that says it supersedes another is named by that row's status, and a status that names a row
+  is matched by that row's claim; a row that supersedes an ADR is listed in the ADR's
+  `superseded_by`, and each entry there exists; each status is `active`, `deferred`,
+  `withdrawn`, `superseded — {rows}`, `superseded — promoted to {ADR}` (the ADR exists), or
+  either of the last two `partly`, with an optional clause in parentheses; each row's id is
+  unique. A row supersedes only by a verb in its Question's opening parenthetical —
+  *supersedes*, *corrects*, *revises*, *rewrites* or *resolves*, never *refines* — so its own
+  note that it was superseded is never misread.
 """
 
 from __future__ import annotations
@@ -611,6 +620,227 @@ def check_words(root: Path) -> list[Finding]:
     return findings
 
 
+# --- log ----------------------------------------------------------------------------------
+
+LOG_GLOB = "decision-log*.md"
+LOG_DIR = "docs/design-record"
+ROW_ID = r"DL-\d+(?:-\d+)?"
+ROW_IDS = re.compile(rf"\b{ROW_ID}\b")
+ADR_IDS = re.compile(r"\bADR-\d{4}\b")
+# The verbs by which a later row replaces an earlier one; *refines* keeps the old rule, so it is
+# not among them.
+SUPERSEDES = re.compile(r"\b(?:supersedes|corrects|revises|rewrites|resolves)\b", re.IGNORECASE)
+# *Resolves* replaces a row only when its object is the row — `DL-0159`, `DL-0117's deferral`,
+# `the title-page half of DL-0157` — never a question, a story, a contradiction or a tension.
+RESOLVED_ROW = re.compile(rf"^\s+(?:the [\w -]+ half of )?{ROW_ID}\b")
+# A clause ends at a semicolon or a sentence's end.
+CLAUSE_END = re.compile(r";|\.\s")
+PLAIN_STATUSES = {"active", "deferred", "withdrawn"}
+# One status names one or more rows; only a partial supersession says which clause it replaced.
+# A row whose decision now lives in an ADR names the ADR it was promoted to instead of rows.
+SUPERSEDED_STATUS = re.compile(
+    rf"^(?P<partly>partly )?superseded — (?:(?P<ids>{ROW_ID}(?:, {ROW_ID})*)"
+    r"|promoted to (?P<adr>ADR-\d{4}))(?: \((?P<clause>[^()]+)\))?$"
+)
+
+
+@dataclass(frozen=True)
+class Row:
+    id: str
+    path: str
+    line: int
+    question: str
+    status: str
+
+
+def _rows(root: Path) -> list[Row]:
+    """Every decision row of every log in the design record, in file and line order."""
+    rows: list[Row] = []
+    folder = root / LOG_DIR
+    if not folder.is_dir():
+        return rows
+    for log in sorted(folder.glob(LOG_GLOB)):
+        relative = log.relative_to(root).as_posix()
+        for number, line in enumerate(log.read_text(encoding="utf-8").splitlines(), 1):
+            match = DECISION_ROW.match(line)
+            if match:
+                cells = _cells(line)
+                question = cells[2] if len(cells) > 2 else ""
+                rows.append(Row(match.group(1), relative, number, question, cells[-1]))
+    return rows
+
+
+def _opening(question: str) -> str:
+    """The parenthetical a Question opens with, nested parentheses kept; empty without one."""
+    if not question.startswith("("):
+        return ""
+    depth = 0
+    for index, char in enumerate(question):
+        depth += {"(": 1, ")": -1}.get(char, 0)
+        if depth == 0:
+            return question[1:index]
+    return ""
+
+
+def _superseded_by_row(question: str) -> tuple[set[str], set[str]]:
+    """The rows and ADRs a Question says it supersedes, read only from the clauses of its opening
+    parenthetical that use one of the verbs — so a row's own note that it was superseded by
+    another is never read as superseding that other."""
+    rows: set[str] = set()
+    adrs: set[str] = set()
+    for clause in CLAUSE_END.split(_opening(question)):
+        verb = SUPERSEDES.search(clause)
+        if not verb:
+            continue
+        named = clause[verb.end() :]
+        if verb.group(0).lower() == "resolves" and not RESOLVED_ROW.match(named):
+            continue
+        rows.update(ROW_IDS.findall(named))
+        adrs.update(ADR_IDS.findall(named))
+    return rows, adrs
+
+
+def _status_rows(status: str) -> set[str]:
+    """The rows a supersession status names; empty for any other status."""
+    match = SUPERSEDED_STATUS.match(status)
+    return set(match.group("ids").split(", ")) if match and match.group("ids") else set()
+
+
+def _adr_superseded_by(root: Path) -> dict[str, tuple[str, list[tuple[int, str]]]]:
+    """Each ADR's file and the first id of each entry of its `superseded_by:` frontmatter."""
+    adrs: dict[str, tuple[str, list[tuple[int, str]]]] = {}
+    folder = root / ADRS
+    if not folder.is_dir():
+        return adrs
+    for path in sorted(folder.iterdir()):
+        name = ADR_FILE.match(path.name)
+        if not name:
+            continue
+        relative = path.relative_to(root).as_posix()
+        entries: list[tuple[int, str]] = []
+        lines = path.read_text(encoding="utf-8").splitlines()
+        inside = False
+        for number, line in enumerate(lines[1:], 2):
+            if line.strip() == "---":
+                break
+            if line.startswith("superseded_by:"):
+                inside = True
+                for cited in ANY_ID.findall(line):
+                    entries.append((number, cited))
+            elif inside and line.startswith("  - "):
+                cited_ids = ANY_ID.findall(line)
+                if cited_ids:
+                    entries.append((number, cited_ids[0]))
+            elif not line.startswith(" "):
+                inside = False
+        adrs[name.group(1)] = (relative, entries)
+    return adrs
+
+
+def check_log(root: Path) -> list[Finding]:
+    rows = _rows(root)
+    adrs = _adr_superseded_by(root)
+    findings: list[Finding] = []
+    first: dict[str, Row] = {}
+    for row in rows:
+        if row.id in first:
+            seen = first[row.id]
+            findings.append(
+                Finding(row.path, row.line, "log", f"{row.id} is also at {seen.path}:{seen.line}")
+            )
+        else:
+            first[row.id] = row
+    for row in rows:
+        status = SUPERSEDED_STATUS.match(row.status)
+        if row.status not in PLAIN_STATUSES and not status:
+            findings.append(
+                Finding(
+                    row.path,
+                    row.line,
+                    "log",
+                    f'{row.id} has a status outside the set: "{row.status}"',
+                )
+            )
+        if status and status.group("adr") and status.group("adr") not in adrs:
+            findings.append(
+                Finding(
+                    row.path,
+                    row.line,
+                    "log",
+                    f"{row.id} is promoted to {status.group('adr')}, which does not exist",
+                )
+            )
+        replaced_rows, replaced_adrs = _superseded_by_row(row.question)
+        for old in sorted(replaced_rows):
+            if old not in first:
+                findings.append(
+                    Finding(
+                        row.path, row.line, "log", f"{row.id} supersedes {old}, which no log holds"
+                    )
+                )
+            elif row.id not in _status_rows(first[old].status):
+                findings.append(
+                    Finding(
+                        row.path,
+                        row.line,
+                        "log",
+                        f"{row.id} supersedes {old}, but {old}'s status does not name {row.id}",
+                    )
+                )
+        for adr in sorted(replaced_adrs):
+            listed = {cited for _, cited in adrs.get(adr, ("", []))[1]}
+            if adr not in adrs:
+                findings.append(
+                    Finding(
+                        row.path,
+                        row.line,
+                        "log",
+                        f"{row.id} supersedes {adr}, which does not exist",
+                    )
+                )
+            elif row.id not in listed:
+                findings.append(
+                    Finding(
+                        row.path,
+                        row.line,
+                        "log",
+                        f"{row.id} supersedes {adr}, but its superseded_by does not list {row.id}",
+                    )
+                )
+        for new in sorted(_status_rows(row.status)):
+            if new not in first:
+                findings.append(
+                    Finding(
+                        row.path,
+                        row.line,
+                        "log",
+                        f"{row.id}'s status names {new}, which no log holds",
+                    )
+                )
+            elif row.id not in _superseded_by_row(first[new].question)[0]:
+                findings.append(
+                    Finding(
+                        row.path,
+                        row.line,
+                        "log",
+                        f"{row.id}'s status names {new}, "
+                        f"but {new} does not say it supersedes {row.id}",
+                    )
+                )
+    for adr, (relative, entries) in sorted(adrs.items()):
+        for number, cited in entries:
+            if cited not in first and cited not in adrs:
+                findings.append(
+                    Finding(
+                        relative,
+                        number,
+                        "log",
+                        f"{adr}'s superseded_by names {cited}, which does not exist",
+                    )
+                )
+    return findings
+
+
 # --- the script ---------------------------------------------------------------------------
 
 CHECKS: dict[str, Callable[[Path], list[Finding]]] = {
@@ -620,6 +850,7 @@ CHECKS: dict[str, Callable[[Path], list[Finding]]] = {
     "help": check_help,
     "routes": check_routes,
     "words": check_words,
+    "log": check_log,
 }
 
 

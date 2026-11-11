@@ -3,7 +3,7 @@ tags:
   - brief
 aliases:
   - Syngraphē glossary
-status: draft
+status: active
 date: 2026-09-21
 language:
   - en

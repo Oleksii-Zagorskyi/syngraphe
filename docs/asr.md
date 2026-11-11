@@ -3,7 +3,7 @@ tags:
   - technical-design
 aliases:
   - Syngraphē architecturally significant requirements
-status: draft
+status: active
 date: 2026-09-21
 ---
 

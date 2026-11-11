@@ -3,7 +3,7 @@ tags:
   - testing
 aliases:
   - Syngraphē test strategy
-status: draft
+status: active
 date: 2026-09-23
 last-updated: 2026-10-14
 ---
@@ -11,9 +11,6 @@ last-updated: 2026-10-14
 # Test strategy
 
 One shape of test for every epic, so no epic invents its own. It says which levels exist, the command that runs each, what CI runs, where the fixtures come from, and what *tests done* means for a story. A plan for a piece of work cites this document instead of repeating it.
-
-> [!note] Target state — in force from the first story that adds code
-> This is the plan the code is tested against, written before the code. It takes effect with the story that adds the package definition CI installs.
 
 ## What CI runs
 

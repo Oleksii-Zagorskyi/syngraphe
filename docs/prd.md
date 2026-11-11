@@ -3,14 +3,11 @@ tags:
   - prd
 aliases:
   - Syngraphē PRD
-status: draft
+status: active
 date: 2026-09-21
 ---
 
 # PRD — Syngraphē
-
-> [!note] Walking skeleton
-> Structurally complete, thin where grounding is thin. Sections resting on an open question name it inline.
 
 ## Goal
 

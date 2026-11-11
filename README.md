@@ -19,11 +19,11 @@ change.
 
 I am building it for a company I co-own, to replace exactly that arrangement.
 
-> **Status: in development.** Release 0.1 is the editing, review and approval
-> cycle. The AI half — a companion that runs analyses for the editor as
-> they work, and a reviewer that checks a document, or a whole corpus, against
-> a configurable set of heuristics — is release 0.2. What is here today is the design record and the
-> platform's foundation; the rest of the release follows.
+> **Status: in development.** Release 0.1, the editing, review and approval
+> cycle, is built on `main`; its production launch is next. The AI half — a
+> companion that runs analyses for the editor as they work, and a reviewer
+> that checks a document, or a whole corpus, against a configurable set of
+> heuristics — is release 0.2, not yet started.
 
 ## What it does
 
@@ -44,7 +44,8 @@ I am building it for a company I co-own, to replace exactly that arrangement.
 - **Export** to PDF, Word and Markdown, of a stated version.
 - **Separate organisations** on one platform, isolated at the database.
 
-The interface is Ukrainian, and each document is written in one language.
+The interface is Ukrainian or English, as each person chooses, and each
+document is written in one language.
 
 ## How it works
 

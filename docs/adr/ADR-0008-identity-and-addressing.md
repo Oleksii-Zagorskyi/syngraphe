@@ -3,7 +3,7 @@ tags:
   - adr
 aliases:
   - ADR-0008 Identity and addressing
-status: approved
+status: accepted
 date: 2026-09-26
 supersedes: []
 superseded_by: []

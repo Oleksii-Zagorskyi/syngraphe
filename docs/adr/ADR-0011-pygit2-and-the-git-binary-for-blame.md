@@ -6,7 +6,8 @@ aliases:
 status: accepted
 date: 2026-09-27
 supersedes: []
-superseded_by: []
+superseded_by:
+  - DL-0425 (in part — the undo walks each line forward with the move rule, not by reverse blame)
 ---
 
 # ADR-0011: pygit2 for the repository, the git binary for blame

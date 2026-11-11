@@ -3,7 +3,7 @@ tags:
   - story
 aliases:
   - Syngraphē user stories — stage 1
-status: draft
+status: active
 date: 2026-09-21
 ---
 
