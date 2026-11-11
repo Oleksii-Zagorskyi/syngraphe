@@ -298,3 +298,38 @@ def test_the_reserved_refusal_dates_in_the_display_timezone(
     page = reviewer.get(f"/document/{document.number}/pending/").content.decode()
     assert "14 October 2026" in page
     assert "13 October 2026" not in page
+
+
+def test_an_acceptance_lost_with_its_repository_is_reported_alone(
+    migrated_tenant: Any, cast: Any, commit_version: Any, repository: Any
+) -> None:
+    """A repository restored from bundles that ended before an accepted run leaves the run's rows
+    and the acceptance's naming commits that are gone. The report names those rows and nothing
+    read from them; the reconciler's repair prunes them when told to."""
+    import subprocess
+
+    from documents import gitstore, reconcile
+
+    people = cast(editors=("a",), reviewers=("r",))
+    document = people.document
+    before = repository.head(document)
+    edit = commit_version(document, people["a"], FIRST, "edit")
+    with schema_context(migrated_tenant.number):
+        services.accept(document, people["r"])
+    accepted = repository.head(document)
+    # The repository as its bundles left it: the run, its acceptance and their objects are gone,
+    # their rows not.
+    path = gitstore.repository_path(migrated_tenant.number, document.number)
+    for command in (
+        ["update-ref", "refs/heads/main", before],
+        ["reflog", "expire", "--expire=now", "--all"],
+        ["gc", "--quiet", "--prune=now"],
+    ):
+        subprocess.run(["git", "-C", str(path), *command], check=True)
+    assert subprocess.run(["git", "-C", str(path), "cat-file", "-e", accepted]).returncode != 0
+
+    report = reconcile.run(tenant=migrated_tenant.number, document=document.number)
+
+    assert sorted((f.kind, f.detail) for f in report) == sorted(
+        [("row_without_commit", edit.commit_sha), ("row_without_commit", accepted)]
+    )

@@ -37,9 +37,9 @@ set --
 [ "$end_of_archive" = 1 ] && set -- "$@" --end-of-archive
 [ "$database_only" = 1 ] && set -- "$@" --database-only
 
-if verify="$($compose run --rm --no-deps --entrypoint sh backup -c \
+if verify="$($compose run --rm --no-deps -T --entrypoint sh backup -c \
     '/usr/local/bin/backup-env.sh && su postgres -s /bin/sh -c "pgbackrest --stanza=syngraphe verify --verbose"' \
-    2>&1)"; then
+    </dev/null 2>&1)"; then
     :
 elif [ "$despite_verify" = 1 ]; then
     printf '%s\n' "$verify" >&2

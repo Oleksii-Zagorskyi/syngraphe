@@ -686,6 +686,39 @@ def test_a_restored_repository_is_replayed_by_the_reconciler(
     assert [f.kind for f in reconcile.run(tenant=migrated_tenant.number)] == ["authorship_missing"]
 
 
+def test_rows_past_a_restored_repository_are_reported_alone(
+    migrated_tenant: Any, created: Any, repo_root: Path
+) -> None:
+    """A repository restored from bundles that ended before its newest commit leaves rows whose
+    commit is gone. The report names those rows and nothing read from them: what the other checks
+    would find is meaningless until the rows are pruned."""
+    from documents import gitstore, reconcile
+
+    document, user = created
+    path = gitstore.repository_path(migrated_tenant.number, document.number)
+    before = subprocess.run(
+        ["git", "-C", str(path), "rev-parse", "main"], capture_output=True, check=True, text=True
+    ).stdout.strip()
+    edit = _edit(migrated_tenant.number, document, user, "A sentence the bundles never held.")
+    reconcile.run(tenant=migrated_tenant.number, repair=True)
+    with schema_context(migrated_tenant.number):
+        _authored(migrated_tenant.number, document)
+    assert reconcile.run(tenant=migrated_tenant.number) == []
+    # The repository as its bundles left it: the edit's commit and its objects are gone, its rows
+    # are not.
+    for command in (
+        ["update-ref", "refs/heads/main", before],
+        ["reflog", "expire", "--expire=now", "--all"],
+        ["gc", "--quiet", "--prune=now"],
+    ):
+        subprocess.run(["git", "-C", str(path), *command], check=True)
+    assert subprocess.run(["git", "-C", str(path), "cat-file", "-e", edit]).returncode != 0
+
+    report = reconcile.run(tenant=migrated_tenant.number)
+
+    assert [(f.kind, f.detail) for f in report] == [("row_without_commit", edit)]
+
+
 def test_a_head_of_any_kind_without_rows_is_asked_for(
     migrated_tenant: Any, member_of: Any, repo_root: Path, queued_authorship: list[Any]
 ) -> None:

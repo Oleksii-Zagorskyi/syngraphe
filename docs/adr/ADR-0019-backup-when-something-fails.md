@@ -7,7 +7,8 @@ status: accepted
 date: 2026-09-28
 supersedes:
   - ADR-0018 (in part — the complete set, the interval, the lock's scope, how the run learns of a base backup, the restore target, retention, continuous archiving during a store outage, and who can delete from the store)
-superseded_by: []
+superseded_by:
+  - DL-0545 (in part — that `pgbackrest verify` reports a gap in the archive)
 ---
 
 # ADR-0019: Backup when something fails — clean markers, chains kept by count, a store the host cannot empty

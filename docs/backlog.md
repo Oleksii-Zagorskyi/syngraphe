@@ -471,3 +471,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The outline is drawn when the edit tab opens; it is a navigation aid, and a person who changes headings sees it right again on reopening.
 
 **What has to be true before it is taken up.** A person is seen relying on an outline that has fallen out of date with the text they are editing.
+
+## B-063 — A hole in the archive, found before recovery
+
+**Idea.** Before a restore, list the archive's segment names in the store and report a segment missing between two that are present, with the moment the continuous range ends, so the plan names the hole instead of PostgreSQL stopping at it (DL-0545).
+
+**Why it is parked.** `pgbackrest verify` does not report such a hole; recovery stops at it and the restore runs again to the end of the archive (DL-0314), and a full base backup taken at once after a store outage starts the archive again beyond it.
+
+**What has to be true before it is taken up.** A restore meets a hole the operator did not expect, or an archive is found with a hole older than the newest base backup that a restore to a point before that backup would need.
