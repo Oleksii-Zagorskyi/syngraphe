@@ -423,6 +423,7 @@ erDiagram
         string base_commit "the head's commit when the hold was taken (DL-0318)"
         json content "per-file working text: body, each listed appendix under appendices/<n>.md, frontmatter with its lists, entities.yaml (the head's when the hold was taken, and every declaration made since); after a reviewer's revert, revert: each part put back, with the head it was taken from and what was staged; after an undo, undo: the versions undone and the places left for the holder's hand, each with its wording before, what the undone versions wrote and what stands now — an appendix's place with the appendix's title — and an entry naming a title, a part or the entities the undone versions changed — those stand — never in the text (DL-0380)"
         datetime updated_at
+        json opening "what the edit tab opens with, read from this draft by the worker after a capture: whether it holds edits and the declarations Mark offers, under a key over every input they were read from; read again when the key no longer matches, never trusted otherwise (DL-23-001)"
     }
     DRAFT ||--o{ DRAFT_FILE : stages
     DRAFT_FILE {
