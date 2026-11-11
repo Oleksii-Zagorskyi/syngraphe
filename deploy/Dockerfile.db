@@ -3,7 +3,7 @@
 FROM postgres:16
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends pgbackrest cron jq \
+    && apt-get install -y --no-install-recommends pgbackrest cron jq ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && pgbackrest version | awk '{split($2, v, "."); if (v[1] < 2 || (v[1] == 2 && v[2] < 46)) exit 1}' \
     && mkdir -p /var/spool/pgbackrest /var/log/pgbackrest /run/backup \
