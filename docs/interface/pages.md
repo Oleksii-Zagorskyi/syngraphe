@@ -18,7 +18,7 @@ The pages of release 0.1: what each holds, which right each control needs, the s
 | Marker | Meaning |
 |---|---|
 | **0.1** | built in release 0.1, by the epic named |
-| **0.2** | the AI half, release 0.2 |
+| **0.2** | the AI reader, release 0.2 |
 | **later** | after 0.1, not yet assigned to a release |
 
 **Rights decide what renders.** A control a user may not use is never drawn for them (ADR-0004, ADR-0007). A page or item the user may not see answers exactly as one that does not exist (ADR-0008). **A column, filter or choice that can never hold anything for this person is not drawn** (DL-0233, DL-0236), and a point of the document's path with nothing to show is not offered (DL-0518).

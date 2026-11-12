@@ -75,7 +75,7 @@ A second consequence worth stating: a development host that holds real tenant do
 
 **Who:** the model provider, and anyone who later obtains their logs. **How:** ordinary operation. Document content — and, for a reviewer run, the confidential guidance — is sent to a third-party API.
 
-**Answered by:** nothing yet, but the choice is no longer foreclosed — the runtime is a **provider interface** (DL-0120), so a self-hosted model implements the same interface without rework. This remains the largest residual risk in the system and a **business decision, not a technical one**: a contractual no-training and no-retention commitment, a self-hosted model, or keeping the guidance out of agent context entirely and accepting weaker review. It must be decided before stage 2 ships, and a tenant will eventually ask.
+**Answered by:** an **accepted risk, decided for release 0.2** (DL-0560): the document's text, and for the reviewer's guidance run the guidance, go to the provider's API under its commercial terms, whose retention and training clauses the model-and-provider ADR cites from the provider's published text. Text leaves only for a document to which the tenant administrator has assigned a companion action or a side-document type, so each organisation decides document by document (DL-0049). The runtime stays a **provider interface** (DL-0120), so a self-hosted model, or a provider an organisation chooses (EP-0001), implements the same interface without rework. It remains the largest residual risk in the system, and a tenant will eventually ask.
 
 ### T-04 — A tenant reaches another tenant's data
 
@@ -204,7 +204,7 @@ Two changes, both cheap now:
 
 ## Accepted risks
 
-- **Content is sent to a third-party model** (T-03). The largest residual risk in the system; an owner decision, required before stage 2 ships.
+- **Content is sent to a third-party model** (T-03). The largest residual risk in the system; accepted for release 0.2 (DL-0560), and nothing is sent for a document assigned no analysis.
 - **An operator with database and filesystem access can alter the record consistently** (T-07). Signing and off-site replication are the answers and neither is in stage 1.
 - **A reviewer may accept their own work** (T-08). Taken knowingly; the control is the record.
 - **An organisation's stylesheet may hide text in its background's colour, or shade text like a change mark** (T-23). Taken knowingly; every change to the stylesheet is audited with its text (DL-0477).

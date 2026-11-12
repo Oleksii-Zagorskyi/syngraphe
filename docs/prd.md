@@ -49,10 +49,10 @@ Named by the action performed, never by corporate title (DL-0017). A person hold
 | reader | reads | canonical documents |
 | editor | edits, commits; with *reserve for editing*, keeps a document for weeks | whole document |
 | reviewer | accepts changes; edits, and corrects before accepting, including their own (ADR-0016) | whole document |
-| decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
+| decider *(later — EP-0002)* | rules on Statement entries, choosing the surviving wording | document |
 | approver | makes an accepted document canonical, frozen or not (DL-0515) | document |
 | pending edits viewer | sees committed, unaccepted changes | whole document |
-| tenant administrator | users, document sets, role assignments, the document template and its title page layout, the organisation's stylesheet (DL-0169, DL-0230, DL-0462, DL-0464); from stage 2, heuristic selection | tenant |
+| tenant administrator | users, document sets, role assignments, the document template and its title page layout, the organisation's stylesheet (DL-0169, DL-0230, DL-0462, DL-0464); from release 0.2, which companion actions and side-document types each document carries — never the heuristics beneath them (DL-0049) | tenant |
 | platform administrator | the platform; from stage 2, the seeded heuristic catalogue and the base prompts | platform |
 
 Board approval is recorded by one designated person; quorum and voting happen outside the software (DL-0017).
@@ -69,7 +69,7 @@ One editing sequence per document. No branches, no forks, no merges, and therefo
 2. Edits are **captured continuously** — there is no Save control. The draft persists so a closed laptop loses nothing; it is not yet a version and nobody else can see it.
 3. **Undo** works within the editing session.
 4. From release 0.2, at any point the editor may **call companion actions** — individually, not all of them — to answer *"what do my changes introduce so far?"*. Results are cached against the content, so asking twice about unchanged text costs nothing.
-5. **There is no Save button.** In its place is *finish editing*. Pressing it shows the holder's changes, the part operations and the change summary, which starts from a mechanical draft naming the sections touched (DL-0261) — the companion analyses join them in release 0.2 — and its choices: **continue editing**, **send for review** — or, for a holder of *accept*, **accept as N.M** and **create version N.M-X** — and **discard my edits**, which asks for confirmation and throws the whole draft away.
+5. **There is no Save button.** In its place is *finish editing*. Pressing it shows the holder's changes, the part operations and the change summary, which starts from a mechanical draft naming the sections touched (DL-0261) — the companion analyses join them in release 0.2 — and its choices: **continue editing**, **send for review** — or, for a holder of *accept*, **accept as N.M** and **create version N.M-X** — and **discard my edits**, which asks for confirmation and throws the whole draft away — from release 0.2, the text a companion action read stays in the operator's traces (DL-0562).
 6. **Send for review commits** (DL-0054). From release 0.2, the analyses are written into the same commit as the content, so no identifier has to be resolved after the fact — they are part of the tree, and they are what the reviewer reads as the change's description.
 7. Versions accumulate, attributed, until a reviewer accepts a run of them.
 
@@ -145,13 +145,13 @@ Where the reviewer wants corrections, they edit: a correction is a version of th
 
 **In stage 1** the platform generates a **correction notice** at acceptance for each author whose lines of the run a version by a holder of *accept* replaced or removed, or whose appendix or attachment operation it reversed — one notice per author, listing what they wrote, what was accepted and who changed it (ADR-0014) — delivered through the notification surface. Generated rather than authored, so the reviewer has no discretion about whether the author finds out. The reviewer may instead **return the run without accepting it**, with a reason — recorded as a passport commit like an acceptance, so the decision travels with the document (DL-0114). The next send presents the whole run since the last acceptance, returned versions included.
 
-*Stage 2, at low fidelity:* the notice becomes a durable **rejection record** the editor may escalate into the **Statement of Disagreements**, settled by agreement between editor and reviewer, or by the **decider** on deadlock (DL-0026, DL-0076).
+*Later, with disputes (EP-0002, not in release 0.2 — DL-0550), at low fidelity:* the notice becomes a durable **rejection record** the editor may escalate into the **Statement of Disagreements**, settled by agreement between editor and reviewer, or by the **decider** on deadlock (DL-0026, DL-0076).
 
 Acceptance is a **document-level act** covering the whole run since the last accepted version (DL-0090). Accepting only part of a run is a backlog refinement.
 
 ## Editions
 
-**Making a document canonical** makes its latest accepted version the next **edition**, while nobody holds it and nothing committed since that acceptance awaits review; it needs no freeze first (DL-0515). A document is **frozen** while something outside it is resolved — an approval that takes time, a discussion with whoever approves, work elsewhere — and only its reviewers may edit it meanwhile (DL-0189). The freeze ends by making the document canonical, or by unfreezing it. From stage 2, a document cannot be made canonical while any Statement entry is open (DL-0010, deferred with the register, DL-0076); in stage 1 nothing gates it but the approver and the checks above. A new editing cycle may start against a canonical document at any time.
+**Making a document canonical** makes its latest accepted version the next **edition**, while nobody holds it and nothing committed since that acceptance awaits review; it needs no freeze first (DL-0515). A document is **frozen** while something outside it is resolved — an approval that takes time, a discussion with whoever approves, work elsewhere — and only its reviewers may edit it meanwhile (DL-0189). The freeze ends by making the document canonical, or by unfreezing it. Once disputes arrive (EP-0002), a document cannot be made canonical while any Statement entry is open (DL-0010, deferred with the register, DL-0076, DL-0550); until then nothing gates it but the approver and the checks above. A new editing cycle may start against a canonical document at any time.
 
 ## What the agents look for
 
@@ -160,12 +160,14 @@ Three levels, and only the platform administrator sees the bottom one (DL-0049).
 | | What it is | Platform administrator | Tenant administrator | Editor |
 |---|---|---|---|---|
 | **heuristic** | one focused piece of prompt text | creates, edits | cannot see | cannot see |
-| **companion action** | a set of heuristics producing a user-facing analysis | creates, edits | sees title and description; attaches to a document | calls it |
-| **side-document type** | a set of heuristics producing and maintaining a generated view | creates, edits | sees title and description; attaches to a document | reads the view |
+| **companion action** | a set of heuristics producing a user-facing analysis | creates, edits | sees title and description; assigns to a document | calls it |
+| **side-document type** | a set of heuristics producing and maintaining a generated view | creates, edits | sees title and description; assigns to a document | reads the view |
 
 The tenant's lever is the composed action, not its ingredients. Keeping prompt text out of reach of anyone who could write to the test is the point.
 
 The catalogue of what the heuristics look for is [`review-findings.md`](review-findings.md). Every run records the heuristics and versions it used; every finding names the heuristic that produced it.
+
+**Release 0.2 carries the catalogue's first cut** (DL-0555): contradiction, ambiguity, a gap inside the declared scope, one term with two meanings, circular authority and an obligation nobody owns, inside the document (A1 to A6); contradiction with another document, an override of a matter another document governs, a broken outbound reference and a term collision across the base (B1, B2, B3, B5); a conflict with the confidential guidance (C1); a citation of a superseded edition (C3); and what the run changes in a role's obligations (D1). **Where a deterministic check answers a heuristic exactly, no model is called** (DL-0551); in 0.2 none does, since marking roles, actions and terms is done by hand and optional, and the model reads them from the text (DL-0559). Each finding quotes the passages it rests on, and a quote the platform cannot find in the text withholds the finding. **A heuristic ships only at its eval target** (DL-0554).
 
 ### How a user reaches an agent
 
@@ -181,42 +183,57 @@ From stage 2, on sending for review the editor sees the analyses that will trave
 
 **Scope (DL-0032):** the companion reports only what this editor is introducing. The reviewer agent reports introduced, pre-existing, resolved and aggravated findings, separated.
 
+### When an analysis is not right
+
+Each analysis carries one control, ***not right*** (DL-0554). It **informs the developer that the software got it wrong** — a signal about the analysis, never about the document's sense or a disagreement with its prose. It marks the whole analysis, never one finding: a person says whether the output is right, and judging each heuristic's work is the developer's job, done in the developer's own tooling. In release 0.2 the mark also **hides the analysis from every view, for everyone**, as a safety valve while the prompts are new; the analysis is kept where it is stored, and the mark names who set it and when. Only the hiding is temporary: the mark stays as the measure of how often real analyses are wrong, and when the hiding ends is decided from the traces.
+
+### Every run is traced
+
+Every model call is recorded against the exact prompt version it ran and that version's eval results (DL-0552, DL-0553, DL-0554). A trace holds references, not the text of committed documents — each document by its repository and the commit it was read at — and keeps as text only an uncommitted draft, which has no history to point to. The output is referenced where the platform stores it. Traces are read by whoever operates the installation, from the command line on its host; no role in the web interface reads them.
+
 ## Generated views
 
-Maintained by nobody who writes documents. Release 0.1 has two — the role directory and *see also* — which the platform derives from the version shown each time it is read (DL-0448). The rest are stage 2: maintained by the agent and by nobody else, each with its own history (DL-0044). Two classes (DL-0063):
+Maintained by nobody who writes documents. Release 0.1 has two — the role directory and *see also* — which the platform derives from the version shown each time it is read (DL-0448). The rest are maintained by the agent and by nobody else (DL-0044). Two classes (DL-0063):
 
-**Mandatory** — recompiled on every commit:
+**Mandatory:**
 
-- **Directory of roles** — rights and obligations per role, with links back to the sections they come from.
-- **Directory of controls** — what the document says is controlled, and how.
-- **Contradictions**, **ambiguities**, **blind spots** — document-wide standing lists, a working backlog editors and reviewers act against, not a per-commit report.
+- **Directory of roles** — rights and obligations per role, with links back to the sections they come from. Derived at render since release 0.1.
+- **Contradictions**, **ambiguities**, **blind spots** — release 0.2. Document-wide standing lists, a working backlog editors and reviewers act against, not a per-commit report. They are **the standing findings set shown as lists**, computed once per accepted state and refreshed when that state changes, and holding only findings derived from the document alone, so every reader of the document sees the same lists (DL-0032, DL-0555).
+- **Directory of controls** — what the document says is controlled, and how. *Not in release 0.2* (DL-0555).
 
-**Voluntary** — generated on request. A **job description** carrying a role's rights and obligations is the example. A voluntary view may also **seed an authored document**: the platform drafts it, a human takes it over, and from then on it is an ordinary document with its own pipeline. The view stays agent-only; what is seeded is a copy under human authorship, never an edited view.
+**Voluntary** — generated on request; *not in release 0.2* (DL-0555). A **job description** carrying a role's rights and obligations is the example. A voluntary view may also **seed an authored document**: the platform drafts it, a human takes it over, and from then on it is an ordinary document with its own pipeline. The view stays agent-only; what is seeded is a copy under human authorship, never an edited view.
 
-Both directories can render beside the document or be embedded in an export. Scope starts per document and extends to the whole repository later, since two policies can regulate one role. For a holder of the guidance grant, each list carries an **addendum** computed against the confidential requirements, visible only to them.
+The directories can render beside the document or be embedded in an export. Scope starts per document and extends to the whole repository later, since two policies can regulate one role. For a holder of the guidance grant, each list may later carry an **addendum** computed against the confidential requirements, visible only to them — *not in release 0.2* (DL-0555).
 
 ## Document ADRs
 
-When a person changes the *logic* rather than the wording, a decision record is generated beside the document: who decided, when, why, and what the alternatives were (DL-0045). The agent pre-authors it; the person edits it or leaves it. One record covers one decision however many passages it touches — changing who approves a budget may rewrite fifteen of them.
+*Not in release 0.2* (DL-0555). When a person changes the *logic* rather than the wording, a decision record is generated beside the document: who decided, when, why, and what the alternatives were (DL-0045). The agent pre-authors it; the person edits it or leaves it. One record covers one decision however many passages it touches — changing who approves a budget may rewrite fifteen of them.
 
 ## Staging
 
 **Stage 1 — editor, diff viewer, versions, review and acceptance.** A working editor users can use the next morning.
 **Stage 2 — the agents and the generated views.**
-Stage 1 is release 0.1; stage 2 begins with release 0.2.
+Stage 1 is release 0.1; stage 2 begins with release 0.2, which carries its findings and leaves its other generated artefacts for later (DL-0555).
 Architecture is designed for both now so stage 2 does not rebuild stage 1 (DL-0043, ASR-11).
 
 ## Scope
 
 **In, release 0.1:** multi-tenancy with schema isolation; the linear cycle above; the interface in Ukrainian or English per person (DL-0498), and per-document language; entities marked by people, with the role directory and *see also* derived from them; manual cross-document links; canonical documents readable as wiki pages; appendices and attachments; export to Markdown, PDF and DOCX, composed by scope and view and written in the document's language (DL-0172, DL-0502); stances, history, holds shown to readers, the edit-authors checkbox.
 
-**In, from release 0.2:** heuristics and both agents; entities proposed by the agent and confirmed by a person; the other generated views; disputes.
+**In, release 0.2 — the AI reader** (DL-0555, DL-0558): companion actions, mid-edit and reporting only what the editor introduces; the reviewer agent at send for review, with introduced, pre-existing, resolved and aggravated findings over the standing findings set; its reviewer-eyes-only run against the confidential guidance; the catalogue's first cut, with the deterministic checks; the contradiction, ambiguity and blind-spot lists; the catalogue's administration — heuristics, companion actions and side-document types for the platform administrator, their assignment to documents by the tenant administrator; prompts under version control with their evals, the traces, the model jobs and the *not right* mark. And three items that are not AI (DL-0556): the data retention and erasure procedure (B-017), the Platform part of Administration drawn only on a platform host (B-067), and the guide for the people who use the platform daily (B-016).
 
-**Out:** everything in [`backlog.md`](backlog.md) — Word import, automatic review of connected documents, repository-scope views, style linting, tenant-authored heuristics, the MCP server, and work items derived from the views. Plus per-tenant role-set configuration and board voting.
+**Out:** everything in [`backlog.md`](backlog.md) — Word import, automatic review of connected documents, repository-scope views, style linting, tenant-authored heuristics, the MCP server, work items derived from the views, comments, and disputes (DL-0550). From the stage-2 design, not in release 0.2 (DL-0555): the control directory, voluntary views and the seeding of an authored document, document ADRs, entities proposed by the agent, and the companion's draft of the change summary. Visual design and interface polish. Plus per-tenant role-set configuration and board voting.
 
 ## Success criteria
 
-A reviewer and an editor who have never seen git complete one full cycle on a policy without meeting git vocabulary, and the canonical edition exports naming its version, with its acceptances and approval traceable in the platform's history; disputes join from stage 2.
+**Release 0.1:** a reviewer and an editor who have never seen git complete one full cycle on a policy without meeting git vocabulary, and the canonical edition exports naming its version, with its acceptances and approval traceable in the platform's history.
+
+**Release 0.2** (DL-0554), all four:
+
+1. Every heuristic that ships is at its eval target, with its results dated and committed.
+2. An editor and a reviewer complete a full cycle with the analyses on the send-for-review screen and in review, without meeting prompt, model or heuristic vocabulary.
+3. In production, the share of analyses marked *not right* stays under the ceiling the evaluation strategy sets for each action, read from the traces.
+4. Every model call in production traces to its prompt version and that version's eval results.
 
 ## Publication
 

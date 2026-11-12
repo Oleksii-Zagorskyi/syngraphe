@@ -305,11 +305,13 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **release** · реліз · *fixed* — a numbered delivery of the platform: 0.1, then 0.2.
 
+**AI reader** · ШІ-читач · *proposed* — release 0.2: the agents that read a document and report what they find, writing nothing into it (DL-0558). Not the **reader** role, a person who holds a viewing right.
+
 ---
 
 ## Agent concepts — stage 2
 
-Not in the first release. Listed so the vocabulary is settled before it is built.
+From release 0.2, the AI reader (DL-0558). Listed so the vocabulary is settled before it is built.
 
 **companion** · помічник · *proposed* — the agent that assists an editor. Sees only what that editor may read.
 
@@ -325,7 +327,7 @@ Not in the first release. Listed so the vocabulary is settled before it is built
 
 **review scope** · обсяг розгляду · *proposed* — the set of documents a reviewer puts in scope for one review. Neighbours are read at their accepted state unless the reviewer switches one to pending (DL-0104).
 
-**dispute** · розбіжність · *proposed* — a recorded disagreement over a passage. Stage 2.
+**dispute** · розбіжність · *proposed* — a recorded disagreement over a passage. Later — not in release 0.2 (EP-0002, DL-0550).
 
 ---
 
@@ -336,6 +338,8 @@ English only. If one of these reaches the interface, that is a defect.
 **tenant** — an organisation's isolated workspace, one PostgreSQL schema.
 
 **content state** — a hash of a document's tree, the key an analysis is cached against.
+
+**AI workbench** — the machinery the platform's model work runs on: the prompts and their evals, the command that loads the prompts, the developer's command-line tooling that runs and measures them, the traces and the model jobs (DL-0557).
 
 **provenance tag** — the set of sources a finding was derived from, which decides who may see it.
 

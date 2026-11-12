@@ -69,7 +69,7 @@ Deferred at DL-0004, superseded by DL-0046. The sense-versus-style hunk split ex
 
 ## B-005 — Tenant-authored heuristics
 
-Deferred at DL-0049. Tenants attach composed actions and side-document types; authoring the heuristics underneath stays with the platform administrator until a tenant asks.
+Deferred at DL-0049. Tenants assign composed actions and side-document types to documents; authoring the heuristics underneath stays with the platform administrator until a tenant asks.
 
 ## B-006 — MS Word import
 
@@ -93,6 +93,8 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **What has to be true before it is taken up.** Met with release 0.1 — the review cycle works end to end; taken up when the first colleagues outside the build start work.
 
+**Taken up (DL-0556):** ST-0097, written once the analyses are on the screens.
+
 ## B-017 — Data retention and erasure procedure
 
 **Idea.** The procedure that turns the data model's erasure shape into something an administrator can carry out: who may ask, who decides, what is cleared — the tombstone keeps the identifier and clears name and address (DL-0108) — what is kept and for how long, how an export already made is treated, and how the request is recorded.
@@ -100,6 +102,8 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 **Why it is parked.** The mechanism exists in the data model; the procedure that uses it is operational and needs no code until real people's data is held.
 
 **What has to be true before it is taken up.** **Before the first real document is loaded.** A real document brings real authors, and an erasure request arriving before the procedure exists would be answered by improvisation.
+
+**Taken up (DL-0556):** ST-0096; the procedure also covers the draft text a trace keeps (DL-0553).
 
 ## B-018 — Accessibility position
 
@@ -208,6 +212,8 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 **Why it is parked.** No model job exists before 0.2, and the answer depends on how the jobs behave against a real provider — its failures, its limits, its cost per repeat. Settling it now would plan a known unknown.
 
 **What has to be true before it is taken up.** The 0.2 agent runs are being designed (DL-0120).
+
+**Taken up (DL-0555):** the model jobs of release 0.2 (ST-0094); the attempts and their limits are settled in its design.
 
 ## B-032 — A source view with line numbers
 
@@ -511,3 +517,85 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** On an organisation's own domain a platform administrator is drawn the five sections, and each answers *Nothing to show here*: the pages refuse there, the menu does not know it. Nothing is shown that should not be; a control is drawn that cannot be used, against the rule that such a control is never drawn.
 
 **What has to be true before it is taken up.** Release 0.2 starts.
+
+**Taken up (DL-0556):** ST-0095.
+
+## B-068 — The control directory
+
+**Idea.** A generated view of what a document says is controlled, and how: each control, the role that performs it, the passage it comes from (DL-0044, DL-0063).
+
+**Why it is parked.** Release 0.2 carries the findings, not every generated artefact (DL-0555): the view needs a prompt and an eval set of its own and a surface beside the document.
+
+**What has to be true before it is taken up.** The standing lists of release 0.2 are in real use, and a reviewer or an auditor has been observed compiling a document's controls by hand.
+
+## B-069 — Voluntary views and the seeding of an authored document
+
+**Idea.** A view generated on request — a job description carrying a role's rights and obligations is the example — which may seed an authored document: the platform drafts it, a person takes it over, and from then on it is an ordinary document (DL-0063).
+
+**Why it is parked.** Not in release 0.2 (DL-0555): a prompt that writes prose is judged differently from one that finds problems, and seeding needs a flow of its own from a view to a new document.
+
+**What has to be true before it is taken up.** Someone has been observed writing a job description, or a similar document, from a policy by hand.
+
+## B-070 — Document ADRs
+
+**Idea.** When a person changes a document's logic rather than its wording, a decision record is drafted beside it — who decided, when, why, the alternatives — which the person edits or leaves (DL-0045).
+
+**Why it is parked.** Not in release 0.2 (DL-0555): it needs a judgment of *logic or wording* on every change, a drafting prompt, and an editor for the record beside the document.
+
+**What has to be true before it is taken up.** The findings of release 0.2 run reliably, and a reviewer has been observed asking why a passage's logic changed.
+
+## B-071 — Entities proposed by the agent
+
+**Idea.** The agent proposes the roles, actions and terms a text names, and a person confirms each before it enters the document's entity layer (DL-0005).
+
+**Why it is parked.** Not in release 0.2 (DL-0555): proposals written into the editor's flow are the riskiest interface the stage-2 design holds, and marking by hand works since release 0.1.
+
+**What has to be true before it is taken up.** Authors have been observed leaving roles unmarked often enough that the role directory misses them.
+
+## B-072 — The companion's draft of the change summary
+
+**Idea.** The companion drafts the change summary on the send-for-review screen from the actual changes, in words, for the editor to accept or edit (DL-0039), in place of the mechanical draft that names the sections touched (DL-0261).
+
+**Why it is parked.** Not in release 0.2 (DL-0555): it is not a finding, and the quality of a summary is hard to label in an eval.
+
+**What has to be true before it is taken up.** Editors are observed rewriting the mechanical draft from nothing, or leaving it as it is where a reviewer needed more.
+
+## B-073 — Withdrawing the hiding of an analysis marked *not right*
+
+**Idea.** End the hiding that the *not right* mark carries in release 0.2, keeping the mark itself as the measure of how often real analyses are wrong (DL-0554).
+
+**Why it is parked.** The hiding is a safety valve while the prompts are new; withdrawing it before they are reliable would put wrong analyses back in front of reviewers.
+
+**What has to be true before it is taken up.** Whoever develops the platform judges, from the traces — what was marked, and the trends over time — that the prompts give reliable results. A judgment, not a threshold (DL-0554).
+
+## B-074 — The standing lists' guidance addendum
+
+**Idea.** For a holder of the guidance grant, each standing list carries an addendum computed against the confidential guidance, visible only to them (DL-0044).
+
+**Why it is parked.** In release 0.2 the lists hold only findings derived from the document alone, so every reader sees the same lists and nothing is filtered per person (DL-0555); the guidance findings of a run stay in the reviewer-eyes-only analysis.
+
+**What has to be true before it is taken up.** A holder of the guidance grant has been observed needing the document's standing conflicts with the guidance outside any one review.
+
+## B-075 — Retiring entity marking
+
+**Idea.** If the agents find roles, actions and terms in the prose well enough without marking (DL-0559), remove marking from the editor and the stored form, and the role directory with it or rebuilt from the agents' reading.
+
+**Why it is parked.** Marking is in use since release 0.1 (ST-0026), and whether the agents need it is what release 0.2's evals measure; removing a stored syntax touches every document's history and export.
+
+**What has to be true before it is taken up.** The first cut's heuristics reach their targets on unmarked text, and authors are seen leaving marking unused.
+
+## B-076 — Acting on a person's attempts to instruct the agents
+
+**Idea.** When text addressed to an automated reader is found in what a person writes, act on the person or the document — block the person after a number of attempts, hold the document from review — rather than only telling the administrators (DL-0561).
+
+**Why it is parked.** No threshold is known, and a policy about the use of AI may quote such text innocently; an automatic step on a false signal would punish a person for a policy's subject. Release 0.2 notifies the administrators and takes no step.
+
+**What has to be true before it is taken up.** The notifications of release 0.2 have been read in real use, and the administrators can say which of them were attempts and which were innocent.
+
+## B-077 — Clearing a discarded draft's text from the traces
+
+**Idea.** When an author discards a draft, clear the text a companion action read from the traces, keeping its hash and references (DL-0562).
+
+**Why it is parked.** The traces are the feedback loop that improves the agents, and a discarded draft is part of what they learn from; release 0.2 keeps it.
+
+**What has to be true before it is taken up.** An organisation or a person asks for it, or the provider and operator trust of EP-0001 is taken up.
