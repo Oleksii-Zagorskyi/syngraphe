@@ -40,11 +40,11 @@ import subprocess
 import sys
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from pathlib import Path
+from fnmatch import fnmatch
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parent.parent
 
-DECISION_LOG = "docs/design-record/decision-log.md"
 ADRS = "docs/adr"
 STORIES = "docs/user-stories.md"
 CLAIMS = "docs/verification-plan.md"
@@ -71,7 +71,7 @@ ID_PATTERNS = {
     "backlog": re.compile(r"\bB-\d{3}\b"),
 }
 DEFINED_IN = {
-    "decision": DECISION_LOG,
+    "decision": "the decision logs",
     "adr": ADRS,
     "story": STORIES,
     "claim": CLAIMS,
@@ -202,13 +202,14 @@ def _section(lines: list[str], heading: str) -> tuple[int, int]:
 
 
 def _decisions(root: Path) -> dict[str, str]:
-    """Each decision row's id and its lowercased status cell."""
-    decisions: dict[str, str] = {}
-    for line in _lines(root, DECISION_LOG):
-        match = DECISION_ROW.match(line)
-        if match:
-            decisions[match.group(1)] = _cells(line)[-1].lower()
-    return decisions
+    """Each decision row's id and its lowercased status cell, across the open log and every
+    release's closed one: the ids continue from one file to the next."""
+    return {row.id: row.status.lower() for row in _rows(root)}
+
+
+def _is_decision_log(relative: str) -> bool:
+    path = PurePosixPath(relative)
+    return path.parent.as_posix() == LOG_DIR and fnmatch(path.name, LOG_GLOB)
 
 
 def _defined_ids(root: Path) -> dict[str, set[str]]:
@@ -273,7 +274,7 @@ def check_ids(root: Path) -> list[Finding]:
             nearby = previous + " " + line
             previous = line
             for kind, pattern in ID_PATTERNS.items():
-                if kind == "decision" and relative == DECISION_LOG:
+                if kind == "decision" and _is_decision_log(relative):
                     continue
                 for cited in dict.fromkeys(pattern.findall(line)):
                     if cited not in defined[kind]:

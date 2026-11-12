@@ -846,6 +846,38 @@ def test_log_ids_unique_across_logs(check_record: ModuleType, tmp_path: Path) ->
     }
 
 
+def test_ids_read_every_decision_log(check_record: ModuleType, tmp_path: Path) -> None:
+    """A release's closed log and the open one both define rows: a row in either is cited
+    freely, a row the closed log marks superseded is still cited as history only, and a log's
+    own cells are not read as citations. With no open log, the closed one alone defines rows."""
+    kept, current, replaced, absent = _dl(401), _dl(402), _dl(403), _dl(499)
+    closed = "docs/design-record/decision-log-0.1.md"
+    _plant(
+        tmp_path,
+        {
+            closed: LOG_HEAD
+            + [
+                _row(kept, f"q naming {absent}", "active"),
+                _row(replaced, "q", f"superseded — {current}"),
+            ],
+            LOG: LOG_HEAD + [_row(current, f"(Supersedes {replaced}.) q", "active")],
+            "docs/prd.md": [
+                f"The lamp is lit at dusk ({kept}).",
+                f"The desk stands by the door ({replaced}).",
+                f"The shelf stands by the window ({current}).",
+                f"The chair is new ({absent}).",
+            ],
+        },
+    )
+
+    found = [(f.path, f.line) for f in check_record.check_ids(tmp_path)]
+    assert found == [("docs/prd.md", 2), ("docs/prd.md", 4)]
+
+    (tmp_path / LOG).unlink()
+    found = [(f.path, f.line) for f in check_record.check_ids(tmp_path)]
+    assert found == [("docs/prd.md", 2), ("docs/prd.md", 3), ("docs/prd.md", 4)]
+
+
 def test_log_the_verbs_that_replace_a_row(check_record: ModuleType, tmp_path: Path) -> None:
     """*Corrects*, *revises*, *rewrites* and *resolves* with a row for its object claim the row,
     as *supersedes* does; *resolves* a story, a contradiction or a question does not, nor does
