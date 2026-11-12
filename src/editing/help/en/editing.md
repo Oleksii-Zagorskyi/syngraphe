@@ -12,7 +12,7 @@ Text pasted from elsewhere is checked. A construct the editor does not accept is
 
 *My edits*, a checkbox in the editor's row, shows the whole document with your changes marked in place; it is enabled after your first edit.
 
-When you are done, choose *Finish editing*: the summary and its buttons stand above your changes. The summary is plain text of several lines — its first line is what every list of versions shows, at most 500 characters; the rest is kept with the version and read whole on its page and in the review page's panel, at most 5,000 characters in all. No line may begin with a word and a colon. Until your first edit, *Release the document* lets the document go and keeps nothing; after it, *Discard my edits…* throws your draft away, once you confirm in its window.
+When you are done, choose *Finish editing*: the summary and its buttons stand above your changes. The summary is plain text of several lines — its first line is what every list of versions shows, at most 500 characters; the rest is kept with the version and read whole on its page and in the review page's panel, at most 5,000 characters in all. A line that begins with a word in Latin letters, a colon and a space — *Note: …* — is refused: begin it another way. Until your first edit, *Release the document* lets the document go and keeps nothing; after it, *Discard my edits…* throws your draft away, once you confirm in its window.
 
 ## Images
 

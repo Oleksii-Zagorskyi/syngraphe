@@ -8,7 +8,8 @@ date: 2026-09-18
 amended: 2026-09-23
 title: Django owns the workflow, git is a library, and no forge remains
 supersedes: []
-superseded_by: []
+superseded_by:
+  - DL-0547 (in part — no git revert in the operation set; no read-only repository views)
 ---
 
 # ADR-0002: Django owns the workflow, git is a library, and no forge remains

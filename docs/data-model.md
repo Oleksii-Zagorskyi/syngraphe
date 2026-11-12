@@ -15,12 +15,20 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 
 **Git holds content. PostgreSQL holds everything else, and never a second copy of content.** The only content-derived rows are navigation and search indexes and the per-line authorship cache (`LINE_AUTHORSHIP`), all rebuildable from git at any time by replaying the repository. If a table would make git the second source of truth for a document's text, it is wrong.
 
-**Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on every table except those that are themselves the record of one act — the histories and `AUDIT_EVENT`, which carry their own timestamp and actor — three that are state without provenance: `SIGN_IN_ATTEMPT`, a counter no person writes, `SETUP_TOKEN`, written by the install command, and `PASSWORD_RESET`, written for whoever asks at the sign-in page, before anyone is known — swept a day after it is used or expires (DL-0413); the editing tables `HOLD`, `DRAFT`, `DRAFT_FILE` and `OPEN_EDITOR`, whose own columns say who and when; and `LINE_AUTHORSHIP`, a cache the worker derives from git, whose provenance is the commit it names.
+**Every row says where it came from.** Each table carries `created_at`, `created_by` and an `actor_kind` of `user`, `system` or `agent`; mutable tables add `updated_at` and `updated_by` (DL-0082). `actor_kind` exists because this platform has three kinds of actor, and an agent-written row attributed to a person would be a lie in the audit trail. The columns are omitted from the diagrams below to keep them readable — read them as present on every table except these:
+
+- the histories and `AUDIT_EVENT`, which carry their own timestamp and actor;
+- the review and edition records — `ACCEPTANCE`, `CORRECTION_NOTICE`, `CORRECTION_LINE`, `RETURN`, `FREEZE`, `EDITION` — which carry their own reviewer, approver and time;
+- `NOTIFICATION`, `PLATFORM_NOTIFICATION`, `MAIL_SENDER`, `EMAIL_OUTBOX`, `EXPORT_JOB` and `SAMPLE_EXPORT`, whose own columns say who asked or was told, and when;
+- the editing tables `HOLD`, `DRAFT`, `DRAFT_FILE` and `OPEN_EDITOR`, whose own columns say who and when;
+- three that are state without provenance: `SIGN_IN_ATTEMPT`, a counter no person writes; `SETUP_TOKEN`, written by the install command; `PASSWORD_RESET`, written for whoever asks at the sign-in page, before anyone is known, and swept a day after it is used or expires (DL-0413);
+- `LINE_AUTHORSHIP`, a cache the worker derives from git, whose provenance is the commit it names.
 
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
 - **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `PASSWORD_RESET`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, `SETUP_TOKEN`, `PLATFORM_NOTIFICATION`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203), so those two tables exist in both: the `mail` app is on both the shared and the tenant list, and a query reaches the tenant's rows when a tenant is set and the platform's only with the shared schema alone (ADR-0017). A person's `NOTIFICATION` lives in the tenant's schema, a platform administrator's `PLATFORM_NOTIFICATION` in the shared one (DL-0382). A reset's email is queued where DL-0383 places it — on an organisation's domain, that organisation's outbox; on the platform host, the outbox of the person's one active membership, else the shared one — and an organisation's outbox page leaves resets out (DL-0410).
 - **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
+- **The framework's own tables are in the shared schema and are not drawn**: the sign-in sessions (`django_session`, twelve hours), the content types (`django_content_type`), the log of the framework's administration site (`django_admin_log`), and the framework's group and permission tables, which the platform does not use. Each schema keeps its own record of its migrations.
 
 **`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
 
@@ -39,7 +47,7 @@ erDiagram
     USER {
         uuid id PK
         string email UK "platform identifier"
-        string display_name "set by its holder on their account page; unique, compared in NFKC without case or spaces, among the active and blocked members of each organisation they belong to; cleared on erasure, identifier kept (DL-0523, DL-0537)"
+        string display_name "set by its holder on their account page; unique, compared in NFKC without case, invisible format characters or repeated spaces, among the active and blocked members of each organisation they belong to; cleared on erasure, identifier kept (DL-0523, DL-0537)"
         string password_hash
         bool is_platform_admin
         bool is_tombstoned "former user (DL-0108); the procedure is backlog B-017"
@@ -77,7 +85,7 @@ erDiagram
     }
     PLATFORM_HOST {
         uuid id PK
-        string host UK "the main set; at least one, 127.0.0.1 out of the box"
+        string host UK "the main set; at least one, 127.0.0.1 and localhost out of the box"
         bool is_default "exactly one; builds the links in platform emails"
     }
     SETUP_TOKEN {
@@ -114,11 +122,11 @@ erDiagram
     TENANT {
         uuid id PK
         string name
-        string schema_name UK
-        int number UK "platform-wide, in creation order, never reused; names the tenant's directory (ADR-0008)"
+        string schema_name UK "tenant_N, derived from the number, never typed (ADR-0017)"
+        int number UK "platform-wide, from a sequence, in creation order, never reused; names the tenant's schema and directory (ADR-0008)"
         string state "migrating | active | blocked; migrating until its schema is fully migrated, resolvable by no request (ADR-0017); blocked closes it to all but platform administrators"
         bool require_distinct_approver "off by default (DL-0101, DL-0115)"
-        int attachment_max_bytes "5 MB by default, in whole MB from 1 to the upload maximum (DL-0166, DL-0458, DL-0469)"
+        int attachment_max_bytes "5 MB by default, in whole MB from 1 to the upload maximum (ADR-0005, DL-0458, DL-0469)"
         int hold_inactivity_minutes "30 by default, from 5 to 480 (ADR-0006, DL-0458)"
     }
     MEMBERSHIP {
@@ -162,7 +170,7 @@ erDiagram
     USER_PREFERENCE {
         uuid id PK
         uuid user FK
-        string key "language (DL-0501) | show_author | outline_width | panel_width | panel_view | ..."
+        string key "language (DL-0501) | show_author | outline_width | panel_width | outline_shut | panel_shut"
         string value
     }
     LANGUAGE {
@@ -252,8 +260,10 @@ erDiagram
     MAIL_SENDER {
         uuid id PK
         string host
-        int port
+        int port "1 to 65535"
         string address "the sending address; one per schema at most (DL-0202)"
+        bool one UK "always true: a unique column every row shares, so a schema holds one sender at most"
+        datetime updated_at
         string display_name "the sender's name in the From line, optional"
         string username "empty: no sign-in"
         bytes password_encrypted "authenticated encryption; key from the environment (DL-0384)"
@@ -270,7 +280,7 @@ erDiagram
     }
     ACCESS_GROUP {
         uuid id PK
-        string name
+        string name UK "per tenant; at most 100 characters"
     }
     GROUP_RIGHT {
         uuid id PK
@@ -303,22 +313,22 @@ erDiagram
 
 **`DOCUMENT.number` is the identity people use and never changes** (ASR-15, ADR-0008) — unique within the tenant, shown as `#7`, and the document's URL. `FOLDER` is presentation; moving a document rewrites one foreign key and nothing in git. **The repository on disk is `tenant-N/document-M/`** (ADR-0008) — `TENANT.number` and `DOCUMENT.number`, never a title; a directory named by title puts document titles, a confidential guidance document's included, into filesystem listings, backup manifests and operator shells that the access table does not govern.
 
-**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `active`; that it reaches only its author is `author_only`, not a state (DL-0260). Title, language, the title-page switch, the title page's own text (DL-0476) and the lists of appendices and attachments live in that frontmatter (DL-0174), which is what lets a repository restored without its row recover them. The reconciler finishes a creation that stopped — except a copy, whose source the audit trail names before its repository is touched: a stopped copy is left unfinished and reported, and the operator removes it (DL-0455) — and recreates the row of a repository without one, with no access, never deleting a repository.
+**`creating` is the state that exists because document creation is the one two-store write** (DL-0111): row written `creating`, repository initialised and given its first commit — `document.md` with frontmatter and a body taken from the organisation's `DOCUMENT_TEMPLATE` (DL-0169) — row becomes `active`; that it reaches only its author is `author_only`, not a state (DL-0260). Title, language, the title-page switch, the title page's own text (DL-0476) and the lists of appendices and attachments live in that frontmatter (ADR-0005), which is what lets a repository restored without its row recover them. The reconciler finishes a creation that stopped — except a copy, whose source the audit trail names before its repository is touched: a stopped copy is left unfinished and reported, and the operator removes it (DL-0455) — and recreates the row of a repository without one, with no access, never deleting a repository.
 
 **Groups are the whole permission model** (ADR-0007, ASR-07, ASR-08). A document's `DOCUMENT_GROUP` rows cannot change while a `HOLD` on it is open. A group holds rights (`GROUP_RIGHT`), has members (`GROUP_MEMBER`, through their tenant membership) and is linked to documents (`DOCUMENT_GROUP`); a person's rights on a document are the union of the rights of their groups linked to it. `create_and_edit` is the one right not tied to a link: it lets a member create and copy documents. The part rights apply only where the group can edit. *Accept*, *freeze* and *reserve_for_editing* include *edit* and the views below it, *make_canonical* includes *view_accepted* — an included right is implied, not stored (ADR-0016, DL-0234). Every right covers a whole document; there is no scope column (DL-0091). Comment is not among the rights; the annotation surface is stage 2 (DL-0083). The group table is `ACCESS_GROUP` so it does not collide with the framework's own.
 
 **`MAIL_SENDER` holds a tenant's own sending address, at most one row** (DL-0202); with none, the platform's sender in the shared schema is used. The password is stored only encrypted and is never read back into the interface.
 
-**`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from — at most 20,000 bytes (DL-0481), put in normal form for the new document's language at its first commit — whether it gets a title page, and the title page's layout — which of the document's details it shows, in which order, left or centred, the approval line always among them at a position of its own — a structured choice stored as data, never a template the page renders through (DL-0164, DL-0462, DL-0475). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
+**`DOCUMENT_TEMPLATE` has one row per tenant in stage 1** (DL-0169): the outline a new document starts from — at most 20,000 bytes (DL-0481), put in normal form for the new document's language at its first commit — whether it gets a title page, and the title page's layout — which of the document's details it shows, in which order, left or centred, the approval line always among them at a position of its own — a structured choice stored as data, never a template the page renders through (ADR-0005, DL-0462, DL-0475). The tenant administrator edits it in place; it is configuration, not a document, and has no history beyond `AUDIT_EVENT`.
 
 **A new or copied document is author-only** (ADR-0007): `author_only` is set, no group is linked, and only its creator reaches it, with edit. The tenant administrator is notified and links groups; the first link clears `author_only`, after which the author reaches the document through their groups. A copy records `copied_from`, and its `document.copied` `AUDIT_EVENT` — written before its repository exists — holds the source's number, the version's number and commit and the appendices taken; the copy's *Info* page shows administrators the source, the version and the commit, with when and by whom it was copied (DL-0455). A document with no `accept` holder renders as *no reviewer assigned*, and acceptance is refused with that reason.
 
 **Two audit mechanisms, split by a single question: must the answer be reconstructible at a past date?** (DL-0082)
 
 - **Yes → typed, append-only history.** `MEMBERSHIP_HISTORY` and `ACCESS_CHANGE` — every membership, right and link added or removed — exist so that *"who could read this document on the day that edition was approved"* is a query, not an inference from a replayed event stream. A grant, membership or link is removed from its current table and its removal written to the history in the same transaction; the history tables — with `ACCOUNT_BLOCK_HISTORY` and `TENANT_STATE_HISTORY` — refuse an update or a delete by database trigger, as `AUDIT_EVENT` does (DL-0459). The access history reads one fact beside them from `AUDIT_EVENT`: whether the document was archived at the moment asked (DL-0433, DL-0468).
-- **No → `AUDIT_EVENT`.** Everything else a person did and should be answerable for: assigning a document type, attaching a side-document type, archiving, uploading an image. One table, actor and object typed loosely, because nobody reconstructs state from it — they read it.
+- **No → `AUDIT_EVENT`.** Everything else a person did and should be answerable for: assigning a document type, moving a document to a folder, archiving and restoring, changing the template or the stylesheet, uploading an image. One table, actor and object typed loosely, because nobody reconstructs state from it — they read it.
 
-**Archiving preserves rights rather than removing them** (DL-0084). `DOCUMENT.state` goes to `archived`; its `DOCUMENT_GROUP` links stay, take no effect while it is archived, remain editable by the tenant administrator, and **apply as they then stand** on restore. An archived document enters no analysis scope and is exported only by administrators. Rebuilding a permission set by hand is exactly where a restored document quietly becomes readable by the wrong people. Archiving is visible to tenant and platform administrators only, and an archived document's links stop resolving everywhere — including where its name sits in another document's prose.
+**Archiving preserves rights rather than removing them** (DL-0084). `DOCUMENT.state` goes to `archived`; its `DOCUMENT_GROUP` links stay, take no effect while it is archived, remain editable by the tenant administrator, and **apply as they then stand** on restore. An archived document enters no analysis scope and is exported only by administrators. Rebuilding a permission set by hand is exactly where a restored document quietly becomes readable by the wrong people. Archiving is visible to tenant and platform administrators only, and an archived document's links stop resolving everywhere — including where its name sits in another document's prose. Archiving ends the document's open hold as a forced release does — `release_kind` `forced`, `released_by` the archiving administrator, `release_reason` the platform's own `archived`, the draft kept where it holds edits — and tells the holder (`document_archived`, DL-0471); a finish that stopped after its commit is completed instead (DL-0414).
 
 ## Versions, holds and drafts
 
@@ -343,7 +353,7 @@ erDiagram
     ACCEPTANCE {
         uuid id PK
         uuid version FK "the passport commit"
-        uuid accepted_from FK "previous accepted version"
+        uuid accepted_from FK "the content version the previous acceptance accepted; for the first acceptance, the version the document was created with"
         string number "N.M, derived (DL-0183)"
         uuid reviewer FK
         datetime at
@@ -368,11 +378,11 @@ erDiagram
         string range_before "line range in the author's version, or in its parent for restored"
         string range_after "line range in the accepted version; empty for a removal"
     }
-    VERSION ||--o{ RETURN : returned_by
+    VERSION ||--o| RETURN : returned_by
     RETURN {
         uuid id PK
         uuid version FK "the passport commit"
-        uuid returned_from FK "previous accepted version"
+        uuid returned_from FK "the content version the latest acceptance before it accepted; where there is none, the version the document was created with"
         uuid reviewer FK
         text reason "required: one line, at most 500 characters, no control, reordering or invisible format character but the two joiners (DL-0378, DL-0483)"
         datetime at
@@ -404,9 +414,9 @@ erDiagram
         datetime last_activity_at "released after the tenant's inactivity timeout, unless reserved (ADR-0006)"
         datetime reserved_at "set while reserved for editing; exempt from the inactivity release (ADR-0009)"
         datetime released_at
-        uuid released_by FK "the administrator who forced it; the blocking administrator when blocked; null for a finish, a discard, an inactivity release, a self-block, or a release forced from the operator's command"
+        uuid released_by FK "the administrator who forced it, or who archived the document; the blocking administrator when blocked; null for a finish, a discard, an inactivity release, a self-block, or a release forced from the operator's command"
         string release_kind "finished | accepting | discarded | released | inactivity | forced | blocked — released when the holder lets go of a hold with no edits (DL-0510); blocked when the holder's membership, account or tenant is blocked (DL-0256); accepting while an *accept as* has its version and not yet its acceptance (DL-0397); finished also when another's release completes a finish that stopped after its commit, the actor in the audit (DL-0414)"
-        string release_reason "required when an administrator ends a reservation (DL-0225)"
+        string release_reason "required when an administrator ends a reservation (DL-0225); the platform's archived when archiving ended the hold, a word an administrator's reason may not be"
     }
     LINE_AUTHORSHIP {
         uuid id PK
@@ -471,7 +481,7 @@ erDiagram
 
 **`DRAFT` hangs off `HOLD`, not off `DOCUMENT`.** A hold someone else ended — forced, ended by an administrator, released for inactivity, blocked — keeps its draft for its holder (ADR-0003), and the foreign key is what makes that automatic rather than remembered; a finish and a discard, the holder's own ends, delete it. The holder's latest such hold with a draft is their *kept draft*: *Edit* offers it back before any new hold is taken. `base_commit` is the head the draft started from: the kept draft is taken back — its row moved to the new hold — only while `base_commit` is still the head, read under the lock; otherwise it is shown read-only and may be discarded (DL-0318, DL-0381). A finish that committed and then stopped is recognised by a content commit of the holder's after it, `edit` or `reviewer_edit`, with nothing but acceptances or returns above it (DL-0318, DL-0335); a release that would keep such a draft completes the finish instead, and nothing is kept (DL-0414).
 
-**`DRAFT_FILE` holds uploads until they are committed** (DL-0175). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by the commit that finishes the session. It is the first copy of that content, not a second one.
+**`DRAFT_FILE` holds uploads until they are committed** (ADR-0005). An image or attachment added, replaced or removed during a hold waits here, under the same point-in-time recovery as the draft's text, and is written to the repository by the commit that finishes the session. It is the first copy of that content, not a second one.
 
 **`OPEN_EDITOR` is what makes two editors over one draft safe** (ADR-0006) — the same draft open in two browser tabs. A capture is accepted only while the file still hashes to `base_hash`; an editor with no heartbeat past the timeout is closed; finishing and discarding are refused while any row is open. Every editor spans its whole file: there is no section editor (DL-0517).
 
@@ -485,8 +495,8 @@ erDiagram
         uuid version FK
         string file "document.md or appendices/{id}.md"
         int position
-        int depth
-        string heading
+        int depth "1 to 4; deeper headings are not indexed"
+        string heading "its plain words, at most 1,000 characters"
         int line
     }
     ENTITY {
@@ -523,7 +533,7 @@ erDiagram
 
 **Appendices and attachments are numbered per document from 1** in creation order (ADR-0008); the number names the file, appears in the part's URL, and never changes when parts are reordered.
 
-**`PART_INDEX` is the same kind of cache** over the frontmatter's lists of appendices and attachments (DL-0174), so a document page can list its parts without reading git. Git is the authority; the rows are rebuilt per version. An attachment's file is stored at `attachments/<n>`, `n` its number from 1, without an extension; its original name, hash and size live in the frontmatter entry (DL-0342).
+**`PART_INDEX` is the same kind of cache** over the frontmatter's lists of appendices and attachments (ADR-0005), so a document page can list its parts without reading git. Git is the authority; the rows are rebuilt per version. An attachment's file is stored at `attachments/<n>`, `n` its number from 1, without an extension; its original name, hash and size live in the frontmatter entry (DL-0342).
 
 **There is no paragraph table, and that is deliberate.** Clause numbers are rendered labels derived from depth (DL-0065), and anything that must point at a passage — a finding, and later a comment — anchors with W3C text-quote selectors (DL-0027). Storing paragraph identifiers would put structure in two places and make every edit a reconciliation.
 
@@ -596,6 +606,18 @@ erDiagram
 **`STYLESHEET` has one row per tenant**, seeded empty (DL-0464, DL-0465): every document of the organisation is read and exported with it, and with the platform's default look while it is empty — no document chooses another. Its text is checked against the allowlist when it is applied and again by every reader of it, so a row written before a rule tightened reaches no page and no file; every change is audited with the whole text before and after, which is its only history (DL-0477). The Word files' reference document is derived from it, never stored.
 
 **A `SAMPLE_EXPORT` is the styles page's trial of a stylesheet** (DL-0466): a built-in invented text, in the requester's interface language (DL-0498), rendered with the text in the box. One may be queued or running per tenant at a time; the row is written and audited before it is queued, failed when the queue refuses it or it has waited half an hour unheld, and swept with the exports after a day.
+
+## What the database itself refuses
+
+Beside the rules drawn above, these hold as constraints, so no code path can break them:
+
+- **One of each:** a membership per tenant and user; a preference value per user and key; a row per pair in `GROUP_RIGHT`, `GROUP_MEMBER` and `DOCUMENT_GROUP`; an entity per document, kind and key; an image per document and path; an authorship row per version, file and line; a correction notice per acceptance and author; an edition per version, per approval commit and per freeze.
+- **One open at a time:** one open hold per document, released with exactly one kind, `released_by` set only for `forced` and `blocked`; one open freeze per document, ended with exactly one kind and never before it began.
+- **Shapes:** an acceptance's number is `N.M` and an edition's `N.0`, N from 1; a correction line's range is `12`, `12-14` or empty; a `correction_notice` notification names its notice, and a `document` notification its document, `document_archived` excepted (DL-0471); a `done` export or sample has its file.
+- **Who acted:** on every table with provenance, on `ACCESS_CHANGE` and on `AUDIT_EVENT`, a `system` row names no person, a `user` row names one, and an `agent` row may name either.
+- **Nothing a record references is deleted.** Every reference refuses the deletion of what it points at, except the caches' and a draft's own rows — `HEADING_INDEX`, `PART_INDEX`, `ENTITY`, `IMAGE`, `LINE_AUTHORSHIP`, `DRAFT_FILE`, `OPEN_EDITOR`, `CORRECTION_LINE` — which go with their owner.
+
+The audit log, the access history, the outbox and the throttling sweep each read through an index on the columns they filter by.
 
 ## Stage 2 attachment points
 

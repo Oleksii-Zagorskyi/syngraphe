@@ -95,7 +95,7 @@ A second consequence worth stating: a development host that holds real tenant do
 
 ### T-06 — A malicious upload
 
-**Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps — 10 MB an image, or the platform's upload maximum `UPLOAD_MAX_MB` where that is lower (ASR-23), and at most 40 megapixels and 10,000 pixels a side, every frame of a GIF counted together (DL-0242, DL-11-007) — checked without decoding the image, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export; a JPEG keeps its orientation tag alone (DL-0472).
+**Who:** any editor. **How:** an image that is a decompression bomb, or a format that renders as markup. **Answered by:** ASR-19, and the accepted-type list of PNG, JPEG and GIF — **SVG is not on it and must never be**, because it is a document that can carry script. Size and dimension caps — 10 MB an image, or the platform's upload maximum `UPLOAD_MAX_MB` where that is lower (ASR-23), and at most 40 megapixels and 10,000 pixels a side, every frame of a GIF counted together (DL-0242, DL-11-007) — checked without decoding the image, and metadata stripped on upload, which also removes the location and device data a photograph carries into an export; a JPEG keeps its orientation tag alone (DL-0472). A stored image is served only to a reader whose rights reach a version that holds it; anyone else gets the same not-found answer as for a document that does not exist (T-17). Its content type is the one its checked extension names, never the client's or the bytes' guess, with content sniffing disabled.
 
 ### T-07 — The record is altered
 
@@ -187,6 +187,14 @@ Failures are counted by client and by address typed with client, and a browser t
 
 **Who:** any editor. **How:** an invisible character — a mark that reorders text, a zero-width space — placed in a clause so that what a reviewer sees differs from what is stored and later exported, and the reviewer accepts wording they did not see. **Answered by:** the marks that reorder text refused, each named by its line, and the harmless invisible characters removed at paste and from every line an edit changes, the two joiners kept (DL-0486, DL-0487, ADR-0010).
 
+### T-25 — A notification carries what its reader may not read
+
+**Who:** curious editor, a person whose access was taken away, or whoever runs the mail server. **How:** a notification is written when its reader may open the document and read later; its email leaves through a server the platform does not control. **Answered by:** no notification, in the application or by email, carries text of a document, a changed passage or a change summary (DL-0113, DL-0205); a reason a person typed — for a return, for an ended reservation — is read in the application alone, never in the email (DL-0369). An entry about a document its reader can no longer open is neither listed nor counted (DL-0386), and its email is not sent. **Residual:** the email names the document's number and title, the version and the people involved; whoever carries the email reads them.
+
+### T-26 — A request made in a person's name
+
+**Who:** outsider. **How:** another site makes the person's browser send a request with their session. **Answered by:** every form carries the framework's request-forgery token, and the policy of T-05 lets forms post to the platform alone; the session cookie is unreadable to script, sent over HTTPS alone where the installation has it, and ends after twelve hours. **Residual:** an installation run with `SITE_HTTPS=false` sends its cookies in the clear.
+
 ## What this found
 
 Two changes, both cheap now:
@@ -201,6 +209,8 @@ Two changes, both cheap now:
 - **A reviewer may accept their own work** (T-08). Taken knowingly; the control is the record.
 - **An organisation's stylesheet may hide text in its background's colour, or shade text like a change mark** (T-23). Taken knowingly; every change to the stylesheet is audited with its text (DL-0477).
 - **An approver may approve text they wrote** (T-08, ADR-0016). A group holding *make canonical* and a right to edit can edit a run and approve it, frozen or not (DL-0515); the distinct-approver check covers acceptance, not authorship.
+- **An email names the document, its version and the people involved to whoever carries it** (T-25). No text of the document travels; the reason a person typed stays in the application.
+- **An installation run without HTTPS sends its session cookie in the clear** (T-26). `SITE_HTTPS=false` is for a loopback or a development host only.
 - **A person with read access can take what they may read** (T-09).
 - **Administrators read everything in their scope** (T-16). Accepted while the platform serves one organisation; EP-0001 before it serves independent ones.
 - **Whoever holds the host can read every backup** (T-20). The keys are on the host, as the operator's are; encryption protects the store from its provider, not from the host.

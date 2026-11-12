@@ -91,7 +91,7 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **Why it is parked.** Written before the cycle works end to end it would describe an intended interface, and every later story would make it wrong.
 
-**What has to be true before it is taken up.** **The review cycle works end to end**: take, edit, send for review, correct, accept and approve, on the development host.
+**What has to be true before it is taken up.** Met with release 0.1 — the review cycle works end to end; taken up when the first colleagues outside the build start work.
 
 ## B-017 — Data retention and erasure procedure
 
@@ -105,9 +105,9 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **Idea.** One paragraph stating what the platform commits to for users with disabilities — which standard it measures against, at what level, and what is out of reach for now — so the interface is built towards a stated target rather than reviewed against one afterwards.
 
-**Why it is parked.** Nothing is lost by writing it once the interface has shape, and the editor library chosen in Epic 1 decides much of what is achievable inside the editing surface.
+**Why it is parked.** Nothing is lost by writing it once the interface has shape, and the editor library (ADR-0010) decides much of what is achievable inside the editing surface.
 
-**What has to be true before it is taken up.** **Before the interface is considered complete** — at the latest, before the release's last QA pass.
+**What has to be true before it is taken up.** Before release 0.2's interface work begins.
 
 ## B-019 — HTML mockups from the page wireframes
 
@@ -251,7 +251,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** The text a renderer parses is escaped, and the images it is given are PNG, JPEG or GIF that passed the platform's checks and stripping (DL-0242, T-06), so the path needs a flaw in a native image decoder first; the split touches the backup design, which uses the stack's role, and the configuration reader, which requires the secret key of every process.
 
-**What has to be true before it is taken up.** Before the first production deploy.
+**What has to be true before it is taken up.** Before a second organisation, unrelated to the operator, shares an installation.
 
 ## B-038 — A page about the document, or a passport exported beside it
 
@@ -299,13 +299,13 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Done in release 0.1 (DL-0441)**, with the whitelist's opening for the mention span.
 
-## B-043 — Three controls drawn out of proportion
+## B-043 — A control drawn out of proportion
 
-**Idea.** Three controls are drawn at a size that does not fit what they hold: *Create a document* in a box several lines tall beside the organisation's name; the change summary on the finishing screen a short single-line field, so the drafted summary is cut off; the freeze's reason field too narrow for its own placeholder. Each is a rule of the shell's stylesheet.
+**Idea.** *Create a document* is drawn in a box several lines tall beside the organisation's name, a rule of the shell's stylesheet. The change summary's field, once in this item, is ten lines high since release 0.1 (DL-0532); the freeze's reason field it named is not drawn (DL-0549).
 
 **Why it is parked.** None of them blocks an act; they are fixed together, with the look of the pages they sit on.
 
-**What has to be true before it is taken up.** The next pass over the interface's look, before release 0.1 is accepted in Ukrainian.
+**What has to be true before it is taken up.** The next pass over the interface's look, in release 0.2's interface work.
 
 ## B-044 — The sending settings reaching an installation's own machines
 
@@ -400,7 +400,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 ## B-054 — The parts' screens laid out evenly
 
-**Idea.** Six small layout faults seen walking the parts: the parts panel's two headings drawn at different sizes, and an attachment's title in heading type, larger than an appendix's; the editor's toolbar running past the centre column in an appendix's editor; a panel act taken from an appendix's page returning to the document's editor rather than the appendix; the finishing screen's part rows in number order rather than the list's order after a move, its summary field too narrow for the summary it drafts, and its *new* and *open* links in different columns; the reading view's panel bulleting appendices and not attachments; the compare page's appendix pickers wrapping in the panel.
+**Idea.** Small layout faults seen walking the parts: the parts panel's two headings drawn at different sizes, and an attachment's title in heading type, larger than an appendix's; the editor's toolbar running past the centre column in an appendix's editor; a panel act taken from an appendix's page returning to the document's editor rather than the appendix; the finishing screen's part rows in number order rather than the list's order after a move, and its *new* and *open* links in different columns; the reading view's panel bulleting appendices and not attachments; the compare page's appendix pickers wrapping in the panel. The finishing screen's summary field, once in this list, is ten lines high since release 0.1 (DL-0532).
 
 **Why it is parked.** Each one reads; none blocks an act or hides one, and every act was walked through them.
 
@@ -487,3 +487,27 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The refusal logs nothing, and the access logs record no host. A proxy that sends the wrong `Host` makes every page but `/health/` answer `400` with no line saying why. The runbook gives the cause and the check from outside (`docs/runbook.md § Deploy`, *Production*).
 
 **What has to be true before it is taken up.** An installation meets a refused host that the runbook's check does not explain, or a second installation goes behind a proxy that the operator does not configure.
+
+## B-065 — Read-only repository views for the platform administrator
+
+**Idea.** A page, for a platform administrator alone, that shows a document's repository as git holds it — its commits, their trailers, a file at a commit — read-only, for when something breaks and the document pages cannot say why.
+
+**Why it is parked.** The operator's commands answer the cases met so far: `reconcile` reports what git and the rows disagree on, `inspect_draft` reads a draft, and the `git` command line on the host reads the rest. A page would be a second way to read history, with its own access rules to keep right.
+
+**What has to be true before it is taken up.** A fault is met that the commands cannot diagnose without a shell on the host, or the operator of an installation has no shell there.
+
+## B-066 — A reason for a freeze, asked on the path
+
+**Idea.** *Freeze* on the document's path asks, in a window, for an optional reason of one line — what the document waits for — and the band and the tag show it, as they already can.
+
+**Why it is parked.** The path's *Freeze* posts no reason, so the band shows one only for a freeze the operator's `make_canonical` made with `--reason`. The band, the view and the record already carry a reason; only the field is missing.
+
+**What has to be true before it is taken up.** Readers of a frozen document ask what it waits for, or the interface work of release 0.2 reaches the path's acts.
+
+## B-067 — The Platform part of Administration on an organisation's own domain
+
+**Idea.** Draw the Platform part of Administration — hosts, organisations, platform administrators, mail and outbox, the audit log — only on a platform host, as its pages are served only there.
+
+**Why it is parked.** On an organisation's own domain a platform administrator is drawn the five sections, and each answers *Nothing to show here*: the pages refuse there, the menu does not know it. Nothing is shown that should not be; a control is drawn that cannot be used, against the rule that such a control is never drawn.
+
+**What has to be true before it is taken up.** Release 0.2 starts.

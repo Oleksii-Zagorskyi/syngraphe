@@ -12,6 +12,7 @@ superseded_by:
   - DL-0299 (in part — the backup service tells the worker of a new base backup)
   - DL-0301 (in part — the writer lock covers writing the bundle, and nothing after it)
   - DL-0303 (in part — each repository keeps its newest two chains, whatever their age)
+  - DL-0547 (in part — a mounted path is not a kind of store, by DL-0311)
 ---
 
 # ADR-0018: Backup and restore — the database continuously, the repositories as bundles, into one backup store

@@ -37,7 +37,7 @@ stateDiagram-v2
     Canonical --> Held: edit
 ```
 
-**Pending** means committed but not yet accepted — several editors' versions stack there, each attributed. **My edits in review** is the same set filtered to one author; it is a view, not a state, because *send for review* **is** the commit (DL-0054). **Accepted edits** is the last revision a reviewer accepted. **Canonical** is the last approved edition — a ref, not a mood, and the document keeps moving past it. The interface names of the stances, in every language, are in [`glossary.md`](glossary.md).
+**Pending** means committed but not yet accepted — several editors' versions stack there, each attributed. **My edits in review** is the same set filtered to one author — release 0.1 does not draw it (DL-0549); it is a view, not a state, because *send for review* **is** the commit (DL-0054). **Accepted edits** is the last revision a reviewer accepted. **Canonical** is the last approved edition — a ref, not a mood, and the document keeps moving past it. The interface names of the stances, in every language, are in [`glossary.md`](glossary.md).
 
 Disputes are stage 2 (DL-0076), so nothing gates *make canonical* — `Accepted --> Canonical` or `Frozen --> Canonical` — in stage 1 but the approver — and, where a tenant has switched it on, the rule that whoever makes it canonical accepted none of the runs since the previous canonical edition (DL-0101, DL-0115). The disagreement guard returns with the register.
 
@@ -84,7 +84,7 @@ There is no Save control. The draft persists server-side so a closed laptop lose
 
 **Companion actions run at any point**, individually, keyed to the content rather than to a commit (DL-0056). The *Reviewing* state is the send-for-review screen. In release 0.1 it shows the holder's changes, the part operations and the change summary, and nothing else (DL-0261); from 0.2 it shows the companion analyses for the current content as well — mostly already computed — and committing writes them into the same commit as the text (DL-0055). The editor either goes back to editing or commits.
 
-## A disagreement
+## A disagreement — stage 2 (DL-0076)
 
 ```mermaid
 stateDiagram-v2
@@ -103,7 +103,7 @@ Entries arrive two ways: a reviewer marks a passage disputed, or an editor escal
 | Action | Role | Precondition | Effect |
 |---|---|---|---|
 | edit — open the editor | holder of *edit* — *accept*, *freeze* and *reserve for editing* include it (ADR-0016) | document not held, or held by this user — while someone else holds it, the control is disabled naming the holder to holders of *edit* or *accept* and to administrators (DL-0516); if frozen, the user holds *accept* | takes the hold if free; the whole document's editor opens on the draft and captures into it — there is no section editor (ADR-0006, DL-0167, DL-0517); on a pending run a holder of *accept* changes in their own draft what they will not accept as it stands — reverting an appendix or attachment operation of the run included, which needs *accept* alone (DL-0446) — and finishes with *accept as N.M* or *create version N.M-X* (DL-0222, DL-0521); that version is marked as committed by a holder of *accept*, and correction notices go out at the acceptance that makes it authoritative (ADR-0014) |
-| call a companion action | the holder, or any editor of the document | this action has not run against this exact content | stored analysis, or one model call; available during a hold, outside the editor (ADR-0006) |
+| call a companion action — from stage 2 | the holder, or any editor of the document | this action has not run against this exact content | stored analysis, or one model call; available during a hold, outside the editor (ADR-0006) |
 | add, replace, remove, rename or reorder an appendix or attachment | the holder, with the part right: *create appendix*, *delete appendix*, *upload attachment*, *replace attachment*, *delete attachment* — renaming and reordering *edit* alone; a part the draft added withdrawn with the right that added it; the author of a document no group is linked to may upload and replace attachments (DL-0445) | an attachment within the tenant's size cap; no editor open on an appendix being deleted | staged in the draft; committed with the text, the part rights decided again at the commit (DL-0168, DL-0175) |
 | switch the title page, or write its text | the holder | holds the document; the text plain, at most 500 characters and 8 lines, no control, reordering or invisible format character but the two joiners some scripts need (DL-0476, DL-0483) | a draft change, listed among the run's changes for the reviewer and committed with the run; a run of it alone is a version; an undo keeps it, as it keeps a title (DL-0463) |
 | send for review — *create version N.M-X* for a holder of accept | the holder | draft differs from the current text or stages a file operation — with no edit, the hold is let go with *release the document* instead (DL-0510) | the commit — analyses written into it from release 0.2; document becomes Pending; a reservation ends |

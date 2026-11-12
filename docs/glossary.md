@@ -92,7 +92,7 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **my edits** · мої правки · *fixed* — the holder's own uncommitted session; a switch inside the editor, showing the draft's changes marked in place (DL-0518).
 
-**my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent.
+**my edits in review** · мої правки на розгляді · *fixed* — what this editor has sent. Not drawn in release 0.1: the review page's panel names each version's author instead (DL-0549).
 
 **version number** · номер версії · *proposed* — `N.M` for an acceptance, N canonical editions before it and M acceptances since; `N.0` for a canonical edition; `1.3-2` for pending work on top of acceptance 1.3, counting content versions only, and `2.0-1` for the first after edition 2.0 — counted from the later of the latest edition and the latest acceptance (DL-0267); `0.0` for the document's first version, the text as created, and `0.0-1` for pending work before the first acceptance (DL-0272, DL-0358). Derived, never typed.
 
@@ -200,13 +200,13 @@ The five stances. The Ukrainian is the owner's own and is the authority; the Eng
 
 **compare** · порівняти · *proposed* — show two versions of a document, or versions of two documents, word by word inside the rendered text (DL-0170, DL-0187); on two versions, *‹* and *›* step to the pair before and after (DL-0508).
 
-**history** · історія · *proposed* — the page listing a document's versions and events, an icon in the document's heading (DL-0518); how far back a reader sees depends on their history rights, and a holder of *accept* sees the pending run's versions there (DL-0251).
+**history** · історія · *proposed* — the page listing a document's versions and events, an icon in the document's heading (DL-0518); how far back a reader sees depends on their rights: a holder of *edit* — *accept*, *freeze* and *reserve for editing* include it — sees from the latest canonical edition up; *view previous canonical versions* adds the earlier editions, and *view all history* every version (DL-0524, DL-0534).
 
 **archive / restore** · архівувати / відновити · *proposed* — put a document away, reached by administrators alone and read only, every act refused; restore makes it active again as it was (DL-0084, DL-0450).
 
 **retire** (a document type) · вивести з ужитку · *proposed* — keep a type on the documents that carry it and stop offering it for a new document, a copy or a change of type (DL-0235, DL-10-001).
 
-**export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version, composed from a scope, formats and a view, on a page of the document's own whose heading names the version exported (DL-0519); the file's name and its own words in the document's language (DL-0502).
+**export** · експортувати · *proposed* — to PDF, Word or Markdown, of a stated version, composed from a scope, one format and a view, on a page of the document's own whose heading names the version exported (DL-0519); the file's name and its own words in the document's language (DL-0502).
 
 **embedded appendices** · додатки у документі · *proposed* — an export's appendices after the document's body and before its attachment list (DL-0193); in PDF each starts a page of its own. The export page's choice reads *у документі*.
 

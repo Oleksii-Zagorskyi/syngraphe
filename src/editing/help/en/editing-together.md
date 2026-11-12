@@ -8,7 +8,7 @@ The person editing, if their group has the right *reserve for editing*, may rese
 
 ## When your editing is ended
 
-When editing is left idle, *Are you still working?* is asked in an open editor and by a notification — a tab with no editor open is told by the notification alone. Answered, it carries on; unanswered, it ends ten minutes after the organisation's timeout. An administrator may also end someone's editing, from *More* on the document's page: ordinary editing by *Force release*; a reservation by *End the reservation*, with a reason the person editing reads in their notifications.
+When editing is left idle, *Are you still working?* is asked in an open editor and by a notification — a tab with no editor open is told by the notification alone. Answered, it carries on; unanswered, it ends ten minutes after the organisation's timeout. An administrator may also end someone's editing, from ⋯ (*More actions*) beside the document's heading: ordinary editing by *Force release*; a reservation by *End the reservation*, with a reason the person editing reads in their notifications.
 
 Your draft is kept if you had edited; editing ended with nothing edited keeps nothing. When you come back to the document, your kept draft is a point of its own on the path, which tells you who ended your editing, when and why. If the document has not changed since your draft began — no new version and no acceptance — *Take the document back* lets you carry on with your draft. Otherwise your draft can only be read, as changes against the text you choose; carry over what you need by hand, then *Discard this draft…*.
 

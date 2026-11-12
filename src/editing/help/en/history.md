@@ -20,7 +20,7 @@ Appendices are compared in pairs. In the comparison's right pane, pick an append
 
 ## Returning a run without accepting it
 
-A reviewer who declines the edits waiting since the last acceptance chooses *Return without accepting…* on the review page and gives a reason: one line, required. The return is recorded in the document's own record, as an acceptance is. The edits stay pending; their authors are told, and read the reason in their notifications while they may still read the pending edits — the email names only the event. The document shows *returned* until a new version is sent, and then *awaiting review* again; *In review* leaves it out meanwhile. Nobody may return while the document is reserved.
+A reviewer who declines the edits waiting since the last acceptance chooses *Return without accepting…* on the review page and gives a reason: one line, required. The return is recorded with the document, as an acceptance is, and shows in *History*. The edits stay pending; their authors are told, and read the reason in their notifications while they may still read the pending edits — the email names only the event. The document shows *returned* until a new version is sent, and then *awaiting review* again; *In review* leaves it out meanwhile. Nobody may return while the document is reserved.
 
 ## Undoing a version or an author's edits
 

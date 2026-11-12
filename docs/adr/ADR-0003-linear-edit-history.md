@@ -12,6 +12,7 @@ superseded_by:
   - ADR-0006 (in part — hold expiry)
   - ADR-0015 (in part — undoing a contribution, ST-0037)
   - DL-0243 (in part — for ST-0037, the platform resolving the case where a later author built on top)
+  - DL-0547 (in part — no git revert in the operation set)
 ---
 
 # ADR-0003: Linear edit history: no branching, no merging

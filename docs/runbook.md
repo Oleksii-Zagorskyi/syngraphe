@@ -32,7 +32,7 @@ Every step below says **where it runs** — the host shell, or inside a named co
 **Development host.** On the host, as the deploying user, in the repository checkout:
 
 ```bash
-cp .env.example .env         # fill in every ???, the store's for its kind only — every missing key is reported at once
+cp .env.example .env         # fill in every ??? above the production block, the store's for its kind only, and BACKUP_KEY_FILE — every missing key is reported at once
 mkdir -p .repos              # or the directory GIT_REPO_ROOT_HOST names
 docker compose up -d --build # web migrates every schema and seeds the language lists before it answers
 docker compose ps --format '{{.Service}} {{.State}}'    # web, worker, render, db, backup, redis — each running
@@ -47,7 +47,7 @@ curl -s http://127.0.0.1:8000/health/    # {"database": "ok", "redis": "ok", "ba
 
 `db` is built on `postgres:16`, which carries ICU: the document list orders titles by the `uk-x-icu` collation, and a PostgreSQL built without ICU fails that page. The containers restart with the host's Docker unless stopped by hand. **After an update:** `git pull`, then `docker compose up -d --build`; the migrations run as `web` starts. A migration that failed for one organisation is completed with `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being the organisation's number; nothing else is needed.
 
-**Production** runs behind the operator's reverse proxy (DL-0281) with the production override, `deploy/compose.prod.yaml`, read over the base file: `docker compose -f compose.yaml -f deploy/compose.prod.yaml …` for every command, written `$C` below. It adds `front`, an nginx that terminates the installation's own TLS on the one port the host allows and forwards to `web`, which then publishes no port; it runs `web`, `worker` and `render` on the release's image; it puts the repositories, the database, the archive's spool and the backup state under one data directory as bind mounts — the exports stay on their named volume, a download kept a day; and it pins the stack's network, so `TRUSTED_PROXIES` names it. Its keys are the block *Compose only — the production override* of `.env.example` — fill every `???` there first: the override refuses a key that is unset, but not one still reading `???`: `RELEASE_TAG`, `FRONT_PORT`, `FRONT_CERT_FILE`, `FRONT_KEY_FILE`, `FRONT_SERVER_NAME`, `FRONT_CLIENT_IP_HEADER` (the header the operator's proxy carries the client's address in; the front passes it to the application as `X-Forwarded-For`), `DATA_DIR` and `STACK_SUBNET`. The front also reads `UPLOAD_MAX_MB`, which the application reads too (§ The upload maximum). The override sets `web`'s `TRUSTED_PROXIES` to `STACK_SUBNET`, so the front's headers are believed; `COMPOSE_PROJECT_NAME` is set, so one project spans every release's checkout. **`FRONT_PORT` must be reachable from the operator's proxy alone**: the front passes on the client's address as that proxy reports it, and a client reaching the port directly could report its own. **The operator's proxy must send the installation's name as `Host`**:
+**Production** runs behind the operator's reverse proxy (DL-0281) with the production override, `deploy/compose.prod.yaml`, read over the base file: `docker compose -f compose.yaml -f deploy/compose.prod.yaml …` for every command, written `$C` below — on a host with the base file alone, `$C` is a bare `docker compose`. In bash, `C='docker compose -f compose.yaml -f deploy/compose.prod.yaml'`. zsh does not split an unquoted variable: define `C() { docker compose -f compose.yaml -f deploy/compose.prod.yaml "$@"; }` and type `C` where this document writes `$C`. It adds `front`, an nginx that terminates the installation's own TLS on the one port the host allows and forwards to `web`, which then publishes no port; it runs `web`, `worker` and `render` on the release's image; it puts the repositories, the database, the archive's spool and the backup state under one data directory as bind mounts — the exports stay on their named volume, a download kept a day; and it pins the stack's network, so `TRUSTED_PROXIES` names it. Its keys are the block *Compose only — the production override* of `.env.example` — fill every `???` there first: the override refuses a key that is unset, but not one still reading `???`: `RELEASE_TAG`, `FRONT_PORT`, `FRONT_CERT_FILE`, `FRONT_KEY_FILE`, `FRONT_CLIENT_IP_HEADER` (the header the operator's proxy carries the client's address in; the front passes it to the application as `X-Forwarded-For`), `DATA_DIR` and `STACK_SUBNET`; and `FRONT_SERVER_NAME`, the name the front answers to — optional: left unset it is `_`, and the front answers to any name. The front also reads `UPLOAD_MAX_MB`, which the application reads too (§ The upload maximum). The override sets `web`'s `TRUSTED_PROXIES` to `STACK_SUBNET`, so the front's headers are believed; `COMPOSE_PROJECT_NAME` is set, so one project spans every release's checkout. **`FRONT_PORT` must be reachable from the operator's proxy alone**: the front passes on the client's address as that proxy reports it, and a client reaching the port directly could report its own. **The operator's proxy must send the installation's name as `Host`**:
 - The front passes on the `Host` it receives, as both `Host` and `X-Forwarded-Host`.
 - The application refuses any name it does not know. It answers *Unknown address.* (`400`) on every page but `/health/`, which answers before the host check.
 - Some proxies give an HTTPS upstream the upstream's own address in place of the name. Caddy does from 2.11 unless the site's `reverse_proxy` carries `header_up Host {hostport}`.
@@ -102,7 +102,7 @@ A loaded document, or any accepted one, becomes its next edition by command (DL-
 $C exec web python manage.py make_canonical --tenant N --document M --as ADDRESS --reason "…"
 ```
 
-The member must hold *make canonical* on the document through a group, and *freeze* only because the command freezes. Where the organisation requires a distinct approver, name a member who accepted none of the runs since the previous edition; the loading member accepted the loaded version, so name another. The command prints `document M · edition N.0`; run again on a document already at its edition, it prints `document M · edition N.0 already made — skipped` and changes nothing. Nothing is frozen when a refusal can be known beforehand — versions waiting for review, a refused approver, a reason of more than one line or 500 characters, a tag already bearing the next edition's number — and the refusal is named, as it is for a document with nothing accepted at all (`nothing_accepted`). A document already frozen is made canonical under its freeze, and `--reason` is not used. **Readers holding *view accepted* are lowered to *view canonical* only after each of their documents has an edition**; in the other order the documents disappear for them.
+The member must hold *make canonical* and *freeze* on the document through a group; the command asks for *freeze* also when the document is frozen already. Where the organisation requires a distinct approver, name a member who accepted none of the runs since the previous edition; the loading member accepted the loaded version, so name another. The command prints `document M · edition N.0`; run again on a document already at its edition, it prints `document M · edition N.0 already made — skipped` and changes nothing. Nothing is frozen when a refusal can be known beforehand — a document someone holds, versions waiting for review, a refused approver, a reason of more than one line or 500 characters, a tag already bearing the next edition's number — and the refusal is named, as it is for a document with nothing accepted at all (`nothing_accepted`). A document already frozen is made canonical under its freeze, and `--reason` is not used. **Readers holding *view accepted* are lowered to *view canonical* only after each of their documents has an edition**; in the other order the documents disappear for them.
 
 ### A freeze nobody can end
 
@@ -136,7 +136,7 @@ Once, on a fresh installation, to create the first platform administrator (DL-02
 $C exec web python manage.py setup_token --host <the installation's host name>
 ```
 
-The command prints a token, valid once for sixty minutes, and makes that host the default platform host; the running `web` accepts the host within thirty seconds. `127.0.0.1` stays in the set — the container's own health check and a tunnel reach it — until a platform administrator removes it on the hosts page. Open `/setup/` on the installation's host name, enter the token, then the administrator's email address and a password. The administrator is signed in and lands in Administration.
+The command prints a token, valid once for sixty minutes, and makes that host the default platform host; the running `web` accepts the host within thirty seconds. `127.0.0.1` and `localhost` stay in the set — the container's own health check and a tunnel reach them — until a platform administrator removes them on the hosts page. Open `/setup/` on the installation's host name, enter the token, then the administrator's email address and a password. The administrator is signed in and lands in Administration.
 
 - **The token expired or was lost:** run the command again. A new token replaces the old one.
 - **`/setup/` answers *Unknown address.* while `/health/` answers:** the host is in the set, but the request does not carry its name. The proxy in front sends another `Host` (§ Deploy, *Production*).
@@ -146,7 +146,7 @@ The command prints a token, valid once for sixty minutes, and makes that host th
 
 In Administration › Platform › Organisations, *Create an organisation*: its name, and the email address of a registered person who becomes its first administrator. The organisation gets the next number, and its schema is created and migrated in the same act; it is listed *active*.
 
-- **A migration that failed** leaves the organisation listed *being set up*, reachable by nobody, with the failure in the audit log. Once the fault is fixed: `docker compose exec web python manage.py migrate_schemas --tenant N`, `N` being its number; it becomes active.
+- **A migration that failed** leaves the organisation listed *being set up*, reachable by nobody, with the failure in the audit log. Once the fault is fixed: `$C exec web python manage.py migrate_schemas --tenant N`, `N` being its number; it becomes active.
 - **Its own domain**, if it has one: Administration › Platform › Hosts, *Add a host*, belonging to the organisation. Its first domain is its default. A removed host stops answering within thirty seconds.
 
 ## People
@@ -195,8 +195,8 @@ Invitations, resets and blocks are the administrators' own pages; help page *Peo
 1. **Database — continuously.** pgBackRest ships each completed segment of the write-ahead log off-host, asynchronously, and a segment that has not filled is closed within five minutes; a full base backup is taken nightly at 02:00 UTC, and two are kept with their archive. If the store cannot be reached, the log waits on the host up to `BACKUP_WAL_QUEUE_MAX`; past it, segments are dropped rather than let the disk fill, and the archive has a gap until the next full base backup (see *The store is unreachable*). This is what makes point-in-time recovery possible, and it is not optional: holds, access rows and above all **drafts** live only in the database.
 
    ```bash
-   docker compose exec -u postgres db pgbackrest --stanza=syngraphe check   # a segment reaches the store
-   docker compose exec -u postgres db pgbackrest --stanza=syngraphe info    # the backups, the archive, cipher: aes-256-cbc
+   $C exec -u postgres db pgbackrest --stanza=syngraphe check   # a segment reaches the store
+   $C exec -u postgres db pgbackrest --stanza=syngraphe info    # the backups, the archive, cipher: aes-256-cbc
    ```
 
 2. **Repositories — every ten minutes.** Each repository that changed is written as a `git bundle` **while holding its writer lock**, the lock released as soon as the file is written; the bundle is then verified and copied off-host. Every repository whose newest full bundle is older than the newest base backup gets a full bundle, which starts its next chain, and gets one again on every run until one lands. **Every run writes a marker** in the store, listing any repository whose bundle failed and since when; a marker listing none is *clean*, and is what a full restore aims at. Each repository keeps its newest two chains — a *chain* being a full bundle and the bundles after it — and a marker is kept until it is older than the oldest chain any repository keeps, the newest clean marker always (DL-0316). Never a plain copy of a repository that may be mid-write: it can yield a ref pointing at an object the copy missed. The worker runs this on its own; a run now, from the host:
@@ -212,7 +212,7 @@ Invitations, resets and blocks are the administrators' own pages; help page *Peo
 **The store is unreachable.** The waiting log grows on the host's disk. Bring the store back; confirm `pgbackrest check` passes and a new clean marker appears. If the waiting log reached `BACKUP_WAL_QUEUE_MAX`, the archive has a gap: take a full base backup at once — until it completes, no restore can reach a moment after the gap began:
 
 ```bash
-docker compose exec backup su postgres -s /bin/sh -c '. /run/backup/environment; /usr/local/bin/backup-state.sh base'
+$C exec backup su postgres -s /bin/sh -c '. /run/backup/environment; /usr/local/bin/backup-state.sh base'
 ```
 
 It takes the full base backup and records it, so the next bundle run starts new chains after it.
@@ -227,18 +227,20 @@ How much may be lost, and how long a restore may take, are the recovery objectiv
 
 Nightly at 01:35 UTC, before the base backup, the worker repacks every repository and prunes what nothing reaches, each under its writer lock. **Pruning cannot remove a version**: it removes only unreachable objects, and in an append-only linear history those are debris from failed writes (ASR-02, [`verification-plan.md`](verification-plan.md) V-08). A repository whose lock stays held is left for the next night and logged. The repack is also what keeps the nightly run of full bundles inside five minutes (DL-0313).
 
+Three sweeps remove what is not part of the record. Daily at 03:00 UTC, `worker` deletes the sign-in throttling rows, and the password resets used or expired more than a day ago (DL-0413). Hourly, `worker` deletes authorship computed on demand more than a day ago, and `render` deletes exported files older than a day. None of them touches a document's history.
+
 ## The reconciler
 
 Git is the commit point and the rows are its cache; the reconciler is the second path from git to the rows. It runs **hourly in repair mode** without deleting anything, and an operator runs it by hand after a restore. Each finding names the organisation's number (*tenant*) and the document's; every repair is recorded in the audit log.
 
 ```bash
-docker compose exec web python manage.py reconcile                        # report: changes nothing; exit 1 when anything is found
-docker compose exec web python manage.py reconcile --repair               # repair what git implies; exit 1 while anything is left
-docker compose exec web python manage.py reconcile --repair --prune-rows  # also delete version rows whose commit is gone
-docker compose exec web python manage.py reconcile --tenant N --document M   # one document
+$C exec web python manage.py reconcile                        # report: changes nothing; exit 1 when anything is found
+$C exec web python manage.py reconcile --repair               # repair what git implies; exit 1 while anything is left
+$C exec web python manage.py reconcile --repair --prune-rows  # also delete version rows whose commit is gone
+$C exec web python manage.py reconcile --tenant N --document M   # one document
 ```
 
-Run report mode first and read it before repairing anything; `--prune-rows` only after reading the report, since it is the one deletion. When `web` is stopped, as during a restore, run the same commands with `docker compose run --rm web python manage.py reconcile …`; the output is the command's own.
+Run report mode first and read it before repairing anything; `--prune-rows` only after reading the report, since it is the one deletion. When `web` is stopped, as during a restore, run the same commands with `$C run --rm web python manage.py reconcile …`. The one-off container first brings every schema up to date, as `web` does when it starts, and prints a line for each; the report follows.
 
 | Finding | Means | `--repair` | `--prune-rows` |
 |---|---|---|---|
@@ -257,6 +259,7 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `locked` | the document's writer lock stayed held for thirty seconds | tried again next run | — |
 | `unreadable` | a repository or file the reconciler could not read; the log — the worker's, or the command's own output — names the error | reports it | — |
 | `finish_stopped` | a *send for review* stopped after its commit: the holder's hold is still open with a draft whose base is behind a content commit of theirs, `edit` or `reviewer_edit`, or a finished hold still has its draft | releases the hold as finished and deletes the draft that commit consumed; the version row is `commit_without_row`'s. Left as found, and reported with its reason, while the holder is no longer a member, the commit has no version row yet, or the draft holds work written after the stop — text, entities, appendices or files — the holder's next *send for review* then finishes it | — |
+| `finish_stopped_kept` | a release — forced, by inactivity or by a block — met a *send for review* that had stopped after its commit and could not complete it, since the draft held work written after the stop: the draft was kept over the holder's own commit; the detail names that commit | reports it; **never repaired** — the version stands and its reviewers were told, and the draft is the holder's | — |
 | `accept_as_stopped` | an *accept as* stopped between its version and its acceptance: the hold was released *accepting* and never turned *finished* | tells the reviewers the version awaits them — nobody, once an acceptance has taken it in — finishes the hold and deletes what is left of its draft (DL-0397) | — |
 | `authorship_missing` | the newest version, or the latest accepted one, has no per-line authorship though its text has lines — the worker has not run yet, or its job was lost or failed | asks the worker for it again; a finding that returns on every run means the job fails, and the worker's log says why | — |
 | `acceptance_differs` | an acceptance row disagrees with the passport section its commit appended — its number, reviewer, time or the version it started from — or no section of the platform's form stands behind it | rewrites the row from its section, audited; the passport is believed | — |
@@ -264,14 +267,14 @@ Run report mode first and read it before repairing anything; `--prune-rows` only
 | `notices_missing` | an acceptance whose correction notices were never computed — a stop after its rows, or a computation that failed | computes them; a failure is reported with its error and tried again next run | — |
 | `edition_unfinished` | an approval's version whose edition row, tag or freeze's end is missing | derives what is missing from the approval's section: the tag with the approver's identity, the edition, the freeze's end — and, where a restore lost the freeze itself, the freeze the section proves (DL-0355) | — |
 | `edition_differs` | an edition row disagrees with its approval's section, or an approval commit is not of the platform's form | reports it; the passport is believed | — |
-| `export_stuck` | an export still queued ten minutes after it was asked for, at the next hourly run — `render` was down, or the broker lost the entry | queues it again; a job runs once however often it is queued. One that returns on every run means `render` fails it or is down: `docker compose ps render`, `docker compose logs render` | — |
+| `export_stuck` | an export still queued ten minutes after it was asked for, at the next hourly run — `render` was down, or the broker lost the entry | queues it again; a job runs once however often it is queued. One that returns on every run means `render` fails it or is down: `$C ps render`, `$C logs render` | — |
 | `export_abandoned` | an export still queued an hour after it was asked for, at the next hourly run — `render` has been down that long | fails it, *not made in time*, so its person may ask again; a job a render is making is left alone | — |
 | `tag_without_section` | a tag names a commit that is not the approval of that number | reports it; **never repaired** — a person decides what the tag was | — |
 
 **A stopped copy** is removed by its number, once the report has named it:
 
 ```bash
-docker compose exec web python manage.py remove_stopped_copy --tenant N --document M
+$C exec web python manage.py remove_stopped_copy --tenant N --document M
 ```
 
 It refuses anything but a copy still being created past the ten minutes, deciding under the document's writer lock — a copy that finished meanwhile is kept. It removes the repository first, then the version rows and the document's row, audited as `document.stopped_copy_removed`; run again after a stop between the two, it removes what is left, and with nothing left it says so. The number is never given again.
@@ -284,13 +287,13 @@ A person edits a document while they hold it; what they type is kept as a draft 
 
 ### A hold that will not release
 
-A hold ends when its holder finishes. One that stays open — the holder has left, the document is needed — is released from the shell, with a reason that names neither the document nor a person:
+A hold ends when its holder finishes, releases or discards. A hold left idle is ended by the worker: after the organisation's inactivity timeout — 30 minutes unless its administrator set another — the holder is asked, and ten minutes later the hold is released, its draft kept; a reserved hold is never released this way. One that still stays open — it is reserved, or the worker is not running — is released from the shell, with a reason that names neither the document nor a person:
 
 ```bash
-docker compose exec web python manage.py release_hold --tenant N --document M --reason "…"
+$C exec web python manage.py release_hold --tenant N --document M --reason "…"
 ```
 
-It marks the hold *forced*, **keeps the draft**, and records the release, with its reason, in the audit log. It waits for the document's writer lock, so it never releases a hold in the middle of a commit. **Never delete a hold or a draft row** — the draft is the holder's text. In the interface the same release is *Звільнити документ примусово* behind the document heading's *More* icon, for a tenant or platform administrator (DL-0522), and the holder ends their own hold with *Release the document*, or *Discard my edits* once something is edited (DL-0510).
+It marks the hold *forced*, **keeps the draft**, and records the release, with its reason, in the audit log, printing `released: document M; the draft is kept`. Where the holder's *send for review* had stopped after its commit, the command completes it instead — the hold ends as finished — and prints `released: document M; the stopped finish was completed`. A document nobody holds is reported, `nothing to release: the document is not held`. It waits for the document's writer lock, so it never releases a hold in the middle of a commit. **Never delete a hold or a draft row** — the draft is the holder's text. In the interface the same release is *Force release* under ⋯ (*More actions*) beside the document's heading, for a tenant or platform administrator (DL-0522), and the holder ends their own hold with *Release the document*, or *Discard my edits* once something is edited (DL-0510).
 
 A holder who cannot finish because *an editor is still open* first closes their other tabs on the document: an open tab keeps its editor open, however long. An editor whose page went away without closing it — a closed laptop, a crashed browser — is closed by the worker within about four minutes: silent for three, found by the check that runs every minute. If the wait lasts longer, the worker is not running.
 
@@ -299,7 +302,7 @@ A holder who cannot finish because *an editor is still open* first closes their 
 Print the draft's content, as JSON, with its hold's details — the open hold's, or, when none is open, the latest hold's; the read is recorded in the audit log:
 
 ```bash
-docker compose exec web python manage.py inspect_draft --tenant N --document M
+$C exec web python manage.py inspect_draft --tenant N --document M
 ```
 
 A draft whose text the editor does not accept is never lost: the editor opens it in the source view, as Markdown, with each refused line named, and the holder corrects it there. An operator does not repair a draft by hand. When the editor says *busy*, the document's writer lock is held by another write — a commit or a backup bundle — and the holder tries again. Any other failure is in `web`'s log.
@@ -330,8 +333,8 @@ The person who asked sees the reason on the job's page.
 - **The chosen version has no attachments to export**: attachments alone were asked of a version that has none. Not a fault.
 - **An attachment has gone since you asked**: an attachment the export lists was not found when the zip was made. Not a fault; the person exports again.
 - **An attachment's file does not match its record**: an attachment's stored bytes are not the ones its version lists — a defect. The render worker's log has *an attachment's file does not match its listed hash* with the document, the commit and the number; for a *my edits* export it reads *a draft's attachment does not match its listed hash*, with the draft.
-- **The file could not be made**: the renderer failed. `docker compose logs render` has the error under *an export failed*, with the job's id. Failures of one document's every export point at its text, an image it names or the fonts; failures of every export point at `render` itself.
-- ***Not made in time***: the job was still unrun at the first hourly reconciler run after it had waited an hour, one to two hours after the request, and `export_abandoned` failed it. `docker compose ps render` shows whether `render` is running; the person asks again once it is.
+- **The file could not be made**: the renderer failed. `$C logs render` has the error under *an export failed*, with the job's id. Failures of one document's every export point at its text, an image it names or the fonts; failures of every export point at `render` itself.
+- ***Not made in time***: the job was still unrun at the first hourly reconciler run after it had waited an hour, one to two hours after the request, and `export_abandoned` failed it. `$C ps render` shows whether `render` is running; the person asks again once it is.
 
 A job still queued is the reconciler's `export_stuck`: the first hourly run after it has waited ten minutes queues it again, and a job runs once however often it is queued. A job the broker refused when it was asked for is logged in `web` as *an export could not be queued* and waits for that run.
 
@@ -343,7 +346,7 @@ A stylesheet the checker accepted when it was applied and refuses after a releas
 
 ### A sample that never finishes
 
-The styles page's *Export a sample PDF* or *Word file* makes one sample at a time per organisation, on `render`. A sample still queued and not being made half an hour after it was asked for is failed, *the sample was not made in time*, when the organisation's next sample is asked for — the reconciler does not watch samples. One that never leaves *being made* means `render` is down or not consuming its queue: `docker compose ps render`, `docker compose logs render`. A failed sample's reason is on the styles page; `render`'s log has *a sample failed* with the sample's id, and `web`'s *a sample could not be queued* when the broker refused it. A sample is no record: its file is swept with the exports after a day.
+The styles page's *Export a sample PDF* or *Word file* makes one sample at a time per organisation, on `render`. A sample still queued and not being made half an hour after it was asked for is failed, *the sample was not made in time*, when the organisation's next sample is asked for — the reconciler does not watch samples. One that never leaves *being made* means `render` is down or not consuming its queue: `$C ps render`, `$C logs render`. A failed sample's reason is on the styles page; `render`'s log has *a sample failed* with the sample's id, and `web`'s *a sample could not be queued* when the broker refused it. A sample is no record: its file is swept with the exports after a day.
 
 ### A document whose text will not parse
 
@@ -395,14 +398,14 @@ The outbox row says why, in the page's language. A refusal is tried again five m
 - ***The sending password cannot be read until the mail key is set***, ***The mail key does not open the sending password: enter it again.*** — § The mail key. These emails wait, their attempts untouched.
 - ***No sending address is set.*** — the address was removed and none is left, the organisation's nor the platform's. The emails wait, their attempts untouched, and leave once an address is set (DL-0395); nobody is told, since an administrator removed it.
 
-A stored password is kept only while the host, port, security and user name it was entered for are unchanged; change any of them and enter the password again. `docker compose logs worker` has *an email not sent* or *an outbox not sent* where the database itself refused, with the row's id or the organisation's number; the outbox continues with the rest.
+A stored password is kept only while the host, port, security and user name it was entered for are unchanged; change any of them and enter the password again. `$C logs worker` has *an email not sent* or *an outbox not sent* where the database itself refused, with the row's id or the organisation's number; the outbox continues with the rest.
 
 ## Restore
 
 > [!note] Rehearsed — B and C in the production form, A on the base file
 > Cases B and C have been rehearsed end to end in the production form below, against an S3 store, and corrected here. Case A has been rehearsed on the base file alone; its production form has not been rehearsed yet.
 
-**The installation's Compose command** is written `$C` throughout: on production `docker compose -f compose.yaml -f deploy/compose.prod.yaml` (§ Deploy), run in the running release's checkout; on a host with the base file alone, `docker compose`; in a rehearsal, the rehearsal's own (*Rehearsing beside a running installation*, below). In zsh, which does not split an unquoted variable, define `C` as a function and type `C` where this section writes `$C`. The scripts read the same command from `COMPOSE`, as one string, and fall back to a bare `docker compose` when it is unset — which acts on whatever project `.env` names — so set it and print it before the first script, with the data directory the file commands below act on — `.env`'s `DATA_DIR`, which the shell does not read by itself:
+**The installation's Compose command** is written `$C` throughout: on production `docker compose -f compose.yaml -f deploy/compose.prod.yaml` (§ Deploy), run in the running release's checkout; on a host with the base file alone, `docker compose`; in a rehearsal, the rehearsal's own (*Rehearsing beside a running installation*, below). In zsh, which does not split an unquoted variable, define `C` as a function, as § Deploy shows (*Production*), and type `C` where this section writes `$C`. The scripts read the same command from `COMPOSE`, as one string, and fall back to a bare `docker compose` when it is unset — which acts on whatever project `.env` names — so set it and print it before the first script, with the data directory the file commands below act on — `.env`'s `DATA_DIR`, which the shell does not read by itself:
 
 ```bash
 export COMPOSE="docker compose -f compose.yaml -f deploy/compose.prod.yaml"

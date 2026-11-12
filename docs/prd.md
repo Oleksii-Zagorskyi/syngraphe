@@ -52,12 +52,12 @@ Named by the action performed, never by corporate title (DL-0017). A person hold
 | decider *(stage 2)* | rules on Statement entries, choosing the surviving wording | document |
 | approver | makes an accepted document canonical, frozen or not (DL-0515) | document |
 | pending edits viewer | sees committed, unaccepted changes | whole document |
-| tenant administrator | users, document sets, role assignments, heuristic selection, the document template and its title page layout, the organisation's stylesheet (DL-0169, DL-0230, DL-0462, DL-0464) | tenant |
-| platform administrator | the platform, the seeded heuristic catalogue, the base prompts | platform |
+| tenant administrator | users, document sets, role assignments, the document template and its title page layout, the organisation's stylesheet (DL-0169, DL-0230, DL-0462, DL-0464); from stage 2, heuristic selection | tenant |
+| platform administrator | the platform; from stage 2, the seeded heuristic catalogue and the base prompts | platform |
 
 Board approval is recorded by one designated person; quorum and voting happen outside the software (DL-0017).
 
-Two AI actors, not roles a person holds. The **companion** runs actions for the editor, is edit-scoped, and never reads a document the editor cannot read. The **reviewer agent** runs when a document is sent for review and produces two artefacts from **two separate runs**: a reviewer-eyes-only analysis from a run that reads the guidance, and an editor-facing analysis from a run whose context never contains it (DL-0007, DL-0095).
+From stage 2, two AI actors, not roles a person holds. The **companion** runs actions for the editor, is edit-scoped, and never reads a document the editor cannot read. The **reviewer agent** runs when a document is sent for review and produces two artefacts from **two separate runs**: a reviewer-eyes-only analysis from a run that reads the guidance, and an editor-facing analysis from a run whose context never contains it (DL-0007, DL-0095).
 
 **Access is data** (DL-0051). Groups, their rights, their members and their links to documents are rows with a full change history carrying timestamp and actor (ADR-0007); only a tenant or platform administrator may edit them. Confidential guidance is **an ordinary document with restricted rows** — authored, edited and reviewed like any other — not a separate mechanism.
 
@@ -81,9 +81,9 @@ An ordinary **hold is released after a period without activity**, once its holde
 
 ## Rights and administration
 
-Three application roles (DL-0079). A **platform administrator** does everything a tenant administrator can, in every tenant, and creates tenants, blocks them and grants platform administration. A **tenant administrator** invites users by email, blocks them in tenants they administer, manages groups and links them to documents, manages folders, archives and restores documents, and assigns side-document types and companion actions (ADR-0007). A **user** does what the rights of their groups allow — creating documents included, through *create and edit*. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
+Three application roles (DL-0079). A **platform administrator** does everything a tenant administrator can, in every tenant, and creates tenants, blocks them and grants platform administration. A **tenant administrator** invites users by email, blocks them in tenants they administer, manages groups and links them to documents, manages folders, archives and restores documents, and from stage 2 assigns side-document types and companion actions (ADR-0007). A **user** does what the rights of their groups allow — creating documents included, through *create and edit*. The list is indicative rather than exhaustive — ordinary surfaces such as editing one's own profile are not enumerated and are not thereby forbidden.
 
-**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept, freeze and unfreeze, and reserve for editing, each including edit (ADR-0016), and make canonical, with the accepted view (DL-0234); and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is stage 2 with the rest of the annotation surface.
+**Rights are held by groups, and groups are linked to documents** (ADR-0007); a person holds the union of the rights of their groups linked to a document. The rights: a viewing ladder — view canonical, view accepted, view pending, edit, create and edit; history — view previous canonical versions, view all history; acts — accept, freeze and unfreeze, and reserve for editing, each including edit (ADR-0016), and make canonical, with the accepted view (DL-0234); and rights over appendices and attachments. A new or copied document reaches only its author until the tenant administrator links groups. In this release both administrators read every document in their scope; separating administering from reading is EP-0001. Comment is deferred with the rest of the annotation surface (backlog B-013, DL-0083).
 
 **There are no section-scoped roles and no code owners** (DL-0091). A right is held over a document or not at all.
 
@@ -93,7 +93,7 @@ Three application roles (DL-0079). A **platform administrator** does everything 
 
 **A new document starts author-only until the first linked group: its creator holds edit, and of the part rights only upload and replace attachment** (ADR-0007, DL-0445): the creator can carry the document's forms from its first draft, while creating and deleting its parts wait for a linked group's rights. The tenant administrator is notified that it was created and grants the rest. Until a reviewer exists the document reads *no reviewer assigned*, and acceptance is blocked with that stated reason rather than silently.
 
-**Archiving** is visible to administrators only (DL-0084). An archived document's links stop resolving anywhere, including where its name appears in another document's prose; its access rights are archived with it, vanish from the administration panel, and **resurrect unchanged** on restore.
+**Archiving** is visible to administrators only (DL-0084). An archived document's links stop resolving anywhere, including where its name appears in another document's prose; its group links stay, are listed and can be changed by an administrator while it is archived, and apply as they then stand on restore (DL-0548).
 
 **Cross-tenant, nothing.** No links, no analyses, no searches. A user with several memberships switches tenant; a user with one sees the tenant name and no switcher. A tenant administrator adding a user by email learns nothing about that user's existence elsewhere (ASR-17).
 
@@ -131,7 +131,7 @@ English names are canonical; every translation, the Ukrainian interface names in
 | **Accepted edits** | the last revision a reviewer accepted |
 | **Pending edits** | everything committed since, attributed and unaccepted |
 | **My edits** | the holder's own uncommitted session |
-| **My edits in review** | what the editor has sent |
+| **My edits in review** | what the editor has sent — not drawn in release 0.1 (DL-0549) |
 
 **Four of the five are *edits*, not document states.** The user is not switching between five documents; there is one document and a filter over which layers of edits are shown, with authorship toggled on top. That is how the tool being replaced works, and the interface follows it rather than the substrate.
 
@@ -151,7 +151,7 @@ Acceptance is a **document-level act** covering the whole run since the last acc
 
 ## Editions
 
-**Making a document canonical** makes its latest accepted version the next **edition**, while nobody holds it and nothing committed since that acceptance awaits review; it needs no freeze first (DL-0515). A document is **frozen** while something outside it is resolved — an approval that takes time, a discussion with whoever approves, work elsewhere — and only its reviewers may edit it meanwhile (DL-0189). The freeze ends by making the document canonical, or by unfreezing it. A document cannot be made canonical while any Statement entry is open (DL-0010). A new editing cycle may start against a canonical document at any time.
+**Making a document canonical** makes its latest accepted version the next **edition**, while nobody holds it and nothing committed since that acceptance awaits review; it needs no freeze first (DL-0515). A document is **frozen** while something outside it is resolved — an approval that takes time, a discussion with whoever approves, work elsewhere — and only its reviewers may edit it meanwhile (DL-0189). The freeze ends by making the document canonical, or by unfreezing it. From stage 2, a document cannot be made canonical while any Statement entry is open (DL-0010, deferred with the register, DL-0076); in stage 1 nothing gates it but the approver and the checks above. A new editing cycle may start against a canonical document at any time.
 
 ## What the agents look for
 
@@ -175,7 +175,7 @@ Three rules (DL-0056, ASR-11, ASR-12):
 - **No repeat for unchanged content.** Once an action has answered for a content state, the same action on the same content returns the stored answer — the source has not moved, so neither has the answer.
 - **Keyed to content, not to a session.** An action may run mid-edit; its result is stored against a hash of the document tree, so a commit is simply one content state among others (DL-0056). The send-for-review screen shows what was already computed rather than recomputing it.
 
-On sending for review the editor sees the analyses that will travel with the commit and confirms them.
+From stage 2, on sending for review the editor sees the analyses that will travel with the commit and confirms them.
 
 **Audience (DL-0021):** a finding reaches a recipient if and only if it is derivable from material that recipient may already read — computed per recipient, never by the prompt. An untagged finding is confidential.
 
@@ -183,7 +183,7 @@ On sending for review the editor sees the analyses that will travel with the com
 
 ## Generated views
 
-Maintained by the agent and by nobody else, each with its own history (DL-0044). Two classes (DL-0063):
+Maintained by nobody who writes documents. Release 0.1 has two — the role directory and *see also* — which the platform derives from the version shown each time it is read (DL-0448). The rest are stage 2: maintained by the agent and by nobody else, each with its own history (DL-0044). Two classes (DL-0063):
 
 **Mandatory** — recompiled on every commit:
 
@@ -203,17 +203,20 @@ When a person changes the *logic* rather than the wording, a decision record is 
 
 **Stage 1 — editor, diff viewer, versions, review and acceptance.** A working editor users can use the next morning.
 **Stage 2 — the agents and the generated views.**
+Stage 1 is release 0.1; stage 2 begins with release 0.2.
 Architecture is designed for both now so stage 2 does not rebuild stage 1 (DL-0043, ASR-11).
 
 ## Scope
 
-**In:** multi-tenancy with schema isolation; the linear cycle above on dummy documents; the interface in Ukrainian or English per person (DL-0498), and per-document language; the entity layer, AI-proposed and human-confirmed, with read-only derived views; manual cross-document links; canonical documents readable as wiki pages; appendices and attachments; export to Markdown, PDF and DOCX, composed by scope and view and written in the document's language (DL-0172, DL-0502); heuristics and both agents; stances, time machine, presence, the edit-authors checkbox.
+**In, release 0.1:** multi-tenancy with schema isolation; the linear cycle above; the interface in Ukrainian or English per person (DL-0498), and per-document language; entities marked by people, with the role directory and *see also* derived from them; manual cross-document links; canonical documents readable as wiki pages; appendices and attachments; export to Markdown, PDF and DOCX, composed by scope and view and written in the document's language (DL-0172, DL-0502); stances, history, holds shown to readers, the edit-authors checkbox.
+
+**In, from release 0.2:** heuristics and both agents; entities proposed by the agent and confirmed by a person; the other generated views; disputes.
 
 **Out:** everything in [`backlog.md`](backlog.md) — Word import, automatic review of connected documents, repository-scope views, style linting, tenant-authored heuristics, the MCP server, and work items derived from the views. Plus per-tenant role-set configuration and board voting.
 
 ## Success criteria
 
-A reviewer and an editor who have never seen git complete one full cycle on a dummy policy without meeting git vocabulary, and the canonical edition exports with its versions, reviews, disputes and approval traceable.
+A reviewer and an editor who have never seen git complete one full cycle on a policy without meeting git vocabulary, and the canonical edition exports naming its version, with its acceptances and approval traceable in the platform's history; disputes join from stage 2.
 
 ## Publication
 

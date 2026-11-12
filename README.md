@@ -109,12 +109,18 @@ list of words this product does not use, and what to use instead.
 
 ## Running it
 
-Docker with Compose; `uv`, Node 22 and GNU gettext for the check; and an off-host backup store — an SFTP
-server or an S3 bucket — which the database and the backup need before they
-start; there is no local kind ([the runbook](docs/runbook.md#backup)).
+To run it you need Docker with Compose, and an off-host backup store — an SFTP
+server or an S3 bucket; the database and the backup do not start without one,
+and there is no local kind ([the runbook](docs/runbook.md#backup)). To run the
+check you also need `uv`, Node 22, GNU gettext, and Pango and HarfBuzz with the
+DejaVu fonts.
 
 ```bash
-cp .env.example .env         # fill every ??? (the store's for its kind only); nothing starts while one remains but the mail key, read when used
+cp .env.example .env         # fill every ??? above "Compose only, the production override";
+                             # of the backup store's keys, only those of the kind you chose.
+                             # Set BACKUP_KEY_FILE to the store's SSH key, or to /dev/null for S3.
+                             # The application refuses to start while a ??? remains;
+                             # MAIL_PASSWORD_KEY alone may wait until mail is set up.
                              # set SITE_HTTPS=false unless a TLS proxy is in front: over plain
                              # HTTP the cookies are never sent and nobody can sign in
 mkdir -p .repos              # the document repositories, written by the application's user, uid 1000

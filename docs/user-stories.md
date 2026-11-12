@@ -9,7 +9,7 @@ date: 2026-09-21
 
 # User Stories — stage 1
 
-The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comments and disputes are stage 2 and are listed at the end as the explicit boundary.
+The editor and the exporter (DL-0043, DL-0081). Agents, the agent's generated views, comments and disputes are stage 2 or later and are listed at the end as the explicit boundary.
 
 **Reading this file.** One story per line, with acceptance criteria only where they carry something the story does not. Stories marked *(skeleton)* form the thinnest end-to-end path — one person taking a document, editing it, committing, having it accepted, frozen, approved and exported. If only those were built, the product would work for one user doing one thing, which is the point of a walking skeleton.
 
@@ -24,6 +24,10 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 **ST-0001** — As a platform administrator, I create a tenant, so that an organisation can have its own independent workspace. *(skeleton)*
 - The tenant is created with its first tenant administrator, a person already registered on the platform; anyone else is invited from the tenant's users page afterwards (DL-0412).
 - An active tenant always has at least one active tenant administrator.
+- Later tenant administrators are appointed by a platform administrator from the organisations page, among the organisation's active members.
+
+**ST-0080** — As a platform administrator, I list the names the platform answers on and each organisation's domains, add and remove them, and choose the default of each set, so that links and mail carry the right name (ADR-0008).
+- A name is a host with an optional port; each set has one default; every change is audited.
 
 **ST-0073** — As the operator of an installation, I add a person to a tenant from the command line, so that people can sign in before invitations exist.
 - The command creates the person if the email address is new and gives them an active membership in the named tenant; it never makes a tenant administrator.
@@ -213,7 +217,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - An appendix I added and never sent, I can always delete again; one with an editor open is not deleted.
 
 **ST-0062** — As an editor, I attach files to a document — a form, a spreadsheet template — and replace, rename, reorder, download or delete them, as my groups' part rights allow, so that the files people need sit beside the policy they belong to.
-- Every attachment has a title. Files above the organisation's size limit are refused with the limit stated (DL-0166).
+- Every attachment has a title. Files above the organisation's size limit — set by its administrators on the settings page, 5 MB by default and never above the platform's upload maximum — are refused with the limit stated (ADR-0005, DL-0432).
 - The platform never opens an attachment; replacing it keeps the earlier version in the history.
 - Every change to an attachment is part of my draft and is reviewed with my text (DL-0168); I download a file as my draft holds it.
 - As the author of a document no group is linked to yet, I may upload and replace attachments (DL-0445).
@@ -306,7 +310,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 - My correction is never silent: the acceptance that makes it authoritative — mine, or another reviewer's — generates a **correction notice** for every author whose lines I replaced or removed, one per author listing all of them, and I have no discretion over it (ADR-0001, ADR-0014). The durable rejection record the notice later feeds arrives in stage 2 (DL-0076).
 
 **ST-0036** — As a reviewer, I accept the run of versions since the last acceptance, making the current text the accepted baseline. *(skeleton)*
-- The acceptance is recorded in the document itself, so it survives export and needs no second system to be believed.
+- The acceptance is recorded in the document's passport, so it travels with the document and needs no second system to be believed; an export does not carry it (backlog B-038).
 - Acceptance covers the whole document. Accepting only part of a run is a backlog refinement.
 - I may accept work I wrote myself; the record, not a rule, is what makes that accountable (DL-0092). Finishing my own session, I can do both in one act (ST-0029).
 - I cannot accept or return while the document is reserved; the screen says it is reserved and by whom (DL-0224). An ordinary hold leaves both open; it disables *Edit* and the undo, naming the holder (DL-0516).
@@ -314,7 +318,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0052** — As a reviewer, I return a run without accepting it, giving a reason, so that I can decline work that needs rework instead of holding it or unpicking it sentence by sentence.
 - The run stays pending and its authors are notified with my reason (ADR-0001).
-- The return is recorded in the document itself, so it shows in an export like an acceptance does. The document list says *returned* rather than *awaiting review* (DL-0114).
+- The return is recorded in the document's passport, like an acceptance; an export does not carry it (backlog B-038). The document list says *returned* rather than *awaiting review* (DL-0114).
 
 **ST-0053** — As a tenant administrator, I switch on a check that a document cannot be made canonical by anyone who accepted any of its runs since the previous canonical edition, so that my organisation can show an auditor a second pair of eyes.
 - Off by default. The approver must have accepted **none** of the runs since the previous canonical edition — not merely not the last one (DL-0115).
@@ -387,7 +391,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 **ST-0047** — As any user, I see in the application what is waiting for me, so that I do not have to go looking.
 - Two tabs: *Document*, each entry linking to the document at the version concerned, and *Administrative*, with filters and *mark all as read*. Opening a notification marks it read (DL-0204).
-- Committed versions awaiting my review, acceptances of work I wrote, a run of mine returned with the reviewer's reason, a correction notice listing my lines and parts a reviewer's version changed (ADR-0014), frozen documents awaiting a decision, a hold of mine about to be released for inactivity, groups I was added to, and — for a tenant administrator — a document created or copied and not yet linked to any group.
+- Committed versions awaiting my review, acceptances of work I wrote, a run of mine returned with the reviewer's reason, a correction notice listing my lines and parts a reviewer's version changed (ADR-0014), frozen documents awaiting a decision, a hold of mine about to be released for inactivity, a reservation of mine ended by an administrator (ST-0070), a hold of mine released because the document was archived, a document I may read frozen, unfrozen or made canonical, groups I was added to; for a tenant administrator also a document created or copied and not yet linked to any group, a reservation started (ST-0030) and an email that failed (ST-0048); for a platform administrator a person blocked in one organisation and active in another (ST-0004), an organisation left without an administrator, and a change in the backup's state.
 
 **ST-0048** — As any user, I receive an email for the same events, so that I notice them without visiting the platform.
 - It names the document, versions, people and the event, and links to the platform; it never contains text of the document (DL-0205). It is written in my interface language, fixed when it is queued (DL-0501).
@@ -411,7 +415,7 @@ The editor and the exporter (DL-0043, DL-0081). Agents, generated views, comment
 
 The stories marked *(skeleton)* in order: bootstrap the first administrator → create a tenant → sign in → create a document → open an editor → write text → work captured without saving → send for review and commit → read the pending changes → correct and accept → accept the run → make it canonical → read it → export it.
 
-They carry one document through the whole cycle for one person. Everything else thickens that path: more people, more rights, more organisation, more ways to look at the same history. The build order is `story-mapping.md`.
+They carry one document through the whole cycle for one person. Everything else thickens that path: more people, more rights, more organisation, more ways to look at the same history.
 
 ## Not in stage 1
 
@@ -431,6 +435,5 @@ Named here so the boundary is explicit rather than inferred from absence.
 | MCP server for external agents | backlog B-007 |
 | Automatic review of connected documents | backlog B-002 |
 | Tenant-wide entity registry | backlog B-012 |
-| Per-tenant email sending domains | backlog B-009 |
 
-The role directory is the one generated view that **is** in stage 1, because with human marking it is a parser rather than an agent (ST-0027).
+The role directory and *see also* are the generated views that **are** in stage 1, because with human marking each is a parser rather than an agent (ST-0027, ST-0044, DL-0448).

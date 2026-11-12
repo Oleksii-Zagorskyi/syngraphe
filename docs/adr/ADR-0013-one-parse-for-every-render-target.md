@@ -6,7 +6,8 @@ aliases:
 status: accepted
 date: 2026-09-27
 supersedes: []
-superseded_by: []
+superseded_by:
+  - ADR-0021-the-organisations-stylesheet.md (in part — the reference document authored from the stylesheet)
 ---
 
 # ADR-0013: One parse for every render target — HTML from the platform's parser, PDF with fetch failures fatal, DOCX from that HTML with named styles
