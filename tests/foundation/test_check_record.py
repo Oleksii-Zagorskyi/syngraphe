@@ -227,6 +227,31 @@ def test_coverage_is_current(check_record: ModuleType, tmp_path: Path) -> None:
     assert check_record.check_coverage(tmp_path) == []
 
 
+def test_coverage_stops_at_the_release_boundary() -> None:
+    """A story after `## Not in stage 1` belongs to a later release and is not counted."""
+    spec = importlib.util.spec_from_file_location("derive_coverage", DERIVE)
+    assert spec is not None and spec.loader is not None
+    derive = importlib.util.module_from_spec(spec)
+    # A dataclass looks its module up by name while the module runs.
+    sys.modules[spec.name] = derive
+    try:
+        spec.loader.exec_module(derive)
+    finally:
+        del sys.modules[spec.name]
+    first, second = STORIES[0], STORIES[1]
+    text = "\n".join(
+        [
+            f"**{first}** — As a reader, I open a shelf, so that I find a document.",
+            "",
+            "## Not in stage 1",
+            "",
+            f"**{second}** — As a reader, I ask the lamp, so that I read in the dark.",
+        ]
+    )
+
+    assert derive.read_stories(text) == [(first, "As a reader, I open a shelf")]
+
+
 # --- pages --------------------------------------------------------------------------------------
 
 

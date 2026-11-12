@@ -21,7 +21,8 @@ The rules, which `coverage.md`'s header states for its readers:
   are, *not yet drawn* when none are.
 - **Stories** are those of `docs/user-stories.md`, in its order, with their title up to the
   *so that* clause or the sentence's end, and without an italic parenthesis such as
-  *(skeleton)*; a withdrawn story and one marked *Not in stage 1* are left out.
+  *(skeleton)*; a withdrawn story and one marked *Not in stage 1* are left out, and so is
+  every story after the heading `## Not in stage 1`, where the later releases' stories begin.
 
 Only the count line and the table are written; the rest of `coverage.md` is left as it is.
 Running it twice changes nothing.
@@ -45,6 +46,8 @@ UNDRAWN = "not yet drawn"
 MARK = re.compile(r"\s*\*\([^)]*\)\*")
 WHERE_LIMIT = 58
 STORY_LINE = re.compile(r"^\*\*(ST-\d{4})\*\* — (.*)$")
+# Release 0.1's boundary: what follows it is a later release's, which this table does not cover.
+BOUNDARY = "## Not in stage 1"
 STORY_ID = re.compile(r"ST-(\d{4})(?:\s+to\s+ST-(\d{4}))?")
 TABLE_HEAD = "| # | Story | Where | Drawn |"
 COUNT_LINE = re.compile(r"^\*\*\d+ stories:\*\*.*$", re.MULTILINE)
@@ -123,6 +126,8 @@ def read_stories(text: str) -> list[tuple[str, str]]:
     """The release's stories in the file's order: identifier and title without *so that*."""
     stories: list[tuple[str, str]] = []
     for line in text.splitlines():
+        if line.strip() == BOUNDARY:
+            break
         match = STORY_LINE.match(line)
         if not match or "*withdrawn" in line or "*Not in stage 1" in line:
             continue
