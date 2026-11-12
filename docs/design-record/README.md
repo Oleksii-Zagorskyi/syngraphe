@@ -12,6 +12,7 @@ How this design was arrived at. The specifications are in [`docs/`](../); these 
 | File | What it is |
 |---|---|
 | [`decision-log.md`](decision-log.md) | Every decision, with its rationale and what it touched. Newest first. Superseded rows stay, marked as such |
+| [`decision-log-0.1.md`](decision-log-0.1.md) | The decisions of release 0.1, closed at its end: it takes no new row, and a later row may still change a status. The ids continue in `decision-log.md` |
 | [`architecture-review-report-01.md`](architecture-review-report-01.md) | A review of the design set by a session with no authoring context, ranked by consequence |
 | [`architecture-review-report-02.md`](architecture-review-report-02.md) | The same reviewer reading the repairs, by diff |
 | [`architecture-review-report-03.md`](architecture-review-report-03.md) | A second full review before the design review, after the reservation, the editor, the Git library and the pages were settled; findings continue the series |
