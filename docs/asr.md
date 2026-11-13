@@ -50,13 +50,13 @@ Isolation is enforced by schema separation (DL-0029). *Forbids:* a shared table 
 ## ASR-03 — A finding cannot reach a recipient who could not derive it *(scenario)*
 
 - **Source**: The reviewer agent
-- **Stimulus**: A finding derived from confidential guidance
-- **Environment**: Normal operation; the recipient lacks access to that guidance
+- **Stimulus**: A cross-document finding, derived from the document under review and a neighbour in the reviewer's scope
+- **Environment**: Normal operation; the recipient may read the document and lacks read access to the neighbour
 - **Artifact**: The finding and its delivery path
-- **Response**: The platform computes the audience from the finding's provenance tag and withholds it
-- **Response measure**:  No finding is delivered to a recipient who lacks read access to every source it was derived from; an untagged finding is treated as confidential
+- **Response**: The platform computes the audience from the finding's sources — the documents it put into the call that produced the finding — and withholds it from that recipient
+- **Response measure**:  No finding is delivered to a recipient who lacks read access to every source it was derived from; a finding whose sources cannot be established is withheld from everyone and counted as an error (DL-0571 (13))
 
-Audience is computed per recipient, never per finding, and never by the prompt (DL-0021). The publishable artefact comes from a run whose context never held the confidential material (DL-0095). *Forbids:* routing agent output without an audience computation; redacting a confidential analysis into a publishable one; producing both artefacts from one context.
+Audience is computed per recipient, never per finding, and never by the prompt (DL-0021). A finding's provenance is its call's context: its sources are exactly the documents the platform assembled for the call — this document; this document and one neighbour; this document and the guidance — never a tag the agent writes, which could be wrong and could not bound what the finding draws on (ADR-0022). Release 0.2 sends no guidance to a model (DL-0568, B-079), so the scenario is a cross-document finding; a finding derived from the confidential guidance meets the same response and measure when the guidance returns. When it does, the publishable artefact comes from a run whose context never held the confidential material (DL-0095). *Forbids:* routing agent output without an audience computation; redacting a confidential analysis into a publishable one; producing both artefacts from one context.
 
 ## ASR-04 — Nothing enters the approved state without an approval *(constraint)*
 
@@ -90,7 +90,7 @@ Rights are held by groups and reach documents through the groups linked to them 
 
 ## ASR-09 — Generated views have exactly one author, the system *(constraint)*
 
-The role directory, control directory, contradictions, ambiguities and blind-spot lists are written by the system and by nobody else. Wherever a generated view's author is shown — the interface, and the MCP server later — it is *system*, never a person; the record beneath may carry the account a view was produced under (DL-0448). In stage 1 the role directory is derived from the version shown, each time it is rendered, with no store and no agent (DL-0073); from stage 2 the agent writes the other views, recompiled on every commit (DL-0044, DL-0063).
+The role directory, control directory, contradictions, ambiguities and blind-spot lists are written by the system and by nobody else. Wherever a generated view's author is shown — the interface, and the MCP server later — it is *system*, never a person; the record beneath may carry the account a view was produced under (DL-0448). In stage 1 the role directory is derived from the version shown, each time it is rendered, with no store and no agent (DL-0073). From release 0.2 the contradiction, ambiguity and blind-spot lists are the **standing findings set shown as lists**: computed once per accepted state and refreshed when that state changes, not recompiled on every commit, and holding only findings derived from the document alone, so every reader of the document sees the same lists (DL-0032, DL-0555). The control directory, which the agent is to write and recompile on every commit (DL-0044, DL-0063), is not in release 0.2 (DL-0555, B-068).
 
 *Forbids:* a human editing a generated view; a generated view being treated as **source text** — it is derived from the documents and never the other way round. Reading one to decide what to edit next, or to drive future work items, is exactly what it is for.
 
@@ -113,9 +113,9 @@ Interaction is by predefined actions only — a user calls an action, never comp
 - **Environment**: Normal operation, inside or outside an editing session
 - **Artifact**: The companion action and its stored result
 - **Response**: The stored result is returned; no model call is made
-- **Response measure**: At most one model call per action per key
+- **Response measure**: At most one model call per heuristic per key
 
-The key is the **review scope** (DL-0078, DL-0105): the ordered set of documents in scope, each at its content state, plus the heuristic set version. A document's content state **excludes `analysis/`**, since that is where the result is written. A commit is one content state among others, which is what lets an editor ask mid-session and still see the answer already computed on the send-for-review screen. *Forbids:* keying a cached analysis to anything that changes when the content does not — the results folder above all — or recomputing one when it has not.
+The unit stored and reused is the **call** (DL-0567): one heuristic over the documents the platform put into it (ADR-0022), keyed by its prompt version and the content states of the documents it read; a companion call's key also holds the draft's base commit, against which the changes it marks are measured (DL-0571 (5)). An analysis is the set of calls made for one purpose — an action on a content state, the reviewer agent's analysis of a run, a standing set of an accepted state (DL-0571 (4)) — so two scopes that share a neighbour share that pair's calls, and a result is never keyed by person (DL-0567). A failed call is not stored, so *run again* makes a new call. A document's content state is a hash of its tree (DL-0056) that excludes `passport.md` as it excludes `analysis/` (DL-0571 (5)), so an acceptance does not move it; no analysis is written into the tree, so no result can move it either (DL-0567). A review that needs a standing set before its batch returns, or one that is missing, computes it live and reuses any call the batch already stored; a batch result that arrives for a key already stored is discarded, so the measure holds for stored calls (DL-0571 (6)). A commit is one content state among others, which is what lets an editor ask mid-session and still see the answer already computed on the send-for-review screen. *Forbids:* keying a stored call to anything that changes when the content does not, or recomputing one when it has not; keying by review scope, which would recompute every pair when one neighbour changes; writing a result into the tree it was computed from.
 
 ## ASR-13 — The platform must be publishable *(constraint)*
 
@@ -129,8 +129,8 @@ The product ships under the Apache License 2.0 (DL-0011, DL-0162).
 - **Stimulus**: Adding the agents and generated views after the editor is in production
 - **Environment**: Stage 1 deployed, real documents in use
 - **Artifact**: The stage 1 data model and its interfaces
-- **Response**: Findings, heuristics, provenance tags and derived views attach to existing entities
-- **Response measure**: No migration that rewrites document, version or acceptance records; no change to the editing or review interfaces
+- **Response**: Findings, heuristics, each finding's sources and derived views attach to existing entities
+- **Response measure**: No migration that rewrites document, version or acceptance records; nothing of the editing or review interfaces is rebuilt — the regions of release 0.2 are added to them (DL-0565)
 
 *Forbids:* a stage 1 data model with no place for what stage 2 attaches (DL-0043).
 
@@ -237,3 +237,21 @@ One host without failover cannot honestly promise more; a higher figure is a dec
 - **Response measure**: **Recovery point** — for a failure of the database alone, the repositories intact on the host, at most **5 minutes** of database changes lost, the write-ahead log being shipped off-host continuously except as an outage of the store allows (DL-0297); for a restore of the whole host, at most **15 minutes** of changes to either store, the database being restored to the time the newest bundle run with no failed repository began, or to the end of its archive if that is earlier, and never past the repositories unless the operator chooses a newer run that names the repositories it gives up (DL-0276, DL-0294, DL-0300). **Recovery time** — **≤ 4 hours** to a running platform after a disaster, on a fresh host or the same one
 
 Mandating continuous archiving with point-in-time recovery was already a recovery-point decision; this entry states the point it was taken for. The database's figure is the tighter one because holds, access rows and drafts exist nowhere else. It gives way when the whole host is lost: a database restored past its repositories would name commits no copy holds, and those versions, with the drafts they used up, would be gone from both stores (DL-0276). A restore of both stores — a disaster — is counted apart from ASR-24's monthly measure: it answers to these figures, not to the availability percentage; a restore of the database alone or of one repository counts against ASR-24 (DL-0279, DL-0302). The bundle runs start every ten minutes so that a run of up to five keeps the fifteen (DL-0296). *Forbids:* a backup arrangement that cannot meet these figures without a rehearsed restore proving it does.
+
+---
+
+## The agents' model calls
+
+Two invariants of release 0.2, the AI reader, made requirements so that each has a *Forbids* (DL-0569).
+
+## ASR-26 — Every model call in production traces to a prompt version with passing eval results *(constraint)*
+
+A prompt version is one hash over the base prompt, the heuristic, the model and the effort. Every model call writes a trace that records it, and the command that loads the prompts refuses a version with no dated result at its target in `evals/` under the same hash (ADR-0024, DL-0554), so the prompt production sends is the prompt the evals measured. The load command and CI refuse in the same way a prompt version without a passing adversarial result under its hash (DL-0571 (12)).
+
+*Forbids:* loading a prompt version without a passing result — at its target and on the adversarial set — or with a warning in place of a refusal; a heuristic edited in place in the platform, whose text no eval measured — the hotfix is to switch it off (DL-0567); a fallback to a model the heuristic was not evaluated on (DL-0560); a model call that writes no trace, or that goes around the provider interface.
+
+## ASR-27 — A document's text is data to the agents, never an instruction *(constraint)*
+
+Instructions live only in system-role messages — the base before the document, the heuristic after it. Each document a call reads goes in the user turn, inside a delimiter carrying a marker made fresh for that call; the answer returns only through the enforced output structure, and a finding is drawn as limited Markdown with no link made from it (ADR-0022). An attempt to instruct the agent is made visible — by structural checks on every document a call reads and by the model's own report — as a finding shown to whoever sees the analysis and one notification to administrators per document and content state (DL-0571 (11)), and one shared adversarial case set runs against every prompt version.
+
+*Forbids:* document text, or anything a person typed, in a system-role message; a fixed delimiter, which a document can contain; reading a model's answer outside the enforced structure; drawing from a finding a link or any markup beyond the whitelist; shipping a prompt version that followed an injected instruction of the adversarial set; an automatic step against a person or a document when an attempt is detected.

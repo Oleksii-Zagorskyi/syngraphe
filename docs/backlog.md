@@ -103,7 +103,7 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **What has to be true before it is taken up.** **Before the first real document is loaded.** A real document brings real authors, and an erasure request arriving before the procedure exists would be answered by improvisation.
 
-**Taken up (DL-0556):** ST-0096; the procedure also covers the draft text a trace keeps (DL-0553).
+**Taken up (DL-0556):** ST-0096; the procedure also covers the draft text a trace keeps (ADR-0024) and the passages of a draft quoted in the findings of a companion analysis.
 
 ## B-018 — Accessibility position
 
@@ -213,7 +213,7 @@ An external agent connects as a user and inherits exactly that user's rights. Ch
 
 **What has to be true before it is taken up.** The 0.2 agent runs are being designed (DL-0120).
 
-**Taken up (DL-0555):** the model jobs of release 0.2 (ST-0094); the attempts and their limits are settled in its design.
+**Taken up (DL-0564):** the model jobs of release 0.2 (ST-0094); the attempts are the provider client's own, and past them the person waiting sees *failed* and may run again.
 
 ## B-032 — A source view with line numbers
 
@@ -311,7 +311,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** None of them blocks an act; they are fixed together, with the look of the pages they sit on.
 
-**What has to be true before it is taken up.** The next pass over the interface's look, in release 0.2's interface work.
+**What has to be true before it is taken up.** The next pass over the interface's look (DL-0556).
 
 ## B-044 — The sending settings reaching an installation's own machines
 
@@ -508,7 +508,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Why it is parked.** The path's *Freeze* posts no reason, so the band shows one only for a freeze the operator's `make_canonical` made with `--reason`. The band, the view and the record already carry a reason; only the field is missing.
 
-**What has to be true before it is taken up.** Readers of a frozen document ask what it waits for, or the interface work of release 0.2 reaches the path's acts.
+**What has to be true before it is taken up.** Readers of a frozen document ask what it waits for, or a pass over the interface reaches the path's acts (DL-0556).
 
 ## B-067 — The Platform part of Administration on an organisation's own domain
 
@@ -560,11 +560,11 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** Editors are observed rewriting the mechanical draft from nothing, or leaving it as it is where a reviewer needed more.
 
-## B-073 — Withdrawing the hiding of an analysis marked *not right*
+## B-073 — Ending the hiding of an analysis marked *not right*
 
 **Idea.** End the hiding that the *not right* mark carries in release 0.2, keeping the mark itself as the measure of how often real analyses are wrong (DL-0554).
 
-**Why it is parked.** The hiding is a safety valve while the prompts are new; withdrawing it before they are reliable would put wrong analyses back in front of reviewers.
+**Why it is parked.** The hiding is a safety valve while the prompts are new; ending it before they are reliable would put wrong analyses back in front of reviewers.
 
 **What has to be true before it is taken up.** Whoever develops the platform judges, from the traces — what was marked, and the trends over time — that the prompts give reliable results. A judgment, not a threshold (DL-0554).
 
@@ -572,7 +572,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **Idea.** For a holder of the guidance grant, each standing list carries an addendum computed against the confidential guidance, visible only to them (DL-0044).
 
-**Why it is parked.** In release 0.2 the lists hold only findings derived from the document alone, so every reader sees the same lists and nothing is filtered per person (DL-0555); the guidance findings of a run stay in the reviewer-eyes-only analysis.
+**Why it is parked.** In release 0.2 the lists hold only findings derived from the document alone, so every reader sees the same lists and nothing is filtered per person (DL-0555); release 0.2 has no guidance findings at all (DL-0568), so the addendum follows the return of the guidance (B-079).
 
 **What has to be true before it is taken up.** A holder of the guidance grant has been observed needing the document's standing conflicts with the guidance outside any one review.
 
@@ -599,3 +599,35 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 **Why it is parked.** The traces are the feedback loop that improves the agents, and a discarded draft is part of what they learn from; release 0.2 keeps it.
 
 **What has to be true before it is taken up.** An organisation or a person asks for it, or the provider and operator trust of EP-0001 is taken up.
+
+## B-078 — A playground for writing prompts
+
+**Idea.** A page, reachable only in development, to pick a heuristic, paste invented text, run it and read the findings — the command-line loop with a screen (DL-0563).
+
+**Why it is parked.** Running one heuristic over a file from the command line gives the same loop; a page that sends free text to a model is the channel ASR-11 forbids in production, so it would need a guard that it can never be reached there.
+
+**What has to be true before it is taken up.** Writing prompts from the command line is seen to be too slow for the person tuning them.
+
+## B-079 — The confidential guidance
+
+**Idea.** An organisation keeps requirements its reviewers enforce and its editors may not see — *a synthetic example: a supplier that may not be named a preferred vendor*. The tenant administrator marks guidance documents, the right to read them is the guidance grant, and heuristic C1 checks each run against them in a call of its own whose findings reach only holders of the grant (DL-0095, ADR-0022).
+
+**Why it is parked.** Release 0.2 leaves it out (DL-0568): the designation, the grant and a reviewer-only analysis are a surface of their own, and nothing in 0.2 needs them.
+
+**What has to be true before it is taken up.** An organisation is seen keeping requirements its editors may not read, or asks for them to be checked.
+
+## B-080 — A neighbour read at its pending state
+
+**Idea.** In a review's scope, the reviewer switches one neighbour from its accepted state to its pending head, and the analysis says so with a notice and the list of switched documents (DL-0104).
+
+**Why it is parked.** Release 0.2 reads every neighbour at its accepted state (DL-0569); the switch adds a mode the first release does not need.
+
+**What has to be true before it is taken up.** A reviewer is seen waiting for a neighbour's acceptance only to run a review against its new text.
+
+## B-081 — A citation of a superseded edition (C3)
+
+**Idea.** Heuristic C3 reports where a document cites an edition of another document that a later edition replaced, its call given each mentioned document's current edition number beside the text.
+
+**Why it is parked.** Release 0.2 leaves it out (DL-0571): a call over the document alone cannot know that a cited edition is superseded, and a standing list computed at this document's acceptance is never refreshed when the cited document gets a new edition.
+
+**What has to be true before it is taken up.** Readers are seen following a citation to an edition that is no longer canonical, or a reviewer asks for it.

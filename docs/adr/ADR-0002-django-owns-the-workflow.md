@@ -10,6 +10,7 @@ title: Django owns the workflow, git is a library, and no forge remains
 supersedes: []
 superseded_by:
   - DL-0547 (in part — no git revert in the operation set; no read-only repository views)
+  - ADR-0025-a-model-call-runs-in-the-worker.md (in part — agent runs as ephemeral container jobs)
 ---
 
 # ADR-0002: Django owns the workflow, git is a library, and no forge remains

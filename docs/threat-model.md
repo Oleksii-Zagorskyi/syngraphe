@@ -46,8 +46,7 @@ A second consequence worth stating: a development host that holds real tenant do
 
 - Browser ↔ platform.
 - Platform ↔ PostgreSQL and the git repositories, which are behind it and reachable no other way.
-- Platform ↔ agent job, which runs with a subset of the platform's reach.
-- Platform ↔ **the model API**, which is outside the system entirely and is the one boundary content crosses readable to a party we do not control.
+- Platform ↔ **the model API**, which is outside the system entirely and is the one boundary content crosses readable to a party we do not control. The platform's worker makes each call (ADR-0025): no job runs apart from it with a narrower reach. The worker reads every repository, holds the provider's key and reaches the provider's endpoint, so what bounds a call is the request the worker assembles from that call's documents, recorded document by document in its trace.
 - Platform ↔ **the off-host backup store**, which receives every tenant's content, encrypted before it leaves the host (T-20).
 - Tenant ↔ tenant, enforced by schema separation.
 
@@ -59,9 +58,13 @@ A second consequence worth stating: a development host that holds real tenant do
 
 **Who:** curious editor. **How:** the reviewer agent reads guidance the editor may not see, then writes something the editor does read. A sufficiently specific flag reconstructs the requirement.
 
-**Answered by:** ASR-03 — a finding reaches a recipient only if derivable from material that recipient may already read, computed by the platform from provenance tags, per recipient, never by the prompt.
+**Answered by:** ASR-03 — a finding reaches a recipient only if derivable from material that recipient may already read, computed by the platform from the finding's sources, per recipient, never by the prompt.
 
 **Gap found.** DL-0007 generates two artefacts from **one run that holds the guidance**. Separate generation is weaker than it sounds: the confidential material is in the context that writes the publishable note, so a prompt failure, a model error or an injection can carry it across. **Two runs with different inputs is strictly stronger than one run with two outputs** — the editor-facing analysis should be produced by a run whose context never contains the guidance at all, making the leak impossible rather than unlikely. *Recorded as a design change.*
+
+**Release 0.2 sends no guidance to a model** (DL-0568): the confidential guidance and its heuristic are not in it — no guidance call, no designation of guidance documents, no guidance grant (backlog B-079) — so this exposure is absent from 0.2, and every finding comes from documents its reader is filtered for.
+
+**The gap is answered by** DL-0095, the design for when the guidance returns, as calls with different contexts (ADR-0022). The guidance is read by one call of its own — the guidance heuristic, over the document and the guidance — whose findings are for the reviewer's eyes only; the context of every call that writes what an editor reads never holds the guidance. A finding's sources are the documents the platform put into its call, never a tag the model writes, so a finding from a call that did not read the guidance cannot draw on it, and one from the call that did is confidential whatever it says.
 
 ### T-02 — A document instructs the agent
 
@@ -69,13 +72,17 @@ A second consequence worth stating: a development host that holds real tenant do
 
 **Answered by**, and better than usual: the platform, not the agent, decides who sees a finding. A successful injection produces a finding whose provenance is confidential, and the audience filter withholds it regardless of what the agent intended. The control is structural.
 
-**Residual:** an injected agent can **mislabel** a finding's provenance — tag confidential content as derived from the document alone. Mitigations, none complete: verify that a finding quoting the document actually quotes text present in it; run the editor-facing analysis without the guidance (T-01's fix, which closes this too); treat document content as data and never as instruction, which is the discipline this estate already carries.
+**Confidentiality is answered structurally** (DL-0095, ADR-0022). The first form of this entry left a residual — an injected agent **mislabelling** a finding's provenance, tagging confidential content as derived from the document alone. Release 0.2 has no label to falsify: a finding's sources are the documents in its call's context (DL-0559, clause 2), and no call of release 0.2 holds the guidance at all (DL-0568). Every quote a finding rests on is checked word for word against the text the call read, and a finding whose quote is not there is withheld from people (DL-0559, clause 3).
+
+**The document is kept as data** (DL-0561, ADR-0022). Instructions live only in system-role messages — the base before the document, the heuristic after it; the document goes in the user turn inside a delimiter carrying a marker made fresh for each call, which a forged closing tag cannot know; the answer returns only through the enforced output structure, and is drawn as limited Markdown with no link made from it. An attempt to instruct the agent is made visible in two layers: structural checks on every document a call reads — a forged delimiter, a chat role marker, the marker's format — which hold in any language, and a field of every call's output in which the model quotes any text addressed to an automated reader. Each hit is a finding shown to whoever sees the analysis, and a notification in the application to the organisation's tenant administrators and the platform administrators — never by email — once per document and content state, naming the document and its version, or *a draft on version N.M*, never its text and never a person (DL-0571 (11)). No automatic step is taken against a person or a document (B-076). One shared adversarial case set runs against every heuristic's prompt version, and a version that follows any injected instruction in it does not ship: the load command and CI refuse a prompt version without a passing adversarial result under its hash (DL-0571 (12)).
+
+**Residual** (DL-0561, ADR-0022): integrity, which no audience filter sees. An injection that succeeds can make the agent **stay silent** about a defect or **say something false** within what its reader may already see; and an injection that succeeds may also **suppress its own report**, since the self-report field is written by the same model. The structural checks do not depend on the model, and the adversarial set's zero tolerance bounds what a shipped prompt version follows — on the shapes the set holds, which grows with each new one found. Bounded, not closed: a reviewer reads the agents' analysis as advice and remains accountable for the run (DL-0564; § Accepted risks).
 
 ### T-03 — Content leaves for the model provider
 
-**Who:** the model provider, and anyone who later obtains their logs. **How:** ordinary operation. Document content — and, for a reviewer run, the confidential guidance — is sent to a third-party API.
+**Who:** the model provider, and anyone who later obtains their logs. **How:** ordinary operation. Document content is sent to a third-party API; the confidential guidance is not, in release 0.2 (DL-0568).
 
-**Answered by:** an **accepted risk, decided for release 0.2** (DL-0560): the document's text, and for the reviewer's guidance run the guidance, go to the provider's API under its commercial terms, whose retention and training clauses the model-and-provider ADR cites from the provider's published text. Text leaves only for a document to which the tenant administrator has assigned a companion action or a side-document type, so each organisation decides document by document (DL-0049). The runtime stays a **provider interface** (DL-0120), so a self-hosted model, or a provider an organisation chooses (EP-0001), implements the same interface without rework. It remains the largest residual risk in the system, and a tenant will eventually ask.
+**Answered by:** an **accepted risk, decided for release 0.2** (DL-0560): the document's text goes to the provider's API under its commercial terms, whose retention and training clauses ADR-0023, proposed, is to quote from the provider's published text before it is accepted. Text leaves only for a document to which the tenant administrator has assigned a companion action or a side-document type, so each organisation decides document by document (DL-0049). **A cross-document call sends one neighbour beside the document, and a document may be put in a review's scope only if it is itself assigned at least one analysis** (DL-0571 (1)): a reviewer's choice never sends a text its organisation assigned nothing to, and the assignment stays the one control. The runtime stays a **provider interface** (DL-0120), so a self-hosted model, or a provider an organisation chooses (EP-0001), implements the same interface without rework. It remains the largest residual risk in the system, and a tenant will eventually ask.
 
 ### T-04 — A tenant reaches another tenant's data
 
@@ -123,7 +130,7 @@ The same person may also leave documents **held or reserved**, so that nobody el
 
 ### T-10 — Model spend is driven up
 
-**Who:** any editor, deliberately or by clicking. **Answered by:** ASR-12 — one model call per action per content state, so asking twice about unchanged text is free. The cache is a cost control before it is a convenience. Add per-tenant rate limits before stage 2 ships.
+**Who:** any editor, deliberately or by clicking. **Answered by:** ASR-12 — one model call per heuristic per key, the call's prompt version and the content states of the documents it read (DL-0567), so asking twice about unchanged text is free. The cache is a cost control before it is a convenience. It stops repeats, not volume, and DL-0564 bounds the volume twice, in the detail DL-0569 gives. **A monthly spending cap per organisation, in US dollars**, set by the platform administrator, with an installation-wide default for an organisation given none, over the calendar month in UTC, and read from the costs the traces record (ADR-0024): past it every model call of the organisation stops, the standing set's batch included — an analysis refuses, stating that reason — and the organisation's tenant administrators and the platform administrators are notified, in the application only. **A rate limit per person on companion actions** — companion runs per person per hour, twenty by default, the refusal saying when the person may run again — so one person's clicks cannot spend the organisation's month. A failed model job is never repeated unseen: the provider client's own retries apart, the person waiting sees *failed* and asks again.
 
 ### T-12 — Credentials in the database
 
@@ -134,6 +141,8 @@ The same person may also leave documents **held or reserved**, so that nobody el
 **Who:** a person exercising a right. **How:** names in an immutable history would make erasure impossible without breaking the record.
 
 **Answered by:** DL-0088 — commits carry a user identifier and a non-routable address, never a name or a real email. Erasure removes a database row; history is untouched. The contributor map that makes an export readable is generated, never committed (DL-0093).
+
+**From release 0.2 the traces are a second place a person's words stay.** A trace of a companion call over a draft keeps the draft's text, and traces are kept for good — the text of a draft its author discarded included (ADR-0024). The findings of a companion analysis are a third: each quotes passages of the draft its call read, and those rows stay when the draft is discarded. That text is in the database, not in a history, so clearing it rewrites nothing; but nothing clears it unless the erasure procedure (B-017) names the traces and the finding rows among the places it reaches, and it must.
 
 ---
 
@@ -204,7 +213,9 @@ Two changes, both cheap now:
 
 ## Accepted risks
 
-- **Content is sent to a third-party model** (T-03). The largest residual risk in the system; accepted for release 0.2 (DL-0560), and nothing is sent for a document assigned no analysis.
+- **Content is sent to a third-party model** (T-03). The largest residual risk in the system; accepted for release 0.2 (DL-0560), and nothing is sent for a document assigned no analysis: such a document is analysed by no agent and cannot be put in a review's scope as a neighbour (DL-0571 (1)).
+- **The traces keep the text of drafts for good, discarded drafts included** (T-13, ADR-0024). An author's discarded words remain readable by whoever operates the installation, from its host; the traces are the feedback loop that improves the agents. The findings of a companion analysis keep the passages they quote from a draft in the same way. Accepted for release 0.2; clearing a discarded draft's text is B-077, and the erasure procedure (B-017) reaches the traces and the finding rows.
+- **An instruction written into a document may make an agent stay silent or say something false, and may suppress its own report** (T-02, DL-0561, ADR-0022). Confidentiality does not depend on the model resisting; integrity is bounded by the structural checks and by the adversarial set no shipped prompt version may fail, not closed.
 - **An operator with database and filesystem access can alter the record consistently** (T-07). Signing and off-site replication are the answers and neither is in stage 1.
 - **A reviewer may accept their own work** (T-08). Taken knowingly; the control is the record.
 - **An organisation's stylesheet may hide text in its background's colour, or shade text like a change mark** (T-23). Taken knowingly; every change to the stylesheet is audited with its text (DL-0477).

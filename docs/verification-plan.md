@@ -246,7 +246,7 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 
 **If it fails.** The two-run containment (`threat-model.md` T-01, T-02) cannot rest on the mount table, and stage 2's design reopens before any agent is built.
 
-**Status.** Deferred to release 0.2, where agent runs arrive; it shapes no story in 0.1 (DL-0211).
+**Status.** Dropped — ADR-0025: a model call runs in the platform's worker, which assembles the request from the documents of that one call; no job is started per run and no repository is mounted, so there is no mount table to prove. It was deferred to release 0.2 (DL-0211) and is not run.
 
 ### V-16 — A bundle run fits five minutes
 

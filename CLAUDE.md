@@ -26,7 +26,7 @@ before inventing a new location.
 | `docs/verification-plan.md` | Every claim the design has not yet proved, with its pass condition |
 | `docs/design-record/` | The decision log and the architecture reviews — how the design was reached |
 | `docs/interface/` | Page wireframes and interface vocabulary. Each region marked with the release it belongs to |
-| `prompts/` | **Canonical** prompt and heuristic text, one directory per heuristic. Arrives with 0.2 |
+| `prompts/` | **Canonical** prompt text: the shared base, the judge, and one directory per heuristic with its settings. Arrives with 0.2 |
 | `evals/` | Labelled cases and results for the prompts. Pairs with `prompts/`, one directory per heuristic |
 | `deploy/` | Dockerfile, entrypoint, Gunicorn configuration and Compose overrides |
 | `scripts/` | Operational and documentation scripts. Idempotent, resumable, sanity-checked before any destructive step |
@@ -42,12 +42,13 @@ depends on may read from them, and no tracked file may reference them.
 
 ## Prompts are source
 
-**`prompts/` is canonical; the database holds a copy loaded from it by a seed
-command.** A heuristic is prompt text under version control, reviewed like code
-and tested by its evals. The platform administrator may edit a row in place for
-a hotfix, and that edit is a divergence from the source to be reconciled, not a
-new source of truth. Tenant-level *selection* of which heuristics are enabled is
-ordinary data and lives only in the database.
+**`prompts/` is canonical; the database holds a copy loaded from it by the load
+command, which refuses a prompt version without a passing eval result.** A
+heuristic is prompt text under version control, reviewed like code and tested by
+its evals. It changes only through `prompts/`, its evals and the load: nothing is
+edited in place in the platform, and the platform administrator's emergency act
+is switching a heuristic off. Tenant-level *selection* of which heuristics are
+enabled is ordinary data and lives only in the database.
 
 Prompts are plain Markdown loaded by path, never packaged as module data, so
 they can be read and edited by someone who does not write Python.

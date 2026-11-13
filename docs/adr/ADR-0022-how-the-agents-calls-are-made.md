@@ -2,7 +2,8 @@
 status: accepted
 last-updated: 2026-11-12
 supersedes: []
-superseded_by: []
+superseded_by:
+  - DL-0568 (in part — C1 in release 0.2)
 ---
 
 # ADR-0022: How the agents' calls are made — one heuristic per call, sources from the context, quotes verified, findings sorted by position, the document kept as data

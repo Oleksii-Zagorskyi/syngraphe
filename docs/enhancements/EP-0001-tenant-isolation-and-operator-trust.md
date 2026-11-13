@@ -58,7 +58,7 @@ A tenant is a fully independent group of users or a separate business (DL-0003).
 ### Notes and constraints
 
 - ADR-0007's administrator reading rights are the state this proposal replaces; its review trigger points here.
-- The accepted risk of sending content to a model provider (T-03) is decided before the AI half ships and is revisited under this proposal's goal on model providers.
+- The accepted risk of sending content to a model provider (T-03) is decided before the AI reader ships and is revisited under this proposal's goal on model providers.
 
 ## Risks and mitigations
 

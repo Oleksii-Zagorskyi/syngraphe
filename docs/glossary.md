@@ -321,11 +321,19 @@ From release 0.2, the AI reader (DL-0558). Listed so the vocabulary is settled b
 
 **companion action** · дія помічника · *proposed* — a set of heuristics producing one analysis a user can ask for.
 
-**side-document type** · тип супровідного документа · *proposed* — a set of heuristics producing and maintaining a generated view.
+**side-document type** · тип супровідного документа · *proposed* — a set of heuristics producing and maintaining a generated view. Release 0.2 has three, one per standing list: contradictions, ambiguities, blind spots (DL-0567).
 
-**finding** · зауваження · *proposed* — one thing an agent reports, tagged with the material it was derived from.
+**finding** · зауваження · *proposed* — one thing an agent reports, with the passages it quotes. Its sources are the documents its call read, never a tag the agent writes (ADR-0022).
 
-**review scope** · обсяг розгляду · *proposed* — the set of documents a reviewer puts in scope for one review. Neighbours are read at their accepted state unless the reviewer switches one to pending (DL-0104).
+**analysis** · аналіз · *proposed* — what a person reads from the agents: the findings of the set of model calls made for one purpose — a companion action on a content state, the reviewer agent's analysis of a run, a standing set of an accepted state. Status and the *not right* mark belong to the analysis; the stored result belongs to each call (DL-0571).
+
+**standing lists** · постійні списки · *proposed* — a document's lists of contradictions, ambiguities and blind spots: the standing findings set of an accepted state, shown as lists behind the *Analysis* icon. They hold only findings derived from the document alone (DL-0555, DL-0569).
+
+**not right** · неправильно · *proposed* — the one control on an analysis: it tells whoever develops the platform that the software's output is wrong, and hides the analysis from every view. Offered only to the person the analysis was made for; on the standing lists, one mark per list. A mark cannot be withdrawn (DL-0554, DL-0570, DL-0571).
+
+**review scope** · обсяг розгляду · *proposed* — the set of documents a reviewer puts in scope for one review. It starts empty, and a document may be put in it only if it is itself assigned at least one analysis (DL-0565, DL-0571). Neighbours are read at their accepted state; switching one to pending is not in release 0.2 (DL-0569, B-080).
+
+**neighbour** · сусідній документ · *proposed* — a document a reviewer put in a review's scope, read beside the document under review by a cross-document heuristic, one neighbour per call (ADR-0022).
 
 **dispute** · розбіжність · *proposed* — a recorded disagreement over a passage. Later — not in release 0.2 (EP-0002, DL-0550).
 
@@ -337,13 +345,19 @@ English only. If one of these reaches the interface, that is a defect.
 
 **tenant** — an organisation's isolated workspace, one PostgreSQL schema.
 
-**content state** — a hash of a document's tree, the key an analysis is cached against.
+**content state** — a hash of a document's tree, without `passport.md` and `analysis/`. A model call is stored and reused under its prompt version and the content states of the documents it read; a companion call's key also holds the draft's base commit (DL-0567, DL-0571).
+
+**trace** — the record of one model call: what it read, the prompt version it ran, the model that answered, what it cost and how it ended. Read only from the host, by whoever operates the installation (ADR-0024).
+
+**standing findings set** — the findings of the heuristics within a document, computed once for an accepted state; a review sorts a run's findings against it, and shown as lists it is the standing lists (DL-0555, DL-0567).
 
 **AI workbench** — the machinery the platform's model work runs on: the prompts and their evals, the command that loads the prompts, the developer's command-line tooling that runs and measures them, the traces and the model jobs (DL-0557).
 
-**provenance tag** — the set of sources a finding was derived from, which decides who may see it.
+**sources of a finding** — the documents the call that produced the finding read, which decide who may see it. Taken from the call's context, never from a tag the model writes (ADR-0022).
 
-**review scope** — the ordered set of documents a reviewer put in scope, each at its content state, plus the heuristic set version. The key an analysis result is stored against.
+**prompt version** — one hash over the base prompt, a heuristic's text, its model and its effort (ADR-0024); the source version a loaded heuristic records is the same value.
+
+**review scope** — the ordered set of documents a reviewer put in scope. A result is not stored against the scope: each call is stored on its own, so two scopes that share a neighbour share its calls (DL-0567).
 
 **audit event** — a recorded action with its actor, object and time.
 

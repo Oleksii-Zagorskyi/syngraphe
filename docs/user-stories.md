@@ -449,61 +449,83 @@ The first stories of release 0.2 (DL-0554 to DL-0556). The agents never compose 
 **ST-0081** — As an editor, while I edit, I call one of the document's companion actions and read what my changes introduce so far, so that I fix a problem before I send it (DL-0056, DL-0032).
 - Only the actions assigned to the document are offered, each called on its own; there is no field to type a request into.
 - The analysis reports only what this editor's changes introduce, never the document's standing problems.
-- Each finding names its kind and cites the passage it rests on; one the agent cannot ground in a passage is labelled a suggestion (`review-findings.md § Rules`).
-- The same action on unchanged content returns the stored answer at once, with no new model call (ASR-12).
+- Only the holder of the draft is offered the actions (DL-0571 (8)).
+- Each finding names its kind and cites the passage it rests on; the companion shows no suggestion — a finding the agent cannot ground in a passage (DL-0571 (9), `review-findings.md § Rules`).
+- The same action on unchanged content, on a draft with the same base, returns the stored answer at once, with no new model call (ASR-12, DL-0571 (5)).
+- When a call of the action fails, that part is shown as failed and the rest of the analysis is shown; *run again* repeats the failed calls (DL-0571 (4)).
+- The companion reads this document alone, and my changes are measured against the text my draft started from (DL-0567).
+- An action I ask for while the editor is open first captures what I typed, as *finish editing* does, and runs on it (DL-0569).
+- Past the limit on companion runs per person per hour, the refusal says when I may run again (DL-0569).
 
 **ST-0082** — As an editor, on the send-for-review screen I read the analyses that will travel with my version and confirm them, so that the reviewer reads what I read (DL-0049, DL-0054).
 - What was already computed for this content is shown, not computed again.
-- The editor-facing analysis is written into the same commit as the content (DL-0055).
+- The version records which analyses travelled with it; the analyses live as rows, never in the commit (DL-0567).
+- The run's reviewers and authors read the analyses that travelled with the version on the review page (DL-0571 (4)).
 
 ### Reviewing with the reviewer agent
 
 **ST-0083** — As a reviewer, I read the reviewer agent's analysis of the run beside its changes, so that I judge the run by what it breaks and what it fixes (DL-0032).
 - Findings are grouped as introduced, pre-existing, resolved and aggravated.
-- The analysis shows what the run changes in a role's obligations (D1), read from the text wherever the role appears, whether or not it is marked (DL-0559).
-- The agent runs on the version *send for review* commits, never on a draft (DL-0054).
+- A finding drawn on another document is only ever introduced or pre-existing (DL-0567).
+- Where the document has no standing set, the findings are grouped as introduced and pre-existing only, and the analysis says so (DL-0571 (6)).
+- Suggestions — findings the agent offers with no quote — are shown labelled, in a group of their own, unsorted (DL-0571 (9)).
+- The analysis shows what the run changes in a role's obligations (D1), read from the text wherever the role appears, whether or not it is marked (ADR-0022).
+- The agent runs on the version *send for review* commits, never on a draft (DL-0054), and runs the heuristics of what is assigned to the document (DL-0567); for every document assigned any analysis it also runs D1, and the cross-document heuristics B1, B2, B3 and B5 for each neighbour in scope (DL-0571 (2)).
+- The analysis starts at *send for review* with the findings within the document and grows as the reviewer adds neighbours; a call that fails fails its part only, the rest is shown, and *run again* repeats the failed calls (DL-0571 (4)).
+- The run's authors see the analysis on the document's review state as soon as it is computed, as its reviewers do, each finding filtered by what its reader may read (DL-0568, DL-0021); nobody releases it.
+- Where the checks find text addressed to an automated reader in a document the analysis read, the analysis says so in a finding of its own — *this document contains text addressed to an automated reader* — shown to whoever sees the analysis (DL-0571 (11)), which names no person; no step is taken against a person or a document (ADR-0022).
 
-**ST-0084** — As a reviewer who holds the guidance grant, I read a second analysis of the run against the confidential guidance, which no editor ever sees, so that I can stop a change that conflicts with it without disclosing it (DL-0095, DL-0021).
-- It comes from a run of its own; the run that writes the editor-facing analysis never holds the guidance.
-- A finding without a provenance tag is shown to holders of the guidance grant only (`review-findings.md § Rules`).
+**ST-0084** — *withdrawn 2026-11-12 (DL-0568). Identifier retired, never reused.*
 
 **ST-0085** — As a reviewer, I choose which other documents go into a review's scope, among those I may read, so that the cross-document findings come from documents that matter to this one (DL-0077, DL-0078).
-- The scope offers only documents the reviewer may read; an archived document is never offered.
-- Two reviewers who choose the same scope share one result.
-- The result is computed once for the scope, never once per person; each person it is shown to sees a cross-document finding only if they may read every document it draws on (DL-0021).
+- The scope starts empty: nothing is pre-selected, and the reviewer picks every neighbour (DL-0565).
+- The scope offers only documents the reviewer may read that are themselves assigned at least one analysis, so no document's text leaves for the provider on a reviewer's choice alone (DL-0571 (1)); an archived document is never offered.
+- Each neighbour is read at its accepted state (DL-0569).
+- Two reviewers who choose the same scope read one result, and two scopes that share a neighbour share what was computed for it (DL-0567).
+- Nothing is computed once per person; each person a result is shown to sees a cross-document finding only if they may read every document it draws on (DL-0021).
 
-**ST-0086** — As a reviewer, I release the editor-facing analysis to the run's authors, so that they see what I decided to show them (`technical-design.md § The reviewer agent`).
-- Nothing of the reviewer agent's work reaches an author before the release.
+**ST-0086** — *withdrawn 2026-11-12 (DL-0568). Identifier retired, never reused.*
 
 ### The document's standing problems
 
 **ST-0087** — As anyone who may read a document, I see its standing lists of contradictions, ambiguities and blind spots for the version I am reading, so that its known open problems are in view (DL-0044, DL-0555).
 - The lists are computed once for each accepted state and refreshed when it changes, never on every commit (DL-0555).
-- They hold only findings derived from the document alone, so every reader of the document sees the same lists; cross-document and guidance findings stay in the reviewer's analysis of a run (DL-0555).
+- They hold only findings derived from the document alone, so every reader of the document sees the same lists; cross-document findings stay in the reviewer agent's analysis of a run (DL-0555).
+- I see the lists of the latest accepted state at or before the version I read, labelled with that state's number; reading the canonical edition alone, I see the edition's lists (DL-0569).
+- The lists are behind the *Analysis* icon and nowhere else, and the icon is not drawn on a document with no side-document type assigned (DL-0567, DL-0569).
 - Their author is shown as the system, never a person and never a model's name, beside the version they were computed for — *for version 1.3* (DL-0448).
 
 ### When an analysis is not right
 
-**ST-0088** — As a person reading an analysis, I mark it *not right* and so inform the developer, so that a wrong output leaves the screens and the developer learns the software got it wrong (DL-0554).
+**ST-0088** — As the person an analysis was made for, I mark it *not right* and so inform the developer, so that a wrong output leaves the screens and the developer learns the software got it wrong (DL-0554, DL-0570).
+- The control is offered only to the person the analysis was made for, while it is the current analysis for its content: the editor who called a companion action; the run's reviewers, for the reviewer agent's analysis; holders of *accept* on the document, for its standing lists. Nobody else sees the control (DL-0570).
+- A mark cannot be withdrawn (DL-0570).
 - The mark is about the analysis the software produced, never about the document's sense or the person's disagreement with its prose; the control says so where it is drawn.
-- One mark covers the whole analysis.
+- One mark covers the whole analysis. On the standing lists there is one mark per list: it hides that list for everyone until the next accepted state's list, and it is offered only on the lists of the current accepted state (DL-0571 (7)).
 - The mark hides the analysis from every view, for everyone; the analysis is kept where it is stored.
 - The mark records who set it and when.
 
 ### The catalogue and its administration
 
-**ST-0089** — As a platform administrator, I read the heuristic catalogue the platform was loaded with, each heuristic at its version, and compose companion actions and side-document types from it, so that organisations have analyses to attach (DL-0049, DL-0153).
-- An edit to a heuristic in place is a divergence from its source, which the loading command reports.
+**ST-0089** — As a platform administrator, I read the heuristic catalogue the platform was loaded with, each heuristic at its version, and compose companion actions and side-document types from it, so that organisations have analyses to assign (DL-0049, DL-0153).
+- No heuristic is edited here: I may switch one off at once, and a heuristic changes only through `prompts/`, its evals and the load (DL-0567).
+- A heuristic I switch off runs in no new call; its stored results stay readable, and an analysis already running completes (DL-0571 (15)).
+- I set an organisation's monthly spending cap, in US dollars, on my page; an installation-wide default cap, set in the installation's configuration, applies to every organisation I have not given its own (DL-0571 (14)). The month is the calendar month in UTC, and past the cap every model call of the organisation stops, the standing set's batch included (DL-0564, DL-0569).
+- The limit on companion runs per person per hour is set in the installation's configuration, twenty by default (DL-0564, DL-0569, DL-0571 (14)).
+- The organisation's tenant administrators and I are notified, in the application only, when an organisation reaches its spending cap, and when a document a model call read contains text addressed to an automated reader — that notification coming once per document and content state and naming the document and its version, or *a draft on version N.M*, never its text and never a person (DL-0564, DL-0569, ADR-0022, DL-0571 (11)).
 
 **ST-0090** — As a tenant administrator, I assign companion actions and side-document types to documents by their title and description, so that each document carries the analyses that fit it (DL-0049, ADR-0007).
 - The tenant administrator never sees a heuristic or its text.
+- I configure the organisation's default set of companion actions and side-document types once; a document created after it is set receives it (DL-0565).
+- A document that exists keeps its own assignment, which may be none; I apply the default to chosen documents in one act, and changing the default never changes an existing document (DL-0565).
 
 ### Operating and developing the AI workbench
 
 **ST-0091** — As the operator, I load a release's prompts into the platform with one command that reports every row differing from its source, so that the running catalogue matches the repository (DL-0153).
 - The command is idempotent and records, for each row, the source version it came from.
+- The command refuses a prompt version that has no dated result at its target under its hash, or no passing adversarial result under it; it never warns and loads anyway (ADR-0024, DL-0571 (12)).
 
-**ST-0092** — As the operator, I read a model run's trace from the command line on the host, so that any analysis can be explained later (DL-0552, DL-0553).
+**ST-0092** — As the operator, I read a model run's trace from the command line on the host, so that any analysis can be explained later (ADR-0024).
 - The trace names the prompt version and its eval results, each committed document read by repository and commit, the draft's text for a run over a draft, and the stored result.
 - No page of the web interface shows a trace.
 
@@ -518,7 +540,7 @@ The first stories of release 0.2 (DL-0554 to DL-0556). The agents never compose 
 **ST-0095** — As a platform administrator on an organisation's own domain, I am not shown the Platform part of Administration, which works only on a platform host, so that no control is drawn that cannot be used (B-067, DL-0556).
 
 **ST-0096** — As the administrator who receives a person's erasure request, I follow a written procedure — who may ask, who decides, what is cleared, what is kept and for how long — so that the request is never answered by improvisation (B-017, DL-0556).
-- The procedure covers the draft text a trace keeps (DL-0553).
+- The procedure covers the draft text a trace keeps, and the passages of a draft quoted in the findings of a companion analysis (ADR-0024).
 
 **ST-0097** — As a colleague who edits, reviews or approves, I have a guide to the platform written from my own screens, so that I can work without asking how (B-016, DL-0556).
 - Written once the analyses are on the screens.
@@ -527,6 +549,9 @@ The first stories of release 0.2 (DL-0554 to DL-0556). The agents never compose 
 
 | Area | Where it went |
 |---|---|
+| The confidential guidance, its heuristic C1 and the reviewer's analysis against it | backlog B-079 (DL-0568) |
+| A neighbour read at its pending state | backlog B-080 (DL-0569) |
+| C3, the citation of a superseded edition | backlog B-081 (DL-0571) |
 | Disputes, the Statement of Disagreements, the decider, rejection records | EP-0002 (DL-0550) |
 | Comments and the annotation surface | backlog B-013 (DL-0556) |
 | The control directory | backlog B-068 (DL-0555) |

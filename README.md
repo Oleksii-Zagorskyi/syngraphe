@@ -20,7 +20,7 @@ change.
 I am building it for a company I co-own, to replace exactly that arrangement.
 
 > **Status: release 0.1.** The editing, review and approval cycle runs in its
-> first production installation. The AI half — a
+> first production installation. The AI reader — a
 > companion that runs analyses for the editor as they work, and a reviewer
 > that checks a document, or a whole corpus, against a configurable set of
 > heuristics — is release 0.2, not yet started.
@@ -59,7 +59,7 @@ Tenants are isolated by PostgreSQL schema, not by application-layer filtering.
 Commits carry no personal data. Access rights are rows with a full change
 history, answerable for any date in the past.
 
-## The AI half — release 0.2
+## The AI reader — release 0.2
 
 Two actors, neither of them a role a person holds.
 

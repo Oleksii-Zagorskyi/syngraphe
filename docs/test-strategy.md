@@ -29,6 +29,8 @@ The check needs PostgreSQL and Redis running — on a developer's machine the de
 
 CI ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs both on every push to every branch, and so on the merge commit on `main` (DL-0431), on Python 3.12, the timing budgets as a step of their own. A red build is fixed before the next story starts.
 
+From release 0.2 CI also checks that every prompt version has its committed eval results, and calls no model to do it (§ Evals, DL-0563).
+
 ## Levels
 
 Each level is a pytest marker, so it can run alone while working and CI runs them all. A test carries one level marker, with two exceptions: a crash test carries `crash` and `integration`, since it is an integration test; and a pure test inside an integration module carries `fast` beside the module's `integration`. The tests of the Compose files in `tests/foundation/` carry no level and run only in the full check. A test that asserts on elapsed time also carries `budget`. **A budget is one of two kinds.** A user-facing budget (ASR-21) promises a time on the reference machine and asserts it. A guard against cost that grows faster than its input asserts the **growth** — the time at one size against the time at four times that size, the median of a few runs — never a time on whatever machine runs it, which a slower runner breaks while the code is linear.
@@ -57,6 +59,18 @@ Each level is a pytest marker, so it can run alone while working and CI runs the
 **Browser tests — the editor and the review surface.** End-to-end flows through Chromium driven by Playwright: take, edit, paste, send for review, accept, freeze. They run headless in CI and on a developer's machine alike; `--headed` shows the browser while working on one test. They are the scripted sweep; they run beside, and never replace, a QA session — a person, or a separate session, using the running application in a real browser and writing a log the developer works through. A demonstration of a finished slice (DL-0122) is a QA session.
 
 **Performance** is not measured by the test suite. The numbers in [`asr.md`](asr.md) are verified by measurement against the running system, and the design's unproven speed claims live in the verification plan.
+
+## Evals
+
+From release 0.2, the AI reader (DL-0558), a heuristic's prompt is measured beside the levels above and apart from them, on the AI workbench (DL-0557). **An eval is not a test, and CI never runs one** (DL-0563): a test costs nothing and answers the same on every run; an eval calls a model, which costs money on every run and answers differently each time.
+
+**The eval command — `ai_eval`, a working name.** A management command of the product, on the code path production uses — prompt assembly, the provider call, the quote check, the sorting — run on the developer's machine through the development stack, against the provider's API (DL-0563). It runs a heuristic's case set three times and writes the result, dated, into `evals/<heuristic>/` under the hash of the prompt version it measured — one hash over the base prompt, the heuristic, the model and the effort (ADR-0024) — to be committed with the prompt change it measures (DL-0563, DL-0566). Every case is invented, as every fixture is. **The layout** (DL-0570): the invented documents are the evals' fixtures, in `evals/_documents/<case>/`, each with its key naming every heuristic's planted defects and traps, written once and shared by the heuristics they serve; the injection set is in `evals/_adversarial/`; `evals/<heuristic>/` names the documents of that heuristic's set and holds its dated results; the shared base is in `prompts/_base/`, the judge in `prompts/_judge/`, and each heuristic's prompt with its settings — model and effort — in `prompts/<heuristic>/`. On production only the command that loads the prompts runs; it reads the results and never writes them.
+
+**What CI does.** It never calls a model and holds no provider key. On every push it checks, deterministically, that every prompt version in `prompts/` has a committed, passing result under its hash in `evals/` — the rule the load command applies when it refuses a prompt version without one (DL-0563, ADR-0024). Passing means the heuristic at its target and a passing adversarial result under the same hash: CI and the load command refuse a prompt version without either (DL-0571 (12)).
+
+**The deterministic parts are ordinary tests**, at the levels above and in the check: the word-for-word verification of a finding's quotes; the sorting of a finding by where its verified quotes sit; the structural injection checks — a forged delimiter, a chat role marker, the run marker's format (ADR-0022); the load command's gate and the prompt version's hash (ADR-0024); and the provider interface, with a double in the provider's place. **A double agrees with whatever the code assumes** — the reason neither store is mocked — so it hides the wiring between the assembled request and the real client. One test therefore runs the real assembly — the base, the delimited document, the heuristic, the client's own request and the parse of its structured answer — against a recorded response of the provider, over an invented document.
+
+**The numbers** — each heuristic's target, its false-positive budget, the size of its case set, the judge's threshold, the ceiling in production — are in [`evaluation-strategy.md`](evaluation-strategy.md) § The numbers (DL-0566), and are not repeated here.
 
 ## What is not tested
 

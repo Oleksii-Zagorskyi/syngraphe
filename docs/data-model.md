@@ -7,9 +7,9 @@ status: active
 date: 2026-09-21
 ---
 
-# Data Model — stage 1
+# Data Model — releases 0.1 and 0.2
 
-The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at the end as attachment points, so the stage 1 schema has somewhere to put them without migration (ASR-14).
+The editor and the exporter (DL-0043, DL-0081). The entities of release 0.2, the AI reader (DL-0558), are designed at the end, § Release 0.2 — the AI reader, with the stage 2 entities left for later listed after them: all of them hang off the stage 1 schema with no migration that rewrites a document, version or acceptance record (ASR-14).
 
 ## The rule that shapes everything below
 
@@ -27,7 +27,7 @@ The editor and the exporter (DL-0043, DL-0081). Stage 2 entities are listed at t
 **Placement follows tenancy** (DL-0029), and the rule is stated per purpose rather than per table so a new table has an answer before it is drawn:
 
 - **Shared schema** — everything that identifies a person or an organisation, that is deliberately cross-cutting, or that is written before any tenant is known: `TENANT`, `USER`, `MEMBERSHIP`, `MEMBERSHIP_HISTORY`, `INVITATION`, `PASSWORD_RESET`, `LANGUAGE`, `AUDIT_EVENT`, `SIGN_IN_ATTEMPT`, `ACCOUNT_BLOCK_HISTORY`, `TENANT_STATE_HISTORY`, `USER_PREFERENCE`, `PLATFORM_HOST`, `TENANT_DOMAIN`, `SETUP_TOKEN`, `PLATFORM_NOTIFICATION`, the platform's `MAIL_SENDER` and its `EMAIL_OUTBOX` rows. A tenant's own `MAIL_SENDER` and its mail in `EMAIL_OUTBOX` live in the tenant's schema (DL-0203), so those two tables exist in both: the `mail` app is on both the shared and the tenant list, and a query reaches the tenant's rows when a tenant is set and the platform's only with the shared schema alone (ADR-0017). A person's `NOTIFICATION` lives in the tenant's schema, a platform administrator's `PLATFORM_NOTIFICATION` in the shared one (DL-0382). A reset's email is queued where DL-0383 places it — on an organisation's domain, that organisation's outbox; on the platform host, the outbox of the person's one active membership, else the shared one — and an organisation's outbox page leaves resets out (DL-0410).
-- **Tenant schema** — everything scoped to one organisation's documents: every other table in this file.
+- **Tenant schema** — everything scoped to one organisation's documents: every other table in this file, but the catalogue of release 0.2, which is the platform's and shared (§ Release 0.2 — the AI reader).
 - **The framework's own tables are in the shared schema and are not drawn**: the sign-in sessions (`django_session`, twelve hours), the content types (`django_content_type`), the log of the framework's administration site (`django_admin_log`), and the framework's group and permission tables, which the platform does not use. Each schema keeps its own record of its migrations.
 
 **`AUDIT_EVENT` is shared, with a nullable tenant**, and that is deliberate. A platform administrator creating a tenant performs an action belonging to no tenant, and an auditor asking *who created this organisation* must not first have to know which schema to look in. The isolation ASR-01 protects is document data; the audit log is cross-cutting by design and reachable only by administrators.
@@ -346,7 +346,7 @@ erDiagram
         uuid document FK
         string commit_sha UK
         uuid author FK "git author name is this id; email is {id}@users.noreply.syngraphe.local"
-        text summary "the commit's message less its trailers: the first line its subject, at most 500 characters, the rest its body, the whole at most 5,000; starts from a mechanical draft naming the sections touched, the author edits it (DL-0261, DL-0532, DL-0535); agent-drafted from 0.2"
+        text summary "the commit's message less its trailers: the first line its subject, at most 500 characters, the rest its body, the whole at most 5,000; starts from a mechanical draft naming the sections touched, the author edits it (DL-0261, DL-0532, DL-0535); the companion's draft of it is not in release 0.2 (DL-0555, B-072)"
         string kind "created | edit | reviewer_edit | acceptance | return | approval — created: the first commit of a new or copied document (DL-0268); reviewer_edit: a content version committed by a holder of accept (ADR-0014); the last three are passport commits (DL-0260)"
         datetime committed_at
     }
@@ -619,28 +619,225 @@ Beside the rules drawn above, these hold as constraints, so no code path can bre
 
 The audit log, the access history, the outbox and the throttling sweep each read through an index on the columns they filter by.
 
-## Stage 2 attachment points
+## Release 0.2 — the AI reader
 
-Not built now; the tables above must leave room for them without a migration that rewrites document, version or acceptance records (ASR-14).
+Designed, not built: release 0.1 has none of it. Release 0.2 (DL-0558) carries the findings and the AI workbench they run on (DL-0555, DL-0557). Every table below is new and hangs off `DOCUMENT`, `VERSION` and `ACCEPTANCE` by reference; none of those gains a column, and no migration rewrites a document, version or acceptance record (ASR-14). What release 0.2 adds to a table drawn above is one column on `TENANT` and two values of a notification's `event`, both named below.
 
-| Entity | Attaches to | Note |
+### The catalogue, shared schema
+
+```mermaid
+erDiagram
+    HEURISTIC ||--o{ ACTION_HEURISTIC : composed_into
+    COMPANION_ACTION ||--o{ ACTION_HEURISTIC : holds
+    HEURISTIC ||--o{ SIDE_DOCUMENT_TYPE_HEURISTIC : composed_into
+    SIDE_DOCUMENT_TYPE ||--o{ SIDE_DOCUMENT_TYPE_HEURISTIC : holds
+    HEURISTIC {
+        uuid id PK
+        string source_path UK "its directory under prompts/, the canonical text (DL-0153)"
+        string title
+        string explanation "a short one; with the title, what the platform administrator reads beside the text (DL-0031)"
+        text prompt "the copy the load command wrote from source_path, never the source (DL-0153)"
+        string prompt_version "one hash over the base prompt, this heuristic's text, the model and the effort (ADR-0024); what a trace and a finding record"
+        string model "a setting of the heuristic, part of its prompt version (DL-0560)"
+        string effort "the model's effort level, likewise (DL-0560)"
+        datetime loaded_at "when the load command last wrote the row"
+        bool switched_off "set by the platform administrator, at once; a heuristic switched off runs in no new call; its stored results stay readable (DL-0567, DL-0571)"
+    }
+    COMPANION_ACTION {
+        uuid id PK
+        string title "what a tenant administrator and an editor see (DL-0049)"
+        string description
+    }
+    ACTION_HEURISTIC {
+        uuid id PK
+        uuid action FK
+        uuid heuristic FK
+    }
+    SIDE_DOCUMENT_TYPE {
+        uuid id PK
+        string title "what a tenant administrator sees (DL-0049)"
+        string description
+    }
+    SIDE_DOCUMENT_TYPE_HEURISTIC {
+        uuid id PK
+        uuid side_document_type FK
+        uuid heuristic FK
+    }
+```
+
+**The catalogue is the platform's, so it is shared** (DL-0049): three levels, administered by the platform administrator alone. A `HEURISTIC` is one focused piece of prompt text; a `COMPANION_ACTION` is a set of heuristics producing a user-facing analysis; a `SIDE_DOCUMENT_TYPE` is a set of heuristics producing and maintaining a generated view — in release 0.2, the standing lists (DL-0555), three types, one per list: *contradictions* (A1, A4, A5), *ambiguities* (A2) and *blind spots* (A3, A6) (DL-0567, DL-0571 (3)). The two join tables say which heuristics each holds. D1, B1, B2, B3 and B5 are in neither: they belong to no assignable unit, and the reviewer agent runs them for every document assigned any analysis (DL-0571 (2)). A tenant administrator reads the titles and descriptions of actions and side-document types and never a `HEURISTIC` row.
+
+**A `HEURISTIC` row is a copy, and says where it came from** (DL-0153). `prompts/` is canonical; the load command writes each row from its `source_path`, idempotently, and reports every row that differs from its source. The command refuses a prompt version with no dated result at its target in `evals/` under the same hash (ADR-0024), and likewise one without a passing adversarial result under its hash (DL-0571 (12)), so a `prompt_version` in this table always names results that exist and pass. The source version a row came from and its `prompt_version` are one value. **No row's `prompt` is edited in place** (DL-0567): a heuristic changes only through `prompts/`, its evals and the load, and the platform administrator's one act on a row is to switch it off, at once. A heuristic switched off runs in no new call; its stored results stay readable, and an analysis already running completes (DL-0571 (15)).
+
+**The model and its effort are the heuristic's own** (DL-0560): hashed into `prompt_version` with the base prompt and the heuristic's text, so changing either is a prompt change with its own eval results. A call runs one heuristic (ADR-0022), which is why the version is the heuristic's and not an action's.
+
+### Assignment, scope, runs and findings, tenant schema
+
+```mermaid
+erDiagram
+    DOCUMENT ||--o{ DOCUMENT_ANALYSIS : assigned
+    DOCUMENT ||--o{ REVIEW_SCOPE : reviewed_within
+    REVIEW_SCOPE ||--o{ REVIEW_SCOPE_DOCUMENT : holds
+    DOCUMENT ||--o{ ANALYSIS_RUN : analysed_by
+    ANALYSIS_RUN ||--o{ TRACE : made
+    TRACE ||--|{ TRACE_DOCUMENT : read
+    ANALYSIS_RUN ||--o{ FINDING : reports
+    TRACE ||--o{ FINDING : produced
+    FINDING ||--o{ FINDING_QUOTE : rests_on
+    ANALYSIS_RUN ||--o| ANALYSIS_MARK : marked_not_right
+    ACCEPTANCE ||--o| STANDING_SET : has
+    ANALYSIS_RUN ||--o| STANDING_SET : computed
+    DOCUMENT_ANALYSIS {
+        uuid id PK
+        uuid document FK
+        uuid companion_action FK "shared schema; exactly one of the two is set"
+        uuid side_document_type FK "shared schema"
+    }
+    DEFAULT_ANALYSIS {
+        uuid id PK
+        uuid companion_action FK "shared schema; exactly one of the two is set"
+        uuid side_document_type FK "shared schema"
+    }
+    REVIEW_SCOPE {
+        uuid id PK
+        uuid document FK "the document under review"
+        uuid reviewer FK "who chose it; scopes are indexed per person, results are not (DL-0078)"
+    }
+    REVIEW_SCOPE_DOCUMENT {
+        uuid id PK
+        uuid scope FK
+        uuid document FK "a neighbour the reviewer picked, among the documents they may read that are themselves assigned an analysis (DL-0077, DL-0565, DL-0571); read at its accepted state (DL-0569)"
+        int position "the set is ordered (DL-0078)"
+    }
+    ANALYSIS_RUN {
+        uuid id PK
+        uuid document FK
+        string kind "companion | review | standing; a guidance kind is later (DL-0568, B-079)"
+        uuid companion_action FK "shared schema; for a companion run, the action called"
+        string content_state "a hash of the document's tree without passport.md and analysis/ (DL-0056, DL-0571); for a companion run, of the draft"
+        uuid version FK "the version whose commit is that content state; null for a run over a draft"
+        uuid accepted_version FK "the accepted version a run's findings are sorted against (ADR-0022)"
+        string state "running | done | failed (DL-0564)"
+        string failure_reason "refused, failed or unparseable at the provider, or the spending cap reached"
+        uuid sent_with FK "the version whose send for review this analysis travelled with; null for one never sent — an analysis lives as rows only and is never committed (DL-0567)"
+    }
+    FINDING {
+        uuid id PK
+        uuid run FK
+        uuid trace FK "the call that produced it; its sources are that call's TRACE_DOCUMENT rows, never a tag (ADR-0022)"
+        uuid heuristic FK "shared schema; the call's heuristic, never a label the model assigns (ADR-0022); null for a finding the injection checks raise"
+        string prompt_version "the heuristic's version as it ran"
+        string status "introduced | pre_existing | resolved | aggravated; set for a review run (ADR-0022); a cross-document finding only introduced or pre_existing (DL-0567)"
+        uuid standing_finding FK "for aggravated and resolved, the standing finding it was matched to"
+        bool is_suggestion "offered with no quote; shown labelled, in a group of its own, by a review run only (ADR-0022, DL-0571)"
+        bool withheld_as_fabricated "a quote was not in the text the call read; never shown to a person, counted (DL-0559)"
+        text body "the finding in limited Markdown, bold and lists, no link (ADR-0022)"
+    }
+    FINDING_QUOTE {
+        uuid id PK
+        uuid finding FK
+        uuid document FK "which of the call's documents the quote is from"
+        string file "document.md or appendices/{id}.md"
+        text exact "W3C text-quote selector: the quoted passage (DL-0027)"
+        text prefix "the selector's context before it"
+        text suffix "the selector's context after it"
+        bool verified "found word for word in the text the call read (DL-0559)"
+        bool on_changed_line "touches a line the run changed against the accepted version (ADR-0022)"
+    }
+    ANALYSIS_MARK {
+        uuid id PK
+        uuid run FK "the whole analysis, never one finding (DL-0554)"
+        uuid side_document_type FK "shared schema; for a standing run, the one list marked (DL-0571); empty otherwise"
+        uuid marked_by FK
+        datetime marked_at
+    }
+    STANDING_SET {
+        uuid id PK
+        uuid document FK
+        uuid acceptance FK UK "the accepted state it stands for (DL-0032)"
+        uuid run FK "the standing run that computed it"
+    }
+    TRACE {
+        uuid id PK
+        uuid run FK "the run that made the call; a later run that needs a call with the same key reuses its stored result and makes none (DL-0567)"
+        uuid heuristic FK "shared schema; one heuristic per call (ADR-0022)"
+        string prompt_version "one hash over the base prompt, the heuristic, the model and the effort"
+        string key "a hash over the prompt version and the content states of the documents the call read, and for a companion call the draft's base commit; what a stored call is reused by (DL-0567, DL-0571, ASR-12)"
+        string model_answered
+        string provider_request_id
+        int input_tokens
+        int output_tokens
+        int cache_read_tokens
+        int cache_written_tokens
+        decimal cost "computed from the tokens; what the spending cap sums (DL-0564)"
+        int duration_ms
+        string outcome "done | refused | failed | unparseable"
+        string draft_base_commit "for a call over a draft: the draft's base commit"
+        text draft_text "for a call over a draft: its text, the one text a trace keeps; cleared only by the erasure procedure (B-017)"
+        json injection_hits "what the structural checks and the model's self-report field found (ADR-0022)"
+        string platform_release
+        datetime at
+    }
+    TRACE_DOCUMENT {
+        uuid id PK
+        uuid trace FK
+        uuid document FK "its repository"
+        string commit_sha "the commit it was read at; for a draft, its base commit"
+        string role "subject | neighbour; guidance is later (DL-0568, B-079)"
+    }
+```
+
+**Assignment is the organisation's control, document by document** (DL-0049, DL-0560). A `DOCUMENT_ANALYSIS` row assigns one companion action or one side-document type to one document; the tenant administrator writes it, by title and description. A document with no row is never analysed, cannot be put in a review's scope as a neighbour, and nothing of its text leaves for the model provider (DL-0560, DL-0571 (1), ADR-0023). The catalogue is shared and the assignment is the tenant's, so each row crosses the schema boundary by its reference, deliberately.
+
+**`DEFAULT_ANALYSIS` is the organisation's default set** (DL-0565), configured by its tenant administrator. A document created after the set exists receives it as `DOCUMENT_ANALYSIS` rows of its own, written with the document; a document that already exists keeps its own assignment, which may be none. The tenant administrator applies the default to chosen documents in one act, and changing the default never changes a row of `DOCUMENT_ANALYSIS`: an existing document's text starts leaving only by an act on that document. Every change to either table is an `AUDIT_EVENT`.
+
+**`REVIEW_SCOPE` starts empty** (DL-0565): a review runs under the reviewer's own access, and the reviewer picks every neighbour, among the documents they may read (DL-0077) — access is not relevance, and every neighbour costs a call per cross-document heuristic (ADR-0022). **A neighbour must itself have a `DOCUMENT_ANALYSIS` row** (DL-0571 (1)): a document assigned no analysis is not offered, so the assignment stays the one control of what leaves for the provider. An archived document is never offered. The scope is a reviewer's choice and is indexed per person; the result it leads to is not (DL-0078).
+
+**The call is the unit stored and reused, keyed to content, never to a person or a commit** (DL-0567, ASR-12, DL-0056). A call's `key` covers its prompt version and the content states of the documents it read; a document's content state is a hash of its tree that excludes `passport.md` as it excludes `analysis/`, so an acceptance, which changes no content, does not move it; a companion call's key also holds the draft's base commit, against which the changes it marks are measured (DL-0571 (5)). **An `ANALYSIS_RUN` row is an analysis: the set of calls made for one purpose** — a companion action on a content state, the reviewer agent's analysis of a run, a standing set of an accepted state (DL-0571 (4)). Its state and its *not right* mark belong to the analysis; the stored result belongs to the call. A call whose key already has a stored result is not made again, so an editor who asked mid-edit sees the same result on the send-for-review screen, two reviewers who choose the same scope read one result, and two scopes that share a neighbour share that pair's calls. A failed call is not stored — its trace is — and it fails its part of the analysis only: the rest is shown, the person waiting sees that part as *failed*, and *run again* repeats the failed calls (DL-0564, DL-0567, DL-0571 (4)). A batch result that arrives for a key already stored is discarded (DL-0571 (6)). Acceptance never waits for a run (DL-0564).
+
+**Three kinds of run.** `companion` — an action the draft's holder, and nobody else, calls (DL-0571 (8)), at any time, over the whole draft with the editor's changes marked against the draft's base commit, the platform keeping only the findings whose quotes touch a changed passage (DL-0032, ADR-0022, DL-0567); it runs only heuristics within the document, and one asked while an editor is open captures the editor's text first (DL-0567, DL-0569). `review` — the reviewer agent on the version *send for review* commits, never on a draft (DL-0054): the heuristics of the companion actions and side-document types assigned to the document (DL-0567), and, for every document assigned any analysis, D1 and — for each neighbour in the reviewer's scope — B1, B2, B3 and B5 (DL-0571 (2)). It starts at *send for review* with the heuristics within the document and grows by the cross-document calls as the reviewer adds neighbours (DL-0571 (4)). Its findings are shown to the run's reviewers and authors alike as soon as they are computed, each filtered by what its reader may read; no row records a release, since there is no release act (DL-0568). The companion analyses that travelled with the version — `sent_with` — are read by the same people on the review page (DL-0571 (4)). `standing` — the run that computes a `STANDING_SET`. *Later, with the confidential guidance (DL-0568, B-079):* a `guidance` kind — the reviewer-eyes-only run over the document and the guidance, a run of its own so that no other run's context holds the guidance (DL-0095).
+
+**A run is made of calls, and each call is a `TRACE`** (ADR-0022, ADR-0024), made by the platform's worker (ADR-0025): one heuristic over one context the platform assembled — the document alone, or the document and one neighbour of the scope; the document and the guidance, later. The row is written before the request leaves for the provider and completed with how the call ended. `TRACE_DOCUMENT` names each committed document a call read by its repository and the commit it was read at: references, never a copy of the text, which stays in the repository. A draft has no commit to point to, so a call over one names the draft's base commit and keeps the draft's text in `draft_text` — the one text a trace holds. The trace records how the call was asked, answered and paid for — the prompt version, the model that answered, the provider's request identifier, the tokens and the cost computed from them, the time taken, how it ended — what the injection checks found, and the platform's release. Its result is referenced, not copied: the call's `FINDING` rows, those withheld as fabricated among them, and through its run any `ANALYSIS_MARK`. **Traces are kept for good**, a discarded draft's text included (ADR-0024, B-077); the erasure procedure clears what a person's request reaches (B-017). A companion analysis's `FINDING.body` and `FINDING_QUOTE` rows quote passages of the draft its call read, a discarded draft included, so the procedure names those rows beside `TRACE.draft_text`. No page of the web interface reads a `TRACE` row: whoever operates the installation reads it by a management command on the host. The table is in the organisation's schema because it names that organisation's documents and keeps its drafts (ADR-0017).
+
+**A `FINDING` takes its heuristic, its sources and its status from the platform, never from the model** (ADR-0022, DL-0559). Its heuristic is its call's. Its sources are the documents of its call — the `TRACE_DOCUMENT` rows of its `trace` — and its audience is computed from them per recipient, when it is read, under the reader's rights at that moment (DL-0021, ASR-03): a finding reaches a person only if they may read every source. A finding whose sources cannot be established is withheld from everyone and counted as an error (DL-0571 (13)). There is no provenance column to mislabel. The finding names the `prompt_version` it ran under, so it stays explainable when the heuristic's text has moved on (DL-0031).
+
+**Every finding rests on quotes, and every quote is checked** (DL-0559). A `FINDING_QUOTE` is a W3C text-quote selector (DL-0027) into one of the call's documents — never a line number or a paragraph identifier, which the model has none of. The platform looks for each `exact` word for word in the text the call read. A finding with a quote that is not there is `withheld_as_fabricated`: no person is shown it, and it is counted as an error. A finding offered with no quote is `is_suggestion`: it has no quote to sort by or to filter on, so a `review` run shows suggestions labelled, in a group of their own, unsorted, and a `companion` run shows none (DL-0571 (9)).
+
+**A review run's findings are sorted by where their verified quotes sit** (ADR-0022), against the line-level difference between the accepted version and the run and against the document's `STANDING_SET`: `introduced` when a quote touches a changed line and no standing finding of that heuristic matches; `pre_existing` when every quote is in unchanged text; `aggravated` when a quote touches a changed line and a standing finding of the same heuristic on the same passages exists; `resolved` when a standing finding's passage was changed or removed and the run does not reproduce it. A `resolved` row is written by the platform from the standing finding it names, with no call of its own: its `trace` is empty, and its sources are that standing finding's. No second model call pairs or sorts anything. The standing set holds document-alone findings only, so a cross-document finding is only ever `introduced` or `pre_existing` (DL-0567). Without a standing set, every finding is sorted by position only — `introduced` or `pre_existing` — and the analysis says so (DL-0571 (6)).
+
+**A finding raised by the injection checks has no heuristic** (ADR-0022): *this document contains text addressed to an automated reader*, shown to whoever sees the analysis (DL-0571 (11)), its quotes the text the checks or the model's self-report field found.
+
+**`STANDING_SET` is the standing findings set of one accepted state** (DL-0032, DL-0555): one per `ACCEPTANCE` of a document assigned at least one side-document type (DL-0567), computed once by a `standing` run and never recompiled per commit. It holds only findings derived from the document alone, so every reader of the document sees the same lists; shown as lists — contradictions, ambiguities, blind spots — it is the document's generated view of release 0.2, its author the system (DL-0448). The run is made through the provider's batch interface at each acceptance; a review that needs the set before the batch returns computes it live (DL-0564), and so does a review that needs a set that is missing, reusing any call the batch already stored (DL-0571 (6)). A reader is shown the set of the latest accepted state at or before the version they read (DL-0569). Cross-document findings stay in the reviewer agent's analysis of a run.
+
+**`ANALYSIS_MARK` is the *not right* mark** (DL-0554): one per analysis, on the whole analysis and never on a finding, with the person who set it and when (ASR-18). **A standing set takes one mark per list** (DL-0571 (7)): the row names the side-document type whose list it marks, hides that list for everyone until the next accepted state's list, and is written only on the current accepted state's set. Only the person the analysis was made for may write it, while the analysis is the current one for its content — the editor who called a companion action, a reviewer of the run for a `review` run, a holder of *accept* on the document for a `standing` run — and the row is never removed: a mark cannot be withdrawn (DL-0570). While it stands the analysis is shown in no view, to anyone; the run and its findings stay exactly where they are stored, and the trace reaches the mark through its run. Only the hiding is temporary; when the hiding ends the rows stay, as the measure of how often real analyses are wrong (B-073).
+
+**The spending cap is a column on `TENANT`; the rate limit is a setting of the installation** (DL-0564, DL-0569). `TENANT.model_spend_cap_month`, in US dollars — the provider's billing currency, and so `TRACE.cost`'s — is set by the platform administrator, on the platform administrator's page; an organisation given none is held to the installation-wide default cap, which is read from the installation's configuration (DL-0571 (14)). The month is the calendar month in UTC, and the spend the cap is compared with is the sum of `TRACE.cost` in the organisation's schema over it; past it every model call of the organisation stops, the standing set's batch included, and a run is refused with that reason. The rate limit counts companion runs per person per hour, twenty by default — one value for the platform, read from the installation's configuration as the upload maximum is (DL-0571 (14)); no table holds it — and past it the refusal says when the person may run again.
+
+**Two events join the notifications**, each written for an organisation's tenant administrators as a `NOTIFICATION` and for the platform administrators as a `PLATFORM_NOTIFICATION`: `instruction_in_document`, once per document and content state however many calls hit (DL-0571 (11)) — its `facts` the document and its version, or the version a draft stands on, shown as *a draft on version N.M*, never its text and never a person, and never sent by email (ADR-0022, DL-0113) — and `spending_cap_reached`, in the application only (DL-0564, DL-0569).
+
+**What the database refuses, from release 0.2:** one stored call per `key`; one mark per run, and for a standing run one per run and side-document type; one `instruction_in_document` notification per document and content state; one standing set per acceptance; a `DOCUMENT_ANALYSIS` or `DEFAULT_ANALYSIS` row naming exactly one of an action and a side-document type, once; a `TRACE` with `draft_text` exactly when it has `draft_base_commit`.
+
+### Left for later
+
+Not in release 0.2; each keeps its place to hang from, under the same rule (ASR-14).
+
+| Entity | Hangs from | Where it went |
 |---|---|---|
-| `HEURISTIC`, `COMPANION_ACTION`, `SIDE_DOCUMENT_TYPE` | shared schema, assigned per document | platform-authored; the tenant attaches, never authors (DL-0049) |
-| `ANALYSIS_RUN` | keyed by review scope and content state | scope is a set of documents the reviewer selects (DL-0077, DL-0078) |
-| `FINDING` | `ANALYSIS_RUN`, anchored by text-quote selector | carries provenance tags; audience computed per recipient (DL-0021) |
-| `REVIEW_SCOPE` | a reviewer and a set of documents | the unit an analysis is keyed to |
-| `GENERATED_VIEW` | `DOCUMENT`, one row per view type | mandatory views recompile per commit; voluntary on request (DL-0063) |
-| `DOCUMENT_ADR` | `DOCUMENT`, many versions | generated on a logic change, editable by a person (DL-0045) |
-| `DISPUTE`, `REJECTION_RECORD` | `VERSION` | deferred entirely to stage 2 (DL-0076) |
-| `THREAD`, `COMMENT` | `DOCUMENT`, anchored by text-quote selector | the annotation surface, deferred (DL-0083) |
+| `GENERATED_VIEW` | `DOCUMENT`, one row per view type | the control directory (B-068) and the voluntary views, with the seeding of an authored document (B-069) — not in release 0.2 (DL-0555, DL-0063) |
+| `DOCUMENT_ADR` | `DOCUMENT`, many versions | generated on a logic change, editable by a person (DL-0045) — not in release 0.2 (DL-0555, B-070) |
+| `DISPUTE`, `REJECTION_RECORD` | `VERSION` | disputes stay out of release 0.2 (DL-0550, DL-0076); EP-0002 |
+| `THREAD`, `COMMENT` | `DOCUMENT`, anchored by text-quote selector | the annotation surface (DL-0083) — not in release 0.2 (DL-0556, B-013) |
 
-**The one thing stage 1 must get right for stage 2** is that `VERSION` is addressable and immutable, and that anchors are text-selectors rather than positions. Everything above hangs off those two facts.
+**The one thing stage 1 had to get right for all of this** is that `VERSION` is addressable and immutable, and that anchors are text-selectors rather than positions. Everything above hangs off those two facts.
 
 ## What is deliberately absent
 
 - **No paragraph table** — see above.
 - **No section content table** — git holds it.
-- **No per-user analysis folder** — analyses key to scope, not person (DL-0078).
+- **No per-user analysis folder** — an analysis is a set of calls keyed to content, never to a person (DL-0567, DL-0078).
+- **No release of an analysis, and no guidance designation or grant** — the run's authors see the reviewer agent's analysis as it is computed, and the confidential guidance is not in release 0.2 (DL-0568, B-079).
+- **No provenance tag on a finding** — its sources are the documents of its call (ADR-0022).
+- **No copy of a committed document in a trace** — references by repository and commit; a draft's text alone is kept (ADR-0024).
 - **No comment tables** — stage 2 (DL-0083).
 - **No per-person document rights** — rights are held by groups (ADR-0007); the author's access before the first link is a flag on the document, not a row.
 - **No scope column anywhere** — rights and holds are whole-document (DL-0091).
