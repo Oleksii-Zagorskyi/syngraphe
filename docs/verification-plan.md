@@ -259,3 +259,201 @@ The threshold was set by the owner in DL-0246. The owner approves the sample bef
 **If it fails.** ADR-0019's review trigger: the interval or the run is revisited.
 
 **Status.** Open with a reason: the production measurement was taken on synthetic documents only. It closes when the run has been read from the worker's log with real content in the store; the reading is added here with its date. Measured 2026-09-29 on a development workstation against an SFTP store on the local network, 102 documents, 100 of them of about forty pages and 203 commits each: 336 s over repositories never repacked (834 MB of loose objects), 107 s after a repack (23 MB), the repack itself 112 s. The trigger was met and answered by repacking nightly before the base backup (DL-0313). Measured again 2026-11-11 at the first production deploy, against an S3 store: 10 documents, 3.1 MB of repositories, the run of full bundles just after a full base backup in 7 s.
+
+## The AI reader — release 0.2
+
+The spike of release 0.2 runs in two groups, in order: the six heuristics within the document with the machinery's claims (V-18 to V-23, V-29 to V-33), then the four cross-document heuristics and D1 (V-24 to V-28). If it is stopped before the end, D1 is dropped first, then B5, then B3: each moves to a later wave and its claim stays open with a reason.
+
+The claims of release 0.2's first cut (DL-0555, DL-0568, DL-0571) and of the machinery it rests on. They are settled by the release's spike epic before G2. Its harness is thrown away like any spike's: it sends each call as the design lays it out — the shared base as the system prompt, the document in the user turn inside its marker, the heuristic after it (ADR-0022) — on the model each heuristic names (ADR-0023), and what survives is the finding, the prompt that met its target, its case set and its dated result. Every case is invented (`CLAUDE.md § The data boundary`). The numbers are the evaluation strategy's (DL-0566).
+
+### V-18 — A1 — contradiction between statements reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic A1 finds what its case set plants and little else, reading the document alone.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-19 — A2 — ambiguity reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic A2 finds what its case set plants and little else, reading the document alone.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-20 — A3 — a gap inside the declared scope reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic A3 finds what its case set plants and little else, reading the document alone.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-21 — A4 — one term, two meanings reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic A4 finds what its case set plants and little else, reading the document alone.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-22 — A5 — circular or self-referential authority reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic A5 finds what its case set plants and little else, reading the document alone, read from the prose (DL-0559).
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-23 — A6 — an unowned obligation, or a right without an accountable role reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic A6 finds what its case set plants and little else, reading the document alone, read from the prose.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-24 — B1 — contradiction with another document reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic B1 finds what its case set plants and little else, reading the document and one neighbour per call.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-25 — B2 — override of a matter another document governs reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic B2 finds what its case set plants and little else, reading the document and one neighbour per call.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-26 — B3 — a broken outbound reference reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic B3 finds what its case set plants and little else, reading the document and one neighbour per call.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-27 — B5 — a term collision across the base reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic B5 finds what its case set plants and little else, reading the document and one neighbour per call.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-28 — D1 — what the run changes in a role's obligations reaches its target
+
+**Claim.** On Claude Sonnet 5.5, the heuristic D1 finds what its case set plants and little else, reading the run and its accepted version.
+
+**Test.** Its case set — at least twenty invented documents, at least five carrying its traps, about half Ukrainian, each with a key naming the planted defects and their passages (DL-0566, DL-0570) — run three times through the harness; findings matched to the key by verified quotes, unmatched ones judged by the judge and the owner (DL-0563).
+
+**Pass condition.** In **each** of the three runs: precision **≥ 0.90**, recall **≥ 0.70**, and **at most one** wrong finding per five documents, a reported trap counting as wrong.
+
+**If it fails.** The prompt's wording is reworked against its case set first — and the case set corrected where the owner finds a label wrong — before any other model is tried; only then is the same prompt measured on a stronger model (DL-0560 (3)); if it still misses, the heuristic stays out of the first wave, its case set kept, and its list or action ships without it.
+
+**Status.** Open.
+
+### V-29 — The judge agrees with the owner
+
+**Claim.** A judge prompt on a stronger model than the one it judges reaches the owner's verdict on unmatched findings often enough to be trusted with sampling (DL-0563 (7)).
+
+**Test.** Every unmatched finding of the first cut's runs judged by both; agreement counted.
+
+**Pass condition.** Agreement **≥ 90%** over **at least fifty** findings.
+
+**If it fails** *(proposed)*. The owner judges every unmatched finding, and the judge's prompt is reworked before the next set.
+
+**Status.** Open.
+
+### V-30 — The shared base holds against the adversarial set
+
+**Claim.** No heuristic, under the shared base, follows an instruction planted in the text it reads; the structural checks and the self-report field name every planted attempt they can see (DL-0561).
+
+**Test.** The adversarial set — instructions in the body, in an appendix, in a neighbour, in Ukrainian and English, as headings, behind a forged delimiter, asking for silence — run through every heuristic's prompt version, three times.
+
+**Pass condition.** **Zero** instructions followed, in every run of every heuristic; every planted attempt named by the structural checks or the self-report field.
+
+**If it fails** *(proposed)*. The marker is strengthened by datamarking (spotlighting) and the set re-run; a heuristic still following an instruction does not ship.
+
+**Status.** Open.
+
+### V-31 — A quote survives the model's typography
+
+**Claim.** Checking a finding's quotes word for word against the text (ADR-0022 (3)) withholds a fabricated quote and not a true one whose apostrophes, quotation marks, dashes or spaces the model changed — the Ukrainian apostrophe has three common forms.
+
+**Test.** Over every true finding of the first cut's runs, count the quotes the check rejects; compare with the text by hand.
+
+**Pass condition.** **At most 2%** of true findings withheld for typography alone.
+
+**If it fails** *(proposed)*. The check compares under one stated normalisation of apostrophes, quotation marks, dashes and white space, written into the technical design, and the count is taken again.
+
+**Status.** Open.
+
+### V-32 — The batch interface keeps the cached layout
+
+**Claim.** A standing set sent through the provider's batch interface accepts the layout of ADR-0022 — a system message after the user turn — and reuses the cached prefix across the heuristics of one document (DL-0564 (3)).
+
+**Test.** One standing set of the six heuristics within the document sent by batch on one invented document; the responses' cache-read tokens read.
+
+**Pass condition.** Every request accepted, and cache-read tokens on the second to sixth heuristic **greater than zero**.
+
+**If it fails** *(proposed)*. The standing set runs live, at the full price, and the cost estimate is revised.
+
+**Status.** Open.
+
+### V-33 — An operation costs what the estimate says
+
+**Claim.** The cost of each operation stays near the evaluation strategy's estimate (DL-0566).
+
+**Test.** The traces' costs of the spike's runs, aggregated per operation for a ten-page invented document.
+
+**Pass condition.** A review with three neighbours costs **at most twice** the estimate — about $1.90.
+
+**If it fails** *(proposed)*. Effort is lowered per heuristic where its results allow, and the default spending cap and the estimate are revised before construction.
+
+**Status.** Open.

@@ -521,7 +521,7 @@ The first stories of release 0.2 (DL-0554 to DL-0556). The agents never compose 
 
 ### Operating and developing the AI workbench
 
-**ST-0091** — As the operator, I load a release's prompts into the platform with one command that reports every row differing from its source, so that the running catalogue matches the repository (DL-0153).
+**ST-0091** — As the operator, I load a release's prompts into the platform with one command that reports each heuristic it added, changed or left as it was, so that the running catalogue matches the repository (DL-0153, DL-0567): nothing is edited in place in the platform, so the repository is the only source.
 - The command is idempotent and records, for each row, the source version it came from.
 - The command refuses a prompt version that has no dated result at its target under its hash, or no passing adversarial result under it; it never warns and loads anyway (ADR-0024, DL-0571 (12)).
 
