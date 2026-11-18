@@ -610,7 +610,7 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 ## B-079 — The confidential guidance
 
-**Idea.** An organisation keeps requirements its reviewers enforce and its editors may not see — *a synthetic example: a supplier that may not be named a preferred vendor*. The tenant administrator marks guidance documents, the right to read them is the guidance grant, and heuristic C1 checks each run against them in a call of its own whose findings reach only holders of the grant (DL-0095, ADR-0022).
+**Idea.** An organisation keeps requirements its reviewers enforce and its editors may not see — *a synthetic example: a supplier that may not be named a preferred vendor*. The tenant administrator marks guidance documents, the right to read them is the guidance grant, and heuristic C01 checks each run against them in a call of its own whose findings reach only holders of the grant (DL-0095, ADR-0022).
 
 **Why it is parked.** Release 0.2 leaves it out (DL-0568): the designation, the grant and a reviewer-only analysis are a surface of their own, and nothing in 0.2 needs them.
 
@@ -624,9 +624,9 @@ The sentence splitter's two abbreviation lists per language (ADR-0012) are rows 
 
 **What has to be true before it is taken up.** A reviewer is seen waiting for a neighbour's acceptance only to run a review against its new text.
 
-## B-081 — A citation of a superseded edition (C3)
+## B-081 — A citation of a superseded edition (C03)
 
-**Idea.** Heuristic C3 reports where a document cites an edition of another document that a later edition replaced, its call given each mentioned document's current edition number beside the text.
+**Idea.** Heuristic C03 reports where a document cites an edition of another document that a later edition replaced, its call given each mentioned document's current edition number beside the text.
 
 **Why it is parked.** Release 0.2 leaves it out (DL-0571): a call over the document alone cannot know that a cited edition is superseded, and a standing list computed at this document's acceptance is never refreshed when the cited document gets a new edition.
 

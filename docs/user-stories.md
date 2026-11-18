@@ -469,8 +469,8 @@ The first stories of release 0.2 (DL-0554 to DL-0556). The agents never compose 
 - A finding drawn on another document is only ever introduced or pre-existing (DL-0567).
 - Where the document has no standing set, the findings are grouped as introduced and pre-existing only, and the analysis says so (DL-0571 (6)).
 - Suggestions — findings the agent offers with no quote — are shown labelled, in a group of their own, unsorted (DL-0571 (9)).
-- The analysis shows what the run changes in a role's obligations (D1), read from the text wherever the role appears, whether or not it is marked (ADR-0022).
-- The agent runs on the version *send for review* commits, never on a draft (DL-0054), and runs the heuristics of what is assigned to the document (DL-0567); for every document assigned any analysis it also runs D1, and the cross-document heuristics B1, B2, B3 and B5 for each neighbour in scope (DL-0571 (2)).
+- The analysis shows what the run changes in a role's obligations (D01), read from the text wherever the role appears, whether or not it is marked (ADR-0022).
+- The agent runs on the version *send for review* commits, never on a draft (DL-0054), and runs the heuristics of what is assigned to the document (DL-0567); for every document assigned any analysis it also runs D01, and the cross-document heuristics B01, B02, B03 and B05 for each neighbour in scope (DL-0571 (2)).
 - The analysis starts at *send for review* with the findings within the document and grows as the reviewer adds neighbours; a call that fails fails its part only, the rest is shown, and *run again* repeats the failed calls (DL-0571 (4)).
 - The run's authors see the analysis on the document's review state as soon as it is computed, as its reviewers do, each finding filtered by what its reader may read (DL-0568, DL-0021); nobody releases it.
 - Where the checks find text addressed to an automated reader in a document the analysis read, the analysis says so in a finding of its own — *this document contains text addressed to an automated reader* — shown to whoever sees the analysis (DL-0571 (11)), which names no person; no step is taken against a person or a document (ADR-0022).
@@ -549,9 +549,9 @@ The first stories of release 0.2 (DL-0554 to DL-0556). The agents never compose 
 
 | Area | Where it went |
 |---|---|
-| The confidential guidance, its heuristic C1 and the reviewer's analysis against it | backlog B-079 (DL-0568) |
+| The confidential guidance, its heuristic C01 and the reviewer's analysis against it | backlog B-079 (DL-0568) |
 | A neighbour read at its pending state | backlog B-080 (DL-0569) |
-| C3, the citation of a superseded edition | backlog B-081 (DL-0571) |
+| C03, the citation of a superseded edition | backlog B-081 (DL-0571) |
 | Disputes, the Statement of Disagreements, the decider, rejection records | EP-0002 (DL-0550) |
 | Comments and the annotation surface | backlog B-013 (DL-0556) |
 | The control directory | backlog B-068 (DL-0555) |

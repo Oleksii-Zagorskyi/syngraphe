@@ -35,48 +35,50 @@ P4 is designed and not in release 0.2: the confidential guidance is sent to no m
 
 ## The kinds
 
+These tables are the registry of the heuristics (DL-0572). The id is stable: keys, results and decision rows use it. The slug is the heuristic's short name, used beside the id in reports and in folder names such as `prompts/A01-contradiction/`. Records written before DL-0572 use the former id.
+
 ### A — internal to the document
 
-| ID | Kind | Example |
-|---|---|---|
-| A1 | Contradiction between statements | "X approves Y" in one section, "Y cannot approve Y" in another |
-| A2 | Ambiguity | a sentence that admits two readings, both operative |
-| A3 | Gap inside the declared scope | approval defined for amounts above a threshold, silent below it |
-| A4 | One term, two meanings | "manager" used for a role in one section and a job grade in another |
-| A5 | Circular or self-referential authority | A approves B, B approves A; a role approving its own act |
-| A6 | Unowned obligation, or a right without an accountable role | an action required with nobody assigned; a role granted a right it has no obligation to exercise |
+| ID | Slug | Kind | Example | Former id |
+|---|---|---|---|---|
+| A01 | contradiction | Contradiction between statements | "X approves Y" in one section, "Y cannot approve Y" in another | A1 |
+| A02 | ambiguity | Ambiguity | the document, read as a whole, can be acted on two ways: two passages read together give two careful readers two different actions, persons, time limits or permissions (DL-0574) | A2 |
+| A03 | scope-gap | Gap inside the declared scope | approval defined for amounts above a threshold, silent below it | A3 |
+| A04 | term-two-meanings | One term, two meanings | "manager" used for a role in one section and a job grade in another | A4 |
+| A05 | circular-authority | Circular or self-referential authority | A approves B, B approves A; a role approving its own act | A5 |
+| A06 | unowned-obligation | Unowned obligation, or a right without an accountable role | an action required with nobody assigned; a role granted a right it has no obligation to exercise | A6 |
 
-A5 and A6 were first seen as graph checks over the entity layer (DL-0005). Marking is done by hand and optional and records no relation between a role and an action, so in release 0.2 they are model heuristics that read roles, actions and timings from the prose (DL-0551, DL-0559).
+A05 and A06 were first seen as graph checks over the entity layer (DL-0005). Marking is done by hand and optional and records no relation between a role and an action, so in release 0.2 they are model heuristics that read roles, actions and timings from the prose (DL-0551, DL-0559).
 
 ### B — against the existing document base
 
-| ID | Kind | Example |
-|---|---|---|
-| B1 | Contradiction with another document | this document permits what another forbids |
-| B2 | Override of a matter another document governs | the edit legislates outside this document's remit — the authority conflict, distinct from a logical one |
-| B3 | Broken outbound reference | this document cites a role, section, document or edition that was renamed or retired |
-| B4 | Inbound breakage | this edit changes something other documents cite — the owner's API-rename case, seen from the callers' side |
-| B5 | Term collision across the base | a term introduced here already has a different definition elsewhere |
-| B6 | Sibling-language divergence | a translated counterpart document no longer says the same thing |
+| ID | Slug | Kind | Example | Former id |
+|---|---|---|---|---|
+| B01 | cross-contradiction | Contradiction with another document | this document permits what another forbids | B1 |
+| B02 | authority-override | Override of a matter another document governs | the edit legislates outside this document's remit — the authority conflict, distinct from a logical one | B2 |
+| B03 | broken-reference | Broken outbound reference | this document cites a role, section, document or edition that was renamed or retired | B3 |
+| B04 | inbound-breakage | Inbound breakage | this edit changes something other documents cite — the owner's API-rename case, seen from the callers' side | B4 |
+| B05 | term-collision | Term collision across the base | a term introduced here already has a different definition elsewhere | B5 |
+| B06 | sibling-divergence | Sibling-language divergence | a translated counterpart document no longer says the same thing | B6 |
 
-B2 is the class the owner added, and it is worth keeping separate from B1: there need be no logical contradiction for it to matter. A document that starts regulating procurement thresholds when another document owns procurement is a governance defect even if the two happen to agree today.
+B02 is the class the owner added, and it is worth keeping separate from B01: there need be no logical contradiction for it to matter. A document that starts regulating procurement thresholds when another document owns procurement is a governance defect even if the two happen to agree today.
 
 ### C — against constraints
 
-| ID | Kind | Example |
-|---|---|---|
-| C1 | Guidance conflict | "Supplier Y may not be named a preferred vendor" against an edit listing Supplier Y as preferred |
-| C2 | Declared rule set conflict | organization policy or statute the tenant has loaded as a non-confidential rule set |
-| C3 | Temporal conflict | an effective date that overlaps a rule with a different window; a reference to a period already closed; a citation of a superseded edition |
+| ID | Slug | Kind | Example | Former id |
+|---|---|---|---|---|
+| C01 | guidance-conflict | Guidance conflict | "Supplier Y may not be named a preferred vendor" against an edit listing Supplier Y as preferred | C1 |
+| C02 | rule-set-conflict | Declared rule set conflict | organization policy or statute the tenant has loaded as a non-confidential rule set | C2 |
+| C03 | temporal-conflict | Temporal conflict | an effective date that overlaps a rule with a different window; a reference to a period already closed; a citation of a superseded edition | C3 |
 
 ### D — impact reports, not defects
 
-| ID | Kind | Why it matters |
-|---|---|---|
-| D1 | Derived-view delta | *"this edit changes the purchase manager's obligations list"* — the reviewer sees the change to the derived rights and obligations, not only the text diff |
-| D2 | Affected-documents list | which documents will need to react once this run is accepted |
+| ID | Slug | Kind | Why it matters | Former id |
+|---|---|---|---|---|
+| D01 | derived-view-delta | Derived-view delta | *"this edit changes the purchase manager's obligations list"* — the reviewer sees the change to the derived rights and obligations, not only the text diff | D1 |
+| D02 | affected-documents | Affected-documents list | which documents will need to react once this run is accepted | D2 |
 
-D1 is the highest-value item in this table that nobody asks for. A text diff shows a sentence changing; the derived-view delta shows that a named person's obligations changed, which is the thing a reviewer of a policy document is actually accountable for. Obligations are spread across sections and roles are not always marked, so D1 is read from the prose by a model, not computed from the marked spans (DL-0559).
+D01 is the highest-value item in this table that nobody asks for. A text diff shows a sentence changing; the derived-view delta shows that a named person's obligations changed, which is the thing a reviewer of a policy document is actually accountable for. Obligations are spread across sections and roles are not always marked, so D01 is read from the prose by a model, not computed from the marked spans (DL-0559).
 
 ## What is in the first cut (0.2)
 
@@ -84,17 +86,17 @@ Release 0.2, the AI reader, carries the first cut below (DL-0555, DL-0568, DL-05
 
 | Class | First cut | Note |
 |---|---|---|
-| A1, A2, A3, A4 | first cut | prose reading, the seed's original three lenses plus term drift |
-| A5, A6 | first cut | prose reading; marking is not relied on (DL-0559) |
-| B1, B2, B3, B5 | first cut | the document and one neighbour of the reviewer's scope per call (ADR-0022); run by the reviewer agent for each neighbour in scope (DL-0571 (2)) |
-| B4, D2 | later | needs the dependency graph |
-| B6 | later | needs sibling-document links |
-| C1 | later | the confidential guidance is not in release 0.2, which makes no guidance call (DL-0568, backlog B-079); its design stands for when it returns — the document and the guidance in a call of their own, reviewer-eyes-only (DL-0095, ADR-0022) |
-| C2 | later | needs a rule-set import surface |
-| C3 | later | not in release 0.2 (DL-0571 (3), backlog B-081): a call over the document alone cannot tell that a cited edition is superseded; effective-date windows are not modelled |
-| D1 | first cut | prose reading of what the run changes in each role's obligations (ADR-0022); the reviewer agent runs it (DL-0571 (2)) |
+| A01, A02, A03, A04 | first cut | prose reading, the seed's original three lenses plus term drift |
+| A05, A06 | first cut | prose reading; marking is not relied on (DL-0559) |
+| B01, B02, B03, B05 | first cut | the document and one neighbour of the reviewer's scope per call (ADR-0022); run by the reviewer agent for each neighbour in scope (DL-0571 (2)) |
+| B04, D02 | later | needs the dependency graph |
+| B06 | later | needs sibling-document links |
+| C01 | later | the confidential guidance is not in release 0.2, which makes no guidance call (DL-0568, backlog B-079); its design stands for when it returns — the document and the guidance in a call of their own, reviewer-eyes-only (DL-0095, ADR-0022) |
+| C02 | later | needs a rule-set import surface |
+| C03 | later | not in release 0.2 (DL-0571 (3), backlog B-081): a call over the document alone cannot tell that a cited edition is superseded; effective-date windows are not modelled |
+| D01 | first cut | prose reading of what the run changes in each role's obligations (ADR-0022); the reviewer agent runs it (DL-0571 (2)) |
 
-**Who runs what** (DL-0567, DL-0571 (2)). The reviewer agent runs the heuristics of the companion actions and side-document types assigned to the document. For every document assigned any analysis it also runs D1, and B1, B2, B3 and B5 for each neighbour in the reviewer's scope; these five belong to no companion action and no side-document type. The companion runs only heuristics within the document. Release 0.2 has three side-document types, one per standing list: *contradictions* — A1, A4, A5; *ambiguities* — A2; *blind spots* — A3, A6.
+**Who runs what** (DL-0567, DL-0571 (2)). The reviewer agent runs the heuristics of the companion actions and side-document types assigned to the document. For every document assigned any analysis it also runs D01, and B01, B02, B03 and B05 for each neighbour in the reviewer's scope; these five belong to no companion action and no side-document type. The companion runs only heuristics within the document. Release 0.2 has three side-document types, one per standing list: *contradictions* — A01, A04, A05; *ambiguities* — A02; *blind spots* — A03, A06.
 
 ## Scope and lifecycle
 

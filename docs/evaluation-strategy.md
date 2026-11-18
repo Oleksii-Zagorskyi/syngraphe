@@ -44,7 +44,7 @@ Set by DL-0570. Prompts are the code, evals the tests and the invented documents
 | `prompts/_base/` | the shared base prompt |
 | `prompts/_judge/` | the judge's prompt |
 | `prompts/<heuristic>/` | one heuristic's prompt and its settings — model and effort |
-| `evals/_documents/<case>/` | an invented document and its key, naming each heuristic's planted defects and traps |
+| `evals/_cases/<case>/` | an invented document and its key, naming each heuristic's planted defects and traps |
 | `evals/_adversarial/` | the injection set |
 | `evals/<heuristic>/` | a list naming the documents of the heuristic's set, and its dated results under the prompt version's hash |
 
@@ -52,7 +52,7 @@ A document serves several heuristics (DL-0566), so the documents are shared and 
 
 ## The case set
 
-- **A case is an invented document and its key**, in `evals/_documents/<case>/` (DL-0570). The key names each planted defect, the heuristic it belongs to and the passages it rests on, and each **trap** — a passage that looks like a defect of that heuristic and is not (DL-0563).
+- **A case is an invented document and its key**, in `evals/_cases/<case>/` (DL-0570, DL-0573). The key names each planted defect, the heuristic it belongs to and the passages it rests on, and each **trap** — a passage that looks like a defect of that heuristic and is not (DL-0563).
 - **A document may serve several heuristics.** Each heuristic is scored on every document of its set, so a document without its defects tests its restraint (DL-0566).
 - **The language is what these tests are about**: the documents the agents read are mostly Ukrainian, so every set has Ukrainian and English cases.
 - **Every document is invented.** Nothing from a real document enters the repository, as a case or as a key (`CLAUDE.md § The data boundary`).
@@ -79,7 +79,7 @@ Estimates before the spike measures them, on Claude Sonnet 5.5 at the provider's
 | One heuristic within the document | 1 | about $0.03 to $0.06, the first call of an operation the most |
 | A companion action of four heuristics | 4 | about $0.16 |
 | The standing set at an accepted state, all three types assigned | 6 | about $0.22; half through the provider's batch interface (DL-0564) |
-| The reviewer agent at *send for review*, all three types assigned | 7 | about $0.25 — the six heuristics within the document and D1 |
+| The reviewer agent at *send for review*, all three types assigned | 7 | about $0.25 — the six heuristics within the document and D01 |
 | Cross-document heuristics, per neighbour in scope | 4 | about $0.19 |
 | A review with three neighbours | 19 | about $0.82 — the reviewer agent's seven calls and four for each of three neighbours; about $1.40 at forty pages with neighbours of the same length |
 | One heuristic's eval: 20 cases, three runs | 60 | about $2.40, the judge on top |
@@ -88,43 +88,43 @@ Release 0.2 makes no guidance call (DL-0568), so none is costed. Spend is bounde
 
 ## The heuristics
 
-Eleven in the first cut, each described in `review-findings.md`; C1 and C3 keep their entries below, marked, and are not among them (DL-0568, DL-0571 (3)). Every one is a model heuristic in release 0.2 (DL-0551, ADR-0022); the numbers above apply to each. The standing lists group six of them, one side-document type per list: *contradictions* — A1, A4, A5; *ambiguities* — A2; *blind spots* — A3, A6 (DL-0567, DL-0571 (3)). The other five belong to no assignable unit: the reviewer agent runs D1, and B1, B2, B3 and B5 for each neighbour in scope, for every document assigned any analysis (DL-0571 (2)).
+Eleven in the first cut, each described in `review-findings.md`; C01 and C03 keep their entries below, marked, and are not among them (DL-0568, DL-0571 (3)). Every one is a model heuristic in release 0.2 (DL-0551, ADR-0022); the numbers above apply to each. The standing lists group six of them, one side-document type per list: *contradictions* — A01, A04, A05; *ambiguities* — A02; *blind spots* — A03, A06 (DL-0567, DL-0571 (3)). The other five belong to no assignable unit: the reviewer agent runs D01, and B01, B02, B03 and B05 for each neighbour in scope, for every document assigned any analysis (DL-0571 (2)).
 
-### A1 — Contradiction between statements
+### A01 — Contradiction between statements
 Context: the document alone. Calls per standing set, per review: one each. Its output reaches every reader of the document through the standing lists, so its false-positive budget matters most.
 
-### A2 — Ambiguity
-Context: the document alone. A sentence that admits two operative readings; a vague word with no operative second reading is a trap.
+### A02 — Ambiguity
+Context: the document alone, read as a whole (DL-0574). Two careful readers who obey the document act differently, because two or more passages read together allow two readings. Traps: two rules for one case where the document says which governs; a vague word with one reading; a sentence ambiguous only when read alone.
 
-### A3 — Gap inside the declared scope
+### A03 — Gap inside the declared scope
 Context: the document alone. Reaches readers as the blind-spot list. Recall is the harder axis; precision still leads.
 
-### A4 — One term, two meanings
+### A04 — One term, two meanings
 Context: the document alone.
 
-### A5 — Circular or self-referential authority
+### A05 — Circular or self-referential authority
 Context: the document alone, read from the prose; marking is not relied on (DL-0559).
 
-### A6 — Unowned obligation, or a right without an accountable role
+### A06 — Unowned obligation, or a right without an accountable role
 Context: the document alone, read from the prose. A passive obligation the document assigns elsewhere is a trap.
 
-### B1 — Contradiction with another document
+### B01 — Contradiction with another document
 Context: the document and one neighbour of the reviewer's scope per call (DL-0559). Cost grows with each neighbour.
 
-### B2 — Override of a matter another document governs
-Context: the document and one neighbour per call. Agreement between the two documents is a trap: B2 is about authority, not contradiction.
+### B02 — Override of a matter another document governs
+Context: the document and one neighbour per call. Agreement between the two documents is a trap: B02 is about authority, not contradiction.
 
-### B3 — Broken outbound reference
+### B03 — Broken outbound reference
 Context: the document and one neighbour per call.
 
-### B5 — Term collision across the base
+### B05 — Term collision across the base
 Context: the document and one neighbour per call.
 
-### C1 — Guidance conflict
+### C01 — Guidance conflict
 *Not in release 0.2* (DL-0568, backlog B-079): no prompt, no case set and no guidance call until the confidential guidance returns. Its design stands for then. Context: the document and the guidance, in a call of its own; reviewer-eyes-only (DL-0095). Its adversarial cases include attempts to copy the guidance into a finding.
 
-### C3 — Citation of a superseded edition
+### C03 — Citation of a superseded edition
 *Not in release 0.2* (DL-0571 (3), backlog B-081): no prompt and no case set. A call over the document alone cannot tell that a cited edition is superseded; the heuristic waits for a call that is given each mentioned document's current edition number.
 
-### D1 — What the run changes in a role's obligations
+### D01 — What the run changes in a role's obligations
 Context: the run and its accepted version. Read from the prose wherever the role appears, marked or not (DL-0559).

@@ -357,6 +357,12 @@ English only. If one of these reaches the interface, that is a defect.
 
 **prompt version** — one hash over the base prompt, a heuristic's text, its model and its effort (ADR-0024); the source version a loaded heuristic records is the same value.
 
+**heuristic id** — a heuristic's stable code: its class letter and two digits, such as A02. Keys, results and decision rows use it; records written before DL-0572 use the former id, A2 (DL-0572).
+
+**heuristic slug** — a heuristic's short English name, such as `ambiguity`, shown beside its id and used in folder names, `prompts/A02-ambiguity/`; never part of the id (DL-0572).
+
+**eval case** — an invented document and its key, which names each heuristic's planted defects and traps; its id is `case-` with a number, a language and a subject, `case-015-en-customer-letters`, and it lives in `evals/_cases/` (DL-0570, DL-0572, DL-0573).
+
 **review scope** — the ordered set of documents a reviewer put in scope. A result is not stored against the scope: each call is stored on its own, so two scopes that share a neighbour share its calls (DL-0567).
 
 **audit event** — a recorded action with its actor, object and time.
