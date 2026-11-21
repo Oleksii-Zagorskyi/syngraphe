@@ -1,0 +1,12 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding misreads the grammar. In «а проїзд, навіть працюючи, перетинає лише на позначеному переході», «проїзд» is the direct object (accusative) of «перетинає»; the subject is «Працівник, який іде пішки». So the pedestrian crosses the roadway (the place) only at a marked crossing. This is the same meaning as in «в проїздах завширшки менше ніж 3 метри», where it also names a place, so the term has one meaning in both passages and the reader acts the same way.",
+    "cost_usd": 0.012308,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 0
+  }
+}

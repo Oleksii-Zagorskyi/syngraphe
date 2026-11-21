@@ -317,7 +317,9 @@ From release 0.2, the AI reader (DL-0558). Listed so the vocabulary is settled b
 
 **reviewer agent** · агент-погоджувач · *proposed* — the agent that runs when a document is sent for review.
 
-**heuristic** · евристика · *proposed* — one focused piece of prompt text. Visible only to the platform administrator.
+**heuristic** · евристика · *proposed* — an entry of the catalogue, the kind a finding is labelled with, covered by a **prompt** (ADR-0026). Visible only to the platform administrator.
+
+**prompt** · промпт · *proposed* — the text that runs in a model call, with its own id, P03, and versions; it covers one heuristic or several (ADR-0026). Visible only to the platform administrator.
 
 **companion action** · дія помічника · *proposed* — a set of heuristics producing one analysis a user can ask for.
 
@@ -355,7 +357,7 @@ English only. If one of these reaches the interface, that is a defect.
 
 **sources of a finding** — the documents the call that produced the finding read, which decide who may see it. Taken from the call's context, never from a tag the model writes (ADR-0022).
 
-**prompt version** — one hash over the base prompt, a heuristic's text, its model and its effort (ADR-0024); the source version a loaded heuristic records is the same value.
+**prompt version** — one hash over the base prompt, a prompt's text, its model and its effort (ADR-0024); the source version a loaded prompt records is the same value.
 
 **heuristic id** — a heuristic's stable code: its class letter and two digits, such as A02. Keys, results and decision rows use it; records written before DL-0572 use the former id, A2 (DL-0572).
 

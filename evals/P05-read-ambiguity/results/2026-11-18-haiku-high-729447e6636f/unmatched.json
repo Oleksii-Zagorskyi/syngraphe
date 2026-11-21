@@ -1,0 +1,527 @@
+[
+  {
+    "id": "U-01",
+    "run": 1,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-002-uk-procurement-committee/A02",
+    "n": 1
+  },
+  {
+    "id": "U-02",
+    "run": 1,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-004-uk-window-timber-wall/A02",
+    "n": 2
+  },
+  {
+    "id": "U-03",
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-005-en-spending-authority/A02",
+    "n": 1
+  },
+  {
+    "id": "U-04",
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-005-en-spending-authority/A02",
+    "n": 2
+  },
+  {
+    "id": "U-05",
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-005-en-spending-authority/A02",
+    "n": 3
+  },
+  {
+    "id": "U-06",
+    "run": 1,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-006-uk-accountant-job/A02",
+    "n": 1
+  },
+  {
+    "id": "U-07",
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-009-en-gifts/A02",
+    "n": 1
+  },
+  {
+    "id": "U-08",
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-009-en-gifts/A02",
+    "n": 2
+  },
+  {
+    "id": "U-09",
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-009-en-gifts/A02",
+    "n": 3
+  },
+  {
+    "id": "U-10",
+    "run": 1,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-010-uk-forklift-safety/A02",
+    "n": 1
+  },
+  {
+    "id": "U-11",
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-011-en-records-retention/A02",
+    "n": 1
+  },
+  {
+    "id": "U-12",
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-011-en-records-retention/A02",
+    "n": 2
+  },
+  {
+    "id": "U-13",
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-011-en-records-retention/A02",
+    "n": 3
+  },
+  {
+    "id": "U-14",
+    "run": 1,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-012-uk-working-hours/A02",
+    "n": 1
+  },
+  {
+    "id": "U-15",
+    "run": 1,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-012-uk-working-hours/A02",
+    "n": 2
+  },
+  {
+    "id": "U-16",
+    "run": 1,
+    "case": "case-013-en-it-access",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-013-en-it-access/A02",
+    "n": 1
+  },
+  {
+    "id": "U-17",
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-015-en-customer-letters/A02",
+    "n": 1
+  },
+  {
+    "id": "U-18",
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-015-en-customer-letters/A02",
+    "n": 2
+  },
+  {
+    "id": "U-19",
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-015-en-customer-letters/A02",
+    "n": 3
+  },
+  {
+    "id": "U-20",
+    "run": 1,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-016-uk-db-backup/A02",
+    "n": 2
+  },
+  {
+    "id": "U-21",
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-017-en-annual-leave/A02",
+    "n": 1
+  },
+  {
+    "id": "U-22",
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-017-en-annual-leave/A02",
+    "n": 2
+  },
+  {
+    "id": "U-23",
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-017-en-annual-leave/A02",
+    "n": 3
+  },
+  {
+    "id": "U-24",
+    "run": 1,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-018-uk-document-numbering/A02",
+    "n": 2
+  },
+  {
+    "id": "U-25",
+    "run": 1,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-019-en-vehicles/A02",
+    "n": 3
+  },
+  {
+    "id": "U-26",
+    "run": 1,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-020-uk-stocktake/A02",
+    "n": 1
+  },
+  {
+    "id": "U-27",
+    "run": 1,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-020-uk-stocktake/A02",
+    "n": 2
+  },
+  {
+    "id": "U-28",
+    "run": 1,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run1/case-021-en-lab-spill/A02",
+    "n": 1
+  },
+  {
+    "id": "U-29",
+    "run": 2,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-002-uk-procurement-committee/A02",
+    "n": 1
+  },
+  {
+    "id": "U-30",
+    "run": 2,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-004-uk-window-timber-wall/A02",
+    "n": 2
+  },
+  {
+    "id": "U-31",
+    "run": 2,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-005-en-spending-authority/A02",
+    "n": 1
+  },
+  {
+    "id": "U-32",
+    "run": 2,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-006-uk-accountant-job/A02",
+    "n": 2
+  },
+  {
+    "id": "U-33",
+    "run": 2,
+    "case": "case-008-uk-complaints",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-008-uk-complaints/A02",
+    "n": 2
+  },
+  {
+    "id": "U-34",
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-009-en-gifts/A02",
+    "n": 1
+  },
+  {
+    "id": "U-35",
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-009-en-gifts/A02",
+    "n": 2
+  },
+  {
+    "id": "U-36",
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-009-en-gifts/A02",
+    "n": 3
+  },
+  {
+    "id": "U-37",
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-009-en-gifts/A02",
+    "n": 4
+  },
+  {
+    "id": "U-38",
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-009-en-gifts/A02",
+    "n": 5
+  },
+  {
+    "id": "U-39",
+    "run": 2,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-010-uk-forklift-safety/A02",
+    "n": 1
+  },
+  {
+    "id": "U-40",
+    "run": 2,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-010-uk-forklift-safety/A02",
+    "n": 2
+  },
+  {
+    "id": "U-41",
+    "run": 2,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-011-en-records-retention/A02",
+    "n": 1
+  },
+  {
+    "id": "U-42",
+    "run": 2,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-011-en-records-retention/A02",
+    "n": 2
+  },
+  {
+    "id": "U-43",
+    "run": 2,
+    "case": "case-013-en-it-access",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-013-en-it-access/A02",
+    "n": 1
+  },
+  {
+    "id": "U-44",
+    "run": 2,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-015-en-customer-letters/A02",
+    "n": 1
+  },
+  {
+    "id": "U-45",
+    "run": 2,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-016-uk-db-backup/A02",
+    "n": 1
+  },
+  {
+    "id": "U-46",
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-017-en-annual-leave/A02",
+    "n": 1
+  },
+  {
+    "id": "U-47",
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-017-en-annual-leave/A02",
+    "n": 2
+  },
+  {
+    "id": "U-48",
+    "run": 2,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-018-uk-document-numbering/A02",
+    "n": 2
+  },
+  {
+    "id": "U-49",
+    "run": 2,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-018-uk-document-numbering/A02",
+    "n": 3
+  },
+  {
+    "id": "U-50",
+    "run": 2,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-020-uk-stocktake/A02",
+    "n": 1
+  },
+  {
+    "id": "U-51",
+    "run": 2,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run2/case-021-en-lab-spill/A02",
+    "n": 1
+  },
+  {
+    "id": "U-52",
+    "run": 3,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-002-uk-procurement-committee/A02",
+    "n": 1
+  },
+  {
+    "id": "U-53",
+    "run": 3,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-002-uk-procurement-committee/A02",
+    "n": 2
+  },
+  {
+    "id": "U-54",
+    "run": 3,
+    "case": "case-003-en-onboarding",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-003-en-onboarding/A02",
+    "n": 1
+  },
+  {
+    "id": "U-55",
+    "run": 3,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-004-uk-window-timber-wall/A02",
+    "n": 2
+  },
+  {
+    "id": "U-56",
+    "run": 3,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-007-en-office-closing/A02",
+    "n": 2
+  },
+  {
+    "id": "U-57",
+    "run": 3,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-007-en-office-closing/A02",
+    "n": 3
+  },
+  {
+    "id": "U-58",
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-009-en-gifts/A02",
+    "n": 1
+  },
+  {
+    "id": "U-59",
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-009-en-gifts/A02",
+    "n": 2
+  },
+  {
+    "id": "U-60",
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-009-en-gifts/A02",
+    "n": 3
+  },
+  {
+    "id": "U-61",
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-009-en-gifts/A02",
+    "n": 4
+  },
+  {
+    "id": "U-62",
+    "run": 3,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-010-uk-forklift-safety/A02",
+    "n": 1
+  },
+  {
+    "id": "U-63",
+    "run": 3,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-011-en-records-retention/A02",
+    "n": 1
+  },
+  {
+    "id": "U-64",
+    "run": 3,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-011-en-records-retention/A02",
+    "n": 2
+  },
+  {
+    "id": "U-65",
+    "run": 3,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-012-uk-working-hours/A02",
+    "n": 1
+  },
+  {
+    "id": "U-66",
+    "run": 3,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-012-uk-working-hours/A02",
+    "n": 2
+  },
+  {
+    "id": "U-67",
+    "run": 3,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-015-en-customer-letters/A02",
+    "n": 1
+  },
+  {
+    "id": "U-68",
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-017-en-annual-leave/A02",
+    "n": 1
+  },
+  {
+    "id": "U-69",
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-017-en-annual-leave/A02",
+    "n": 2
+  },
+  {
+    "id": "U-70",
+    "run": 3,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-018-uk-document-numbering/A02",
+    "n": 1
+  },
+  {
+    "id": "U-71",
+    "run": 3,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-019-en-vehicles/A02",
+    "n": 3
+  },
+  {
+    "id": "U-72",
+    "run": 3,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-020-uk-stocktake/A02",
+    "n": 1
+  },
+  {
+    "id": "U-73",
+    "run": 3,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-020-uk-stocktake/A02",
+    "n": 2
+  },
+  {
+    "id": "U-74",
+    "run": 3,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-021-en-lab-spill/A02",
+    "n": 1
+  },
+  {
+    "id": "U-75",
+    "run": 3,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P05-read-ambiguity/results/2026-11-18-haiku-high-729447e6636f/calls/run3/case-021-en-lab-spill/A02",
+    "n": 4
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding is real, but it is a contradiction and not a term with two meanings. Section 2 says a small spill meets all conditions, including 500 ml or less for a liquid. The later sentence says a low-hazard liquid spill of one litre or less is small. An 800 ml spill cannot be both large and small, so the two passages cannot both be true. The instruction excludes passages that cannot both be true under any reading and calls that a contradiction, so the finding does not fit this kind.",
+    "cost_usd": 0.012989,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The two uses look like one term with two meanings, but the document separates them. Section 7.3 ties its term to approval \"under Section 7.5\". Section 7.7 then says \"no exception under Section 7.5 may be approved for it\", so the refreshments carve-out is plainly not a 7.5 exception and needs no request. A reader is not left guessing. The real flaw in Section 7.7 is the 15 euro versus 10 euro refreshment limit, which is a contradiction and not a term with two meanings.",
+    "cost_usd": 0.013054,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The term \"ескалація\" has one meaning throughout: transfer to the head of the department. The deputy transfer is described as \"замість ескалації\", so the document treats it as a different act and does not call it escalation. The phrase in \"Строк відповіді\", \"переданої за розділом «Ескалація» іншій посадовій особі\", refers to the section by name, and that section covers both transfers. So the responsible person is clear: whoever received the complaint, the department head or the deputy. No reader would act on a wrong meaning.",
+    "cost_usd": 0.014516,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "«Ініціатор» означає одне й те саме в усіх місцях: особу, яка подає заявку. Визначення («керівник структурного підрозділу або директор») не суперечить тому, що ініціатором може бути фінансовий менеджер, бо він може керувати підрозділом, і документ не каже протилежного. Читач в обох місцях діє однаково, тому це не термін з двома значеннями. Справжні подвійні значення в документі стосуються іншого терміна, «очікувана вартість», який визначено двічі по-різному, але це не те, що стверджує знахідка.",
+    "cost_usd": 0.015058,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition of «ініціатор» covers a head of a structural unit or the director. The financial manager can be a head of a unit, and the passage «Якщо ініціатором ... є фінансовий менеджер» says exactly what to do in that case: pass the request to the director the same day. The reader gets one clear action, so the term does not carry two meanings. The document's real term problem is «Очікувана вартість», which is defined twice, as the full contract sum and as the cost for one year, but that is not what this finding reports.",
+    "cost_usd": 0.00609,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

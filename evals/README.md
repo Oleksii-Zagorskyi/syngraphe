@@ -1,12 +1,12 @@
 # Evals
 
-The cases and the dated results of the AI reader's prompts (`docs/evaluation-strategy.md § The layout`, DL-0570, DL-0576). Every case is invented: no real document enters this folder (`CLAUDE.md § The data boundary`).
+The cases and the dated results of the AI reader's prompts (`docs/evaluation-strategy.md § The layout`, DL-0570, DL-0576, ADR-0026). Each prompt's folder here has the name of its folder in `prompts/`. Every case is invented: no real document enters this folder (`CLAUDE.md § The data boundary`).
 
 | Path | Holds |
 |---|---|
 | `_cases/<case>/document.md` | An invented document, written clean and then planted with defects. Its frontmatter marks it as invented and names its language |
 | `_cases/<case>/key.yaml` | What the heuristics must find in that document |
-| `<id>-<slug>/cases.yaml` | The cases of one heuristic's set |
+| `<id>-<slug>/cases.yaml` | The cases of one prompt's set |
 | `<id>-<slug>/results/<date>-<model>-<effort>-<hash12>/` | One measurement of one prompt version: the set run three times. `<hash12>` begins the prompt version's hash (`prompts/README.md`) |
 
 ## The key
@@ -28,6 +28,6 @@ For each heuristic, the key lists:
 | `unmatched.json` | The findings that match no planted defect |
 | `triangulation.json` | Where an unmatched finding lands on another heuristic's planted item, the key's verdict: it is wrong for this heuristic |
 | `review.md` | The findings the key does not place, each with its quotes, what the key holds on those lines, and the maintainer's verdict |
-| `judge*.json` | The verdicts of a judge model on the same findings, for comparison: `judge.json` from `prompts/_judge/prompt-01.md` on Opus, `judge-sonnet.json` from the same prompt on Sonnet, `judge-j02.json` from `prompt-02.md` on Sonnet |
+| `judge*.json` | The verdicts of a judge model on the same findings, for comparison: `judge.json` from `prompts/P02-judge/prompt-01.md` on Opus, `judge-sonnet.json` from the same prompt on Sonnet, `judge-j02.json` from `prompt-02.md` on Sonnet |
 
-The target is precision ≥ 0.90 and recall ≥ 0.70 in each of the three runs; the budget allows at most one wrong finding per five case documents in any run (`docs/evaluation-strategy.md § The numbers`). A result that fails is kept: it is the record of why the next version exists.
+The target is precision ≥ 0.90 and recall ≥ 0.70 in each of the three runs; the budget allows at most one wrong finding per five case documents in any run (`docs/evaluation-strategy.md § The numbers`). A prompt that covers several heuristics, `P03-read-document`, is measured as one report per case: a finding matches any planted defect its quotes overlap, whatever heuristic it names, and recall for each heuristic is reported beside the total, not as a gate (ADR-0026). Its result folders hold `meta.json` and `calls.json`; the scores are computed from them. A result that fails is kept: it is the record of why the next version exists.

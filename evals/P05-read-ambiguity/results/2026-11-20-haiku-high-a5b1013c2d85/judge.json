@@ -1,0 +1,222 @@
+{
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence covers two cases: the window does not meet the instruction, or the act does not match the window. The foreman returns the act with written remarks, and the installer removes 'їх', meaning the remarks. A reader cannot take this to mean fixing only the act text when the remark says the window is wrong. Fixing the act text would leave the window non-compliant, and the foreman checks the window again on resubmission. The sentence has one sensible reading, and no other passage supports a second reading that gives a different action.",
+    "cost_usd": 0.013266,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"Протокол підписують головуючий і кожен член Комітету, який вів протокол на цьому засіданні\" has one reading. The clause \"який вів протокол\" limits the signers to the chair and the member who kept the minutes. That member is the secretary, or the acting secretary under \"Секретар веде протокол засідання\" and the rule on assigning secretary duties. The text does not say that every member present signs, so the second reading in the finding has no support.",
+    "cost_usd": 0.015788,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "\"That review\" in section 6 points back to the review of \"each list not returned in time\", which is the whole list of access to the system. The sentence about the alternate owner reviewing the system owner's own access sets a separate task within the fifteen days. Nothing in the text limits the late review to the owner's own access, so the second reading has no real support and two careful readers would not act differently.",
+    "cost_usd": 0.013611,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence 'Only the final result is rounded up, to the nearest half day' has one natural reading. 'Rounded up' fixes the direction, and 'to the nearest half day' only gives the unit, so 25.2 days becomes 25.5. A careful reader would not lower 25.2 to 25.0, because that would break 'rounded up'. A second reading is possible only by ignoring 'up', so there are not two supported instructions.",
+    "cost_usd": 0.013852,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The payment sentence ends with \"within the same period\", which points back to the ten working days from learning it in the previous sentence. So it depends on the late-learning case, and a standalone reading has no start date for its deadline. The finding's first reading leaves knowingly accepted over-limit hospitality without a payment rule, but that would be a gap, not an ambiguity, because the text gives no second reading with a different action.",
+    "cost_usd": 0.014434,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sending rule, \"The author sends the letter only after the checker confirms it or the Head of the Department decides its wording\", gives only two ways to send. A letter returned with corrections is not yet confirmed, so the author cannot send it on the strength of the return alone. Reading 2 breaks the word \"only\", so it has no real support in the text. What the document leaves open is whether the checker has to re-confirm within one working day, and that would be a gap rather than an ambiguity.",
+    "cost_usd": 0.014667,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-18": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says a primary document is 'рахунок, акт або наказ, що підтверджує господарську операцію'. This is a definition, and the usual reading is a closed list of three types. The finding says a second reader could treat the list as examples, but no passage supports that reading. The other quoted passage, about other departments passing 'первинні документи', uses the defined term and so does not widen it. A document of another type is a case the document does not cover, which would be a gap, not an ambiguity. The two readings do not give two supported actions.",
+    "cost_usd": 0.013415,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-14": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 6 says the driver pays with the vehicle's fuel card, and that the driver pays personally only where a station does not accept the card, or for tolls and parking. The Finance Officer's duty is to 'reimburse', which only makes sense for amounts the driver paid out of pocket. A careful reader would not reimburse fuel already paid by the Organisation's card, so the two readings do not lead to two real actions. Reading the sentence loosely is a vague-wording point, not a conflict between passages.",
+    "cost_usd": 0.017358,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-26": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The Service Desk reports \"each list not returned in time\" to the alternate owner, who \"completes that review\". The natural reading is the review of that whole list, because the list is the thing reported and the system owner's confirm-or-remove task is the review. The sentence about the system owner's own access is a separate rule for that one access. It does not narrow the late-list rule, so Reading B, that only the system owner's own access passes to the alternate owner, has no real support in the text.",
+    "cost_usd": 0.006483,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-15": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The sentence \"Підрахунок триває не довше ніж пʼять робочих днів, у кожен з яких склад комісії повний увесь день\" settles the question. The clause \"у кожен з яких\" describes the five days themselves, so only days with a full commission count toward the limit. \"Комісія не веде підрахунку, доки її склад неповний\" fits this: a day with an incomplete commission is a pause and is not counted. The fixed-window reading would ignore the full-composition clause, so the text does not support it and there is no real ambiguity.",
+    "cost_usd": 0.020615,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-21": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document says a complaint arrives through one of four listed channels. A complaint an employee receives \"в інший спосіб\" is by definition outside those channels, and the employee must forward it to the complaints email. The email is one of the four channels, so \"Днем надходження\" is the working day the forwarded message arrives. Registration runs from that day, so the second reading is the only one the text supports. The first reading, that the employee's receipt counts as arrival, has no support.",
+    "cost_usd": 0.016316,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-29": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence 'Only the final result is rounded up, to the nearest half day.' has one natural reading. 'Rounded up' sets the direction and 'to the nearest half day' sets the step size, so the result is the next half-day multiple at or above the value, and 25.2 becomes 25.5. The second reading, 25.2 becomes 25.0, ignores the word 'up'. A careful reader would not reach it, so two careful readers do not get two different actions.",
+    "cost_usd": 0.00838,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-42": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 6 says the driver pays for fuel with the fuel card, and only when a station does not take the card does the driver pay personally and keep the receipt. The Finance Officer \"reimburses\" amounts, which can only mean money the driver paid personally, so card purchases are not reimbursable under any careful reading. Handing in a card receipt as well would change nothing about who pays or what the driver gets. The two quoted passages therefore do not give two different instructions.",
+    "cost_usd": 0.008274,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The late-learning rule in 7.6 covers an employee who learns only after the occasion that the value was above the limit. An approved exception under 7.5 needs a prior written request that shows the value and a business reason. So an employee with an approved exception would not be learning of an excess afterwards, and the case the finding describes does not really arise. No two readers would act differently in practice. The omission of \"without an approved exception\" from the second paragraph is a drafting difference, not a second reading that changes any action. A trap verdict is also possible, but no passage in the document explicitly resolves the point, so I give not a defect.",
+    "cost_usd": 0.012153,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-39": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"Системний адміністратор складає акт пробного відновлення, підписує його разом із головним бухгалтером...\" has no condition on the result. The next sentence, \"Якщо відновлення не вдалося або залишки не збіглися...\", only adds a same-day notification. Nothing says the act is skipped after a failure, so the second reading (no act) has no support in the text. A careful reader would draw up the act in every case and also send the notification. The missing detail of what the act says after a failed restoration does not produce two different actions.",
+    "cost_usd": 0.016685,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-25": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding says a record created by one unit and received by another unit has two possible owners. The ownership line says \"the head of the unit that created or received the record owns it\". Read with the definition of a record, the \"or\" separates a record made inside the Organisation from one that arrives from outside. The definition also says duplicate copies in the same form are not records, so a second unit's copy of an internal record is not a record and has no owner. A careful reader therefore does not end up with two different owners. The finding is a speculative edge case, not a real ambiguity.",
+    "cost_usd": 0.014868,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-19": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The clock rule lists three starting events: a corrected document, an explanation, or the director's decision. The document treats \"письмова незгода із зауваженням\" as a separate thing from \"пояснення\", which is what the accountant requests under the Rights section. A disagreement does not start the clock. It goes to the chief accountant, who passes it to the director within one working day. The director decides within five days, and that decision is binding and is the third listed event. A reader who treats the disagreement as an explanation has to stretch the term, so the text supports only one reading.",
+    "cost_usd": 0.01188,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-27": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"The author sends the letter only after the checker confirms it or the Head of the Department decides its wording\" is explicit. A letter returned with corrections has not been confirmed, so the author may not send it yet. If the author disagrees with the corrections, the Head of the Department decides the wording. A reader who sends a corrected letter without confirmation would break that rule, so there is no second reading that obeys the document. What the document leaves open is how a corrected letter gets confirmed and how long that takes. That is a gap, not an ambiguity.",
+    "cost_usd": 0.013854,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-23": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7.5 says the request is sent 'beforehand', and says that until approval the employee treats the request as refused. So an exception can only be approved before the gift or hospitality is accepted. In 7.6 'without an approved exception' therefore means no exception was approved in advance, and the employee must hand over and declare the gift within two working days. Nothing in the text supports a later approval letting the employee keep the gift, so there is no second reading that gives a different action. The other possible verdict, trap, is close because 'beforehand' is the passage that settles the question.",
+    "cost_usd": 0.008049,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-37": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The only ownership rule for operational records is 'the head of the unit that created or received the record owns it.' Where unit A creates a record and unit B receives it, the text supports both heads as owner, and nothing in the document picks one. The tie-break rule applies only between record types, not between units. The rule that duplicate copies are not records does not settle it, because it does not say which unit holds the record and which holds the copy. So one reader has A's head propose destruction and another has B's head do it, and each believes they obey the document.",
+    "cost_usd": 0.008108,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-33": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two rules have different triggers. The duty to send a request arises only when a primary document or explanation is missing (\"Бухгалтер зобов'язаний надіслати запит у день, коли виявив, що ... бракує первинного документа чи пояснення\"). An error \"спричинену неправдивими даними первинного документа\" concerns a document that was received and contains false data. The first rule covers the consequences of not requesting, and the second covers false data, so a careful reader does not get two different actions. The overlap the finding describes is hypothetical, and the doubt-based right to refuse to enter a document carries no duty to request. It could be argued that a missing request about a doubtful document might coincide with a false-data error, but the text does not create that duty.",
+    "cost_usd": 0.009244,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-35": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The hospitality rule in 7.6 is triggered only when an employee 'learns after the occasion' that the hospitality was above its limit. An employee who got an exception under 7.5 asked for it beforehand and was told the hospitality was above the limit, so they learn nothing after the occasion and the rule never applies. Section 7.3 also allows above-limit hospitality once an exception is approved, so a payment duty for approved cases would contradict it. The missing 'without an approved exception' wording therefore does not produce two readings, and the trigger condition settles the question.",
+    "cost_usd": 0.008587,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

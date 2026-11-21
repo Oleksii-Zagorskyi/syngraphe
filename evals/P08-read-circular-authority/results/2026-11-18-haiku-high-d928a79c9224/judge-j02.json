@@ -1,0 +1,72 @@
+{
+  "U-02": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "A fault report is a notice, not an approval, and ordering a repair is not approval of the closing person's act. The instruction excludes reports and exchanges of information between roles. Also, on working days the Office Manager is never the duty officer, and the Office Manager has no approval power over the closing person's own act, so no role approves its own act here.",
+    "cost_usd": 0.009048,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document does not state that the Office Manager may approve their own stay. It only says a person whom the Office Manager allows to stay may stay; that is silence, not a self-approval path. The finding rests on an assumption that the Office Manager could grant themselves permission, and the text does not say so. The stand-in rule for the Head of Operations is likewise only a substitution, with no stated approval of their own act. If anything, the missing bar would be a gap, not circular authority.",
+    "cost_usd": 0.003499,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence «Документ вважається підписаним, коли його підписав виконавець» clashes with «після останнього потрібного підпису» and with the rule that the document goes to the registrar after the last required signature. This is a contradiction (or a term with two meanings for «підписаний»), not circular authority. No role approves its own act through a path: the registrar assigns the number, and the executor only submits the document. The explanation itself says the passages «суперечить», which names a different kind.",
+    "cost_usd": 0.01547,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-16": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 2 moves the Fleet Manager's duties to the Operations Director for the Fleet Manager's own trip, but only for sections 3, 4, 7, 8 and 9. Section 5 is left out, and it alone gives the Fleet Manager the power to refuse private requests and to approve a private weekend trip. So when the Fleet Manager asks for a private weekend trip, the Fleet Manager decides on the Fleet Manager's own request under section 5. The Director's approval of the booking under section 4 does not remove this, because section 5 is a separate decision. This is a case of a role approving its own act.",
+    "cost_usd": 0.016028,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-10": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Assigning a number is a clerical registration step, not an approval, decision or check of the document, so a registrar numbering a document they submitted does not make circular authority. Sections 3 and 4 do not give the registrar any power to approve the content or signing of the document. Section 4 also has a different person check each register every quarter: the head of the chancellery checks the subdivision registers, and the deputy director checks the chancellery register. The real problems in this area are elsewhere, such as the sentence that a document counts as signed when the executor signs it, which is a different kind of problem.",
+    "cost_usd": 0.005945,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The copy is created by the automated task (sections 3 and 4), not by the administrator personally. In section 8 the administrator only starts that task, and section 5 already makes him the checker of every copy, whether automatic or manual. The check is mechanical: read the protocol and compare checksums. It is not a role approving its own decision. If the manual copy fails, section 8 sends the matter to the head of the IT department and does not let the administrator close it. The finding may have a point as a general design weakness, but it is not circular authority as the instruction defines it.",
+    "cost_usd": 0.02161,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-15": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Розділ 3 каже, що резервну копію створює автоматичне завдання, а не адміністратор баз даних. Заступник за розділом 2 лише перевіряє копії за розділом 5, тому твердження, що він сам створює і сам перевіряє копії, текст не підтверджує. Це перевірка результату роботи автоматичного завдання, а не схвалення власної дії. Ручний запуск у розділі 8 теж міг би дати самоперевірку, але висновок цитує інші пасажі й спирається на неправильне припущення про створення копій.",
+    "cost_usd": 0.009204,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/P02-judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

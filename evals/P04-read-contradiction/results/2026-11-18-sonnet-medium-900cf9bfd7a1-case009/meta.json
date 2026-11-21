@@ -1,0 +1,14 @@
+{
+  "heuristic": "A01",
+  "prompt": "prompts/P04-read-contradiction/prompt-02.md",
+  "base": "prompts/P01-base-read/prompt-01.md",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "prompt_version": "900cf9bfd7a14a3237837a81d2b2f535ceb11c2b2a905d8568cf4db93bcaff00",
+  "runs": 3,
+  "cases": [
+    "case-009-en-gifts"
+  ],
+  "fake": false,
+  "date": "2026-11-18"
+}

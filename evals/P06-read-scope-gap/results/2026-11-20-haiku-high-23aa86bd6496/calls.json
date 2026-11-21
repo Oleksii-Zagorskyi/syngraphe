@@ -1,0 +1,5330 @@
+[
+  {
+    "run": 1,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-001-en-travel-expenses/A03",
+    "ended": "done",
+    "cost_usd": 0.002909,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 5276,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1484
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Trips by private car are not covered by any cost rule",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            21,
+            24
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "No approver is given for trips of the chair of the board",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            14
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e890eb5b40f5ce250aa1ecaa328db9da",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvYKSDMRW1Gg3f7xs",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Trips by private car are not covered by any cost rule",
+          "explanation": "The scope covers every employee who travels for work, but the cost rules name only public transport, economy-class seats, hotel nights, meals and taxis. The document never says whether an employee who drives a private car can claim mileage or other car costs. The employee cannot tell whether to submit such a claim or what amount applies.",
+          "quotes": [
+            "The Organisation pays for public transport at the place of the trip.",
+            "Taxis are paid only when public transport is not reasonable."
+          ]
+        },
+        {
+          "title": "No approver is given for trips of the chair of the board",
+          "explanation": "The approval chain goes from heads of department to the director and from the director to the chair of the board. The document gives no approver for a trip of the chair, although the scope covers every employee who travels for work. If the chair is an employee, the reader cannot tell who approves the chair's trip.",
+          "quotes": [
+            "The chair of the board approves each trip of the director, instead of the director."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-002-uk-procurement-committee/A03",
+    "ended": "done",
+    "cost_usd": 0.005521,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 10066,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3217
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Немає правила для конфлікту інтересів у фінансового менеджера та директора",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            31,
+            53
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "Немає заступника, якщо фінансовий менеджер або директор відсутні",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            23,
+            31
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "ec672c734c405cd293f5b4a18b74247b",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvZ4hiGbJxLVa8Kvt",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 43.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила для конфлікту інтересів у фінансового менеджера та директора",
+          "explanation": "Правило про конфлікт інтересів стосується лише членів Комітету. Фінансовий менеджер сам погоджує або відхиляє заявки менше 50 000 гривень, а директор затверджує рішення Комітету понад 1 000 000 гривень і вирішує заявки замість Комітету. Документ не каже, що вони роблять, якщо мають конфлікт інтересів щодо закупівлі, хто тоді ухвалює рішення і чи можуть вони взагалі ухвалювати його.",
+          "quotes": [
+            "Член Комітету має конфлікт інтересів щодо закупівлі, якщо він є її ініціатором",
+            "фінансовий менеджер погоджує або відхиляє протягом пʼяти робочих днів без участі Комітету"
+          ]
+        },
+        {
+          "title": "Немає заступника, якщо фінансовий менеджер або директор відсутні",
+          "explanation": "Для голови, секретаря та кворуму документ передбачає заміну відсутнього. Для фінансового менеджера, який сам розглядає заявки менше 50 000 гривень, і для директора, який затверджує рішення понад 1 000 000 гривень, заміни немає. Якщо один із них відсутній, заявку вчасно не можна ні погодити, ні відхилити, і документ не підказує, що робити.",
+          "quotes": [
+            "Якщо секретар відсутній або має конфлікт інтересів щодо питання, головуючий доручає обовʼязки секретаря",
+            "фінансовий менеджер погоджує або відхиляє протягом пʼяти робочих днів без участі Комітету"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-003-en-onboarding",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-003-en-onboarding/A03",
+    "ended": "done",
+    "cost_usd": 0.002339,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 3947,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2240
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule for equipment and accounts when a new employee leaves after the probation period",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            58,
+            60
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No stand-in when the IT Technician is absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            25
+          ],
+          "verdict": "duplicate",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 1,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "96e79d6f24c0f924282bb68d5d7b416a",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvaoE3ykyx1Kv93VA",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for equipment and accounts when a new employee leaves after the probation period",
+          "explanation": "The scope covers every new employee, and the definition of leaving day applies to any employee who leaves. Section 8 applies only when the leaving day falls within the probation period, so the reader has no rule for recovering equipment or disabling and deleting accounts when someone leaves later. The document does not say that another document governs this case.",
+          "quotes": [
+            "This section applies when the leaving day of a new employee falls within the probation period, whatever the reason for leaving.",
+            "The employee returns all the equipment to the IT Technician on or before the leaving day."
+          ]
+        },
+        {
+          "title": "No stand-in when the IT Technician is absent",
+          "explanation": "The IT Technician has steps that must be done on fixed dates, such as preparing equipment, creating accounts, handing over equipment and disabling accounts. The document gives stand-ins for the line manager and the HR Officer but none for the IT Technician. A reader who finds the IT Technician absent has no rule for who performs these steps.",
+          "quotes": [
+            "The IT Technician prepares, issues and recovers the equipment and creates, disables and deletes the accounts.",
+            "When the HR Officer is absent, the Head of HR performs the steps that this procedure assigns to the HR Officer."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-004-uk-window-timber-wall/A03",
+    "ended": "done",
+    "cost_usd": 0.004112,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 7224,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3317
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено дії монтажника, якщо він не має потрібного інструмента",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            17
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "323ffaea2fcd8e36a61d3636bc3632fc",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvc3JP8uQuAZsjMy5",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 31.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено дії монтажника, якщо він не має потрібного інструмента",
+          "explanation": "Документ вимагає перевірити наявність усіх інструментів перед початком робіт, але не описує, що робити, якщо якогось інструмента немає. Для матеріалів бригадир їх видає, а для інструментів правила забезпечення немає. Монтажник не знає, чи може починати роботу, кому повідомити про брак і хто має його усунути.",
+          "quotes": [
+            "Монтажник до початку робіт перевіряє, що має всі інструменти з цього розділу."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-005-en-spending-authority/A03",
+    "ended": "done",
+    "cost_usd": 0.00409,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 7426,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2334
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Amounts above 2,000 and up to 2,500 euros have no approver.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            26,
+            27
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "88bea0003ace11032d39f122a05365f7",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvZ4kmY22g1VrQ4zu",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 31.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Amounts above 2,000 and up to 2,500 euros have no approver.",
+          "explanation": "The first band ends at 2,000 euros inclusive and the second band starts above 2,500 euros. A spending request for an amount between those two limits falls in no band, so the reader cannot tell who approves it. This includes requests from team leads, whose own band section 4 defines as the first band.",
+          "quotes": [
+            "From 0 to 2,000 euros inclusive, the approver is the team lead of the requester's team.",
+            "Above 2,500 and up to 15,000 euros inclusive, the approver is the head of the requester's department."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-006-uk-accountant-job/A03",
+    "ended": "done",
+    "cost_usd": 0.003749,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 6490,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3351
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Немає правила на час відсутності головного бухгалтера",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            10,
+            62
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Не визначено, що робити з документом, у достовірності якого бухгалтер сумнівається",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            38
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-6",
+            "R-7",
+            "R-8"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "22181202f98fb16a5236a405e0a1955b",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvZZ6trau4gHqzXjk",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 27.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила на час відсутності головного бухгалтера",
+          "explanation": "Документ визначає заступника для відсутнього бухгалтера, але не визначає, хто виконує обов'язки головного бухгалтера. Головний бухгалтер затверджує звіти, отримує повідомлення про розбіжності, розглядає пропозиції та передає питання директорові. Коли він відсутній, бухгалтер не знає, кому подавати звіт і кому передавати повідомлення, і строки для цих дій не можна виконати.",
+          "quotes": [
+            "На час відсутності бухгалтера його обов'язки виконує працівник фінансового відділу",
+            "Головний бухгалтер протягом одного робочого дня від дня повідомлення бухгалтера"
+          ]
+        },
+        {
+          "title": "Не визначено, що робити з документом, у достовірності якого бухгалтер сумнівається",
+          "explanation": "Бухгалтер має право не вносити такий документ, але документ не передбачає, що відбувається далі. Не сказано, чи повертати документ керівникові відділу, чи запитувати пояснення, чи повідомляти головного бухгалтера. Правило про розбіжності стосується лише відсутнього документа або пояснення, тому незрозуміло, чи це розбіжність.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-007-en-office-closing/A03",
+    "ended": "done",
+    "cost_usd": 0.004562,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 8386,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2271
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule when the doors step cannot be completed, for example when a lock fails.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            36,
+            42
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No stand-in when the Office Manager is absent and the Head of Operations is also absent.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            43
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-5",
+            "R-6",
+            "R-9"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "c2fe30001491f3cb4c56dd2133a5c4eb",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvZoSStQhrUf3mjCL",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 35.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule when the doors step cannot be completed, for example when a lock fails.",
+          "explanation": "The fault section expressly excludes the doors step, and the alarm section covers only a panel that will not show Armed. If the main door or one of its locks cannot be locked, the reader has no rule for what to do, whether to leave, report, or record the fault. The reader cannot tell whether to stay, leave the door open, or complete the keys and closing log steps.",
+          "quotes": [
+            "Doors: the closing person switches off the entrance hall light, leaves through the main door within 60 seconds of setting the alarm and locks both its locks.",
+            "This section applies to each step, other than the alarm step and the doors step, that cannot be completed."
+          ]
+        },
+        {
+          "title": "No stand-in when the Office Manager is absent and the Head of Operations is also absent.",
+          "explanation": "The document names the Head of Operations as the stand-in for the Office Manager, but gives no stand-in for the Head of Operations. If the Office Manager is on leave or off sick and the Head of Operations is also absent, the reader has no one to receive the fault reports and no one to take the Office Manager's place. The reader cannot tell who receives the report before leaving the building.",
+          "quotes": [
+            "On a day when the Office Manager is on leave or off sick, the Head of Operations takes the Office Manager's place in every rule of this checklist, as actor and as receiver of a report.",
+            "The closing person completes the remaining steps, describes the fault in the closing log and reports it to the Office Manager by message before leaving the building."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-008-uk-complaints",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-008-uk-complaints/A03",
+    "ended": "done",
+    "cost_usd": 0.005246,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 9541,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3116
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Для скарг, що надійшли поштою, не визначено строків розслідування",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            43,
+            44
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "7df59b5cf4f8abd149ec765cf7635990",
+    "sent_at": "2026-11-20T13:59:57+00:00",
+    "request_id": "msg_011ChEJNvc3Gk2xq3pBC9KVd",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 41.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для скарг, що надійшли поштою, не визначено строків розслідування",
+          "explanation": "Документ прибирає всі проміжні строки розслідування для скарг, що надійшли поштою: призначення фахівця, надання документів працівниками і подання висновку. Він не встановлює інших строків для цих дій. Керівник відділу й фахівець не знають, до якого дня призначити фахівця і коли той має подати висновок і проєкт відповіді, хоча керівник має затвердити висновок протягом одного робочого дня після його отримання.",
+          "quotes": [
+            "Ці строки не застосовують до скарги, що надійшла поштою.",
+            "Не пізніше кінця сьомого робочого дня строку фахівець подає керівникові відділу висновок і проєкт відповіді."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-009-en-gifts/A03",
+    "ended": "done",
+    "cost_usd": 0.003172,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 5573,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2402
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Hospitality above the limit that the employee knows is too high when accepting it has no remedy rule",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            24,
+            46,
+            49
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-3",
+            "R-6",
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "cb6ca2692d3d4259fe511dae04658f42",
+    "sent_at": "2026-11-20T14:00:14+00:00",
+    "request_id": "msg_011ChEJQAEMn7oJ1WcZe27RR",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Hospitality above the limit that the employee knows is too high when accepting it has no remedy rule",
+          "explanation": "Section 7.3 covers hospitality above the limit that an employee accepts without approval. The remedy paragraph of Section 7.6 names only gifts for the case where the employee has received an above-limit gift at once. The hospitality rule applies only when the employee learns of the excess after the occasion. A reader who accepts hospitality above the limit knowing its value at the time cannot tell whether to hand it over, return it, or pay the excess.",
+          "quotes": [
+            "An employee must not accept or give a gift or hospitality above its limit unless an exception has been approved under Section 7.5.",
+            "When an employee has received, without an approved exception, a gift above the gift limit or a money gift",
+            "When an employee learns after the occasion that a gift given or hospitality received or given was above its limit"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-010-uk-forklift-safety/A03",
+    "ended": "done",
+    "cost_usd": 0.002007,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 3037,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3224
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не вказано допустиму масу вантажу для підняття на висоту понад 4 до 5 метрів",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            43,
+            45
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "835f47e427d2e40f362265a467e43a09",
+    "sent_at": "2026-11-20T14:00:21+00:00",
+    "request_id": "msg_011ChEJQi8kfMXkMB66cmhJG",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не вказано допустиму масу вантажу для підняття на висоту понад 4 до 5 метрів",
+          "explanation": "Документ встановлює граничну масу для висоти до 4 метрів включно та для висоти понад 5 метрів, але не для проміжку понад 4 до 5 метрів. Водій, який має підняти вантаж на таку висоту, не знає, чи може це робити і яка маса допустима. Тому він не може виконати правило про вантажі в цьому випадку.",
+          "quotes": [
+            "Водій не піднімає вантаж масою понад 1200 кілограмів на висоту до 4 метрів включно.",
+            "Маса вантажу, який водій піднімає на висоту понад 5 метрів, не перевищує 1000 кілограмів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-011-en-records-retention/A03",
+    "ended": "done",
+    "cost_usd": 0.005164,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 9565,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2371
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Destruction method for microfilm records is not given",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            11,
+            55
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Contract records with no end date have no retention start",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            32
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-9"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9d7175e5d7478eaea3ed30cde43e9460",
+    "sent_at": "2026-11-20T14:00:24+00:00",
+    "request_id": "msg_011ChEJQw6s3fi6ABMedeXff",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 40.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Destruction method for microfilm records is not given",
+          "explanation": "The policy applies to records on microfilm, but the destruction step only says how to shred paper and erase electronic records. A reader who holds a microfilm record that has been approved for destruction has no rule for destroying it, and cannot give the method in the Destruction Log.",
+          "quotes": [
+            "on paper, on microfilm or in electronic form",
+            "Within 15 calendar days after approval, the owner shreds a paper record and erases an electronic record so that it cannot be restored."
+          ]
+        },
+        {
+          "title": "Contract records with no end date have no retention start",
+          "explanation": "Contract records are kept for 6 years from the date the agreement ends, but the policy does not say what to do with an open-ended agreement that has no end date. The reader cannot work out when the retention period starts, so cannot know when the record may be proposed for destruction.",
+          "quotes": [
+            "Contract records are kept for 6 years from the date on which the agreement ends.",
+            "Contract records are signed agreements with outside parties and their amendments"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-012-uk-working-hours/A03",
+    "ended": "done",
+    "cost_usd": 0.002459,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 4073,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2696
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "6b31233c75463c058b41125ba88ea5b0",
+    "sent_at": "2026-11-20T14:00:28+00:00",
+    "request_id": "msg_011ChEJREqDab125GJXJRRFx",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-013-en-it-access",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-013-en-it-access/A03",
+    "ended": "done",
+    "cost_usd": 0.00321,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 5644,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2421
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Devices and network services have no appointed system owner, so no second decision or periodic review can happen for them",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            8,
+            19
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No rule says what happens to the old access level when a changed level is granted",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            28,
+            42
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-3"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "No rule covers a Service Desk administrator's own access request when no other administrator exists",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            43
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.3333333333333333,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "ec4340628123423dba7ec8898ff93038",
+    "sent_at": "2026-11-20T14:00:29+00:00",
+    "request_id": "msg_011ChEJRGWAfRe542HmZRjVa",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Devices and network services have no appointed system owner, so no second decision or periodic review can happen for them",
+          "explanation": "The scope covers devices and network services as systems. Only applications and databases get an appointed system owner and alternate owner, yet the second decision and the periodic review both depend on those owners. For a device or network service, the reader cannot tell who gives the second decision or who reviews the access.",
+          "quotes": [
+            "A system is any application, database, device or network service that the Organisation operates or subscribes to.",
+            "The Head of Information Technology appoints one system owner and one alternate owner for every application and every database"
+          ]
+        },
+        {
+          "title": "No rule says what happens to the old access level when a changed level is granted",
+          "explanation": "Section 3 lets a requester ask to change an access level they already hold. Section 5 only says the access is granted and recorded, and no rule says whether the previous level is removed or kept. The reader cannot tell whether the requester ends up with one level or two.",
+          "quotes": [
+            "The requester also submits an access request to change an access level that the requester already holds.",
+            "A Service Desk administrator grants the access within two working days after the second decision is an approval."
+          ]
+        },
+        {
+          "title": "No rule covers a Service Desk administrator's own access request when no other administrator exists",
+          "explanation": "The document requires that another Service Desk administrator grant access to an administrator. If the requester is the only administrator, no one is left to grant the access. The document gives no fallback, so the reader cannot complete the request.",
+          "quotes": [
+            "A Service Desk administrator does not grant access to himself or herself; another Service Desk administrator grants it."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-014-uk-legal-department/A03",
+    "ended": "done",
+    "cost_usd": 0.003013,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 5041,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3254
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9fd2ecbc3760bf37f61f225d4d1f76e0",
+    "sent_at": "2026-11-20T14:00:33+00:00",
+    "request_id": "msg_011ChEJRZtgEmSuCXS8UVjVS",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 23.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-015-en-customer-letters/A03",
+    "ended": "done",
+    "cost_usd": 0.002433,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 4138,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2230
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No checker is named when an Adviser's team has no other Adviser",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            47
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "4826a03ee815ee0594118af99ec96dcf",
+    "sent_at": "2026-11-20T14:00:35+00:00",
+    "request_id": "msg_011ChEJRiSe6BBV7zrUwPw6q",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "No checker is named when an Adviser's team has no other Adviser",
+          "explanation": "The reader must appoint a checker for every Adviser's letter that refuses a request, states a sum of money or answers a complaint. The document requires that checker to be another Adviser of the same team, but it does not say what to do when the team has no other Adviser. Unlike the Team Lead case, where the Head of the Department appoints a checker from another team, no fallback is given for Advisers, so the reader cannot complete the check.",
+          "quotes": [
+            "When the author is an Adviser, the Team Lead of that Adviser's team appoints another Adviser of the same team as the checker."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-016-uk-db-backup/A03",
+    "ended": "done",
+    "cost_usd": 0.002799,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 4640,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3147
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, хто видаляє щотижневі копії з віддаленого сховища після шести місяців",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            51,
+            53
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "323b77dc5efa1effcee766af8a7b69bc",
+    "sent_at": "2026-11-20T14:00:38+00:00",
+    "request_id": "msg_011ChEJRyay2CYBfivpJQo9Q",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 19.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, хто видаляє щотижневі копії з віддаленого сховища після шести місяців",
+          "explanation": "Документ встановлює строк зберігання щотижневих копій у віддаленому сховищі, але жоден крок не передбачає їх видалення звідти. Розділ 6 з видаленням з сервера резервних копій пов'язує лише адміністратора баз даних і цей сервер. Тому читач не може визначити, хто має видалити копію у віддаленому сховищі після закінчення шести місяців.",
+          "quotes": [
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення.",
+            "Адміністратор баз даних видаляє резервну копію з сервера резервних копій наступного робочого дня після закінчення строку її зберігання."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-017-en-annual-leave/A03",
+    "ended": "done",
+    "cost_usd": 0.002202,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 3662,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2291
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "A request for exactly five leave days has no time limit.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            33,
+            34
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8a9da25e0301e58890fffe6bd52eff31",
+    "sent_at": "2026-11-20T14:00:39+00:00",
+    "request_id": "msg_011ChEJRzhgMRAMoJDtDucha",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "A request for exactly five leave days has no time limit.",
+          "explanation": "The reader must check whether a request is in time, but the time-limit rules cover only fewer than five days and more than five days. A request for exactly five days falls under neither rule, so the reader cannot tell how many working days ahead it must be submitted. The approver therefore cannot refuse it as late, and the reader cannot tell whether it is in time.",
+          "quotes": [
+            "A request for fewer than five leave days is submitted at least 10 working days before the first day of leave.",
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-018-uk-document-numbering/A03",
+    "ended": "done",
+    "cost_usd": 0.002795,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 4639,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3121
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Для актів немає коду виду, хоча вони входять до сфери стандарту",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            28
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Не визначено, хто присвоює номер, якщо відсутні і реєстратор, і його заступник",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            38,
+            39
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-2",
+            "R-3"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "734b8d955e3082114984cef5b3db2fd2",
+    "sent_at": "2026-11-20T14:00:41+00:00",
+    "request_id": "msg_011ChEJS9bUFRq7hYdKaR98u",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для актів немає коду виду, хоча вони входять до сфери стандарту",
+          "explanation": "Сфера стандарту прямо охоплює акти, але розділ 2 дає коди лише для шести видів документів: наказу, розпорядження, положення, інструкції, протоколу і службової записки. Виконавець, який готує акт, не знає, який код поставити в номері, тому не може сформувати номер за правилами розділу 2. Реєстратор теж не має правила для присвоєння номера акту.",
+          "quotes": [
+            "Внутрішніми документами в цьому стандарті є накази, розпорядження, положення, інструкції, протоколи, службові записки та акти, які створено й підписано в Організації.",
+            "Службова записка має код «СЗ»."
+          ]
+        },
+        {
+          "title": "Не визначено, хто присвоює номер, якщо відсутні і реєстратор, і його заступник",
+          "explanation": "Стандарт дає заступника реєстратора як заміну лише на випадок відсутності реєстратора. Якщо відсутні обидва, у документі немає жодної особи, яка має присвоїти номер у день отримання підписаного документа. Працівник, який має діяти в такій ситуації, не знає, кому передати документ і хто має присвоїти номер.",
+          "quotes": [
+            "Заступник виконує всі обов'язки реєстратора в дні, коли реєстратор відсутній на роботі.",
+            "Реєстратора та його заступника призначає керівник підрозділу розпорядженням з числа працівників цього підрозділу."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-019-en-vehicles/A03",
+    "ended": "done",
+    "cost_usd": 0.004812,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 8820,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2533
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "A request entered at or after its start time has no rule",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            28,
+            29
+          ],
+          "verdict": "trap",
+          "traps": [
+            "A03-T1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No step gives the driver the keys at the start of a booking",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            31,
+            32
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 1,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 0.5,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8dda02902b917b14a37cb9ff20787479",
+    "sent_at": "2026-11-20T14:00:46+00:00",
+    "request_id": "msg_011ChEJSaPjEypKTVjqaDG6v",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 37.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "A request entered at or after its start time has no rule",
+          "explanation": "The Fleet Manager must approve or refuse each request before the requested start time. The document does not say what happens when a request is entered at or after that start time, so the Fleet Manager cannot meet the deadline and does not know whether to approve, refuse or hold the request.",
+          "quotes": [
+            "The Fleet Manager approves or refuses each request before the requested start time.",
+            "An authorised employee requests a vehicle by entering the purpose, the start time and the end time of the trip in the booking register."
+          ]
+        },
+        {
+          "title": "No step gives the driver the keys at the start of a booking",
+          "explanation": "Keys go to the Fleet Manager at the end of each booking. No step says how an approved driver gets the keys or the vehicle at the start of a booking, so the driver cannot tell how to begin a trip that the document allows.",
+          "quotes": [
+            "At the end of the booking, the driver returns the vehicle to the Organisation's car park, enters the mileage in the mileage log and hands the keys to the Fleet Manager.",
+            "No employee takes a vehicle without an approved booking."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-020-uk-stocktake/A03",
+    "ended": "done",
+    "cost_usd": 0.004075,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 7192,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3145
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Правила періоду заморожування не охоплюють товари в торговому залі",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            33
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "729692bf9052758c3663b0550d824273",
+    "sent_at": "2026-11-20T14:00:53+00:00",
+    "request_id": "msg_011ChEJT3bqHmrcQqp6uDtiK",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 31.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Правила періоду заморожування не охоплюють товари в торговому залі",
+          "explanation": "Порядок поширюється на товари в торговому залі, але правило про заборону обліку та видачі після останнього робочого дня листопада стосується лише комірника і складу. Документ не каже, чи можна продавати товари з торгового залу під час підрахунку, і як такі продажі відображати в обліку. Тому читач не може визначити, що робити з товарами в залі в цей період.",
+          "quotes": [
+            "Порядок поширюється на всі товари Організації — на складі та в торговому залі.",
+            "Комірник не приймає на облік і не видає товарів після останнього робочого дня листопада до отримання повідомлення голови комісії про завершення підрахунку."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run1/case-021-en-lab-spill/A03",
+    "ended": "done",
+    "cost_usd": 0.005685,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 10575,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2499
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9a30626c9654dc58f3af875c4f89e285",
+    "sent_at": "2026-11-20T14:00:53+00:00",
+    "request_id": "msg_011ChEJT4nn3nCAMTQnsBYXf",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 43.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-001-en-travel-expenses/A03",
+    "ended": "done",
+    "cost_usd": 0.001681,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 3162,
+      "cache_read_input_tokens": 1484,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The chair's own trips have no approver.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            14
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "Travel by private car has no cost rule.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            21,
+            24
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e890eb5b40f5ce250aa1ecaa328db9da",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJpxSJWUgsWBDEzex",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "The chair's own trips have no approver.",
+          "explanation": "The approval chain gives a rule for the director's trips, but it ends at the chair of the board. If the chair travels for work, the reader cannot tell who approves the trip, so the trip cannot be approved or paid under the document. Whether the chair falls within the scope is not stated.",
+          "quotes": [
+            "The chair of the board approves each trip of the director, instead of the director."
+          ]
+        },
+        {
+          "title": "Travel by private car has no cost rule.",
+          "explanation": "The scope covers every employee who travels for work, and the cost rules name public transport, taxis and economy seats only. A reader handling a claim for a trip made by the employee's own car cannot tell whether it is approved, paid, or how its cost is measured.",
+          "quotes": [
+            "The Organisation pays for public transport at the place of the trip.",
+            "Taxis are paid only when public transport is not reasonable."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-002-uk-procurement-committee/A03",
+    "ended": "done",
+    "cost_usd": 0.002787,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 5338,
+      "cache_read_input_tokens": 3217,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, що відбувається із заявкою, якщо директор скасовує рішення Комітету про понад 1 000 000 гривень",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            34,
+            36
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "ec672c734c405cd293f5b4a18b74247b",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJnUG58tUBVmkuyYf",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, що відбувається із заявкою, якщо директор скасовує рішення Комітету про понад 1 000 000 гривень",
+          "explanation": "Документ дозволяє директору або затвердити, або скасувати рішення Комітету про погодження заявки понад 1 000 000 гривень. Правил про результат скасування немає: не сказано, чи заявку відхилено, чи повертають її Комітетові або ініціаторові. Тому читач не знає, які кроки робити далі після скасування.",
+          "quotes": [
+            "Директор затверджує або скасовує рішення Комітету про погодження закупівлі очікуваною вартістю понад 1 000 000 гривень протягом пʼяти робочих днів після отримання протоколу.",
+            "а його рішення про погодження набирає чинності лише після затвердження директором"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-003-en-onboarding",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-003-en-onboarding/A03",
+    "ended": "done",
+    "cost_usd": 0.001938,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 3662,
+      "cache_read_input_tokens": 2240,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No stand-in when the IT Technician is absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            25
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No rule for leaving after the probation period",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            6,
+            58
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-3",
+            "R-9"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "No rule when a new employee never starts work",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            32
+          ],
+          "verdict": "duplicate",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 1,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "96e79d6f24c0f924282bb68d5d7b416a",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJpiMesB3jT5JfTMY",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "No stand-in when the IT Technician is absent",
+          "explanation": "The document gives stand-ins for an absent line manager and an absent HR Officer, but none for the IT Technician. When the IT Technician is absent, the reader has no one to prepare the equipment, create the accounts, or hand over the equipment and sign-in details before and on the first day. The reader cannot tell who performs these steps.",
+          "quotes": [
+            "The IT Technician prepares, issues and recovers the equipment and creates, disables and deletes the accounts.",
+            "When the HR Officer is absent, the Head of HR performs the steps that this procedure assigns to the HR Officer."
+          ]
+        },
+        {
+          "title": "No rule for leaving after the probation period",
+          "explanation": "The procedure applies to every new employee, and the definition of a new employee has no time limit. Section 8 covers only leaving days within the probation period. When an employee leaves after probation, the reader has no rule for returning the equipment, archiving the accounts, or disabling and deleting them.",
+          "quotes": [
+            "This procedure applies to every new employee of the Organisation.",
+            "This section applies when the leaving day of a new employee falls within the probation period, whatever the reason for leaving."
+          ]
+        },
+        {
+          "title": "No rule when a new employee never starts work",
+          "explanation": "The equipment is prepared and the accounts are created before the first day, but the leaving day is defined only as the last day on which an employee works. If the employee withdraws or the contract ends before starting, there is no leaving day, so Section 8 does not apply. The reader has no rule for recovering the equipment or deleting the accounts.",
+          "quotes": [
+            "The IT Technician prepares the equipment and creates the accounts no later than two working days before the first day.",
+            "The leaving day is the final day on which an employee who leaves works for the Organisation."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-004-uk-window-timber-wall/A03",
+    "ended": "done",
+    "cost_usd": 0.00471,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 9183,
+      "cache_read_input_tokens": 3317,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Після другої перевірки не сказано, що робити із зовнішньою стрічкою, приклеєною до каркаса",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            57,
+            70
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "323ffaea2fcd8e36a61d3636bc3632fc",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJjFnmgDc9TwRNMQv",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 39.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Після другої перевірки не сказано, що робити із зовнішньою стрічкою, приклеєною до каркаса",
+          "explanation": "Коли друга перевірка виявляє перевищення, монтажник має видалити піну і повторити роботи з кроку встановлення коробки. Однак кінець зовнішньої стрічки вже приклеєно до каркаса на кроці сьомому, і документ не каже, що його треба відклеїти перед переставлянням коробки. Монтажник не знає, як діяти з цією стрічкою під час повтору.",
+          "quotes": [
+            "Приклеїти вільний край зовнішньої стрічки до каркаса.",
+            "Якщо друга перевірка виявила перевищення, монтажник видаляє піну й повторює роботи, починаючи з кроку встановлення коробки в проріз."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-005-en-spending-authority/A03",
+    "ended": "done",
+    "cost_usd": 0.001703,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 3189,
+      "cache_read_input_tokens": 2334,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Amounts above 2,000 euros up to 2,500 euros have no approver.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            26,
+            27
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "88bea0003ace11032d39f122a05365f7",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJpxkqRnLwfobvGsj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Amounts above 2,000 euros up to 2,500 euros have no approver.",
+          "explanation": "The first band ends at 2,000 euros inclusive and the second band starts above 2,500 euros, so a spending request of, for example, 2,200 euros falls in no band. The reader cannot tell who approves such a request. The document gives no fallback rule that covers this interval.",
+          "quotes": [
+            "From 0 to 2,000 euros inclusive, the approver is the team lead of the requester's team.",
+            "Above 2,500 and up to 15,000 euros inclusive, the approver is the head of the requester's department."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-006-uk-accountant-job/A03",
+    "ended": "done",
+    "cost_usd": 0.004033,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 7828,
+      "cache_read_input_tokens": 3351,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, що робити з первинним документом, який бухгалтер сумнівається внести",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            38
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4",
+            "R-6",
+            "R-7",
+            "R-8"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "22181202f98fb16a5236a405e0a1955b",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJrSUni879kgfU6Ux",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 34.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, що робити з первинним документом, який бухгалтер сумнівається внести",
+          "explanation": "Бухгалтер має право не вносити запис за документом, у достовірності якого сумнівається, але документ не каже, чи повертати такий документ керівникові відділу, чи запитувати пояснення, чи повідомляти головного бухгалтера. Правило про розбіжності стосується лише позицій, для яких бракує документа або пояснення, тому сумнівний документ, який є в наявності, під нього може не потрапити. Бухгалтер не знає, які дії виконати і які строки діють у цьому випадку.",
+          "quotes": [
+            "Бухгалтер вносить до облікової системи запис за кожним первинним документом протягом двох робочих днів від дня його отримання.",
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-007-en-office-closing/A03",
+    "ended": "done",
+    "cost_usd": 0.003632,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 7048,
+      "cache_read_input_tokens": 2271,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule if the doors step cannot be completed",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            36,
+            42
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No stand-in when the Head of Operations is also absent",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            16
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-5"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "c2fe30001491f3cb4c56dd2133a5c4eb",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJqhWayVsVdYkFRaw",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 28.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule if the doors step cannot be completed",
+          "explanation": "The fault rule covers every closing step except the alarm and doors steps, so a failed doors step has no rule. If a lock will not lock or the main door cannot be left as the step requires, the closing person has no instruction on whether to continue, what to record, or whom to report to. The alarm section covers only the alarm step.",
+          "quotes": [
+            "This section applies to each step, other than the alarm step and the doors step, that cannot be completed.",
+            "Doors: the closing person switches off the entrance hall light, leaves through the main door within 60 seconds of setting the alarm and locks both its locks."
+          ]
+        },
+        {
+          "title": "No stand-in when the Head of Operations is also absent",
+          "explanation": "The Head of Operations is the stand-in for the Office Manager, but the document gives no stand-in for the Head of Operations. If the Office Manager is on leave and the Head of Operations is also absent, the reader does not know who publishes the rota, receives reports, or orders repairs.",
+          "quotes": [
+            "On a day when the Office Manager is on leave or off sick, the Head of Operations takes the Office Manager's place in every rule of this checklist, as actor and as receiver of a report."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-008-uk-complaints",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-008-uk-complaints/A03",
+    "ended": "done",
+    "cost_usd": 0.005878,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 11523,
+      "cache_read_input_tokens": 3116,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Для скарг, що надійшли поштою, не визначено строків призначення фахівця та подання висновку",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            40,
+            44
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "7df59b5cf4f8abd149ec765cf7635990",
+    "sent_at": "2026-11-20T14:01:37+00:00",
+    "request_id": "msg_011ChEJWJmzFHByZR1jvjxPn",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 50.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для скарг, що надійшли поштою, не визначено строків призначення фахівця та подання висновку",
+          "explanation": "Для скарги, що надійшла поштою, строки розслідування не діють, тому немає часу, до якого керівник відділу має призначити фахівця. Так само немає строку для збору документів і подання висновку. Строк відповіді на десятий робочий день залишається, але працівник не знає, коли починати розгляд цієї скарги.",
+          "quotes": [
+            "Керівник відділу протягом одного робочого дня після дня реєстрації призначає фахівця відділу",
+            "Ці строки не застосовують до скарги, що надійшла поштою."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-009-en-gifts/A03",
+    "ended": "done",
+    "cost_usd": 0.005566,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 10913,
+      "cache_read_input_tokens": 2402,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule for hospitality above the limit that the employee learns about before or during the occasion",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            24,
+            46,
+            49
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-3",
+            "R-6",
+            "R-7"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No value rule for refreshments given to a public official",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            26,
+            55,
+            57
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-5"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "No rule for an above-limit gift that the employee has already used",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            46,
+            48
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-3",
+            "R-6",
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 3,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "cb6ca2692d3d4259fe511dae04658f42",
+    "sent_at": "2026-11-20T14:01:51+00:00",
+    "request_id": "msg_011ChEJXL2vNgs7MkH4ZBUzR",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 47.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for hospitality above the limit that the employee learns about before or during the occasion",
+          "explanation": "Section 7.3 forbids accepting hospitality above its limit without an approved exception. Section 7.6 covers an above-limit gift already received, but only for gifts, and its hospitality sentence applies only when the employee learns of the excess after the occasion. An employee who learns before or during the occasion that accepted hospitality is above the limit has no rule for whether to cancel, decline, leave, or pay the excess.",
+          "quotes": [
+            "An employee must not accept or give a gift or hospitality above its limit unless an exception has been approved under Section 7.5.",
+            "When an employee has received, without an approved exception, a gift above the gift limit or a money gift",
+            "When an employee learns after the occasion that a gift given or hospitality received or given was above its limit"
+          ]
+        },
+        {
+          "title": "No value rule for refreshments given to a public official",
+          "explanation": "Section 7.7 allows refreshments for a public official up to 15 euros, or 10 euros under the second limit, and says it applies instead of Section 7.3. The only rule for an unknown value, the duty to ask the Compliance Officer, is in Section 7.3, so it does not apply to these refreshments. An employee who cannot establish the value of the refreshments has no rule for what to do.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official",
+            "Section 7.7 applies to giving to public officials instead of Section 7.3, and no exception under Section 7.5 may be approved for it.",
+            "When an employee cannot establish the value, the employee asks the Compliance Officer, who sets the value in writing within two working days."
+          ]
+        },
+        {
+          "title": "No rule for an above-limit gift that the employee has already used",
+          "explanation": "The employee must hand the above-limit gift to the Compliance Officer unused. If the gift has already been consumed, used, or enjoyed, for example a spent voucher or a received service, this step cannot be done. The only fallback rule is for the Compliance Officer's return to the third party, so the employee has no instruction for this case.",
+          "quotes": [
+            "the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift.",
+            "When return is impossible, the Compliance Officer donates the gift to a registered charity and records the donation in the Gifts and Hospitality Register."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-010-uk-forklift-safety/A03",
+    "ended": "done",
+    "cost_usd": 0.000991,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 1747,
+      "cache_read_input_tokens": 3224,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Немає правила маси вантажу для висоти понад 4 і до 5 метрів",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            44,
+            45
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "835f47e427d2e40f362265a467e43a09",
+    "sent_at": "2026-11-20T14:01:52+00:00",
+    "request_id": "msg_011ChEJXRtt3rtnJNV1egMPz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила маси вантажу для висоти понад 4 і до 5 метрів",
+          "explanation": "Документ задає обмеження маси лише для висоти до 4 метрів включно та для висоти понад 5 метрів. Для висоти понад 4 метри до 5 метрів включно правила немає, тож водій не знає, яку масу вантажу можна піднімати на такій висоті. Він не може визначити, чи допустиме піднімання, і має діяти без чіткої вказівки.",
+          "quotes": [
+            "Водій може піднімати на висоту до 4 метрів включно вантаж масою до 1500 кілограмів.",
+            "Маса вантажу, який водій піднімає на висоту понад 5 метрів, не перевищує 1000 кілограмів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-011-en-records-retention/A03",
+    "ended": "done",
+    "cost_usd": 0.005097,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 9977,
+      "cache_read_input_tokens": 2371,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No destruction method is given for microfilm records",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            55
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Retention period of a contract with no end date is undefined",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            32
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-9"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9d7175e5d7478eaea3ed30cde43e9460",
+    "sent_at": "2026-11-20T14:01:53+00:00",
+    "request_id": "msg_011ChEJXUaMwhimZB3Ea8vQj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 41.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "No destruction method is given for microfilm records",
+          "explanation": "The policy's scope explicitly includes microfilm records, but the only destruction rule covers shredding paper and erasing electronic records. A reader who must destroy an approved microfilm record has no instruction on how to do it or what counts as destroyed, and the Destruction Log still requires a method to be recorded.",
+          "quotes": [
+            "It applies to every record of the Organisation, on paper, on microfilm or in electronic form, and to every employee who holds one.",
+            "Within 15 calendar days after approval, the owner shreds a paper record and erases an electronic record so that it cannot be restored."
+          ]
+        },
+        {
+          "title": "Retention period of a contract with no end date is undefined",
+          "explanation": "Contract records are kept for six years from the date the agreement ends, but the policy does not say what applies to an open-ended agreement that has no end date. The reader cannot tell when the retention period starts, so cannot know when to propose such a record for destruction.",
+          "quotes": [
+            "Contract records are kept for 6 years from the date on which the agreement ends.",
+            "Contract records are signed agreements with outside parties and their amendments, and the Legal Counsel owns them."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-012-uk-working-hours/A03",
+    "ended": "done",
+    "cost_usd": 0.003223,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 6221,
+      "cache_read_input_tokens": 2696,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено режим роботи до 30 листопада для працівників, прийнятих після підписання наказу",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            28,
+            68
+          ],
+          "verdict": "trap",
+          "traps": [
+            "A03-T1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 1,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 0.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "6b31233c75463c058b41125ba88ea5b0",
+    "sent_at": "2026-11-20T14:02:00+00:00",
+    "request_id": "msg_011ChEJXzr2SCEmb3A5Y6DHr",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 26.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено режим роботи до 30 листопада для працівників, прийнятих після підписання наказу",
+          "explanation": "Наказ поширюється на всіх працівників, зокрема на тих, кого прийнято після 28 вересня 2026 року. Для них до 30 листопада діє режим, «який діяв на день підписання», але на цей день вони ще не працювали, тому незрозуміло, який режим застосовувати. Правило про ознайомлення після прийняття стосується лише підпису в аркуші, а не графіка роботи, тож кадровик не може визначити для такого працівника час початку і закінчення роботи до 1 грудня.",
+          "quotes": [
+            "До 30 листопада 2026 року включно працівники загального режиму працюють за режимом, який діяв на день підписання цього наказу.",
+            "Працівника, прийнятого на роботу після 2 жовтня 2026 року, начальник відділу кадрів ознайомлює в день прийняття."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-013-en-it-access",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-013-en-it-access/A03",
+    "ended": "done",
+    "cost_usd": 0.003278,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 6337,
+      "cache_read_input_tokens": 2421,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Devices and network services have no system owner, so their second decision and periodic review cannot be carried out.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            8,
+            19,
+            36
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No rule covers a Service Desk administrator's own access request when no other administrator is available to grant it.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            43
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "ec4340628123423dba7ec8898ff93038",
+    "sent_at": "2026-11-20T14:02:01+00:00",
+    "request_id": "msg_011ChEJY5QdK6T4fH25PvG5n",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 26.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Devices and network services have no system owner, so their second decision and periodic review cannot be carried out.",
+          "explanation": "The scope includes devices and network services as systems. Only applications and databases receive a system owner and alternate owner, yet the second decision in section 4 and the review in section 6 both depend on a system owner. For a device or network service, the reader has no one to give the second decision or to review the access, and cannot complete the process.",
+          "quotes": [
+            "A system is any application, database, device or network service that the Organisation operates or subscribes to.",
+            "The Head of Information Technology appoints one system owner and one alternate owner for every application and every database",
+            "The system owner gives the second decision: whether the access level is appropriate for the system."
+          ]
+        },
+        {
+          "title": "No rule covers a Service Desk administrator's own access request when no other administrator is available to grant it.",
+          "explanation": "The rule bars an administrator from granting access to himself or herself and sends the grant to another administrator. The document gives no alternative for the case where the requesting administrator is the only one who can act. In that case the reader cannot grant the access, and the document does not say what to do.",
+          "quotes": [
+            "A Service Desk administrator does not grant access to himself or herself; another Service Desk administrator grants it."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-014-uk-legal-department/A03",
+    "ended": "done",
+    "cost_usd": 0.003448,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 6660,
+      "cache_read_input_tokens": 3254,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, як відповідати на консультаційні запити, які не є письмовими запитами керівників",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            18,
+            32
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9fd2ecbc3760bf37f61f225d4d1f76e0",
+    "sent_at": "2026-11-20T14:02:05+00:00",
+    "request_id": "msg_011ChEJYNyJrRLRAu9oaneWN",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 29.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, як відповідати на консультаційні запити, які не є письмовими запитами керівників",
+          "explanation": "Завдання Відділу включає правові консультації для всіх підрозділів, але строк і порядок відповіді встановлено лише для письмових запитів керівників підрозділів. Усний запит або письмовий запит працівника, який не є керівником, не має жодного правила. Тому працівник Відділу не знає, чи має він відповідати, і в який строк.",
+          "quotes": [
+            "Надавати правові консультації іншим підрозділам Організації.",
+            "Відділ надає письмову відповідь на письмовий запит керівника іншого підрозділу про правову консультацію протягом пʼяти робочих днів від дня надходження запиту."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-015-en-customer-letters/A03",
+    "ended": "done",
+    "cost_usd": 0.004251,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 8288,
+      "cache_read_input_tokens": 2230,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No assignment rule for messages received on a non-working day",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            60,
+            61
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-2",
+            "R-5"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "4826a03ee815ee0594118af99ec96dcf",
+    "sent_at": "2026-11-20T14:02:12+00:00",
+    "request_id": "msg_011ChEJYs21zvKHxodaXThHY",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 35.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "No assignment rule for messages received on a non-working day",
+          "explanation": "The Head of the Department must assign each message on the working day the Organisation receives it. The document also lets messages arrive on any day, since the time limit starts on the next working day. For a message received on a weekend or a holiday, no working day matches the assignment rule, and the document gives no other day for the assignment, so the reader cannot know when to assign it.",
+          "quotes": [
+            "The Head of the Department assigns each message to an author on the working day the Organisation receives it.",
+            "Time limits are counted in working days and start on the working day after the Organisation receives the message."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-016-uk-db-backup/A03",
+    "ended": "done",
+    "cost_usd": 0.002966,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 5697,
+      "cache_read_input_tokens": 3147,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Немає виконавця для пробного відновлення, коли системний адміністратор заміщає адміністратора баз даних",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            57
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Не визначено, хто і коли видаляє щотижневі копії з віддаленого сховища",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            51,
+            53
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "323b77dc5efa1effcee766af8a7b69bc",
+    "sent_at": "2026-11-20T14:02:16+00:00",
+    "request_id": "msg_011ChEJZCy4vSBXZjDCMmg76",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 23.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає виконавця для пробного відновлення, коли системний адміністратор заміщає адміністратора баз даних",
+          "explanation": "Пробне відновлення за розділом 7 є обов'язком системного адміністратора. Розділ 2 прямо звільняє системного адміністратора, який заміщає адміністратора баз даних, від цього відновлення, але не називає іншої особи для цього випадку. Загальне правило про заміщення стосується лише відсутніх працівників, тому в цій ситуації ніхто не знає, хто має провести відновлення у відповідний місяць.",
+          "quotes": [
+            "Системний адміністратор, який виконує обов’язки відсутнього адміністратора баз даних, не виконує пробного відновлення.",
+            "Системний адміністратор протягом перших десяти календарних днів кожного місяця відновлює базу даних"
+          ]
+        },
+        {
+          "title": "Не визначено, хто і коли видаляє щотижневі копії з віддаленого сховища",
+          "explanation": "Строк зберігання щотижневої копії у віддаленому сховищі встановлено, але жодне правило не говорить, хто видаляє копію з цього сховища після закінчення строку. Правило видалення стосується лише сервера резервних копій. Тому після шести місяців копії у віддаленому сховищі залишаються, і працівник не знає, чи має він їх видалити.",
+          "quotes": [
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення.",
+            "Адміністратор баз даних видаляє резервну копію з сервера резервних копій наступного робочого дня після закінчення строку її зберігання."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-017-en-annual-leave/A03",
+    "ended": "done",
+    "cost_usd": 0.003719,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 7222,
+      "cache_read_input_tokens": 2291,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Requests for exactly five leave days have no time limit",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            33,
+            34
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Absences of part of a day other than half a day have no deduction rule",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            27,
+            28
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "No rule names who decides the Chair of the Board's own requests",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            40,
+            41
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5"
+          ]
+        },
+        {
+          "n": 4,
+          "title": "No stand-in decides the Director's requests when the Chair is absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            41,
+            42
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 3,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.25,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8a9da25e0301e58890fffe6bd52eff31",
+    "sent_at": "2026-11-20T14:02:27+00:00",
+    "request_id": "msg_011ChEJZypaKupE7YxWU8NHi",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 30.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Requests for exactly five leave days have no time limit",
+          "explanation": "The document sets a 10-working-day limit for fewer than five leave days and a 30-working-day limit for more than five. A request for exactly five leave days falls under neither rule, so the approver cannot tell whether it is in time and cannot refuse it as late. The reader cannot decide such a request on the stated rules.",
+          "quotes": [
+            "A request for fewer than five leave days is submitted at least 10 working days before the first day of leave.",
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave."
+          ]
+        },
+        {
+          "title": "Absences of part of a day other than half a day have no deduction rule",
+          "explanation": "The document deducts one leave day for a full day and half a leave day for an absence of half the contracted hours. It gives no deduction for an absence of another part of a day, such as a quarter or three quarters of the contracted hours. The reader cannot record how many leave days such an absence uses.",
+          "quotes": [
+            "One leave day is deducted for each leave day of absence, and half a leave day for an absence of half of the contracted hours of that day.",
+            "Leave is taken in whole or half leave days only."
+          ]
+        },
+        {
+          "title": "No rule names who decides the Chair of the Board's own requests",
+          "explanation": "The document says the requests of an employee who manages others are decided by that employee's own line manager, and it names a decider for the Director's requests. It does not name a decider for the Chair of the Board's requests, so the reader cannot tell who approves or refuses them.",
+          "quotes": [
+            "The requests of an employee who manages other employees are decided by that employee's own line manager.",
+            "The Chair of the Board decides the Director's requests."
+          ]
+        },
+        {
+          "title": "No stand-in decides the Director's requests when the Chair is absent",
+          "explanation": "The document gives a stand-in, the Head of People, for an absent line manager, but gives none for an absent Chair of the Board. If the Chair is absent when a Director's request is pending, the reader has no rule for who decides it.",
+          "quotes": [
+            "The Chair of the Board decides the Director's requests.",
+            "When the line manager is absent, the Head of People decides the request instead."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-018-uk-document-numbering/A03",
+    "ended": "done",
+    "cost_usd": 0.001844,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 3454,
+      "cache_read_input_tokens": 3121,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Для актів немає коду виду, тому номер для них не можна сформувати.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            28
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "734b8d955e3082114984cef5b3db2fd2",
+    "sent_at": "2026-11-20T14:02:27+00:00",
+    "request_id": "msg_011ChEJa1QaRuBM3s1nFfW6h",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для актів немає коду виду, тому номер для них не можна сформувати.",
+          "explanation": "Акти прямо віднесено до внутрішніх документів, на які поширюється стандарт. Розділ 2 задає коди лише для шести видів і не містить коду для актів. Реєстратор не знає, який код поставити в номері акта, тож не може присвоїти номер і внести запис до реєстру.",
+          "quotes": [
+            "Внутрішніми документами в цьому стандарті є накази, розпорядження, положення, інструкції, протоколи, службові записки та акти, які створено й підписано в Організації.",
+            "Службова записка має код «СЗ»."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-019-en-vehicles/A03",
+    "ended": "done",
+    "cost_usd": 0.003663,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 7106,
+      "cache_read_input_tokens": 2533,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No stand-in is set for the Operations Director when the Fleet Manager is also absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            14,
+            29
+          ],
+          "verdict": "trap",
+          "traps": [
+            "A03-T1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No rule covers a defect found during a trip",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            49,
+            50
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5",
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 1,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 0.5,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8dda02902b917b14a37cb9ff20787479",
+    "sent_at": "2026-11-20T14:02:28+00:00",
+    "request_id": "msg_011ChEJa4W6kSXaUwowUkqGg",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 29.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "No stand-in is set for the Operations Director when the Fleet Manager is also absent",
+          "explanation": "The document gives the Operations Director the Fleet Manager's duties when the Fleet Manager is absent, but it names no stand-in for the Operations Director. If both are absent, a booking request still needs approval before its start time, and the reader cannot tell who gives that approval or who handles the keys, defects and accident reports.",
+          "quotes": [
+            "When the Fleet Manager is absent, the Operations Director performs the Fleet Manager's duties.",
+            "The Fleet Manager approves or refuses each request before the requested start time."
+          ]
+        },
+        {
+          "title": "No rule covers a defect found during a trip",
+          "explanation": "The driver's checks and the reporting duty apply only before a trip. If the driver finds a defect or damage while the vehicle is already on the road, the document gives no instruction on whether to report it, whether to continue, or who decides. The reader cannot tell what to do in that case.",
+          "quotes": [
+            "Before each trip, the driver checks the tyres, the lights, the fuel level, the bodywork and the presence of the vehicle's documents.",
+            "The driver who finds a defect, damage or a missing document reports it to the Fleet Manager before driving."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-020-uk-stocktake/A03",
+    "ended": "done",
+    "cost_usd": 0.004424,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 8613,
+      "cache_read_input_tokens": 3145,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Немає правила, що робити, якщо комірник відсутній під час перерахунку",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            46
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-2"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Немає правила, що робити, якщо головний бухгалтер не передав витяг",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            41,
+            51
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 3,
+          "title": "Не визначено, як поводитися з товаром у торговому залі між кінцем листопада і завершенням підрахунку",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            33
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.3333333333333333,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "729692bf9052758c3663b0550d824273",
+    "sent_at": "2026-11-20T14:02:35+00:00",
+    "request_id": "msg_011ChEJaZKTPa45P3gX9v48Q",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 35.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила, що робити, якщо комірник відсутній під час перерахунку",
+          "explanation": "За розділом 5 голова комісії має перераховувати товар у присутності комірника, але документ дає заміну лише голові та членам комісії, а для комірника заміни немає. Якщо комірник відсутній, голова не знає, чи відкладати перерахунок, чи проводити його без комірника. Документ цього не визначає.",
+          "quotes": [
+            "Якщо результати не збігаються, голова комісії особисто перераховує товар цього найменування в присутності обох членів комісії та комірника."
+          ]
+        },
+        {
+          "title": "Немає правила, що робити, якщо головний бухгалтер не передав витяг",
+          "explanation": "Голова комісії має порівняти фактичну кількість товару з витягом головного бухгалтера, але документ не передбачає іншого джерела даних і не описує дій, якщо бухгалтер відсутній або витяг не переданий. Голова не може виконати порівняння і не знає, чи починати підрахунок без витягу.",
+          "quotes": [
+            "Головний бухгалтер у перший день підрахунку до його початку передає голові комісії витяг із залишками товарів за даними обліку.",
+            "Голова комісії порівнює фактичну кількість товару кожного найменування з витягом головного бухгалтера."
+          ]
+        },
+        {
+          "title": "Не визначено, як поводитися з товаром у торговому залі між кінцем листопада і завершенням підрахунку",
+          "explanation": "Порядок прямо поширюється на товари в торговому залі, але правила для періоду заборони обліку стосуються лише комірника і складу. Документ не каже, чи можна продавати або поповнювати товар у торговому залі в цей час і хто відповідає за його облік. Тому читач не знає, як діяти з таким товаром.",
+          "quotes": [
+            "Порядок поширюється на всі товари Організації — на складі та в торговому залі.",
+            "Комірник не приймає на облік і не видає товарів після останнього робочого дня листопада до отримання повідомлення голови комісії про завершення підрахунку."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run2/case-021-en-lab-spill/A03",
+    "ended": "done",
+    "cost_usd": 0.005845,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 11470,
+      "cache_read_input_tokens": 2499,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The room inspection has no rule for a failed result.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            60
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-6"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9a30626c9654dc58f3af875c4f89e285",
+    "sent_at": "2026-11-20T14:02:35+00:00",
+    "request_id": "msg_011ChEJaawgQ6jvLcuDYjksr",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 47.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "The room inspection has no rule for a failed result.",
+          "explanation": "The Duty Safety Officer inspects the room after the cleaning is reported complete, and the only rule is to reopen it. The document does not say what the Duty Safety Officer must do if the room fails the inspection, for example whether it stays closed, who cleans again, or who is told. The reader cannot act in that case.",
+          "quotes": [
+            "The Duty Safety Officer inspects the room and reopens it."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-001-en-travel-expenses/A03",
+    "ended": "done",
+    "cost_usd": 0.002182,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 4164,
+      "cache_read_input_tokens": 1484,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule says what happens to a claim that lacks a required receipt",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            31,
+            32
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "No rule covers costs of travel by private or rented car",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            5,
+            24
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e890eb5b40f5ce250aa1ecaa328db9da",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5rpXZh8XPzchXfTR",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 20.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule says what happens to a claim that lacks a required receipt",
+          "explanation": "The claim rules require a receipt for each cost except meals, but they say nothing about a claim with a missing receipt. The finance department must pay or act on each claim within fifteen working days, yet the document gives no rule for an incomplete claim. The reader cannot tell whether to pay it, return it, or refuse it.",
+          "quotes": [
+            "The claim includes a receipt for each cost except meals.",
+            "The finance department pays the claim within fifteen working days after it receives the claim."
+          ]
+        },
+        {
+          "title": "No rule covers costs of travel by private or rented car",
+          "explanation": "The scope covers every employee who travels for work, and the cost rules list paid items such as economy seats, public transport, hotel nights, meals and taxis. Travel by the employee's own car or a rented car is not listed as paid or unpaid. A reader handling such a claim cannot tell whether it is payable or how it would be calculated.",
+          "quotes": [
+            "These rules apply to every employee who travels for work.",
+            "Taxis are paid only when public transport is not reasonable."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-002-uk-procurement-committee/A03",
+    "ended": "done",
+    "cost_usd": 0.004144,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 8052,
+      "cache_read_input_tokens": 3217,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, що відбувається, якщо директор скасовує рішення Комітету про погодження закупівлі понад 1 000 000 гривень",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            34,
+            36
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "Не визначено, як діяти, якщо фінансовий менеджер має конфлікт інтересів щодо заявки до 50 000 гривень",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            31,
+            53
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "ec672c734c405cd293f5b4a18b74247b",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5pMDrUgkDqNK5hkx",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 34.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, що відбувається, якщо директор скасовує рішення Комітету про погодження закупівлі понад 1 000 000 гривень",
+          "explanation": "Документ передбачає, що директор або затверджує, або скасовує рішення Комітету про погодження такої закупівлі. Правило описує лише наслідок затвердження, а наслідок скасування не визначено. Читач не знає, чи заявку вважати відхиленою, чи повернути її Комітету, і кому про це повідомити. Тому в цьому випадку він не може діяти.",
+          "quotes": [
+            "Директор затверджує або скасовує рішення Комітету про погодження закупівлі очікуваною вартістю понад 1 000 000 гривень протягом пʼяти робочих днів після отримання протоколу.",
+            "а його рішення про погодження набирає чинності лише після затвердження директором."
+          ]
+        },
+        {
+          "title": "Не визначено, як діяти, якщо фінансовий менеджер має конфлікт інтересів щодо заявки до 50 000 гривень",
+          "explanation": "Фінансовий менеджер самостійно погоджує або відхиляє заявки до 50 000 гривень без участі Комітету. Розділ про конфлікт інтересів визначає такий конфлікт лише для членів Комітету. Документ не каже, чи має фінансовий менеджер заявити про конфлікт, відсторонитися від рішення і хто ухвалює рішення замість нього. Тому читач не знає, що робити, коли такий конфлікт є.",
+          "quotes": [
+            "Член Комітету має конфлікт інтересів щодо закупівлі, якщо він є її ініціатором",
+            "Заявку очікуваною вартістю менше 50 000 гривень фінансовий менеджер погоджує або відхиляє протягом пʼяти робочих днів без участі Комітету."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-003-en-onboarding",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-003-en-onboarding/A03",
+    "ended": "done",
+    "cost_usd": 0.002619,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 5023,
+      "cache_read_input_tokens": 2240,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No stand-in is given when the IT Technician is absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            25
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No rule for a new employee who leaves after the probation period",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            6,
+            58
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-3",
+            "R-9"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "No rule for a signed employee who leaves before the first day",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            7,
+            17,
+            32
+          ],
+          "verdict": "duplicate",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 1,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "96e79d6f24c0f924282bb68d5d7b416a",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5u4VdnvSrYfgL5fE",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "No stand-in is given when the IT Technician is absent",
+          "explanation": "The document gives stand-ins for the HR Officer and the line manager, but not for the IT Technician. The IT Technician must prepare the equipment, create the accounts, hand over the equipment and sign-in details on the first day, and recover the equipment and disable and delete the accounts when someone leaves. If the IT Technician is absent, the reader has no rule for who performs these steps.",
+          "quotes": [
+            "The IT Technician prepares, issues and recovers the equipment and creates, disables and deletes the accounts.",
+            "When the HR Officer is absent, the Head of HR performs the steps that this procedure assigns to the HR Officer."
+          ]
+        },
+        {
+          "title": "No rule for a new employee who leaves after the probation period",
+          "explanation": "The scope covers every new employee, and the term leaving day is defined for any employee who leaves. Section 8 applies only when the leaving day falls within the probation period, so no rule covers returning the equipment, archiving the accounts, or disabling and deleting them when the employee leaves later. The reader cannot tell what to do with the equipment and accounts in that case.",
+          "quotes": [
+            "This procedure applies to every new employee of the Organisation.",
+            "This section applies when the leaving day of a new employee falls within the probation period, whatever the reason for leaving."
+          ]
+        },
+        {
+          "title": "No rule for a signed employee who leaves before the first day",
+          "explanation": "A new employee is any person who has signed a contract, so the scope includes a person who withdraws before starting work. The leaving day is defined only as the final day on which the employee works, so such a person has no leaving day. The equipment and accounts that the IT Technician prepared before the first day have no rule for recovery or disabling and deletion.",
+          "quotes": [
+            "A new employee is a person who has signed an employment contract with the Organisation.",
+            "The leaving day is the final day on which an employee who leaves works for the Organisation.",
+            "The IT Technician prepares the equipment and creates the accounts no later than two working days before the first day."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-004-uk-window-timber-wall/A03",
+    "ended": "done",
+    "cost_usd": 0.005316,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 10394,
+      "cache_read_input_tokens": 3317,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не сказано, що робити з кріпленням і зовнішньою стрічкою перед повторним встановленням коробки",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            55,
+            57,
+            70
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "323ffaea2fcd8e36a61d3636bc3632fc",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5uoFaY4tskktjYLd",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 45.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не сказано, що робити з кріпленням і зовнішньою стрічкою перед повторним встановленням коробки",
+          "explanation": "Після невдалої другої перевірки монтажник має видалити піну і повторити роботи з кроку встановлення коробки в проріз. Але коробка вже закріплена до каркаса, а вільний край зовнішньої стрічки приклеєний до каркаса. Документ не каже, чи треба спершу зняти кріплення і відклеїти стрічку, тому монтажник не знає, як повторно поставити коробку. Для першої перевірки є вказівка послабити кріплення, для другої такої вказівки немає.",
+          "quotes": [
+            "Якщо друга перевірка виявила перевищення, монтажник видаляє піну й повторює роботи, починаючи з кроку встановлення коробки в проріз.",
+            "Приклеїти вільний край зовнішньої стрічки до каркаса.",
+            "Закріпити коробку до каркаса способом, визначеним у розділі «Способи кріплення»."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-005-en-spending-authority/A03",
+    "ended": "done",
+    "cost_usd": 0.003442,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 6668,
+      "cache_read_input_tokens": 2334,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Amounts above 2,000 euros up to 2,500 euros have no approver",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            26,
+            27
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "88bea0003ace11032d39f122a05365f7",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5rZumdp8JypV8jgP",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 28.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Amounts above 2,000 euros up to 2,500 euros have no approver",
+          "explanation": "Section 3 gives the team lead for amounts up to and including 2,000 euros and the head of department for amounts above 2,500 euros. Amounts above 2,000 euros and up to and including 2,500 euros fall in neither band. For example, a request for 2,200 euros has no approver, so the requester cannot tell who must approve it.",
+          "quotes": [
+            "From 0 to 2,000 euros inclusive, the approver is the team lead of the requester's team.",
+            "Above 2,500 and up to 15,000 euros inclusive, the approver is the head of the requester's department."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-006-uk-accountant-job/A03",
+    "ended": "done",
+    "cost_usd": 0.004025,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 7812,
+      "cache_read_input_tokens": 3351,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Документ, сумнівний за достовірністю, не має подальшого порядку дій",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            38,
+            40
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-6",
+            "R-7",
+            "R-8"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Розбіжність у залишках і розрахунках не визначена, якщо документи є",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            23,
+            24
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "22181202f98fb16a5236a405e0a1955b",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5qq2fDcVaExJU7EZ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 33.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Документ, сумнівний за достовірністю, не має подальшого порядку дій",
+          "explanation": "Бухгалтер може не вносити запис за сумнівним документом, але документ не говорить, що з ним робити далі: чи повертати його керівнику відділу, чи запитувати пояснення, чи вважати позицію розбіжністю. Правило про повернення стосується лише відсутніх дати, суми або підпису, а правило про запит — лише відсутнього документа чи пояснення. Строк внесення запису також не визначений для такого випадку.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається.",
+            "Бухгалтер зобов'язаний надіслати запит у день, коли виявив, що для запису або звіряння бракує первинного документа чи пояснення."
+          ]
+        },
+        {
+          "title": "Розбіжність у залишках і розрахунках не визначена, якщо документи є",
+          "explanation": "Під час щомісячного звіряння бухгалтер порівнює залишки на банківських рахунках і розрахунки з постачальниками. Документ визначає як розбіжність лише позицію, для якої бракує документа чи пояснення. Якщо сума в обліку й на банківському рахунку не збігається, а документи є, бухгалтер не знає, чи це розбіжність, чи має повідомити головного бухгалтера і чи має виправляти її.",
+          "quotes": [
+            "Позицію, для якої на день звіряння бракує первинного документа чи пояснення, бухгалтер вважає розбіжністю.",
+            "Бухгалтер щомісяця, не пізніше п'ятого робочого дня місяця, звіряє за попередній місяць залишки на банківських рахунках Організації та розрахунки з постачальниками."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-007-en-office-closing/A03",
+    "ended": "done",
+    "cost_usd": 0.003111,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 6006,
+      "cache_read_input_tokens": 2271,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule covers a failure of the doors step, such as a main door lock that will not lock.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            36,
+            42
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "c2fe30001491f3cb4c56dd2133a5c4eb",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5rpUkTSwxaU2pQHK",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 25.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule covers a failure of the doors step, such as a main door lock that will not lock.",
+          "explanation": "The closing person must leave by the main door and lock both locks, and this step can fail. The fault section expressly excludes the doors step, and the alarm section covers only the alarm. The closing person therefore has no instruction on whether to leave the building, whom to report the fault to, or how to keep the office secured.",
+          "quotes": [
+            "This section applies to each step, other than the alarm step and the doors step, that cannot be completed.",
+            "Doors: the closing person switches off the entrance hall light, leaves through the main door within 60 seconds of setting the alarm and locks both its locks."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-008-uk-complaints",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-008-uk-complaints/A03",
+    "ended": "done",
+    "cost_usd": 0.007413,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 14593,
+      "cache_read_input_tokens": 3116,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Для скарг, що надійшли поштою, не визначено строків розслідування",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            43,
+            44
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "7df59b5cf4f8abd149ec765cf7635990",
+    "sent_at": "2026-11-20T14:03:23+00:00",
+    "request_id": "msg_011ChEJe5tZ3L79eA244Xm8H",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 63.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для скарг, що надійшли поштою, не визначено строків розслідування",
+          "explanation": "Розділ «Розслідування» виключає поштові скарги з усіх його строків, зокрема строку призначення фахівця, строку надання документів і строку подання висновку. Керівник відділу та фахівець не знають, коли мають виконати ці дії, щоб встигнути з відповіддю до десятого робочого дня. Документ не містить правила, яке замінює ці строки для поштових скарг.",
+          "quotes": [
+            "Ці строки не застосовують до скарги, що надійшла поштою.",
+            "Не пізніше кінця сьомого робочого дня строку фахівець подає керівникові відділу висновок і проєкт відповіді."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-009-en-gifts/A03",
+    "ended": "done",
+    "cost_usd": 0.007412,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 14605,
+      "cache_read_input_tokens": 2402,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule for hospitality above its limit that the employee learns about during the occasion",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            46,
+            49
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-3",
+            "R-6",
+            "R-7"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No rule on whether the employee may accept an offer while its value is being set",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            23,
+            26
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4",
+            "R-5"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "cb6ca2692d3d4259fe511dae04658f42",
+    "sent_at": "2026-11-20T14:03:43+00:00",
+    "request_id": "msg_011ChEJfa4znpN2fyf8YU99y",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 63.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for hospitality above its limit that the employee learns about during the occasion",
+          "explanation": "Section 7.6 covers hospitality above its limit only when the employee learns of it after the occasion, and the first paragraph covers only gifts. If an employee learns during a meal or event that the hospitality is above the limit, the document does not say whether to stop accepting, pay the excess, or how to record it. The reader cannot tell what to do in that case.",
+          "quotes": [
+            "When an employee learns after the occasion that a gift given or hospitality received or given was above its limit",
+            "When an employee has received, without an approved exception, a gift above the gift limit or a money gift"
+          ]
+        },
+        {
+          "title": "No rule on whether the employee may accept an offer while its value is being set",
+          "explanation": "When the employee cannot establish the value, the Compliance Officer sets it within two working days, but the document does not say what the employee does with the offer in the meantime. The employee may accept only gifts known to be at or below the limit, so the reader cannot tell whether to accept, hold or refuse the offer during that wait.",
+          "quotes": [
+            "When an employee cannot establish the value, the employee asks the Compliance Officer, who sets the value in writing within two working days.",
+            "An employee may, without approval, accept or give a gift at or below the gift limit"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-010-uk-forklift-safety/A03",
+    "ended": "done",
+    "cost_usd": 0.001666,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 3097,
+      "cache_read_input_tokens": 3224,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено допустиму масу вантажу на висоті понад 4 і до 5 метрів",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            43,
+            45
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "835f47e427d2e40f362265a467e43a09",
+    "sent_at": "2026-11-20T14:03:44+00:00",
+    "request_id": "msg_011ChEJffujJqajqFyvoQT95",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено допустиму масу вантажу на висоті понад 4 і до 5 метрів",
+          "explanation": "Документ дає ліміт маси для висоти до 4 метрів включно та для висоти понад 5 метрів, але не для проміжку понад 4 і до 5 метрів. Водій не може визначити, який вантаж можна піднімати на такій висоті, тож не знає, чи можна піднімати вантаж узагалі.",
+          "quotes": [
+            "Водій не піднімає вантаж масою понад 1200 кілограмів на висоту до 4 метрів включно.",
+            "Маса вантажу, який водій піднімає на висоту понад 5 метрів, не перевищує 1000 кілограмів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-011-en-records-retention/A03",
+    "ended": "done",
+    "cost_usd": 0.004795,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 9373,
+      "cache_read_input_tokens": 2371,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Destruction rules do not cover microfilm records, although microfilm records are in scope.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            55
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9d7175e5d7478eaea3ed30cde43e9460",
+    "sent_at": "2026-11-20T14:03:48+00:00",
+    "request_id": "msg_011ChEJfyMiVSnfymrR2GHon",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 38.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Destruction rules do not cover microfilm records, although microfilm records are in scope.",
+          "explanation": "The policy applies to records on microfilm, but the only destruction method it gives is shredding paper and erasing electronic records. A reader who must destroy an approved microfilm record has no instruction on how to do it, and no rule says how the destruction should be logged.",
+          "quotes": [
+            "It applies to every record of the Organisation, on paper, on microfilm or in electronic form",
+            "Within 15 calendar days after approval, the owner shreds a paper record and erases an electronic record so that it cannot be restored."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-012-uk-working-hours/A03",
+    "ended": "done",
+    "cost_usd": 0.003225,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 6225,
+      "cache_read_input_tokens": 2696,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено режим роботи для працівників, прийнятих між днем підпису і 30 листопада",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            60,
+            68
+          ],
+          "verdict": "trap",
+          "traps": [
+            "A03-T1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 1,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 0.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "6b31233c75463c058b41125ba88ea5b0",
+    "sent_at": "2026-11-20T14:03:51+00:00",
+    "request_id": "msg_011ChEJgBgNNswXhP6LHcfv5",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 28.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено режим роботи для працівників, прийнятих між днем підпису і 30 листопада",
+          "explanation": "Для працівників, прийнятих після підписання наказу (28 вересня), але до 1 грудня, перехідне правило посилається на режим, який діяв на день підписання. Для таких працівників цього режиму не існувало, тому документ не говорить, які години вони мають працювати до 30 листопада. Особливо це стосується працівників зі скороченим робочим днем, бо їхню тривалість встановлює директор окремим наказом. Читач не може визначити їхній режим у цей період.",
+          "quotes": [
+            "До 30 листопада 2026 року включно працівники зі скороченим робочим днем працюють за режимом, який діяв на день підписання цього наказу.",
+            "Працівника, прийнятого на роботу після 2 жовтня 2026 року, начальник відділу кадрів ознайомлює в день прийняття."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-013-en-it-access",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-013-en-it-access/A03",
+    "ended": "done",
+    "cost_usd": 0.002937,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 5656,
+      "cache_read_input_tokens": 2421,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Devices and network services have no appointed system owner, so their access cannot be approved.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            8,
+            19,
+            36
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No one can grant access when the requester is the only Service Desk administrator.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            43
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 3,
+          "title": "No rule covers removing access that is no longer needed between review dates.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            6,
+            55
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.3333333333333333,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "ec4340628123423dba7ec8898ff93038",
+    "sent_at": "2026-11-20T14:03:56+00:00",
+    "request_id": "msg_011ChEJgaESFfHnNxC5hMdvq",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 25.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Devices and network services have no appointed system owner, so their access cannot be approved.",
+          "explanation": "The procedure applies to every system, and it defines a system to include devices and network services. Only applications and databases get appointed owners, so for a device or network service the second decision has no person to make it. The reader cannot tell who gives the decision or who reviews the access, so the request cannot be completed.",
+          "quotes": [
+            "The Head of Information Technology appoints one system owner and one alternate owner for every application and every database",
+            "A system is any application, database, device or network service that the Organisation operates or subscribes to.",
+            "The system owner gives the second decision: whether the access level is appropriate for the system."
+          ]
+        },
+        {
+          "title": "No one can grant access when the requester is the only Service Desk administrator.",
+          "explanation": "A Service Desk administrator may not grant access to himself or herself, and another administrator must grant it. The document does not say what happens if the requester is the only administrator. In that case the reader has no one to grant the access and no instruction on what to do.",
+          "quotes": [
+            "A Service Desk administrator does not grant access to himself or herself; another Service Desk administrator grants it."
+          ]
+        },
+        {
+          "title": "No rule covers removing access that is no longer needed between review dates.",
+          "explanation": "The procedure covers removal only at the twice-yearly review, on a change of role, and on leaving. If a line manager or employee needs access removed at another time, for example when a task ends, the reader has no rule on who asks, who decides, or how fast the Service Desk must act.",
+          "quotes": [
+            "This procedure sets out how access to the IT systems of the Organisation is requested, approved, granted, recorded, reviewed and removed.",
+            "On the first working day of January and of July, the Service Desk sends the system owner and the alternate owner of each system the list of all access to that system from the access register."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-014-uk-legal-department/A03",
+    "ended": "done",
+    "cost_usd": 0.00356,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 6883,
+      "cache_read_input_tokens": 3254,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, що робить директор, якщо проєкт наказу відповідає законодавству",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            28,
+            29
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9fd2ecbc3760bf37f61f225d4d1f76e0",
+    "sent_at": "2026-11-20T14:03:57+00:00",
+    "request_id": "msg_011ChEJgbZZJsr1mkhthkmdW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 30.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, що робить директор, якщо проєкт наказу відповідає законодавству",
+          "explanation": "Для експертизи директора описано лише випадок невідповідності законодавству: тоді директор повертає проєкт. Якщо проєкт відповідає законодавству, документ не каже, що директор має зробити далі, наприклад підписати наказ. Для Відділу такий випадок описано повністю, а для директора в ньому є прогалина.",
+          "quotes": [
+            "Директор завершує таку експертизу протягом трьох робочих днів від дня, коли проєкт надійшов до нього.",
+            "Якщо такий проєкт не відповідає законодавству, директор повертає його керівникові підрозділу"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-015-en-customer-letters/A03",
+    "ended": "done",
+    "cost_usd": 0.0038,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 7386,
+      "cache_read_input_tokens": 2230,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No checker can be appointed when an Adviser's team has no other Adviser",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            47
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "No checker can be appointed for a Team Lead when no other team exists",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            48
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "4826a03ee815ee0594118af99ec96dcf",
+    "sent_at": "2026-11-20T14:03:57+00:00",
+    "request_id": "msg_011ChEJgeZ93KdaeTj6eWYLa",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 32.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "No checker can be appointed when an Adviser's team has no other Adviser",
+          "explanation": "An Adviser's letter that refuses a request, states a sum of money or answers a complaint must be checked. The rule requires another Adviser of the same team as checker, but the document does not say what to do when the team has no other Adviser. The reader cannot send such a letter as the rules require and has no fallback.",
+          "quotes": [
+            "When the author is an Adviser, the Team Lead of that Adviser's team appoints another Adviser of the same team as the checker."
+          ]
+        },
+        {
+          "title": "No checker can be appointed for a Team Lead when no other team exists",
+          "explanation": "A Team Lead's letter that needs a check must be checked by the Team Lead of another team. The document does not say what the Head of the Department or the author should do if the Department has only one team. In that case the reader cannot obtain the required check and no rule covers the situation.",
+          "quotes": [
+            "When the author is a Team Lead, the Head of the Department appoints the Team Lead of another team as the checker."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-016-uk-db-backup/A03",
+    "ended": "done",
+    "cost_usd": 0.002836,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 5438,
+      "cache_read_input_tokens": 3147,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, хто виконує пробне відновлення, коли системний адміністратор заміщає адміністратора баз даних",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            57
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Не визначено, хто видаляє щотижневі копії з віддаленого сховища після закінчення строку",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            51,
+            53
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "323b77dc5efa1effcee766af8a7b69bc",
+    "sent_at": "2026-11-20T14:04:08+00:00",
+    "request_id": "msg_011ChEJhS755gkFfMV2vVRtt",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 22.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, хто виконує пробне відновлення, коли системний адміністратор заміщає адміністратора баз даних",
+          "explanation": "Розділ 2 забороняє системному адміністратору, який заміщає адміністратора баз даних, виконувати пробне відновлення. Розділ 7 покладає це відновлення лише на системного адміністратора. Тому в період такого заміщення читач не знає, хто має виконати щомісячне пробне відновлення, бо правило про призначення директором стосується лише випадків відсутності самого системного адміністратора.",
+          "quotes": [
+            "Системний адміністратор, який виконує обов’язки відсутнього адміністратора баз даних, не виконує пробного відновлення.",
+            "Системний адміністратор протягом перших десяти календарних днів кожного місяця відновлює базу даних з останньої щотижневої копії, яка пройшла перевірку."
+          ]
+        },
+        {
+          "title": "Не визначено, хто видаляє щотижневі копії з віддаленого сховища після закінчення строку",
+          "explanation": "Розділ 6 встановлює шестимісячний строк зберігання щотижневих копій у віддаленому сховищі. Водночас обов’язок видаляти копії після закінчення строку названо лише для сервера резервних копій. Читач не знає, хто має видаляти копії з віддаленого сховища і коли, тож копії там можуть зберігатися без кінця.",
+          "quotes": [
+            "Адміністратор баз даних видаляє резервну копію з сервера резервних копій наступного робочого дня після закінчення строку її зберігання.",
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-017-en-annual-leave/A03",
+    "ended": "done",
+    "cost_usd": 0.003725,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 7234,
+      "cache_read_input_tokens": 2291,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No notice period is given for a leave request of exactly five leave days",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            33,
+            34
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8a9da25e0301e58890fffe6bd52eff31",
+    "sent_at": "2026-11-20T14:04:19+00:00",
+    "request_id": "msg_011ChEJiFDznGYKMgr1hAR3g",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 31.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "No notice period is given for a leave request of exactly five leave days",
+          "explanation": "The document sets a notice period for requests of fewer than five days and for requests of more than five days, but none for exactly five days. An employee asking for exactly five days cannot tell how early the request must be submitted. The reader cannot apply a time limit to that case, so the employee cannot know whether the request is in time.",
+          "quotes": [
+            "A request for fewer than five leave days is submitted at least 10 working days before the first day of leave.",
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-018-uk-document-numbering/A03",
+    "ended": "done",
+    "cost_usd": 0.002629,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 5024,
+      "cache_read_input_tokens": 3121,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Для актів немає коду виду, тому їхній номер неможливо сформувати",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            28
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "734b8d955e3082114984cef5b3db2fd2",
+    "sent_at": "2026-11-20T14:04:21+00:00",
+    "request_id": "msg_011ChEJiRtweBFzVczdtCAis",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для актів немає коду виду, тому їхній номер неможливо сформувати",
+          "explanation": "Стандарт поширюється на акти, але перелік кодів видів містить лише накази, розпорядження, положення, інструкції, протоколи та службові записки. Виконавець і реєстратор не знають, який код поставити акту, і тому не можуть записати номер у форматі «індекс-код-порядковий номер/рік». Документ також не каже, чи ведеться для актів окрема нумерація.",
+          "quotes": [
+            "службові записки та акти, які створено й підписано в Організації",
+            "Службова записка має код «СЗ»."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-019-en-vehicles/A03",
+    "ended": "done",
+    "cost_usd": 0.005413,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 10606,
+      "cache_read_input_tokens": 2533,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule for a booking request entered after its requested start time",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            29
+          ],
+          "verdict": "trap",
+          "traps": [
+            "A03-T1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "No rule for a defect found during a trip",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            49,
+            50
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5",
+            "R-7"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "No stand-in when the Fleet Manager and the Operations Director are both absent",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            14
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A05-1"
+          ]
+        },
+        {
+          "n": 4,
+          "title": "No rule for removing an authorised employee who leaves or no longer needs a vehicle",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            21,
+            22
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 1,
+        "cross": 1,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 0.6666666666666666,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8dda02902b917b14a37cb9ff20787479",
+    "sent_at": "2026-11-20T14:04:26+00:00",
+    "request_id": "msg_011ChEJij4ZERnDRYPYShj48",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 44.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for a booking request entered after its requested start time",
+          "explanation": "The document requires the Fleet Manager to decide each request before the requested start time, but it does not say what happens when a request arrives after that time. The reader cannot tell whether the Fleet Manager should refuse, approve late, or do something else. The rule that no employee takes a vehicle without an approved booking does not settle the Fleet Manager's decision.",
+          "quotes": [
+            "The Fleet Manager approves or refuses each request before the requested start time."
+          ]
+        },
+        {
+          "title": "No rule for a defect found during a trip",
+          "explanation": "The defect rules apply to checks made before each trip, and the reader must report a defect before driving. A defect, damage or missing document found while the vehicle is already being driven is in scope, but no rule says whether the driver must stop, report, or return the vehicle. Section 8 covers only accidents.",
+          "quotes": [
+            "Before each trip, the driver checks the tyres, the lights, the fuel level, the bodywork and the presence of the vehicle's documents.",
+            "The driver who finds a defect, damage or a missing document reports it to the Fleet Manager before driving."
+          ]
+        },
+        {
+          "title": "No stand-in when the Fleet Manager and the Operations Director are both absent",
+          "explanation": "The document names the Operations Director as the stand-in for an absent Fleet Manager, but it gives no stand-in for the Operations Director. If both are absent, the reader cannot find anyone to approve bookings, receive keys, decide on defects or receive accident reports.",
+          "quotes": [
+            "When the Fleet Manager is absent, the Operations Director performs the Fleet Manager's duties."
+          ]
+        },
+        {
+          "title": "No rule for removing an authorised employee who leaves or no longer needs a vehicle",
+          "explanation": "The document adds employees to the list of authorised drivers and gives a removal step only when a licence is suspended, withdrawn or expired. If an authorised employee leaves the Organisation or no longer needs to drive, the reader has no rule that tells the Fleet Manager to remove that person from the list.",
+          "quotes": [
+            "An authorised employee whose licence is suspended, withdrawn or expired informs the Fleet Manager on the same day.",
+            "The Fleet Manager then removes that employee from the list of authorised employees."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-020-uk-stocktake/A03",
+    "ended": "done",
+    "cost_usd": 0.004232,
+    "usage": {
+      "input_tokens": 856,
+      "output_tokens": 8230,
+      "cache_read_input_tokens": 3145,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A03-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Немає правила, якщо директор відсутній, коли треба замінити члена комісії",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            20,
+            67
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-2",
+            "R-6",
+            "R-7",
+            "R-8"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Немає правила, якщо комірник відсутній під час перерахунку",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            36,
+            46
+          ],
+          "verdict": "match",
+          "defects": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "729692bf9052758c3663b0550d824273",
+    "sent_at": "2026-11-20T14:04:27+00:00",
+    "request_id": "msg_011ChEJipwmfdjSMENrWjkDW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 34.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила, якщо директор відсутній, коли треба замінити члена комісії",
+          "explanation": "Пункт 2 велить директору призначити заміну члена або голови комісії не пізніше наступного робочого дня. Замісника директора названо лише для затвердження звіту, а не для призначення заміни. Якщо директор відсутній, а комісія вже неповна, ніхто не може призначити заміну, і підрахунок не може початися.",
+          "quotes": [
+            "Якщо голова або член комісії не може виконувати свої обовʼязки, директор не пізніше наступного робочого дня наказом призначає замість нього іншого працівника за правилами цього розділу.",
+            "Якщо директор відсутній, звіт затверджує і рішення щодо кожної розбіжності ухвалює голова комісії."
+          ]
+        },
+        {
+          "title": "Немає правила, якщо комірник відсутній під час перерахунку",
+          "explanation": "Перерахунок за розділами 5 і 6 має відбуватися в присутності комірника, і комірник має бути присутнім під час підрахунку. Заміни комірника документ не передбачає. Якщо комірник відсутній, голова комісії не може виконати перерахунок за правилами, і документ не каже, що робити в такому разі.",
+          "quotes": [
+            "Комірник присутній під час підрахунку й показує комісії місця зберігання товарів.",
+            "Якщо результати не збігаються, голова комісії особисто перераховує товар цього найменування в присутності обох членів комісії та комірника."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P06-read-scope-gap/results/2026-11-20-haiku-high-23aa86bd6496/calls/run3/case-021-en-lab-spill/A03",
+    "ended": "done",
+    "cost_usd": 0.002895,
+    "usage": {
+      "input_tokens": 851,
+      "output_tokens": 5570,
+      "cache_read_input_tokens": 2499,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A03",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No rule for a room inspection that finds the spill is not yet cleaned",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            59,
+            60
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-6"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "9a30626c9654dc58f3af875c4f89e285",
+    "sent_at": "2026-11-20T14:04:27+00:00",
+    "request_id": "msg_011ChEJisCxa1T1iK4Rc4u8C",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 23.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for a room inspection that finds the spill is not yet cleaned",
+          "explanation": "The reader is told that the Duty Safety Officer inspects the room and reopens it, and that the Team Leader reports cleaning complete. The document gives no rule for an inspection that finds the room still contaminated or the cleaning incomplete. The reader cannot tell whether to ask the Spill Response Team to clean again, whether the room stays closed, or who decides.",
+          "quotes": [
+            "The Duty Safety Officer inspects the room and reopens it.",
+            "The Team Leader, who leads the Spill Response Team, tells the Duty Safety Officer that cleaning is complete."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  }
+]

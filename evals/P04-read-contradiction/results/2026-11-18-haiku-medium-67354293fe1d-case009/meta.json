@@ -1,0 +1,14 @@
+{
+  "heuristic": "A01",
+  "prompt": "prompts/P04-read-contradiction/prompt-02.md",
+  "base": "prompts/P01-base-read/prompt-01.md",
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "prompt_version": "67354293fe1de454a18fb2d4bb4db501cb26f07bf7f46c5189b356d90b84a033",
+  "runs": 3,
+  "cases": [
+    "case-009-en-gifts"
+  ],
+  "fake": false,
+  "date": "2026-11-18"
+}

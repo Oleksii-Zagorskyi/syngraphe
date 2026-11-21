@@ -1,0 +1,330 @@
+[
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P04-read-contradiction/results/2026-11-18-sonnet-medium-900cf9bfd7a1-case009/calls/row1/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.013487,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 628,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2402
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Two different limits for refreshments to public officials",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            55,
+            56
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Declaration duty contradicts the rule on who decides exceptions and records",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            41
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 3,
+          "title": "Register is kept by the Compliance Officer but employees declare in it, and time limits for a wrongly received gift differ",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            33,
+            46
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-3",
+            "R-6",
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.3333333333333333,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T10:57:06+00:00",
+    "request_id": "req_011ChAGpQxJmTc7kwVz4kdCw",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 0,
+    "seconds": 7.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different limits for refreshments to public officials",
+          "explanation": "For refreshments served to a public official at a working meeting, one passage allows up to 15 euros each and another limits them to 10 euros each. A reader who serves 12 euros of refreshments obeys the first passage and breaks the second. The two passages cover the same case with different amounts.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official, served at a working meeting on the Organisation's premises.",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ]
+        },
+        {
+          "title": "Declaration duty contradicts the rule on who decides exceptions and records",
+          "explanation": "Section 7.5 says the Compliance Officer approves or refuses requests, but then says \"the role that decides the request\" records the decision. This is not a clear contradiction on its own, but 7.1 says the Chief Executive decides in place of the Compliance Officer for the Officer's own gifts. Not a contradiction; see the other findings.",
+          "quotes": [
+            "The role that decides the request records the decision in the Gifts and Hospitality Register on the same day."
+          ]
+        },
+        {
+          "title": "Register is kept by the Compliance Officer but employees declare in it, and time limits for a wrongly received gift differ",
+          "explanation": "Section 7.6 requires an employee who learns that a received gift was above the limit to hand it over and declare it within two working days. Section 7.4 gives five working days to declare every accepted gift. For the same received gift above the limit, the deadline to declare is two days in one passage and five in the other. Obeying the five-day rule breaks the two-day rule.",
+          "quotes": [
+            "The employee makes the declaration within five working days of the acceptance or the giving.",
+            "the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "73789c02d2edef9c4d2866ddb3614418"
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P04-read-contradiction/results/2026-11-18-sonnet-medium-900cf9bfd7a1-case009/calls/row2-same-request/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.005272,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 383,
+      "cache_read_input_tokens": 2402,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Two different limits for refreshments to public officials",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            55,
+            56
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Declaration rule for all gifts conflicts with refused offers",
+          "quotes": 0,
+          "language_ok": true,
+          "verdict": "suggestion"
+        },
+        {
+          "n": 3,
+          "title": "Decision on exception requests: two different roles named for the same decision",
+          "quotes": 0,
+          "language_ok": true,
+          "verdict": "suggestion"
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 2
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T10:57:27+00:00",
+    "request_id": "req_011ChAGqxA3wJ59QUQiRqGe9",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 0,
+    "seconds": 4.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different limits for refreshments to public officials",
+          "explanation": "For refreshments served to a public official at a working meeting, one passage allows up to 15 euros per official and another limits them to 10 euros per official. An amount between 10 and 15 euros is allowed by the first and forbidden by the second. A reader cannot obey both.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ]
+        },
+        {
+          "title": "Declaration rule for all gifts conflicts with refused offers",
+          "explanation": "This is not a real conflict, so it is not reported.",
+          "quotes": []
+        },
+        {
+          "title": "Decision on exception requests: two different roles named for the same decision",
+          "explanation": "Section 7.5 says the Compliance Officer approves or refuses the request. The next passage says 'the role that decides the request' records it, which is consistent. But Section 7.1 gives the Chief Executive the decision for the Compliance Officer's own gifts, which is a marked substitution, so no conflict.",
+          "quotes": []
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "73789c02d2edef9c4d2866ddb3614418"
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P04-read-contradiction/results/2026-11-18-sonnet-medium-900cf9bfd7a1-case009/calls/row2-fresh-marker/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.013127,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 593,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2398
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Two different refreshment limits for public officials",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            55,
+            56
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Declaration of all gifts versus no declaration of refused offers, and declaration timing for over-limit items",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            33,
+            46
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-3",
+            "R-6",
+            "R-7"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "Who records the exception decision differs",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            41
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.3333333333333333,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T10:57:32+00:00",
+    "request_id": "req_011ChAGrL1DUvMGTXEReoECH",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 0,
+    "seconds": 5.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different refreshment limits for public officials",
+          "explanation": "Section 7.7 allows refreshments for a public official worth 15 euros or less per official. Later in the same section the limit is 10 euros per official. For refreshments worth 12 euros, one passage permits them and the other forbids them, so the reader cannot obey both.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ]
+        },
+        {
+          "title": "Declaration of all gifts versus no declaration of refused offers, and declaration timing for over-limit items",
+          "explanation": "Section 7.4 says an employee declares every gift and all hospitality accepted or given within five working days. Section 7.6 requires an employee to declare a gift above the limit within two working days, and an after-the-fact discovery within ten working days. For the same gift, the declaration deadline is five, two or ten days, so the reader cannot obey all of them.",
+          "quotes": [
+            "The employee makes the declaration within five working days of the acceptance or the giving.",
+            "the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift."
+          ]
+        },
+        {
+          "title": "Who records the exception decision differs",
+          "explanation": "Section 7.5 says the Compliance Officer decides the request. The next passage says 'the role that decides' records it. This is consistent with the Compliance Officer, but Section 7.1 gives the decision to the Chief Executive when the Compliance Officer is the one offered the gift. This is an apparent conflict only, so it is not reported as a contradiction.",
+          "quotes": [
+            "The role that decides the request records the decision in the Gifts and Hospitality Register on the same day."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "2d7a4ed021278b567af09623e6347723"
+  }
+]

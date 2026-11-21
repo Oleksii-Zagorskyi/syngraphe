@@ -1,0 +1,8 @@
+# The heuristics this prompt covers, the model and the effort of its latest measured version, and the version the
+# platform loads. load names a version only when it has a dated result at its target, measured as one report, and a
+# passing adversarial result under its hash (ADR-0026, DL-0576). prompt-03.md meets the target on this model and
+# effort; it loads once its adversarial result passes.
+covers: [A01, A02, A03, A04, A05, A06]
+model: claude-sonnet-5-5
+effort: high
+load: null

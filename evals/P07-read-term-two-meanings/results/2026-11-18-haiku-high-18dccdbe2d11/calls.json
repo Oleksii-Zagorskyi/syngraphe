@@ -1,0 +1,3807 @@
+[
+  {
+    "run": 1,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-001-en-travel-expenses/A04",
+    "ended": "done",
+    "cost_usd": 0.000512,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 549,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1482
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTH8HQDJYij7kcyc7",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 3.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "285ab1122a5849da171b9f3e9ed354c1"
+  },
+  {
+    "run": 1,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-002-uk-procurement-committee/A04",
+    "ended": "done",
+    "cost_usd": 0.001774,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2638,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3217
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «очікувана вартість» має два різні визначення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            11,
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Термін «ініціатор» використовується для ролі, яка не відповідає його визначенню",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            10,
+            32
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTF8mCz7tK9aE17HY",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «очікувана вартість» має два різні визначення",
+          "explanation": "Загальні положення визначають очікувану вартість як повну суму за договором, а розділ про пороги визначає її як суму за один рік дії договору. Для договорів на кілька років це дає різні суми, а від суми залежить, хто погоджує заявку: фінансовий менеджер, Комітет чи директор. Документ не говорить, яке визначення має пріоритет.",
+          "quotes": [
+            "Очікувана вартість — це повна сума з усіма податками, яку Організація планує сплатити за договором про закупівлю.",
+            "Очікувана вартість — це вартість закупівлі з усіма податками за один рік дії договору."
+          ]
+        },
+        {
+          "title": "Термін «ініціатор» використовується для ролі, яка не відповідає його визначенню",
+          "explanation": "Визначення називає ініціатором керівника структурного підрозділу або директора. Далі документ називає ініціатором фінансового менеджера, якого це визначення не охоплює. Читач не може однозначно визначити, хто є ініціатором і кому подається заявка за порогом у 50 000 гривень.",
+          "quotes": [
+            "Ініціатор — це керівник структурного підрозділу або директор, який подає заявку на закупівлю.",
+            "Якщо ініціатором заявки очікуваною вартістю менше 50 000 гривень є фінансовий менеджер"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "00dc5eeef187774474479d0b17593a1d"
+  },
+  {
+    "run": 1,
+    "case": "case-003-en-onboarding",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-003-en-onboarding/A04",
+    "ended": "done",
+    "cost_usd": 0.001124,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 1584,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2238
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTF8s7UZTW8fW4A6L",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "aec0b0c98b1ab65f45885a986560e9d9"
+  },
+  {
+    "run": 1,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-004-uk-window-timber-wall/A04",
+    "ended": "done",
+    "cost_usd": 0.00191,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2888,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3305
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «друга перевірка» має два різні значення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            60,
+            80
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTE9DeH3sUN2SD8me",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «друга перевірка» має два різні значення",
+          "explanation": "У розділі «Перевірка рівня та діагоналей» це друга перевірка монтажника після піни: він міряє рівнем відхилення сторін і діагоналі, а при перевищенні видаляє піну. В розділі «Акт монтажу» бригадир виконує другу перевірку на місці: звіряє розміри вікна з проєктом і акт. Виконавець і дії різні, тому читач не може однозначно визначити, яку перевірку мається на увазі.",
+          "quotes": [
+            "Виконати другу перевірку за розділом «Перевірка рівня та діагоналей»",
+            "Бригадир протягом одного робочого дня після отримання акта виконує другу перевірку вікна на місці"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "f2713c68da720243c280d120f276b4c4"
+  },
+  {
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-005-en-spending-authority/A04",
+    "ended": "done",
+    "cost_usd": 0.001254,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 1818,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2340
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTGcr93t2tHZmQYQU",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1744afb692d3fb9fa880c905bcec9de0"
+  },
+  {
+    "run": 1,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-006-uk-accountant-job/A04",
+    "ended": "done",
+    "cost_usd": 0.001571,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2197,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3355
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «звіт» має два різні значення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            13,
+            49
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTEtf6cFjUg5uCQ7F",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «звіт» має два різні значення",
+          "explanation": "У тексті «звіт» визначено як щомісячний звіт про стан розрахунків, який складає бухгалтер. Далі те саме слово вжито для квартального звіту про виконання обов'язків, який подається директорові. Для місячного звіту діють строк подання головному бухгалтеру, затвердження і три роки зберігання, а для квартального звіту діє інший адресат і строк. Читач не може визначити, яке значення застосовувати.",
+          "quotes": [
+            "У цій інструкції звіт — це щомісячний звіт про стан розрахунків Організації, який складає бухгалтер.",
+            "Бухгалтер щокварталу подає директорові Організації звіт про виконання своїх обов'язків."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "dec45d55a2c7d5441567b5ed94e761b4"
+  },
+  {
+    "run": 1,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-007-en-office-closing/A04",
+    "ended": "done",
+    "cost_usd": 0.001904,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 3138,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2263
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTEtV98sBWjCCNq6m",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "2aed4e12124325b34726e4891b2aa089"
+  },
+  {
+    "run": 1,
+    "case": "case-008-uk-complaints",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-008-uk-complaints/A04",
+    "ended": "done",
+    "cost_usd": 0.003197,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 5510,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3110
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «Ескалація» має два значення: передання керівникові департаменту і передання заступникові.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            36,
+            48,
+            56
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:00+00:00",
+    "request_id": "req_011ChAcZTEdyEAvqEJh6axHw",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 22.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «Ескалація» має два значення: передання керівникові департаменту і передання заступникові.",
+          "explanation": "Розділ «Ескалація» визначає ескалацію як передання скарги керівникові департаменту. Далі той самий розділ називає передання заступникові альтернативою ескалації, але розділ «Строк відповіді» відносить до «Ескалації» будь-яке передання іншій посадовій особі. Через це читач не може однозначно визначити, чи скарга, передана заступникові, належить до розділу «Ескалація» і хто відповідає за строк.",
+          "quotes": [
+            "Ескалація — це передання скарги керівникові департаменту",
+            "Замість ескалації оператор у день реєстрації передає скаргу заступникові керівника Організації",
+            "переданої за розділом «Ескалація» іншій посадовій особі"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b5307ef807866b02f5d363991a9633f1"
+  },
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-009-en-gifts/A04",
+    "ended": "done",
+    "cost_usd": 0.001983,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 3256,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2416
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"gift\" is defined to exclude meals, travel and accommodation, but a later passage uses it for those items.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            13,
+            14,
+            31
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:03+00:00",
+    "request_id": "req_011ChAcZg7YgZ5btmhwwrFcH",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"gift\" is defined to exclude meals, travel and accommodation, but a later passage uses it for those items.",
+          "explanation": "Section 7.2 defines a gift as any other thing of value, which means something other than hospitality, and it defines hospitality to include meals, travel and accommodation. Section 7.4 then calls a meal, travel or accommodation a gift. A reader who follows the definition would apply the 120-euro hospitality limit, while a reader who follows Section 7.4 may apply the 50-euro gift limit and the naming rule to the same item.",
+          "quotes": [
+            "A gift is any other thing of value that the recipient does not pay for",
+            "Hospitality is a meal, a drink, entertainment, travel or accommodation that the recipient does not pay for.",
+            "A gift in the form of a meal, travel or accommodation is declared with the name of the third party that paid for it."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1c0eef0ea1c5a1ef90baa5d5e5c7a093"
+  },
+  {
+    "run": 1,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-010-uk-forklift-safety/A04",
+    "ended": "done",
+    "cost_usd": 0.001728,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2542,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3230
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «проїзд» має два значення: дорога або смуга руху і транспортний засіб чи водій.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            56
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:07+00:00",
+    "request_id": "req_011ChAcZwUGqH9mMNzztG9S6",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «проїзд» має два значення: дорога або смуга руху і транспортний засіб чи водій.",
+          "explanation": "У розділі «Швидкість руху» «проїзди» означають ділянки дороги завширшки менше 3 метрів, де діє обмеження 3 км/год. У розділі «Пішоходи та позначені зони» «проїзд» означає того, хто рухається й перетинає пішохідний перехід, тобто транспортний засіб або водія. Через це читач може по-різному зрозуміти, кого саме стосується правило переходу, і діяти інакше.",
+          "quotes": [
+            "в проїздах завширшки менше ніж 3 метри",
+            "а проїзд, навіть працюючи, перетинає лише на позначеному переході"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b6f90c3fab4a6a63100b11b0ed206918"
+  },
+  {
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-011-en-records-retention/A04",
+    "ended": "done",
+    "cost_usd": 0.001642,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2585,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2375
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"legal hold\" is used with two different meanings.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            58
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:08+00:00",
+    "request_id": "req_011ChAca4Ab6Cx528j54Gstm",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"legal hold\" is used with two different meanings.",
+          "explanation": "The document defines a legal hold as a written instruction that the Legal Counsel places after a dispute, audit or investigation, and that the Legal Counsel lifts when the matter closes. Later, a record whose proposal was refused is said to be under a legal hold until the owner proposes it again, with no Legal Counsel instruction, no matter, and no lifting rule. A reader would wait for the Legal Counsel to lift the hold in one case, but would wait for the owner's new proposal in the other.",
+          "quotes": [
+            "A legal hold is a written instruction that suspends the destruction of named records.",
+            "A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "6419b2b1128f1e8b2e2dc46e729b2f92"
+  },
+  {
+    "run": 1,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-012-uk-working-hours/A04",
+    "ended": "done",
+    "cost_usd": 0.00337,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 5960,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2696
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:09+00:00",
+    "request_id": "req_011ChAca9rPw1o1v7m6pc4pt",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c72113bf30421f8cdc0f7d05a4286487"
+  },
+  {
+    "run": 1,
+    "case": "case-013-en-it-access",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-013-en-it-access/A04",
+    "ended": "done",
+    "cost_usd": 0.001735,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2759,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2427
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:12+00:00",
+    "request_id": "req_011ChAcaKW5iBWsHbHobfnT1",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "dfe7933caca1350cd50cd65b9c44123c"
+  },
+  {
+    "run": 1,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-014-uk-legal-department/A04",
+    "ended": "done",
+    "cost_usd": 0.001853,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2788,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3250
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «директор» має два значення: директор Організації і директор філії",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            61
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:12+00:00",
+    "request_id": "req_011ChAcaNEXkT2eky3MKUsSH",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «директор» має два значення: директор Організації і директор філії",
+          "explanation": "Документ визначає «директор» як директора Організації, якому підпорядкований Відділ. У реченні про філії той самий термін стоїть поруч із «директор філії», тому незрозуміло, чий підпис потрібен на наказах філії: директора Організації чи директора філії. Читач може діяти по-різному залежно від того, яке значення він обере.",
+          "quotes": [
+            "підпорядковується безпосередньо директорові Організації (далі — директор)",
+            "Проєкти наказів філії подає до Відділу директор філії, і директор підписує їх після візи Відділу"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ba94e2c163ef8ea0bbdf084a4ede410f"
+  },
+  {
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-015-en-customer-letters/A04",
+    "ended": "done",
+    "cost_usd": 0.001494,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2324,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2236
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [],
+      "missed": [
+        "A04-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:14+00:00",
+    "request_id": "req_011ChAcaTXHALR4bWZ2jafMD",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4dfec1348f6b63ab7791c62e4d74dc04"
+  },
+  {
+    "run": 1,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-016-uk-db-backup/A04",
+    "ended": "done",
+    "cost_usd": 0.001889,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2886,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3145
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:17+00:00",
+    "request_id": "req_011ChAcahQxD2hNUYeAuqcYY",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c62f9e8e46996988a5c82701a034d5ea"
+  },
+  {
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-017-en-annual-leave/A04",
+    "ended": "done",
+    "cost_usd": 0.001599,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2523,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2283
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:18+00:00",
+    "request_id": "req_011ChAcaokwUAQAxzwjKB5zW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "e9970546378997dbedbc40084f1e6718"
+  },
+  {
+    "run": 1,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-018-uk-document-numbering/A04",
+    "ended": "done",
+    "cost_usd": 0.003938,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 6989,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3123
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «виконавець» має два різні значення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            18,
+            44
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Слово «запис» означає і запис про документ, і підсумковий запис про останні номери",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            50,
+            78
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:19+00:00",
+    "request_id": "req_011ChAcas8MbvNSh84Tc7CF1",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 29.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «виконавець» має два різні значення",
+          "explanation": "У розділі 2 виконавець визначений як працівник, який подав документ на підпис, тобто не обов'язково підписант. У розділі 3 сказано, що документ вважається підписаним, коли його підписав виконавець. За визначенням документ стає підписаним після останнього потрібного підпису, а за цим реченням уже після підпису виконавця, тому читач не знає, коли присвоювати номер.",
+          "quotes": [
+            "Виконавцем є працівник, який подав документ на підпис.",
+            "Документ вважається підписаним, коли його підписав виконавець."
+          ]
+        },
+        {
+          "title": "Слово «запис» означає і запис про документ, і підсумковий запис про останні номери",
+          "explanation": "У розділі 4 запис — це рядок реєстру про один документ, з номером, датою, назвою, посадами виконавця та підписантів. У розділі 6 «останній запис» — це підсумковий рядок про останній присвоєний номер кожного виду документів, без даних про окремий документ. Читач має вносити різні відомості залежно від того, котре значення він обрав.",
+          "quotes": [
+            "реєстратор вносить до реєстру запис: номер, дату присвоєння",
+            "вносить до реєстру попереднього року останній запис — про останній присвоєний номер кожного виду документів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "66972bb9517d0eb69e902e36bfc886c2"
+  },
+  {
+    "run": 1,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-019-en-vehicles/A04",
+    "ended": "done",
+    "cost_usd": 0.001786,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2831,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2543
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:22+00:00",
+    "request_id": "req_011ChAcb5oqqj6sDo58CeHFX",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "bb9f142ff047dc5e5d40f09c6d6a3a48"
+  },
+  {
+    "run": 1,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-020-uk-stocktake/A04",
+    "ended": "done",
+    "cost_usd": 0.003878,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 6862,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3153
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:23+00:00",
+    "request_id": "req_011ChAcb8usVDTf5Y3qQRjqc",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 26.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0af1e8229a599d3985df4c1040646eb2"
+  },
+  {
+    "run": 1,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run1/case-021-en-lab-spill/A04",
+    "ended": "done",
+    "cost_usd": 0.001283,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 1839,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2491
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:24+00:00",
+    "request_id": "req_011ChAcbCALFqji1V4vNootN",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b925806ad17646fe5d4133202392994a"
+  },
+  {
+    "run": 2,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-001-en-travel-expenses/A04",
+    "ended": "done",
+    "cost_usd": 0.00046,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 785,
+      "cache_read_input_tokens": 1482,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6kCc9ZsAJLzdSq3N",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "285ab1122a5849da171b9f3e9ed354c1"
+  },
+  {
+    "run": 2,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-002-uk-procurement-committee/A04",
+    "ended": "done",
+    "cost_usd": 0.00257,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 4969,
+      "cache_read_input_tokens": 3217,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «очікувана вартість» має два різні визначення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            11,
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Термін «ініціатор» у одному місці охоплює фінансового менеджера, хоча визначення його не включає",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            10,
+            32
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6fFDWHaBzwQUETYX",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «очікувана вартість» має два різні визначення",
+          "explanation": "У загальних положеннях очікувана вартість — це повна сума з усіма податками, яку Організація планує сплатити за договором. У розділі про пороги її визначено як вартість закупівлі за один рік дії договору. Для договору, який триває кілька років, читач отримує різні суми і може по-різному вирішити, який поріг застосувати: 50 000 чи 1 000 000 гривень.",
+          "quotes": [
+            "Очікувана вартість — це повна сума з усіма податками, яку Організація планує сплатити за договором про закупівлю.",
+            "Очікувана вартість — це вартість закупівлі з усіма податками за один рік дії договору."
+          ]
+        },
+        {
+          "title": "Термін «ініціатор» у одному місці охоплює фінансового менеджера, хоча визначення його не включає",
+          "explanation": "Визначення каже, що ініціатор — це керівник структурного підрозділу або директор. Далі фінансовий менеджер названий ініціатором заявки на суму менше 50 000 гривень. Читач, який виходить із визначення, не знає, чи застосовувати до фінансового менеджера правила для ініціатора, зокрема передачу заявки директорові в день подання.",
+          "quotes": [
+            "Ініціатор — це керівник структурного підрозділу або директор, який подає заявку на закупівлю.",
+            "Якщо ініціатором заявки очікуваною вартістю менше 50 000 гривень є фінансовий менеджер"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "00dc5eeef187774474479d0b17593a1d"
+  },
+  {
+    "run": 2,
+    "case": "case-003-en-onboarding",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-003-en-onboarding/A04",
+    "ended": "done",
+    "cost_usd": 0.000886,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 1622,
+      "cache_read_input_tokens": 2238,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6dGFW41J9w2TsuWv",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "aec0b0c98b1ab65f45885a986560e9d9"
+  },
+  {
+    "run": 2,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-004-uk-window-timber-wall/A04",
+    "ended": "done",
+    "cost_usd": 0.001765,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 3357,
+      "cache_read_input_tokens": 3305,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «друга перевірка» має два різні значення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            60,
+            80
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6fzp8s8kYz2abdFg",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «друга перевірка» має два різні значення",
+          "explanation": "У розділі «Послідовність робіт» і в розділі «Перевірка рівня та діагоналей» «друга перевірка» означає перевірку монтажника, яка стосується відхилень сторін коробки, діагоналей і монтажного зазору. Бригадир виконує «другу перевірку вікна на місці», яка звіряє розміри вікна з проєктом і акт. Монтажник і бригадир роблять різні перевірки, тому читач не знає, яку з них має на увазі документ у кожному місці.",
+          "quotes": [
+            "Виконати другу перевірку за розділом «Перевірка рівня та діагоналей»",
+            "Бригадир протягом одного робочого дня після отримання акта виконує другу перевірку вікна на місці"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "f2713c68da720243c280d120f276b4c4"
+  },
+  {
+    "run": 2,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-005-en-spending-authority/A04",
+    "ended": "done",
+    "cost_usd": 0.003367,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 6582,
+      "cache_read_input_tokens": 2340,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6fEwosXnjqBC2dqy",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 27.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1744afb692d3fb9fa880c905bcec9de0"
+  },
+  {
+    "run": 2,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-006-uk-accountant-job/A04",
+    "ended": "done",
+    "cost_usd": 0.001361,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2549,
+      "cache_read_input_tokens": 3355,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «звіт» має два значення: щомісячний звіт і щоквартальний звіт про виконання обов'язків",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            13,
+            49
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6oBydskvR7xN6eGc",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «звіт» має два значення: щомісячний звіт і щоквартальний звіт про виконання обов'язків",
+          "explanation": "Документ визначає «звіт» як щомісячний звіт про стан розрахунків, який бухгалтер подає головному бухгалтеру не пізніше восьмого робочого дня і який зберігається в архіві. Далі той самий термін використано для квартального звіту про виконання обов'язків, який подається директорові. Читач не може визначити, який саме порядок подання, затвердження та зберігання застосовувати до цього звіту.",
+          "quotes": [
+            "У цій інструкції звіт — це щомісячний звіт про стан розрахунків Організації, який складає бухгалтер.",
+            "Бухгалтер щокварталу подає директорові Організації звіт про виконання своїх обов'язків."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "dec45d55a2c7d5441567b5ed94e761b4"
+  },
+  {
+    "run": 2,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-007-en-office-closing/A04",
+    "ended": "done",
+    "cost_usd": 0.001254,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2358,
+      "cache_read_input_tokens": 2263,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6fzCTZASTg3PAjf3",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "2aed4e12124325b34726e4891b2aa089"
+  },
+  {
+    "run": 2,
+    "case": "case-008-uk-complaints",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-008-uk-complaints/A04",
+    "ended": "done",
+    "cost_usd": 0.001336,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2503,
+      "cache_read_input_tokens": 3110,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:49+00:00",
+    "request_id": "req_011ChAcd6fF13Stf9qLsxmiY",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.7,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b5307ef807866b02f5d363991a9633f1"
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-009-en-gifts/A04",
+    "ended": "done",
+    "cost_usd": 0.00188,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 3607,
+      "cache_read_input_tokens": 2416,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The word \"gift\" is used both with and without meals, travel and accommodation.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            13,
+            14,
+            31
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:53+00:00",
+    "request_id": "req_011ChAcdQ41GtW9jKar41pde",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "The word \"gift\" is used both with and without meals, travel and accommodation.",
+          "explanation": "Section 7.2 defines a gift as any other thing of value, which excludes meals, travel and accommodation, and it defines those as hospitality. Section 7.4 then calls a meal, travel or accommodation a gift. A reader who follows the definition would not apply the naming rule to a meal, but a reader who follows Section 7.4 would, and the value limit would also differ (50 euros for a gift, 120 euros for hospitality).",
+          "quotes": [
+            "A gift is any other thing of value that the recipient does not pay for, including goods, vouchers, discounts and services.",
+            "Hospitality is a meal, a drink, entertainment, travel or accommodation that the recipient does not pay for.",
+            "A gift in the form of a meal, travel or accommodation is declared with the name of the third party that paid for it."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1c0eef0ea1c5a1ef90baa5d5e5c7a093"
+  },
+  {
+    "run": 2,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-010-uk-forklift-safety/A04",
+    "ended": "done",
+    "cost_usd": 0.002591,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 5011,
+      "cache_read_input_tokens": 3230,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «проїзд» має два різні значення: місце руху та той, хто перетинає перехід",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            56
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:16:56+00:00",
+    "request_id": "req_011ChAcdbhV7hxirUAGb8rvD",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 22.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «проїзд» має два різні значення: місце руху та той, хто перетинає перехід",
+          "explanation": "У розділі про швидкість «проїзд» означає вузьке місце для руху, де діє обмеження 3 км/год. У розділі про пішоходів те саме слово стоїть як підмет, який «перетинає» пішохідний перехід, тобто означає особу або транспорт. Читач у першому випадку застосовує обмеження швидкості до місця, а в другому не знає, чи правило стосується водія, навантажувача чи іншого учасника руху.",
+          "quotes": [
+            "в проїздах завширшки менше ніж 3 метри",
+            "а проїзд, навіть працюючи, перетинає лише на позначеному переході."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b6f90c3fab4a6a63100b11b0ed206918"
+  },
+  {
+    "run": 2,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-011-en-records-retention/A04",
+    "ended": "done",
+    "cost_usd": 0.001034,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 1915,
+      "cache_read_input_tokens": 2375,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"legal hold\" is used with two different meanings.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            58
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:00+00:00",
+    "request_id": "req_011ChAcdsDtMhiCFA75AfKsF",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"legal hold\" is used with two different meanings.",
+          "explanation": "The document defines a legal hold as a written instruction that the Legal Counsel places and lifts, with notice to the owner and the Records Manager. The refusal clause then says a record is under a legal hold after a Records Manager refusal, which no Legal Counsel instruction created. For refused records the reader would end the hold by the owner's re-proposal, not by the Legal Counsel's lifting notice, so the reader acts differently in each meaning.",
+          "quotes": [
+            "A legal hold is a written instruction that suspends the destruction of named records.",
+            "A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "6419b2b1128f1e8b2e2dc46e729b2f92"
+  },
+  {
+    "run": 2,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-012-uk-working-hours/A04",
+    "ended": "done",
+    "cost_usd": 0.002251,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 4342,
+      "cache_read_input_tokens": 2696,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:00+00:00",
+    "request_id": "req_011ChAcdtCRTMtjhEZLDbHqK",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c72113bf30421f8cdc0f7d05a4286487"
+  },
+  {
+    "run": 2,
+    "case": "case-013-en-it-access",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-013-en-it-access/A04",
+    "ended": "done",
+    "cost_usd": 0.001277,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2401,
+      "cache_read_input_tokens": 2427,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:00+00:00",
+    "request_id": "req_011ChAcdtVYbH11fzZg1aN7T",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "dfe7933caca1350cd50cd65b9c44123c"
+  },
+  {
+    "run": 2,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-014-uk-legal-department/A04",
+    "ended": "done",
+    "cost_usd": 0.001956,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 3740,
+      "cache_read_input_tokens": 3250,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «директор» вжито для директора філії, хоча визначено як директора Організації",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            61
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:04+00:00",
+    "request_id": "req_011ChAceD8TfBBLyw6eNJbxB",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «директор» вжито для директора філії, хоча визначено як директора Організації",
+          "explanation": "Документ визначає «директор» як директора Організації. У реченні про накази філії той самий іменник стоїть поруч із «директор філії», і з тексту не видно, чи йдеться про директора філії чи про директора Організації. Від цього залежить, хто підписує накази філії, тож виконавець може діяти по-різному.",
+          "quotes": [
+            "підпорядковується безпосередньо директорові Організації (далі — директор)",
+            "Проєкти наказів філії подає до Відділу директор філії, і директор підписує їх після візи Відділу."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ba94e2c163ef8ea0bbdf084a4ede410f"
+  },
+  {
+    "run": 2,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-015-en-customer-letters/A04",
+    "ended": "done",
+    "cost_usd": 0.001855,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 3560,
+      "cache_read_input_tokens": 2236,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"customer\" is defined as a signed agreement holder but later applies to people who have not signed.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            40
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:08+00:00",
+    "request_id": "req_011ChAceVcA5h5HacThSb8Sw",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"customer\" is defined as a signed agreement holder but later applies to people who have not signed.",
+          "explanation": "The definition limits a customer to a person or company with a signed service agreement, and the guideline applies only to letters to customers. The addressing section then says a person who asked for an offer without signing is addressed in the same way, which suggests such a person counts as a customer. A reader cannot tell whether letters to people who only asked for an offer are inside or outside the guideline.",
+          "quotes": [
+            "A customer is a person or a company that holds a signed service agreement with the Organisation.",
+            "A customer who has asked for an offer and has not yet signed a service agreement is addressed in the same way."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4dfec1348f6b63ab7791c62e4d74dc04"
+  },
+  {
+    "run": 2,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-016-uk-db-backup/A04",
+    "ended": "done",
+    "cost_usd": 0.001176,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2183,
+      "cache_read_input_tokens": 3145,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:09+00:00",
+    "request_id": "req_011ChAceXuZw3uEv3e3vUWfX",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c62f9e8e46996988a5c82701a034d5ea"
+  },
+  {
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-017-en-annual-leave/A04",
+    "ended": "done",
+    "cost_usd": 0.001089,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2028,
+      "cache_read_input_tokens": 2283,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:10+00:00",
+    "request_id": "req_011ChAcecyusQd4beKMphzGK",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "e9970546378997dbedbc40084f1e6718"
+  },
+  {
+    "run": 2,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-018-uk-document-numbering/A04",
+    "ended": "done",
+    "cost_usd": 0.002423,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 4677,
+      "cache_read_input_tokens": 3123,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «підписаний» має два різні значення",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            19,
+            40,
+            44
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:10+00:00",
+    "request_id": "req_011ChAceeNzcnLNiSBnxPKYe",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 19.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «підписаний» має два різні значення",
+          "explanation": "У розділі 3 «підписаний» означає, що документ підписав виконавець. У розділах 2 і 3 те саме слово означає, що документ підписали всі потрібні особи, зокрема керівники. Через це реєстратор може вважати документ підписаним і присвоїти йому номер після підпису виконавця, а може чекати підписів керівників. Тому незрозуміло, коли можна присвоювати номер.",
+          "quotes": [
+            "Документ вважається підписаним, коли його підписав виконавець.",
+            "Якщо документ підписали керівники кількох підрозділів",
+            "Виконавець передає документ реєстраторові після останнього потрібного підпису"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "66972bb9517d0eb69e902e36bfc886c2"
+  },
+  {
+    "run": 2,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-019-en-vehicles/A04",
+    "ended": "done",
+    "cost_usd": 0.001334,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2511,
+      "cache_read_input_tokens": 2543,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:17+00:00",
+    "request_id": "req_011ChAcf9mqD9biSxpeyT6Ye",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "bb9f142ff047dc5e5d40f09c6d6a3a48"
+  },
+  {
+    "run": 2,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-020-uk-stocktake/A04",
+    "ended": "done",
+    "cost_usd": 0.00246,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 4750,
+      "cache_read_input_tokens": 3153,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:18+00:00",
+    "request_id": "req_011ChAcfCZ1mopXSmBtiMiTn",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0af1e8229a599d3985df4c1040646eb2"
+  },
+  {
+    "run": 2,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run2/case-021-en-lab-spill/A04",
+    "ended": "done",
+    "cost_usd": 0.001169,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2182,
+      "cache_read_input_tokens": 2491,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"small spill\" has two conflicting definitions with different limits.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            20
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:18+00:00",
+    "request_id": "req_011ChAcfDGvTy3Z2Ep7m66de",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"small spill\" has two conflicting definitions with different limits.",
+          "explanation": "Section 2 defines a small spill by a 500 ml limit for liquids, with one low-hazard substance as a condition. A later sentence in the same section calls a spill of up to one litre of one low-hazard liquid a small spill, with no 500 ml limit. A reader who uses the 500 ml rule classes an 800 ml spill as large and follows section 6, while a reader who uses the one-litre sentence classes it as small and follows section 5, which requires a trained worker to clean it.",
+          "quotes": [
+            "Its quantity is 500 millilitres or less for a liquid, or 500 grams or less for a solid.",
+            "A spill of one litre or less of one low-hazard liquid, with no person injured or contaminated by it, is a small spill."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b925806ad17646fe5d4133202392994a"
+  },
+  {
+    "run": 3,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-001-en-travel-expenses/A04",
+    "ended": "done",
+    "cost_usd": 0.000377,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 620,
+      "cache_read_input_tokens": 1482,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb3dijgq4xGH3eVxE",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 3.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "285ab1122a5849da171b9f3e9ed354c1"
+  },
+  {
+    "run": 3,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-002-uk-procurement-committee/A04",
+    "ended": "done",
+    "cost_usd": 0.001435,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2700,
+      "cache_read_input_tokens": 3217,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «очікувана вартість» має два різні визначення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            11,
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb48vm35xc4nqFGii",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «очікувана вартість» має два різні визначення",
+          "explanation": "У першому визначенні це повна сума з усіма податками за договором, а в другому це вартість закупівлі за один рік дії договору. Якщо договір триває довше року, сума для порогів 50 000 і 1 000 000 гривень буде різною, і читач може обрати різні канали погодження. Документ не пояснює, яке визначення застосовувати.",
+          "quotes": [
+            "Очікувана вартість — це повна сума з усіма податками, яку Організація планує сплатити за договором про закупівлю.",
+            "Очікувана вартість — це вартість закупівлі з усіма податками за один рік дії договору."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "00dc5eeef187774474479d0b17593a1d"
+  },
+  {
+    "run": 3,
+    "case": "case-003-en-onboarding",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-003-en-onboarding/A04",
+    "ended": "done",
+    "cost_usd": 0.000788,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 1426,
+      "cache_read_input_tokens": 2238,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb48n1t4Q6DCpnJNG",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "aec0b0c98b1ab65f45885a986560e9d9"
+  },
+  {
+    "run": 3,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-004-uk-window-timber-wall/A04",
+    "ended": "done",
+    "cost_usd": 0.001194,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2216,
+      "cache_read_input_tokens": 3305,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Термін «друга перевірка» має два значення: перевірку монтажника і перевірку бригадира.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            60,
+            70,
+            80
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb2PamvJacCJ2EaXC",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «друга перевірка» має два значення: перевірку монтажника і перевірку бригадира.",
+          "explanation": "Монтажник виконує другу перевірку після видалення піни, вимірює рівнем і діагоналі коробки та видаляє піну й повторює роботи, якщо виявлено перевищення. Бригадир виконує другу перевірку вікна на місці протягом одного робочого дня, звіряючи вікно з проєктом і акт, і повертає акт монтажникові за зауваженнями. Документ не пояснює, що саме означає термін у кожному місці, тому читач може діяти по-різному.",
+          "quotes": [
+            "Виконати другу перевірку за розділом «Перевірка рівня та діагоналей».",
+            "Якщо друга перевірка виявила перевищення, монтажник видаляє піну й повторює роботи, починаючи з кроку встановлення коробки в проріз.",
+            "Бригадир протягом одного робочого дня після отримання акта виконує другу перевірку вікна на місці"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "f2713c68da720243c280d120f276b4c4"
+  },
+  {
+    "run": 3,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-005-en-spending-authority/A04",
+    "ended": "done",
+    "cost_usd": 0.002612,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 5073,
+      "cache_read_input_tokens": 2340,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb2tQnoqifPAdaHPn",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 22.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1744afb692d3fb9fa880c905bcec9de0"
+  },
+  {
+    "run": 3,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-006-uk-accountant-job/A04",
+    "ended": "done",
+    "cost_usd": 0.001076,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 1978,
+      "cache_read_input_tokens": 3355,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «звіт» має два різні значення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            13,
+            49
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb3tHHQphqUYNs9t7",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «звіт» має два різні значення",
+          "explanation": "Інструкція визначає звіт як щомісячний звіт про стан розрахунків, який подається головному бухгалтеру до восьмого робочого дня і затверджується ним. Далі той самий термін використано для квартального звіту про виконання обов'язків, який подається директорові. Читач має різні строки, адресата і порядок затвердження залежно від того, про який звіт іде мова, а текст не пояснює, що «звіт» означає в другому випадку.",
+          "quotes": [
+            "У цій інструкції звіт — це щомісячний звіт про стан розрахунків Організації, який складає бухгалтер.",
+            "Бухгалтер щокварталу подає директорові Організації звіт про виконання своїх обов'язків."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "dec45d55a2c7d5441567b5ed94e761b4"
+  },
+  {
+    "run": 3,
+    "case": "case-007-en-office-closing",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-007-en-office-closing/A04",
+    "ended": "done",
+    "cost_usd": 0.001421,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2692,
+      "cache_read_input_tokens": 2263,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb38mAGJQKUdzgtEB",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "2aed4e12124325b34726e4891b2aa089"
+  },
+  {
+    "run": 3,
+    "case": "case-008-uk-complaints",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-008-uk-complaints/A04",
+    "ended": "done",
+    "cost_usd": 0.002614,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 5059,
+      "cache_read_input_tokens": 3110,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:37+00:00",
+    "request_id": "req_011ChAcgb1ADNuSDGTKXYQeG",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 20.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b5307ef807866b02f5d363991a9633f1"
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-009-en-gifts/A04",
+    "ended": "done",
+    "cost_usd": 0.002504,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 4854,
+      "cache_read_input_tokens": 2416,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"gift\" is defined to exclude meals and travel, but a later passage calls a meal or travel a gift.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            14,
+            31
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "The term \"exception\" is used for an approved exception under Section 7.5 and also for a fixed exemption that needs no approval.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            24,
+            55
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:40+00:00",
+    "request_id": "req_011ChAcgqxpXBQGqdhnKPPB2",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 20.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"gift\" is defined to exclude meals and travel, but a later passage calls a meal or travel a gift.",
+          "explanation": "Section 7.2 defines a gift as any other thing of value, which excludes meals, travel and accommodation, and it defines those as hospitality. Section 7.4 then speaks of a gift in the form of a meal, travel or accommodation. A reader who follows the definition treats a meal as hospitality with the 120 euro limit, while a reader who follows Section 7.4 treats it as a gift with the 50 euro limit and the Section 7.6 return duty.",
+          "quotes": [
+            "A gift is any other thing of value that the recipient does not pay for, including goods, vouchers, discounts and services.",
+            "A gift in the form of a meal, travel or accommodation is declared with the name of the third party that paid for it."
+          ]
+        },
+        {
+          "title": "The term \"exception\" is used for an approved exception under Section 7.5 and also for a fixed exemption that needs no approval.",
+          "explanation": "In Section 7.3 an exception means a case approved by the Compliance Officer under Section 7.5, which needs a written request first. In Section 7.7 the words \"The only exception\" refer to refreshments that are allowed without any request or approval. The reader must decide whether the refreshments need a Section 7.5 request, and the text does not say so directly.",
+          "quotes": [
+            "An employee must not accept or give a gift or hospitality above its limit unless an exception has been approved under Section 7.5.",
+            "The only exception is refreshments worth 15 euros or less for each public official"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1c0eef0ea1c5a1ef90baa5d5e5c7a093"
+  },
+  {
+    "run": 3,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-010-uk-forklift-safety/A04",
+    "ended": "done",
+    "cost_usd": 0.001855,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 3539,
+      "cache_read_input_tokens": 3230,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «проїзд» має два різні значення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            56
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:43+00:00",
+    "request_id": "req_011ChAch3KwexLgqxUEnm5TH",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «проїзд» має два різні значення",
+          "explanation": "У розділі про швидкість «проїзд» означає вузьку ділянку шляху, тобто місце, завширшки менше ніж 3 метри, де діє обмеження 3 км/год. У розділі про пішоходів це слово стоїть як підмет, який «перетинає» пішохідний перехід, тобто означає людину або транспорт, що рухається. Читач не знає, чи правило про перехід стосується водія чи ділянки, тому не може однозначно виконати вимогу.",
+          "quotes": [
+            "в проїздах завширшки менше ніж 3 метри",
+            "а проїзд, навіть працюючи, перетинає лише на позначеному переході"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b6f90c3fab4a6a63100b11b0ed206918"
+  },
+  {
+    "run": 3,
+    "case": "case-011-en-records-retention",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-011-en-records-retention/A04",
+    "ended": "done",
+    "cost_usd": 0.001394,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2636,
+      "cache_read_input_tokens": 2375,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"legal hold\" is used with two different meanings.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            58
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:46+00:00",
+    "request_id": "req_011ChAchGGoyP3nsmsVASYqQ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"legal hold\" is used with two different meanings.",
+          "explanation": "The document defines a legal hold as a written instruction that the Legal Counsel places and lifts. Later it says a refused record is \"under a legal hold\" without any written instruction, and that hold ends when the owner proposes the record again, not when the Legal Counsel lifts it. A reader following the definition would look for a written instruction and a Legal Counsel notice, and would not know how to end the refusal-based hold.",
+          "quotes": [
+            "A legal hold is a written instruction that suspends the destruction of named records.",
+            "A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "6419b2b1128f1e8b2e2dc46e729b2f92"
+  },
+  {
+    "run": 3,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-012-uk-working-hours/A04",
+    "ended": "done",
+    "cost_usd": 0.001837,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 3513,
+      "cache_read_input_tokens": 2696,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:47+00:00",
+    "request_id": "req_011ChAchKfTSVJUoVJfUk3S9",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c72113bf30421f8cdc0f7d05a4286487"
+  },
+  {
+    "run": 3,
+    "case": "case-013-en-it-access",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-013-en-it-access/A04",
+    "ended": "done",
+    "cost_usd": 0.001768,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 3383,
+      "cache_read_input_tokens": 2427,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:48+00:00",
+    "request_id": "req_011ChAchRmomCRaRPnFS86BL",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "dfe7933caca1350cd50cd65b9c44123c"
+  },
+  {
+    "run": 3,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-014-uk-legal-department/A04",
+    "ended": "done",
+    "cost_usd": 0.001258,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 2345,
+      "cache_read_input_tokens": 3250,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [],
+      "missed": [
+        "A04-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:48+00:00",
+    "request_id": "req_011ChAchSqJS8DawByNoGFHt",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ba94e2c163ef8ea0bbdf084a4ede410f"
+  },
+  {
+    "run": 3,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-015-en-customer-letters/A04",
+    "ended": "done",
+    "cost_usd": 0.001519,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2888,
+      "cache_read_input_tokens": 2236,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The term \"customer\" is defined as a signed client but is also applied to people who have not signed.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            40
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:57+00:00",
+    "request_id": "req_011ChAci5Uhh8L2NY45QhDMN",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "The term \"customer\" is defined as a signed client but is also applied to people who have not signed.",
+          "explanation": "The definition limits a customer to a person or company that holds a signed service agreement. The addressing section then calls a person who only asked for an offer a customer, so the term has a second meaning. A reader who follows the definition would treat such a person as outside the guideline, while a reader who follows the addressing section would apply the customer rules to them.",
+          "quotes": [
+            "A customer is a person or a company that holds a signed service agreement with the Organisation.",
+            "A customer who has asked for an offer and has not yet signed a service agreement is addressed in the same way."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4dfec1348f6b63ab7791c62e4d74dc04"
+  },
+  {
+    "run": 3,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-016-uk-db-backup/A04",
+    "ended": "done",
+    "cost_usd": 0.001718,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 3267,
+      "cache_read_input_tokens": 3145,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:58+00:00",
+    "request_id": "req_011ChAci8Pa5YNAAhGW9bRW8",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c62f9e8e46996988a5c82701a034d5ea"
+  },
+  {
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-017-en-annual-leave/A04",
+    "ended": "done",
+    "cost_usd": 0.001098,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2046,
+      "cache_read_input_tokens": 2283,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:58+00:00",
+    "request_id": "req_011ChAciAjT6ubHXahUpn1t4",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "e9970546378997dbedbc40084f1e6718"
+  },
+  {
+    "run": 3,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-018-uk-document-numbering/A04",
+    "ended": "done",
+    "cost_usd": 0.002076,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 3984,
+      "cache_read_input_tokens": 3123,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A04-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Слово «підписаний» має два різні значення: підпис виконавця і повний набір потрібних підписів",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            19,
+            40,
+            44
+          ],
+          "verdict": "match",
+          "defects": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:58+00:00",
+    "request_id": "req_011ChAciBiV7X8yPcz271EYx",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Слово «підписаний» має два різні значення: підпис виконавця і повний набір потрібних підписів",
+          "explanation": "Розділ 3 визначає документ як підписаний, коли його підписав виконавець. Водночас у тому самому розділі сказано, що виконавець передає документ після останнього потрібного підпису, а в розділі 2 документ може підписати кілька керівників. За визначенням реєстратор може присвоїти номер після підпису виконавця, ще до підписів керівників, а за звичайним змістом слова він чекав би на всі потрібні підписи.",
+          "quotes": [
+            "Документ вважається підписаним, коли його підписав виконавець.",
+            "після останнього потрібного підпису",
+            "Якщо документ підписали керівники кількох підрозділів"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "66972bb9517d0eb69e902e36bfc886c2"
+  },
+  {
+    "run": 3,
+    "case": "case-019-en-vehicles",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-019-en-vehicles/A04",
+    "ended": "done",
+    "cost_usd": 0.001635,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 3114,
+      "cache_read_input_tokens": 2543,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:17:59+00:00",
+    "request_id": "req_011ChAciEnHpEA4Fk2noVciy",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "bb9f142ff047dc5e5d40f09c6d6a3a48"
+  },
+  {
+    "run": 3,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-020-uk-stocktake/A04",
+    "ended": "done",
+    "cost_usd": 0.001613,
+    "usage": {
+      "input_tokens": 531,
+      "output_tokens": 3056,
+      "cache_read_input_tokens": 3153,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:18:01+00:00",
+    "request_id": "req_011ChAciNEWc4Amvdh3efVgd",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0af1e8229a599d3985df4c1040646eb2"
+  },
+  {
+    "run": 3,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/P07-read-term-two-meanings/results/2026-11-18-haiku-high-18dccdbe2d11/calls/run3/case-021-en-lab-spill/A04",
+    "ended": "done",
+    "cost_usd": 0.001185,
+    "usage": {
+      "input_tokens": 526,
+      "output_tokens": 2214,
+      "cache_read_input_tokens": 2491,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A04",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:18:01+00:00",
+    "request_id": "req_011ChAciPMV4S1JzP2Bj5pMz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b925806ad17646fe5d4133202392994a"
+  }
+]

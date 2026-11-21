@@ -1,0 +1,224 @@
+[
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P04-read-contradiction/results/2026-11-18-haiku-medium-67354293fe1d-case009/calls/run1/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.001067,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1413,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2402
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Section 7.7 gives two different limits for refreshments for public officials, 15 euros and 10 euros.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            55,
+            56
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T11:42:02+00:00",
+    "request_id": "req_011ChALF7nz1HyDYaLFxdvNU",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Section 7.7 gives two different limits for refreshments for public officials, 15 euros and 10 euros.",
+          "explanation": "The first passage allows refreshments worth 15 euros or less per public official at a working meeting. The second passage limits refreshments for a public official to 10 euros per official. Both apply to the same case, refreshments at a working meeting, and no reading makes both amounts the limit at once. An employee who spends 12 euros per official obeys the first passage and breaks the second.",
+          "quotes": [
+            "refreshments worth 15 euros or less for each public official",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1fd632fd1129158d1a30e929a8315b74"
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P04-read-contradiction/results/2026-11-18-haiku-medium-67354293fe1d-case009/calls/run2/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.001032,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1343,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2402
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The refreshment limit for public officials is 15 euros in one passage and 10 euros in another.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            55,
+            56
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T11:42:09+00:00",
+    "request_id": "req_011ChALFdDJZgLFKqXNPA22a",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "The refreshment limit for public officials is 15 euros in one passage and 10 euros in another.",
+          "explanation": "Section 7.7 allows refreshments for a public official worth 15 euros or less at a working meeting. A later sentence in the same section limits refreshments for each official to 10 euros. For a refreshment worth 12 euros, the first passage permits it and the second forbids it, so a reader cannot obey both.",
+          "quotes": [
+            "refreshments worth 15 euros or less for each public official",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8af13c821ebdc705bc4f54c69958354e"
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P04-read-contradiction/results/2026-11-18-haiku-medium-67354293fe1d-case009/calls/run3/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.001265,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1809,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2402
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Section 7.7 gives two different refreshment limits for public officials, 15 euros and 10 euros.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            55,
+            56
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T11:42:16+00:00",
+    "request_id": "req_011ChALG7cqx2CSkUtBL73ef",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Section 7.7 gives two different refreshment limits for public officials, 15 euros and 10 euros.",
+          "explanation": "The first sentence allows refreshments worth 15 euros or less for each public official. A later sentence limits refreshments for each official to 10 euros. Both apply to the same case, refreshments for a public official at a working meeting, so a reader cannot obey both amounts.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official, served at a working meeting on the Organisation's premises.",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "bdcba462d36e7b4be24c8f83c116123c"
+  }
+]

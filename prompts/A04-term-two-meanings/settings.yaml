@@ -1,6 +1,0 @@
-# The model and the effort of the latest measured version, and the version the platform loads.
-# load names a version only when it has a dated result at its target and a passing adversarial result
-# under its hash. No version is at its target yet.
-model: claude-haiku-5-5
-effort: high
-load: null

@@ -1,0 +1,16 @@
+{
+  "heuristic": "P03",
+  "prompt": "prompts/P03-read-document/prompt-03.md",
+  "base": "prompts/P01-base-read/prompt-01.md",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "prompt_version": "bf2378e8725ba9ec3c4d300c9dde98e3738c554544e0b2a012ef4c1becbe35f8",
+  "runs": 3,
+  "cases": [
+    "case-017-en-annual-leave",
+    "case-006-uk-accountant-job",
+    "case-009-en-gifts"
+  ],
+  "fake": false,
+  "date": "2026-11-21"
+}

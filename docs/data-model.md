@@ -631,17 +631,30 @@ erDiagram
     COMPANION_ACTION ||--o{ ACTION_HEURISTIC : holds
     HEURISTIC ||--o{ SIDE_DOCUMENT_TYPE_HEURISTIC : composed_into
     SIDE_DOCUMENT_TYPE ||--o{ SIDE_DOCUMENT_TYPE_HEURISTIC : holds
+    PROMPT ||--o{ PROMPT_HEURISTIC : covers
+    HEURISTIC ||--o{ PROMPT_HEURISTIC : covered_by
     HEURISTIC {
         uuid id PK
-        string source_path UK "its directory under prompts/, the canonical text (DL-0153)"
+        string code UK "its id in review-findings.md, A01 (DL-0572); what a finding and an eval case's key name"
+        string slug "its short name, contradiction (DL-0572)"
         string title
-        string explanation "a short one; with the title, what the platform administrator reads beside the text (DL-0031)"
+        string explanation "a short one; with the title, what the platform administrator reads (DL-0031)"
+        bool switched_off "set by the platform administrator, at once; its findings are dropped from every new result; its stored results stay readable (DL-0567, DL-0571, ADR-0026)"
+    }
+    PROMPT {
+        uuid id PK
+        string code UK "its id in prompts/README.md, P03 (ADR-0026)"
+        string source_path UK "the version's file under prompts/, the canonical text (DL-0153)"
         text prompt "the copy the load command wrote from source_path, never the source (DL-0153)"
-        string prompt_version "one hash over the base prompt, this heuristic's text, the model and the effort (ADR-0024); what a trace and a finding record"
-        string model "a setting of the heuristic, part of its prompt version (DL-0560)"
+        string prompt_version "one hash over the base prompt, this prompt's text, the model and the effort (ADR-0024); what a trace records"
+        string model "a setting of the prompt, part of its prompt version (DL-0560)"
         string effort "the model's effort level, likewise (DL-0560)"
         datetime loaded_at "when the load command last wrote the row"
-        bool switched_off "set by the platform administrator, at once; a heuristic switched off runs in no new call; its stored results stay readable (DL-0567, DL-0571)"
+    }
+    PROMPT_HEURISTIC {
+        uuid id PK
+        uuid prompt FK
+        uuid heuristic FK "a heuristic the prompt covers, from its settings (ADR-0026)"
     }
     COMPANION_ACTION {
         uuid id PK
@@ -665,11 +678,13 @@ erDiagram
     }
 ```
 
-**The catalogue is the platform's, so it is shared** (DL-0049): three levels, administered by the platform administrator alone. A `HEURISTIC` is one focused piece of prompt text; a `COMPANION_ACTION` is a set of heuristics producing a user-facing analysis; a `SIDE_DOCUMENT_TYPE` is a set of heuristics producing and maintaining a generated view — in release 0.2, the standing lists (DL-0555), three types, one per list: *contradictions* (A01, A04, A05), *ambiguities* (A02) and *blind spots* (A03, A06) (DL-0567, DL-0571 (3)). The two join tables say which heuristics each holds. D01, B01, B02, B03 and B05 are in neither: they belong to no assignable unit, and the reviewer agent runs them for every document assigned any analysis (DL-0571 (2)). A tenant administrator reads the titles and descriptions of actions and side-document types and never a `HEURISTIC` row.
+**The catalogue is the platform's, so it is shared** (DL-0049): administered by the platform administrator alone. A `HEURISTIC` is an entry of the catalogue in `review-findings.md`, the kind a finding is labelled with; a `COMPANION_ACTION` is a set of heuristics producing a user-facing analysis; a `SIDE_DOCUMENT_TYPE` is a set of heuristics producing and maintaining a generated view — in release 0.2, the standing lists (DL-0555), three types, one per list: *contradictions* (A01, A04, A05), *ambiguities* (A02) and *blind spots* (A03, A06) (DL-0567, DL-0571 (3)). The two join tables say which heuristics each holds. D01, B01, B02, B03 and B05 are in neither: they belong to no assignable unit, and the reviewer agent runs them for every document assigned any analysis (DL-0571 (2)). A tenant administrator reads the titles and descriptions of actions and side-document types and never a `HEURISTIC` or a `PROMPT` row.
 
-**A `HEURISTIC` row is a copy, and says where it came from** (DL-0153). `prompts/` is canonical; the load command writes each row from its `source_path`, idempotently, and reports every row that differs from its source. The command refuses a prompt version with no dated result at its target in `evals/` under the same hash (ADR-0024), and likewise one without a passing adversarial result under its hash (DL-0571 (12)), so a `prompt_version` in this table always names results that exist and pass. The source version a row came from and its `prompt_version` are one value. **No row's `prompt` is edited in place** (DL-0567): a heuristic changes only through `prompts/`, its evals and the load, and the platform administrator's one act on a row is to switch it off, at once. A heuristic switched off runs in no new call; its stored results stay readable, and an analysis already running completes (DL-0571 (15)).
+**A `PROMPT` is what runs, and covers heuristics** (ADR-0026). `P03-read-document` covers A01 to A06 in one call; each of the heuristics across documents has a prompt of its own. An analysis runs every prompt that covers a heuristic it selects, and keeps the findings labelled with a selected heuristic that is not switched off; the call itself is always the whole measured prompt. A prompt whose every heuristic is switched off runs in no new call.
 
-**The model and its effort are the heuristic's own** (DL-0560): hashed into `prompt_version` with the base prompt and the heuristic's text, so changing either is a prompt change with its own eval results. A call runs one heuristic (ADR-0022), which is why the version is the heuristic's and not an action's.
+**A `PROMPT` row is a copy, and says where it came from** (DL-0153). `prompts/` is canonical; the load command writes the row of the version each prompt's settings name in `load`, idempotently, and reports every row that differs from its source. The command refuses a prompt version with no dated result at its target in `evals/` under the same hash (ADR-0024), and likewise one without a passing adversarial result under its hash (DL-0571 (12)), so a `prompt_version` in this table always names results that exist and pass. The source version a row came from and its `prompt_version` are one value. **No row's `prompt` is edited in place** (DL-0567): a prompt changes only through `prompts/`, its evals and the load, and the platform administrator's one act is to switch a heuristic off, at once. An analysis already running completes (DL-0571 (15)).
+
+**The model and its effort are the prompt's own** (DL-0560): hashed into `prompt_version` with the base prompt and the prompt's text, so changing either is a prompt change with its own eval results. A call runs one prompt (ADR-0026), which is why the version is the prompt's and not an action's.
 
 ### Assignment, scope, runs and findings, tenant schema
 
@@ -725,8 +740,8 @@ erDiagram
         uuid id PK
         uuid run FK
         uuid trace FK "the call that produced it; its sources are that call's TRACE_DOCUMENT rows, never a tag (ADR-0022)"
-        uuid heuristic FK "shared schema; the call's heuristic, never a label the model assigns (ADR-0022); null for a finding the injection checks raise"
-        string prompt_version "the heuristic's version as it ran"
+        uuid heuristic FK "shared schema; the heuristic the answer names, one of those its prompt covers (ADR-0026); null for a finding the injection checks raise"
+        string prompt_version "the prompt's version as it ran"
         string status "introduced | pre_existing | resolved | aggravated; set for a review run (ADR-0022); a cross-document finding only introduced or pre_existing (DL-0567)"
         uuid standing_finding FK "for aggravated and resolved, the standing finding it was matched to"
         bool is_suggestion "offered with no quote; shown labelled, in a group of its own, by a review run only (ADR-0022, DL-0571)"
@@ -760,8 +775,8 @@ erDiagram
     TRACE {
         uuid id PK
         uuid run FK "the run that made the call; a later run that needs a call with the same key reuses its stored result and makes none (DL-0567)"
-        uuid heuristic FK "shared schema; one heuristic per call (ADR-0022)"
-        string prompt_version "one hash over the base prompt, the heuristic, the model and the effort"
+        uuid prompt FK "shared schema; one prompt per call (ADR-0026)"
+        string prompt_version "one hash over the base prompt, the prompt, the model and the effort"
         string key "a hash over the prompt version and the content states of the documents the call read, and for a companion call the draft's base commit; what a stored call is reused by (DL-0567, DL-0571, ASR-12)"
         string model_answered
         string provider_request_id
@@ -797,9 +812,9 @@ erDiagram
 
 **Three kinds of run.** `companion` — an action the draft's holder, and nobody else, calls (DL-0571 (8)), at any time, over the whole draft with the editor's changes marked against the draft's base commit, the platform keeping only the findings whose quotes touch a changed passage (DL-0032, ADR-0022, DL-0567); it runs only heuristics within the document, and one asked while an editor is open captures the editor's text first (DL-0567, DL-0569). `review` — the reviewer agent on the version *send for review* commits, never on a draft (DL-0054): the heuristics of the companion actions and side-document types assigned to the document (DL-0567), and, for every document assigned any analysis, D01 and — for each neighbour in the reviewer's scope — B01, B02, B03 and B05 (DL-0571 (2)). It starts at *send for review* with the heuristics within the document and grows by the cross-document calls as the reviewer adds neighbours (DL-0571 (4)). Its findings are shown to the run's reviewers and authors alike as soon as they are computed, each filtered by what its reader may read; no row records a release, since there is no release act (DL-0568). The companion analyses that travelled with the version — `sent_with` — are read by the same people on the review page (DL-0571 (4)). `standing` — the run that computes a `STANDING_SET`. *Later, with the confidential guidance (DL-0568, B-079):* a `guidance` kind — the reviewer-eyes-only run over the document and the guidance, a run of its own so that no other run's context holds the guidance (DL-0095).
 
-**A run is made of calls, and each call is a `TRACE`** (ADR-0022, ADR-0024), made by the platform's worker (ADR-0025): one heuristic over one context the platform assembled — the document alone, or the document and one neighbour of the scope; the document and the guidance, later. The row is written before the request leaves for the provider and completed with how the call ended. `TRACE_DOCUMENT` names each committed document a call read by its repository and the commit it was read at: references, never a copy of the text, which stays in the repository. A draft has no commit to point to, so a call over one names the draft's base commit and keeps the draft's text in `draft_text` — the one text a trace holds. The trace records how the call was asked, answered and paid for — the prompt version, the model that answered, the provider's request identifier, the tokens and the cost computed from them, the time taken, how it ended — what the injection checks found, and the platform's release. Its result is referenced, not copied: the call's `FINDING` rows, those withheld as fabricated among them, and through its run any `ANALYSIS_MARK`. **Traces are kept for good**, a discarded draft's text included (ADR-0024, B-077); the erasure procedure clears what a person's request reaches (B-017). A companion analysis's `FINDING.body` and `FINDING_QUOTE` rows quote passages of the draft its call read, a discarded draft included, so the procedure names those rows beside `TRACE.draft_text`. No page of the web interface reads a `TRACE` row: whoever operates the installation reads it by a management command on the host. The table is in the organisation's schema because it names that organisation's documents and keeps its drafts (ADR-0017).
+**A run is made of calls, and each call is a `TRACE`** (ADR-0022, ADR-0024), made by the platform's worker (ADR-0025): one prompt over one context the platform assembled (ADR-0026) — the document alone, or the document and one neighbour of the scope; the document and the guidance, later. The row is written before the request leaves for the provider and completed with how the call ended. `TRACE_DOCUMENT` names each committed document a call read by its repository and the commit it was read at: references, never a copy of the text, which stays in the repository. A draft has no commit to point to, so a call over one names the draft's base commit and keeps the draft's text in `draft_text` — the one text a trace holds. The trace records how the call was asked, answered and paid for — the prompt version, the model that answered, the provider's request identifier, the tokens and the cost computed from them, the time taken, how it ended — what the injection checks found, and the platform's release. Its result is referenced, not copied: the call's `FINDING` rows, those withheld as fabricated among them, and through its run any `ANALYSIS_MARK`. **Traces are kept for good**, a discarded draft's text included (ADR-0024, B-077); the erasure procedure clears what a person's request reaches (B-017). A companion analysis's `FINDING.body` and `FINDING_QUOTE` rows quote passages of the draft its call read, a discarded draft included, so the procedure names those rows beside `TRACE.draft_text`. No page of the web interface reads a `TRACE` row: whoever operates the installation reads it by a management command on the host. The table is in the organisation's schema because it names that organisation's documents and keeps its drafts (ADR-0017).
 
-**A `FINDING` takes its heuristic, its sources and its status from the platform, never from the model** (ADR-0022, DL-0559). Its heuristic is its call's. Its sources are the documents of its call — the `TRACE_DOCUMENT` rows of its `trace` — and its audience is computed from them per recipient, when it is read, under the reader's rights at that moment (DL-0021, ASR-03): a finding reaches a person only if they may read every source. A finding whose sources cannot be established is withheld from everyone and counted as an error (DL-0571 (13)). There is no provenance column to mislabel. The finding names the `prompt_version` it ran under, so it stays explainable when the heuristic's text has moved on (DL-0031).
+**A `FINDING` takes its sources and its status from the platform, never from the model** (ADR-0022, DL-0559). Its heuristic is the one the answer names, which the output schema bounds to the heuristics its prompt covers (ADR-0026): the label says what the finding is, never who may see it. Its sources are the documents of its call — the `TRACE_DOCUMENT` rows of its `trace` — and its audience is computed from them per recipient, when it is read, under the reader's rights at that moment (DL-0021, ASR-03): a finding reaches a person only if they may read every source. A finding whose sources cannot be established is withheld from everyone and counted as an error (DL-0571 (13)). There is no provenance column to mislabel. The finding names the `prompt_version` it ran under, so it stays explainable when the prompt's text has moved on (DL-0031).
 
 **Every finding rests on quotes, and every quote is checked** (DL-0559). A `FINDING_QUOTE` is a W3C text-quote selector (DL-0027) into one of the call's documents — never a line number or a paragraph identifier, which the model has none of. The platform looks for each `exact` word for word in the text the call read. A finding with a quote that is not there is `withheld_as_fabricated`: no person is shown it, and it is counted as an error. A finding offered with no quote is `is_suggestion`: it has no quote to sort by or to filter on, so a `review` run shows suggestions labelled, in a group of their own, unsorted, and a `companion` run shows none (DL-0571 (9)).
 

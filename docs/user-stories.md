@@ -507,7 +507,7 @@ The first stories of release 0.2 (DL-0554 to DL-0556). The agents never compose 
 
 ### The catalogue and its administration
 
-**ST-0089** — As a platform administrator, I read the heuristic catalogue the platform was loaded with, each heuristic at its version, and compose companion actions and side-document types from it, so that organisations have analyses to assign (DL-0049, DL-0153).
+**ST-0089** — As a platform administrator, I read the heuristic catalogue and the prompts the platform was loaded with, each prompt at its version with the heuristics it covers, and compose companion actions and side-document types from the heuristics, so that organisations have analyses to assign (DL-0049, DL-0153, ADR-0026).
 - No heuristic is edited here: I may switch one off at once, and a heuristic changes only through `prompts/`, its evals and the load (DL-0567).
 - A heuristic I switch off runs in no new call; its stored results stay readable, and an analysis already running completes (DL-0571 (15)).
 - I set an organisation's monthly spending cap, in US dollars, on my page; an installation-wide default cap, set in the installation's configuration, applies to every organisation I have not given its own (DL-0571 (14)). The month is the calendar month in UTC, and past the cap every model call of the organisation stops, the standing set's batch included (DL-0564, DL-0569).

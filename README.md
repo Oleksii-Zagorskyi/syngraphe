@@ -23,7 +23,8 @@ I am building it for a company I co-own, to replace exactly that arrangement.
 > first production installation. The AI reader — a
 > companion that runs analyses for the editor as they work, and a reviewer
 > that checks a document, or a whole corpus, against a configurable set of
-> heuristics — is release 0.2, not yet started.
+> heuristics — is release 0.2, in design: its first prompts and their
+> measurements are in `prompts/` and `evals/`.
 
 ## What it does
 
@@ -72,9 +73,8 @@ recommendations. It does not decide anything. A human reviewer decides what
 enters a document and what does not, and the record shows which of them did
 which.
 
-The heuristics are prompt text under version control with their own evaluation
-cases, in `prompts/` and `evals/`. Neither directory
-exists yet: they arrive with 0.2.
+The heuristics are covered by prompts under version control, each with its own
+evaluation cases and dated results, in `prompts/` and `evals/`.
 
 ## The design record
 

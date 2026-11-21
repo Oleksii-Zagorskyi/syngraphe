@@ -1,0 +1,6 @@
+# A one-heuristic prompt of the spike, kept as history; it does not load (ADR-0026). The model and the effort of
+# its latest measured version.
+covers: [A02]
+model: claude-haiku-5-5
+effort: high
+load: null
