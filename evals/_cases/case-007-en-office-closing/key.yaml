@@ -28,6 +28,12 @@ heuristics:
       - '- Doors: the closing person switches off the entrance hall light, leaves through the main door within 60 seconds of setting the alarm and locks both its locks.'
       - This section applies to the alarm step when the panel does not show "Armed" after two attempts.
       note: The checklist covers every closing, the fault section leaves the doors step out and the alarm section covers the alarm step only, so no rule says what the closing person does when the main door will not lock.
+    - id: A03-2
+      passages:
+      - The closing person carries out the steps below in the order written.
+      - '- Keys: the closing person puts the office key in the key safe beside the main door and scrambles the code dial.'
+      - '- Closing log: the closing person writes the date, the time of closing and their own role in the closing log, which is kept in the key safe, and signs the entry.'
+      note: The steps run in the order written, so the code dial is scrambled before the closing log, which is kept in the same key safe, is written; the closing person must open the safe again, and no step secures it after the log entry. First recorded as residue.
     traps: []
   A04:
     defects: []
@@ -62,14 +68,6 @@ residue:
   - The closing person starts the closing steps as soon as every other person has left.
   confidence: 0.35
   note: Three lines make the duty officer stay until every other person has left, and one provides for the duty officer leaving first without calling it a breach, so readers differ on whether the duty officer may go early.
-- id: R-3
-  heuristic: A03
-  passages:
-  - The closing person carries out the steps below in the order written.
-  - '- Keys: the closing person puts the office key in the key safe beside the main door and scrambles the code dial.'
-  - '- Closing log: the closing person writes the date, the time of closing and their own role in the closing log, which is kept in the key safe, and signs the entry.'
-  confidence: 0.25
-  note: The order written scrambles the dial before the closing log step, the log is kept in the key safe, and no step secures the safe again.
 - id: R-4
   heuristic: A03
   passages:

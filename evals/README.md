@@ -6,6 +6,8 @@ The cases and the dated results of the AI reader's prompts (`docs/evaluation-str
 |---|---|
 | `_cases/<case>/document.md` | An invented document, written clean and then planted with defects. Its frontmatter marks it as invented and names its language |
 | `_cases/<case>/key.yaml` | What the heuristics must find in that document |
+| `_held-out/<case>/` | The held-out set, in the same form, numbered from `case-101`: written without sight of the prompt, never read to tune it; its result decides the target and the load (DL-0579) |
+| `progress.md` | Every API result of every prompt in date order — generated from the result folders; not edited by hand |
 | `<id>-<slug>/cases.yaml` | The cases of one prompt's set |
 | `<id>-<slug>/results/<date>-<model>-<effort>-<hash12>/` | One measurement of one prompt version: the set run three times. `<hash12>` begins the prompt version's hash (`prompts/README.md`) |
 

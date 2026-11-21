@@ -1,0 +1,477 @@
+[
+  {
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run1/case-017-en-annual-leave/P03",
+    "ended": "done",
+    "cost_usd": 0.029978,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2094,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2356
+    },
+    "compare": null,
+    "marker": "909c4f88fffc99ea00a022732b829666",
+    "sent_at": "2026-11-21T18:04:52+00:00",
+    "request_id": "msg_011ChGWs5hv216vJkFMsXG86",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different deadlines for requests of more than five leave days",
+          "explanation": "One passage says a request for more than five leave days must be submitted at least 30 working days ahead. The next passage says a request submitted at least 20 working days ahead is in time. A request submitted 25 working days ahead is both late and in time, so the approver cannot tell whether to refuse it.",
+          "quotes": [
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave.",
+            "A request for more than five leave days that is submitted at least 20 working days before the first day of leave is in time."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No notice rule for a request of exactly five leave days",
+          "explanation": "The notice rules cover requests for fewer than five and for more than five leave days. A request for exactly five leave days falls in neither rule. The employee does not know the deadline, and the approver has no limit to apply when refusing it as late.",
+          "quotes": [
+            "A request for fewer than five leave days is submitted at least 10 working days before the first day of leave.",
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Head of People can decide their own leave request",
+          "explanation": "The Head of People decides a request when the line manager is absent. If the Head of People's own line manager is absent, the Head of People stands in and decides their own request. The Head of People then approves their own act, and the document gives no other path.",
+          "quotes": [
+            "When the line manager is absent, the Head of People decides the request instead."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run1/case-006-uk-accountant-job/P03",
+    "ended": "done",
+    "cost_usd": 0.043813,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 3211,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3418
+    },
+    "compare": null,
+    "marker": "7af1daba663e70939913321642ee3bad",
+    "sent_at": "2026-11-21T18:04:52+00:00",
+    "request_id": "msg_011ChGWs5hB644oD79LHwPNz",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 23.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «звіт» вжито для двох різних документів",
+          "explanation": "Інструкція визначає «звіт» як щомісячний звіт про стан розрахунків, який складає бухгалтер. Далі «звіт» названо квартальний звіт директорові про виконання обов'язків, і це інший документ. Читач може подумати, що квартальний звіт — це щомісячний звіт, або навпаки, і діяти за неправильними правилами (строки, затвердження, зберігання).",
+          "quotes": [
+            "У цій інструкції звіт — це щомісячний звіт про стан розрахунків Організації, який складає бухгалтер.",
+            "Бухгалтер щокварталу подає директорові Організації звіт про виконання своїх обов'язків."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Зберігання затверджених звітів не закріплено за жодною роллю",
+          "explanation": "Речення в пасивному стані вимагає зберігати звіти в електронному архіві три роки. Жоден розділ не каже, хто саме передає звіт в архів і відповідає за його зберігання. Тому ніхто не відповідає за цю дію.",
+          "quotes": [
+            "Затверджені звіти зберігаються в електронному архіві фінансового відділу три роки."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Право не вносити запис через сумнів не передбачає жодного повідомлення чи запису",
+          "explanation": "Бухгалтер може не вносити запис за документом, якому не довіряє. Жоден пункт не вимагає від нього повідомити про це керівника відділу чи головного бухгалтера, запитати пояснення, записати причину або завершити таку відмову. Повернення документа з зауваженням і запит передбачені лише для відсутніх даних або підпису, а не для сумніву в достовірності. Тому відмова може тривати без нагляду, і ніхто не відповідає за її застосування.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run1/case-009-en-gifts/P03",
+    "ended": "done",
+    "cost_usd": 0.019006,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 966,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2479
+    },
+    "compare": null,
+    "marker": "ca7c5eeef97df5e12eba4b8722d48ee9",
+    "sent_at": "2026-11-21T18:04:52+00:00",
+    "request_id": "msg_011ChGWs5huvupWpHKMwumn4",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 0,
+    "seconds": 6.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Refreshment limit for public officials stated twice with different values",
+          "explanation": "Section 7.7 gives 15 euros per public official in one sentence and 10 euros per official in another. Both cannot be the limit. A host who spends 12 euros obeys one sentence and breaks the other.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official, served at a working meeting on the Organisation's premises.",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Compliance Officer's own requests decided by the Chief Executive, who is also decided on by the Compliance Officer",
+          "explanation": "The Chief Executive acts in place of the Compliance Officer for the Compliance Officer's gifts. The Compliance Officer, by the general rule, decides exception requests from every employee, including the Chief Executive. So each approves the other's acts in a circle.",
+          "quotes": [
+            "For a gift or hospitality that the Compliance Officer is offered, receives or gives, the Chief Executive acts in place of the Compliance Officer.",
+            "The Compliance Officer approves or refuses the request in writing within three working days."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Declaration rule for meals, travel and accommodation conflicts with the declaration of every gift",
+          "explanation": "The text says a meal, travel or accommodation is a 'gift', but Section 7.2 defines these as hospitality, not gifts. A reader may not know whether the third-party-name rule applies to hospitality, which is the real case.",
+          "quotes": [
+            "A gift in the form of a meal, travel or accommodation is declared with the name of the third party that paid for it."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "No role named to record the decision",
+          "explanation": "The register is recorded by 'the role that decides the request', which is not named; it is the Compliance Officer, but the wording is indirect and, when the Chief Executive stands in, it is unclear who records. Also the register keeper and the recorder are not tied together.",
+          "quotes": [
+            "The role that decides the request records the decision in the Gifts and Hospitality Register on the same day."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "No rule for hospitality given above the limit when discovered later, or for received hospitality above the limit at the time",
+          "explanation": "Section 7.6 handles gifts received above the limit by handing them over. It has no handling for hospitality received above the limit when the employee knows it at the time, and it does not say what happens with gifts given above the limit that the employee knows of. Only the case 'learns after the occasion' is covered for hospitality and given gifts.",
+          "quotes": [
+            "When an employee has received, without an approved exception, a gift above the gift limit or a money gift, the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run2/case-017-en-annual-leave/P03",
+    "ended": "done",
+    "cost_usd": 0.019724,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1634,
+      "cache_read_input_tokens": 2356,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "909c4f88fffc99ea00a022732b829666",
+    "sent_at": "2026-11-21T18:05:15+00:00",
+    "request_id": "msg_011ChGWtmhFCF5MzN37nvrwr",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different notice limits for requests of more than five leave days",
+          "explanation": "One rule says a request for more than five leave days must be submitted at least 30 working days ahead. The next rule says that 20 working days is in time. A request submitted 25 working days ahead is both late and in time, so the approver cannot tell whether to refuse it.",
+          "quotes": [
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave.",
+            "A request for more than five leave days that is submitted at least 20 working days before the first day of leave is in time."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No notice limit for a request of exactly five leave days",
+          "explanation": "The notice rules cover requests for fewer than five and for more than five leave days. A request for exactly five leave days has no time limit. The approver cannot tell whether it is late and must be refused.",
+          "quotes": [
+            "A request for fewer than five leave days is submitted at least 10 working days before the first day of leave.",
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Head of People can decide their own request",
+          "explanation": "The Head of People decides a request when the line manager is absent. If the Head of People's own line manager is absent, the Head of People decides their own leave request. No other role is named for this case, so the role approves its own act.",
+          "quotes": [
+            "When the line manager is absent, the Head of People decides the request instead."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run2/case-006-uk-accountant-job/P03",
+    "ended": "done",
+    "cost_usd": 0.03321,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2971,
+      "cache_read_input_tokens": 3418,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "7af1daba663e70939913321642ee3bad",
+    "sent_at": "2026-11-21T18:05:15+00:00",
+    "request_id": "msg_011ChGWtmgm8zd72G6mEGpBf",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «звіт» вжито для двох різних документів",
+          "explanation": "Інструкція визначає «звіт» як щомісячний звіт про стан розрахунків. Далі той самий термін названо квартальний звіт директорові про виконання обов'язків, а це інший документ. Читач може сплутати їх, наприклад подати директорові щомісячний звіт або вважати квартальний звіт таким, що його затверджує головний бухгалтер і зберігають три роки.",
+          "quotes": [
+            "У цій інструкції звіт — це щомісячний звіт про стан розрахунків Організації, який складає бухгалтер.",
+            "Бухгалтер щокварталу подає директорові Організації звіт про виконання своїх обов'язків."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Право не вносити запис через сумнів не має обов'язку повідомити чи пояснити",
+          "explanation": "Бухгалтер може не вносити запис, якщо сумнівається в достовірності документа, і це відступає від двотижневого строку внесення. Жодне положення не вимагає повідомити про це, повернути документ, запитати пояснення чи записати причину. Обов'язок запиту стосується лише відсутнього документа чи пояснення, а не сумніву. Тому ніхто не відповідає за завершення такої відмови, і документ може лишатися без запису без строку.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Зберігання затверджених звітів не доручено жодній ролі",
+          "explanation": "Речення в безособовій формі вимагає зберігати звіти в архіві три роки. Жодне положення не називає, хто вносить звіти до архіву і хто відповідає за їх збереження. Через це ніхто не зобов'язаний цього робити.",
+          "quotes": [
+            "Затверджені звіти зберігаються в електронному архіві фінансового відділу три роки."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run2/case-009-en-gifts/P03",
+    "ended": "done",
+    "cost_usd": 0.017956,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1456,
+      "cache_read_input_tokens": 2479,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "ca7c5eeef97df5e12eba4b8722d48ee9",
+    "sent_at": "2026-11-21T18:05:15+00:00",
+    "request_id": "msg_011ChGWtmbYb9DT332VE9QcW",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different refreshment limits for public officials",
+          "explanation": "Section 7.7 allows refreshments of 15 euros or less per public official. Two sentences later it limits them to 10 euros per official. An employee who serves refreshments worth 12 euros obeys one sentence and breaks the other.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official, served at a working meeting on the Organisation's premises.",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "\"Gift\" used for meals, travel and accommodation, which are hospitality",
+          "explanation": "Section 7.2 defines meals, travel and accommodation as hospitality, and a gift as any other thing of value. Section 7.4 calls a meal, travel or accommodation a \"gift\". A reader cannot tell whether such items fall under the gift limit and gift rules or under the hospitality limit and hospitality rules.",
+          "quotes": [
+            "A gift in the form of a meal, travel or accommodation is declared with the name of the third party that paid for it."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run3/case-017-en-annual-leave/P03",
+    "ended": "done",
+    "cost_usd": 0.021134,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1775,
+      "cache_read_input_tokens": 2356,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "909c4f88fffc99ea00a022732b829666",
+    "sent_at": "2026-11-21T18:05:36+00:00",
+    "request_id": "msg_011ChGWvMFtJfqCKLwJc8PSd",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different notice limits for requests of more than five leave days",
+          "explanation": "One rule says a request for more than five leave days must be submitted at least 30 working days ahead. Another says that 20 working days ahead is in time. A request submitted 25 working days ahead is both late and in time. The approver cannot tell whether to refuse it.",
+          "quotes": [
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave.",
+            "A request for more than five leave days that is submitted at least 20 working days before the first day of leave is in time."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No notice rule for a request of exactly five leave days",
+          "explanation": "The time limits cover requests for fewer than five and for more than five leave days. A request for exactly five leave days has no limit. The employee does not know how early to submit it. The approver cannot tell whether it is late and must be refused.",
+          "quotes": [
+            "A request for fewer than five leave days is submitted at least 10 working days before the first day of leave.",
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Head of People can decide their own leave request",
+          "explanation": "When the line manager is absent, the Head of People decides the request. If the line manager of the Head of People is absent, the Head of People decides their own request. The Head of People then approves their own act. No other role checks it.",
+          "quotes": [
+            "When the line manager is absent, the Head of People decides the request instead."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run3/case-006-uk-accountant-job/P03",
+    "ended": "done",
+    "cost_usd": 0.04505,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 4155,
+      "cache_read_input_tokens": 3418,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "7af1daba663e70939913321642ee3bad",
+    "sent_at": "2026-11-21T18:05:36+00:00",
+    "request_id": "msg_011ChGWvMD9duGGxGcMwKp3z",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 28.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Термін «звіт» вжито для двох різних документів",
+          "explanation": "Інструкція визначає «звіт» як щомісячний звіт про стан розрахунків. Далі «звіт» названо також квартальний звіт директорові про виконання обов'язків, який є іншим документом. Через це читач може сплутати їх: наприклад, подати головному бухгалтеру на затвердження квартальний звіт замість щомісячного або навпаки, чи застосувати до одного строки й порядок затвердження іншого.",
+          "quotes": [
+            "У цій інструкції звіт — це щомісячний звіт про стан розрахунків Організації, який складає бухгалтер.",
+            "Бухгалтер щокварталу подає директорові Організації звіт про виконання своїх обов'язків."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Право не вносити запис не має відповідального за його використання",
+          "explanation": "Бухгалтер зобов'язаний вносити запис за кожним первинним документом протягом двох робочих днів. Водночас він може не вносити запис, якщо сумнівається в достовірності документа. Жодне положення не вимагає від нього повідомити про таку відмову, пояснити її, зафіксувати чи запитати пояснення. Тому відмова може лишитися непоміченою, а ніхто не відповідає за користування цим правом.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається.",
+            "Бухгалтер вносить до облікової системи запис за кожним первинним документом протягом двох робочих днів від дня його отримання."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Зберігання затверджених звітів не доручено жодній ролі",
+          "explanation": "Вимога зберігати затверджені звіти три роки в електронному архіві подана безособово. Жоден розділ не визначає, хто саме поміщає звіти в архів і стежить за строком зберігання. Тому виконання цієї дії ніхто не відповідає.",
+          "quotes": [
+            "Затверджені звіти зберігаються в електронному архіві фінансового відділу три роки."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/P03-read-document/results/2026-11-21-sonnet-high-2c8efa5cdf0e/calls/run3/case-009-en-gifts/P03",
+    "ended": "done",
+    "cost_usd": 0.024076,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2068,
+      "cache_read_input_tokens": 2479,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "ca7c5eeef97df5e12eba4b8722d48ee9",
+    "sent_at": "2026-11-21T18:05:36+00:00",
+    "request_id": "msg_011ChGWvMDemfFR7oriaSPcf",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different limits for refreshments for public officials",
+          "explanation": "One passage allows refreshments for a public official up to 15 euros each. Another passage limits them to 10 euros each. An employee who serves refreshments worth 12 euros obeys the first passage and breaks the second.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official, served at a working meeting on the Organisation's premises.",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Chief Executive and Compliance Officer approve each other's acts",
+          "explanation": "The Compliance Officer decides exception requests from every employee, and the Chief Executive is an employee. The Chief Executive acts in place of the Compliance Officer for the Compliance Officer's own gifts and hospitality. So the Compliance Officer decides the Chief Executive's requests, and the Chief Executive decides the Compliance Officer's requests, which is a circle of approval.",
+          "quotes": [
+            "For a gift or hospitality that the Compliance Officer is offered, receives or gives, the Chief Executive acts in place of the Compliance Officer.",
+            "The Compliance Officer approves or refuses the request in writing within three working days.",
+            "Section 7 applies to every employee of the Organisation, including the Chief Executive."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "The term \"gift\" is used for a meal, travel or accommodation",
+          "explanation": "The definitions make a meal, travel or accommodation hospitality, and a gift is only \"any other thing\". The declaration rule calls a meal, travel or accommodation a \"gift\". A reader cannot tell whether this rule applies to hospitality, or whether the hospitality limit or the gift limit applies.",
+          "quotes": [
+            "A gift in the form of a meal, travel or accommodation is declared with the name of the third party that paid for it.",
+            "Hospitality is a meal, a drink, entertainment, travel or accommodation that the recipient does not pay for."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  }
+]

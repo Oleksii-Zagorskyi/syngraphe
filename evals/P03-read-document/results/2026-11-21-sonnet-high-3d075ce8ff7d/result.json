@@ -1,0 +1,179 @@
+{
+  "prompt": "prompts/P03-read-document/prompt-02.md",
+  "prompt_version": "3d075ce8ff7d15d166201e6c71f378b5345c47ce37b2b36f76024ad5124e6c0e",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "date": "2026-11-21",
+  "cases": [
+    "case-006-uk-accountant-job",
+    "case-009-en-gifts",
+    "case-017-en-annual-leave"
+  ],
+  "set": "development",
+  "scored_as": "one report per case (ADR-0026)",
+  "key_commit": "a3291e0 2026-11-21 with uncommitted changes",
+  "runs": [
+    {
+      "run": 1,
+      "planted": 9,
+      "planted_by_kind": {
+        "A01": 2,
+        "A02": 0,
+        "A03": 1,
+        "A04": 2,
+        "A05": 2,
+        "A06": 2
+      },
+      "found_by_kind": {
+        "A01": 2,
+        "A02": 0,
+        "A03": 1,
+        "A04": 2,
+        "A05": 1,
+        "A06": 1
+      },
+      "counts": {
+        "findings": 7,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 7,
+        "match": 7,
+        "kind_ok": 6,
+        "misattributed": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "residue": 0,
+        "nothing": 0
+      },
+      "recall": 0.778,
+      "recall_by_kind": {
+        "A01": 1.0,
+        "A02": null,
+        "A03": 1.0,
+        "A04": 1.0,
+        "A05": 0.5,
+        "A06": 0.5
+      },
+      "precision_low": 1.0,
+      "precision_high": 1.0,
+      "ruled": {
+        "real": 0,
+        "wrong": 0,
+        "unruled": 0
+      },
+      "labelled_right": 0.857,
+      "wrong_low": 0,
+      "wrong_high": 0,
+      "budget": 0.6,
+      "cost_usd": 0.1016
+    },
+    {
+      "run": 2,
+      "planted": 9,
+      "planted_by_kind": {
+        "A01": 2,
+        "A02": 0,
+        "A03": 1,
+        "A04": 2,
+        "A05": 2,
+        "A06": 2
+      },
+      "found_by_kind": {
+        "A01": 2,
+        "A02": 0,
+        "A03": 1,
+        "A04": 2,
+        "A05": 2,
+        "A06": 1
+      },
+      "counts": {
+        "findings": 13,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 13,
+        "match": 8,
+        "kind_ok": 7,
+        "misattributed": 1,
+        "duplicate": 1,
+        "trap": 0,
+        "residue": 3,
+        "nothing": 1
+      },
+      "recall": 0.889,
+      "recall_by_kind": {
+        "A01": 1.0,
+        "A02": null,
+        "A03": 1.0,
+        "A04": 1.0,
+        "A05": 1.0,
+        "A06": 0.5
+      },
+      "precision_low": 0.667,
+      "precision_high": 1.0,
+      "ruled": {
+        "real": 0,
+        "wrong": 0,
+        "unruled": 4
+      },
+      "labelled_right": 0.875,
+      "wrong_low": 0,
+      "wrong_high": 4,
+      "budget": 0.6,
+      "cost_usd": 0.0936
+    },
+    {
+      "run": 3,
+      "planted": 9,
+      "planted_by_kind": {
+        "A01": 2,
+        "A02": 0,
+        "A03": 1,
+        "A04": 2,
+        "A05": 2,
+        "A06": 2
+      },
+      "found_by_kind": {
+        "A01": 2,
+        "A02": 0,
+        "A03": 1,
+        "A04": 1,
+        "A05": 2,
+        "A06": 1
+      },
+      "counts": {
+        "findings": 8,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 8,
+        "match": 7,
+        "kind_ok": 6,
+        "misattributed": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "residue": 0,
+        "nothing": 1
+      },
+      "recall": 0.778,
+      "recall_by_kind": {
+        "A01": 1.0,
+        "A02": null,
+        "A03": 1.0,
+        "A04": 0.5,
+        "A05": 1.0,
+        "A06": 0.5
+      },
+      "precision_low": 0.875,
+      "precision_high": 1.0,
+      "ruled": {
+        "real": 0,
+        "wrong": 0,
+        "unruled": 1
+      },
+      "labelled_right": 0.857,
+      "wrong_low": 0,
+      "wrong_high": 1,
+      "budget": 0.6,
+      "cost_usd": 0.0763
+    }
+  ]
+}

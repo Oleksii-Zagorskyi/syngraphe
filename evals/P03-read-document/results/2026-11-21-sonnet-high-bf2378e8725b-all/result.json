@@ -1,0 +1,197 @@
+{
+  "prompt": "prompts/P03-read-document/prompt-03.md",
+  "prompt_version": "bf2378e8725ba9ec3c4d300c9dde98e3738c554544e0b2a012ef4c1becbe35f8",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "date": "2026-11-21",
+  "cases": [
+    "case-001-en-travel-expenses",
+    "case-002-uk-procurement-committee",
+    "case-003-en-onboarding",
+    "case-004-uk-window-timber-wall",
+    "case-005-en-spending-authority",
+    "case-006-uk-accountant-job",
+    "case-007-en-office-closing",
+    "case-008-uk-complaints",
+    "case-009-en-gifts",
+    "case-010-uk-forklift-safety",
+    "case-011-en-records-retention",
+    "case-012-uk-working-hours",
+    "case-013-en-it-access",
+    "case-014-uk-legal-department",
+    "case-015-en-customer-letters",
+    "case-016-uk-db-backup",
+    "case-017-en-annual-leave",
+    "case-018-uk-document-numbering",
+    "case-019-en-vehicles",
+    "case-020-uk-stocktake",
+    "case-021-en-lab-spill"
+  ],
+  "set": "development",
+  "scored_as": "one report per case (ADR-0026)",
+  "key_commit": "a3291e0 2026-11-21 with uncommitted changes",
+  "runs": [
+    {
+      "run": 1,
+      "planted": 59,
+      "planted_by_kind": {
+        "A01": 11,
+        "A02": 9,
+        "A03": 11,
+        "A04": 8,
+        "A05": 11,
+        "A06": 9
+      },
+      "found_by_kind": {
+        "A01": 10,
+        "A02": 6,
+        "A03": 8,
+        "A04": 7,
+        "A05": 7,
+        "A06": 8
+      },
+      "counts": {
+        "findings": 51,
+        "withheld": 1,
+        "suggestion": 0,
+        "items": 50,
+        "match": 46,
+        "kind_ok": 41,
+        "misattributed": 5,
+        "duplicate": 1,
+        "trap": 0,
+        "residue": 1,
+        "nothing": 2
+      },
+      "recall": 0.78,
+      "recall_by_kind": {
+        "A01": 0.91,
+        "A02": 0.67,
+        "A03": 0.73,
+        "A04": 0.88,
+        "A05": 0.64,
+        "A06": 0.89
+      },
+      "precision_low": 0.92,
+      "precision_high": 0.92,
+      "ruled": {
+        "real": 0,
+        "wrong": 3,
+        "unruled": 0
+      },
+      "labelled_right": 0.891,
+      "wrong_low": 4,
+      "wrong_high": 4,
+      "budget": 4.2,
+      "cost_usd": 0.8063
+    },
+    {
+      "run": 2,
+      "planted": 59,
+      "planted_by_kind": {
+        "A01": 11,
+        "A02": 9,
+        "A03": 11,
+        "A04": 8,
+        "A05": 11,
+        "A06": 9
+      },
+      "found_by_kind": {
+        "A01": 10,
+        "A02": 7,
+        "A03": 8,
+        "A04": 7,
+        "A05": 7,
+        "A06": 7
+      },
+      "counts": {
+        "findings": 48,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 48,
+        "match": 46,
+        "kind_ok": 41,
+        "misattributed": 5,
+        "duplicate": 1,
+        "trap": 1,
+        "residue": 0,
+        "nothing": 0
+      },
+      "recall": 0.78,
+      "recall_by_kind": {
+        "A01": 0.91,
+        "A02": 0.78,
+        "A03": 0.73,
+        "A04": 0.88,
+        "A05": 0.64,
+        "A06": 0.78
+      },
+      "precision_low": 0.979,
+      "precision_high": 0.979,
+      "ruled": {
+        "real": 0,
+        "wrong": 0,
+        "unruled": 0
+      },
+      "labelled_right": 0.891,
+      "wrong_low": 1,
+      "wrong_high": 1,
+      "budget": 4.2,
+      "cost_usd": 0.6747
+    },
+    {
+      "run": 3,
+      "planted": 59,
+      "planted_by_kind": {
+        "A01": 11,
+        "A02": 9,
+        "A03": 11,
+        "A04": 8,
+        "A05": 11,
+        "A06": 9
+      },
+      "found_by_kind": {
+        "A01": 11,
+        "A02": 5,
+        "A03": 8,
+        "A04": 8,
+        "A05": 7,
+        "A06": 8
+      },
+      "counts": {
+        "findings": 49,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 49,
+        "match": 47,
+        "kind_ok": 44,
+        "misattributed": 3,
+        "duplicate": 1,
+        "trap": 0,
+        "residue": 0,
+        "nothing": 1
+      },
+      "recall": 0.797,
+      "recall_by_kind": {
+        "A01": 1.0,
+        "A02": 0.56,
+        "A03": 0.73,
+        "A04": 1.0,
+        "A05": 0.64,
+        "A06": 0.89
+      },
+      "precision_low": 0.979,
+      "precision_high": 0.979,
+      "ruled": {
+        "real": 0,
+        "wrong": 1,
+        "unruled": 0
+      },
+      "labelled_right": 0.936,
+      "wrong_low": 1,
+      "wrong_high": 1,
+      "budget": 4.2,
+      "cost_usd": 0.7011
+    }
+  ]
+}

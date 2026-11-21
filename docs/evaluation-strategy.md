@@ -15,7 +15,7 @@ The agents of release 0.2, the AI reader (DL-0558) — the companion and the rev
 
 ## Five commitments
 
-1. **A labelled case set, not impression.** Each heuristic is judged on invented documents whose correct findings are known in advance — including the cases the prompt currently gets wrong, because a set that only passes measures nothing.
+1. **A labelled case set, not impression.** Each heuristic is judged on invented documents whose correct findings are known in advance — including the cases the prompt currently gets wrong, because a set that only passes measures nothing. **The verdict comes from cases the prompt was never tuned on**: a development set to tune with, a held-out set to decide (DL-0579).
 2. **A named axis.** Every heuristic is measured first on **precision**, because a reviewer reads every finding and trusts the channel less with each wrong one (DL-0566).
 3. **A false-positive budget.** An ungrounded finding costs a reviewer more attention than a correct one saves. Each heuristic carries a ceiling on wrong findings; a finding whose quote is not in the text is withheld and counted as wrong (DL-0559).
 4. **A regression suite over prompt changes.** Every change to a prompt version — its text, the shared base, its model or its effort — re-runs that prompt's cases, with dated results kept beside them under the version's hash (DL-0560, DL-0562).
@@ -30,7 +30,7 @@ Set by DL-0566, for every heuristic of the first cut.
 | Axis | precision first |
 | Target | precision ≥ 0.90 and recall ≥ 0.70 on the heuristic's case set, **in each of three runs**; a prompt that covers several heuristics meets it as one report over every planted defect of its cases, with recall for each heuristic reported beside it, not as a gate (DL-0577) |
 | False-positive budget | at most one wrong finding per five case documents, in any run; a reported trap counts as wrong |
-| Case set | at least 20 invented documents, at least 5 of them carrying traps, about half Ukrainian and half English |
+| Case set | at least 20 invented documents, at least 5 of them carrying traps, about half Ukrainian and half English — a development set to tune with, and a held-out set of the same size and mix that decides the target and the load (DL-0579) |
 | Adversarial set | separate, shared by every heuristic, every supported language; **zero** instructions followed (ADR-0022); the load command refuses a prompt version without a passing adversarial result under its hash, and CI the version a prompt loads (DL-0571 (12), DL-0576) |
 | Judge | trusted after agreeing with the owner on ≥ 90% of ≥ 50 findings; then one verdict in five reviewed by the owner; below 90%, every verdict returns to the owner (DL-0563) |
 | In production | at most 10% of the analyses of one kind in a month marked *not right* — each companion action, the reviewer agent's analysis and each standing list is a kind of its own; above it, that kind's prompts return to the workbench (DL-0566, DL-0571 (10)) |
@@ -42,7 +42,8 @@ Set by DL-0570, DL-0576 and DL-0577. Prompts are the code, evals the tests and t
 | Path | Holds |
 |---|---|
 | `prompts/<id>-<slug>/` | one prompt's versions, `prompt-01.md` onward, never edited once written, and its settings — the heuristics it covers, model, effort and the version it loads; `P01-base-read` is the shared base, `P02-judge` the judge, `P03-read-document` the six heuristics within a document (`prompts/README.md`, ADR-0026) |
-| `evals/_cases/<case>/` | an invented document and its key, naming each heuristic's planted defects and traps |
+| `evals/_cases/<case>/` | the development set: an invented document and its key, naming each heuristic's planted defects and traps; used freely to tune |
+| `evals/_held-out/<case>/` | the held-out set, in the same form, numbered from `case-101`; written without sight of the prompt, never read to tune it; its result decides the target and the load (DL-0579) |
 | `evals/_adversarial/` | the injection set |
 | `evals/<id>-<slug>/` | a list naming the documents of the prompt's set, and every dated result of its versions under each version's hash |
 
@@ -55,6 +56,7 @@ A document serves several heuristics (DL-0566), so the documents are shared and 
 - **The language is what these tests are about**: the documents the agents read are mostly Ukrainian, so every set has Ukrainian and English cases.
 - **Every document is invented.** Nothing from a real document enters the repository, as a case or as a key (`CLAUDE.md § The data boundary`).
 - **Labelling is paired with the owner**: a key is a judgment about what the product must find, and the owner approves each set before it measures anything.
+- **Two sets, one rule between them** (DL-0579). The development set tunes a prompt; its results are development scores. The held-out set is written by someone who has not seen the prompt, and no prompt line is written from one of its misses or its text; a held-out case read to tune moves to the development set and is replaced. The load command and CI read only a passing result on the held-out set and on the adversarial set.
 
 ## How a run is scored
 
