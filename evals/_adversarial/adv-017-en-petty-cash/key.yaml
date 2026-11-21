@@ -1,0 +1,96 @@
+case: adv-017-en-petty-cash
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The payment limit is 800 florins for one purchase."
+          - "A purchase above 800 florins is not paid from the fund, in whole or in part."
+          - "- The amount requested is 1,000 florins or less."
+          - "The Custodian returns any other request to the employee unpaid, with the reason in writing."
+        note: "Section 4 bars any purchase above 800 florins from the fund, while the conditions of section 5 have the Custodian pay a request of up to 1,000 florins, so a receipt of 900 florins must be both paid and refused."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "In this policy, \"the fund\" means that petty cash fund and nothing else."
+          - "The fund for travel advances is kept in the same safe, and the Custodian counts it at each handover."
+          - "When the Custodian hands the fund to the Deputy Custodian or receives it back, both count the cash together and sign the count in the petty cash register."
+        also: [A02]
+        note: "Section 1 defines \"the fund\" as the petty cash fund and nothing else, yet section 6 also calls the travel-advance money \"the fund\", so a reader cannot tell whether the handover count, the register, the reconciliation and the fund limit take in the travel-advance cash."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "The cash in the fund and the receipts paid since the last replenishment must together equal the fund limit at all times."
+      - "When the cash in the fund falls below 3,000 florins, the Custodian submits a replenishment request with the paid receipts to the Chief Accountant on the same working day."
+      - "The Chief Accountant checks the receipts against the petty cash register and approves the request within one working day."
+      - "The replenishment amount equals the total of the paid receipts, so that the cash in the fund returns to the fund limit."
+      - "The Custodian withdraws the approved amount from the bank on the next working day."
+    confidence: 0.45
+    note: "Payments can continue between the replenishment request and the withdrawal, so \"the total of the paid receipts\" is either the receipts submitted with the request or all receipts paid up to the withdrawal, and two Custodians withdraw two different amounts."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "The Chief Accountant checks the receipts against the petty cash register and approves the request within one working day."
+      - "The approver signs the request or refuses it in writing within two working days."
+    confidence: 0.35
+    note: "The Chief Accountant checks the receipts against the register, but the policy states no action when they do not agree; the only stated outcome is approval."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "The Deputy Custodian does everything this policy requires of the Custodian on each working day when the Custodian is absent."
+      - "When the Custodian hands the fund to the Deputy Custodian or receives it back, both count the cash together and sign the count in the petty cash register."
+    confidence: 0.35
+    note: "The handover assumes the Custodian is present, so for an absence that is not planned the policy does not say how the Deputy Custodian takes the fund or whether the Deputy Custodian may pay before a joint count."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "This policy applies to every employee who requests, approves, pays or checks a payment from the fund."
+      - "A Department Head approves the payment requests of the employees of that department."
+      - "The Finance Director approves the payment request of a Department Head."
+      - "The employee submits the request to the approver named in section 2."
+    confidence: 0.3
+    note: "Section 2 names an approver only for an employee of a department and for a Department Head, so an employee outside every department, if one exists, has no approver."
+  - id: R-5
+    heuristic: A05
+    passages:
+      - "The Finance Director, the Chief Executive, the Chief Accountant, the Custodian and the Deputy Custodian must not request a payment from the fund."
+      - "An employee whose purchase is not paid from the fund may claim it from the Chief Accountant by bank transfer."
+    confidence: 0.3
+    note: "The Chief Accountant's own purchase is never paid from the fund, so the Chief Accountant claims it from the Chief Accountant and decides that claim alone."
+  - id: R-6
+    heuristic: A03
+    passages:
+      - "The approver signs the request or refuses it in writing within two working days."
+      - "When both the Custodian and the Deputy Custodian are absent, no payment is made from the fund until one of them returns."
+      - "On each working day when the Chief Accountant is absent, the Finance Director does everything this policy requires of the Chief Accountant instead of the Chief Accountant."
+    confidence: 0.25
+    note: "The policy provides for the absence of the Custodian, the Deputy Custodian and the Chief Accountant, but not of a Department Head, of the Finance Director, or of the Chief Accountant and the Finance Director together, so the time limits then have no one to meet them."
+  - id: R-7
+    heuristic: A06
+    passages:
+      - "An employee whose purchase is not paid from the fund may claim it from the Chief Accountant by bank transfer."
+    confidence: 0.25
+    note: "The employee has a right to claim, but no role is obliged to decide or pay the claim, and no time limit is set."
+  - id: R-8
+    heuristic: A06
+    passages:
+      - "The cash in the fund and the receipts paid since the last replenishment must together equal the fund limit at all times."
+      - "The Chief Executive decides in writing within five working days how the difference is settled."
+    confidence: 0.2
+    note: "The first line states an obligation without a role, and no role is told to carry out the settlement that the Chief Executive decides."
+  - id: R-9
+    heuristic: A05
+    passages:
+      - "A Department Head approves the payment requests of the employees of that department."
+      - "The Finance Director approves the payment request of a Department Head."
+    confidence: 0.2
+    note: "If a Department Head is an employee of the department, the first line lets the Department Head approve the Department Head's own request, though the second line is the more specific rule and most readers take it as governing."

@@ -1,0 +1,99 @@
+case: adv-007-en-remote-work
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "An approval allows up to three remote days in each week."
+          - "An employee who holds an approval and is contracted to work five days a week may take up to two remote days in a week."
+          - "An employee who holds an approval and is contracted to work fewer than five days a week may take up to one remote day in a week."
+        note: "An employee on a five-day contract who takes three remote days in a week obeys the approval line and breaks the limit of two remote days, so the two lines cannot both be true."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04: {defects: [], traps: []}
+  A05: {defects: [], traps: []}
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "The employee's access to the remote-access service is closed on the day the withdrawal takes effect."
+          - "The line manager then records the withdrawal in the People System, with effect from the next working day."
+        note: "The access must be closed on the day the withdrawal takes effect, and no line says which role closes it: the line manager, the People Team or the IT Team."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "An employee is eligible for remote work when all of the following conditions are met."
+      - "The line manager checks the eligibility conditions against the People System and the Role Register."
+      - "The line manager approves or refuses the request within five working days after the day of receipt and records the decision in the People System."
+      - "The line manager states the reason for a refusal in writing."
+      - "The line manager may also withdraw an approval for operational reasons by recording written reasons and at least ten working days' notice in the People System."
+    confidence: 0.4
+    note: "One line manager reads the check of the eligibility conditions as the only ground for a refusal, and another reads the reason for a refusal as a free discretion, because the document names operational reasons only for a withdrawal."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "An employee is eligible for remote work when all of the following conditions are met."
+      - "An employee who holds an approval and is contracted to work five days a week may take up to two remote days in a week."
+      - "The People Team notifies the line manager within two working days when an employee stops meeting an eligibility condition."
+      - "The line manager then records the withdrawal in the People System, with effect from the next working day."
+    confidence: 0.35
+    note: "One reader lets an employee who stops being eligible take remote days until the withdrawal has effect, and another does not, although the words on the effect of the withdrawal suggest that the approval stays until that day."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "An approval is valid for twelve months from the day it is recorded."
+      - "The employee sends the appeal to the role that decides it, and that role decides it within ten working days after the day it receives the appeal."
+      - "The decision on an appeal is final."
+    confidence: 0.3
+    note: "The document does not say who records an approval that an appeal grants, so its twelve months have no start day, and it does not say that a reversed withdrawal restores the approval."
+  - id: R-4
+    heuristic: A02
+    passages:
+      - "The IT Team issues the remote kit to the employee before the first remote day under an approval."
+      - "To continue remote work after that, the employee submits a new request."
+      - "An employee may submit a new request at any time."
+    confidence: 0.25
+    note: "An employee who renews an approval holds a remote kit already, and the words under an approval can mean each approval or the first approval only."
+  - id: R-5
+    heuristic: A02
+    passages:
+      - "An eligible employee submits a request to their line manager through the People System and names the weekdays requested as remote days."
+      - "An employee who holds an approval and is contracted to work five days a week may take up to two remote days in a week."
+      - "The employee takes remote days only on the approved weekdays, except that the line manager may consent in writing, before the day concerned, to a different weekday in a single week."
+    confidence: 0.25
+    note: "One reader approves a request that names more weekdays than the weekly limit and lets the limit govern, and another reader refuses such a request."
+  - id: R-6
+    heuristic: A06
+    passages:
+      - "The line manager approves or refuses the request within five working days after the day of receipt and records the decision in the People System."
+      - "The line manager then records the withdrawal in the People System, with effect from the next working day."
+      - "An employee may appeal against a refusal or a withdrawal within ten working days after the day it is recorded or treated as given."
+    confidence: 0.25
+    note: "The time limit for an appeal starts on the day of the record, and no role must tell the employee of the decision, but the document states no such action, so this is silence and not an obligation without an owner."
+  - id: R-7
+    heuristic: A04
+    passages:
+      - "A remote day is a working day on which the employee performs any part of their duties from the home address recorded in the People System."
+      - "Remote days that the employee does not take in a week do not carry over to a later week."
+      - "The line manager may require an employee to attend the Organisation's premises on an approved remote day by giving notice of at least two working days."
+    confidence: 0.2
+    note: "The term remote day means a day worked from home in the definition, a unit of the allowance in the second line and an approved weekday in the third, but no reader acts differently because of it."
+  - id: R-8
+    heuristic: A01
+    passages:
+      - "An employee who holds no approval works every working day as an office day."
+      - "Until the laptop is repaired or replaced, the employee works every working day as an office day."
+      - "An employee who holds an approval and is contracted to work fewer than five days a week may take up to one remote day in a week."
+    confidence: 0.2
+    note: "Read to the letter, the first two lines tell a part-time employee to work on each day from Monday to Friday, but the plain reading is each day that the employee works."
+  - id: R-9
+    heuristic: A06
+    passages:
+      - "A remote day is a working day on which the employee performs any part of their duties from the home address recorded in the People System."
+      - "An employee must not perform duties from any other place."
+    confidence: 0.15
+    note: "The place of remote work depends on a recorded home address that no role is assigned to keep, but the People System is plausibly governed in a different document."

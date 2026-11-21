@@ -1,0 +1,86 @@
+case: adv-021-en-signing-authority
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "A delegation may run for up to 18 months from its start date."
+          - "The end date of a delegation is no later than 12 months after its start date."
+          - "The Company Secretary returns to the Chief Executive, without entering it in the register, a delegation that has no end date or whose end date is later than that limit."
+        note: "Section 6 allows a delegation of up to 18 months while section 5 limits it to 12 months and makes the Company Secretary return a longer one unregistered, so a delegation of 15 months is both allowed and refused."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "The Company Secretary countersigns each delegation as its second signatory."
+          - "A signatory is a person who has authority under this policy to sign a given commitment."
+          - "Before signing, the signatory determines the value of the commitment and its band under Appendix A."
+        note: "The defined signatory is a person with authority to sign a commitment, but section 4 calls the Company Secretary a signatory of each delegation, so a reader can take the Company Secretary for a person with signing authority or a delegation for a commitment whose band the signatory must determine."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A03
+    passages:
+      - "The Company Secretary returns to the Chief Executive, without entering it in the register, a delegation that has no end date or whose end date is later than that limit."
+      - "The Company Secretary enters each delegation that meets sections 4 and 5 in the register within one working day of receiving it."
+    confidence: 0.40
+    note: "The register admits only a delegation that meets sections 4 and 5, but the return rule covers only the end-date failures of section 5, so a delegation that fails section 4 has no stated handling."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "A commitment is a contract, order or other document that binds the Organisation to pay money to an outside party or entitles it to receive money from one."
+      - "The value of a commitment is the total amount payable or receivable under it over its full duration, in euros, without taxes."
+      - "- Band 3 covers a value above 100,000 euros, up to and including 1,000,000 euros."
+    confidence: 0.35
+    note: "For a commitment that both pays and receives, one reader adds the two amounts and another takes either amount, which can move the commitment between Band 3 and Band 4."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "The Finance Director publishes a euro conversion rate for each other currency on the first working day of each month."
+      - "The signatory converts a value stated in another currency at the rate published for the month of signing."
+      - "A commitment whose value cannot be calculated on the day of signing is in Band 4."
+    confidence: 0.30
+    note: "Before the rate for the month of signing is published no rate exists, and a reader either uses the rate of the month before or puts the commitment in Band 4; the cold reader also named A02 for this item."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "It applies to every commitment, to every amendment of a commitment, and to every document that ends a commitment."
+      - "A signatory is a person who has authority under this policy to sign a given commitment."
+      - "The band of a document that ends a commitment is the band of the commitment that it ends."
+      - "A delegate may sign commitments in the highest band stated in the delegation and in every lower band."
+    confidence: 0.30
+    note: "The scope and section 8 cover amendments and documents that end a commitment, but authority is granted and the signatory is defined only for commitments, so no line says who may sign an ending document."
+  - id: R-5
+    heuristic: A06
+    passages:
+      - "The Chair of the Board exercises every power and duty of the Chief Executive under this policy while the office of Chief Executive is vacant, during an absence that the Chief Executive has notified to the Company Secretary in writing, and while a Board resolution declaring the Chief Executive unable to act is in force."
+    confidence: 0.30
+    note: "The absence is notified to the Company Secretary only and no role has the duty to tell the Chair of the Board, so the Chair's powers and duties can begin without the Chair knowing."
+  - id: R-6
+    heuristic: A05
+    passages:
+      - "Before signing, the signatory determines the value of the commitment and its band under Appendix A."
+      - "Before signing, a delegate confirms in the register that the delegation is in force and covers the band."
+    confidence: 0.25
+    note: "The person who signs alone determines the value and the band that decide whether this person is a signatory at all, and no second role checks it before signature."
+  - id: R-7
+    heuristic: A01
+    passages:
+      - "- The third day is the last day on which the delegate holds the post stated in the delegation."
+      - "The Head of Human Resources notifies the Company Secretary of the last day of a delegate in the stated post no later than that day, and the Company Secretary records it in the register within one working day."
+      - "Before signing, a delegate confirms in the register that the delegation is in force and covers the band."
+    confidence: 0.20
+    note: "For up to one working day after the delegate's last day in the post the register can still show in force a delegation that section 7 has ended; the cold reader also named A02 and thought this a trap."
+  - id: R-8
+    heuristic: A05
+    passages:
+      - "The Chief Executive may delegate authority to sign commitments in Bands 1, 2 and 3 to an employee of the Organisation."
+      - "The Company Secretary countersigns each delegation as its second signatory."
+    confidence: 0.6
+    note: "Nothing stops a delegation to the Company Secretary, who then countersigns their own delegation; P03 reported it in each trial run, the A04-1 line made it, and it waits on the owner's ruling."

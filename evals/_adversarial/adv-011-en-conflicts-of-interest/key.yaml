@@ -1,0 +1,67 @@
+case: adv-011-en-conflicts-of-interest
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The Board Secretary forwards each form to the decision-maker within 1 working day after the day it reaches the register mailbox."
+          - "The Board Secretary forwards each form to the decision-maker with its register entry within 3 working days after the day it reaches the register mailbox."
+        note: "The section \"Who decides\" gives the Board Secretary 1 working day to forward a form and the section \"Register\" gives 3 working days for the same act, so a form forwarded on the third working day is late by the first line and on time by the second."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04: {defects: [], traps: []}
+  A05: {defects: [], traps: []}
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "Each withdrawal is recorded in the minutes of every meeting at which the matter is discussed."
+          - "A Board member who withdraws does not attend the discussion of the matter and does not vote on it."
+        note: "The withdrawal must be recorded in the minutes, and no line names who records it: the Board Secretary, the Chair or the Board member who withdrew and does not attend the discussion."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "A private interest is a financial or personal benefit that a covered person or a close person of that covered person may gain or lose."
+      - "- The form describes the matter and the private interest, and names the person who holds that private interest."
+      - "A decision-maker who holds a private interest in the same matter, or who is a close person of the declarant, returns the form to the Board Secretary within 1 working day after receiving it."
+      - "An eligible Board member is a Board member who is not the declarant, holds no private interest in the same matter and is not a close person of the declarant."
+      - "When a staff member other than the Director withdraws, the Director assigns the matter to another staff member who holds no private interest in it."
+    confidence: 0.45
+    note: "When the benefit belongs to a close person, one reader says the decision-maker, Board member or replacement staff member holds a private interest and must stand aside, and another says only the close person holds it and the role may act."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "A covered person declares every conflict of interest that concerns them, and declares a situation also when unsure whether it is a conflict of interest."
+      - "A covered person takes no part in the matter from the moment they become aware of the conflict of interest until a decision is made under the section \"Who decides\"."
+      - "- The form states the date on which the covered person became aware of the conflict of interest."
+      - "A covered person submits form CI-1 within 5 working days after the day on which they became aware of the conflict of interest."
+    confidence: 0.45
+    note: "A covered person who is unsure must declare, but the duty to take no part, the date on the form and the 5-working-day limit all run from becoming aware of the conflict of interest, so no rule says whether that person stands aside or when the limit starts."
+  - id: R-3
+    heuristic: A06
+    passages:
+      - "The decision-maker sends the decision, with written reasons, to the declarant and to the Board Secretary on the day of the decision."
+      - "The Board Secretary tells the declarant the result on the working day after the day the vote closes."
+      - "When a staff member other than the Director withdraws, the Director assigns the matter to another staff member who holds no private interest in it."
+      - "When the Director withdraws, the Chair assigns the matter to a staff member who holds no private interest in it."
+    confidence: 0.25
+    note: "The Director and the Chair must assign the matter after a withdrawal, but no role is required to tell them of the withdrawal, because the decision goes only to the declarant and the Board Secretary."
+  - id: R-4
+    heuristic: A06
+    passages:
+      - "When the Board decides, the Board Secretary opens a written vote of the eligible Board members on the day the form is forwarded."
+      - "An eligible Board member is a Board member who is not the declarant, holds no private interest in the same matter and is not a close person of the declarant."
+    confidence: 0.2
+    note: "The vote is of the eligible Board members, but no role is required to establish which Board members are eligible, and no Board member is required to state a private interest or a close relation before voting."
+  - id: R-5
+    heuristic: A04
+    passages:
+      - "A matter is the decision, contract or task of the Organisation that a private interest relates to."
+      - "A covered person takes no part in the matter from the moment they become aware of the conflict of interest until a decision is made under the section \"Who decides\"."
+      - "The decision-maker sends the decision, with written reasons, to the declarant and to the Board Secretary on the day of the decision."
+    confidence: 0.15
+    note: "The word \"decision\" names both a decision of the Organisation that is the matter and the ruling on the declaration, but the context separates the two meanings each time, so the reader expects no wrong action."

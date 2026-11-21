@@ -1,0 +1,85 @@
+case: adv-015-en-fire-drill
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The report records the drill as satisfactory when the evacuation time is eight minutes or less and the sum equalled the attendance record."
+          - "A drill is satisfactory if the evacuation time is six minutes or less and the sum equalled the attendance record."
+          - "After an unsatisfactory drill, the Safety Manager holds a repeat drill within 30 calendar days."
+        note: "A drill with a correct sum and an evacuation time of seven minutes is unsatisfactory under section 6, which requires a repeat drill, and satisfactory under section 7, so the Safety Manager cannot obey both."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04: {defects: [], traps: []}
+  A05: {defects: [], traps: []}
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "- The alarm system is reset before any occupant returns to the building."
+          - "- The Safety Manager announces the end of the drill by radio, and only then do the Fire Wardens tell the occupants to return."
+        note: "The reset of the alarm system is a required step before the occupants return, and no line names the role that resets it: the Safety Manager, the Reception Officer or a Fire Warden."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A01
+    passages:
+      - "An occupant is any person inside the building when the alarm sounds, whether an employee, a contractor or a visitor."
+      - "The steps are carried out in the order listed."
+      - "- Every occupant stops work and walks, without using a lift, to the place set in section 4."
+      - "- The Reception Officer takes the attendance record and a radio to Assembly Point A."
+      - "- Each Fire Warden checks every room of the floor and closes the doors."
+      - "- Each Fire Warden then goes to the assembly point of the floor, except that a Fire Warden with an occupant at the refuge point stays there."
+    confidence: 0.45
+    note: "A Fire Warden and the Reception Officer are occupants, so the step for every occupant sends them to the place set in section 4 at once while later steps give them other duties, and the document states no exception for either role."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "An occupant is any person inside the building when the alarm sounds, whether an employee, a contractor or a visitor."
+      - "- Each Fire Warden then goes to the assembly point of the floor, except that a Fire Warden with an occupant at the refuge point stays there."
+      - "- Each Fire Warden reports to the Reception Officer by radio the number of occupants who left the floor, adding the Fire Warden and any occupants at the refuge point."
+    confidence: 0.4
+    note: "A Fire Warden who went to the assembly point is already an occupant who left the floor, so one reader adds the Fire Warden again and another does not, and the two numbers differ by one."
+  - id: R-3
+    heuristic: A04
+    passages:
+      - "An occupant is any person inside the building when the alarm sounds, whether an employee, a contractor or a visitor."
+      - "The Reception Officer keeps the attendance record, which lists every occupant who is in the building on the day."
+      - "A drill is unsatisfactory if the evacuation time is more than six minutes or the sum differed from the attendance record."
+    confidence: 0.4
+    note: "The definition fixes an occupant to the moment of the alarm, but the attendance record uses the word for every person in the building on the day, so a person who left before the alarm makes the sum differ from the record."
+  - id: R-4
+    heuristic: A02
+    passages:
+      - "The Facilities Director approves the dates or sets different dates by 31 December."
+      - "After an unsatisfactory drill, the Safety Manager holds a repeat drill within 30 calendar days."
+      - "A repeat drill is additional to the two scheduled drills and follows every rule of this procedure."
+    confidence: 0.35
+    note: "One reader has the Safety Manager choose the date of a repeat drill alone, and another, who applies every rule of the procedure, requires the approval of the Facilities Director."
+  - id: R-5
+    heuristic: A03
+    passages:
+      - "The Deputy Fire Warden performs every duty of the Fire Warden of the same floor when that Fire Warden is absent."
+      - "The Safety Manager postpones a drill if, on the day, an assembly point is blocked or a floor has neither its Fire Warden nor its Deputy Fire Warden."
+      - "- The Reception Officer adds the three numbers, compares the sum with the attendance record and tells the Safety Manager the result."
+    confidence: 0.3
+    note: "The document handles the absence of a Fire Warden and is silent on the absence of the Reception Officer and of the Safety Manager, without whom the drill cannot be counted or directed."
+  - id: R-6
+    heuristic: A03
+    passages:
+      - "The Safety Manager then ends the drill, and the Organisation's Fire Emergency Procedure applies instead of this procedure."
+      - "A drill ended in this way is a postponed drill under section 3."
+      - "The Safety Manager writes the drill report within five working days after the drill."
+      - "The report states the date, the evacuation time, the three numbers, the result under section 6 and each weakness observed, with a proposed corrective action for each."
+    confidence: 0.3
+    note: "A drill ended because of fire or smoke has no evacuation time, no three numbers and no result, and the document does not say if a report is due or what it contains."
+  - id: R-7
+    heuristic: A06
+    passages:
+      - "The report states the date, the evacuation time, the three numbers, the result under section 6 and each weakness observed, with a proposed corrective action for each."
+      - "- Each Fire Warden reports to the Reception Officer by radio the number of occupants who left the floor, adding the Fire Warden and any occupants at the refuge point."
+      - "- The Safety Manager announces the end of the drill by radio, and only then do the Fire Wardens tell the occupants to return."
+    confidence: 0.2
+    note: "No role is assigned to observe the weaknesses that the report states, and the Fire Wardens and the Safety Manager must use radios that no role is told to provide."

@@ -1,0 +1,87 @@
+case: adv-005-en-balance-calibration
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The tolerance for an analytical balance is 0.3 mg at each load."
+          - "A calibration is failed when the absolute value of the error is greater than the tolerance at one or more loads."
+          - "- For an analytical balance, the Technician accepts an error of up to 0.5 mg at the middle load."
+        note: "An analytical balance with an error of 0.4 mg at the middle load fails under Section 6 and is accepted under Section 7, so the Technician cannot both attach a calibration label and take the balance out of service."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "Calibration means comparing the indication of a balance with the certified mass of reference weights, without changing any setting of the balance."
+          - "After each failed calibration, the Technician removes the calibration label, attaches an \"Out of service\" label to the balance at once, and informs the Laboratory Manager on the same working day."
+          - "If the balance has a built-in calibration function, the Technician first runs that calibration, which resets the sensitivity of the balance, and then repeats the steps of Section 7."
+        also: [A01]
+        note: "Section 3 defines calibration as a comparison that changes no setting, and Section 8 calls a reset of the sensitivity a calibration, so a Technician can read that a failed balance may be reset and passed again by the Technician alone, before the Laboratory Manager orders an adjustment."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A01
+    passages:
+      - "Calibration means comparing the indication of a balance with the certified mass of reference weights, without changing any setting of the balance."
+      - "- The Technician levels the balance and cleans the weighing pan."
+      - "- The Technician sets the balance to zero with an empty pan."
+      - "Only the Laboratory Manager orders the move, adjustment or repair of a balance, and the Laboratory Manager attaches an \"Out of service\" label to the balance when giving the order."
+    confidence: 0.35
+    note: "The definition forbids any change of a setting during calibration, two calibration steps tell the Technician to level and to zero the balance, and the document does not define adjustment, so a reader can take levelling and zeroing as a forbidden change or as an adjustment that only the Laboratory Manager orders (second reading: A02)."
+  - id: R-2
+    heuristic: A06
+    passages:
+      - "Only the Laboratory Manager orders the move, adjustment or repair of a balance, and the Laboratory Manager attaches an \"Out of service\" label to the balance when giving the order."
+      - "After a move, adjustment or repair, the Technician calibrates the balance before it returns to use."
+      - "The Laboratory Manager then either orders adjustment or repair of the balance under Section 5 or removes it from the equipment register."
+    confidence: 0.35
+    note: "The Laboratory Manager only orders the move, adjustment or repair, and no role is assigned to perform it, although the order can be read as an order to an outside service."
+  - id: R-3
+    heuristic: A04
+    passages:
+      - "The Quality Manager decides on results affected by a failed calibration under Section 8 and answers to the Director for those decisions."
+      - "The Quality Manager decides which results weighed on the balance since its last passed calibration must be repeated, and writes the decision and its reasons in the record of the failed calibration."
+      - "- The tolerance applied and the result, passed or failed."
+    confidence: 0.3
+    note: "The word result means a weighing obtained on the balance in Sections 4 and 8 and the outcome of the calibration in Section 9, but it is not a defined term and each use carries its own qualifier."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "- The Technician completes the record under Section 9 on the day of calibration."
+      - "The Laboratory Manager informs the Quality Manager of the failed calibration within 2 working days."
+      - "The Quality Manager decides which results weighed on the balance since its last passed calibration must be repeated, and writes the decision and its reasons in the record of the failed calibration."
+      - "The record contains the following items."
+      - "The Laboratory Manager checks and signs each record within 5 working days of the calibration."
+    confidence: 0.3
+    note: "The decision of the Quality Manager has no time limit and is not an item of the record, so the record can receive it after the Laboratory Manager signs, and the document is silent on whether the check covers it (second reading: A01)."
+  - id: R-5
+    heuristic: A03
+    passages:
+      - "The Technician calibrates each analytical balance no later than 30 calendar days after the date of its last passed calibration."
+      - "The Technician calibrates each precision balance no later than 90 calendar days after the date of its last passed calibration."
+      - "The Laboratory Manager then either orders adjustment or repair of the balance under Section 5 or removes it from the equipment register."
+      - "After a move, adjustment or repair, the Technician calibrates the balance before it returns to use."
+    confidence: 0.25
+    note: "The interval runs from the last passed calibration with no exception, so the document says nothing about a balance that is out of service longer than the interval or about a missed calibration, although the rule for the Analyst keeps such a balance out of use."
+  - id: R-6
+    heuristic: A03
+    passages:
+      - "This procedure applies to every balance entered in the equipment register of the Organisation."
+      - "The Laboratory Manager records in the equipment register, for each balance, its class under Section 3 and its low, middle and high calibration loads."
+      - "The Technician calibrates a new balance before its first use."
+    confidence: 0.2
+    note: "The scope covers only a balance entered in the register, the first calibration of a new balance needs the class and the loads from the register, and the document does not say that the entry is made before the first calibration."
+  - id: R-7
+    heuristic: A01
+    passages:
+      - "The Technician performs every calibration and writes its record."
+      - "A stopped calibration is neither passed nor failed, needs no record, and does not change the due date."
+      - "The Technician writes one record in the calibration log for each passed and each failed calibration."
+    confidence: 0.15
+    note: "Section 4 requires a record of every calibration and Section 7 says that a stopped calibration needs none, but the specific rule states the exception in plain words and Section 9 repeats the limit, so the reader took it for a trap of A01 and not a defect."

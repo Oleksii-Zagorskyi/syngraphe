@@ -1,0 +1,95 @@
+case: adv-019-en-camera-recordings
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The Organisation keeps recordings for 45 calendar days, and a request may concern any of them."
+          - "The Organisation keeps each recording for 30 calendar days, counted from the day after the day on which the recording was made."
+          - "The recording system deletes each recording automatically when its 30 days end, except a recording under a hold."
+        note: "The request procedure says the Organisation keeps recordings for 45 calendar days and the retention section says 30, so a recording 40 days old is both kept and already deleted, and the requester and the Security Officer cannot both be right."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "The Security Officer also registers there a camera repair request from the Facilities Manager."
+          - "A request is a written application to view a recording or to receive a copy."
+          - "- The Security Officer registers a request that concerns the recording."
+        also: [A02]
+        note: "The term request is defined as an application to view or copy a recording and is also used for a repair request entered in the same request register, so a Security Officer can treat a repair request as a registered request and place a hold on every recording of the camera under repair."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A03
+    passages:
+      - "A request is open until the requester has received a refusal, has viewed the recording, or has received the copy."
+      - "If the recording has already been deleted, the Security Officer tells the requester so in writing within the same working day and closes the request, instead of passing it on."
+      - "The deciding role refuses every other request."
+    confidence: 0.3
+    note: "A request that the Security Officer closes because the recording is deleted meets none of the three ends that stop a request being open, since a refusal is an act of the deciding role and this request is never passed on."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "The Data Protection Officer releases a hold in writing when no open request and no open incident concerns the recording."
+      - "A request is open until the requester has received a refusal, has viewed the recording, or has received the copy."
+      - "After an approval, the Security Officer arranges the viewing in the security room, or hands over the copy, within 5 working days of the decision."
+    confidence: 0.35
+    note: "An approved request whose requester never comes to the viewing, or a request that is withdrawn, stays open, so the hold is never released and the recording is kept without limit."
+  - id: R-3
+    heuristic: A02
+    passages:
+      - "The Data Protection Officer checks every hold on the first working day of each month."
+      - "The Data Protection Officer releases a hold in writing when no open request and no open incident concerns the recording."
+    confidence: 0.3
+    note: "One reader releases a hold only at the monthly check and another on the day the last request or incident closes, a difference of up to a month of retention."
+  - id: R-4
+    heuristic: A02
+    passages:
+      - "The Security Officer registers the request in the request register within 1 working day of receiving it."
+      - "If the recording has already been deleted, the Security Officer tells the requester so in writing within the same working day and closes the request, instead of passing it on."
+    confidence: 0.2
+    note: "The same working day can be the day of registration or the working day that follows receipt, a difference of at most one day."
+  - id: R-5
+    heuristic: A02
+    passages:
+      - "The Data Protection Officer reads the viewing log on the first working day of each month."
+      - "The Chief Executive reads, in the same week, the entries that record viewings by the Data Protection Officer."
+    confidence: 0.15
+    note: "The same week can be the week of the monthly reading or, weakly, the week of each viewing by the Data Protection Officer."
+  - id: R-6
+    heuristic: A06
+    passages:
+      - "Otherwise the Security Officer passes the request to the Data Protection Officer on the day of registration."
+      - "The Chief Executive decides, within the same time, a request submitted by the Data Protection Officer, instead of the Data Protection Officer."
+    confidence: 0.3
+    note: "Every request is passed to the Data Protection Officer, and no role is told to pass a request submitted by the Data Protection Officer to the Chief Executive."
+  - id: R-7
+    heuristic: A03
+    passages:
+      - "The Chief Executive decides, within the same time, a request submitted by the Data Protection Officer, instead of the Data Protection Officer."
+      - "The Chief Executive has no right to view recordings and submits no requests, even when the Chief Executive appears in a recording."
+      - "- The requester appears in the recording and wants to see or receive their own image."
+    confidence: 0.25
+    note: "The Chief Executive must decide whether the requester appears in the recording and has no right to view it."
+  - id: R-8
+    heuristic: A06
+    passages:
+      - "- The requester is the member of staff assigned in the incident register to investigate an incident that the recording shows."
+      - "- The Security Officer enters in the incident register an incident that the recording shows."
+      - "An incident is open until the Security Officer marks it closed in the incident register."
+    confidence: 0.25
+    note: "No role is given the assignment of the member of staff who investigates an incident, and an approval ground depends on that assignment."
+  - id: R-9
+    heuristic: A05
+    passages:
+      - "- The Security Officer enters in the incident register an incident that the recording shows."
+      - "- The Security Officer may view a recording only to examine an incident entered in the incident register."
+      - "An incident is open until the Security Officer marks it closed in the incident register."
+    confidence: 0.2
+    note: "The one condition on the Security Officer's right to view is an incident entry that the Security Officer alone makes and alone closes, checked only after the fact in the viewing log."

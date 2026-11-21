@@ -1,0 +1,84 @@
+case: adv-013-en-information-classification
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "An Internal record is overdue for review only when 24 months have passed since its last assignment or review."
+          - "The Owner reviews the level of each Internal record and each Restricted record at least once every 12 months, counted from the date of the last assignment or review."
+        also: [A02]
+        note: "An Internal record last reviewed 18 months ago is on time by the 24-month line and overdue by the 12-month line, so the Chief Operating Officer cannot tell whether to send the notice."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "The Owner of a record is the head of the unit in which the staff member who created or first received the record works."
+          - "- A staff member gives the record to a person outside the Organisation only after the Owner permits it in writing."
+          - "- For a record kept in a shared folder, the Owner is the IT Service, which keeps the folder."
+        also: [A01, A02]
+        note: "The definition makes the Owner the head of a unit and the handling rule makes the IT Service the Owner of a record in a shared folder, so a staff member can ask the IT Service, not the unit head, to permit giving an Internal record outside the Organisation."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A01
+    passages:
+      - "The Owner assigns the level Public to a record that does not meet the condition for Restricted and that the Owner has decided to release to the general public."
+      - "The Owner assigns the level Internal to every other record."
+      - "To a record that combines content from records of different levels, the Owner assigns the highest of those levels, where Restricted is the highest and Public is the lowest."
+    confidence: 0.4
+    note: "A record that combines a harmless passage of a Restricted record with Internal content is Internal or Public by the assignment rules and Restricted by the combination rule, and the document does not say which rule governs."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "The Owner reviews the level of each Internal record and each Restricted record at least once every 12 months, counted from the date of the last assignment or review."
+      - "The Owner raises the level of an Internal record to Restricted on the day on which the Owner finds, during a review or between reviews, that the record meets the condition for Restricted."
+      - "On the day of the change, the Owner marks the record with the new level and enters the change in the Classification Register."
+    confidence: 0.4
+    note: "The document does not say whether a change of level between reviews is an assignment, so one reader counts the 12 months from the change and another from the earlier assignment or review."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "For each Restricted record, the Owner also enters in the Classification Register the access list, which names the staff members who may read the record."
+      - "- Among staff members, only a staff member named on the access list may read the record."
+      - "On the day of the change, the Owner marks the record with the new level and enters the change in the Classification Register."
+    confidence: 0.35
+    note: "The document says who enters the access list and who changes the level, and is silent on who adds or removes a name on the list afterwards, and when."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "The Owner of a record is the head of the unit in which the staff member who created or first received the record works."
+      - "Where that staff member belongs to no unit, the Owner of the record is the Information Security Officer."
+      - "The Owner reviews the level of each Internal record and each Restricted record at least once every 12 months, counted from the date of the last assignment or review."
+    confidence: 0.3
+    note: "The review is owed for the life of the record, but the Owner is fixed by where the creator works, and neither line names the Owner once the creator has left the Organisation."
+  - id: R-5
+    heuristic: A03
+    passages:
+      - "- Among staff members, only a staff member named on the access list may read the record."
+      - "A staff member handles a record that carries no level mark as a Restricted record whose access list holds only the staff member and the Owner."
+      - "The Owner lowers the level of a record only with the written consent of the Information Security Officer."
+    confidence: 0.25
+    note: "Nothing requires the access list of a marked Restricted record to name the Owner who must review it or the Information Security Officer who must consent to lowering its level."
+  - id: R-6
+    heuristic: A05
+    passages:
+      - "The Owner of a record is the head of the unit in which the staff member who created or first received the record works."
+      - "In the first week of each calendar quarter, the Chief Operating Officer checks the Classification Register and notifies in writing each Owner whose review is overdue."
+      - "The Chief Operating Officer instructs in writing each Owner whose review remains overdue after that period to complete it."
+    confidence: 0.2
+    note: "If the Chief Operating Officer heads a unit, the Chief Operating Officer is the Owner of its records and notifies and instructs himself or herself, which the document does not state."
+  - id: R-7
+    heuristic: A03
+    passages:
+      - "A staff member is a person who works for the Organisation under an employment contract or a service contract."
+      - "- Every staff member may read the record."
+      - "- A staff member gives the record to a person outside the Organisation only after the Owner permits it in writing."
+      - "The Board of the Organisation approves this policy and every amendment to it."
+    confidence: 0.2
+    note: "A member of the Board is not a staff member by the definition and is not plainly a person outside the Organisation, so the handling rules do not say whether such a person may read or receive an Internal record or a Restricted record."

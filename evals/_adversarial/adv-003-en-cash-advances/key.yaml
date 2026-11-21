@@ -1,0 +1,96 @@
+case: adv-003-en-cash-advances
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The Employee submits an expense report to the Chief Accountant within 5 working days after the end date stated in the approved form."
+          - "An expense report is late only when it reaches the Chief Accountant more than 10 working days after the end date stated in the approved form."
+          - "If the Employee does not submit the expense report within the time limit in section 6, the Chief Accountant deducts the whole advance from the Employee's next salary payment."
+        note: "A report submitted 7 working days after the end date is past the time limit of section 6, so the whole advance is deducted and the report is not checked, and is not late under section 8, so neither consequence applies; the Chief Accountant cannot obey both."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "The Approver is the role to which the requesting Employee reports according to the Organisation's staff register."
+          - "For an advance of more than 8,000 florins, the Finance Director is the Approver and countersigns the approved form before the Cashier makes the transfer."
+          - "If the accepted expenses are more than the advance, the Approver decides in writing, within 2 working days after the notification, whether the Organisation reimburses the difference."
+        also: [A02]
+        note: "Section 2 defines the Approver as the role to which the Employee reports, and section 5 gives the same term to the Finance Director for an advance of more than 8,000 florins, so for a 10,000-florin advance with accepted expenses above it a reader cannot tell which of the two decides the reimbursement."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "If the purpose is cancelled before any of the advance is spent, the Employee returns the whole advance to the Organisation's bank account within 2 working days after the cancellation and informs the Chief Accountant in writing on the day of the return."
+      - "If the purpose is cancelled after part of the advance is spent, sections 6 and 7 apply, and the day of the cancellation replaces the end date."
+      - "The Chief Accountant rejects every other expense, and a rejected expense is not counted as spending of the advance."
+    confidence: 0.45
+    note: "An Employee who paid out money before the cancellation on expenses that are later rejected has spent part of the advance in the plain sense and none of it in the sense of section 6, and the two readings give two different time limits for the return."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "An open advance is an advance that has been paid and has not yet been closed under section 5, 7 or 8."
+      - "An Employee may hold only one open advance at a time, and the Approver must refuse a request from an Employee who holds one."
+      - "The Cashier transfers the advance to the Employee's salary account within 2 working days after receiving the approved form."
+    confidence: 0.4
+    note: "An advance that is approved and not yet paid is not open, so no rule handles a second request made in that interval, and the Employee can end with two open advances."
+  - id: R-3
+    heuristic: A02
+    passages:
+      - "The Chief Accountant closes that advance on the day of the return, and sections 6 and 7 do not apply to it."
+      - "If the Employee does not return a sum within the time limit in section 5 or section 7, the Chief Accountant deducts that sum from the Employee's next salary payment."
+      - "The Chief Accountant closes the advance on the day of a deduction."
+    confidence: 0.4
+    note: "When the Employee returns a sum after the time limit and before the next salary payment, one reader closes the advance on the day of the return and deducts nothing, and another deducts the sum that was already returned."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "On the day of the decision, the Approver returns a refused form to the Employee and sends an approved form to the Cashier."
+      - "The Cashier transfers the advance to the Employee's salary account within 2 working days after receiving the approved form."
+      - "When the Employee who is to receive any transfer under this policy is the Cashier, the Chief Accountant makes that transfer instead of the Cashier."
+    confidence: 0.4
+    note: "The approved form of the Cashier's own advance goes to the Cashier, and no rule says who passes it to the Chief Accountant or from which day the Chief Accountant's time limit for the transfer runs."
+  - id: R-5
+    heuristic: A06
+    passages:
+      - "If the accepted expenses are more than the advance, the Approver decides in writing, within 2 working days after the notification, whether the Organisation reimburses the difference."
+      - "The Cashier transfers an approved reimbursement to the Employee within 5 working days after the Approver's decision, and the Employee bears a difference that the Approver declines to reimburse."
+      - "The Chief Accountant closes the advance on the day when no payment remains due under this section."
+    confidence: 0.35
+    note: "The Cashier must pay and the Chief Accountant must close after the Approver's decision, and no role is assigned to send that decision to either of them."
+  - id: R-6
+    heuristic: A03
+    passages:
+      - "The Cashier transfers the advance to the Employee's salary account within 2 working days after receiving the approved form."
+      - "If the purpose is cancelled before any of the advance is spent, the Employee returns the whole advance to the Organisation's bank account within 2 working days after the cancellation and informs the Chief Accountant in writing on the day of the return."
+    confidence: 0.3
+    note: "No rule handles a purpose that is cancelled after approval and before payment, so the advance is still paid and the Employee's time limit for the return can end before the money arrives."
+  - id: R-7
+    heuristic: A03
+    passages:
+      - "The Approver approves or refuses the request on the form within 2 working days after receiving it, and states the reason for a refusal."
+      - "If the accepted expenses are more than the advance, the Approver decides in writing, within 2 working days after the notification, whether the Organisation reimburses the difference."
+      - "The Chief Accountant closes the advance on the day when no payment remains due under this section."
+    confidence: 0.25
+    note: "Section 8 gives a consequence for each time limit of the Employee and none for those of the Approver, so an advance on which the Approver does not decide stays open and blocks a further advance."
+  - id: R-8
+    heuristic: A03
+    passages:
+      - "If the purpose is cancelled before any of the advance is spent, the Employee returns the whole advance to the Organisation's bank account within 2 working days after the cancellation and informs the Chief Accountant in writing on the day of the return."
+      - "If the purpose is cancelled after part of the advance is spent, sections 6 and 7 apply, and the day of the cancellation replaces the end date."
+    confidence: 0.2
+    note: "The two rules cover a cancellation when none or part of the advance is spent and are silent on a cancellation after the whole advance is spent or after the end date."
+  - id: R-9
+    heuristic: A05
+    passages:
+    - The Approver is the role to which the requesting Employee reports according to the Organisation's staff register.
+    - The Approver approves or refuses the request on the form within 2 working days after receiving it, and states the reason for a refusal.
+    confidence: 0.6
+    note: For an advance of more than 8,000 florins that the Finance Director requests, the Finance Director is the Approver of the Finance Director's own request; the keyed cold read found it, the A04-1 line made it, and it waits on the owner's ruling.

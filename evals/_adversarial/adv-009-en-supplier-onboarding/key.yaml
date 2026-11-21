@@ -1,0 +1,77 @@
+case: adv-009-en-supplier-onboarding
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The Head of Procurement is the Approver when the contract value is below EUR 40,000."
+          - "The Finance Director is the Approver when the contract value is EUR 40,000 or more."
+          - "The Head of Procurement decides every Request with a contract value of EUR 50,000 or less."
+        also: [A02]
+        note: "A Request with a contract value from EUR 40,000 to EUR 50,000 has the Finance Director as the Approver by one line and is decided by the Head of Procurement by another, so the Procurement Officer cannot obey both when sending it to the Approver."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04: {defects: [], traps: []}
+  A05: {defects: [], traps: []}
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "No employee of the Organisation signs a contract with a supplier unless the Supplier Register shows the status Active for that supplier on the day of signing."
+          - "The supplier and its declared owners are checked against the Excluded Parties List again on the working day before the first contract is signed."
+        note: "The second check against the Excluded Parties List is required before the first contract is signed, and no line says who makes it: the Procurement Officer, the Compliance Officer or the employee who signs."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A01
+    passages:
+      - "When the result is \"failed\", the Procurement Officer closes the Request and sends the check report to the Requester within 2 working days."
+      - "The Procurement Officer makes an entry for the supplier within 2 working days after closing a Request with the result \"failed\" or after receiving the Approver's decision."
+      - "Each entry records the supplier's name, the date and result of the due-diligence check, the contract value, the Approver, the date of the decision and the status."
+    confidence: 0.4
+    note: "A Request with the result \"failed\" never reaches an Approver and has no decision, but each entry must record the Approver and the date of the decision; a reader can also report it under A03, because the content of the entry is not defined for the failed case."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "The contract value is the total amount payable to the supplier under the first contract over its full term, in euro, without value-added tax."
+      - "The Requester states in the Request the supplier's name, the goods or services needed and the contract value."
+      - "The Head of Procurement is the Approver when the contract value is below EUR 40,000."
+      - "The Finance Director is the Approver when the contract value is EUR 40,000 or more."
+      - "No employee of the Organisation signs a contract with a supplier unless the Supplier Register shows the status Active for that supplier on the day of signing."
+    confidence: 0.35
+    note: "The Approver is chosen by the contract value that the Requester states, and no rule handles a first contract that is signed for a higher value than the Request stated."
+  - id: R-3
+    heuristic: A02
+    passages:
+      - "The Request is the onboarding request described in the section \"Onboarding request\"."
+      - "The Procurement Officer asks the supplier for the documents listed below within 3 working days after receiving the Request."
+      - "The supplier has 15 working days from that request to provide all of them."
+      - "The result is \"failed\" when any of the four conditions is not met, or when the supplier has not provided all the documents within the 15 working days."
+    confidence: 0.3
+    note: "\"That request\" can be the Request or the Procurement Officer's request for the documents, so the 15 working days start on dates up to 3 working days apart, and the difference can decide \"passed\" or \"failed\"; a reader can also report it under A04."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "The Approver approves or rejects the Request within 5 working days after receiving it."
+      - "The Procurement Officer makes an entry for the supplier within 2 working days after closing a Request with the result \"failed\" or after receiving the Approver's decision."
+    confidence: 0.15
+    note: "No rule handles an Approver who does not decide within the 5 working days, so such a Request stays without an entry and without a status."
+  - id: R-5
+    heuristic: A05
+    passages:
+      - "The Requester is the head of the department that needs the goods or services."
+      - "The Procurement Officer completes the due-diligence check within 10 working days after receiving all the documents."
+      - "When the Requester is the Head of Procurement, the Finance Director is the Approver instead, whatever the contract value."
+      - "The Head of Procurement is accountable for the Supplier Register being complete and correct."
+    confidence: 0.15
+    note: "When the Requester is the Head of Procurement, the due-diligence check and the entry of that Request stay with the Procurement Officer, which is a circle only if the Procurement Officer reports to the Head of Procurement, and the document does not say so."
+  - id: R-6
+    heuristic: A02
+    passages:
+      - "A Requester may submit a new Request for a supplier with the status Rejected at any time, and the new Request starts a new due-diligence check."
+      - "The Procurement Officer makes an entry for the supplier within 2 working days after closing a Request with the result \"failed\" or after receiving the Approver's decision."
+      - "No employee of the Organisation signs a contract with a supplier unless the Supplier Register shows the status Active for that supplier on the day of signing."
+    confidence: 0.1
+    note: "The document does not say if a new Request makes a second entry or changes the first, so one supplier can show both Rejected and Active, though both readings probably lead to the same act."
