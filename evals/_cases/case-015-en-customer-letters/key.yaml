@@ -1,0 +1,97 @@
+case: case-015-en-customer-letters
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps:
+    - id: A01-T1
+      passages:
+      - The author answers a complaint within ten working days.
+      - When the author cannot give a full answer within the limit, the author sends an interim letter within the same limit.
+      - The interim letter states the date of the full answer, which is no later than twenty working days after the start of the limit.
+      why: Ten days for a complaint and twenty days for a full answer look opposed, but the interim letter is sent "within the same limit", so the ten-day limit is met and the twenty days are a ceiling for the full answer only.
+  A02:
+    defects: []
+    traps:
+    - id: A02-T1
+      passages:
+      - 'A letter is checked before sending when it does at least one of three things: it refuses something the customer asked for, it states a sum of money, or it answers a complaint.'
+      - An interim letter, described in the section "Response times", is also sent without a check, whatever its subject.
+      why: An interim letter on a complaint meets both the rule of the check and the rule of no check, but the second rule says "whatever its subject", so the document says which applies.
+  A03:
+    defects: []
+    traps: []
+  A04:
+    defects:
+    - id: A04-1
+      passages:
+      - A customer who has asked for an offer and has not yet signed a service agreement is addressed in the same way.
+      - A customer is a person or a company that holds a signed service agreement with the Organisation.
+      - Letters to anyone who is not a customer are outside this guideline.
+      also:
+      - A01
+      note: '"Customer" is defined as the holder of a signed service agreement and is then used for someone who has not signed one, so a reader cannot tell whether a letter to that person is inside the guideline, with its check and its time limits, or outside it.'
+    traps: []
+  A05:
+    defects: []
+    traps: []
+  A06:
+    defects: []
+    traps: []
+residue:
+- id: R-1
+  heuristic: A02
+  passages:
+  - The author answers a complaint within ten working days.
+  - The author answers any other message within five working days.
+  - The time taken by the check is part of these limits.
+  - The interim letter states the date of the full answer, which is no later than twenty working days after the start of the limit.
+  confidence: 0.3
+  note: '"These limits" stands after the ten-day and five-day limits and before the twenty-day limit, so a reader may doubt whether the check falls inside the twenty days, though "the date of the full answer" most naturally means the date of sending.'
+- id: R-2
+  heuristic: A03
+  passages:
+  - The Head of the Department assigns each message to an author on the working day the Organisation receives it.
+  - Time limits are counted in working days and start on the working day after the Organisation receives the message.
+  confidence: 0.25
+  note: A message received on a day that is not a working day has no stated day of assignment, though a reader supplies the next working day without a second way to act that matters.
+- id: R-3
+  heuristic: A02
+  passages:
+  - For a company whose record names no contact person, the author writes "Dear Customer".
+  - A customer who has asked for an offer and has not yet signed a service agreement is addressed in the same way.
+  - For a person whose record holds a title, the author writes "Dear", the title and the family name.
+  - For a person whose record holds no title, the author writes "Dear", the first name and the family name.
+  confidence: 0.45
+  note: '"In the same way" can point to the sentence directly before it, so that the author writes "Dear Customer" to a person who has not yet signed, or to the whole section, so that the author writes "Dear", the title or first name, and the family name; the two readers write different greetings and each believes that they obey the document.'
+- id: R-4
+  heuristic: A03
+  passages:
+  - The checker confirms the letter or returns it with corrections within one working day.
+  - When the author and the checker do not agree, the Head of the Department decides the wording.
+  - The author sends the letter only after the checker confirms it or the Head of the Department decides its wording.
+  confidence: 0.3
+  note: 'The document does not cover the letter that the checker returns with corrections and the author accepts: the checker has not confirmed it and the Head of the Department has no disagreement to decide, so the document gives no step, and no time limit, by which the corrected letter becomes sendable.'
+- id: R-5
+  heuristic: A03
+  passages:
+  - The checker confirms the letter or returns it with corrections within one working day.
+  - Time limits are counted in working days and start on the working day after the Organisation receives the message.
+  confidence: 0.25
+  note: The one working day of the checker has no stated start (the appointment, the receipt of the draft), and the only rule on the start of a time limit ties every limit to the receipt of the message, which cannot apply to the checker.
+- id: R-6
+  heuristic: A02
+  passages:
+  - The author takes the name and title from the customer record.
+  - For a person whose record holds a title, the author writes "Dear", the title and the family name.
+  - For a person whose record holds no title, the author writes "Dear", the first name and the family name.
+  - For a company, the author addresses the contact person named in the customer record, following the two rules above.
+  confidence: 0.2
+  note: Three sentences stand above "the two rules above", so the reference can be counted in two ways. Every careful reader takes the two "For a person" sentences, and the two readings do not lead to different greetings. It is listed because a model may report it; it is a candidate for a trap of A02.
+- id: R-7
+  heuristic: A05
+  passages:
+  - The Team Lead reviews all open messages of the team every Monday and reassigns any message whose limit is at risk.
+  - The guideline applies to every letter written by an Adviser or a Team Lead of the Department.
+  confidence: 0.15
+  note: 'A Team Lead who is the author of a message reviews the risk of their own message and decides alone if it is reassigned. It is weak: the review is supervision, not an approval, and the document does not say that a Team Lead''s messages belong to "the team".'

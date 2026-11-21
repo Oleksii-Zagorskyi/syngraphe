@@ -1,0 +1,110 @@
+case: case-003-en-onboarding
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps: []
+  A02:
+    defects: []
+    traps:
+    - id: A02-T1
+      passages:
+      - The line manager decides at the meeting either to confirm the employment or to end it, and sends the decision in writing to the HR Officer on the day of the meeting.
+      - The line manager informs the HR Officer and the IT Technician of the leaving day on the day the line manager sets or learns it.
+      why: Both passages name the same day, the day of the review meeting, and section 8 adds only one more recipient, the IT Technician; every careful reader sends the decision to the HR Officer and informs the IT Technician that day.
+  A03:
+    defects:
+    - id: A03-1
+      passages:
+      - When the line manager is absent, the line manager's own manager performs the steps that this procedure assigns to the line manager.
+      - When the HR Officer is absent, the Head of HR performs the steps that this procedure assigns to the HR Officer.
+      - The IT Technician prepares, issues and recovers the equipment and creates, disables and deletes the accounts.
+      - The IT Technician prepares the equipment and creates the accounts no later than two working days before the first day.
+      - The IT Technician hands the equipment to the new employee and gives the sign-in details for the accounts.
+      - The employee returns all the equipment to the IT Technician on or before the leaving day.
+      - The IT Technician disables the accounts at the end of the leaving day and deletes them 30 calendar days later.
+      note: The procedure covers every new employee and names a stand-in for the line manager and for the HR Officer, but no rule says who prepares the equipment and creates the accounts, on a fixed deadline, when the IT Technician is absent.
+    traps: []
+  A04:
+    defects: []
+    traps: []
+  A05:
+    defects: []
+    traps: []
+  A06:
+    defects:
+    - id: A06-1
+      passages:
+      - The content of the accounts is archived before the accounts are deleted.
+      - The IT Technician disables the accounts at the end of the leaving day and deletes them 30 calendar days later.
+      note: The archiving of the accounts' content is required in the passive and no role is assigned to it anywhere in the document, since the IT Technician's line names only disabling and deleting.
+    traps: []
+residue:
+- id: R-1
+  heuristic: A03
+  passages:
+  - This procedure applies to every new employee of the Organisation.
+  - A new employee is a person who has signed an employment contract with the Organisation.
+  - The IT Technician prepares the equipment and creates the accounts no later than two working days before the first day.
+  - The leaving day is the final day on which an employee who leaves works for the Organisation.
+  - This section applies when the leaving day of a new employee falls within the probation period, whatever the reason for leaving.
+  confidence: 0.4
+  note: A person who signs the contract and withdraws before the first day is inside the scope but has no leaving day and no probation period, so no rule closes the accounts or releases the prepared equipment.
+- id: R-2
+  heuristic: A06
+  passages:
+  - The new employee completes the information security course and the workplace safety course by the end of the first week.
+  - The accounts are one email account, one document store account and one timekeeping account.
+  confidence: 0.2
+  note: The new employee must complete two courses by a time limit, but no role is assigned to enrol the employee or to give the courses, and the accounts issued do not include access to them.
+- id: R-3
+  heuristic: A05
+  passages:
+  - This procedure applies to every new employee of the Organisation.
+  - The HR Officer checks the identity document of the new employee and opens the onboarding record.
+  - The IT Technician hands the equipment to the new employee and gives the sign-in details for the accounts.
+  confidence: 0.15
+  note: When the new employee is the HR Officer or the IT Technician, the role checks its own identity document or issues its own equipment, and the document does not state that case.
+- id: R-4
+  heuristic: A03
+  passages:
+  - When the line manager is absent, the line manager's own manager performs the steps that this procedure assigns to the line manager.
+  confidence: 0.1
+  note: The rule covers one level of absence only, so a line manager whose own manager is absent or does not exist leaves the plan, the objectives and the probation review with no person to perform them.
+- id: R-5
+  heuristic: A02
+  passages:
+  - When the line manager is absent, the line manager's own manager performs the steps that this procedure assigns to the line manager.
+  - The line manager holds a probation review meeting with the new employee no later than day 75 of the probation period.
+  - The line manager gives the new employee written objectives for the probation period by the end of the first week.
+  confidence: 0.3
+  note: 'The stand-in rule does not say when absence counts for a step that has a period and not a date: if the line manager is away on days 60 to 70, one reader has the manager''s manager hold the meeting, and another has the line manager hold it on return before day 75, and each obeys the document. Against it: the doubt rests mostly on the one word "absent", which can be read as "absent when the step falls due"; that is closer to a vague word than to two operative readings.'
+- id: R-6
+  heuristic: A02
+  passages:
+  - The HR Officer sends the new employee the time and place of arrival no later than three working days before the first day.
+  - The new employee arrives at the office of the Organisation at the time the HR Officer has given.
+  confidence: 0.2
+  note: 'Section 4 lets the HR Officer give a place; section 5 fixes the place as the office and takes only the time from the HR Officer. If the HR Officer names a place that is not the office, the new employee can go to either and obey. Against it: the document speaks of one office, so in the usual case the place is the office and nothing differs.'
+- id: R-7
+  heuristic: A05
+  passages:
+  - The Head of HR owns this procedure and reviews it once every calendar year.
+  confidence: 0.2
+  note: 'The role that owns the procedure is the only role that reviews it, which is a role that checks its own act. Against it: a review is not an approval, and owner review is the normal practice for a procedure.'
+- id: R-8
+  heuristic: A03
+  passages:
+  - The line manager holds a probation review meeting with the new employee no later than day 75 of the probation period.
+  - The line manager decides at the meeting either to confirm the employment or to end it, and sends the decision in writing to the HR Officer on the day of the meeting.
+  - The probation period is the 90 calendar days that begin with the first day.
+  confidence: 0.25
+  note: 'The document does not say what the state of the employment is when the probation period ends and no meeting was held or no decision was sent. Against it: this is a rule about a breach of the procedure, and the key may hold that a procedure need not state it.'
+- id: R-9
+  heuristic: A03
+  passages:
+  - This section applies when the leaving day of a new employee falls within the probation period, whatever the reason for leaving.
+  - The line manager informs the HR Officer and the IT Technician of the leaving day on the day the line manager sets or learns it.
+  - The HR Officer informs the new employee of the decision in writing within two working days after receiving it and enters it in the onboarding record.
+  confidence: 0.15
+  note: 'For a leaving that is not a decision of the review meeting, such as a resignation, no rule says who records the leaving in the onboarding record. Against it: "keeps the onboarding record" in section 3 can carry it.'

@@ -1,0 +1,372 @@
+{
+  "U-28": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding is a real problem, but of a different kind. The list says a small liquid spill is 500 ml or less, and \"A large spill is every spill that is not a small spill.\" The later sentence says one litre or less of a low-hazard liquid is a small spill. For an 800 ml spill, one passage says it is large and the other says it is small, so both cannot be true. That is a contradiction, which the instruction excludes from ambiguity. The document does not say which passage wins, so it is not a trap either.",
+    "cost_usd": 0.013482,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-20": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 8 says the administrator starts the task manually and checks the copy \"того самого дня\", and the reference to section 5 gives only the method of checking. A reader who follows the same-day rule also meets the section 5 deadline of 10:00 the next working day, so obeying the stricter rule breaks nothing. A reader who waited until the next morning would plainly break section 8. So there are no two readings that each look like obedience to the document.",
+    "cost_usd": 0.016078,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-27": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The passage \"Якщо директор відсутній, звіт затверджує і рішення щодо кожної розбіжності ухвалює голова комісії\" depends only on the director being absent. Nothing in the document links the head's power to the director failing to act within five days, so the second reading has no textual support. The unclear length of \"відсутній\" is a vague word with one reading, which the instruction says not to report. The real problem here is closer to circular authority, because the head approves a report that the head wrote and signed. That is a different kind of problem.",
+    "cost_usd": 0.016021,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-51": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages give different numbers for the same case: an 800 ml low-hazard liquid spill is large under the 500 ml condition and small under the one litre sentence. A reader who obeys one passage breaks the other, and the document has no \"instead\" or \"except\" that picks one. The problem is therefore a contradiction, not an ambiguity, and the instruction excludes contradictions.",
+    "cost_usd": 0.003822,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-22": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding depends on an approver who does not record a decision within five working days. The instruction says not to report a person failing to do what the document requires, or doing it late. The refusal duty and the deemed-approval rule do not give two readings of one action. The deemed-approval sentence has no exception for late requests, so it applies to every request with no recorded decision, and it is the document's consequence when the approver fails to act.",
+    "cost_usd": 0.015755,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-17": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The problem is real, but it is a different kind. The scope section defines a customer as someone with a signed service agreement. The addressing section then calls a person who has not signed one a \"customer\". That is one term used for two different things, not two rules that clash on the same case. The quoted sentence only says how to address such a person, so it reaches no further than the greeting. The check and time limits are not clearly extended to them, which makes the \"customer\" wording the real defect.",
+    "cost_usd": 0.014696,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-74": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages give different limits for the same case: 500 ml in the definition, one litre in the later sentence. Under the 500 ml limit a 700 ml spill is large, and under the later sentence it is small. No reading obeys both, and no passage says which one wins. That is a contradiction, not an ambiguity, and the instruction excludes passages that cannot both be true under any reading.",
+    "cost_usd": 0.003744,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-11": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The Destruction section gives two time limits: 30 days after the retention period ends, or 30 days after a legal hold is lifted if the record is under one. \"After a refusal the owner proposes the record again within the time limits of this section\" does not say which applies. The sentence \"A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again\" puts the refused record under a hold that ends only on re-proposal. Reading one: the retention-end limit applies, so the owner must re-propose at once, since that limit has often passed. Reading two: the hold limit applies, so the owner has 30 days from the end of the hold, but that hold ends only when the owner re-proposes, so no deadline ever starts. The two readers act differently, one re-proposing immediately and one waiting. The document does not say which limit governs, so the ambiguity is real.",
+    "cost_usd": 0.016717,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 5 says it applies to the finance director and chief executive \"instead of sections 3 and 4\", so the no-self-approval sentence in section 4 does not apply to them. Section 8 then says that when the chief executive is absent the finance director decides each request the chief executive approves. Section 5 has the chief executive approve the finance director's requests up to 300,000 euros, so the finance director decides their own request. Only one reading is supported, so there is no ambiguity. The real problem is a role approving its own act, which is circular authority, not ambiguity.",
+    "cost_usd": 0.019161,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-23": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding describes a case the document does not cover: who decides when the Chair is absent. The Chair is not called the Director's line manager, so the absence rule does not clearly reach the Chair. The second reading leaves no named decider at all, which is a gap, not a choice between two actions. Under the ambiguity definition, a case the document does not handle is excluded. The 'Head of People decides instead' reading has no separate textual support strong enough to make two readers each believe they obey the document.",
+    "cost_usd": 0.003904,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-73": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding rests on the undefined word \"відсутній\" in \"Якщо директор відсутній, звіт затверджує і рішення щодо кожної розбіжності ухвалює голова комісії\". That is a vague word, not a conflict between passages, and the instruction excludes vague words. The five-day period for the director is a separate rule that does not clearly collide with the absence rule, so no second reading is firmly supported by the text. The real problem in that sentence is different: the chair writes the report and then approves it himself, which is circular authority, not ambiguity.",
+    "cost_usd": 0.008266,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-45": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding's second reading does not hold. Section 1 says the copy type depends only on the creation day, \"також для копії, створеної вручну чи позачергово\", so a Sunday manual copy is weekly. Section 8 says the administrator \"запускає завдання вручну\", so a manual run is still the same task and runs every step in section 4, including the transfer of a weekly copy to remote storage. The document already settles the case, so there is no ambiguity. The conflict between 12 and six months in remote storage in section 6 is a different problem (a contradiction) and is not what this finding states.",
+    "cost_usd": 0.009188,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-24": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding does not show two different actions. The handover rule says the executor gives the document to the registrar only after the last required signature, so the registrar always receives a fully signed document. A registrar who receives it that way assigns the number the same day under either reading of \"підписаний\". The odd definition \"Документ вважається підписаним, коли його підписав виконавець\" sits badly with the executor being the person who submitted the document for signature. That is a strangely worded definition, and perhaps a conflict with the \"last required signature\" rule, not a case where careful readers act differently. The only way the readings diverge is if the executor hands the document over early, which is a failure to follow the document and is excluded.",
+    "cost_usd": 0.024035,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-18": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The interim rule says the author \"sends an interim letter within the same limit,\" so the interim letter has a time limit stated outright. The last sentence, \"A letter that does not answer a message has no time limit,\" covers letters that are not replies to a message at all, such as unprompted letters. An interim letter is sent in reply to a message, so a careful reader would not apply that sentence to it. Reading two needs the interim letter to count as not answering the message, and the specific interim rule overrides that reading. Only one action follows from the text.",
+    "cost_usd": 0.007544,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-52": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The second rule is an explicit exception: if the financial manager is the initiator of a request under 50 000, he passes it to the director the same day, and the director decides within five working days. The first rule is the general rule for other initiators. The text tells which rule applies in this case, so the two readings do not both have support. The instruction also excludes two rules for one case when the document says which one applies.",
+    "cost_usd": 0.012299,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-43": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The scope includes devices and network services as systems, but owners are appointed only for applications and databases, so no rule says who gives the second decision or does the review for those systems. That is a gap (a case in scope that no rule handles), not an ambiguity. The text does not support two competing readings from overlapping passages; the instruction also excludes uncovered cases from ambiguity findings.",
+    "cost_usd": 0.010143,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 8 says \"when both are absent, the board decides\" and then \"a spending request for the board waits for its next meeting.\" In the both-absent case the request goes to the board, so it is a request for the board, and the waiting rule covers it. The rival reading that the board decides at once has no support in the text, because nothing lets the board act outside a meeting. The two readings would not give two careful readers two different supported actions.",
+    "cost_usd": 0.010485,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-54": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The passive sentence \"The content of the accounts is archived before the accounts are deleted.\" names no actor, and Section 3 assigns archiving to no role. That is an unowned obligation (a required action with no assigned role), not an ambiguity. The document does not give two supported readings of who archives; the finding invents the two readings from role descriptions that do not mention archiving.",
+    "cost_usd": 0.009517,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-35": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The problem is real: Section 7.2 defines a meal, travel and accommodation as hospitality, not as a gift, yet Section 7.4 speaks of \"A gift in the form of a meal, travel or accommodation\". But the cause is that the document uses \"gift\" in two senses. One is the defined sense that excludes meals. The other is the looser sense in Section 7.4 that includes them. That is a term with two meanings, not an ambiguity between two rules. The instruction excludes that kind from ambiguity findings, so this finding does not fit. A reader could treat it as an ambiguity, since the two readings give different register entries, but the term-with-two-meanings kind describes it better.",
+    "cost_usd": 0.01868,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-46": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The deemed-approval sentence, \"A request with no recorded decision after five working days counts as approved\", has no condition and covers any request. The refusal sentence only sets a duty for the approver. If the approver stays silent, that is a failure to do the required act, and the document already says what follows: the request counts as approved. The second reading, that deemed approval is limited to requests that meet the time and entitlement rules, has no support in the text. Two careful readers would therefore not act differently. The finding at most shows a loophole in how silence is treated, which is not an ambiguity.",
+    "cost_usd": 0.0102,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again\" gives its own end point, so the reader is not left choosing between two lifting routes. The real trouble is different: the Records Manager must refuse any proposal for a record under a legal hold, and the owner proposes again only after a hold is lifted. A refused record is held until the owner re-proposes, so the rules chase each other. That is a contradiction or circularity, not an ambiguity about whether the Legal Counsel's notice and lifting steps apply. The finding's two readings could be argued, but the text supports the self-ending hold more, so this finding is not a defect of the ambiguity kind.",
+    "cost_usd": 0.014255,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-44": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The interim letter rule says the author sends it \"within the same limit\", which is a direct and specific deadline. The last sentence, \"A letter that does not answer a message has no time limit\", covers letters that are not tied to any message, such as unsolicited letters. The interim letter is sent in reply to a particular message and its deadline is counted from that message, so a careful reader would not treat it as a letter that answers nothing. The second reading in the finding has no real support in the text, so there are not two different instructions.",
+    "cost_usd": 0.007101,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-47": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The refusal rule compares \"the leave days of a leave year\" with the remaining entitlement \"for that leave year\". The definition of remaining entitlement subtracts \"the leave days in it\", meaning the days inside that year. Both passages count days by the year they fall in, so a request across 31 December is split by year. Nothing in the text supports counting the whole request against the year of its first day, so there is no second reading.",
+    "cost_usd": 0.005428,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-48": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Розділ 3 одночасно містить два критерії «підписаного» документа. «Документ вважається підписаним, коли його підписав виконавець» дає один критерій, а «після останнього потрібного підпису» разом із «Реєстратор не присвоює номер непідписаному документові» дає інший. Згідно з розділом 2, документ можуть підписувати керівники кількох підрозділів, а виконавець лише подає його на підпис і може не бути серед підписантів. Тому один реєстратор присвоїть номер, коли є підпис виконавця, а інший вимагатиме всіх підписів. Обидва прочитання спираються на текст, і жодна норма не вказує, яке з них застосовувати. Це можна було б вважати суперечністю, але обидва положення можуть бути правдивими одночасно, тому точніше назвати це неоднозначністю.",
+    "cost_usd": 0.012301,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-56": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding needs two readings that each have text support, and it does not have them. The doors step says to leave within 60 seconds of setting the alarm, and the alarm section sends the closing person back to the doors step once the monitoring service has set the alarm. The natural reading is that the limit still applies once the alarm is set, by whoever set it. When the alarm is not set, the doors step has no setting moment to count from, so the limit has no anchor. That is at most a small gap, not a choice between two supported actions. The 'counted from the end of the call' reading is the finding's own invention.",
+    "cost_usd": 0.01667,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-65": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The passages \"працюють з понеділка по п'ятницю з 08:00 до 17:00\" and \"робочий день працівника загального режиму закінчується о 16:30\" cannot both be true. The first gives 17:00 and the second 16:30, and the document gives no rule that picks one. That is a contradiction, not an ambiguity. The instruction says not to report passages that cannot both be true under any reading, so the finding reports an excluded type of passage. The 8-hour rule (08:00-17:00 minus the one-hour lunch) only supports 17:00, but it does not turn the conflict into an ambiguity.",
+    "cost_usd": 0.016206,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-36": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.7 gives two caps for refreshments for a public official: \"15 euros or less for each public official\" and \"limited to 10 euros for each official\". Nothing in the document says which cap controls, and neither is marked as an exception to the other. A reader who follows the 15 euro cap may serve 12 euro refreshments, while a reader who follows the 10 euro cap must not. A reader who applies 10 euros as a stricter limit within the 15 euro permission could argue both passages are satisfied, so this is not a strict contradiction. But the text does not say that reading is the right one, so two careful readers can act differently, and that is an ambiguity.",
+    "cost_usd": 0.008046,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-67": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The problem is real but it is not an ambiguity. The scope section defines a customer as someone who holds a signed service agreement and puts letters to non-customers outside the guideline. The addressing section then calls a person who has not signed 'a customer' and gives a rule for that person. These passages conflict, or use 'customer' for two different things, so the finding fits contradiction or term with two meanings better. The other reading is possible because the addressing rule could be a narrow exception to the scope rule. The text does not mark it as one, so I do not treat this as an ambiguity.",
+    "cost_usd": 0.009147,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-13": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The destruction section says the owner erases or shreds \"every copy of it\", and the definition says duplicate copies in the same form \"are not records, and this policy does not govern them\". One careful reader takes \"every copy\" literally and destroys all duplicates, because the destruction rule names them. Another reader says the policy does not govern duplicates, so only copies that count as the record itself, such as the other form of a record held in both forms, must be destroyed. The document does not say which passage wins, so the owner's destruction work differs between the two readings. This is an ambiguity, not a contradiction, because both passages can be true under the first reading.",
+    "cost_usd": 0.010679,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-69": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding rests on the word \"absent\" in \"When the line manager is absent, the Head of People decides the request instead.\" and on a vacant post. The instruction excludes vague words with one reading, and it excludes cases the document does not cover, which are gaps. \"Absent\" has its ordinary meaning of not being present. A vacant post is an uncovered case, not a second reading of an existing rule. The deemed-approval rule is a separate default and does not give a competing reading of the Head of People clause.",
+    "cost_usd": 0.008678,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-31": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The text gives one answer. Section 5 applies to the finance director \"instead of sections 3 and 4\", which removes the sentence \"No requester approves their own spending request.\" Section 8 then says that when the chief executive is absent, \"the finance director decides each spending request that the chief executive approves\". That includes the finance director's own requests up to 300,000 euros, so the document lets the finance director approve their own act. The finding's second reading, that the no-self-approval rule still applies, has weak support because section 5 displaces that rule. The real problem is a role approving its own act, which is circular authority, not ambiguity.",
+    "cost_usd": 0.017469,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-58": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The problem is real but belongs to a different kind. Section 7.2 defines a gift as 'any other thing of value' apart from meals, travel and accommodation, which are hospitality. Section 7.4 then uses 'gift' for 'a meal, travel or accommodation'. So the document uses the term 'gift' in two senses, which is a term with two meanings, and the instruction says not to report that as an ambiguity. A reader who applies the payer-name rule to nothing is also reading it in a way that makes the sentence pointless, so the finding does not show two equally supported readings.",
+    "cost_usd": 0.011068,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-70": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The transfer rule says the executor hands the document to the registrar only \"після останнього потрібного підпису\", so the registrar receives it only after all signatures. Both readers therefore act the same way, and the finding's second reading needs a executor who breaks that rule. The sentence \"Документ вважається підписаним, коли його підписав виконавець\" is odd, because the executor is defined as the person who submitted the document for signature and may not be a signer. That oddity is closer to a contradiction or a term problem than to an ambiguity that leads two careful readers to different actions.",
+    "cost_usd": 0.014063,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-41": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence 'A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again' makes a refused record held. The Destruction section says a record placed under a hold after its retention period ended is proposed within 30 days after the hold is lifted. Read that way, the hold ends only when the owner re-proposes, so the deadline never starts. 'After a refusal the owner proposes the record again within the time limits of this section' does not say which limit applies. A second careful reader could use the 30 days from the end of the retention period, which may already have passed. The two readers set different re-proposal deadlines, and the document does not choose between them. Another reading, that this is a contradiction, is possible, but the unclear choice of deadline is what changes the owner's action.",
+    "cost_usd": 0.012237,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-42": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition says duplicate copies in the same form are not records and the policy does not govern them. The destruction section then says that when the owner destroys a record, the owner also erases or shreds \"every copy of it\". One careful reader destroys all duplicates, including same-form ones, because \"every copy\" is an explicit rule. Another reader destroys only copies that count as the record, such as the other-form version, and leaves same-form duplicates alone because the policy excludes them. The document does not say which passage controls, and the second reading still gives \"every copy\" a meaning, so both readings are supported. The two readings lead to different actions, and no \"except\" or \"instead\" resolves them.",
+    "cost_usd": 0.009843,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-63": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence 'A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again' creates a deemed hold. The sentence 'After a refusal the owner proposes the record again within the time limits of this section' then points to two limits that can both apply. Reader A uses the first limit, 30 days after the retention period ends. Reader B notes that the record is now under a hold placed after the retention period ended, so the second limit applies: 30 days after the hold is lifted. That hold ends only when the owner proposes again, so the second limit cannot be met and gives no usable deadline. The two readers set different deadlines for the re-proposal, and the document does not say which limit governs. The finding's claim that no Legal Counsel step lifts this hold adds little, since the text says the owner's re-proposal ends it. The ambiguity about the deadline is still supported.",
+    "cost_usd": 0.018205,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-64": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition says duplicate copies of a record in the same form are not records and that \"this policy does not govern them\". The destruction section says the owner must erase or shred \"every copy of it\". One careful reader treats the destruction sentence as covering all copies, including same-form duplicates, and erases them. Another treats the definition as putting those duplicates outside the policy and leaves them. The document does not say which passage prevails, and the reading that \"every copy\" means only copies in a different form still leaves same-form duplicates unresolved. So the finding is a real ambiguity, though it could also be called a contradiction.",
+    "cost_usd": 0.008385,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

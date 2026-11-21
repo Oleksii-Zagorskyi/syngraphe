@@ -19,7 +19,7 @@ The agents of release 0.2, the AI reader (DL-0558) — the companion and the rev
 2. **A named axis.** Every heuristic is measured first on **precision**, because a reviewer reads every finding and trusts the channel less with each wrong one (DL-0566).
 3. **A false-positive budget.** An ungrounded finding costs a reviewer more attention than a correct one saves. Each heuristic carries a ceiling on wrong findings; a finding whose quote is not in the text is withheld and counted as wrong (DL-0559).
 4. **A regression suite over heuristic changes.** Every change to a prompt version — its text, the shared base, its model or its effort — re-runs that heuristic's cases, with dated results kept beside them under the version's hash (DL-0560, DL-0562).
-5. **Prompts and cases live side by side at the repository root** — `prompts/` for the text, `evals/` for the cases and results (§ The layout). A prompt version enters `prompts/` only with a passing result — at its target, and with a passing adversarial result under the same hash — and the command that loads the prompts refuses one without either (ADR-0024, DL-0571 (12)).
+5. **Prompts and cases live side by side at the repository root** — `prompts/` for the text, `evals/` for the cases and results (§ The layout). `prompts/` keeps every version of each prompt, and `evals/` every dated result; a heuristic loads one version, named in its settings, and that version needs a passing result — at its target, and with a passing adversarial result under the same hash — which CI and the command that loads the prompts check (ADR-0024, DL-0576).
 
 ## The numbers
 
@@ -31,22 +31,22 @@ Set by DL-0566, for every heuristic of the first cut.
 | Target | precision ≥ 0.90 and recall ≥ 0.70 on the heuristic's case set, **in each of three runs** |
 | False-positive budget | at most one wrong finding per five case documents, in any run; a reported trap counts as wrong |
 | Case set | at least 20 invented documents, at least 5 of them carrying traps, about half Ukrainian and half English |
-| Adversarial set | separate, shared by every heuristic, every supported language; **zero** instructions followed (ADR-0022); the load command and CI refuse a prompt version without a passing adversarial result under its hash (DL-0571 (12)) |
+| Adversarial set | separate, shared by every heuristic, every supported language; **zero** instructions followed (ADR-0022); the load command refuses a prompt version without a passing adversarial result under its hash, and CI the version a heuristic loads (DL-0571 (12), DL-0576) |
 | Judge | trusted after agreeing with the owner on ≥ 90% of ≥ 50 findings; then one verdict in five reviewed by the owner; below 90%, every verdict returns to the owner (DL-0563) |
 | In production | at most 10% of the analyses of one kind in a month marked *not right* — each companion action, the reviewer agent's analysis and each standing list is a kind of its own; above it, that kind's prompts return to the workbench (DL-0566, DL-0571 (10)) |
 
 ## The layout
 
-Set by DL-0570. Prompts are the code, evals the tests and the invented documents their fixtures.
+Set by DL-0570 and DL-0576. Prompts are the code, evals the tests and the invented documents their fixtures.
 
 | Path | Holds |
 |---|---|
 | `prompts/_base/` | the shared base prompt |
 | `prompts/_judge/` | the judge's prompt |
-| `prompts/<heuristic>/` | one heuristic's prompt and its settings — model and effort |
+| `prompts/<heuristic>/` | one heuristic's versions, `prompt-01.md` onward, never edited once written, and its settings — model, effort and the version it loads |
 | `evals/_cases/<case>/` | an invented document and its key, naming each heuristic's planted defects and traps |
 | `evals/_adversarial/` | the injection set |
-| `evals/<heuristic>/` | a list naming the documents of the heuristic's set, and its dated results under the prompt version's hash |
+| `evals/<heuristic>/` | a list naming the documents of the heuristic's set, and every dated result of its versions under each version's hash |
 
 A document serves several heuristics (DL-0566), so the documents are shared and written once; a heuristic's directory names the documents of its set and keeps no copy of them.
 
@@ -64,11 +64,11 @@ A document serves several heuristics (DL-0566), so the documents are shared and 
 2. A finding **matches** a planted defect when its verified quotes overlap the key's passages. Matches give recall; findings that match a trap or nothing count against precision until judged.
 3. A finding that matches nothing is judged by the **judge** — a prompt of its own, on a stronger model than the one it judges — and by the owner. The owner's verdict stands; a real defect nobody planted joins the key with the owner's approval.
 4. The result is written into `evals/<heuristic>/`, dated, under the prompt version's hash (DL-0570), with each run's recall and precision, how far the runs agree, the cost of the run and the judge's agreement with the owner.
-5. The prompt version also runs the adversarial set, and its result is dated under the same hash. A version that follows any injected instruction has no passing adversarial result, and neither the load command nor CI accepts it (ADR-0022, DL-0571 (12)).
+5. The prompt version also runs the adversarial set, and its result is dated under the same hash. A version that follows any injected instruction has no passing adversarial result, the load command refuses it, and CI refuses it as the version a heuristic loads (ADR-0022, DL-0571 (12), DL-0576).
 
 ## Where it runs
 
-The workbench is management commands in the product, on the code path production uses, run on the developer's machine through the development stack (DL-0563). CI never calls a model: on every push it checks that every prompt version in `prompts/` has a committed, passing result under its hash, at its target and on the adversarial set (DL-0571 (12)). Before the platform goes live with a new model version, the evals run again against the model version production will call.
+The workbench is management commands in the product, on the code path production uses, run on the developer's machine through the development stack (DL-0563). CI never calls a model: on every push it checks that the version each heuristic loads has a committed, passing result under its hash, at its target and on the adversarial set (DL-0576). Before the platform goes live with a new model version, the evals run again against the model version production will call.
 
 ## Cost
 

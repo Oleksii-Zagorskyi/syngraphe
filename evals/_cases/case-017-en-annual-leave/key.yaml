@@ -1,0 +1,110 @@
+case: case-017-en-annual-leave
+language: en
+heuristics:
+  A01:
+    defects:
+    - id: A01-1
+      passages:
+      - A request for more than five leave days that is submitted at least 20 working days before the first day of leave is in time.
+      - A request for more than five leave days is submitted at least 30 working days before the first day of leave.
+      also:
+      - A02
+      note: A request for six or more days submitted 25 working days ahead is in time by one line and late by the 30-day line; both lines cover the same requests, so no reading makes both true.
+    traps: []
+  A02:
+    defects: []
+    traps:
+    - id: A02-T1
+      passages:
+      - At the end of 31 December, the remaining entitlement for the ending leave year of an employee whose employment continues on 1 January carries over to the next leave year, up to five leave days.
+      - A remaining entitlement below zero carries over in full.
+      why: 'A negative balance seems to meet both the capped carry-over rule and a second rule, but the second line says which applies: below zero it carries over in full.'
+  A03:
+    defects:
+    - id: A03-1
+      passages:
+      - A request for fewer than five leave days is submitted at least 10 working days before the first day of leave.
+      - A request for more than five leave days is submitted at least 30 working days before the first day of leave.
+      - The approver refuses a request that is submitted later than the time limit that applies to it, or in which the leave days of a leave year exceed the remaining entitlement for that leave year, and states the reason in the leave register.
+      note: 'A request for exactly five leave days has no notice period: neither line covers it, so it can never be late and is approved however short the notice.'
+    traps: []
+  A04:
+    defects: []
+    traps: []
+  A05:
+    defects:
+    - id: A05-1
+      passages:
+      - When the line manager is absent, the Head of People decides the request instead.
+      - The line manager of the employee decides each request.
+      - The requests of an employee who manages other employees are decided by that employee's own line manager.
+      note: When the Head of People's own line manager is absent, the substitute rule makes the Head of People the approver of the Head of People's own leave request.
+    traps: []
+  A06:
+    defects: []
+    traps:
+    - id: A06-T1
+      passages:
+      - The carried-over amount is recorded in the leave register by 15 January.
+      - The Head of People also records in the leave register each amount carried over into a leave year.
+      why: The record of the carry-over is passive and names no role in its own section, but the section on entitlement assigns that record to the Head of People.
+residue:
+- id: R-1
+  heuristic: A02
+  passages:
+  - The approver records the decision in the leave register within five working days of the request.
+  - The approver refuses a request that is submitted later than the time limit that applies to it, or in which the leave days of a leave year exceed the remaining entitlement for that leave year, and states the reason in the leave register.
+  - A request with no recorded decision after five working days counts as approved.
+  confidence: 0.35
+  note: For a late or over-entitlement request with no recorded decision after five working days, the duty to refuse and the approval by silence both apply and the document does not say which governs.
+- id: R-2
+  heuristic: A02
+  passages:
+  - The remaining entitlement for a leave year is the employee's entitlement for that leave year, plus the amount carried over into it, minus the leave days in it already taken or approved.
+  - A request for more than five leave days is submitted at least 30 working days before the first day of leave.
+  - The approver refuses a request that is submitted later than the time limit that applies to it, or in which the leave days of a leave year exceed the remaining entitlement for that leave year, and states the reason in the leave register.
+  - At the end of 31 December, the remaining entitlement for the ending leave year of an employee whose employment continues on 1 January carries over to the next leave year, up to five leave days.
+  confidence: 0.35
+  note: A request for January leave is decided before anything has carried over, so one approver counts the carried-over amount as zero and another counts the amount that is expected to carry over.
+- id: R-3
+  heuristic: A02
+  passages:
+  - A leave day is a working day on which the employee is contracted to work.
+  - The remaining entitlement for a leave year is the employee's entitlement for that leave year, plus the amount carried over into it, minus the leave days in it already taken or approved.
+  - Leave approved before the notice period remains approved.
+  - The Payroll Officer pays, with the final salary, the remaining entitlement for the leave year of the last day of employment as it stands at the end of that day.
+  confidence: 0.2
+  note: Leave approved earlier for dates after the last day of employment remains approved, so one Payroll Officer subtracts it from the final payment and another does not.
+- id: R-4
+  heuristic: A03
+  passages:
+  - This policy sets the rules for paid annual leave at the Organisation.
+  - The employee submits each request in the leave register, stating the first and the last day of leave.
+  - The remaining entitlement for a leave year is the employee's entitlement for that leave year, plus the amount carried over into it, minus the leave days in it already taken or approved.
+  confidence: 0.2
+  note: Approved leave reduces the remaining entitlement, and no rule lets the employee or the approver withdraw or change an approved request.
+- id: R-5
+  heuristic: A02
+  passages:
+  - The line manager of the employee decides each request.
+  - The Chair of the Board decides the Director's requests.
+  - When the line manager is absent, the Head of People decides the request instead.
+  - A request with no recorded decision after five working days counts as approved.
+  confidence: 0.4
+  note: 'The document does not say if the Chair of the Board is "the line manager" of the Director for the substitute rule. Reader one: the Chair stands in the line manager''s place, so when the Chair is absent the Head of People decides the Director''s request. Reader two: the Chair''s line is a separate rule and the substitute rule does not reach it, so nobody decides and the request counts as approved after five working days. The readings differ in the person who decides and come from the passages together (a condition stated in one place whose scope over another passage is not clear). Under reader one there is also a second A05 finding: the Director, as the likely line manager of the Head of People, decides the Head of People''s requests, and the Head of People decides the Director''s ("A approves B, B approves A"). That A05 rests on a reporting line that the document does not state, so on its own it is 0.2.'
+- id: R-6
+  heuristic: A06
+  passages:
+  - The leave register is the Organisation's record of entitlements, requests and decisions.
+  - The approver records the decision in the leave register within five working days of the request.
+  - A request with no recorded decision after five working days counts as approved.
+  confidence: 0.2
+  note: 'The remaining entitlement is reduced by leave "already taken or approved", and the register is the record of decisions, but no role records the approval that arises by silence. Weak: the document may intend that the status follows from the date alone.'
+- id: R-7
+  heuristic: A04
+  passages:
+  - A leave day is a working day on which the employee is contracted to work.
+  - An employee contracted to work five days a week is entitled to 25 leave days in a leave year.
+  - One leave day is deducted for each leave day of absence, and half a leave day for an absence of half of the contracted hours of that day.
+  confidence: 0.15
+  note: The term is defined as a kind of calendar day and is then used as a unit of entitlement (which can be a half and can be below zero). The last line uses both senses in one sentence. No reader acts differently because of it, so I would not key it; a model may report it.

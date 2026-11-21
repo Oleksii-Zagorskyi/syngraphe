@@ -1,0 +1,30 @@
+[
+  {
+    "id": "U-01",
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/A01-contradiction/results/2026-11-18-sonnet-medium-900cf9bfd7a1-case009/calls/row1/case-009-en-gifts/A01",
+    "n": 2
+  },
+  {
+    "id": "U-02",
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/A01-contradiction/results/2026-11-18-sonnet-medium-900cf9bfd7a1-case009/calls/row1/case-009-en-gifts/A01",
+    "n": 3
+  },
+  {
+    "id": "U-03",
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/A01-contradiction/results/2026-11-18-sonnet-medium-900cf9bfd7a1-case009/calls/row2-fresh-marker/case-009-en-gifts/A01",
+    "n": 2
+  },
+  {
+    "id": "U-04",
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/A01-contradiction/results/2026-11-18-sonnet-medium-900cf9bfd7a1-case009/calls/row2-fresh-marker/case-009-en-gifts/A01",
+    "n": 3
+  }
+]

@@ -1,0 +1,56 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The right not to record a document whose reliability the accountant doubts is a narrower rule for a special case (doubted documents), and the instruction excludes that pattern even when it has no mark. The general duty to record every primary document within two working days still covers all other documents. The document also ties the two together: the time limit for a document 'до якого запитано пояснення' runs from the day the explanation or the director's decision is received. A strict reading could call the two passages a conflict, because 'кожним' has no stated exception, but the text supports the special-case reading more.",
+    "cost_usd": 0.02899
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.2 defines hospitality as \"a meal, a drink, entertainment, travel or accommodation\" and a gift as \"any other thing of value\", so under the definitions a meal, travel or accommodation can never be a gift. Section 7.4 nonetheless speaks of \"A gift in the form of a meal, travel or accommodation\". That passage does not obey the document's own definition, which the instruction lists as a cause of contradiction. One could instead call this one term used with two meanings, which the instruction excludes. But the definitions are exclusive (\"any other thing\"), so the clash with the set definition is the better-supported reading.",
+    "cost_usd": 0.026537
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 2 says that a system administrator who is standing in for an absent database administrator does not perform the trial restore. This is a narrower rule for a special case. Section 7 is the general rule that gives the trial restore to the system administrator. The instruction excludes a general rule paired with a narrower rule for a special case, even with no 'except' mark, so the two passages can both hold. Who does the restore during that substitution is at most a gap, which is a different kind of problem.",
+    "cost_usd": 0.027674
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The definition \"звіт — це щомісячний звіт про стан розрахунків\" and the sentence \"Бухгалтер щокварталу подає директорові Організації звіт про виконання своїх обов'язків\" do differ. But the difference is only that one word, \"звіт\", is used with two meanings. The quarterly duty to the director does not stop the bookkeeper from preparing the monthly report, so the bookkeeper can obey both passages. The instruction says not to report \"one term that the document uses with two meanings\", and this finding reports exactly that, which makes it a trap; \"not a defect\" is also possible, because the problem is real but of a different kind.",
+    "cost_usd": 0.019824
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The keys step has the person put the key in the key safe and scramble the dial, and the closing log step then says the log \"is kept in the key safe.\" Scrambling a code dial does not make the safe impossible to open for someone who knows the code. The weekend rule has every entrant write in the closing log, so people who use the office do reach the safe. A reader can open the safe again, write the entry and close it, so both steps can be obeyed together; the missing instruction to reopen the safe is a gap, not a contradiction. The other verdict is possible if one reads the order as meant to leave the log out of reach, but the text never says the closing person cannot open the safe.",
+    "cost_usd": 0.035608
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The passages look like a clash, but the document removes it with \"The approver records the decision in the leave register within five working days of the request.\" An approver who obeys the document refuses a late request and records that refusal within five days. The deemed-approval rule applies only when no decision is recorded, so the two passages never require opposite results for a reader who obeys both. \"Not a defect\" is also possible, because a consistent reading exists even without pointing to a specific resolving passage.",
+    "cost_usd": 0.025724
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says the initiator is \"керівник структурного підрозділу або директор\". The document never says that the financial manager is not the head of a structural unit. A financial manager can head the finance unit, so the rule \"Якщо ініціатором ... є фінансовий менеджер\" can be true together with the definition. The finding depends on an assumption that the text does not support. A 'real defect' verdict is possible only if the reader assumes that the financial manager cannot head a unit.",
+    "cost_usd": 0.0263
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The ban \"No requester approves their own spending request\" sits in section 4. Section 5 says it \"applies to these two requesters instead of sections 3 and 4\", so the ban does not govern the finance director's own requests. Section 8 can therefore let the finance director decide, during the chief executive's absence, the requests the chief executive approves, including the finance director's own, without breaking any rule that applies to that case. A real defect is still possible if one reads the ban as a universal rule despite its placement in section 4, but the text's explicit exclusion supports trap more.",
+    "cost_usd": 0.033085
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 2 says that a system administrator who stands in for an absent database administrator does not do the trial restore. That is a narrower rule for one special case, and the general rule in section 7 still covers every other case. The instruction says not to report a general rule with a narrower rule for a special case, so both passages can be obeyed together. The finding's own point that nobody is named to do the restore in that case is a gap, a different kind of problem, so 'not a defect' is the only other possible verdict.",
+    "cost_usd": 0.014952
+  }
+}

@@ -1,0 +1,87 @@
+case: case-021-en-lab-spill
+language: en
+heuristics:
+  A01:
+    defects:
+    - id: A01-1
+      passages:
+      - A small spill is a spill that meets all of the following conditions.
+      - '- Its quantity is 500 millilitres or less for a liquid, or 500 grams or less for a solid.'
+      - A spill of one litre or less of one low-hazard liquid, with no person injured or contaminated by it, is a small spill.
+      note: A spill of 800 millilitres of a low-hazard liquid is a small spill by the one-litre line and fails the 500-millilitre condition that every small spill must meet, so it is a large spill as well, and the discoverer must class it both ways.
+    traps: []
+  A02:
+    defects:
+    - id: A02-1
+      passages:
+      - A trained worker who is alone in the laboratory calls the emergency line 4400 before cleaning a small spill.
+      - Every other discoverer calls the emergency line 4400, which the Duty Safety Officer answers at all hours.
+      - The Duty Safety Officer sends a trained worker to a small spill.
+      note: A lone trained worker calls the line before cleaning; on one reading the call is a notice and the worker cleans at once, on the other the call brings the trained worker the Duty Safety Officer sends and the lone worker waits for them.
+    traps: []
+  A03:
+    defects: []
+    traps:
+    - id: A03-T1
+      passages:
+      - '- It consists of one substance that the chemical register marks as low-hazard.'
+      - A large spill is every spill that is not a small spill.
+      why: A spill of two low-hazard substances, or of a substance that is not in the register, looks to have no class, but the words "every spill that is not a small spill" make it a large spill.
+  A04:
+    defects: []
+    traps: []
+  A05:
+    defects: []
+    traps: []
+  A06:
+    defects: []
+    traps:
+    - id: A06-T1
+      passages:
+      - A stocked spill kit is kept in each laboratory room.
+      - The Laboratory Manager keeps a stocked spill kit in every laboratory room and restocks it within one working day after each small spill.
+      why: The spill kit line of section 3 is passive and names no role, but section 8 assigns the kit in the words "The Laboratory Manager keeps a stocked spill kit".
+residue:
+- id: R-1
+  heuristic: A02
+  passages:
+  - Every other discoverer calls the emergency line 4400, which the Duty Safety Officer answers at all hours.
+  - The steps follow in this order.
+  - '- The discoverer warns every person in the room to keep away from the spill.'
+  confidence: 0.3
+  note: The ordered steps of section 5 do not contain the call of section 4, so a discoverer of a small spill who is not a trained worker can call first or warn first, and the difference is seconds.
+- id: R-2
+  heuristic: A02
+  passages:
+  - '- The trained worker disposes of the waste bag as section 7 requires.'
+  - The trained worker who cleaned a small spill submits a spill report to the Laboratory Manager within 24 hours after the cleaning ends.
+  confidence: 0.3
+  note: Section 5 lists the disposal as the last step, so the 24 hours can start when the substance is in the bag or when the bag reaches the store, and the two starts differ by hours at most.
+- id: R-3
+  heuristic: A03
+  passages:
+  - A trained worker who finds at any step that the spill is a large spill stops and follows section 6 as the discoverer.
+  - The Laboratory Manager keeps a stocked spill kit in every laboratory room and restocks it within one working day after each small spill.
+  confidence: 0.35
+  note: A worker who starts on a spill and then finds that it is large has used the kit, but the spill is a large spill, and the restocking duty covers only "each small spill"; the kit of that room has no rule for restocking.
+- id: R-4
+  heuristic: A03
+  passages:
+  - A trained worker who finds at any step that the spill is a large spill stops and follows section 6 as the discoverer.
+  - The trained worker, for a small spill, or the Team Leader, for a large spill, seals the waste bag and labels it with the substance and the date.
+  confidence: 0.3
+  note: The bag that the trained worker has partly filled before stopping belongs to a large spill, so the trained worker does not seal it, and the document does not say that the Team Leader takes it over.
+- id: R-5
+  heuristic: A04
+  passages:
+  - A small spill is a spill that meets all of the following conditions.
+  - A spill of one litre or less of one low-hazard liquid, with no person injured or contaminated by it, is a small spill.
+  confidence: 0.3
+  note: A checker of A04 can report "small spill" as one term with two meanings on the same lines as A01-1. It is a contradiction rather than a second meaning; the key holds no A04 trap for it.
+- id: R-6
+  heuristic: A03
+  passages:
+  - '- The discoverer keeps every person out of the room until the Spill Response Team arrives.'
+  - '- The Duty Safety Officer inspects the room and reopens it.'
+  confidence: 0.2
+  note: From the arrival of the team until the reopening, the room is closed but no role is named to keep people out.

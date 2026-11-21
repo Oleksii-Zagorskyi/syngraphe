@@ -1,0 +1,146 @@
+{
+  "U-04": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.5 makes the Compliance Officer approve requests from any employee, and Section 7.1 says the Chief Executive is an employee covered by Section 7. So the Compliance Officer approves the Chief Executive's above-limit requests. Section 7.1 also makes the Chief Executive act in place of the Compliance Officer for the Compliance Officer's own gifts, so the Chief Executive approves the Compliance Officer's requests. That is two roles approving each other's acts. The document states no hierarchy that would make this an upward referral, so the exclusion for matters that go to a higher role does not apply.",
+    "cost_usd": 0.012998,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The passages look circular because the Office Manager could be the closing person on a weekend and so report a fault to themselves. But the closing person's message is only a report, and the instruction excludes reports from circular authority. Ordering the repair is a separate act that nobody has to approve, and the Office Manager does not approve their own act as closing person. The cited passages (\"reports it to the Office Manager by message\" and \"The Office Manager orders the repair\") show no approval, check or decision of one's own act.",
+    "cost_usd": 0.011498,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The only passage quoted is \"The Head of HR owns this procedure and reviews it once every calendar year.\" It describes an owner doing a periodic review of their own document. It does not say the review needs approval, so no role approves, decides or checks its own act there. The substitute rules (line manager's manager, Head of HR for the HR Officer) and the probation decision path (line manager decides, HR Officer informs) contain no circle. At most, nobody approves the owner's review, which is a different kind of problem (an act with no approver), and the instruction excludes it.",
+    "cost_usd": 0.011487,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-16": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 2 moves the Fleet Manager's duties to the Operations Director for the Fleet Manager's own trip, but only those in sections 3, 4, 7, 8 and 9. Section 5 is left out. Section 5 says 'The Fleet Manager may approve a private trip at a weekend', so a Fleet Manager who wants a private weekend trip approves it personally under section 5. The Operations Director only takes over the section 4 booking approval, which is a separate step. This is the self-approval the override was meant to prevent. A reader could argue the section 4 override covers the whole request, but section 5 gives a distinct approval that the override does not reach.",
+    "cost_usd": 0.014423,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-11": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding needs the head of department to be able to appoint himself as the specialist, and the text does not allow that. The head appoints a \"фахівця відділу\", a specialist of the department, and the document treats the head and the specialist as separate roles. The ban on a specialist whose actions the complaint concerns does not turn the head into an eligible specialist. The path in which one role approves its own act is only a speculative reading, and no passage creates it. A different reading is possible because the text never explicitly bars the head from the specialist role.",
+    "cost_usd": 0.014646,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 2 defines the executor as the employee who submitted the document for signature. Section 3 says the document counts as signed when the executor signs it, and the registrar numbers only signed documents. So the executor's own signature is enough to make their own document signed, which is self-approval of the executor's own act. This also conflicts with the rule that the document goes to the registrar after the last required signature, and with the rule for several unit heads signing. A reader could take it as a drafting contradiction rather than circular authority, but the text supports self-approval.",
+    "cost_usd": 0.016535,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The copy is created by the automated task, even when the DBA starts it by hand, so the DBA only triggers the run. Section 5 makes the check a mechanical comparison of the log and checksums, and it is the same check for every copy. The DBA does not approve or decide anything about their own work product. The finding could be read as a self-check, because the same person starts the run and checks it. But the quoted passages do not show a role approving its own act, and the failure path in section 8 sends a failed manual copy up to the head of the IT department.",
+    "cost_usd": 0.01713,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "No act is approved by the role that does it. The Records Manager owns some records, and for those the passage 'the Legal Counsel answers the proposal instead of the Records Manager' sends the answer to a different role. This is the kind of rule that names another role to avoid self-approval. The Records Manager answers the Legal Counsel's proposals for contract records, but these are different acts, each with an independent approver. The two roles checking each other's separate proposals is not a circle, though a strict reading of 'A approves B and B approves A' could suggest one.",
+    "cost_usd": 0.017633,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.1 says Section 7 applies to the Chief Executive, so the Chief Executive's above-limit requests go to the Compliance Officer, who approves them under 7.5. Section 7.1 also makes the Chief Executive act in place of the Compliance Officer for the Compliance Officer's own gifts and hospitality, so the Chief Executive approves the Compliance Officer's requests. The two roles approve each other's acts, and no passage names another approver for the Chief Executive's requests. The 'matter goes to a role above' exclusion covers only the Compliance Officer's matters going up, not the Chief Executive's matters going down to the Compliance Officer.",
+    "cost_usd": 0.006678,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document never says the Office Manager allows themselves to stay past 19:00, or that the Head of Operations, as stand-in, allows themselves. The finding relies on the absence of a prohibition, which is not text evidence of self-approval. The only place where the Office Manager and the Head of Operations act as both actor and receiver is the fault report, and a report is not an approval, so the instruction excludes it. The permission to stay is a one-way grant to \"a person\" and is not a check of the grantor's own act.",
+    "cost_usd": 0.00932,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-10": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Assigning a number (§3) is a clerical registration step, not an approval or decision about the document. The quoted passages do not make the registrar approve their own act. Even if a registrar is also the executor of a document, §4 has someone else check the registers each quarter: the head of the chancellery for all subdivisions' registers except the chancellery's, and the deputy director for administrative matters for the chancellery's register. No other path in the document leads back to the same role as approver, and the finding's claim that the registrar approves their own act is not supported by the text.",
+    "cost_usd": 0.006015,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-14": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The Legal Counsel owns contract records and proposes their destruction to the Records Manager, who answers the proposal (approves or refuses). The Records Manager owns operational records of a unit that no longer exists, and for those \"the Legal Counsel answers the proposal instead of the Records Manager\". So each role approves the other's destruction acts, which is the 'A approves B and B approves A' cause in the instruction. The counter-argument is that each act is checked by a different role and the records differ, but the instruction defines mutual approval as circular and does not exempt it.",
+    "cost_usd": 0.008249,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-13": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Under 7.3 the Compliance Officer sets the value when an employee cannot establish it, and the Chief Executive is an employee under 7.1, so the Compliance Officer decides the Chief Executive's gift values. The same 7.1 sentence makes the Chief Executive act in place of the Compliance Officer for the Compliance Officer's own gifts, so the Chief Executive decides those. That is two roles deciding each other's matters, which fits the 'A approves B and B approves A' cause. The other reading is that this is an ordinary step up to a superior, but it is not, because the Chief Executive's own matters go down to the Compliance Officer. The same loop also covers exception requests under 7.5.",
+    "cost_usd": 0.010522,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding quotes the passage that says the database administrator creates the extra copy and checks it under section 5. That check is a mechanical comparison of the log and checksums, and the document treats it as a routine step, not as an approval of the administrator's own act. The normal path already has the administrator checking every copy that the automatic task makes. The extra copy is then independently tested when the system administrator repeats the trial restore from it within three working days. The document also bars a system administrator who stands in for the absent database administrator from doing the trial restore, so no role ends up approving itself. Self-check of a copy is possible as a reading, but the text supports a ruling of no circular authority.",
+    "cost_usd": 0.016348,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The copy is created by the automatic task (section 3: \"Резервну копію створює автоматичне завдання\"), not by the administrator. The administrator only configures the task and then checks its output, which is a check of an automated result. Section 2's general statement that the administrator \"performs\" backups does not make him the author of each copy. Section 5 even compares checksums against the protocol written by the task. Section 7 adds an independent check by the system administrator and chief accountant. So no role approves its own act. A reading that the administrator's setup work counts as his act is possible, but the text does not support it.",
+    "cost_usd": 0.003846,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-15": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding says the stand-in system administrator creates the copies and then checks them. Section 3 says the automatic task on the main server creates the copies. Section 5 has the database administrator, or the stand-in under section 2, check the task's output against the log and checksums. The stand-in does not check an act of their own in the normal path. The only own-act link is the manual launch in section 8, which the finding does not cite. The other model could be right if a manual launch counted as the stand-in's own act, but the quoted passages do not show that.",
+    "cost_usd": 0.008894,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

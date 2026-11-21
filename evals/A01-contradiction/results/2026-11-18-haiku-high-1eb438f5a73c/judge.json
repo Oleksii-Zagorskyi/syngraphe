@@ -1,0 +1,20 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The right not to enter a record covers only documents whose authenticity the accountant doubts. That is a narrower special case inside the general duty to record \"кожним первинним документом\" within two working days. The instruction says not to report a general rule paired with a narrower rule, even when the exception is unmarked. The document also supports a joint reading: the rule that the deadline runs from receiving the requested explanation (\"за документом, до якого запитано пояснення\") lets the accountant withhold the record while the doubt is checked. A real defect is arguable only if one ignores the narrower-case exclusion and reads \"кожним\" as allowing no exceptions.",
+    "cost_usd": 0.029594
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The document defines «звіт» as the monthly report on settlements, and the Responsibility section uses the same word for a quarterly report to the director «про виконання своїх обов'язків». That is one term used with two meanings, and the instruction tells the model not to report that type of passage as a contradiction. A reader can obey both passages: write the monthly settlement report and also send the quarterly performance report. One could argue for «real defect», because the instruction also covers a definition that a later passage does not obey. But the explicit exclusion of a term with two meanings fits this finding more closely.",
+    "cost_usd": 0.017065
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.2 defines hospitality as a meal, drink, entertainment, travel or accommodation, and defines a gift as \"any other thing of value\", so no gift can be a meal, travel or accommodation. Section 7.4's \"A gift in the form of a meal, travel or accommodation\" uses the term against the document's own definition. That is a passage that breaks a definition, which the instruction lists as a cause of contradiction. One could read the 7.4 sentence as applying to no case at all, or treat it as one term used with two meanings, which the instruction excludes. That is why `not a defect` or `trap` is possible, but the plain clash with the definition is the stronger reading.",
+    "cost_usd": 0.026877
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-006-uk-accountant-job",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A06-2",
+        "R-4",
+        "R-6",
+        "R-7",
+        "R-8"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-02",
+      "case": "case-009-en-gifts",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": false
+    },
+    {
+      "id": "U-03",
+      "case": "case-016-uk-db-backup",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "A05-T1",
+        "R-4"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-04",
+      "case": "case-006-uk-accountant-job",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-05",
+      "case": "case-007-en-office-closing",
+      "run": 2,
+      "key": "residue only",
+      "items": [
+        "R-3",
+        "R-6"
+      ],
+      "judge": "not a defect",
+      "owner": "not a defect",
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-06",
+      "case": "case-017-en-annual-leave",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A03-1",
+        "R-1",
+        "R-2",
+        "R-5",
+        "R-6"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-07",
+      "case": "case-002-uk-procurement-committee",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A05-1",
+        "A05-2",
+        "R-7"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-08",
+      "case": "case-005-en-spending-authority",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A05-1",
+        "R-5"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-09",
+      "case": "case-016-uk-db-backup",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "A05-T1",
+        "R-4"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    }
+  ],
+  "tally": {
+    "another heuristic's item": {
+      "findings": 8,
+      "judge_real": 1,
+      "judge_trap": 6,
+      "judge_not": 1,
+      "agree": 7,
+      "disagree": 1
+    },
+    "residue only": {
+      "findings": 1,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 1,
+      "agree": 0,
+      "disagree": 0
+    }
+  }
+}

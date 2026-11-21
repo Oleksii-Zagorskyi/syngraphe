@@ -1,0 +1,137 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-002-uk-procurement-committee",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A05-1",
+        "A05-2",
+        "R-7"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-02",
+      "case": "case-008-uk-complaints",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A05-T1"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-03",
+      "case": "case-010-uk-forklift-safety",
+      "run": 1,
+      "key": "nothing",
+      "items": [],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-04",
+      "case": "case-018-uk-document-numbering",
+      "run": 1,
+      "key": "residue only",
+      "items": [
+        "R-7"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-05",
+      "case": "case-002-uk-procurement-committee",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A05-1",
+        "A05-2",
+        "R-7"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-06",
+      "case": "case-010-uk-forklift-safety",
+      "run": 2,
+      "key": "nothing",
+      "items": [],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-07",
+      "case": "case-021-en-lab-spill",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A01-1",
+        "R-5"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": false
+    },
+    {
+      "id": "U-08",
+      "case": "case-009-en-gifts",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A01-1"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-09",
+      "case": "case-010-uk-forklift-safety",
+      "run": 3,
+      "key": "nothing",
+      "items": [],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    }
+  ],
+  "tally": {
+    "another heuristic's item": {
+      "findings": 5,
+      "judge_real": 1,
+      "judge_trap": 2,
+      "judge_not": 2,
+      "agree": 4,
+      "disagree": 1
+    },
+    "nothing": {
+      "findings": 3,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 3,
+      "agree": 0,
+      "disagree": 0
+    },
+    "residue only": {
+      "findings": 1,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 1,
+      "agree": 0,
+      "disagree": 0
+    }
+  }
+}

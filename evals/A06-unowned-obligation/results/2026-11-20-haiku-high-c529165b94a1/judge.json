@@ -1,0 +1,12 @@
+{
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 6 only says that each vehicle carries a fuel card. It is a statement of fact, not a required action with a missing owner. Section 2 says the Fleet Manager \"manages the fleet\", so a reader would take that role to cover supplying cards, and the list of arrangements there is not exhaustive. Section 6 also lets the driver pay personally when the card is not accepted. A different reading is possible, since fuel cards are not in the Fleet Manager's list. The text still supports that the role is clear enough, so this is not an unowned obligation.",
+    "cost_usd": 0.013406,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

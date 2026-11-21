@@ -1,0 +1,119 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two band limits (2,000 and 2,500) leave amounts such as 2,250 euros with no approver, but that is a gap, not a contradiction. The two passages can both be true because they never say anything incompatible about the same amount. The instruction defines a contradiction as passages that cannot both be true, so a missing case is a different kind of problem.",
+    "cost_usd": 0.008748,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence \"Only the final result is rounded up, to the nearest half day.\" has a reading in which both parts hold: round up (ceiling) to the next half-day step. Under that reading there is no conflict between \"up\" and \"nearest half day\". The wording may be slightly ambiguous, but that is a different kind of problem from a contradiction. The finding also quotes only one sentence and names no second passage that conflicts with it.",
+    "cost_usd": 0.009853,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The two passages look opposed: \"за кожним первинним документом\" requires an entry within two days, while the right allows not entering an entry for a document the accountant doubts. But the right is a narrower rule for a special case (a doubted document), so the general duty applies to all other documents. The document also gives a way to resolve it: the accountant can request an explanation, and the entry deadline then runs from when the explanation or decision is received (\"документом, до якого запитано пояснення\"). The instruction says not to report a general rule and a narrower rule for a special case, even with no mark, so this is not a reportable contradiction.",
+    "cost_usd": 0.012154,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "This is a gap, not a contradiction. Section 2 says owners are appointed for every application and database, but it never says devices or network services have no owner or that no one may be appointed for them. Section 6 and section 4 need an owner for each system, and section 1 defines systems to include devices and network services. A reader can obey every passage and still find that no owner is named for some systems, which is missing coverage and a different kind of problem. The two passages do not make each other false.",
+    "cost_usd": 0.011732,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says the initiator is the head of a structural unit or the director. The document never says the financial manager cannot head a structural unit, such as a finance department, so the later clause can be read as consistent with the definition. At most this is an ambiguity about who the financial manager is, which is a different kind of problem. The real contradiction in this document is elsewhere: the quorum is four members in one place and three in another.",
+    "cost_usd": 0.01504,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition says duplicate copies of a record in the same form are not records and that \"this policy does not govern them\". The destruction section then orders the owner to erase or shred \"every copy\" of a destroyed record, which covers those same-form duplicates. The policy cannot both leave them ungoverned and impose a duty on them. No passage marks the copy rule as an exception to the exclusion. A softer reading is possible, where the copy rule only reaches copies in other forms. But \"every copy\" has no such limit, so the conflict stands.",
+    "cost_usd": 0.013325,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 1 does list «акти» as internal documents, and the code list in section 2 (Н, Р, П, І, ПР, СЗ) has no code for them. But no two passages assert incompatible things here. The code list simply says nothing about acts. That is a gap in the document, not a contradiction, so it is a different kind of problem from the one the instruction defines.",
+    "cost_usd": 0.015813,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The gap between 2,000 and 2,500 euros is real: the first band ends at 2,000 inclusive and the second starts above 2,500, so a 2,200 euro request has no named approver. But this is an omission or gap, not two passages that cannot both be true. The two quoted band passages are consistent with each other, so this is not a contradiction as the instruction defines it, and it is a different kind of problem.",
+    "cost_usd": 0.003407,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-11": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding pairs the duty to enter a record for each primary document within two days with the right not to enter a record for a document the accountant doubts. The right is a narrower rule for a special case, and the instruction says not to report that pattern even with no exception marked. The document also lets both be obeyed: the rule on the deadline for a document 'до якого запитано пояснення' starts the two days from receipt of the explanation, and the accountant must send a request when something is missing. A reader can therefore hold off on a doubtful document, request an explanation, and still meet the duty afterwards. The other verdict, real defect, is possible only if the right is read as a permanent refusal, but the text does not say that.",
+    "cost_usd": 0.008491,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 1 lists acts among internal documents, and section 2 gives no type code for acts. That is a missing rule, not two passages that cannot both be true. No passage forbids numbering acts or says they have a code. A reader obeying both sections is left with an incomplete rule, which is a gap, not a contradiction. The finding therefore does not match the kind of problem the instruction defines.",
+    "cost_usd": 0.007859,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition says duplicate copies of a record in the same form are not records and that the policy does not govern them. The destruction section then orders the owner to erase or shred \"every copy\" of a destroyed record, which includes same-form duplicates. That is a duty the policy places on something it says it does not govern. A narrower reading is possible, where \"copy\" means only a copy in another form. But the document treats a record held in both forms as one record, so that reading is weak, and nothing marks an exception. The two passages cannot both be obeyed as written.",
+    "cost_usd": 0.007515,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-10": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding describes a gap, not a contradiction. The first band ends at 2,000 and the second starts above 2,500, so amounts such as 2,200 have no named approver. But both band passages can be true together, and neither forbids or contradicts the other. The scope line in section 1 ('whatever the amount') only says the matrix covers every request, so it does not conflict with the bands. A missing approver is a different kind of problem from the contradiction the instruction defines, though the gap itself is real.",
+    "cost_usd": 0.008529,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-13": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 1 lists акти among internal documents, and section 2 gives codes for only six kinds, with none for акти. No passage says акти must not be numbered, and the sentence about \"документи інших видів\" does not cover акти, because section 1 already counts them as internal documents. This is a missing code, which is an omission or gap, not two passages that cannot both be true. The finding therefore describes a different kind of problem from a contradiction.",
+    "cost_usd": 0.008397,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

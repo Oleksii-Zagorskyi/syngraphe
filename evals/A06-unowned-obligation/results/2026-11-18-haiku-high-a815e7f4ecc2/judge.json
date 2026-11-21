@@ -1,0 +1,83 @@
+{
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentences state an effect of a rule: the new request \"replaces\" the earlier one. They do not require an action like withdrawing, cancelling or recording, so there is no obligation without a role. The steps the document does require have roles: the requester raises the new request (section 6, section 7), and the finance director keeps the register of decided requests (section 6). The finding asks for a cancellation step that the document never requires, which is at most a gap and not an obligation missing its role.",
+    "cost_usd": 0.020845,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7 gives the monthly trial restore only to the system administrator. Section 2 says that the system administrator who stands in for an absent database administrator \"не виконує пробного відновлення\", and no passage names anyone else for that case. The director-appointed worker covers only absence (\"У разі відсутності системного адміністратора, обох цих працівників одночасно або іншої особи\"), but here the system administrator is present, so the required restore has no role. One could call this an uncovered case (a gap), but the document explicitly removes the only named performer of a required action, so it fits an obligation left without a role.",
+    "cost_usd": 0.0291,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The quoted sentence is passive, but in its \"Entitlement and counting\" section it works as a counting rule, not as a task. The Terms section defines the remaining entitlement as entitlement plus carry-over \"minus the leave days in it already taken or approved\". The leave register already holds the requests and decisions, so the balance follows from the formula. Under Approval, the approver checks each request against that remaining entitlement and refuses it if the leave days exceed it, so the balance used for approval is not left wrong. A real-defect verdict is possible because no sentence names a role that records absences or deductions in the register.",
+    "cost_usd": 0.027106,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again\" requires no action from anyone. It states a status that starts automatically with the Records Manager's refusal. It ends when the owner proposes the record again, and that step is already given to the owner (\"After a refusal the owner proposes the record again\"). So no required action lacks a role. What is wrong is that this automatic hold conflicts with the definition of a legal hold as a written instruction that the Legal Counsel places and lifts. That is an inconsistency, a different kind of problem. A reader could still argue for a real defect, since the Legal Counsel's written notice and lifting duties are not tied to this hold, but the text supports a definition conflict more than a missing role.",
+    "cost_usd": 0.028302,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence \"Ці вимоги не застосовують до прорізу, який уже виправляли за рішенням керівника дільниці\" is impersonal. It lets the work go on without the required checks or escalation for a corrected opening, so it lets someone skip a required action. No passage names the role that decides to use this exception or confirms that it applies. The \"Акт монтажу\" list does not ask anyone to record its use. This matches the cause of a right that lets a role skip a required action with no duty to record or explain it. A different reading is possible: the manager's written decision already leaves a record of the correction, and the case could be seen as a coverage gap rather than a missing role.",
+    "cost_usd": 0.033472,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence \"A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend\" gives a permission that lifts the rule \"Every person other than the duty officer leaves the office by 19:00\" and changes who the closing person is. No passage makes the Office Manager or the person who stays tell the duty officer, record the permission, or explain it. The weekend rules and the closing log step record only times of leaving and closing and the closer's role, not the permission itself. \"Not a defect\" is possible if those weekend log entries are read as enough trace of the stay, but they do not record the permission.",
+    "cost_usd": 0.029074,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The sentence \"One leave day is deducted for each leave day of absence\" is passive and names no actor, so it looks like an obligation without a role. But the Terms section defines the remaining entitlement as the entitlement plus the carried-over amount minus the leave days already taken or approved. Every part of that figure is recorded by a named role: the Head of People records entitlements and carry-over, and the approver records each decision in the leave register. The sentence is therefore a counting rule for how much an absence counts, not a task that someone must do, and the approval check does reflect leave already taken. A reader could still call it real defect, because no passage says who keeps the running balance up to date.",
+    "cost_usd": 0.015056,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The sentence \"One leave day is deducted for each leave day of absence\" sits under \"Entitlement and counting\" and is a counting rule: it says how many leave days a given absence uses up. The Terms section defines the remaining entitlement as the entitlement plus carry-over \"minus the leave days in it already taken or approved\", and the approver records each decision in the leave register. So the deduction follows from that definition and from the recorded decisions, and no separate actor is needed. A \"real defect\" reading is possible only if the deduction is treated as a separate action that someone must carry out in the register, which the text does not require.",
+    "cost_usd": 0.014876,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence \"A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend\" lets a person skip the duty to leave by 19:00. No passage makes the Office Manager or the person record the permission, tell the duty officer, or limit or end it. The closing log entry records only the date, the time of closing and the closing person's role, not that a permission was used. A trap reading is possible: \"closes the office as on a weekend\" could bring in the weekend rule to write entry and leaving times in the closing log, but the text does not clearly apply that rule to a working day or to the grant itself.",
+    "cost_usd": 0.027123,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

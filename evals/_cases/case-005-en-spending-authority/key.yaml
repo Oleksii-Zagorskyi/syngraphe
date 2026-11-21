@@ -1,0 +1,84 @@
+case: case-005-en-spending-authority
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps:
+    - id: A01-T1
+      passages:
+      - '- Above 15,000 and up to 75,000 euros inclusive, the approver is the finance director.'
+      - Section 5 applies to these two requesters instead of sections 3 and 4.
+      why: By the bands the finance director would approve their own request of 20,000 euros, but section 5 applies to that requester instead of sections 3 and 4, so the two statements do not conflict.
+  A02:
+    defects: []
+    traps:
+    - id: A02-T1
+      passages:
+      - An approver is absent when unable to act for two or more consecutive working days.
+      - A spending request waits for an approver who is unable to act for a shorter time.
+      - Where the approver is absent, the role next above the approver's role in the order in section 3 decides instead.
+      why: One rule makes a request wait and the other sends it upward, but the defined length of absence (two or more consecutive working days against a shorter time) says which applies, so there is one reading.
+  A03:
+    defects:
+    - id: A03-1
+      passages:
+      - It applies to every spending request raised by an employee of the Organisation, whatever the amount.
+      - '- From 0 to 2,000 euros inclusive, the approver is the team lead of the requester''s team.'
+      - '- Above 2,500 and up to 15,000 euros inclusive, the approver is the head of the requester''s department.'
+      note: The matrix covers every amount, yet no band holds a request above 2,000 and up to 2,500 euros, so such a request has no approver.
+    traps: []
+  A04:
+    defects: []
+    traps: []
+  A05:
+    defects:
+    - id: A05-1
+      passages:
+      - When the chief executive is absent, the finance director decides each spending request that the chief executive approves, instead of the board; when both are absent, the board decides.
+      - The chief executive approves a spending request by the finance director of up to 300,000 euros inclusive.
+      note: While the chief executive is absent, a spending request by the finance director of up to 300,000 euros goes to the finance director, who then decides their own request.
+    traps: []
+  A06:
+    defects: []
+    traps: []
+residue:
+- id: R-1
+  heuristic: A02
+  passages:
+  - Where the commitment has no end date, the amount is the total payable in its first twelve months, and the requester raises a new spending request for each following twelve months.
+  - A purchase is the goods or services that the Organisation acquires from one supplier for one purpose.
+  - No employee raises a spending request for only part of a purchase.
+  - An approver who finds that a spending request covers only part of a purchase refuses it and tells the requester to raise one spending request for the full amount of the purchase.
+  confidence: 0.35
+  note: A request for a following twelve months of an open-ended commitment is required by section 2 and can also be read as a request for only part of a purchase that section 7 tells the approver to refuse.
+- id: R-2
+  heuristic: A03
+  passages:
+  - Where the approver is absent, the role next above the approver's role in the order in section 3 decides instead.
+  - The approver is the role that this matrix names to decide a spending request.
+  confidence: 0.2
+  note: The document does not say outright what happens when the substitute role is also absent, although the definition of the approver lets the absence rule apply to the substitute again.
+- id: R-4
+  heuristic: A02
+  passages:
+  - A purchase is the goods or services that the Organisation acquires from one supplier for one purpose.
+  - A spending request raised within 30 calendar days after another spending request for the same supplier and the same purpose belongs to the same purchase as that other request, whoever raises them.
+  - No employee raises a spending request for only part of a purchase.
+  - An approver who finds that a spending request covers only part of a purchase refuses it and tells the requester to raise one spending request for the full amount of the purchase.
+  confidence: 0.45
+  note: 'A second request for the same supplier and the same purpose raised on day 40 is part of the same purchase by the definition, so one approver refuses it and asks for one request for the combined amount (which can move it to a higher band), while by the 30-day rule read as the limit of "the same purchase" another approver treats it as a new purchase and approves it; the document does not say if the 30-day rule narrows the definition or only adds a presumption to it.'
+- id: R-5
+  heuristic: A02
+  passages:
+  - No requester approves their own spending request.
+  - Section 5 applies to these two requesters instead of sections 3 and 4.
+  - When the chief executive is absent, the finance director decides each spending request that the chief executive approves, instead of the board; when both are absent, the board decides.
+  - Where the approver is absent, the role next above the approver's role in the order in section 3 decides instead.
+  confidence: 0.4
+  note: 'One reader holds that section 4, and its ban, is set aside for the finance director, so the finance director decides their own request while the chief executive is absent; another reads "No requester" as every requester and sends that request to the board under the general absence rule; the scope of "instead of sections 3 and 4" over the ban is not clear, and the person who decides differs.'
+- id: R-6
+  heuristic: A06
+  confidence: 0.2
+  passages:
+  - The finance director keeps a register of all decided spending requests.
+  note: No line obliges an approver, a substitute or the board to tell the finance director of a decision, so the register depends on an act that nobody owns.

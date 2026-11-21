@@ -1,0 +1,100 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-007-en-office-closing",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-7",
+        "R-9"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-02",
+      "case": "case-016-uk-db-backup",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "A05-T1",
+        "R-4"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-03",
+      "case": "case-004-uk-window-timber-wall",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-04",
+      "case": "case-007-en-office-closing",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-7",
+        "R-9"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-05",
+      "case": "case-016-uk-db-backup",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "A05-T1",
+        "R-4"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-06",
+      "case": "case-019-en-vehicles",
+      "run": 3,
+      "key": "nothing",
+      "items": [],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    }
+  ],
+  "tally": {
+    "another heuristic's item": {
+      "findings": 5,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 0,
+      "agree": 0,
+      "disagree": 0
+    },
+    "nothing": {
+      "findings": 1,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 1,
+      "agree": 0,
+      "disagree": 0
+    }
+  }
+}

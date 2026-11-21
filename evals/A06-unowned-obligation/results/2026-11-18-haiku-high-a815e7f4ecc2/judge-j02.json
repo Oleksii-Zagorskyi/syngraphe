@@ -1,0 +1,52 @@
+{
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence deems the record to be under a legal hold, and the hold ends when the owner proposes the record again. Nobody needs to place it, and the owner, who is named, ends it. The Destruction section also gives the owner the duty to re-propose within the time limits. No obligation is left without a role. The real tension is that \"legal hold\" is defined in the Legal hold section as a written instruction from the Legal Counsel, yet here it arises automatically. That is a term-with-two-meanings or contradiction problem, not an unowned obligation.",
+    "cost_usd": 0.012571,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Розділ 7 дає щомісячне пробне відновлення системному адміністратору. Але розділ 2 каже, що системний адміністратор, який заміняє відсутнього адміністратора баз даних, пробного відновлення не виконує. Адміністратор баз даних відсутній, тож він теж не виконає. Правило про працівника, призначеного наказом директора, діє лише коли відсутній сам системний адміністратор, а тут він присутній і просто заміняє іншого. Жоден пасаж не називає виконавця, тому в цей період обов'язок залишається без власника.",
+    "cost_usd": 0.01701,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"Ці вимоги не застосовують до прорізу, який уже виправляли за рішенням керівника дільниці\" is an automatic exception, not a right given to a role. The керівник дільниці's decision on how to correct the opening must be in writing, so the fact of a prior correction is documented. The real problem in this passage is its conflict with the previous sentence, where the монтажник \"повторює всі вимірювання\" after correction. That is a contradiction or ambiguity, not an unowned obligation.",
+    "cost_usd": 0.015351,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding names the Office Manager's permission to stay past 19:00 as a right with no record duty. The document does handle the consequences. The person allowed to stay closes the office \"as on a weekend\", so the weekend section applies: they write entry and leaving times in the closing log, check the rooms, and become the closing person. The permission only moves one person from the 19:00 rule to the weekend rule, and the document does not require the Office Manager to record or explain it. This looks like an ordinary permission, not a right that no role answers for, so the other verdict is only weakly possible.",
+    "cost_usd": 0.017487,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The permission is given to a named role, the Office Manager, and the person who receives it knows they have it. The document's closing rules do not depend on any record or report of the permission. The person allowed to stay closes the office \"as on a weekend\", which the Weekends and public holidays section covers with the closing log and room checks. The document does not say the Office Manager must record, report or end the permission, but that is a missing safeguard and not an obligation left without a role. No required action goes unperformed because of it, so the text does not support an unowned obligation.",
+    "cost_usd": 0.013262,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

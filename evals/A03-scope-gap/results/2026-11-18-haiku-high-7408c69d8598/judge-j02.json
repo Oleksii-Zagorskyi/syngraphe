@@ -1,0 +1,362 @@
+{
+  "U-19": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding describes the line manager and the Head of People both being absent. The instruction says not to report two roles absent at the same time when a stand-in exists for the role that decides. The document gives the Head of People as the stand-in for the line manager. Also, \"A request with no recorded decision after five working days counts as approved\" covers any case where nobody decides, so the reader is not left without a rule.",
+    "cost_usd": 0.012486,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-15": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The passage \"The interim letter states the date of the full answer, which is no later than twenty working days after the start of the limit\" is a firm rule. The reader always knows what to do: put a date within twenty working days and deliver by then. A message that would really need longer is a case of failing to meet the requirement, and the instruction says not to report breaches or late work. The finding adds an exception the document does not need. A gap would exist only if the document left the reader without an action, and here it does not.",
+    "cost_usd": 0.012275,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 5 says \"another Service Desk administrator grants it\", which presupposes the Service Desk has more than one administrator. The document never says there could be a single administrator, so the finding rests on a staffing assumption the text does not support. The self-grant bar is a clear rule for the case it covers, and a Service Desk too small to follow it would be a resourcing problem, not a missing rule. The document's real gaps lie elsewhere, for example systems that are devices or network services but have no owner appointment.",
+    "cost_usd": 0.015323,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-10": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Розділ «Розслідування» справді виключає поштові скарги з проміжних строків («Ці строки не застосовують до скарги, що надійшла поштою»). Але справу це не лишає без правила: розділ «Строк відповіді» вимагає надіслати відповідь не пізніше десятого робочого дня строку, і за це відповідає керівник відділу. Розділ «Відповідь» теж обмежує підписання десятим робочим днем. Читач знає, що робити й до якого дня, тому прогалини немає: проміжні строки свідомо зняті, а загальний строк діє.",
+    "cost_usd": 0.016952,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The right not to enter a doubted document looks like it has no follow-up, but the document supplies one. The accountant may request written explanations (Rights), and the deadline rule covers \"документом, до якого запитано пояснення\", counted from the explanation or the director's decision. If the manager does not answer within three days, the accountant notifies the chief accountant, who passes the matter to the director within a day. The director's decision binds both sides. An explanation that is still missing on the reconciliation day counts as a discrepancy under the stated definition, so the finding's claim that the case falls outside that definition is not supported.",
+    "cost_usd": 0.018921,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-17": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Розділ 7 дає пробне відновлення системному адміністратору. Розділ 2 забороняє тому, хто заміщає відсутнього адміністратора баз даних, виконувати пробне відновлення. Заступник за наказом директора призначається лише тоді, коли відсутні названі особи, а тут системний адміністратор присутній. Документ не називає виконавця відновлення для цього випадку і не переносить строк, тому читач не знає, що робити. Це прогалина, а не суперечність: заборона не скасовує обов’язку, але й не передає його іншій особі.",
+    "cost_usd": 0.018819,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document sets conflict-of-interest duties only for Committee members. For the financial manager it handles the one conflict it names, where he is the initiator: the request goes to the director, who decides within five working days. For other conflicts of the financial manager or the director, the document has no recusal duty, so the reader is not stuck at any step. He simply follows the stated approval rule. That is a policy choice the document did not make, not a missing rule for a case the reader must act on. The finding also gives no case in which a reader cannot tell what to do.",
+    "cost_usd": 0.019229,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-23": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The document requires the storekeeper to be present at the recount (section 5, quoted), at the recount in section 6, and during the count (section 4). The storekeeper must also give written explanations (section 6). The document gives stand-ins for an absent commission member (section 2) and for an absent director (section 7), but none for the storekeeper. If the storekeeper is absent, the chairman cannot tell whether to wait, recount without them, or who gives the explanations, and the five-day limit in section 3 keeps running. This is a gap, not a breach by a person, because absence for reasons like illness is not a failure to act.",
+    "cost_usd": 0.016263,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-22": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding says section 7 limits reporting to the pre-trip check, but the text does not say that. The second sentence, \"The driver who finds a defect, damage or a missing document reports it to the Fleet Manager before driving\", is general and has no time limit. A driver who finds a defect mid-trip must report it before driving on and must not drive until the Fleet Manager decides, so the case has a rule. A mid-trip crash is covered by section 8, and repair is covered by section 2. The wording is awkward for a breakdown, but it is not a missing rule.",
+    "cost_usd": 0.01749,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-35": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The section «Розслідування» exempts mailed complaints from its intermediate deadlines on purpose. The reader still has rules for them: the section «Строк відповіді» sets the tenth working day for the reply, the section «Відповідь» requires the head of the department to sign no later than the tenth working day, and the same sections name who answers for the deadline. Missing intermediate deadlines do not leave the reader unable to act, so this is not a gap.",
+    "cost_usd": 0.007403,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-40": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 5 already handles the self-grant case: an administrator who is the requester does not grant his or her own access, and another administrator grants it. The document refers throughout to \"a Service Desk administrator\" and \"another Service Desk administrator\", so it assumes more than one administrator. A Service Desk with no other administrator is a speculative case the document does not raise, and an unavailable administrator is at most a lapse in performance, which the document need not cover. A reader could call it a gap, but the text does not support that.",
+    "cost_usd": 0.006792,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 8 first says that when an approver is absent, the role next above decides, which for the chief executive is the board. The sentence letting the finance director decide for an absent chief executive is a narrow substitute. It cannot apply when the finance director is the requester, because 'No requester approves their own spending request' blocks it. A careful reader falls back to the general absence rule and sends that request to the board, which waits for its next meeting. A reader could also take the finance director sentence literally, but that is a clash between two rules, not a case with no rule.",
+    "cost_usd": 0.024695,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-25": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The director must appoint the commission by 15 November (section 2) and must appoint a replacement for a member who cannot serve within one working day. The only stand-in for an absent director is in section 7, and it covers only approving the report and deciding on discrepancies. If the director is absent when the commission is appointed or a member is replaced, no rule says who issues the order. Since the commission cannot count while its composition is incomplete, the whole count is blocked. Section 7's stand-in is limited to the report, so it does not cover this case.",
+    "cost_usd": 0.0067,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-32": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The right not to enter a doubtful document looks like it has no procedure, but the document supplies one. The rights section lets the accountant request written explanations, and the obligation to send a request applies when a document or explanation is lacking. The deadline rule counts the entry period from receipt of the explanation or the director's decision for 'a document to which an explanation was requested'. If the manager does not answer, the accountant notifies the chief accountant, who passes the question to the director within one day. The director decides within five days, and the decision binds the accountant. A missing explanation also counts as a discrepancy under the reconciliation rule. So the case is handled, though loosely.",
+    "cost_usd": 0.011559,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-36": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The Облік section gives a destruction step for complaints and conclusions (\"Оператор знищує скарги та висновки через два роки\"). The copy of the response is only kept for three years (\"зберігає скаргу, висновок і копію відповіді три роки\"), and no step removes it afterwards. This matches the gap cause where a thing is kept, no step removes it, and the document sets an end for other things of that kind. The two-year destruction against three-year storage of complaints and conclusions is a separate contradiction. It does not fill the gap for the copy of the response.",
+    "cost_usd": 0.008143,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-46": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Розділ 7 покладає щомісячне пробне відновлення на системного адміністратора. Розділ 2 забороняє системному адміністратору, який заміняє відсутнього адміністратора баз даних, виконувати пробне відновлення. Якщо адміністратор баз даних відсутній усі перші десять днів місяця, системний адміністратор його заміняє і не може відновлювати, а інший виконавець не названий. Резервний пункт розділу 2 про призначення директором охоплює лише відсутність системного адміністратора, а він тут присутній, тож цей випадок правилом не врегульовано. Це можна прочитати і як суперечність, але обидва правила можуть діяти разом, якщо заміна не збігається з вікном відновлення, тож точніше назвати це прогалиною.",
+    "cost_usd": 0.013359,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-49": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7 says \"The driver who finds a defect, damage or a missing document reports it to the Fleet Manager before driving,\" and \"the driver does not drive it until the Fleet Manager has decided.\" This is worded for any driver who finds a defect, not only one checking before the trip. A driver who finds a defect mid-trip can follow it by stopping, reporting, and not driving on until the Fleet Manager decides. The document gives no separate breakdown procedure, but the general rule still tells the reader what to do, so no case is left without a rule.",
+    "cost_usd": 0.012445,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-26": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The small-spill steps give the discoverer a duty: warn every person in the room to keep away from the spill. A non-trained discoverer calls 4400 (section 4), the Duty Safety Officer sends a trained worker, and the trained worker does all later steps. The document does not say whether the discoverer should stay or leave while waiting, but the reader needs no further action beyond the warning, so no required action is left without a rule. The large-spill section does say to keep people out until the team arrives, which makes the omission in the small-spill section look deliberate for a low-hazard spill. A reader could call this a gap, but the text supports it less.",
+    "cost_usd": 0.014513,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-63": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 3 describes the request as one \"to change an access level that the requester already holds\". Approving and granting that request means changing the level, so the old level is replaced. The reader has no unhandled case here. A reader who kept both levels would not be following the request as written. If anything, the wording is only loose, and the register and the periodic review in section 6 would show any leftover level.",
+    "cost_usd": 0.009508,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document gives stand-ins only for the chair and the secretary, who work inside a collegial body that needs a quorum. The finance manager and the director are single officers, and the document sets no stand-in for them at all. It is not a case where a stand-in covers some absences and misses others. If either is absent, the five-day period for the decision is simply missed, and the document does not need a rule for a late or missed act. The quoted passages (the director deciding after no quorum, the finance manager deciding under 50 000) give a rule for each case, so no case is left without one.",
+    "cost_usd": 0.015126,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-51": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 2 gives only the director the power to appoint a replacement for a commission chair or member, and requires it by the next working day. Section 2 also says the commission does not count while its composition is incomplete, and section 3 makes counting days depend on a full commission. Section 7 shows the document expects the director to be absent, but it names a stand-in (the commission chair) only for approving the report and deciding on discrepancies. No passage tells who appoints a replacement when the director is absent, so the reader cannot restore a full commission. The finding's explanation misnames the stand-in in section 7 as a deputy director when it is the commission chair, but the gap itself is real and the quotes support it.",
+    "cost_usd": 0.009714,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-27": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The scope is \"every employee who travels for work\". The cost rules pay for \"a seat in economy class\", for \"public transport at the place of the trip\", and for taxis in limited cases. No rule covers travel to the destination by own car or rental car, such as mileage, fuel or car hire. Nothing says that unlisted costs are excluded, and \"pays only for a trip that was approved\" is not a closed list, so the reader cannot tell whether these costs are paid or how. The economy seat rule may cover train or bus travel, so the finding is weaker on that part, but the own-car and rental-car case is still left without a rule.",
+    "cost_usd": 0.013607,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-58": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The document does handle the doubtful-document case. The accountant may request \"письмові пояснення до них\" from the department head (Rights). The recording deadline is counted separately for a \"документ, до якого запитано пояснення\" (Duties). A missing explanation counts as a discrepancy. The head must supply it within three working days, or the accountant notifies the chief accountant, who passes the matter to the director, whose decision binds both and restarts the recording clock. The finding wrongly says the duty to send a request covers only missing documents, because it also covers a missing explanation. A narrow edge remains, where an explanation is given but the doubt persists. The finding does not claim that edge, though, and it states that the document says nothing at all, which the text does not support.",
+    "cost_usd": 0.010875,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-70": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The document gives a stand-in for an absent director only in section 7 (approving the report and deciding on discrepancies). Section 2 makes the director alone appoint the commission before 15 November and replace any member within one working day, and it has no stand-in rule. If the director is absent, no one can appoint or replace members, and the commission cannot count because it may not work with an incomplete composition (sections 2 and 3). No other passage covers this case, so the gap is real.",
+    "cost_usd": 0.003846,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-72": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 5 starts with the discoverer warning every person in the room to keep away from the spill. That step applies to every small spill, including one found by a discoverer who is not a trained worker. So the explanation is wrong to say that no small-spill rule matches section 6 on keeping people away. The text does not say whether that discoverer stays in the room or leaves, but the reader does not need that detail to act. A reader could call this a trap, because section 5 removes the apparent gap, but the finding's claim is simply not supported by the text.",
+    "cost_usd": 0.008535,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-47": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7 says the restore uses the \"останньої щотижневої копії, яка пройшла перевірку\", so a reader goes back to the latest earlier weekly copy that passed, not only the copies of the current month. Weekly copies are kept for months (section 6), so a failed weekly copy of one week leaves older verified ones available. The finding only describes a case where no weekly copy passed at all, which is a remote edge case, and the document does not set it up as a case that needs its own rule. The point that a manual weekday copy is a daily copy (section 1) is true, but it does not leave the reader without a source for the restore.",
+    "cost_usd": 0.010361,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The case is handled. The Committee's approval of a purchase over 1 000 000 hryvnias takes effect only after the director approves it. If the director cancels it, the approval never takes effect and the purchase is not approved. The director must tell the initiator the same day, as the passage on notification of the initiator requires. The document does not say whether the initiator may resubmit, but the reader needs no further step to act, so this is a missing detail rather than a gap.",
+    "cost_usd": 0.008086,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-64": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 5 already gives the rule for this case: an administrator does not grant access to himself or herself, and \"another Service Desk administrator grants it.\" The finding only imagines a Service Desk with one administrator or with no other administrator available. The document does not say how many administrators there are, and staffing shortfalls or absences are not a case the document has to handle with a separate rule. The real gap in this document is elsewhere, for example systems that are devices or network services have no appointed system owner.",
+    "cost_usd": 0.00805,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-30": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The document tells the reader to remove the foam and repeat from the step of setting the box into the opening after a failed second check. By then the free edge of the outer tape is already glued to the frame, and the box is fixed to the frame. The restart rule says nothing about detaching that tape edge, and the step that applies the tape to the box is not part of the repeated steps. The reader therefore cannot tell whether to peel the tape off, cut it or keep it, so no rule covers this case. The restart rule could be read as covering it generally, because the later tape-gluing step is repeated, but it says nothing about the tape that is already glued.",
+    "cost_usd": 0.018526,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-53": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The scope covers only \"every employee who travels for work\". The document never says the chair of the board is an employee. A board chair is normally a governance role, not a staff member. The finding assumes the chair is in scope, and the text does not support that. Without that assumption, a chair's trip is outside the scope, and the exclusion in the instruction for cases outside the scope applies. A gap is possible only if the chair counts as an employee, but the text does not say so.",
+    "cost_usd": 0.006035,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-41": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding names two cases. An order about the head of the Department is not routed to the director, because the carve-out in «Функції» covers Department staff «крім начальника Відділу». So it falls under the fallback rule in «Взаємовідносини»: «Кожен інший проєкт договору чи наказу ... подає до Відділу». Such an order comes from another unit, so the Department reviews it, and the instruction excludes cases a general or \"every other\" rule covers. The second case, a contract drafted by the Department itself, is not in scope, since the Department's listed tasks and functions include no drafting of contracts. A head visaing an order about himself might be a self-approval concern, but that is a different kind of problem from a gap.",
+    "cost_usd": 0.018179,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-66": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Розділ 7 покладає щомісячне пробне відновлення тільки на системного адміністратора. Розділ 2 забороняє системному адміністратору, який заміщує адміністратора баз даних, виконувати пробне відновлення. Резервний виконавець за наказом директора призначається лише в разі відсутності системного адміністратора, обох працівників або іншої названої особи. Системний адміністратор у цьому випадку присутній, тому цей резервний виконавець не спрацьовує, і жоден пункт не вказує, хто виконує відновлення. Це прогалина, а не суперечність, бо заборона в розділі 2 читається як виняток із розділу 7.",
+    "cost_usd": 0.009155,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-61": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.2 defines a gift to include \"services\" and \"discounts\", which cannot be handed over. Section 7.6 requires a received gift above the limit to be handed over \"unused\" to the Compliance Officer. The donation rule applies only after handover, and the \"pays the third party the excess\" rule covers only hospitality received. The late-learning paragraph covers a gift given, not a gift received. So no rule tells the employee what to do with a received service or discount, or with a gift already used before the employee learned its value, and the finding names a real gap.",
+    "cost_usd": 0.015444,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-28": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The conflict-of-interest rules are written only for Committee members, and the financial manager is not one. The document handles the one self-review case it cares about: if the financial manager is the initiator of a request under 50 000, it goes to the director on the day of submission. The finding's wider case, a financial manager with a family tie to a supplier, is a case the document never treats as a conflict for that role, so it is not a missing rule for a case the document sets up. A reader could call it a gap, but the text supports a deliberate narrow design more than an omission.",
+    "cost_usd": 0.012682,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-54": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The Costs section lists what the Organisation pays for: economy seats, public transport, hotel nights, a fixed meal amount, and taxis under a condition. A reader takes this as the full list, so a private car is simply not among the paid costs. The finding invents a case the scope does not name, and the document does not leave the reader without a way to act. A gap could be argued because the document never says unlisted costs are unpaid, but the enumerated list supports the closed reading more.",
+    "cost_usd": 0.010179,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-55": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The scope covers all procurements, and the document gives the financial manager and the director their own decision powers: the manager alone below 50 000, the director for requests above 1 000 000 and for requests the Committee cannot decide for lack of quorum. The conflict-of-interest definition and the recusal steps (declare, leave, not vote) apply only to Committee members. The one case handled for the manager is when the manager is the initiator, and that request goes to the director. No passage tells the manager or the director what to do if a family member owns or works for the supplier, or if the director has a conflict on a request that reaches them. Nothing like a general or fallback rule covers these cases, so the gap is real.",
+    "cost_usd": 0.008728,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

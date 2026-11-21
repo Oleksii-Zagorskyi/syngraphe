@@ -1,0 +1,83 @@
+{
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The replacement happens by the text itself: the new request 'replaces the earlier one' and 'replaces every earlier spending request'. No action by a role is required to withdraw the old approval, so there is no obligation without a role. The finance director's register covers decided requests, and the requester already must raise the new request. The finding wants an extra step the document does not require, which is at most a gap, not an unassigned obligation.",
+    "cost_usd": 0.008712,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence is a deeming rule: a refused record is treated as under a legal hold until the owner proposes it again. It requires no action, so there is no obligation without a role. The hold ends by the owner's own act of re-proposing, and the owner is named in the sentence. The conflict with the Legal hold section, where only the Legal Counsel places a written hold, is a different kind of problem (inconsistency). It is not a missing role. A reader could call the sentence a hold with no one placing it, but the text supports the deeming reading better.",
+    "cost_usd": 0.011346,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"One leave day is deducted for each leave day of absence...\" is a counting rule, not a task for a role. The Terms section defines the remaining entitlement as entitlement plus carry-over minus leave days taken or approved. The deduction is therefore part of a formula that approvers and the Payroll Officer apply when they use the figure. No one has to perform a separate deduction step. The finding could look right because the sentence is passive and names no role, but the document does not need a role for a calculation rule.",
+    "cost_usd": 0.011803,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence is a rule that applies automatically when a fact is true: the opening was already corrected under the section head's decision. It is not a right that a role may choose to use. That decision is written down, because the section head \"письмово визначає спосіб і строк виправлення\", so the condition can be checked. The sentence also conflicts with the line before it, \"повторює всі вимірювання\", but that is a contradiction, which is a different kind of problem. A reader could argue that no role confirms the exemption and the act does not record it, but the text does not give a right that needs a role to explain or record its use.",
+    "cost_usd": 0.015426,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Розділ 7 дає пробне відновлення системному адміністратору. Розділ 2 прямо звільняє його від цього, коли він заміняє адміністратора баз даних, але не називає, хто тоді відновлює. Правило про працівника, якого директор призначає наказом, діє лише у разі відсутності системного адміністратора, обох працівників або іншої названої особи. Системний адміністратор у цьому випадку присутній, тож правило не застосовується, і відновлення не виконує ніхто. Інше прочитання можливе: «іншої особи, названої в цій Інструкції» можна розтлумачити так, що директорове призначення охоплює й цей випадок. Текст цього прямо не каже, тому прогалина в ролях лишається.",
+    "cost_usd": 0.018455,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"One leave day is deducted for each leave day of absence\" is a counting rule, not an action that needs a role. The Terms section defines the remaining entitlement by a formula that subtracts leave days taken or approved. The approver applies that formula when checking a request, and the Payroll Officer uses it at final pay, so no one has to perform a separate deduction. It could be read as a passive obligation with no actor, but the formula supplies the figure without any recorded step, so the text supports a rule about how to count rather than an orphaned duty.",
+    "cost_usd": 0.005898,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence \"A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend\" gives the Office Manager a right that overrides the rule that everyone but the duty officer leaves by 19:00. I found no passage that makes the Office Manager record, announce or end that permission, and the leave-or-sick clause only says who stands in for the Office Manager. The person who stays does write entry and leaving times in the log, and the closing person is found by checking rooms, so closing still works. Those entries do not record the permission or the reason for it, so this fits the instruction's third cause: a right that changes a required action with no duty to tell or record. The case for not a defect is that the closing mechanism does not depend on the permission being recorded.",
+    "cost_usd": 0.018662,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"One leave day is deducted for each leave day of absence\" is a counting rule, not an action a role must perform. The Terms section defines the remaining entitlement as the entitlement plus carry-over minus leave days taken or approved. The approver's refusal rule and the Payroll Officer's final pay both use that computed figure. The deduction is therefore built into the definition and needs no named role. The finding could be argued as a passive sentence with no actor, but nothing in the document requires someone to record or apply a separate deduction step.",
+    "cost_usd": 0.005788,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence \"A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend\" gives the Office Manager a right. It lets a person delay the required action \"Every person other than the duty officer leaves the office by 19:00\". No passage requires the Office Manager to tell anyone, record the permission in the closing log, give a reason, or end it, and the closing steps and fault sections add no such duty. This is the kind of right the instruction defines, one that changes a required action with no duty to tell or record its use. The other reading, that the permitted person obviously knows because they were allowed, does not remove the missing record or notice to others such as the duty officer.",
+    "cost_usd": 0.010532,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

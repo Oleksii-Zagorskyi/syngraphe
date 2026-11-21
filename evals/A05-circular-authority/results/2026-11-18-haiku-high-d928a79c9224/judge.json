@@ -1,0 +1,146 @@
+{
+  "U-04": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.1 says the Section applies to every employee \"including the Chief Executive\", so under Section 7.5 the Chief Executive \"sends a written request to the Compliance Officer beforehand\" and the Compliance Officer \"approves or refuses the request\". Section 7.1 also says that for the Compliance Officer's own gifts \"the Chief Executive acts in place of the Compliance Officer\", so the Chief Executive approves the Compliance Officer's requests. No other passage names a different approver for the Chief Executive's requests, so each role approves the acts of the other, which the instruction defines as circular authority. A `not a defect` verdict is possible only if the Compliance Officer's matter going to the Chief Executive is read as an excluded \"matter about a role that goes to a role above it\". That reading fails because the Chief Executive's own requests still go to the Compliance Officer.",
+    "cost_usd": 0.025235,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The only passage is \"The Head of HR owns this procedure and reviews it once every calendar year.\" Owning a document and reviewing it on a schedule is a maintenance duty. It is not a role approving its own act, request or matter. The document never says the Head of HR wrote the procedure, and it names no approval that loops back to the same role. A 'trap' verdict is also possible, because the finding's real complaint is that no other role approves the review, which the instruction excludes as an act with no approver.",
+    "cost_usd": 0.023233,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The Office Manager can indeed be the closing person on a weekend, since \"The person who leaves when nobody else remains is the closing person\" excludes no one. But the link in the finding is \"reports it to the Office Manager by message\", which is a fault report, and the instruction says a report between roles is not an approval. \"The Office Manager orders the repair\" is an act with no approver, not an approval of the report. No role approves its own act, so this matches a type of passage the instruction says not to report; \"not a defect\" is also possible, since no circular authority exists in the text.",
+    "cost_usd": 0.022996,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 2 defines the executor as the worker who submits the document for signature (\"Виконавцем є працівник, який подав документ на підпис\"). Section 3 then says the document counts as signed once the executor signs it (\"Документ вважається підписаним, коли його підписав виконавець\"). The registrar numbers only signed documents, so the executor's own signature completes the approval of the executor's own document, which is self-approval. A reader could see this mainly as a conflict with the rule about the last required signature, but the path still lets one role approve its own act.",
+    "cost_usd": 0.0269,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-11": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document treats «фахівець відділу» and «керівник відділу» as two separate roles: the head appoints a specialist, and the specialist then «подає керівникові відділу висновок». The ban that a specialist cannot be «працівник, дій якого стосується скарга» does not make the head eligible to be a specialist. The finding's claim that the head can appoint himself is speculation that the text does not support. One could argue «defect» because self-appointment is not expressly forbidden, but that reading treats the head as a specialist, which the document never does.",
+    "cost_usd": 0.028731,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The Records Manager answers every destruction proposal, including those for contract records, which the Legal Counsel owns. The rule \"For records that the Records Manager owns, the Legal Counsel answers the proposal instead\" makes the Legal Counsel approve the Records Manager's own proposals for operational records of a defunct unit. Read together, these passages make two roles approve each other's acts, which the instruction defines as circular authority. A trap reading is possible because the substitution rule alone is the excluded type that stops self-approval and names another role, but the finding reports the mutual pair, not self-approval, and no passage removes that pair.",
+    "cost_usd": 0.025566,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In section 8 the copy is still made by the automatic job (\"запускає завдання вручну\"), the same job whose output the database administrator checks under section 5 every day. The check in section 5 is a technical comparison of the protocol and the checksums, not an approval of the administrator's own decision. The head of IT also reviews the backup journal every month (section 2), so the result is not left unchecked. A `real defect` verdict is possible if pressing the start button counts as the administrator's own act, which would make the check in section 8 a self-check.",
+    "cost_usd": 0.03536,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-16": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 2 moves to the Operations Director only the Fleet Manager's duties under \"sections 3, 4, 7, 8 and 9\" when the Fleet Manager wishes to use a vehicle. Section 5's power, \"The Fleet Manager may approve a private trip at a weekend\", is left out, so the Fleet Manager keeps the power to approve a private trip that the Fleet Manager requests. That is self-approval. The opposite reading is possible because the booking approval under section 4 passes to the Operations Director. However, the separate section 5 approval of the private trip itself still stays with the Fleet Manager.",
+    "cost_usd": 0.035356,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "\"Every person other than the duty officer leaves the office by 19:00\" and \"Neither the Office Manager nor the Head of Operations is ever the duty officer\" together mean the 19:00 rule binds the Office Manager. The rule \"A person whom the Office Manager allows to stay past 19:00\" does not exclude the Office Manager, so the Office Manager can grant this permission to themselves. The Head of Operations, who \"takes the Office Manager's place in every rule\", can do the same when standing in. Nothing in the text names another role to approve the Office Manager's own stay, so this is circular authority; the other verdict is possible only if \"a person\" is read as implicitly meaning someone else, which the text does not say.",
+    "cost_usd": 0.014742,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.1 brings the Chief Executive under Section 7, so a Chief Executive request for an exception goes to the Compliance Officer, who approves it under Section 7.5. The same Section 7.1 makes the Chief Executive act in place of the Compliance Officer for the Compliance Officer's own gifts, so the Chief Executive approves the Compliance Officer's requests. The two roles therefore approve each other's acts, which the instruction defines as circular authority, and no passage sends either matter to a third role. A trap reading is possible, because the Compliance Officer's matter goes to a higher role, which is excluded. But the Chief Executive's matter goes down to the Compliance Officer, so the mutual approval remains.",
+    "cost_usd": 0.016936,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-14": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Legal Counsel owns contract records, and the owner proposes them to the Records Manager, who answers. So the Records Manager approves Legal Counsel's destruction proposals. The Records Manager owns the operational records of a unit that no longer exists, and \"For records that the Records Manager owns, the Legal Counsel answers the proposal instead\". So Legal Counsel approves the Records Manager's proposals, and each of the two roles approves the other's acts, which is the mutual-approval cause the instruction lists. A trap reading is possible because the substitution rule alone stops the Records Manager from approving its own proposals by naming a different role, which the instruction excludes. But read with the contract-record path, it still creates the two-way circle.",
+    "cost_usd": 0.016518,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-10": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Assigning a number is a clerical registration act, not an approval of the document, and section 4 puts that act under another role's check. \"Керівник канцелярії раз на квартал перевіряє реєстри всіх підрозділів, крім реєстру канцелярії\" covers the other units, and \"Реєстр канцелярії раз на квартал перевіряє заступник директора з адміністративних питань\" covers the chancellery. So the finding's claim that no other person is involved is false, and an act that one role does and a different role checks is excluded by the instruction. 'Not a defect' is also possible, because registering a number does not approve the document's content at all; that is done by the signers.",
+    "cost_usd": 0.01637,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-13": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.1 says Section 7 covers every employee, including the Chief Executive. Under 7.3 the Compliance Officer sets the value of a Chief Executive's gift when its value is unclear. Under 7.1 the Chief Executive acts in place of the Compliance Officer for the Compliance Officer's own gifts, so the Chief Executive sets those values. Each role therefore decides a matter about the other, which is the mutual approval that the instruction defines. The other verdict is possible because the Compliance Officer's matter going to the Chief Executive alone is an allowed escalation upward, and setting a value could be read as a check rather than an approval; but the reverse path closes the circle.",
+    "cost_usd": 0.015684,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Read alone, the line saying the DB administrator \"створює позачергову резервну копію і перевіряє її згідно з розділом 5\" looks like a role checking its own act. However, the section 5 check is only a technical checksum and log test. The document then hands the same copy to a different role: \"Системний адміністратор протягом трьох робочих днів повторює пробне відновлення з позачергової копії\", the chief accountant reconciles the balances, and a failure goes to the IT head and the director. So the extraordinary copy does get an independent check, contrary to the finding's claim. A 'real defect' verdict is possible because the DB administrator literally creates and checks the same copy, but the later independent checks remove the circular approval.",
+    "cost_usd": 0.023977,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Read alone, sections 2 and 5 do let the database administrator check backups that he sets up and runs. The rest of the document, however, adds checks by other roles. Section 7 has the system administrator and the chief accountant do a monthly trial restore and reconciliation. Section 2 has the IT head review the backup journal each month, and it bars a system administrator acting for the database administrator from doing the trial restore. That keeps the restore check independent. A 'real defect' verdict is possible because the daily checksum check in section 5 is still done by the same role that runs the backups.",
+    "cost_usd": 0.022413,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-15": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 3 states that the backup copy is created by an automatic job on the main server (\"Резервну копію створює автоматичне завдання на основному сервері\"), not by the database administrator or his stand-in. So the check in section 5 is a check of the job's output, not of the role's own act. The substitution in section 2 only moves the same duty of checking to another person; it does not create a new circle. The finding's claim that the substitute himself \"creates the copies\" is not supported by the text. A self-check could be argued only for a manually started copy (section 8), but that applies equally in the normal path and is not what the finding describes.",
+    "cost_usd": 0.019749,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

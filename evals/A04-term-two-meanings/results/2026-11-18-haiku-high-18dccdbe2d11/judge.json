@@ -1,0 +1,83 @@
+{
+  "U-08": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 7.7 itself separates the two uses. Its fourth sentence says \"no exception under Section 7.5 may be approved for it\", so the refreshments rule cannot be read as needing a Section 7.5 request. In \"The only exception is refreshments\", the word is plain general language that marks the one allowed case, not the named Section 7.5 approval. A reader therefore knows the refreshments need no request, and the apparent double meaning is removed by the text.",
+    "cost_usd": 0.020967,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In the sentence «Працівник, який іде пішки, ... а проїзд, навіть працюючи, перетинає лише на позначеному переході» the subject is the worker. «проїзд» is the object of «перетинає»: the worker crosses the driveway only at a marked crossing. So «проїзд» names an area of travel here, the same as in «в проїздах завширшки менше ніж 3 метри». The reading of «проїзд» as a vehicle or driver is not supported by the grammar.",
+    "cost_usd": 0.025419,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The term «ескалація» has one meaning throughout: transfer to the department head («Ескалація — це передання скарги керівникові департаменту»). The phrase «замість ескалації» keeps the deputy transfer separate from that term. The «Строк відповіді» passage says «переданої за розділом «Ескалація» іншій посадовій особі», and the quoted, capitalised word there names the section, not the act. Both the department head and the deputy receive complaints under that section, so the reader knows that the official who received the complaint is responsible for the deadline.",
+    "cost_usd": 0.028373,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In the sentence «Працівник, який іде пішки, рухається пішохідними доріжками, а проїзд, навіть працюючи, перетинає лише на позначеному переході» the subject is «Працівник». «проїзд» is the object of «перетинає», so the worker crosses the passage only at the marked crossing. In both quoted passages «проїзд» means the same thing, a lane where vehicles move. The finding misreads the grammar, so the term does not have two meanings.",
+    "cost_usd": 0.010006,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In both passages «запис» means the same thing: an entry made in the register. Section 4 lists what goes into the entry made on the day a number is assigned. Section 6 states right in its own sentence what the closing entry contains («останній запис — про останній присвоєний номер кожного виду документів»), so the reader always knows what to write. One could call this a trap because the clarifying words remove the doubt, but the term itself never takes a second meaning.",
+    "cost_usd": 0.03098,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 2 defines a small spill with a limit of 500 millilitres for a liquid, and it calls every other spill a large spill. A later sentence in the same section gives \"small spill\" a second extent: \"A spill of one litre or less of one low-hazard liquid ... is a small spill.\" For a spill between 500 ml and one litre, the two meanings send the reader to different actions: a trained worker cleans it under section 5, or the Spill Response Team cleans it under section 6. The other possible verdict is to treat the two sentences as a plain contradiction, which the instruction excludes, but the second sentence is worded as a new definition of the same term, so it fits the two-meanings kind better.",
+    "cost_usd": 0.032808,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In \"а проїзд, навіть працюючи, перетинає лише на позначеному переході\" the subject is still \"Працівник, який іде пішки\", and «проїзд» is the object being crossed. So «проїзд» means a vehicle passage in both places, the same as in \"в проїздах завширшки менше ніж 3 метри\". The finding misreads the grammar, and the term keeps one meaning throughout the document.",
+    "cost_usd": 0.009738,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says an initiator is a head of a structural unit or the director who submits a purchase request. The passage 'Якщо ініціатором ... є фінансовий менеджер' keeps that same meaning: the person who submits the request. Nothing in the text says the financial manager cannot be a head of a structural unit, and the passage only sets a special route for that case, so the reader's understanding of 'initiator' does not change. A 'real defect' verdict is possible only if one assumes the financial manager is not a unit head, but the text does not state this.",
+    "cost_usd": 0.029506,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says the initiator is the head of a structural unit or the director who submits a purchase request. The passage \"Якщо ініціатором заявки ... є фінансовий менеджер\" uses the term in that same sense: the person who submitted the request. Nothing in the document says the financial manager cannot be a unit head, so that passage fits the definition. The reader also knows exactly which rule to apply, because the passage itself says the request goes to the director, so there is no second meaning to act on. A 'real defect' reading is possible only if one assumes the financial manager is not a unit head, and the text does not say that.",
+    "cost_usd": 0.015564,
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

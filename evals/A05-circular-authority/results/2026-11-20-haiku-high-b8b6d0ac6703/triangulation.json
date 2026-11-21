@@ -1,0 +1,253 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-007-en-office-closing",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-1",
+        "R-5",
+        "R-7",
+        "R-9"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-02",
+      "case": "case-007-en-office-closing",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "A04-T1",
+        "R-1",
+        "R-6",
+        "R-9"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-03",
+      "case": "case-016-uk-db-backup",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-T1",
+        "R-5"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-04",
+      "case": "case-016-uk-db-backup",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-4"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-05",
+      "case": "case-018-uk-document-numbering",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-06",
+      "case": "case-003-en-onboarding",
+      "run": 2,
+      "key": "residue only",
+      "items": [
+        "R-7"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-07",
+      "case": "case-007-en-office-closing",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-2",
+        "R-7",
+        "R-8",
+        "R-9"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-08",
+      "case": "case-007-en-office-closing",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-1",
+        "R-5",
+        "R-7",
+        "R-9"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-09",
+      "case": "case-016-uk-db-backup",
+      "run": 2,
+      "key": "residue only",
+      "items": [
+        "R-1",
+        "R-4"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-10",
+      "case": "case-016-uk-db-backup",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-T1",
+        "R-5"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-11",
+      "case": "case-016-uk-db-backup",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-4"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-12",
+      "case": "case-018-uk-document-numbering",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-13",
+      "case": "case-016-uk-db-backup",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-1",
+        "R-4"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-14",
+      "case": "case-016-uk-db-backup",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-T1",
+        "R-5"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-15",
+      "case": "case-016-uk-db-backup",
+      "run": 3,
+      "key": "residue only",
+      "items": [
+        "R-1"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-16",
+      "case": "case-018-uk-document-numbering",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1",
+        "R-3"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-17",
+      "case": "case-018-uk-document-numbering",
+      "run": 3,
+      "key": "residue only",
+      "items": [
+        "R-1",
+        "R-7",
+        "R-8"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": null
+    }
+  ],
+  "tally": {
+    "another heuristic's item": {
+      "findings": 13,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 0,
+      "agree": 0,
+      "disagree": 0
+    },
+    "residue only": {
+      "findings": 4,
+      "judge_real": 0,
+      "judge_trap": 1,
+      "judge_not": 3,
+      "agree": 0,
+      "disagree": 0
+    }
+  }
+}

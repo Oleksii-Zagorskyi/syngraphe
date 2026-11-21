@@ -1,0 +1,52 @@
+case: case-001-en-travel-expenses
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps:
+      - id: A01-T1
+        passages:
+          - "A trip that is asked for later is not approved."
+          - "The director decides on an urgent trip that is asked for later."
+        why: "A rule and its stated exception; reading the second as an exception reconciles them, so it is no contradiction."
+  A02:
+    defects:
+      - id: A02-1
+        passages:
+          - "A trip that is asked for later is not approved."
+          - "The director decides on an urgent trip that is asked for later."
+          - "The head of the employee's department approves a trip inside the country."
+          - "The Organisation pays only for a trip that was approved."
+        note: "For an employee's urgent late trip inside the country: the director's decision is the approval; or the trip is not approved at all; or the director only admits the late request and the head of department approves it. The approver, the person who later decides on taxis, and whether the Organisation pays all change."
+      - id: A02-2
+        passages:
+          - "The chair of the board approves each trip of the director, instead of the director."
+          - "The director decides on an urgent trip that is asked for later."
+        also: [A05]
+        note: "For the director's own urgent late trip: the chair of the board decides ('each trip of the director'), or the director decides it under the later line, which carries no 'instead of'. The role that decides changes."
+    traps:
+      - id: A02-T1
+        passages:
+          - "The director approves each trip of a head of department, instead of the head of the department."
+          - "The chair of the board approves each trip of the director, instead of the director."
+        why: "Two rules cover one trip, but 'instead of' says which governs; every careful reader sends the trip to the same approver."
+      - id: A02-T2
+        passages:
+          - "An employee submits a claim within 30 days after the trip ends."
+          - "The finance department pays the claim within fifteen working days after it receives the claim."
+        why: "Days beside working days: the document writes 'working' where it means it, so '30 days' has one reading."
+      - id: A02-T3
+        passages:
+          - "Taxis are paid only when public transport is not reasonable."
+        why: "'Reasonable' is vague, and the next line names who decides it; no second reading changes what anyone does."
+  A03: {defects: [], traps: []}
+  A04: {defects: [], traps: []}
+  A05:
+    defects: []
+    traps:
+      - id: A05-T1
+        passages:
+          - "The chair of the board approves each trip of the director, instead of the director."
+          - "The director decides on an urgent trip that is asked for later."
+        why: "The director decides the director's own trip on one reading only; the defect is the ambiguity (A02-2), not a circle the document sets."
+  A06: {defects: [], traps: []}

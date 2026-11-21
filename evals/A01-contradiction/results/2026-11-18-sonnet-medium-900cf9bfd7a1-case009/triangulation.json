@@ -1,0 +1,70 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-009-en-gifts",
+      "run": 1,
+      "key": "nothing",
+      "items": [],
+      "judge": "trap",
+      "owner": "trap",
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-02",
+      "case": "case-009-en-gifts",
+      "run": 1,
+      "key": "residue only",
+      "items": [
+        "R-3",
+        "R-6",
+        "R-7"
+      ],
+      "judge": "trap",
+      "owner": "trap",
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-03",
+      "case": "case-009-en-gifts",
+      "run": 3,
+      "key": "residue only",
+      "items": [
+        "R-3",
+        "R-6",
+        "R-7"
+      ],
+      "judge": "trap",
+      "owner": "trap",
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-04",
+      "case": "case-009-en-gifts",
+      "run": 3,
+      "key": "nothing",
+      "items": [],
+      "judge": "trap",
+      "owner": "trap",
+      "key_agrees_with_judge": null
+    }
+  ],
+  "tally": {
+    "nothing": {
+      "findings": 2,
+      "judge_real": 0,
+      "judge_trap": 2,
+      "judge_not": 0,
+      "agree": 0,
+      "disagree": 0
+    },
+    "residue only": {
+      "findings": 2,
+      "judge_real": 0,
+      "judge_trap": 2,
+      "judge_not": 0,
+      "agree": 0,
+      "disagree": 0
+    }
+  }
+}

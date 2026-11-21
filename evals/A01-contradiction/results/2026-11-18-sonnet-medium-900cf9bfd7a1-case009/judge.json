@@ -1,0 +1,26 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding sees a role conflict between \"The Compliance Officer approves or refuses the request\" and \"The role that decides the request records the decision\". Section 7.1 removes it: \"the Chief Executive acts in place of the Compliance Officer\" for the Officer's own gifts, so the Chief Executive is the role that decides and records in that case. 'Not a defect' is also possible, because the finding itself admits there is no contradiction, and even without 7.1 the wording 'the role that decides' does not conflict with 7.5.",
+    "cost_usd": 0.027677
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 7.6 (\"declares it, both within two working days of learning that it is such a gift\") is a narrower rule for one special case: a received gift above the gift limit, or a money gift. Section 7.4's five-day deadline is the general rule for every declaration, and the instruction excludes a general rule paired with a narrower rule for a special case. In addition, a reader who declares within the stricter two days also meets the five-day limit. A real-defect verdict is possible only if one stresses that the two deadlines count from different events (acceptance versus learning). Even then, Section 7.4 already requires the gift to be declared whatever its value, so the reader can obey both passages.",
+    "cost_usd": 0.017644
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 7.4 sets a general five-working-day deadline for every declaration. Section 7.6 sets a two-day deadline, counted from learning, only for a gift received above the gift limit or a money gift, and a ten-day deadline only for later discovery of an over-limit item. These are narrower rules for special cases, which the instruction says not to report: the special deadline applies to its case and the five-day rule to all others. A contradiction reading is possible because the two-day period runs from learning, so it can end after the five days from acceptance, and nothing marks 7.6 as an exception; but the document's case structure supports the special-case reading.",
+    "cost_usd": 0.012684
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 7.5 says the Compliance Officer decides requests, and Section 7.1 says the Chief Executive acts in place of the Compliance Officer for the Compliance Officer's own gifts. The quoted line avoids a clash by saying \"the role that decides the request\" records the decision, so it covers both the Compliance Officer and the Chief Executive. The passages look like a conflict between two roles, but the document resolves it; the finding itself admits the conflict is only apparent.",
+    "cost_usd": 0.008856
+  }
+}

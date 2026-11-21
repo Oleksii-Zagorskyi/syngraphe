@@ -1,0 +1,58 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-010-uk-forklift-safety",
+      "run": 1,
+      "key": "nothing",
+      "items": [],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-02",
+      "case": "case-021-en-lab-spill",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A01-1",
+        "R-5"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-03",
+      "case": "case-021-en-lab-spill",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A01-1",
+        "R-5"
+      ],
+      "judge": null,
+      "owner": null,
+      "key_agrees_with_judge": null
+    }
+  ],
+  "tally": {
+    "nothing": {
+      "findings": 1,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 1,
+      "agree": 0,
+      "disagree": 0
+    },
+    "another heuristic's item": {
+      "findings": 2,
+      "judge_real": 0,
+      "judge_trap": 0,
+      "judge_not": 0,
+      "agree": 0,
+      "disagree": 0
+    }
+  }
+}

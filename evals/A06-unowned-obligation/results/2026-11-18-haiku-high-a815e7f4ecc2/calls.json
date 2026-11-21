@@ -1,0 +1,3932 @@
+[
+  {
+    "run": 1,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-001-en-travel-expenses/A06",
+    "ended": "done",
+    "cost_usd": 0.000707,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 948,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1480
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcysvNcEo8Z28tsjaw8",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ecb81b8d87bd02a6e735743022aa7695"
+  },
+  {
+    "run": 1,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-002-uk-procurement-committee/A06",
+    "ended": "done",
+    "cost_usd": 0.003766,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 6629,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3223
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcysv7xZRm6pgE7bNs1",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 26.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a4d25370cad1aae130b3dec5c1b3bed8"
+  },
+  {
+    "run": 1,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-003-en-onboarding/A06",
+    "ended": "done",
+    "cost_usd": 0.000867,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1077,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2244
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The archiving of account content has no responsible role.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            61
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcysxqgYYn9N1j7RQ2T",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "The archiving of account content has no responsible role.",
+          "explanation": "Section 8 requires that the content of the accounts is archived before deletion, but the sentence is passive and names no role. The Roles section gives the IT Technician only the creating, disabling and deleting of accounts, and the line manager and HR Officer have no archiving duty either. If no role acts, the content may be deleted without being archived.",
+          "quotes": [
+            "The content of the accounts is archived before the accounts are deleted."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "e2c0239f6fb9b4f909b0b4c18b4a8819"
+  },
+  {
+    "run": 1,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-004-uk-window-timber-wall/A06",
+    "ended": "done",
+    "cost_usd": 0.001145,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 1364,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3313
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcysyb1u8HPoWx9juUw",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.7,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8a2b875326b73a0798c16de7afbc3c23"
+  },
+  {
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-005-en-spending-authority/A06",
+    "ended": "done",
+    "cost_usd": 0.001625,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2569,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2334
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcysudMArw81Xa28n75",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "fc2634e028237b58fd55b3849453fd93"
+  },
+  {
+    "run": 1,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-006-uk-accountant-job/A06",
+    "ended": "done",
+    "cost_usd": 0.00236,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3785,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3345
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A06-1",
+        "A06-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Зберігання затверджених звітів не закріплено за жодною роллю",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            32
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Право не вносити запис не пов'язане з повідомленням або рішенням",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcyswrbE2LAESdDRMAg",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Зберігання затверджених звітів не закріплено за жодною роллю",
+          "explanation": "Документ вимагає зберігати затверджені звіти три роки, але не називає роль, яка має це робити. Я перевірив розділи «Обов'язки», «Права», «Відповідальність» і «Взаємодія з іншими відділами», і там немає жодного слова про архів чи зберігання. Якщо ніхто не виконає цю дію, звіти можуть не зберігатися.",
+          "quotes": [
+            "Затверджені звіти зберігаються в електронному архіві фінансового відділу три роки."
+          ]
+        },
+        {
+          "title": "Право не вносити запис не пов'язане з повідомленням або рішенням",
+          "explanation": "Право дозволяє бухгалтеру не виконати обов'язок внести запис протягом двох робочих днів. Жоден пункт не вимагає повідомити керівника відділу чи головного бухгалтера або пояснити причину відмови. Також не визначено, хто вирішує, чи документ достовірний, тому відмова від запису може залишитися без подальших дій.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "691a629faf54fca494616e70a887d779"
+  },
+  {
+    "run": 1,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-007-en-office-closing/A06",
+    "ended": "done",
+    "cost_usd": 0.001067,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1468,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2275
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcyt43fDtTJksEEhhXq",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "3dcc3dd52970028ad5a7ed3c2c5c5117"
+  },
+  {
+    "run": 1,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-008-uk-complaints/A06",
+    "ended": "done",
+    "cost_usd": 0.001635,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2392,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3120
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Квартальний аналіз скарг не має відповідального виконавця",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            74
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:31+00:00",
+    "request_id": "req_011ChAcysw7M9jXYpUCcqGoM",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Квартальний аналіз скарг не має відповідального виконавця",
+          "explanation": "Документ вимагає щокварталу складати аналіз скарг для керівника Організації, але речення пасивне і не називає роль, яка його складає. Перевірка розділів про канали, реєстрацію, строки, розслідування, відповідь, ескалацію й облік не знаходить жодного посилання на роль, відповідальну за цю дію. Тому цей обов'язок не буде виконано.",
+          "quotes": [
+            "Щокварталу для керівника Організації складається аналіз скарг за видами та строками розгляду."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ee48ea4b125dd9225c3ce1ab244a171"
+  },
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-009-en-gifts/A06",
+    "ended": "done",
+    "cost_usd": 0.001889,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 3078,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2414
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:36+00:00",
+    "request_id": "req_011ChAczEsT4sSEgJTNzLxmQ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4cc1e2c1bf729d4c3cdbf445c9676bc6"
+  },
+  {
+    "run": 1,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-010-uk-forklift-safety/A06",
+    "ended": "done",
+    "cost_usd": 0.002588,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 4272,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3224
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:36+00:00",
+    "request_id": "req_011ChAczFEXWvW8PUXwPKEST",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a896f34eafcba27a8aeb984995c25340"
+  },
+  {
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-011-en-records-retention/A06",
+    "ended": "done",
+    "cost_usd": 0.001187,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1682,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2379
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The legal check of retention periods has no responsible role.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            35
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:38+00:00",
+    "request_id": "req_011ChAczNeWuJVUiRFUPEsEH",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "The legal check of retention periods has no responsible role.",
+          "explanation": "The document requires that retention periods be checked against the law every three years, but the sentence has no subject and no other passage gives this check to any role. I searched the owner list, the legal hold rules, the destruction rules and the Destruction Log rules, and none of them assigns it. As written, the check may never happen.",
+          "quotes": [
+            "The retention periods are checked against the law once every three years."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ae7bbd1fd3f09981f9af2f3b7d6bc22e"
+  },
+  {
+    "run": 1,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-012-uk-working-hours/A06",
+    "ended": "done",
+    "cost_usd": 0.001346,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 1917,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2708
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:38+00:00",
+    "request_id": "req_011ChAczPpCawz8xMym8EfTE",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "7b7db867a0dfad1ff2d7cb8a8ea5d109"
+  },
+  {
+    "run": 1,
+    "case": "case-013-en-it-access",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-013-en-it-access/A06",
+    "ended": "done",
+    "cost_usd": 0.001718,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2731,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2435
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The duty to keep access request forms for two years has no responsible role",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:41+00:00",
+    "request_id": "req_011ChAczdR1qUQ51pWRhdcoQ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "The duty to keep access request forms for two years has no responsible role",
+          "explanation": "The sentence states a retention duty in the passive voice and names no role. Section 1 gives the Service Desk the access register, and section 3 says the requester submits the form to the Service Desk, but no passage says that the Service Desk keeps the form. Without a named role, no one is clearly responsible for keeping the forms for two years or for disposing of them afterwards.",
+          "quotes": [
+            "Each access request form is kept for two years after the access is granted or the request is refused."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "2c0bdceb22ab2a39fee9f71e6fdce639"
+  },
+  {
+    "run": 1,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-014-uk-legal-department/A06",
+    "ended": "done",
+    "cost_usd": 0.002013,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3116,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3252
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Ведення реєстру судових справ не покладено на жодну роль",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            10
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:42+00:00",
+    "request_id": "req_011ChAczgUZzrUxr9Th48sDE",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Ведення реєстру судових справ не покладено на жодну роль",
+          "explanation": "Документ вимагає, щоб реєстр судових справ велося в електронній формі й оновлювався щотижня, але речення побудоване в пасиві й не називає виконавця. Я перевірив розділи «Загальні положення», «Завдання», «Функції», «Структура та керівництво», «Взаємовідносини з іншими підрозділами» та «Відповідальність», і жоден із них не відносить ведення реєстру до Відділу, начальника чи іншого працівника. Якщо ніхто не візьметься за цю дію, реєстр не буде вестися і не оновлюватиметься.",
+          "quotes": [
+            "Реєстр судових справ Організації ведеться в електронній формі й оновлюється щотижня."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c53c78f3dbbcc58dded5bed84e9e8c6d"
+  },
+  {
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-015-en-customer-letters/A06",
+    "ended": "done",
+    "cost_usd": 0.000949,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1243,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2234
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:45+00:00",
+    "request_id": "req_011ChAczuQgrPMcN6SZF9sen",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "096cca1fd4c576a63b8d1abef80e92d0"
+  },
+  {
+    "run": 1,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-016-uk-db-backup/A06",
+    "ended": "done",
+    "cost_usd": 0.002652,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 4418,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3153
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Пробне відновлення лишається без виконавця, коли системний адміністратор заміняє адміністратора баз даних",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            17
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "Видалення копій із віддаленого сховища не покладено на жодну роль",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            51,
+            53
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:47+00:00",
+    "request_id": "req_011ChAd11XY9JsYrVe6rf2jX",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Пробне відновлення лишається без виконавця, коли системний адміністратор заміняє адміністратора баз даних",
+          "explanation": "Розділ 7 покладає щомісячне пробне відновлення на системного адміністратора. Розділ 2 звільняє його від цього обов’язку, коли він виконує обов’язки адміністратора баз даних, і не називає іншого виконавця. Правило про призначення працівника наказом директора стосується лише випадку відсутності системного адміністратора, а не його заміни на посаді адміністратора баз даних. Тому в цій ситуації ніхто не виконує відновлення.",
+          "quotes": [
+            "Системний адміністратор, який виконує обов’язки відсутнього адміністратора баз даних, не виконує пробного відновлення."
+          ]
+        },
+        {
+          "title": "Видалення копій із віддаленого сховища не покладено на жодну роль",
+          "explanation": "Розділ 6 встановлює шестимісячний строк зберігання щотижневих копій у віддаленому сховищі. Видалення після цього строку прямо покладено лише на адміністратора баз даних, і лише для сервера резервних копій. Розділ 4 описує передавання копій до віддаленого сховища, але не їх видалення. Якщо ніхто не видалятиме копії, вони зберігатимуться довше встановленого строку.",
+          "quotes": [
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення.",
+            "Адміністратор баз даних видаляє резервну копію з сервера резервних копій наступного робочого дня після закінчення строку її зберігання."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b6da97a23e6a9ed51be6b04fff7a5bc6"
+  },
+  {
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-017-en-annual-leave/A06",
+    "ended": "done",
+    "cost_usd": 0.001321,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1972,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2291
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Leave deduction obligation has no responsible role",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            27
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:47+00:00",
+    "request_id": "req_011ChAd14kWwLo4cYyHW94t7",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Leave deduction obligation has no responsible role",
+          "explanation": "The sentence requires that leave days be deducted for each day of absence, but it is written in the passive and names no role. I checked the Approval, Requesting, Entitlement and Carry-over sections and the list of Head of People and Payroll Officer duties, and none gives the deduction to a role. If no role acts, the leave register would not reflect absences, so the balance used to approve later requests would be wrong.",
+          "quotes": [
+            "One leave day is deducted for each leave day of absence, and half a leave day for an absence of half of the contracted hours of that day."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0e04ed75e4053a70dcf449af3d349c49"
+  },
+  {
+    "run": 1,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-018-uk-document-numbering/A06",
+    "ended": "done",
+    "cost_usd": 0.002254,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3630,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3117
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:50+00:00",
+    "request_id": "req_011ChAd1Dwucv8qDHfzZRjvr",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8b95897774906ac533387284c4d40eb9"
+  },
+  {
+    "run": 1,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-019-en-vehicles/A06",
+    "ended": "done",
+    "cost_usd": 0.001619,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2506,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2543
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No role is assigned to keep the defect record.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            52
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:51+00:00",
+    "request_id": "req_011ChAd1LAxEevypxo7tAosf",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "No role is assigned to keep the defect record.",
+          "explanation": "Section 7 requires that a record of each reported defect be kept with the vehicle's documents until repair, but the sentence is passive and names no one. I checked section 2, which lists the Fleet Manager's records (booking register, authorised employees list, mileage log) and repair duties, and it does not mention defect records. Section 7 gives the reporting and decision steps to other roles, but not the keeping step. If no role keeps the record, the requirement cannot be carried out.",
+          "quotes": [
+            "A record of each reported defect is kept with the vehicle's documents until the defect is repaired."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8b2b0a45a97a77b7cbf017e6578c1c87"
+  },
+  {
+    "run": 1,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-020-uk-stocktake/A06",
+    "ended": "done",
+    "cost_usd": 0.001892,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2897,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3153
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Строк зберігання відомостей підрахунку не має відповідальної ролі",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            77
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:53+00:00",
+    "request_id": "req_011ChAd1VtrsdjmkKcF8PXjM",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Строк зберігання відомостей підрахунку не має відповідальної ролі",
+          "explanation": "Обов'язок зберігати відомості підрахунку членів комісії три роки записано в пасивному стані без зазначення виконавця. Перевірка всіх розділів показує, що жодна роль не отримала цього завдання: розділ 7 називає відповідальним головного бухгалтера лише для затвердженого звіту, а комісія та її члени згадані лише як ті, хто складає й підписує відомості. Тому читач не знає, хто має зберігати відомості і хто відповідає за їх збереження.",
+          "quotes": [
+            "Відомості підрахунку членів комісії зберігаються три роки."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "397c88e5bc40960de959a1740f3fbb96"
+  },
+  {
+    "run": 1,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run1/case-021-en-lab-spill/A06",
+    "ended": "done",
+    "cost_usd": 0.001108,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1493,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2507
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:21:53+00:00",
+    "request_id": "req_011ChAd1WRrDaK8uHqgkXXMs",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ca17cb7b4dea8752d0ae213a1c6a534"
+  },
+  {
+    "run": 2,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-001-en-travel-expenses/A06",
+    "ended": "done",
+    "cost_usd": 0.000474,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 821,
+      "cache_read_input_tokens": 1480,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PbNej2a7k94qEAt5",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ecb81b8d87bd02a6e735743022aa7695"
+  },
+  {
+    "run": 2,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-002-uk-procurement-committee/A06",
+    "ended": "done",
+    "cost_usd": 0.001832,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3501,
+      "cache_read_input_tokens": 3223,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PQTdtjWNrRymHQip",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a4d25370cad1aae130b3dec5c1b3bed8"
+  },
+  {
+    "run": 2,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-003-en-onboarding/A06",
+    "ended": "done",
+    "cost_usd": 0.000723,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1304,
+      "cache_read_input_tokens": 2244,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The archiving of account content has no responsible role.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            61
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PWuj8jwjwLeGjuMu",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "The archiving of account content has no responsible role.",
+          "explanation": "Section 8 requires the content of the accounts to be archived before deletion, but the sentence is passive and names no role. Section 3 lists the IT Technician's account tasks as creating, disabling and deleting accounts, with no archiving. No other passage gives archiving to any role, so if the reader follows the text, nobody archives the content and the accounts may be deleted without it being kept.",
+          "quotes": [
+            "The content of the accounts is archived before the accounts are deleted.",
+            "The IT Technician prepares, issues and recovers the equipment and creates, disables and deletes the accounts."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "e2c0239f6fb9b4f909b0b4c18b4a8819"
+  },
+  {
+    "run": 2,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-004-uk-window-timber-wall/A06",
+    "ended": "done",
+    "cost_usd": 0.001145,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2126,
+      "cache_read_input_tokens": 3313,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PRhQU6j7WgfWYFCk",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8a2b875326b73a0798c16de7afbc3c23"
+  },
+  {
+    "run": 2,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-005-en-spending-authority/A06",
+    "ended": "done",
+    "cost_usd": 0.001881,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 3619,
+      "cache_read_input_tokens": 2334,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The earlier approved request is replaced, but no role is told to withdraw or cancel it.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            52,
+            60
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PRD1Wt11XYq89yXt",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "The earlier approved request is replaced, but no role is told to withdraw or cancel it.",
+          "explanation": "The document says the new request replaces the earlier one, both after an amount rise and when a split purchase is found. It never says which role withdraws or cancels the earlier approval, or records the replacement. I checked the duties of the requester, the approver, the finance director and the absence rules, and none covers this step. Without such a role, the earlier approval could still allow the Organisation to commit money after it has been replaced.",
+          "quotes": [
+            "Where the amount rises after approval, the requester raises a new spending request for the full new amount, and it replaces the earlier one.",
+            "That spending request replaces every earlier spending request for the same purchase."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "fc2634e028237b58fd55b3849453fd93"
+  },
+  {
+    "run": 2,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-006-uk-accountant-job/A06",
+    "ended": "done",
+    "cost_usd": 0.002327,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 4490,
+      "cache_read_input_tokens": 3345,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A06-1",
+        "A06-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Зберігання затверджених звітів не має відповідальної ролі",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            32
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Право не вносити запис не має жодної відповідальної ролі для його наслідків",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PRCPsnD1uu4qSNP4",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 19.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Зберігання затверджених звітів не має відповідальної ролі",
+          "explanation": "Строк зберігання звітів записаний пасивним станом без зазначення особи, яка має їх зберігати. Я шукав виконавця в розділах «Обов'язки», «Права», «Відповідальність» і «Взаємодія з іншими відділами»: там ролі названі для складання, затвердження й подання звітів, але не для архіву. Назва «фінансовий відділ» є підрозділом, а не відповідальною особою, тому ніхто не відповідає за збереження звітів протягом трьох років.",
+          "quotes": [
+            "Затверджені звіти зберігаються в електронному архіві фінансового відділу три роки."
+          ]
+        },
+        {
+          "title": "Право не вносити запис не має жодної відповідальної ролі для його наслідків",
+          "explanation": "Бухгалтер може не вносити запис за документом, у достовірності якого сумнівається, хоча інший пункт вимагає вносити запис за кожним первинним документом протягом двох робочих днів. Я перевірив, чи є обов'язок повідомити головного бухгалтера, керівника відділу чи директора про таку відмову або строк розгляду питання; у розділах про права, обов'язки, відповідальність і взаємодію такого немає. Тому відмова не має механізму завершення, а пункт про відповідальність за помилки стосується записів, а не відмови.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "691a629faf54fca494616e70a887d779"
+  },
+  {
+    "run": 2,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-007-en-office-closing/A06",
+    "ended": "done",
+    "cost_usd": 0.001177,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2212,
+      "cache_read_input_tokens": 2275,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Office Manager's permission to stay past 19:00 has no record or report duty",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            25
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7",
+            "R-9"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PXA4F2HHxwVdoiU7",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Office Manager's permission to stay past 19:00 has no record or report duty",
+          "explanation": "This sentence gives the Office Manager a right that overrides the 19:00 leaving rule and changes who closes the office. I looked for a rule that makes the Office Manager record, explain or report this permission, in the closing steps, the weekend section and the duty sections. None exists. If the Office Manager allows a stay and records nothing, the closing person and the closing log have no trace of why the rule was changed.",
+          "quotes": [
+            "A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "3dcc3dd52970028ad5a7ed3c2c5c5117"
+  },
+  {
+    "run": 2,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-008-uk-complaints/A06",
+    "ended": "done",
+    "cost_usd": 0.002008,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3855,
+      "cache_read_input_tokens": 3120,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Щоквартальний аналіз скарг не має відповідального виконавця",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            74
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:05+00:00",
+    "request_id": "req_011ChAd2PZ9FghNxE8pqyaQQ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Щоквартальний аналіз скарг не має відповідального виконавця",
+          "explanation": "Документ вимагає щоквартально складати аналіз скарг для керівника Організації, але речення написане в пасивному стані і не називає, хто його складає. Я перевірив розділи про канали, реєстрацію, розслідування, відповідь, ескалацію й облік, і жоден з них не покладає цей обов'язок на роль. Оператор веде журнал, але документ не пов'язує з ним складання аналізу. Тому читач не знає, кому виконувати цю вимогу.",
+          "quotes": [
+            "Щокварталу для керівника Організації складається аналіз скарг за видами та строками розгляду."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ee48ea4b125dd9225c3ce1ab244a171"
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-009-en-gifts/A06",
+    "ended": "done",
+    "cost_usd": 0.000982,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1819,
+      "cache_read_input_tokens": 2414,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:09+00:00",
+    "request_id": "req_011ChAd2gaKSP1VrquNSCYXh",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4cc1e2c1bf729d4c3cdbf445c9676bc6"
+  },
+  {
+    "run": 2,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-010-uk-forklift-safety/A06",
+    "ended": "done",
+    "cost_usd": 0.001261,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2359,
+      "cache_read_input_tokens": 3224,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:11+00:00",
+    "request_id": "req_011ChAd2oRam2G1C9erf8fkv",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a896f34eafcba27a8aeb984995c25340"
+  },
+  {
+    "run": 2,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-011-en-records-retention/A06",
+    "ended": "done",
+    "cost_usd": 0.00095,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1755,
+      "cache_read_input_tokens": 2379,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The three-yearly legal check of retention periods has no role assigned to it.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            35
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:15+00:00",
+    "request_id": "req_011ChAd35RFqCAscuaSgdnRz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "The three-yearly legal check of retention periods has no role assigned to it.",
+          "explanation": "The sentence requires a check of the retention periods against the law, but it is written in the passive and names no role. I looked in the ownership section, the legal hold section, the destruction section and the Destruction Log section, and none of them gives this check to a role. If no role acts, the retention periods may fall out of line with the law without anyone noticing.",
+          "quotes": [
+            "The retention periods are checked against the law once every three years."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ae7bbd1fd3f09981f9af2f3b7d6bc22e"
+  },
+  {
+    "run": 2,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-012-uk-working-hours/A06",
+    "ended": "done",
+    "cost_usd": 0.001354,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2557,
+      "cache_read_input_tokens": 2708,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:16+00:00",
+    "request_id": "req_011ChAd39rtqTSmmmCnjqvCB",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "7b7db867a0dfad1ff2d7cb8a8ea5d109"
+  },
+  {
+    "run": 2,
+    "case": "case-013-en-it-access",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-013-en-it-access/A06",
+    "ended": "done",
+    "cost_usd": 0.001495,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2844,
+      "cache_read_input_tokens": 2435,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Retention of access request forms has no responsible role.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:17+00:00",
+    "request_id": "req_011ChAd3G7gzp6BvYBvJof3A",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Retention of access request forms has no responsible role.",
+          "explanation": "Section 3 requires that each access request form be kept for two years, but the sentence is passive and names no role. I searched the sentence, the step before it, and the rest of the document. The requester submits forms to the Service Desk, and the Service Desk keeps the access register, but no passage says that the Service Desk keeps the forms. If no role acts, the forms may not be kept for the required period.",
+          "quotes": [
+            "Each access request form is kept for two years after the access is granted or the request is refused."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "2c0bdceb22ab2a39fee9f71e6fdce639"
+  },
+  {
+    "run": 2,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-014-uk-legal-department/A06",
+    "ended": "done",
+    "cost_usd": 0.001006,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 1850,
+      "cache_read_input_tokens": 3252,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Реєстр судових справ має вестися і оновлюватися, але жодна роль не відповідає за це.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            10
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:21+00:00",
+    "request_id": "req_011ChAd3WZLw3AnxGbvVqdLZ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Реєстр судових справ має вестися і оновлюватися, але жодна роль не відповідає за це.",
+          "explanation": "Речення має пасивну форму й не називає відповідального. Я перевірив розділи «Функції», «Структура та керівництво», «Взаємовідносини з іншими підрозділами» та «Відповідальність», і жоден з них не покладає ведення або оновлення реєстру на Відділ, начальника чи іншу посаду. Якщо жодна роль не веде реєстр, він не буде оновлюватися щотижня.",
+          "quotes": [
+            "Реєстр судових справ Організації ведеться в електронній формі й оновлюється щотижня."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c53c78f3dbbcc58dded5bed84e9e8c6d"
+  },
+  {
+    "run": 2,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-015-en-customer-letters/A06",
+    "ended": "done",
+    "cost_usd": 0.000967,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1793,
+      "cache_read_input_tokens": 2234,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:21+00:00",
+    "request_id": "req_011ChAd3XRSA4yRsxTKEeUCi",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "096cca1fd4c576a63b8d1abef80e92d0"
+  },
+  {
+    "run": 2,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-016-uk-db-backup/A06",
+    "ended": "done",
+    "cost_usd": 0.001897,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3633,
+      "cache_read_input_tokens": 3153,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Видалення копій з віддаленого сховища не закріплено за жодною роллю",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            51,
+            53
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:21+00:00",
+    "request_id": "req_011ChAd3ZVD2bkp6ezf2YqNv",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Видалення копій з віддаленого сховища не закріплено за жодною роллю",
+          "explanation": "Документ встановлює шестимісячний строк зберігання щотижневих копій у віддаленому сховищі, але не називає роль, яка їх там видаляє. Шукав у розділі 6, де видалення з сервера резервних копій покладено на адміністратора баз даних, і в розділі 4, де автоматичне завдання лише передає копії до віддаленого сховища. Без ролі, відповідальної за видалення, після закінчення строку копії там можуть залишитися без контролю.",
+          "quotes": [
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення.",
+            "Адміністратор баз даних видаляє резервну копію з сервера резервних копій наступного робочого дня після закінчення строку її зберігання."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b6da97a23e6a9ed51be6b04fff7a5bc6"
+  },
+  {
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-017-en-annual-leave/A06",
+    "ended": "done",
+    "cost_usd": 0.001424,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2706,
+      "cache_read_input_tokens": 2291,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No role is given the deduction of leave days for absence",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            27
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:22+00:00",
+    "request_id": "req_011ChAd3aiNTse2igHXGWdFf",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "No role is given the deduction of leave days for absence",
+          "explanation": "The Entitlement and counting section requires that leave days be deducted for absence, but the sentence has no actor. I checked the Head of People duties, the approver duties and the Payroll Officer duties, and none of them covers deducting days from the entitlement. The approval rule depends on the remaining entitlement, so if no role makes the deduction, that check uses a figure that does not reflect leave already taken.",
+          "quotes": [
+            "One leave day is deducted for each leave day of absence"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0e04ed75e4053a70dcf449af3d349c49"
+  },
+  {
+    "run": 2,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-018-uk-document-numbering/A06",
+    "ended": "done",
+    "cost_usd": 0.002031,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3901,
+      "cache_read_input_tokens": 3117,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:22+00:00",
+    "request_id": "req_011ChAd3eHwULJYuycpws74z",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8b95897774906ac533387284c4d40eb9"
+  },
+  {
+    "run": 2,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-019-en-vehicles/A06",
+    "ended": "done",
+    "cost_usd": 0.001543,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2938,
+      "cache_read_input_tokens": 2543,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "A defect record is required, but no role is assigned to keep it.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            52
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:24+00:00",
+    "request_id": "req_011ChAd3nrsjKZoyuQfuLjKz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "A defect record is required, but no role is assigned to keep it.",
+          "explanation": "The sentence is passive and names no actor, so the reader cannot tell who must keep the defect record. I checked section 2, which gives the Fleet Manager the booking register, the authorised list and the mileage log, but not defect records. Section 7 says the driver reports defects to the Fleet Manager, but it does not say who records them or keeps them with the vehicle's documents. If no role acts, the record may never be made or kept.",
+          "quotes": [
+            "A record of each reported defect is kept with the vehicle's documents until the defect is repaired."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8b2b0a45a97a77b7cbf017e6578c1c87"
+  },
+  {
+    "run": 2,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-020-uk-stocktake/A06",
+    "ended": "done",
+    "cost_usd": 0.001588,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3015,
+      "cache_read_input_tokens": 3153,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Не визначено, яка роль зберігає відомості підрахунку",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            77
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:27+00:00",
+    "request_id": "req_011ChAd41Ys97fVGvxNGU6ru",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Не визначено, яка роль зберігає відомості підрахунку",
+          "explanation": "Вимога зберігати відомості підрахунку три роки написана в пасивному стані і не називає відповідальної ролі. Розділи 2–7 не покладають це зберігання ні на голову комісії, ні на членів комісії, ні на комірника чи головного бухгалтера. Головному бухгалтеру доручено зберігати лише затверджений звіт, а відомості підрахунку в цьому пункті не згадані, тому дія залишається без виконавця.",
+          "quotes": [
+            "Відомості підрахунку членів комісії зберігаються три роки."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "397c88e5bc40960de959a1740f3fbb96"
+  },
+  {
+    "run": 2,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run2/case-021-en-lab-spill/A06",
+    "ended": "done",
+    "cost_usd": 0.0008,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1453,
+      "cache_read_input_tokens": 2507,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:28+00:00",
+    "request_id": "req_011ChAd453U2ZLZ8RKg9T65c",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ca17cb7b4dea8752d0ae213a1c6a534"
+  },
+  {
+    "run": 3,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-001-en-travel-expenses/A06",
+    "ended": "done",
+    "cost_usd": 0.000721,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1315,
+      "cache_read_input_tokens": 1480,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vP6PUGwEPNwFkKQ9",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ecb81b8d87bd02a6e735743022aa7695"
+  },
+  {
+    "run": 3,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-002-uk-procurement-committee/A06",
+    "ended": "done",
+    "cost_usd": 0.001906,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3650,
+      "cache_read_input_tokens": 3223,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vEAVyPzk3uySSUuh",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a4d25370cad1aae130b3dec5c1b3bed8"
+  },
+  {
+    "run": 3,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-003-en-onboarding/A06",
+    "ended": "done",
+    "cost_usd": 0.00109,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2039,
+      "cache_read_input_tokens": 2244,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Archiving of account content has no responsible role",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            61
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vH8jUbSNe21ZHsyD",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Archiving of account content has no responsible role",
+          "explanation": "The sentence requires that account content be archived before deletion, but it is written in the passive with no role named. I checked the sentence, the rest of Section 8, and the Roles section. The IT Technician is assigned to create, disable and delete accounts, but not to archive their content. If no role acts, account content may be lost when the accounts are deleted 30 days after the leaving day.",
+          "quotes": [
+            "The content of the accounts is archived before the accounts are deleted.",
+            "The IT Technician prepares, issues and recovers the equipment and creates, disables and deletes the accounts."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "e2c0239f6fb9b4f909b0b4c18b4a8819"
+  },
+  {
+    "run": 3,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-004-uk-window-timber-wall/A06",
+    "ended": "done",
+    "cost_usd": 0.00148,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2796,
+      "cache_read_input_tokens": 3313,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Виняток із вимог до прорізу не закріплено за жодною роллю",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            38
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vG96Cxag8S7bkNaA",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Виняток із вимог до прорізу не закріплено за жодною роллю",
+          "explanation": "Текст звільняє від вимог розділів «Підготовка прорізу» та «Монтажний зазор» проріз, який уже виправляли за рішенням керівника дільниці. Жодна роль не названа як та, що перевіряє, що проріз справді виправляли, і хто вирішує застосувати виняток. Акт монтажу також не вимагає фіксувати його використання. Тому монтажник може пропустити обов'язкові вимірювання без відповідальної особи та запису.",
+          "quotes": [
+            "Ці вимоги не застосовують до прорізу, який уже виправляли за рішенням керівника дільниці."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8a2b875326b73a0798c16de7afbc3c23"
+  },
+  {
+    "run": 3,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-005-en-spending-authority/A06",
+    "ended": "done",
+    "cost_usd": 0.000563,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 983,
+      "cache_read_input_tokens": 2334,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vPqL1EZu1dEVkNBa",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "fc2634e028237b58fd55b3849453fd93"
+  },
+  {
+    "run": 3,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-006-uk-accountant-job/A06",
+    "ended": "done",
+    "cost_usd": 0.002323,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 4482,
+      "cache_read_input_tokens": 3345,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A06-1",
+        "A06-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Архівування затверджених звітів не має відповідальної ролі",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            32
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Право не вносити запис за сумнівним документом не має кінця і звітності",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vbjx4uLPMpb984pF",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Архівування затверджених звітів не має відповідальної ролі",
+          "explanation": "Норма вимагає зберігати затверджені звіти три роки, але фраза пасивна і без підмета, тому не видно, хто це робить. Я шукав відповідальну роль в розділах «Обов'язки», «Відповідальність» і «Взаємодія з іншими відділами», і там немає жодного припису щодо архіву. Без ролі, яка веде архів, звіти можуть не зберігатися протягом потрібного строку.",
+          "quotes": [
+            "Затверджені звіти зберігаються в електронному архіві фінансового відділу три роки."
+          ]
+        },
+        {
+          "title": "Право не вносити запис за сумнівним документом не має кінця і звітності",
+          "explanation": "Це право дозволяє бухгалтеру не виконувати обов'язок вносити запис за кожним документом протягом двох робочих днів. Документ не вимагає, щоб бухгалтер повідомив головного бухгалтера, пояснив сумнів, передав питання директорові або вирішив його в певний строк. Сумнів не є розбіжністю, бо розбіжність означає брак документа чи пояснення, тому правило про повідомлення про розбіжності сюди не підпадає.",
+          "quotes": [
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "691a629faf54fca494616e70a887d779"
+  },
+  {
+    "run": 3,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-007-en-office-closing/A06",
+    "ended": "done",
+    "cost_usd": 0.00206,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 3978,
+      "cache_read_input_tokens": 2275,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Office Manager's permission to stay past 19:00 is not recorded, reported or limited.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            25
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7",
+            "R-9"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vEf7BU7DEgnFS4k9",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Office Manager's permission to stay past 19:00 is not recorded, reported or limited.",
+          "explanation": "This permission lets a person stay past the 19:00 leaving time and close the office as on a weekend, which changes the normal closing rule. I checked the Who closes the office, Weekends and public holidays, and Closing steps sections for any duty to record, report or end the permission, and found none. No passage requires the Office Manager to tell the closing person, note it in the closing log, or end it.",
+          "quotes": [
+            "A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "3dcc3dd52970028ad5a7ed3c2c5c5117"
+  },
+  {
+    "run": 3,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-008-uk-complaints/A06",
+    "ended": "done",
+    "cost_usd": 0.001171,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2182,
+      "cache_read_input_tokens": 3120,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Квартальний аналіз скарг не має виконавця",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            74
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:40+00:00",
+    "request_id": "req_011ChAd4vSK5ReAWkartRXes",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Квартальний аналіз скарг не має виконавця",
+          "explanation": "Документ вимагає щоквартально складати аналіз скарг для керівника Організації, але не називає роль, яка має його скласти. Я перевірив розділи про канали, реєстрацію, строки, розслідування, ескалацію, відповідь і облік, і жодна роль не отримує цього завдання. Облікові обов'язки оператора стосуються лише журналу, знищення та зберігання скарг, тому без виконавця аналіз не буде складено.",
+          "quotes": [
+            "Щокварталу для керівника Організації складається аналіз скарг за видами та строками розгляду."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ee48ea4b125dd9225c3ce1ab244a171"
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-009-en-gifts/A06",
+    "ended": "done",
+    "cost_usd": 0.001298,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2451,
+      "cache_read_input_tokens": 2414,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:44+00:00",
+    "request_id": "req_011ChAd5G8F1fBBwrrBL7iNj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4cc1e2c1bf729d4c3cdbf445c9676bc6"
+  },
+  {
+    "run": 3,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-010-uk-forklift-safety/A06",
+    "ended": "done",
+    "cost_usd": 0.001877,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3591,
+      "cache_read_input_tokens": 3224,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:46+00:00",
+    "request_id": "req_011ChAd5MPztLT84XnK6PZTV",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a896f34eafcba27a8aeb984995c25340"
+  },
+  {
+    "run": 3,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-011-en-records-retention/A06",
+    "ended": "done",
+    "cost_usd": 0.001049,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1953,
+      "cache_read_input_tokens": 2379,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "No role is assigned to check the retention periods against the law.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            35
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "A legal hold arises for refused records without any role placing or lifting it in writing.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            58
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4",
+            "R-5",
+            "R-6"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:49+00:00",
+    "request_id": "req_011ChAd5bZH4raruw6SngL7G",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "No role is assigned to check the retention periods against the law.",
+          "explanation": "The document requires a periodic legal check of the retention periods, but the sentence is passive and names no role. I looked for a role in the Retention periods section, the owner list and the Legal hold section, and none is given this duty. As written, the check would never be carried out.",
+          "quotes": [
+            "The retention periods are checked against the law once every three years."
+          ]
+        },
+        {
+          "title": "A legal hold arises for refused records without any role placing or lifting it in writing.",
+          "explanation": "The document defines a legal hold as a written instruction that only the Legal Counsel places and lifts, and that the Legal Counsel notifies. This sentence puts a record under a legal hold, but no role is named to place it, record it in writing or end it. I checked the Destruction and Legal hold sections, and no passage gives this step to a role.",
+          "quotes": [
+            "A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ae7bbd1fd3f09981f9af2f3b7d6bc22e"
+  },
+  {
+    "run": 3,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-012-uk-working-hours/A06",
+    "ended": "done",
+    "cost_usd": 0.001305,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2459,
+      "cache_read_input_tokens": 2708,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:50+00:00",
+    "request_id": "req_011ChAd5eYcRKJ1PhLpCokXA",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "7b7db867a0dfad1ff2d7cb8a8ea5d109"
+  },
+  {
+    "run": 3,
+    "case": "case-013-en-it-access",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-013-en-it-access/A06",
+    "ended": "done",
+    "cost_usd": 0.001004,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1863,
+      "cache_read_input_tokens": 2435,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The retention of access request forms has no responsible role.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:53+00:00",
+    "request_id": "req_011ChAd5uVHRQELS3wWpVPGx",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "The retention of access request forms has no responsible role.",
+          "explanation": "Section 3 requires that each access request form be kept for two years, but the sentence is passive and names no role. Section 1 gives the access register to the Service Desk, but it does not mention the forms. The Service Desk is the only role that receives the forms, so it is the likely keeper, but the document never assigns this duty to it, so a reader cannot be sure who must keep the forms.",
+          "quotes": [
+            "Each access request form is kept for two years after the access is granted or the request is refused."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "2c0bdceb22ab2a39fee9f71e6fdce639"
+  },
+  {
+    "run": 3,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-014-uk-legal-department/A06",
+    "ended": "done",
+    "cost_usd": 0.001072,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 1981,
+      "cache_read_input_tokens": 3252,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Щотижневе оновлення реєстру судових справ не має відповідального виконавця",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            10
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:55+00:00",
+    "request_id": "req_011ChAd63fReLVGes3gVFoW5",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Щотижневе оновлення реєстру судових справ не має відповідального виконавця",
+          "explanation": "Документ вимагає, щоб реєстр судових справ вівся в електронній формі та оновлювався щотижня, але ця дія записана пасивно і без суб'єкта. Шукаючи роль, яка її виконує, у розділах «Функції», «Структура та керівництво», «Взаємовідносини з іншими підрозділами» та «Відповідальність» не знаходимо жодного положення, що покладає ведення реєстру на Відділ, начальника Відділу, юрисконсультів, канцелярію чи інший підрозділ. Тому без окремого розпорядження ніхто не відповідає за щотижневе оновлення.",
+          "quotes": [
+            "Реєстр судових справ Організації ведеться в електронній формі й оновлюється щотижня."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c53c78f3dbbcc58dded5bed84e9e8c6d"
+  },
+  {
+    "run": 3,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-015-en-customer-letters/A06",
+    "ended": "done",
+    "cost_usd": 0.000717,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 1292,
+      "cache_read_input_tokens": 2234,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:55+00:00",
+    "request_id": "req_011ChAd64fC2gQY2bkwrqYA7",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "096cca1fd4c576a63b8d1abef80e92d0"
+  },
+  {
+    "run": 3,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-016-uk-db-backup/A06",
+    "ended": "done",
+    "cost_usd": 0.001663,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 3165,
+      "cache_read_input_tokens": 3153,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Видалення щотижневих копій з віддаленого сховища не закріплено за жодною роллю",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            51,
+            53
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A03-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:58+00:00",
+    "request_id": "req_011ChAd6GMfUAL4eWAJbQUKD",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Видалення щотижневих копій з віддаленого сховища не закріплено за жодною роллю",
+          "explanation": "Документ вимагає зберігати щотижневу копію у віддаленому сховищі шість місяців, але не вказує, хто її там видаляє після закінчення строку. Розділ 6 покладає видалення лише на адміністратора баз даних і лише для сервера резервних копій. Розділ 4 також не передбачає видалення, тож після закінчення строку копія у віддаленому сховищі залишиться без відповідальної особи.",
+          "quotes": [
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення.",
+            "Адміністратор баз даних видаляє резервну копію з сервера резервних копій наступного робочого дня після закінчення строку її зберігання."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b6da97a23e6a9ed51be6b04fff7a5bc6"
+  },
+  {
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-017-en-annual-leave/A06",
+    "ended": "done",
+    "cost_usd": 0.001096,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2050,
+      "cache_read_input_tokens": 2291,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The deduction of leave days for absence has no responsible role.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            27
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:58+00:00",
+    "request_id": "req_011ChAd6H8Hzbbkq4W5PK65J",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "The deduction of leave days for absence has no responsible role.",
+          "explanation": "The sentence about deducting leave for absence is passive and names no role. I checked the Entitlement and counting section and the rest of the document for a role that records or applies this deduction. The Head of People is named only for calculating entitlements and recording carry-over, and the approver only for leave requests, so neither clearly covers absence deductions. If no role applies the deduction, the leave register may not reflect absences, and the remaining entitlement used for approvals and payments could be wrong.",
+          "quotes": [
+            "One leave day is deducted for each leave day of absence"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0e04ed75e4053a70dcf449af3d349c49"
+  },
+  {
+    "run": 3,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-018-uk-document-numbering/A06",
+    "ended": "done",
+    "cost_usd": 0.002314,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 4468,
+      "cache_read_input_tokens": 3117,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:22:58+00:00",
+    "request_id": "req_011ChAd6JtCxbuPLYy2v7iNJ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8b95897774906ac533387284c4d40eb9"
+  },
+  {
+    "run": 3,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-019-en-vehicles/A06",
+    "ended": "done",
+    "cost_usd": 0.001122,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2097,
+      "cache_read_input_tokens": 2543,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "A required defect record has no role assigned to keep it.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            52
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:23:00+00:00",
+    "request_id": "req_011ChAd6T9oBd9J4GtUe4qBc",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "A required defect record has no role assigned to keep it.",
+          "explanation": "Section 7 requires that a record of each reported defect is kept with the vehicle's documents, but the sentence is passive and names no role. I checked the Fleet Manager's duties in section 2, the driver's duties in section 7, and the rest of the document, and none of them gives the record-keeping or the custody of the vehicle's documents to a role. Without a named role, no one is required to create or keep the record.",
+          "quotes": [
+            "A record of each reported defect is kept with the vehicle's documents until the defect is repaired."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "8b2b0a45a97a77b7cbf017e6578c1c87"
+  },
+  {
+    "run": 3,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-020-uk-stocktake/A06",
+    "ended": "done",
+    "cost_usd": 0.001089,
+    "usage": {
+      "input_tokens": 489,
+      "output_tokens": 2017,
+      "cache_read_input_tokens": 3153,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A06-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Відомості підрахунку мають зберігатися, але жодна роль не відповідає за їх зберігання.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            77
+          ],
+          "verdict": "match",
+          "defects": [
+            "A06-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:23:01+00:00",
+    "request_id": "req_011ChAd6UDXxdy97aywopHsW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Відомості підрахунку мають зберігатися, але жодна роль не відповідає за їх зберігання.",
+          "explanation": "Документ вимагає зберігати відомості підрахунку три роки, але фраза написана в пасивному стані без зазначення виконавця. Розділ 7 призначає відповідальних за зберігання звіту (головний бухгалтер) і подання звіту, але не за відомості членів комісії. Читач не знає, хто має їх зберігати, тому ця вимога не виконується на практиці.",
+          "quotes": [
+            "Відомості підрахунку членів комісії зберігаються три роки."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "397c88e5bc40960de959a1740f3fbb96"
+  },
+  {
+    "run": 3,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A06-unowned-obligation/results/2026-11-18-haiku-high-a815e7f4ecc2/calls/run3/case-021-en-lab-spill/A06",
+    "ended": "done",
+    "cost_usd": 0.001416,
+    "usage": {
+      "input_tokens": 484,
+      "output_tokens": 2686,
+      "cache_read_input_tokens": 2507,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A06",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T15:23:01+00:00",
+    "request_id": "req_011ChAd6UJk9LSvxmaDw5PYD",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.7,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ca17cb7b4dea8752d0ae213a1c6a534"
+  }
+]

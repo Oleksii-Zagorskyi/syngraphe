@@ -1,0 +1,110 @@
+case: case-011-en-records-retention
+language: en
+heuristics:
+  A01:
+    defects:
+    - id: A01-1
+      passages:
+      - Drafts, personal notes and duplicate copies of a record in the same form are not records, and this policy does not govern them.
+      - When the owner destroys a record, the owner also erases or shreds every copy of it.
+      also:
+      - A02
+      note: The policy says it does not govern same-form duplicate copies, yet it requires the owner to erase or shred every copy of a destroyed record, duplicates included. It was not planted. A measured run found it, and it was added after review.
+    traps:
+    - id: A01-T1
+      passages:
+      - No one destroys a record under a legal hold, even if its retention period has ended.
+      - Within 15 calendar days after approval, the owner shreds a paper record and erases an electronic record so that it cannot be restored.
+      - An approval lapses on the day a legal hold is placed on the record.
+      why: The duty to destroy an approved record within 15 days looks opposed to the ban on destroying a record under a legal hold, but the approval lapses on the day the hold is placed, so the duty ends before the ban applies.
+  A02:
+    defects: []
+    traps: []
+  A03:
+    defects:
+    - id: A03-1
+      passages:
+      - It applies to every record of the Organisation, on paper, on microfilm or in electronic form, and to every employee who holds one.
+      - Within 15 calendar days after approval, the owner shreds a paper record and erases an electronic record so that it cannot be restored.
+      note: The scope covers records on microfilm, and the destruction rule gives a method only for paper and electronic records, so an owner with an approved microfilm record has no rule to apply.
+    traps: []
+  A04:
+    defects:
+    - id: A04-1
+      passages:
+      - A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again.
+      - A legal hold is a written instruction that suspends the destruction of named records.
+      - The Legal Counsel lifts the legal hold within 5 calendar days after the matter is closed.
+      - If the record is under a legal hold when its retention period ends, or is placed under one after that day and before it is destroyed, the owner instead proposes it within 30 calendar days after the legal hold is lifted.
+      also:
+      - A01
+      - A02
+      note: A legal hold is the Legal Counsel's written instruction, and the line on a refused record uses it for that record's state; after a refusal the owner must propose within 30 days of the hold being lifted, and the only hold that is lifted is the Legal Counsel's, so the owner cannot tell when to propose again.
+    traps: []
+  A05:
+    defects:
+    - id: A05-1
+      passages:
+      - '- Contract records are signed agreements with outside parties and their amendments, and the Legal Counsel owns them.'
+      - The owner proposes a record for destruction to the Records Manager in writing within 30 calendar days after its retention period ends.
+      - For records that the Records Manager owns, the Legal Counsel answers the proposal instead of the Records Manager, under the same rules.
+      note: 'The Records Manager answers the Legal Counsel''s proposals and the Legal Counsel answers the Records Manager''s: two roles approve each other''s acts. It was first recorded as residue; two roles approving each other''s acts is this kind of problem.'
+    traps: []
+  A06:
+    defects:
+    - id: A06-1
+      passages:
+      - The retention periods are checked against the law once every three years.
+      note: The check of the retention periods against the law is required and no role is given it, because the document assigns each owner only its own records and no role the periods themselves.
+    traps: []
+residue:
+- id: R-2
+  heuristic: A02
+  passages:
+  - A record is a document or data set, on paper, on microfilm or in electronic form, that the Organisation created or received in its work and that evidences a decision, a transaction or an obligation.
+  - '- Operational records are all records that belong to none of the four types above, and the head of the unit that created or received the record owns it.'
+  - '- Operational records are kept for 3 years from the date on which they were created or received.'
+  confidence: 0.3
+  note: A record that one unit created and another received has two unit heads who can each be its owner and two dates from which the 3 years can run; it can also be read as an A03 gap rather than an A02 ambiguity.
+- id: R-4
+  heuristic: A01
+  passages:
+  - A legal hold is a written instruction that suspends the destruction of named records.
+  - A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again.
+  confidence: 0.35
+  note: A reader of A01 can report these as two statements that do not agree on what a legal hold is. It is better placed as one term with two meanings (A04).
+- id: R-5
+  heuristic: A02
+  passages:
+  - For records that the Records Manager owns, the Legal Counsel answers the proposal instead of the Records Manager, under the same rules.
+  - A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again.
+  confidence: 0.3
+  note: The second line names only a refusal by the Records Manager. It is not clear if "under the same rules" carries it to a refusal by the Legal Counsel, so a record of a closed unit is or is not under a hold after a refusal, and the time limit to propose again differs.
+- id: R-6
+  heuristic: A06
+  passages:
+  - The Legal Counsel notifies the owner of the records and the Records Manager in writing on the day a legal hold is placed and on the day it is lifted.
+  - A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again.
+  confidence: 0.25
+  note: The Legal Counsel must notify on the day a hold is placed, and a refusal places a hold that no rule tells the Legal Counsel about. This is a consequence of A04-1 and not a separate plant; a reader may report it under A06 or A03.
+- id: R-7
+  heuristic: A02
+  passages:
+  - '- Operational records are all records that belong to none of the four types above, and the head of the unit that created or received the record owns it.'
+  - The Records Manager owns the operational records of a unit that no longer exists.
+  confidence: 0.3
+  note: A record that a closed unit created and that a living unit later took over can belong to the head of the living unit ("received") or to the Records Manager, and the document does not say which rule governs. The key's R-2 states the two-unit case without the closed unit; this variant has two rules and is nearer to A02 than to A03.
+- id: R-8
+  heuristic: A06
+  passages:
+  - It applies to every record of the Organisation, on paper, on microfilm or in electronic form, and to every employee who holds one.
+  - Within 15 calendar days after approval, the owner shreds a paper record and erases an electronic record so that it cannot be restored.
+  confidence: 0.2
+  note: 'The policy applies to every employee who holds a record, and every duty is on the owner, so an employee who holds a record and does not own it has no duty to hand it over or destroy it. The confidence is low: the owner''s duty can be read to cover every held copy.'
+- id: R-9
+  heuristic: A03
+  passages:
+  - '- Contract records are kept for 6 years from the date on which the agreement ends.'
+  - '- Personnel records are kept for 10 years from the date on which the person''s employment ends.'
+  confidence: 0.15
+  note: An agreement with no end date and a person employed twice have no clear start of the period. Each rests on one sentence and is more a hard case than a gap.

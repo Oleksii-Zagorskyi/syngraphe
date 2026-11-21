@@ -1,0 +1,83 @@
+{
+  "U-03": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In both passages «проїзд» means a driveway or lane. In «проїзди завширшки менше ніж 3 метри» it is a lane in the warehouse. In «а проїзд, навіть працюючи, перетинає лише на позначеному переході» it is the object of «перетинає», the thing a walking worker crosses, so it is a driveway and not a vehicle or driver. The finding misreads this sentence, so the term has one meaning and the reader acts the same way in both places.",
+    "cost_usd": 0.012915,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "«Ініціатор» скрізь означає особу, яка подає заявку, тож двох значень немає. Визначення — «керівник структурного підрозділу або директор». Фінансовий менеджер може бути керівником підрозділу, і документ цього не заперечує. Розбіжність, якщо вона є, — це прогалина у визначенні, а не один термін із двома значеннями. Справжні подвійні значення в документі стосуються інших термінів, наприклад «очікувана вартість», яку визначено двічі по-різному, але не «ініціатора».",
+    "cost_usd": 0.014858,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The term \"ескалація\" keeps one meaning: transfer to the head of the department, as defined in the section \"Ескалація\". The deputy route is explicitly called \"Замість ескалації\", so it is a different act and not a second meaning of the term. In \"Строк відповіді\" the phrase \"переданої за розділом «Ескалація» іншій посадовій особі\" refers to the section by name, and that section covers both routes. So the reader knows the deputy is the responsible person for the deadline there. A reader could mistake the section name for the term, but the text separates them.",
+    "cost_usd": 0.014656,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "«Запис» скрізь означає один рядок у реєстрі. У розділі 4 це запис про документ із номером, датою, назвою та посадами. У розділі 6 «останній запис» — теж рядок реєстру, але його зміст названо прямо: «про останній присвоєний номер кожного виду документів». Вміст у двох місцях різний, але слово не змінює значення. В обох випадках читач вносить до реєстру рядок із зазначеним змістом і діє однаково, тому подвійного значення терміна немає.",
+    "cost_usd": 0.01434,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In the pedestrian section \"проїзд\" is the object of \"перетинає\", not the subject. The worker who walks crosses the driveway only at a marked crossing. That is the same meaning as in \"в проїздах завширшки менше ніж 3 метри\", where it names a vehicle lane. The finding misreads the grammar, and the document uses one meaning of the term in both passages.",
+    "cost_usd": 0.004862,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding points at a real inconsistency: Section 2 sets a 500 ml limit for a small spill, and the later sentence says a spill of up to one litre of one low-hazard liquid is small. But this is a contradiction, not one term with two meanings. An 800 ml low-hazard spill cannot be both large and small. The instruction says not to report passages that cannot both be true under any reading, because that is a different kind of problem. The finding reports exactly that type of passage.",
+    "cost_usd": 0.014574,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The two uses look like one term with two meanings: the Section 7.3 exception needs approval under 7.5, and the Section 7.7 \"only exception\" is a fixed carve-out. The document removes the confusion. 7.3 and 7.5 always say \"an exception under Section 7.5\", and 7.7 says it applies \"instead of Section 7.3\" and that \"no exception under Section 7.5 may be approved for it\". The reader therefore knows the refreshments need no 7.5 request, and acts the same way under either reading. The 15 euro versus 10 euro refreshment limits in 7.7 do conflict, but that is a contradiction, which is a different kind of problem.",
+    "cost_usd": 0.014233,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding misreads the grammar. In the pedestrian section \"проїзд\" is the object of \"перетинає\", and the subject is \"Працівник, який іде пішки\". The worker crosses the driveway only at the marked crossing, so \"проїзд\" there means a vehicle route. That is the same meaning as in \"в проїздах завширшки менше ніж 3 метри\", where it means aisles. The term has one meaning in both passages, so the reader acts the same way in each.",
+    "cost_usd": 0.005688,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says an initiator is a head of a structural unit or the director who submits a request. The later passage, \"Якщо ініціатором ... є фінансовий менеджер\", does not give the word a second meaning. It only assumes that the financial manager can also be such a head, and nothing in the document rules that out. The reader is told exactly what to do in that case: the financial manager passes the request to the director on the day of submission. So the reader acts the same way under either reading. At most this is a small gap in the definition, not one term with two meanings. The real two-meaning problem in this document is \"очікувана вартість\", which is defined twice with different scope, and the finding does not report that.",
+    "cost_usd": 0.010362,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

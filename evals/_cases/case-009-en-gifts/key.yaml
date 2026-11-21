@@ -1,0 +1,101 @@
+case: case-009-en-gifts
+language: en
+heuristics:
+  A01:
+    defects:
+    - id: A01-1
+      passages:
+      - Refreshments for a public official are limited to 10 euros for each official.
+      - The only exception is refreshments worth 15 euros or less for each public official, served at a working meeting on the Organisation's premises.
+      note: Section 7.7 allows refreshments of 15 euros or less for each public official and, two lines on, limits them to 10 euros; refreshments of 12 euros are allowed by one line and forbidden by the other.
+    traps: []
+  A02:
+    defects: []
+    traps:
+    - id: A02-T1
+      passages:
+      - An employee may, without approval, accept or give a gift at or below the gift limit and hospitality at or below the hospitality limit.
+      - Section 7.7 applies to giving to public officials instead of Section 7.3, and no exception under Section 7.5 may be approved for it.
+      why: Sections 7.3 and 7.7 both cover a gift to a public official, which looks like two rules for one case, but the word "instead" says that Section 7.7 applies, so there is one reading.
+  A03:
+    defects: []
+    traps: []
+  A04:
+    defects:
+    - id: A04-1
+      also:
+      - A01
+      passages:
+      - A gift in the form of a meal, travel or accommodation is declared with the name of the third party that paid for it.
+      - Hospitality is a meal, a drink, entertainment, travel or accommodation that the recipient does not pay for.
+      - A gift is any other thing of value that the recipient does not pay for, including goods, vouchers, discounts and services.
+      - The gift limit is 50 euros.
+      - The hospitality limit is 120 euros.
+      note: A meal, travel or accommodation is hospitality by its definition, and the declaration line calls it a gift; a dinner worth 80 euros is within the hospitality limit and above the gift limit, so a reader cannot tell whether it needs an approved exception.
+    traps: []
+  A05:
+    defects:
+    - id: A05-1
+      passages:
+      - Section 7 applies to every employee of the Organisation, including the Chief Executive.
+      - For a gift or hospitality that the Compliance Officer is offered, receives or gives, the Chief Executive acts in place of the Compliance Officer.
+      - The Compliance Officer approves or refuses the request in writing within three working days.
+      note: 'The Compliance Officer decides the Chief Executive''s requests and the Chief Executive decides the Compliance Officer''s: two roles approve each other''s acts. It was first recorded as residue; two roles approving each other''s acts is this kind of problem.'
+    traps: []
+  A06:
+    defects: []
+    traps: []
+residue:
+- id: R-1
+  heuristic: A02
+  passages:
+  - Section 7.7 applies to giving to public officials instead of Section 7.3, and no exception under Section 7.5 may be approved for it.
+  - The employee who hosts the meeting declares the refreshments under Section 7.4.
+  - A gift or hospitality that a public official offers to an employee is governed by Sections 7.3 to 7.6.
+  - When an employee learns after the occasion that a gift given or hospitality received or given was above its limit, or that a gift given was a money gift, the employee records it in the declaration within ten working days of learning it.
+  confidence: 0.4
+  note: Section 7.7 displaces 7.3, excludes 7.5, keeps 7.4 and is silent on 7.6, so a host who learns later that the refreshments were too costly can read that "its limit" in 7.6 is the limit for refreshments and record it, or that 7.6 does not reach giving to officials and record nothing.
+- id: R-3
+  heuristic: A02
+  passages:
+  - When an employee has received, without an approved exception, a gift above the gift limit or a money gift, the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift.
+  - When an employee learns after the occasion that a gift given or hospitality received or given was above its limit, or that a gift given was a money gift, the employee records it in the declaration within ten working days of learning it.
+  - When the hospitality was received, the employee pays the third party the excess within the same period.
+  confidence: 0.2
+  note: The condition "without an approved exception" is stated once in Section 7.6, so an employee with an approved exception who learns the value after the occasion can read that they pay the excess or that they do not.
+- id: R-4
+  heuristic: A01
+  passages:
+  - An employee may, without approval, accept or give a gift at or below the gift limit and hospitality at or below the hospitality limit.
+  - An employee must not accept or give a money gift of any value, and no exception may be approved for it.
+  confidence: 0.12
+  note: A money gift of 20 euros is a gift at or below the gift limit and is also forbidden, though "of any value" marks the second line as the governing rule.
+- id: R-5
+  heuristic: A03
+  passages:
+  - When an employee cannot establish the value, the employee asks the Compliance Officer, who sets the value in writing within two working days.
+  - An employee may, without approval, accept or give a gift at or below the gift limit and hospitality at or below the hospitality limit.
+  confidence: 0.15
+  note: The document does not say whether the employee may accept, keep or use the gift, or attend the hospitality, in the two working days before the value is set.
+- id: R-6
+  heuristic: A03
+  passages:
+  - A gift is any other thing of value that the recipient does not pay for, including goods, vouchers, discounts and services.
+  - When an employee has received, without an approved exception, a gift above the gift limit or a money gift, the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift.
+  - When an employee learns after the occasion that a gift given or hospitality received or given was above its limit, or that a gift given was a money gift, the employee records it in the declaration within ten working days of learning it.
+  - When the hospitality was received, the employee pays the third party the excess within the same period.
+  confidence: 0.4
+  note: Section 7.6 foresees that an employee learns late that a received gift is above the limit, but its only rule is to hand the gift in unused; a service, a discount or a consumed good cannot be handed in, and the rule to pay the excess covers only hospitality received, so the document says nothing for a received gift that is already used.
+- id: R-7
+  heuristic: A01
+  passages:
+  - An employee need not declare an offer that the employee refused.
+  - When an employee has received, without an approved exception, a gift above the gift limit or a money gift, the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift.
+  confidence: 0.15
+  note: An employee who receives a gift above the limit by post and refuses it by handing it in can read that no declaration is needed (a refused offer) or that one is needed (Section 7.6); the more specific line most likely governs, so the confidence is low.
+- id: R-8
+  heuristic: A03
+  passages:
+  - The Compliance Officer returns the gift to the third party within ten working days.
+  confidence: 0.12
+  note: The line gives a time limit and no start (the receipt by the employee, the learning, or the handing in); it is one line that no other passage takes part in, so it is not A02, and as a gap it is small.

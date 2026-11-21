@@ -1,0 +1,677 @@
+{
+  "U-02": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence covers two cases: the window does not meet the instruction, or the act does not match the window. The reader fixes whatever the remarks name, which is the window in the first case and the act in the second. Both fixes are consistent with the same sentence, so there are not two competing instructions. Whether the foreman rechecks on site after resubmission is a gap, not an ambiguity, and the first-check/second-check rules do not give a rival reading of this sentence.",
+    "cost_usd": 0.011894,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7.1 says the Chief Executive \"acts in place of the Compliance Officer\" for any gift or hospitality the Compliance Officer is offered, receives or gives. This is a full substitution with no limit to decisions only, so the text supports just one reading: the Chief Executive takes every Compliance Officer duty for that gift, including receiving handed-over gifts and the register steps. The narrower reading, where the Compliance Officer still receives the gift or keeps the register entry for their own gift, has no support in the text. The register-keeping sentence in 7.4 and the handover in 7.6 do not conflict with 7.1, so no second instruction can be written. A reader could ask the question, but only one answer fits the document.",
+    "cost_usd": 0.013603,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-14": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In Ukrainian «о тій годині» means a clock time, as in «о котрій годині». The phrase «о тій годині, яка настає після 09:00 через встановлену йому тривалість» therefore means 09:00 plus the duration, so 4,5 hours gives 13:30 (or 12:30 under the 08:00 rule). The text does not support rounding up to a whole hour, so a careful reader would not produce two different instructions. Any other problem, such as the 16:30 and 17:00 end times, is a contradiction, which is a different kind of problem.",
+    "cost_usd": 0.015041,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-10": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document ties admission to the order. The chief \"допускає працівника до керування наказом\", and \"скасовує допуск наказом\" on the same day a condition lapses. So the worker stays a \"водій\" until the revoking order, and the definition of \"Водій\" does not say that admission ends the moment a condition fails. The second reading, that the person stops being a driver at once, has little support in the text. What happens between the lapse and the order is at most a gap, which the instruction excludes, and it is not an ambiguity between two supported readings.",
+    "cost_usd": 0.015324,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The clause «який вів протокол на цьому засіданні» limits «кожен член Комітету». So the signers are the chair and the member who kept the minutes: the secretary, or the member who took over the secretary's duties under «Загальні положення». The other reading, that all members sign, can only be reached by ignoring the clause, and no other passage supports it. The line «Секретар веде протокол засідання…» agrees with the first reading. Both quotes lead to one instruction, so there is no real ambiguity. Any oddness is in the wording of one sentence, which the instruction says not to report.",
+    "cost_usd": 0.015171,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-30": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence names two separate cases: the window does not comply, or the act does not match the window. The remarks are about whichever case applies, so \"усуває їх\" means fixing that thing. A window that does not comply is fixed, and an act that does not match is corrected. The second reading, where only the paper is rewritten after a non-compliant window, would leave the window against the instruction and no careful reader would obey it that way. What is left is the question of which steps to repeat, and that is a gap, not an ambiguity.",
+    "cost_usd": 0.006513,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The second reading is not supported by the text. The clock rule lists three starting events: a corrected document, an explanation, or the director's decision. A written disagreement is not among them. The section on cooperation with other departments says that when a department head sends a disagreement, the accountant notifies the chief accountant the next working day, who passes the issue to the director, whose decision binds the accountant. So a disagreement leads to the director's decision, and the clock starts from that decision. \"Пояснення\" is used for what is received on a request, not for a disagreement about a returned document. Treating the disagreement as an explanation would also oblige the accountant to enter a document that still lacks a date, sum or signature, which the text does not support. A careful reader therefore has only one reading.",
+    "cost_usd": 0.018127,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-39": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence begins with \"Працівник, який іде пішки\", so its subject is clearly the worker on foot. \"Навіть працюючи\" only says that being at work does not remove the duty to use the marked crossing. A driver on a forklift is not a worker on foot, and the rule cannot reasonably be read as forcing drivers to cross only at crossings. The second reading is not supported by the text, so there are no two different instructions.",
+    "cost_usd": 0.00398,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-11": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "\"After a refusal the owner proposes the record again within the time limits of this section\" points to two different limits. The first limit is 30 days after the retention period ends, which may already have passed. The second is 30 days after a legal hold is lifted. Another sentence says a refused record \"is under a legal hold until the owner proposes it again\". One reader counts 30 days from the end of retention, so the owner must re-propose at once if that date has passed. Another reader treats the deemed hold as the trigger for the 30 days after lifting, but that hold ends only when the owner re-proposes, so no start date exists. The two readers give the owner different deadlines. The finding's explanation is a little loose, but the ambiguity it describes is in the text.",
+    "cost_usd": 0.017632,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The paragraph on learning after the occasion is triggered by the employee learning, after the event, that the gift or hospitality was above its limit. An employee with an approved exception under 7.5 asked for approval beforehand because they already knew it was above the limit, so they never \"learn\" this afterwards. Section 7.3 also allows above-limit items when an exception is approved. The text therefore supports only one reading: the payment of the excess applies to unknowingly exceeded limits, not to approved exceptions. The opposing reading is possible only if the approved amount was later exceeded, and the document does not support that.",
+    "cost_usd": 0.008346,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 5 says it applies to the finance director and chief executive \"instead of sections 3 and 4\". That removes section 4, where the sentence \"No requester approves their own spending request\" sits, for these two requesters. Section 8 then says the finance director decides each request that the chief executive approves while the chief executive is absent, and that includes the finance director's own request. The \"instead\" wording tells the reader which rule applies. The opposite reading, that the self-approval ban survives as a general principle, has little support in the text. It also leaves the reader with no instruction, which would be a gap rather than an ambiguity. The odd result of self-approval is a policy concern, not two competing readings.",
+    "cost_usd": 0.020146,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-40": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The passage says the 3 km/h limit applies \"instead of these two limits\", so it overrides both the warehouse and the yard limit. It names narrow passages (under 3 m), warehouse gates and the ramp. A narrow passage on the yard is therefore covered by 3 km/h, and the document says which rule applies. A reader who applied 10 km/h there would be ignoring the word \"instead\", and no second supported reading exists. The finding invents a doubt about the area, and the quoted text removes it.",
+    "cost_usd": 0.004314,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-15": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"Обідня перерва не входить до робочого часу і не оплачується.\" is general. It sits in the section \"Обідня перерва\" and is not limited to workers of the general regime. The reduced-day worker's break, \"має обідню перерву з 12:00 до 13:00\", is called by the same term, so the sentence covers it too. A reader could argue the rule applies only to the general regime because of where it is placed. That reading has no support in the text, so two careful readers would not act differently.",
+    "cost_usd": 0.008644,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-29": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"Протокол підписують головуючий і кожен член Комітету, який вів протокол на цьому засіданні\" has one natural reading. The clause \"який вів протокол\" limits \"кожен член Комітету\", so it means the person who kept the minutes. That is the secretary, or the member the presiding person assigned to act as secretary. The second reading in the finding, that all members sign, would ignore this clause and is not supported by the text. No other passage changes the reading, and \"Секретар веде протокол засідання\" agrees with the first reading. The finding describes a sentence that is ambiguous only on a strained reading, not an ambiguity across passages.",
+    "cost_usd": 0.007957,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-55": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "«їх» points to «письмовими зауваженнями». The remarks cover whatever the brigadier found wrong: the window, the act, or both. The monter removes each remark, so he fixes the window where the window is wrong and the act where the act is wrong, and then resubmits the act. The second reading, that only the act is fixed while window defects go to a separate procedure, has no support. The section on opening deviations applies before installation and does not cover an installed window. So the two readings do not give two different instructions.",
+    "cost_usd": 0.006125,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-65": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document gives 08:00 to 17:00 in one passage and says the day ends at 16:30 in another. Both cannot be true, so this is a contradiction, which the instruction excludes as a different kind of problem. The document has no wording such as \"instead\" or \"except\" that says which passage applies, so it is not a case of two rules where one is chosen. The finding itself also admits the 16:30 reading contradicts the 8-hour rule.",
+    "cost_usd": 0.004006,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-52": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The second bullet is an explicit exception: if the financial manager is the initiator of a request under 50,000, he passes it to the director the same day, and the director approves or rejects it. The text says it applies to exactly this case, so a careful reader has only one reading. The two quoted passages look like two rules for the same case, but the document says which one applies, and the instruction excludes such cases.",
+    "cost_usd": 0.003923,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages work together. The 30-day sentence deems a later request for the same supplier and purpose to be part of the same purchase. A request that is only one piece of that purchase \"covers only part of a purchase\", so the approver who sees this refuses it and asks for one full request. The \"finds\" wording only says when the approver acts, and a reader who misses the link and approves has not followed the document, which is a failure to comply rather than an ambiguity. I cannot write two different valid instructions to the approver from the text. A reader could argue the opposite way, but the text does not support that argument.",
+    "cost_usd": 0.008023,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-66": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The phrase «о тій годині, яка настає після 09:00 через встановлену йому тривалість» reads naturally as a clock time, meaning 09:00 plus the duration. For 7.5 hours that gives 16:30, and nothing in the text invites rounding to 16:00 or 17:00. So a careful reader has only one reasonable reading, and the possible rounding is a strained reading rather than a second supported instruction. The wording is slightly loose, but it does not split readers into two different actions.",
+    "cost_usd": 0.00681,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-32": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The text keeps the three trigger events apart. The clock starts at the first receipt of a corrected document, an explanation, or the director's decision. The document names \"письмову незгоду із зауваженням\" separately from \"виправлений документ\" and from \"пояснення\", which is what the accountant requests. The last section sends a disagreement to the chief accountant and then to the director, whose decision is binding. So the disagreement itself does not start the clock, and the director's decision does. The second reading, that a disagreement counts as an explanation, is possible but weakly supported. The text never calls a disagreement an explanation.",
+    "cost_usd": 0.013114,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-16": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 6 gives the alternate owner ten working days to complete \"that review\" after a list is reported as not returned in time. The alternate's fifteen-day deadline for the system owner's own access has already run out by the time of that report, so it cannot be a rival deadline. Reader B's reading, in which a fifteen-day deadline still applies after the report, has no support in the text. Reader A's result, that the alternate completes the late list within ten days, is the only workable instruction, so two different instructions cannot be written.",
+    "cost_usd": 0.014396,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-43": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding describes a gap: the document appoints owners only for applications and databases but defines systems more widely, and it does not say who decides for devices and network services. The instruction tells the reporter to skip cases the document does not cover, as a gap is a different kind of problem. No two passages conflict over the same case, so the finding is not an ambiguity as defined, even though the two readings it proposes are plausible.",
+    "cost_usd": 0.003718,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-53": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "In the sentence \"Протокол підписують головуючий і кожен член Комітету, який вів протокол на цьому засіданні\", the clause \"який вів протокол\" restricts \"кожен член Комітету\". So the signers are the presiding member and whoever kept the minutes, normally the secretary, or the member who stood in for the secretary. The reading that all members sign ignores that clause and has no real support in the text. No other passage changes the reading, and the instruction excludes a sentence that is ambiguous only when read alone.",
+    "cost_usd": 0.007731,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence \"A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again.\" uses the defined term \"legal hold\". The notice rule, \"The Legal Counsel notifies the owner of the records and the Records Manager in writing on the day a legal hold is placed and on the day it is lifted.\", applies to \"a legal hold\". One reader gives the deemed hold the full procedure: Legal Counsel notifies on placing and lifts it, and the owner's 30-day period runs from that lifting. Another reader treats it as a self-ending status that stops when the owner re-proposes, with no Legal Counsel step. The text does not say which applies. The Destruction section's wording about re-proposing \"within the time limits of this section\" depends on a hold being \"lifted\", which makes the question matter. The other reading is possible because the sentence names its own end point, but that does not settle whether the Legal Counsel's rules also apply.",
+    "cost_usd": 0.018817,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7.4 sets a general five-working-day deadline from acceptance for declaring every gift. Section 7.6 sets a two-working-day deadline from learning that a gift is above the limit or is a money gift, and that deadline also covers handing the gift over. Both can be obeyed together: the employee declares within five days of acceptance, and declares again, or hands the gift over, within two days of learning its status. Nothing in the text makes the two rules exclusive. A reader who obeys both is never forced into a different action, so the finding does not show a real ambiguity. The other reading is possible because 7.6 does not say whether it replaces the 7.4 deadline, but the text supports the cumulative reading more.",
+    "cost_usd": 0.01456,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-20": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 8 says \"Того самого дня\" the administrator launches the task manually and checks the copy, so the check is explicitly due the same day. The reference to section 5 names only the method (\"способом, описаним у розділі 5\"). A same-day check also meets the section 5 limit of 10:00 the next working day, so both rules can be obeyed together and a careful reader would not act differently. The second reading, waiting until the next day, would ignore the explicit \"того самого дня\" in section 8.",
+    "cost_usd": 0.015513,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-21": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"Only the final result is rounded up, to the nearest half day.\" says \"rounded up\", so rounding down is excluded. The phrase \"to the nearest half day\" only sets the step size, which is the next half-day multiple at or above the result. A reader who rounds down to the nearer half day would ignore \"up\". No other passage gives a second reading. If anything the finding is a one-sentence wording quibble, which the instruction excludes.",
+    "cost_usd": 0.010932,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-17": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The scope section defines a customer as someone with a signed service agreement and puts letters to non-customers outside the guideline. The addressing sentence then calls an offer-requester without a signed agreement a \"customer\". That is the same term used with two meanings, or a direct clash with the scope rule, and the instruction excludes both as different kinds of problem. A reader can also take the sentence narrowly, as covering only the form of address, so the finding's second reading, that the whole guideline applies, is not clearly supported. A different reader could treat this as an exception whose reach is unclear, but the text points more to a definition conflict.",
+    "cost_usd": 0.015381,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The phrase \"a spending request for the board waits for its next meeting\" naturally covers every request the board has to decide. That includes the case in \"when both are absent, the board decides.\" The document gives the board no way to decide outside a meeting, so the second reading, where the board decides at once, has no support in the text. Two careful readers would both let the request wait for the next meeting, so the finding does not show a real ambiguity. A reader could still argue that \"for the board\" means only requests where the board is the normal approver, but the text supports that reading much less.",
+    "cost_usd": 0.009815,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-62": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The two passages look like they conflict, but the document says which one applies. The sentence 'Несправність, причини якої водій не знає, вважають такою, що не є наслідком події.' sends a fault of unknown cause down the ordinary fault path: stop, tag, notify the shift chief, call the mechanic. The post-event rule ('Начальник зміни зберігає ... навантажувач без змін, доки їх не огляне інженер...') covers the vehicle after an actual event and has its own sequence of inspector first, then mechanic. A reader could argue that the preservation duty still holds on a vehicle that has had an event, so the other reading is possible. But the deeming rule exists to settle the classification, so the finding does not show a genuine ambiguity.",
+    "cost_usd": 0.019742,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-13": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The destruction section says the owner must erase or shred \"every copy of it\", while the definition says \"duplicate copies of a record in the same form are not records, and this policy does not govern them.\" One careful reader destroys all duplicates because the specific destruction sentence names every copy. Another reader destroys only the record in its forms, since the policy excludes duplicates from its scope. The document never says which passage wins, and the two readings lead to different destruction work. The finding's mention of drafts is a stretch, because drafts are not copies, but the duplicate-copy conflict is real.",
+    "cost_usd": 0.008541,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-34": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7.1 says that for a gift or hospitality the Compliance Officer is offered, receives or gives, the Chief Executive \"acts in place of the Compliance Officer\". It does not limit this to the decision role in 7.5. The plain reading is that the Chief Executive does every Compliance Officer task for those cases: valuing, approving, receiving and returning gifts, and recording. The narrow reading, that only the 7.5 decision transfers, has no support in the text. \"The Compliance Officer keeps the Gifts and Hospitality Register\" describes who runs the register in general and does not conflict with the substitution. A reader could ask who enters the Compliance Officer's own declarations, but the substitution sentence already answers that, so there is no real second reading.",
+    "cost_usd": 0.009094,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-45": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding looks like an ambiguity, but the document settles it. Section 1 says the type of a copy depends only on its creation day, 'також для копії, створеної вручну чи позачергово', so a copy made manually on Sunday is a weekly copy. Section 8 says a manual copy is made by launching the task ('запускає завдання вручну'), so the section 4 step that sends the weekly copy to remote storage still runs. Section 6 then requires weekly copies to be kept in the remote storage. The second reading, in which a manual copy skips the task, is not supported by the text.",
+    "cost_usd": 0.009389,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-24": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two readings do not lead to different actions. The executor hands the document over only \"після останнього потрібного підпису\", so the registrar receives it only after all required signatures, whichever way \"підписаним\" is defined. The registrar's action is therefore the same: assign the number on the day of receipt. The finding imagines a registrar numbering a document before the leaders sign, but that registrar would not have the document yet. The sentence \"Документ вважається підписаним, коли його підписав виконавець.\" is odd, because the executor is defined as the person who submits the document for signature. That oddity is a possible contradiction or definition problem, not an ambiguity of the kind the instruction defines.",
+    "cost_usd": 0.01897,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-18": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The interim-letter rule says directly that the author sends it \"within the same limit\". The last sentence, \"A letter that does not answer a message has no time limit\", covers letters that are not replies to any message. An interim letter is written in reply to a message, so it falls outside that sentence. A careful reader would not conclude that an interim letter has no limit, so there is no real second reading. A reader could argue that an interim letter gives no full answer, but the specific rule overrides that argument.",
+    "cost_usd": 0.006244,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-22": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The refusal rule says what the approver must do. The rule \"A request with no recorded decision after five working days counts as approved.\" says what happens when the approver does not act. It covers any request and has no exception for late ones. The reading that late requests must still be refused is weak, because it ignores the plain scope of \"A request\". The case is also one where the approver fails to do what the document requires, and the document already says the result is deemed approval. So there are no two supported readings.",
+    "cost_usd": 0.008327,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-19": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The last sentence of the check section says the author sends the letter only after the checker confirms it or the Head decides the wording. A letter returned with corrections is not yet confirmed, so the author cannot send it. The only reading the text supports is that the corrected letter goes back to the checker for confirmation. The other reading, sending without a further check, is excluded by this sentence. Because the text does not support two readings, there is no ambiguity.",
+    "cost_usd": 0.003674,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-25": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 6 puts the receipts under personal payment: the driver \"pays for the fuel personally and keeps the receipt\" and keeps receipts for tolls and parking. The later sentence about handing in \"the fuel, toll and parking receipts\" most naturally refers to those kept receipts. A card purchase is paid by the Organisation's own card, so reading it as a personal outlay to reimburse has no real support. At most the text is silent on whether card receipts are handed in. That is a gap, not two supported readings that lead to different payments.",
+    "cost_usd": 0.01401,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-41": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The sentence \"After a refusal the owner proposes the record again within the time limits of this section\" does not say which limit applies. Under the sentence \"A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again\", the 30 days after the hold is lifted would never begin, because the hold ends only when the owner re-proposes. The owner could instead take the 30 days after the retention period ended, which has often already passed. One reader would then see no deadline at all, and another would see a deadline that may already be missed. The text does not choose between these, so the ambiguity is real.",
+    "cost_usd": 0.009019,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-35": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding describes a real inconsistency, but it is not an ambiguity of the kind the instruction defines. Section 7.2 puts meals, travel and accommodation under hospitality and defines a gift as \"any other thing\". Section 7.4 then speaks of \"a gift in the form of a meal, travel or accommodation\". That is one term, \"gift\", used with two meanings, which the instruction excludes as a different kind of problem. The finding also does not tie the two readings to a competing pair of rules that apply to the same case. The other possible verdict is \"real defect\", because readers could record different payer information, but the cause is a term conflict, not an ambiguity.",
+    "cost_usd": 0.010706,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-26": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"Підрахунок триває не довше ніж пʼять робочих днів, у кожен з яких склад комісії повний увесь день\" says which days count: only working days with a full commission all day. Section 2, \"Комісія не веде підрахунку, доки її склад неповний\", fits this, because days with an incomplete commission are not counting days. The finding's first reading, that days with an incomplete commission still use up the five days, ignores the relative clause. The text does not support it, so there are no two readings that lead to different actions.",
+    "cost_usd": 0.016287,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-44": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"the author sends an interim letter within the same limit\" sets a clear deadline for the interim letter. The last sentence, \"A letter that does not answer a message has no time limit\", covers letters that are not replies to any message, such as letters the Organisation starts itself. An interim letter is itself a reply to a message, so a careful reader would not treat it as exempt. The second reading is possible only by stretching \"does not answer\" to mean \"does not fully answer\", and the text does not support that.",
+    "cost_usd": 0.0065,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-36": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages (15 euros or less, and limited to 10 euros) cannot both be true for a 12-euro refreshment, and the document gives no rule on which one wins. That makes this a contradiction, a different kind of problem from ambiguity. The instruction excludes passages that cannot both be true under any reading, so this finding does not fit the ambiguity kind.",
+    "cost_usd": 0.003586,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-31": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 5 says it applies to the finance director and chief executive 'instead of sections 3 and 4'. That removes the sentence 'No requester approves their own spending request.' (in section 4) for those two requesters. Section 8 then says that when the chief executive is absent, 'the finance director decides each spending request that the chief executive approves', and the finance director's own request up to 300,000 euros is one of those. The text therefore gives one answer: the finance director decides their own request. The alternative reading needs the no-self-approval rule, which section 5 displaces. The result may be a poor control, but the 'instead of' wording settles which rule applies, so it is not an ambiguity.",
+    "cost_usd": 0.015809,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-23": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document never calls the Chair a line manager, and the absence rule speaks only of 'the line manager'. So the text does not say who decides when the Chair is absent. That is a case the document does not cover, which is a gap and not an ambiguity. The reading that the Head of People decides rests on assuming the Chair counts as a line manager, which the text does not support. The other reading is silence, with the five-day default approval as the only fallback. The two passages do not each support a competing instruction, so the finding is of a different kind than the instruction defines.",
+    "cost_usd": 0.007205,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-71": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 6 says the driver keeps a receipt only where the card is not accepted and the driver pays personally, and likewise for tolls and parking. The sentence that the driver hands \"the fuel, toll and parking receipts\" to the Finance Officer is naturally read as covering those kept receipts. The reimbursement of amounts \"supported by a receipt\" only makes sense for money the driver paid personally. The second reading would reimburse the driver for fuel paid on the Organisation's card, which the text does not support. A reader could still hand in card receipts, but that would not change what is paid, so there is no real second instruction.",
+    "cost_usd": 0.010044,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-67": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The problem is real but it is a different kind. The scope section defines a customer as someone with a signed service agreement, and the addressing section then calls someone who has not signed 'A customer'. That is one term used with two meanings, or two passages that cannot both be true. The instruction excludes both from ambiguity findings. A reader also has no real choice of action here, because the addressing sentence names this person and says how to address them.",
+    "cost_usd": 0.006206,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-48": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two rules fit together in normal use. The executor must pass the document to the registrar only \"після останнього потрібного підпису\", so the registrar receives it only after all signatures exist. Then \"Документ вважається підписаним, коли його підписав виконавець\" is already satisfied, and \"Реєстратор не присвоює номер непідписаному документові\" does not block numbering. The finding's first reading, numbering after only the executor's signature, needs the executor to hand over early, which breaks the document's rule and is excluded from reporting. The odd definition of \"signed\" may be a contradiction or a gap, but it does not give two valid courses of action.",
+    "cost_usd": 0.013313,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-27": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted sentence says that if the director is absent, the head of the commission approves the report and decides on each discrepancy. The finding's second reading, that the head acts only when the director has not approved within five days, is not supported by the text. Absence and failure to act are different conditions, and nothing ties the sentence to the five-day period. The only real uncertainty is how long or when the director must be absent, which is a vague word or a gap, not a conflict between two passages. It is not an ambiguity of the kind the instruction defines.",
+    "cost_usd": 0.007549,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-42": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition says duplicate copies in the same form are not records and that the policy does not govern them. The destruction section says that when the owner destroys a record, the owner also erases or shreds every copy of it. One reader applies the specific destruction rule and destroys all duplicates. Another reader treats duplicates as outside the policy and destroys only the record itself. Copies in the other form could also count as the record under 'a record held in both forms is one record', which adds more room for doubt. The finding is slightly overbroad in naming drafts, since 'copy of it' does not clearly reach drafts. The core conflict between the two quoted passages still stands, and the document does not say which one prevails.",
+    "cost_usd": 0.009945,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-28": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding points to a real conflict, but the conflict is a contradiction, not an ambiguity. Section 2 says a small spill needs 500 ml or less of a liquid. A later sentence in the same section says a spill of one litre or less of one low-hazard liquid is small. An 800 ml low-hazard spill is not small by the first passage, so it is large by the definition 'every spill that is not a small spill'. By the second passage it is small, so the two cannot both be true. Nothing in the document says which one wins, and the instruction excludes contradictions from this kind of problem. A reader could try to read the second sentence as an extra case, which is why 'real defect' was possible.",
+    "cost_usd": 0.013702,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-33": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The document lists the postal letter as one of four channels. The forwarding rule covers a complaint received \"в інший спосіб\", meaning outside those four channels. A postal letter is not received in another way, so only one reading is supported. The second reading, that letters must also be forwarded to the email address, has no support in the text.",
+    "cost_usd": 0.012068,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-54": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The passive sentence leaves the actor unnamed, but that is a gap (missing information), not an ambiguity. Section 3 gives the IT Technician the account tasks (creating, disabling, deleting) and gives the HR Officer only coordination and the onboarding record. No passage supports the HR Officer as an archiver, so there is no second reading with textual support. The instruction also excludes cases that the document does not cover.",
+    "cost_usd": 0.008937,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-46": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The sentence \"A request with no recorded decision after five working days counts as approved.\" has no condition, so it covers every request, including late or over-limit ones. Nothing in the text supports limiting it to requests that meet the time limit and entitlement rules, so the second reading is not a real one. The refusal rule tells the approver what to decide. The deemed-approval rule says what happens if the approver does not decide, which is a failure by the approver and not a conflict between the two rules.",
+    "cost_usd": 0.008161,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-49": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The rule in section 6 allows corrections in a past-year register for errors reported to the registrar after a section 4 check. Section 4 says the checker notifies the registrar about errors found in the register that was checked, and the registrar fixes them. A registrar keeps only their own unit's register, so the only natural reading is that the corrections go into the register that was checked. The finding's first reading, where any error from any check could be fixed in any register, has no support in the text, and two different instructions cannot be written from it.",
+    "cost_usd": 0.004287,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-47": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The refusal rule says \"the leave days of a leave year exceed the remaining entitlement for that leave year\". That wording ties each leave day to the year it falls in, so a request that crosses 31 December is checked per year. The definition of remaining entitlement also counts leave days \"in it\", meaning in that leave year. Nothing in the text supports checking the whole request against the year of its first day, so the second reading has no textual basis and only one instruction results.",
+    "cost_usd": 0.005569,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-50": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 3 says the count lasts at most five working days, \"у кожен з яких склад комісії повний увесь день\". So the five days are days with a full commission, and a day with an incomplete commission does not count toward the limit. Section 2 (\"Комісія не веде підрахунку, доки її склад неповний\") says the count stops while the commission is incomplete. Together they give one reading: the count pauses and resumes, and only full-commission days are counted. The second reading, a fixed five-day window that cannot be extended, has no support in the text, because it would ignore the relative clause in section 3.",
+    "cost_usd": 0.008405,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-37": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.4 says every accepted gift is declared within five working days of acceptance. Section 7.6 says an over-limit gift received without an approved exception is declared within two working days of learning it is such a gift. Both rules cover the same gift, and the document does not say that 7.6 replaces 7.4 or that both must be met. If the employee learns on the fourth working day, one reader declares by day 5 under 7.4, and another declares by day 6 under 7.6. A third reader might apply the stricter of the two. The reading that 7.6 is the specific rule and wins is plausible, but the text never says so, so the other reading is also supported.",
+    "cost_usd": 0.015126,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-51": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The definition says a small spill is 500 ml or less of a liquid. The later sentence says one litre or less of one low-hazard liquid is small. For a spill between 500 ml and 1 litre, the definition makes it large and the later sentence makes it small, so both cannot be true. The instruction excludes passages that cannot both be true under any reading and calls that a contradiction, a different kind of problem. The finding reports exactly that excluded type, so it is a trap.",
+    "cost_usd": 0.008564,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-63": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The re-proposal deadline can be read two ways. 'After a refusal the owner proposes the record again within the time limits of this section' does not say which limit applies. The Destruction section gives 30 days after the retention period ends, or 30 days after a legal hold is lifted. The sentence 'A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again' puts the refused record under a hold that ends only when the owner re-proposes. Reader A counts 30 days from the end of the retention period, which may already have passed. Reader B counts 30 days from the lifting of the deemed hold, which is the re-proposal itself, so the deadline is circular. The hold is not placed or lifted by the Legal Counsel, so the Legal Hold section does not settle it. The explanation is slightly muddled, but the ambiguity is real and changes the owner's deadline.",
+    "cost_usd": 0.012647,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-56": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The doors step says to leave \"within 60 seconds of setting the alarm\". The alarm section sends the reader to the doors step after a remote set, or to the doors step with the alarm not set. The text gives no moment from which to count the 60 seconds in those cases. That is a gap, not an ambiguity between two supported readings. The finding's second reading, counting from the end of the call or the last attempt, has no support in the text. A careful reader would count from the moment the alarm is set, or would find no timing in the not-set case, so the document does not give two competing instructions.",
+    "cost_usd": 0.01687,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-72": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The relative clause \"у кожен з яких склад комісії повний увесь день\" defines the five days as days with a full commission. A day with an incomplete commission is therefore not one of the five, and \"Комісія не веде підрахунку, доки її склад неповний\" confirms that counting stops on such a day. The proposed second reading, that five calendar working days cap the count regardless of staffing, has no support in the text. So two careful readers would not act differently here.",
+    "cost_usd": 0.008763,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-68": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "\"Rounded up, to the nearest half day\" has one usual meaning: round upward to the next half-day step, so 6.6 becomes 7.0. The other reading, 6.5, rounds down and ignores the word \"up\", so the text does not support it. No other passage touches the rounding rule, and the part-year proportion sentence only changes the input. A reader could argue for \"nearest\", but any ambiguity would sit inside this one sentence, which the instruction excludes.",
+    "cost_usd": 0.008781,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-70": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding claims a registrar could number a document before the heads sign it. But the registrar only receives the document from the executor \"після останнього потрібного підпису\", so the registrar never holds a document that lacks the required signatures. The odd sentence \"Документ вважається підписаним, коли його підписав виконавець\" therefore does not lead to a different registrar action in any case the text covers. At most it clashes with the executor's role as the person who submits the document for signature, and that would be a contradiction or odd definition, not an ambiguity of the kind defined.",
+    "cost_usd": 0.013895,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-74": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says a small spill must be \"500 millilitres or less for a liquid\". The later sentence says one litre or less of a low-hazard liquid is small. A 700 ml spill is then small under one sentence and large under the other, and the document never says which rule wins. No reading makes both statements true, so this is a contradiction, not an ambiguity. The instruction excludes contradictions, so the finding is the wrong kind. A reader could argue the later sentence is an added exception, but nothing in the text marks it as one.",
+    "cost_usd": 0.008186,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-64": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition says duplicate copies of a record in the same form are not records and that the policy does not govern them. The destruction section says the owner also erases or shreds every copy when destroying a record. One reader erases all duplicates, since the destruction rule names every copy. Another reader leaves same-form duplicates alone, since the policy does not govern them. The two passages can both be true, so this is not a contradiction. Nothing says which one controls duplicates, and the 'record held in both forms' sentence does not settle it.",
+    "cost_usd": 0.009627,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-38": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages set different duties that a reader can follow together. Section 7.4 requires the declaration of every gift or hospitality within five working days of the acceptance or giving. Section 7.6 covers the later case where the employee learns the item was over its limit or was a money gift, and then 'records it in the declaration' within ten working days of learning. Read this way, it is an update to the existing declaration, not a second deadline for making it. The other reading, that the ten days replace the five, is possible but weakly supported. The 7.6 sentence also names a different trigger (learning) and a different content (the over-limit status), so the reader still has one clear action for each deadline.",
+    "cost_usd": 0.012054,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-57": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The substitution sentence says that on a day when the Office Manager is on leave or off sick, the Head of Operations takes the Office Manager's place in every rule, as actor. The rota rule sets only a deadline (\"no later than the last working day of the month before\"), so on any day of leave the Head of Operations acts for the Office Manager. The finding's second reading, that the Office Manager publishes while on leave, has no support in the text, because \"every rule\" leaves no exception for publishing. A reader could ask which day triggers the substitution, but the sentence answers this: the day on which the action is done.",
+    "cost_usd": 0.009262,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-75": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 5 says a trained worker who finds the spill is large stops and follows section 6 as the discoverer. Section 8 gives the worker's report duty only to the worker who \"cleaned a small spill\", and gives reports on a large spill to the Team Leader. Once the spill is large, it is not a small spill, so the worker's report rule does not apply and the Team Leader reports. The claimed Reader A has no real textual support. If the document says anything less clear here, it would be a gap about partial cleaning, not an ambiguity between two supported readings.",
+    "cost_usd": 0.006066,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-69": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding turns on a vacant line manager post, which \"When the line manager is absent, the Head of People decides the request instead\" does not address. That is a case the document does not cover, a gap, and the instruction says not to report gaps or a vague word with no second reading from another passage. The deemed-approval sentence does not create a second reading of \"absent\"; it only applies if nobody decides. A reader could argue the two passages together give two outcomes, but that outcome depends on a case the document never mentions.",
+    "cost_usd": 0.008939,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-73": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The rule \"Якщо директор відсутній, звіт затверджує і рішення щодо кожної розбіжності ухвалює голова комісії\" is clear about who acts when the director is absent. The finding's doubt is only how long or when the director counts as absent, which is a vague word and not a conflict between two passages. The five-day approval period applies to the director and does not cancel or limit the head's power. A reader cannot form two different, text-supported instructions from these passages, though another reader might see a gap about the meaning of \"відсутній\".",
+    "cost_usd": 0.008767,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-58": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding really points to a mismatch, but it is not the kind the instruction defines. Section 7.2 defines meals, travel and accommodation as hospitality, not gifts. Section 7.4 then says 'A gift in the form of a meal, travel or accommodation', which uses 'gift' in a wider sense than the definition. That is one term used with two meanings, which the instruction excludes as a different kind of problem. Some readers could see an ambiguity, since one reader would require the payer's name for hospitality and another would not. But no other passage supplies a competing rule or a scope question, so the finding does not fit the ambiguity kind.",
+    "cost_usd": 0.012408,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-59": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Sections 7.4 and 7.6 do not conflict. 7.4 sets a general five-working-day deadline from acceptance, and 7.6 adds a stricter two-working-day deadline from learning that the gift is over the limit. The natural reading is that both apply and the earlier deadline binds. 7.6 never says it replaces or relaxes the 7.4 deadline, so the reading that the later two-day deadline extends the five-day one has little support. The odd timing case, where the employee learns the value late, is at most a gap, and a careful reader would simply declare by the earlier date. The finding therefore does not show two supported readings that lead to different actions.",
+    "cost_usd": 0.015448,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-60": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7.6 is written for exactly one case: the employee learns only after the occasion that the item was above its limit, or that a gift given was a money gift. For that case it sets its own period of ten working days from learning it, which is the natural reading of the specific rule. Section 7.4's five working days from the acceptance or giving covers the ordinary declaration of the item. The 7.6 entry records the excess in that declaration. Reader two's reading, that the five-day period still binds when the employee learns of the excess within it, has no support in the text, because 7.6 sets its period from the moment of learning. A different reading is possible, since 7.6 does not say it replaces 7.4, but the text supports it less.",
+    "cost_usd": 0.012526,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-61": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7.5 says the request is sent \"beforehand\" and that \"Until a request is approved, the employee treats it as refused.\" So accepting before approval is simply not allowed. A reader who accepts early is breaking the rule, which is non-compliance and not an ambiguity. The reading that a later approval cures an earlier acceptance has no real support in the text, so Section 7.6's \"without an approved exception\" does not give two valid instructions. A reader could argue that approval arriving later still counts as an approved exception, but that reading ignores the \"beforehand\" and \"treats it as refused\" wording.",
+    "cost_usd": 0.007426,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

@@ -1,0 +1,4331 @@
+[
+  {
+    "run": 1,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-001-en-travel-expenses/A01",
+    "ended": "done",
+    "cost_usd": 0.00058,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 670,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1476
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:48:51+00:00",
+    "request_id": "req_011ChARLdxuyvrmJjcbe5kFj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "30b135b3d561d100d240d828d68604f9"
+  },
+  {
+    "run": 1,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-002-uk-procurement-committee/A01",
+    "ended": "done",
+    "cost_usd": 0.001915,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2903,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3225
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Кворум Комітету визначено по-різному: чотири або три члени.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            20,
+            45
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Очікувану вартість визначено двома різними способами.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            11,
+            29
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:48:55+00:00",
+    "request_id": "req_011ChARLxX8CudFuNM11UitY",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Кворум Комітету визначено по-різному: чотири або три члени.",
+          "explanation": "У розділі про склад кворум становить щонайменше чотири члени Комітету. У розділі про засідання кворум становить щонайменше три члени, серед яких голова або заступник голови. Для будь-якого засідання читач не може виконати обидва правила одночасно, бо вони дають різні числа присутніх.",
+          "quotes": [
+            "Кворум є, якщо присутні щонайменше чотири члени Комітету.",
+            "Кворум є, якщо присутні щонайменше три члени Комітету, серед яких голова або заступник голови."
+          ]
+        },
+        {
+          "title": "Очікувану вартість визначено двома різними способами.",
+          "explanation": "У загальних положеннях очікувана вартість є повною сумою за весь договір. У розділі про пороги вона є вартістю закупівлі за один рік дії договору. Для багаторічного договору ці визначення дають різні суми, а від суми залежить, якому органу подавати заявку.",
+          "quotes": [
+            "Очікувана вартість — це повна сума з усіма податками, яку Організація планує сплатити за договором про закупівлю.",
+            "Очікувана вартість — це вартість закупівлі з усіма податками за один рік дії договору."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "fc7f15f8ce77b810a4d1400d6486c7f2"
+  },
+  {
+    "run": 1,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-003-en-onboarding/A01",
+    "ended": "done",
+    "cost_usd": 0.000828,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 977,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2236
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:49:07+00:00",
+    "request_id": "req_011ChARMpyEB9jaYKCpXuiMx",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a70fd481c27047f0fc09f3a451c597cc"
+  },
+  {
+    "run": 1,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-004-uk-window-timber-wall/A01",
+    "ended": "done",
+    "cost_usd": 0.001489,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2030,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3309
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Допустимий монтажний зазор у двох розділах має різні межі",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            30,
+            68
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:49:12+00:00",
+    "request_id": "req_011ChARNCFAFBoktJtRDQksZ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Допустимий монтажний зазор у двох розділах має різні межі",
+          "explanation": "Розділ «Монтажний зазор» вимагає зазор 15–25 мм зверху й з боків та 20–30 мм знизу, і коробку ставлять у проріз з таким зазором. Розділ «Перевірка рівня та діагоналей» вимагає, щоб той самий зазор після закріплення був 8–14 мм з кожного боку. Оскільки вікно не змінюють між цими етапами, зазор не може одночасно відповідати обом діапазонам.",
+          "quotes": [
+            "Монтажний зазор з кожного боку та зверху становить від 15 до 25 мм включно.",
+            "Виміряний монтажний зазор з кожного з чотирьох боків має бути від 8 до 14 мм включно."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a643b24e73ffd154b40d5116960f8c00"
+  },
+  {
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-005-en-spending-authority/A01",
+    "ended": "done",
+    "cost_usd": 0.002093,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 3482,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2336
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Amount band limits leave a gap between 2,000 and 2,500 euros",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            26,
+            27
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:49:22+00:00",
+    "request_id": "req_011ChARNugn9tTLDg2LD5DXS",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Amount band limits leave a gap between 2,000 and 2,500 euros",
+          "explanation": "The first band ends at 2,000 euros inclusive, but the head-of-department band starts above 2,500 euros. Every other band boundary matches the previous band's upper limit, so this is a different value for the same boundary. An amount such as 2,250 euros falls in no band, so the document gives two incompatible limits and no approver for that range.",
+          "quotes": [
+            "From 0 to 2,000 euros inclusive, the approver is the team lead of the requester's team.",
+            "Above 2,500 and up to 15,000 euros inclusive, the approver is the head of the requester's department."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "de90d9486534f0f718e94bbadcf0104c"
+  },
+  {
+    "run": 1,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-006-uk-accountant-job/A01",
+    "ended": "done",
+    "cost_usd": 0.002221,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3482,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3359
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Право не вносити запис суперечить обов'язку вносити запис за кожним первинним документом",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            38
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4",
+            "R-6",
+            "R-7",
+            "R-8"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:49:37+00:00",
+    "request_id": "req_011ChARQ1u7j1swJs5EPSEoj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Право не вносити запис суперечить обов'язку вносити запис за кожним первинним документом",
+          "explanation": "Обов'язок вимагає внести запис за кожним первинним документом протягом двох робочих днів. Право дозволяє не вносити запис за документом, у достовірності якого бухгалтер сумнівається, і не вказує, що це виняток. Для такого документа читач не може одночасно виконати обидва приписи.",
+          "quotes": [
+            "Бухгалтер вносить до облікової системи запис за кожним первинним документом протягом двох робочих днів від дня його отримання.",
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "fcddc254719e17dcb8d9fcebd8dafc0a"
+  },
+  {
+    "run": 1,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-007-en-office-closing/A01",
+    "ended": "done",
+    "cost_usd": 0.001712,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 2737,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2265
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:49:51+00:00",
+    "request_id": "req_011ChARR47qaTVAYgw3G3T9y",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "fe5744bef1d69676689d86f4b1d6414e"
+  },
+  {
+    "run": 1,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-008-uk-complaints/A01",
+    "ended": "done",
+    "cost_usd": 0.001908,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2914,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3122
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Суперечливі строки зберігання скарг і висновків",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            72,
+            73
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:50:03+00:00",
+    "request_id": "req_011ChARRudP6vw4PX2K38gr8",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Суперечливі строки зберігання скарг і висновків",
+          "explanation": "Документ вимагає знищувати скарги та висновки через два роки після реєстрації. Водночас він вимагає зберігати ті самі скарги й висновки три роки від тієї самої дати. Для скарги, зареєстрованої два з половиною роки тому, ці правила несумісні: знищити її або зберегти. Жодне прочитання не робить обидва речення істинними.",
+          "quotes": [
+            "Оператор знищує скарги та висновки через два роки від дня реєстрації скарги.",
+            "Оператор зберігає скаргу, висновок і копію відповіді три роки від дня реєстрації скарги."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4785efbdbbc317e5e6c75e9fa6da29d5"
+  },
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.001145,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1570,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2402
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [],
+      "missed": [
+        "A01-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:50:14+00:00",
+    "request_id": "req_011ChARSkgewNtgzGUVLogb4",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "14c80a52ae974774ec465b5c8e76831d"
+  },
+  {
+    "run": 1,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-010-uk-forklift-safety/A01",
+    "ended": "done",
+    "cost_usd": 0.001278,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1627,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3230
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Різні граничні маси вантажу для підйому на висоту до 4 метрів",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            43,
+            44
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:50:21+00:00",
+    "request_id": "req_011ChARTG3zKUXcyS6u4vJqP",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різні граничні маси вантажу для підйому на висоту до 4 метрів",
+          "explanation": "Для підйому на висоту до 4 метрів включно документ дає два несумісні обмеження. Перше забороняє піднімати вантаж масою понад 1200 кілограмів, а друге дозволяє піднімати вантаж до 1500 кілограмів. Вантаж масою, наприклад, 1300 кілограмів водій не може піднімати одночасно за обома правилами, і документ не позначає жодного винятку між ними.",
+          "quotes": [
+            "Водій не піднімає вантаж масою понад 1200 кілограмів на висоту до 4 метрів включно.",
+            "Водій може піднімати на висоту до 4 метрів включно вантаж масою до 1500 кілограмів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "109c35c4c10b4ce73644d48783fb01a5"
+  },
+  {
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-011-en-records-retention/A01",
+    "ended": "done",
+    "cost_usd": 0.001426,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 2138,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2375
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "A refused record is treated as under legal hold, which conflicts with how legal holds are placed and lifted.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            41,
+            58
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:50:28+00:00",
+    "request_id": "req_011ChARTnVa85mNRakkn9MEC",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "A refused record is treated as under legal hold, which conflicts with how legal holds are placed and lifted.",
+          "explanation": "A legal hold is defined as a written instruction from the Legal Counsel tied to a dispute, audit or investigation, and only the Legal Counsel lifts it after the matter is closed. The refusal rule instead makes a record under legal hold whenever the Records Manager refuses it, for example because its retention period has not ended. Such a record has no matter to close, and the owner's re-proposal is not a lifting step, so a reader cannot apply both rules.",
+          "quotes": [
+            "A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again.",
+            "The Legal Counsel lifts the legal hold within 5 calendar days after the matter is closed."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ed95e13ff8a51cde3c2afb818cadfdf"
+  },
+  {
+    "run": 1,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-012-uk-working-hours/A01",
+    "ended": "done",
+    "cost_usd": 0.001446,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2097,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2694
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Час закінчення робочого дня працівників загального режиму суперечить їхній тривалості.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            22,
+            26,
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:50:37+00:00",
+    "request_id": "req_011ChARUUkzs3EfgjmJyoheV",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Час закінчення робочого дня працівників загального режиму суперечить їхній тривалості.",
+          "explanation": "Розділ «Новий режим роботи» встановлює робочий час з 08:00 до 17:00, але пізніше той самий розділ каже, що робочий день закінчується о 16:30. Розділ «Обідня перерва» фіксує обідню перерву з 12:00 до 13:00 і тривалість робочого дня без перерви 8 годин. За цими даними робочий день має закінчуватися о 17:00. Якщо він закінчується о 16:30, тривалість становить 7,5 години, і читач не може виконати обидві вимоги одночасно.",
+          "quotes": [
+            "з понеділка по п'ятницю з 08:00 до 17:00",
+            "З 1 грудня 2026 року робочий день працівника загального режиму закінчується о 16:30.",
+            "Тривалість робочого дня працівника загального режиму без обідньої перерви становить 8 годин."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "3f5fe8096f328d5620127ae68b332518"
+  },
+  {
+    "run": 1,
+    "case": "case-013-en-it-access",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-013-en-it-access/A01",
+    "ended": "done",
+    "cost_usd": 0.001355,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1983,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2427
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "System owners are appointed only for applications and databases, but the review requires owners for every system",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            8,
+            19,
+            55
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4",
+            "R-6"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:50:47+00:00",
+    "request_id": "req_011ChARVBhrGf8m4DNLu58VG",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "System owners are appointed only for applications and databases, but the review requires owners for every system",
+          "explanation": "Section 1 defines a system as including devices and network services, and section 6 applies the review to each system. Section 2 says the Head of Information Technology appoints owners only for every application and every database. For a device or network service, no system owner or alternate owner exists, so the reader cannot send the review list to them or obtain the second decision that section 4 requires for access to them.",
+          "quotes": [
+            "A system is any application, database, device or network service that the Organisation operates or subscribes to.",
+            "The Head of Information Technology appoints one system owner and one alternate owner for every application and every database",
+            "On the first working day of January and of July, the Service Desk sends the system owner and the alternate owner of each system the list of all access to that system from the access register."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "354db5b34552dc2952ea2b34d00813b1"
+  },
+  {
+    "run": 1,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-014-uk-legal-department/A01",
+    "ended": "done",
+    "cost_usd": 0.001378,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1821,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3252
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:50:56+00:00",
+    "request_id": "req_011ChARVrQWtrTNKuL6ZmBRC",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "9aaa8d1ca00de3e12fa3d888f16cad89"
+  },
+  {
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-015-en-customer-letters/A01",
+    "ended": "done",
+    "cost_usd": 0.001077,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1476,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2230
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Addressing rule covers non-customers, but the scope excludes them",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            13,
+            40
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:51:04+00:00",
+    "request_id": "req_011ChARWSaajjz2XPWEDVkDj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Addressing rule covers non-customers, but the scope excludes them",
+          "explanation": "The scope section says letters to anyone who is not a customer are outside this guideline. A customer is defined as a person or company with a signed service agreement. The addressing section then applies the same greeting rules to a person who has asked for an offer but has not signed, so the guideline both excludes and governs the same letters.",
+          "quotes": [
+            "Letters to anyone who is not a customer are outside this guideline.",
+            "A customer who has asked for an offer and has not yet signed a service agreement is addressed in the same way."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "26adeb72074ff3ea79308925e953d5fd"
+  },
+  {
+    "run": 1,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-016-uk-db-backup/A01",
+    "ended": "done",
+    "cost_usd": 0.001214,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1518,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3153
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Різні строки зберігання щотижневої копії у віддаленому сховищі",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            50,
+            51
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:51:11+00:00",
+    "request_id": "req_011ChARWxZ8psMFVLfecPy4o",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різні строки зберігання щотижневої копії у віддаленому сховищі",
+          "explanation": "Розділ 6 двічі визначає строк зберігання щотижневої копії у віддаленому сховищі. Спершу сказано, що копія зберігається 12 місяців, а далі, що у віддаленому сховищі вона зберігається шість місяців. Обидва твердження стосуються одного випадку, тому читач не може виконати обидва.",
+          "quotes": [
+            "Щотижнева копія зберігається на сервері резервних копій і у віддаленому сховищі 12 місяців від дня створення.",
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "5223a92eb2ce1fa8974c9d94e6c16f17"
+  },
+  {
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-017-en-annual-leave/A01",
+    "ended": "done",
+    "cost_usd": 0.001218,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1742,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2293
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Conflicting time limit for requests of more than five leave days",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            34,
+            35
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Conflicting rounding instruction for entitlements",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            24
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:51:18+00:00",
+    "request_id": "req_011ChARXUHJnQ7JtXgbqyxfX",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Conflicting time limit for requests of more than five leave days",
+          "explanation": "The Requesting leave section first says a request for more than five leave days must be submitted at least 30 working days before the first day of leave. A later sentence says a request submitted at least 20 working days before that day is in time. For a request made 25 working days ahead, the first rule refuses it and the second accepts it, so the reader cannot obey both.",
+          "quotes": [
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave.",
+            "A request for more than five leave days that is submitted at least 20 working days before the first day of leave is in time."
+          ]
+        },
+        {
+          "title": "Conflicting rounding instruction for entitlements",
+          "explanation": "The document says the final entitlement is rounded up. It also says the result is rounded to the nearest half day. When the unrounded value is closer to a lower half day, rounding up gives a different result from rounding to the nearest half day, so the reader cannot follow both instructions.",
+          "quotes": [
+            "Only the final result is rounded up, to the nearest half day."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "769f2f23bbd7ed84d7f2b028c2279786"
+  },
+  {
+    "run": 1,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-018-uk-document-numbering/A01",
+    "ended": "done",
+    "cost_usd": 0.002215,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3529,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3121
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Акти входять до сфери стандарту, але для них не передбачено код виду.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            28
+          ],
+          "verdict": "unmatched"
+        },
+        {
+          "n": 2,
+          "title": "Документ вважається підписаним за підписом виконавця, але далі підписує керівництво.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            40,
+            44
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:51:26+00:00",
+    "request_id": "req_011ChARY52rBti2S78ejHgL1",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Акти входять до сфери стандарту, але для них не передбачено код виду.",
+          "explanation": "Розділ 1 називає акти внутрішніми документами, які стандарт регулює, а в переліку кодів розділу 2 коду для актів немає. Тому читач не може скласти номер для акта за форматом із розділу 2. Перелік кодів і сфера застосування не узгоджені між собою.",
+          "quotes": [
+            "службові записки та акти, які створено й підписано в Організації",
+            "Службова записка має код «СЗ»."
+          ]
+        },
+        {
+          "title": "Документ вважається підписаним за підписом виконавця, але далі підписує керівництво.",
+          "explanation": "Розділ 3 визначає, що документ підписаний, коли його підписав виконавець. Водночас розділ 3 передбачає останній потрібний підпис після виконавця, а розділ 2 і розділ 4 говорять про підписи керівників підрозділів і посад осіб, які підписали документ. Якщо документ підписав лише керівник, за першим визначенням він не підписаний, і номер присвоїти не можна, хоча підписи керівництва завершують процес.",
+          "quotes": [
+            "Документ вважається підписаним, коли його підписав виконавець.",
+            "Виконавець передає документ реєстраторові після останнього потрібного підпису"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "86cc34e34dadc9eac5d90772548b6897"
+  },
+  {
+    "run": 1,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-019-en-vehicles/A01",
+    "ended": "done",
+    "cost_usd": 0.000978,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1199,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2547
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Private use is both refused and allowed at weekends",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            37,
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:51:41+00:00",
+    "request_id": "req_011ChARZ9DQ8nKn46Ze6Dh1w",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Private use is both refused and allowed at weekends",
+          "explanation": "Section 5 says private use is not permitted and that the Fleet Manager refuses every request for a private purpose. The next sentence says the Fleet Manager may approve a private trip at a weekend. For a private weekend trip request, the reader must both refuse it and may approve it, so the two passages cannot both be obeyed.",
+          "quotes": [
+            "Private use of a vehicle is not permitted, and the Fleet Manager refuses every request made for a private purpose.",
+            "The Fleet Manager may approve a private trip at a weekend, and the driver then pays for its fuel personally."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1dca1a3b2db9bfa9976564a4b4a0c4a1"
+  },
+  {
+    "run": 1,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-020-uk-stocktake/A01",
+    "ended": "done",
+    "cost_usd": 0.001666,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2422,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3159
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:51:46+00:00",
+    "request_id": "req_011ChARZZiHrUYd7Lvj3bu6w",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "415764e6bd7c36f8e168891a3b1a2e0c"
+  },
+  {
+    "run": 1,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run1/case-021-en-lab-spill/A01",
+    "ended": "done",
+    "cost_usd": 0.001159,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1574,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2499
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The size limit for a small liquid spill is 500 millilitres in one place and one litre in another.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            20
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:51:57+00:00",
+    "request_id": "req_011ChARaKNNFVhp45Hhdemig",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "The size limit for a small liquid spill is 500 millilitres in one place and one litre in another.",
+          "explanation": "Section 2 says a small spill is 500 millilitres or less for a liquid, so a 700 millilitre spill of a low-hazard liquid is a large spill. A later sentence in the same section says a spill of one litre or less of one low-hazard liquid is a small spill, which makes the same 700 millilitre spill a small spill. A reader cannot classify that spill both ways, and the classification decides who may clean it and which steps apply.",
+          "quotes": [
+            "Its quantity is 500 millilitres or less for a liquid",
+            "A spill of one litre or less of one low-hazard liquid"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "be1c89fa90019308b931bdba8fcb93ab"
+  },
+  {
+    "run": 2,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-001-en-travel-expenses/A01",
+    "ended": "done",
+    "cost_usd": 0.000682,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 871,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1490
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:52:03+00:00",
+    "request_id": "req_011ChARapoBVyAi2im2gUvii",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "f6fa6a4c2cf3d6c9f73e055477c2e37e"
+  },
+  {
+    "run": 2,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-002-uk-procurement-committee/A01",
+    "ended": "done",
+    "cost_usd": 0.001981,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3037,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3213
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Кворум Комітету визначено по-різному: чотири або три члени",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            20,
+            45
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Очікувану вартість визначено як суму за весь договір і як суму за один рік",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            11,
+            29
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:52:09+00:00",
+    "request_id": "req_011ChARbCg4yHTuB9iq1tyoj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Кворум Комітету визначено по-різному: чотири або три члени",
+          "explanation": "У розділі про склад Комітету кворум становить щонайменше чотири члени. У розділі про засідання кворум становить щонайменше три члени, серед яких голова або заступник голови. Для одного й того самого засідання читач не може виконати обидві вимоги одночасно, бо за трьох присутніх членів кворуму немає за першим правилом, а за другим він є.",
+          "quotes": [
+            "Кворум є, якщо присутні щонайменше чотири члени Комітету.",
+            "Кворум є, якщо присутні щонайменше три члени Комітету, серед яких голова або заступник голови."
+          ]
+        },
+        {
+          "title": "Очікувану вартість визначено як суму за весь договір і як суму за один рік",
+          "explanation": "Одне визначення каже, що очікувана вартість є повною сумою, яку Організація планує сплатити за договором. Друге визначення каже, що це вартість закупівлі за один рік дії договору. Для багаторічного договору читач отримує дві різні суми, а від цієї суми залежить, хто погоджує заявку і чи потрібне рішення директора.",
+          "quotes": [
+            "Очікувана вартість — це повна сума з усіма податками, яку Організація планує сплатити за договором про закупівлю.",
+            "Очікувана вартість — це вартість закупівлі з усіма податками за один рік дії договору."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b9207e82715412df748a1f07941b6d08"
+  },
+  {
+    "run": 2,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-003-en-onboarding/A01",
+    "ended": "done",
+    "cost_usd": 0.000819,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 959,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2232
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:52:21+00:00",
+    "request_id": "req_011ChARc7KsiWUxyahLMnEZz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.7,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "65b332647d34080945fcc6078075bbe5"
+  },
+  {
+    "run": 2,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-004-uk-window-timber-wall/A01",
+    "ended": "done",
+    "cost_usd": 0.001718,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2487,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3311
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Допустимі межі монтажного зазору суперечать одна одній",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            30,
+            68
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:52:26+00:00",
+    "request_id": "req_011ChARcTUaQoHeS4kZ84bw4",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Допустимі межі монтажного зазору суперечать одна одній",
+          "explanation": "Розділ «Монтажний зазор» вимагає, щоб зазор з боків і зверху був від 15 до 25 мм, а знизу від 20 до 30 мм, і коробку ставлять саме з таким зазором. Перевірка вимагає, щоб той самий зазор з кожного з чотирьох боків був від 8 до 14 мм. Для одного й того самого виміряного зазору обидві вимоги не можуть виконуватися одночасно, тож монтажник не може задовольнити обидва розділи.",
+          "quotes": [
+            "Монтажний зазор з кожного боку та зверху становить від 15 до 25 мм включно.",
+            "Виміряний монтажний зазор з кожного з чотирьох боків має бути від 8 до 14 мм включно."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "55f8f80d61895176c97295bbf4fa293c"
+  },
+  {
+    "run": 2,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-005-en-spending-authority/A01",
+    "ended": "done",
+    "cost_usd": 0.001314,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1922,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2340
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Amount band boundaries leave a gap between 2,000 and 2,500 euros with no approver.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            26,
+            27
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:52:37+00:00",
+    "request_id": "req_011ChARdHyN9hbjNn9FGhWnm",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Amount band boundaries leave a gap between 2,000 and 2,500 euros with no approver.",
+          "explanation": "The first band ends at 2,000 euros inclusive, and the second band starts only above 2,500 euros. A request between 2,000 and 2,500 euros, such as 2,200 euros, falls in neither band, so the reader cannot find its approver. The other band boundaries are contiguous, so this one is inconsistent with them.",
+          "quotes": [
+            "From 0 to 2,000 euros inclusive, the approver is the team lead of the requester's team.",
+            "Above 2,500 and up to 15,000 euros inclusive, the approver is the head of the requester's department."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "520a6eda554a3e72412f8a0bee0205e2"
+  },
+  {
+    "run": 2,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-006-uk-accountant-job/A01",
+    "ended": "done",
+    "cost_usd": 0.001966,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2974,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3351
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:52:46+00:00",
+    "request_id": "req_011ChARdvypv1JGH5nDxoQUu",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "47de5eca61061ae314944c74d60d43ce"
+  },
+  {
+    "run": 2,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-007-en-office-closing/A01",
+    "ended": "done",
+    "cost_usd": 0.001401,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 2116,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2261
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:52:58+00:00",
+    "request_id": "req_011ChARerdAUcLauKkzDf6vJ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "ef170a72ce6324c19927b3af7df72985"
+  },
+  {
+    "run": 2,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-008-uk-complaints/A01",
+    "ended": "done",
+    "cost_usd": 0.002015,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3131,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3110
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Строки зберігання скарг і висновків суперечать одне одному",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            72,
+            73
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:53:07+00:00",
+    "request_id": "req_011ChARfWx1nt1npbPS2pLbL",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Строки зберігання скарг і висновків суперечать одне одному",
+          "explanation": "Один пункт вимагає знищувати скарги та висновки через два роки від дня реєстрації, а інший вимагає зберігати ті самі скарги та висновки три роки. Для скарги і висновку через два роки після реєстрації ці два пункти не можна виконати одночасно.",
+          "quotes": [
+            "Оператор знищує скарги та висновки через два роки від дня реєстрації скарги.",
+            "Оператор зберігає скаргу, висновок і копію відповіді три роки від дня реєстрації скарги."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "f6fb0efedede9b6911d61f375045df58"
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.001384,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 2046,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2408
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [],
+      "missed": [
+        "A01-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:53:20+00:00",
+    "request_id": "req_011ChARgSf5CatGMjAfgLo1o",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b8e97fbeec90b8f8afbaedca2042ab9d"
+  },
+  {
+    "run": 2,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-010-uk-forklift-safety/A01",
+    "ended": "done",
+    "cost_usd": 0.001143,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1359,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3222
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Суперечлива гранична маса вантажу на висоту до 4 метрів",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            43,
+            44
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:53:28+00:00",
+    "request_id": "req_011ChARh5UtY5Xcs2KpwVrnb",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Суперечлива гранична маса вантажу на висоту до 4 метрів",
+          "explanation": "Для вантажу на висоту до 4 метрів включно один пункт забороняє піднімати вантаж понад 1200 кілограмів, а інший дозволяє піднімати вантаж до 1500 кілограмів. Вантаж масою 1300 кілограмів на таку висоту одночасно заборонено і дозволено, тому водій не може виконати обидва пункти.",
+          "quotes": [
+            "Водій не піднімає вантаж масою понад 1200 кілограмів на висоту до 4 метрів включно.",
+            "Водій може піднімати на висоту до 4 метрів включно вантаж масою до 1500 кілограмів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "e399130afc9675b068fc8f06e627c409"
+  },
+  {
+    "run": 2,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-011-en-records-retention/A01",
+    "ended": "done",
+    "cost_usd": 0.002194,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 3678,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2363
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "A refused record is said to be under a legal hold, although a legal hold is defined as an instruction placed by the Legal Counsel for a dispute, audit or investigation.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            58
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "The policy says it does not govern duplicate copies, yet the owner must erase every copy of a destroyed record.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            12,
+            57
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:53:34+00:00",
+    "request_id": "req_011ChARhXMdA64o3WfzLBt1n",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "A refused record is said to be under a legal hold, although a legal hold is defined as an instruction placed by the Legal Counsel for a dispute, audit or investigation.",
+          "explanation": "The document defines a legal hold as placed by the Legal Counsel only after a dispute, audit or investigation, and says the Legal Counsel lifts it when the matter closes. The Records Manager's refusal is made when the retention period has not ended or for a hold, and the same passage then says the refused record is under a legal hold until the owner proposes it again. A reader cannot apply the definition, since no Legal Counsel placed the hold, no matter exists to close, and no lifting or notice rule covers this hold.",
+          "quotes": [
+            "A legal hold is a written instruction that suspends the destruction of named records.",
+            "A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again."
+          ]
+        },
+        {
+          "title": "The policy says it does not govern duplicate copies, yet the owner must erase every copy of a destroyed record.",
+          "explanation": "The definition excludes duplicate copies of a record in the same form from the policy. The destruction rule then requires the owner to erase or shred every copy of a record. A reader cannot both leave same-form duplicates outside the policy and erase them as part of destroying the record.",
+          "quotes": [
+            "Drafts, personal notes and duplicate copies of a record in the same form are not records, and this policy does not govern them.",
+            "When the owner destroys a record, the owner also erases or shreds every copy of it."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "874f06c4f7e852636733cb019d548f35"
+  },
+  {
+    "run": 2,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-012-uk-working-hours/A01",
+    "ended": "done",
+    "cost_usd": 0.001504,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2212,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2700
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Кінець робочого дня загального режиму визначено двічі з різними часами",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            26
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:53:50+00:00",
+    "request_id": "req_011ChARig9k8s88pXVPZ4myN",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Кінець робочого дня загального режиму визначено двічі з різними часами",
+          "explanation": "Для працівників загального режиму один пункт встановлює робочий день з 08:00 до 17:00, а інший каже, що робочий день закінчується о 16:30. Разом з 8-годинною тривалістю без обідньої перерви і годинною обідньою перервою правильним є 17:00, тому час 16:30 суперечить цим положенням. Читач не може виконати обидва пункти для одного й того самого працівника загального режиму з 1 грудня 2026 року.",
+          "quotes": [
+            "з 08:00 до 17:00",
+            "робочий день працівника загального режиму закінчується о 16:30"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "7d312b4f583b926e2bdbdc86d72bb004"
+  },
+  {
+    "run": 2,
+    "case": "case-013-en-it-access",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-013-en-it-access/A01",
+    "ended": "done",
+    "cost_usd": 0.000965,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1202,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2435
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:54:00+00:00",
+    "request_id": "req_011ChARjT1joAUVmNMy5grrN",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0cc78c5bb32a57ba66d88b13a2dd1202"
+  },
+  {
+    "run": 2,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-014-uk-legal-department/A01",
+    "ended": "done",
+    "cost_usd": 0.00145,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1966,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3248
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:54:06+00:00",
+    "request_id": "req_011ChARjsnm4yoAzoLb2oqFN",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "a62d5d733ba94081af78b6ca9c3c9d22"
+  },
+  {
+    "run": 2,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-015-en-customer-letters/A01",
+    "ended": "done",
+    "cost_usd": 0.001342,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 2007,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2226
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Offer requesters are called customers in the addressing rule but excluded from the guideline by definition",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            7,
+            13,
+            40
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:54:15+00:00",
+    "request_id": "req_011ChARkY1A9EpVKE7dRDVSS",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Offer requesters are called customers in the addressing rule but excluded from the guideline by definition",
+          "explanation": "The guideline defines a customer as someone who holds a signed service agreement and says letters to non-customers are outside the guideline. The addressing section then applies its rules to a person who asked for an offer and has not signed, which is a non-customer under the definition. A reader cannot both leave such a letter outside the guideline and apply the addressing rule to it.",
+          "quotes": [
+            "A customer is a person or a company that holds a signed service agreement with the Organisation.",
+            "Letters to anyone who is not a customer are outside this guideline.",
+            "A customer who has asked for an offer and has not yet signed a service agreement is addressed in the same way."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "9168b008956221b1485ead4c332c65a6"
+  },
+  {
+    "run": 2,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-016-uk-db-backup/A01",
+    "ended": "done",
+    "cost_usd": 0.001421,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1935,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3143
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Різні строки зберігання щотижневої копії у віддаленому сховищі",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            50,
+            51
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:54:24+00:00",
+    "request_id": "req_011ChARmCskD4WypYujGfYSL",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різні строки зберігання щотижневої копії у віддаленому сховищі",
+          "explanation": "Розділ 6 двічі визначає строк зберігання щотижневої копії у віддаленому сховищі, і ці строки не збігаються: 12 місяців і шість місяців. Перше речення прямо включає віддалене сховище до строку 12 місяців. Друге речення стосується того самого місця і тієї самої копії, тому читач не може виконати обидва строки одночасно.",
+          "quotes": [
+            "Щотижнева копія зберігається на сервері резервних копій і у віддаленому сховищі 12 місяців від дня створення.",
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "5096d0cc10fba079e3f59818f1982882"
+  },
+  {
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-017-en-annual-leave/A01",
+    "ended": "done",
+    "cost_usd": 0.001161,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1629,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2295
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The notice period for requests of more than five leave days is both 30 and 20 working days.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            34,
+            35
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:54:33+00:00",
+    "request_id": "req_011ChARmrpmojQRzCgSS75mz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "The notice period for requests of more than five leave days is both 30 and 20 working days.",
+          "explanation": "The Requesting leave section first says a request for more than five leave days must be submitted at least 30 working days before the first day of leave. A later sentence says such a request submitted at least 20 working days before the first day is in time. For the same case, a request made 25 working days ahead is late under the first rule and in time under the second, so a reader cannot obey both.",
+          "quotes": [
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave.",
+            "A request for more than five leave days that is submitted at least 20 working days before the first day of leave is in time."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1ca7004deffc7acac5f2fd6a0371c77f"
+  },
+  {
+    "run": 2,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-018-uk-document-numbering/A01",
+    "ended": "done",
+    "cost_usd": 0.002427,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3951,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3125
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Документ вважається підписаним після підпису виконавця, але передається реєстратору лише після останнього потрібного підпису",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            40,
+            44
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Акти підлягають нумерації, але для них немає коду виду",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            7,
+            21
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:54:40+00:00",
+    "request_id": "req_011ChARnP7Au11YRtsLQnu4M",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Документ вважається підписаним після підпису виконавця, але передається реєстратору лише після останнього потрібного підпису",
+          "explanation": "За одним правилом документ вважається підписаним, коли його підписав виконавець, отже номер можна присвоїти одразу після його підпису. За іншим виконавець передає документ після останнього потрібного підпису, тобто після того, як підписали й інші посадові особи. Якщо виконавець підписав раніше за керівників, обидва правила не можна виконати одночасно: номер або присвоюють до завершення погоджень, або документ не вважається підписаним до їх завершення.",
+          "quotes": [
+            "Документ вважається підписаним, коли його підписав виконавець.",
+            "Виконавець передає документ реєстраторові після останнього потрібного підпису, не пізніше наступного робочого дня."
+          ]
+        },
+        {
+          "title": "Акти підлягають нумерації, але для них немає коду виду",
+          "explanation": "Розділ 1 включає акти до внутрішніх документів, які стандарт нумерує й реєструє, і прямо виключає документи інших видів. Розділ 2 вимагає код виду в номері, але перелік кодів містить лише накази, розпорядження, положення, інструкції, протоколи та службові записки. Для актів номер за цим стандартом побудувати неможливо, тому правила двох розділів не узгоджуються.",
+          "quotes": [
+            "Внутрішніми документами в цьому стандарті є накази, розпорядження, положення, інструкції, протоколи, службові записки та акти, які створено й підписано в Організації.",
+            "Код виду визначають так:"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "b6abf8e07c082d8a914f3eb44bb43a67"
+  },
+  {
+    "run": 2,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-019-en-vehicles/A01",
+    "ended": "done",
+    "cost_usd": 0.001313,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1871,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2537
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Private use is both forbidden and allowed at weekends",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            37,
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:54:57+00:00",
+    "request_id": "req_011ChARoeGXARKDVz6xxyW5b",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Private use is both forbidden and allowed at weekends",
+          "explanation": "Section 5 first says private use is not permitted and that the Fleet Manager refuses every request for a private purpose. The next sentence says the Fleet Manager may approve a private trip at a weekend. No exception is marked and no narrower case separates the two, so a reader cannot obey both for a weekend private request.",
+          "quotes": [
+            "Private use of a vehicle is not permitted, and the Fleet Manager refuses every request made for a private purpose.",
+            "The Fleet Manager may approve a private trip at a weekend, and the driver then pays for its fuel personally."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "c1d1323fcf99f816d8c50936a47a25f0"
+  },
+  {
+    "run": 2,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-020-uk-stocktake/A01",
+    "ended": "done",
+    "cost_usd": 0.00141,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1909,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3157
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:55:05+00:00",
+    "request_id": "req_011ChARpDUJBgpGjZP6q7FqQ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "3070c18578aa2e0bfe85dd650a7938ca"
+  },
+  {
+    "run": 2,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run2/case-021-en-lab-spill/A01",
+    "ended": "done",
+    "cost_usd": 0.001091,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1434,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2511
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Small-spill limit conflicts with the one-litre rule for low-hazard liquids",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            20
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:55:13+00:00",
+    "request_id": "req_011ChARppMXbzkS5uCYMzq9E",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Small-spill limit conflicts with the one-litre rule for low-hazard liquids",
+          "explanation": "The first definition makes a liquid spill a small spill only if it is 500 millilitres or less. The later sentence says a spill of one litre or less of one low-hazard liquid, with no injury or contamination, is a small spill. A 800 millilitre spill of a low-hazard liquid is large under the first rule and small under the second. The document marks no exception, so the reader cannot classify such a spill in a way that obeys both.",
+          "quotes": [
+            "Its quantity is 500 millilitres or less for a liquid, or 500 grams or less for a solid.",
+            "A spill of one litre or less of one low-hazard liquid, with no person injured or contaminated by it, is a small spill."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "82b5bfc2d8e24c7c9ce0ee182566f2d5"
+  },
+  {
+    "run": 3,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-001-en-travel-expenses/A01",
+    "ended": "done",
+    "cost_usd": 0.000631,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 772,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1482
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:55:20+00:00",
+    "request_id": "req_011ChARqHvDFbBn6bgt124hd",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "96c799350704a09b38b51fdfb8c0f42c"
+  },
+  {
+    "run": 3,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-002-uk-procurement-committee/A01",
+    "ended": "done",
+    "cost_usd": 0.001991,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3056,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3223
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Кворум Комітету визначено двома різними числами",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            20,
+            45
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Очікувана вартість визначена двома різними способами",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            11,
+            29
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "Ініціатора визначено так, що фінансовий менеджер не може ним бути, але далі його називають ініціатором",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            10,
+            32
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.5,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:55:24+00:00",
+    "request_id": "req_011ChARqcySD6JSSKip2Uscj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Кворум Комітету визначено двома різними числами",
+          "explanation": "У розділі про склад Комітету кворум становить щонайменше чотири члени. У розділі про засідання кворум становить щонайменше три члени, серед яких голова або заступник голови. Для будь-якого засідання ці дві вимоги не можна виконати одночасно, тож читач не знає, скільки членів має бути присутніми.",
+          "quotes": [
+            "Кворум є, якщо присутні щонайменше чотири члени Комітету.",
+            "Кворум є, якщо присутні щонайменше три члени Комітету, серед яких голова або заступник голови."
+          ]
+        },
+        {
+          "title": "Очікувана вартість визначена двома різними способами",
+          "explanation": "Перше визначення охоплює повну суму за весь договір. Друге визначення охоплює вартість лише за один рік дії договору. Для договору, що триває більше року, ці суми різні, а від суми залежить, який поріг і який орган застосовуються, тому читач не може виконати обидва визначення.",
+          "quotes": [
+            "Очікувана вартість — це повна сума з усіма податками, яку Організація планує сплатити за договором про закупівлю.",
+            "Очікувана вартість — це вартість закупівлі з усіма податками за один рік дії договору."
+          ]
+        },
+        {
+          "title": "Ініціатора визначено так, що фінансовий менеджер не може ним бути, але далі його називають ініціатором",
+          "explanation": "Визначення каже, що ініціатор є керівником структурного підрозділу або директором. Далі документ прямо називає фінансового менеджера ініціатором заявки на суму менше 50 000 гривень. Це порушує власне визначення, і читач не знає, хто є ініціатором у таких випадках.",
+          "quotes": [
+            "Ініціатор — це керівник структурного підрозділу або директор, який подає заявку на закупівлю.",
+            "Якщо ініціатором заявки очікуваною вартістю менше 50 000 гривень є фінансовий менеджер, він у день подання передає її директорові"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "297a96e7899635a2dc2e6e50a7d277b5"
+  },
+  {
+    "run": 3,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-003-en-onboarding/A01",
+    "ended": "done",
+    "cost_usd": 0.00072,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 760,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2240
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:55:36+00:00",
+    "request_id": "req_011ChARrVGsXXGXZKKshE861",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 3.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "80dd965a9ed6e28747e310d13c2feb1f"
+  },
+  {
+    "run": 3,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-004-uk-window-timber-wall/A01",
+    "ended": "done",
+    "cost_usd": 0.002386,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3823,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3313
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Монтажний зазор з боків і зверху має два різні допустимі діапазони",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            30,
+            68
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Нижній монтажний зазор має діапазон, що не збігається з перевіркою",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            31,
+            68
+          ],
+          "verdict": "duplicate",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 1,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:55:40+00:00",
+    "request_id": "req_011ChARrmMWB1FEyppJFvVLn",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Монтажний зазор з боків і зверху має два різні допустимі діапазони",
+          "explanation": "Розділ «Монтажний зазор» вимагає від 15 до 25 мм з боків і зверху перед встановленням коробки. Під час першої перевірки той самий зазор з чотирьох боків має бути від 8 до 14 мм, тож коробка, поставлена за першим правилом, не пройде другу вимогу без переміщення. Читач не може виконати обидва правила для однієї й тієї самої коробки в одному стані.",
+          "quotes": [
+            "Монтажний зазор з кожного боку та зверху становить від 15 до 25 мм включно.",
+            "Виміряний монтажний зазор з кожного з чотирьох боків має бути від 8 до 14 мм включно."
+          ]
+        },
+        {
+          "title": "Нижній монтажний зазор має діапазон, що не збігається з перевіркою",
+          "explanation": "Розділ «Монтажний зазор» вимагає для нижньої сторони від 20 до 30 мм. Перша перевірка вимагає від 8 до 14 мм з кожного з чотирьох боків, включно з нижнім. Для нижньої сторони ці два діапазони не можуть бути виконані разом.",
+          "quotes": [
+            "Монтажний зазор знизу становить від 20 до 30 мм включно.",
+            "Виміряний монтажний зазор з кожного з чотирьох боків має бути від 8 до 14 мм включно."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "23c99a8305ea9119f4c50ce493144ec8"
+  },
+  {
+    "run": 3,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-005-en-spending-authority/A01",
+    "ended": "done",
+    "cost_usd": 0.001537,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 2368,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2342
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The first and second amount bands leave amounts between 2,000 and 2,500 euros without an approver.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            26,
+            27
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:55:56+00:00",
+    "request_id": "req_011ChARsyTHxssujky8JURH5",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "The first and second amount bands leave amounts between 2,000 and 2,500 euros without an approver.",
+          "explanation": "The first band ends at 2,000 euros inclusive, but the second band starts only above 2,500 euros. The two bands give different boundary values, so a request of, for example, 2,200 euros falls in neither band and the matrix names no approver for it. The document does not mark this gap as intended.",
+          "quotes": [
+            "From 0 to 2,000 euros inclusive, the approver is the team lead of the requester's team.",
+            "Above 2,500 and up to 15,000 euros inclusive, the approver is the head of the requester's department."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "dc6df01d8b8bceb8ccf12611e48993ac"
+  },
+  {
+    "run": 3,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-006-uk-accountant-job/A01",
+    "ended": "done",
+    "cost_usd": 0.002085,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3210,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3355
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Обов'язок вносити запис за кожним документом суперечить праву не вносити запис за сумнівним документом",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            38
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4",
+            "R-6",
+            "R-7",
+            "R-8"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:56:07+00:00",
+    "request_id": "req_011ChARtkZgPd3Nai3AADKkF",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Обов'язок вносити запис за кожним документом суперечить праву не вносити запис за сумнівним документом",
+          "explanation": "Один пункт вимагає, щоб бухгалтер вніс запис за кожним первинним документом протягом двох робочих днів. Інший пункт дозволяє не вносити запис за документом, у достовірності якого бухгалтер сумнівається. Для такого документа виконати обидва пункти неможливо, а документ не позначено як виняток з обов'язку.",
+          "quotes": [
+            "Бухгалтер вносить до облікової системи запис за кожним первинним документом протягом двох робочих днів від дня його отримання.",
+            "Бухгалтер має право не вносити запис за первинним документом, у достовірності якого він сумнівається."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "43e562d35f4fdec088b97dae5a234b3a"
+  },
+  {
+    "run": 3,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-007-en-office-closing/A01",
+    "ended": "done",
+    "cost_usd": 0.002083,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 3479,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2267
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:56:21+00:00",
+    "request_id": "req_011ChARunjvZzoTdDTMU7frf",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "62e129374b6f8cb770ab942a3354c0f0"
+  },
+  {
+    "run": 3,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-008-uk-complaints/A01",
+    "ended": "done",
+    "cost_usd": 0.0016,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2298,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3122
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Строк зберігання скарги і висновку суперечить строку їх знищення",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            72,
+            73
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:56:36+00:00",
+    "request_id": "req_011ChARvuuJzFg2xGr1ttdWa",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Строк зберігання скарги і висновку суперечить строку їх знищення",
+          "explanation": "Одне положення велить знищувати скарги та висновки через два роки від дня реєстрації, а інше велить зберігати скаргу та висновок три роки від того самого дня. Для однієї скарги і одного висновку оператор не може виконати обидва положення: через два роки він має і знищити їх, і зберігати ще рік.",
+          "quotes": [
+            "Оператор знищує скарги та висновки через два роки від дня реєстрації скарги.",
+            "Оператор зберігає скаргу, висновок і копію відповіді три роки від дня реєстрації скарги."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "bee7b4e85cdfc913b7cdcbb7aa39a832"
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-009-en-gifts/A01",
+    "ended": "done",
+    "cost_usd": 0.001203,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1685,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2402
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Refreshment limit for public officials is stated as both 15 euros and 10 euros.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            55,
+            56
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:56:46+00:00",
+    "request_id": "req_011ChARwcYZDKVciSMSwWvv6",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Refreshment limit for public officials is stated as both 15 euros and 10 euros.",
+          "explanation": "Section 7.7 first allows refreshments worth up to 15 euros per public official at a working meeting. The next sentence limits the same refreshments to 10 euros per official. A reader cannot allow a 12-euro refreshment and also respect the 10-euro limit, so the two figures cannot both apply to the same case.",
+          "quotes": [
+            "The only exception is refreshments worth 15 euros or less for each public official, served at a working meeting on the Organisation's premises.",
+            "Refreshments for a public official are limited to 10 euros for each official."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "31fbe911e5d870539fdd58ec9df44412"
+  },
+  {
+    "run": 3,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-010-uk-forklift-safety/A01",
+    "ended": "done",
+    "cost_usd": 0.001207,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1487,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3226
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Різні граничні маси вантажу для підйому на висоту до 4 метрів",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            43,
+            44
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:56:53+00:00",
+    "request_id": "req_011ChARxBWhU1yCMk9U2EHNN",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різні граничні маси вантажу для підйому на висоту до 4 метрів",
+          "explanation": "Для вантажу масою від 1200 до 1500 кілограмів на висоту до 4 метрів включно два речення дають протилежні вимоги. Перше забороняє піднімати вантаж понад 1200 кілограмів, а друге дозволяє піднімати до 1500 кілограмів. Водій не може виконати обидва правила одночасно, тому не знає, чи можна підняти, наприклад, вантаж масою 1300 кілограмів.",
+          "quotes": [
+            "Водій не піднімає вантаж масою понад 1200 кілограмів на висоту до 4 метрів включно.",
+            "Водій може піднімати на висоту до 4 метрів включно вантаж масою до 1500 кілограмів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "4c928fd5cac809119d450fb8267a8066"
+  },
+  {
+    "run": 3,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-011-en-records-retention/A01",
+    "ended": "done",
+    "cost_usd": 0.001742,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 2773,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2365
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "A refused record is said to be under a legal hold, but the hold rules tie holds to disputes and to Legal Counsel's lifting.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            41,
+            58
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Duplicate copies are said to be outside the policy, but the owner must destroy every copy.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            12,
+            57
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:00+00:00",
+    "request_id": "req_011ChARxfYg92nYy9RRsvBaH",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "A refused record is said to be under a legal hold, but the hold rules tie holds to disputes and to Legal Counsel's lifting.",
+          "explanation": "The legal hold section says a hold is placed by the Legal Counsel after a dispute, audit or investigation, and lifted within 5 days after the matter is closed. The destruction section says a refused record is under a legal hold until the owner proposes it again, which has no matter to close and no Legal Counsel lifting step. A reader cannot apply the lifting rule to such a hold, and the two sections give different conditions for the same hold.",
+          "quotes": [
+            "A record whose proposal the Records Manager has refused is under a legal hold until the owner proposes it again.",
+            "The Legal Counsel lifts the legal hold within 5 calendar days after the matter is closed."
+          ]
+        },
+        {
+          "title": "Duplicate copies are said to be outside the policy, but the owner must destroy every copy.",
+          "explanation": "The definition says duplicate copies of a record in the same form are not records and that this policy does not govern them. The destruction section requires the owner to erase or shred every copy of a destroyed record. A reader cannot both leave duplicates outside the policy and destroy them under it.",
+          "quotes": [
+            "Drafts, personal notes and duplicate copies of a record in the same form are not records, and this policy does not govern them.",
+            "When the owner destroys a record, the owner also erases or shreds every copy of it."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "50de6e60667903b8ea476ef1111018ac"
+  },
+  {
+    "run": 3,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-012-uk-working-hours/A01",
+    "ended": "done",
+    "cost_usd": 0.001469,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 2143,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2698
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Різний час закінчення робочого дня загального режиму: 17:00 і 16:30",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            22,
+            26
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:12+00:00",
+    "request_id": "req_011ChARyboDhvy6ekDYMmTs4",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різний час закінчення робочого дня загального режиму: 17:00 і 16:30",
+          "explanation": "Перший пункт встановлює, що працівники загального режиму працюють до 17:00, а пізніший пункт каже, що їхній робочий день закінчується о 16:30. Обидва пункти стосуються тих самих працівників з 1 грудня 2026 року, тож виконати їх одночасно неможливо. Розрахунок також не збігається з вимогою про 8 годин: з 08:00 до 16:30 без обідньої перерви з 12:00 до 13:00 виходить 7,5 години.",
+          "quotes": [
+            "працівники загального режиму працюють з понеділка по п'ятницю з 08:00 до 17:00.",
+            "З 1 грудня 2026 року робочий день працівника загального режиму закінчується о 16:30."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "f06b98ade35eb9054e014bcafa49f4bf"
+  },
+  {
+    "run": 3,
+    "case": "case-013-en-it-access",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-013-en-it-access/A01",
+    "ended": "done",
+    "cost_usd": 0.000979,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1232,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2421
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:22+00:00",
+    "request_id": "req_011ChARzJvVsknEh8LsezBKw",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "0822f7529faf537e209b8963779f5322"
+  },
+  {
+    "run": 3,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-014-uk-legal-department/A01",
+    "ended": "done",
+    "cost_usd": 0.001327,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1720,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3248
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:28+00:00",
+    "request_id": "req_011ChARzizbMvU7Fd4oHUQGB",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "01691ba33d08ac65a325b71ffa99a5e5"
+  },
+  {
+    "run": 3,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-015-en-customer-letters/A01",
+    "ended": "done",
+    "cost_usd": 0.001185,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1690,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2238
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Offer requesters are called customers, but the guideline defines customers as holders of a signed agreement and excludes non-customers",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            7,
+            13,
+            40
+          ],
+          "verdict": "cross",
+          "cross": [
+            "A04-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 1,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:35+00:00",
+    "request_id": "req_011ChAS1Go32CaboJMmg48SW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Offer requesters are called customers, but the guideline defines customers as holders of a signed agreement and excludes non-customers",
+          "explanation": "The guideline defines a customer as someone who holds a signed service agreement, and it says letters to anyone who is not a customer are outside the guideline. The addressing section then applies to a customer who has asked for an offer but has not signed, which is a non-customer under the definition. A reader cannot both exclude such letters from the guideline and apply the addressing rule to them.",
+          "quotes": [
+            "A customer is a person or a company that holds a signed service agreement with the Organisation.",
+            "Letters to anyone who is not a customer are outside this guideline.",
+            "A customer who has asked for an offer and has not yet signed a service agreement is addressed in the same way."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "73e2ffa7f51f58433f4b2df6094bc8ab"
+  },
+  {
+    "run": 3,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-016-uk-db-backup/A01",
+    "ended": "done",
+    "cost_usd": 0.001134,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 1360,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3147
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Строк зберігання щотижневої копії у віддаленому сховищі вказано двічі з різними значеннями",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            50,
+            51
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:43+00:00",
+    "request_id": "req_011ChAS1rmwJEHVZDYngZijv",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Строк зберігання щотижневої копії у віддаленому сховищі вказано двічі з різними значеннями",
+          "explanation": "Розділ 6 у першому речennі встановлює для щотижневої копії, що зберігається і на сервері резервних копій, і у віддаленому сховищі, строк 12 місяців. Наступне речення для того самого віддаленого сховища встановлює строк шість місяців. Читач не може виконати обидва речення, бо для однієї копії в одному сховищі строк або 12 місяців, або шість.",
+          "quotes": [
+            "Щотижнева копія зберігається на сервері резервних копій і у віддаленому сховищі 12 місяців від дня створення.",
+            "У віддаленому сховищі щотижнева копія зберігається шість місяців від дня створення."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "1f700ab350f50491ad6f84325f8d5c73"
+  },
+  {
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-017-en-annual-leave/A01",
+    "ended": "done",
+    "cost_usd": 0.000917,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1140,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2295
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Conflicting time limit for requests of more than five leave days",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            34,
+            35
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:50+00:00",
+    "request_id": "req_011ChAS2LHtu9CbKmC22dapn",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Conflicting time limit for requests of more than five leave days",
+          "explanation": "The Requesting leave section first says a request for more than five leave days must be submitted at least 30 working days before the first day of leave. A later sentence says such a request submitted at least 20 working days before the first day of leave is in time. A reader cannot apply both limits to the same request, since a request submitted 25 working days ahead is late under the first and in time under the second.",
+          "quotes": [
+            "A request for more than five leave days is submitted at least 30 working days before the first day of leave.",
+            "A request for more than five leave days that is submitted at least 20 working days before the first day of leave is in time."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "cacd9ee744af2f4c9b6eb1a5d913c833"
+  },
+  {
+    "run": 3,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-018-uk-document-numbering/A01",
+    "ended": "done",
+    "cost_usd": 0.002351,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3802,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3119
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Акти названо внутрішніми документами, які нумерують, але для них немає коду виду",
+          "quotes": 4,
+          "language_ok": true,
+          "lines": [
+            7,
+            9,
+            13,
+            28
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:57:55+00:00",
+    "request_id": "req_011ChAS2iwux1LVrhp2hvFx9",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Акти названо внутрішніми документами, які нумерують, але для них немає коду виду",
+          "explanation": "Розділ 1 включає акти до внутрішніх документів і вимагає їх нумерувати та реєструвати за цим стандартом. Водночас він каже, що документи інших видів не нумерують і не реєструють. Розділ 2 визначає коди лише для шести видів і не містить коду для актів, тож реєстратор не може присвоїти акту номер у форматі «04-Н-17/2026».",
+          "quotes": [
+            "Внутрішніми документами в цьому стандарті є накази, розпорядження, положення, інструкції, протоколи, службові записки та акти, які створено й підписано в Організації.",
+            "Документи інших видів за цим стандартом не нумерують і не реєструють.",
+            "Службова записка має код «СЗ».",
+            "Номер документа складається з чотирьох частин: індексу підрозділу, коду виду, порядкового номера і року."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "433041bb0d1894a2f452888e894e22d5"
+  },
+  {
+    "run": 3,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-019-en-vehicles/A01",
+    "ended": "done",
+    "cost_usd": 0.001036,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1318,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2537
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Private use is both refused and allowed",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            37,
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:58:11+00:00",
+    "request_id": "req_011ChAS3uHJ7AysyHGJ2J47N",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Private use is both refused and allowed",
+          "explanation": "Section 5 first says private use is not permitted and that the Fleet Manager refuses every request for a private purpose. The next sentence says the Fleet Manager may approve a private trip at a weekend. No exception is marked for weekends, so a reader cannot refuse every private request and also approve a weekend private trip.",
+          "quotes": [
+            "Private use of a vehicle is not permitted, and the Fleet Manager refuses every request made for a private purpose.",
+            "The Fleet Manager may approve a private trip at a weekend, and the driver then pays for its fuel personally."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "f31c16223b12ea23e86d9544d0df7cc6"
+  },
+  {
+    "run": 3,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-020-uk-stocktake/A01",
+    "ended": "done",
+    "cost_usd": 0.001975,
+    "usage": {
+      "input_tokens": 606,
+      "output_tokens": 3041,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3155
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:58:17+00:00",
+    "request_id": "req_011ChAS4MEWT27z4ETtCC12j",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "14b9453d3e1fbecb815994ef96116e4e"
+  },
+  {
+    "run": 3,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A01-contradiction/results/2026-11-18-haiku-medium-67354293fe1d/calls/run3/case-021-en-lab-spill/A01",
+    "ended": "done",
+    "cost_usd": 0.000968,
+    "usage": {
+      "input_tokens": 601,
+      "output_tokens": 1193,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2495
+    },
+    "compare": {
+      "heuristic": "A01",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A01-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Small-spill limit for liquids is given as both 500 millilitres and one litre",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            20
+          ],
+          "verdict": "match",
+          "defects": [
+            "A01-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "sent_at": "2026-11-18T12:58:29+00:00",
+    "request_id": "req_011ChAS5FsLVXfdFhhojHcS3",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 5.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Small-spill limit for liquids is given as both 500 millilitres and one litre",
+          "explanation": "The first passage sets the small-spill limit for a liquid at 500 millilitres or less, and it says a spill above that is large. The later passage says a spill of one litre or less of one low-hazard liquid is a small spill. For a low-hazard liquid spill between 500 millilitres and one litre, with no person injured, the first passage classes it as large and the second as small. The reader cannot obey both.",
+          "quotes": [
+            "Its quantity is 500 millilitres or less for a liquid, or 500 grams or less for a solid.",
+            "A spill of one litre or less of one low-hazard liquid, with no person injured or contaminated by it, is a small spill."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    },
+    "marker": "d01e938df823b9fea45a5820985a8a86"
+  }
+]

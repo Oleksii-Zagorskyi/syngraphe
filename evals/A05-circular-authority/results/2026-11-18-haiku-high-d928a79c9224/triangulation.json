@@ -1,0 +1,244 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-003-en-onboarding",
+      "run": 1,
+      "key": "residue only",
+      "items": [
+        "R-7"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-02",
+      "case": "case-007-en-office-closing",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "A04-T1",
+        "R-1",
+        "R-6",
+        "R-9"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-03",
+      "case": "case-007-en-office-closing",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-1",
+        "R-2",
+        "R-5",
+        "R-7",
+        "R-8",
+        "R-9"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": false
+    },
+    {
+      "id": "U-04",
+      "case": "case-009-en-gifts",
+      "run": 2,
+      "key": "residue only",
+      "items": [
+        "R-2"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-05",
+      "case": "case-011-en-records-retention",
+      "run": 2,
+      "key": "residue only",
+      "items": [
+        "R-3",
+        "R-5",
+        "R-7"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-06",
+      "case": "case-016-uk-db-backup",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-T1",
+        "R-5"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-07",
+      "case": "case-016-uk-db-backup",
+      "run": 2,
+      "key": "residue only",
+      "items": [
+        "R-1"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-08",
+      "case": "case-016-uk-db-backup",
+      "run": 2,
+      "key": "residue only",
+      "items": [
+        "R-1",
+        "R-4"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-09",
+      "case": "case-018-uk-document-numbering",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1",
+        "R-3"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": false
+    },
+    {
+      "id": "U-10",
+      "case": "case-018-uk-document-numbering",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "A04-1",
+        "R-2",
+        "R-3"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-11",
+      "case": "case-008-uk-complaints",
+      "run": 3,
+      "key": "residue only",
+      "items": [
+        "R-1",
+        "R-5"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-12",
+      "case": "case-009-en-gifts",
+      "run": 3,
+      "key": "residue only",
+      "items": [
+        "R-2"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-13",
+      "case": "case-009-en-gifts",
+      "run": 3,
+      "key": "residue only",
+      "items": [
+        "R-2",
+        "R-5"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-14",
+      "case": "case-011-en-records-retention",
+      "run": 3,
+      "key": "residue only",
+      "items": [
+        "R-3",
+        "R-5",
+        "R-7"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": null
+    },
+    {
+      "id": "U-15",
+      "case": "case-016-uk-db-backup",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A02-1",
+        "R-1",
+        "R-4"
+      ],
+      "judge": "not a defect",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-16",
+      "case": "case-019-en-vehicles",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A01-1",
+        "A03-T1",
+        "R-2",
+        "R-3",
+        "R-4",
+        "R-6",
+        "R-8"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": false
+    }
+  ],
+  "tally": {
+    "residue only": {
+      "findings": 9,
+      "judge_real": 5,
+      "judge_trap": 2,
+      "judge_not": 2,
+      "agree": 0,
+      "disagree": 0
+    },
+    "another heuristic's item": {
+      "findings": 7,
+      "judge_real": 3,
+      "judge_trap": 2,
+      "judge_not": 2,
+      "agree": 4,
+      "disagree": 3
+    }
+  }
+}

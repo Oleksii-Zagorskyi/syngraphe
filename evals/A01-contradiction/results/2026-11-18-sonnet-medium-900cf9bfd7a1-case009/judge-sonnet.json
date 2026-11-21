@@ -1,0 +1,38 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The quoted sentence, \"The role that decides the request records the decision...\", looks like it might conflict with 7.5 naming the Compliance Officer as the decider. Section 7.1 removes that: the Chief Executive acts in place of the Compliance Officer for the Officer's own gifts, so \"the role that decides\" covers both cases. The finding's own explanation concedes there is no contradiction, and 7.4 (the Compliance Officer keeps the register) does not clash with it either. A different verdict, not a defect, is also possible, because the finding gives no real conflict at all.",
+    "cost_usd": 0.012278,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 7.4 sets a general five-working-day declaration deadline for every accepted gift. Section 7.6 sets a shorter two-working-day deadline for the narrower case of a gift later found to be above the limit or a money gift, counted from learning that fact. The instruction says not to report a general rule and a narrower rule for a special case, so the finding hits an excluded pattern. A reader can obey both: declare within five days normally, and use the two-day rule in the special case. The title also names a different issue, the register being kept by the Compliance Officer while employees declare in it, which the document does not make contradictory.",
+    "cost_usd": 0.007043,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 7.4 sets the general five-working-day deadline for declaring accepted or given items. Section 7.6 is a narrower rule for specific cases: a received over-limit or money gift (two days from learning it is one) and a value discovered after the occasion (ten days from learning it). These cases differ in the trigger and the item, and the instruction excludes a general rule paired with a narrower rule for a special case, so a reader can obey both. Where two days applies, it is at least as strict as five days when the employee learns the status at acceptance. The document does not give a separate deadline for the same gift in the same case.",
+    "cost_usd": 0.009043,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The quoted sentence says 'The role that decides the request records the decision', and 7.5 says the Compliance Officer decides. Section 7.1 says the Chief Executive acts in place of the Compliance Officer when the Compliance Officer is the one offered or giving the gift. The neutral word 'role' covers both cases, so the reader can obey every passage. The finding itself admits the conflict is only apparent. It could be read as not a defect, but the substitution rule in 7.1 is what removes the apparent problem.",
+    "cost_usd": 0.007959,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "rows": [
+    {
+      "id": "U-01",
+      "case": "case-006-uk-accountant-job",
+      "run": 1,
+      "key": "another heuristic's item",
+      "items": [
+        "A06-2",
+        "R-4",
+        "R-6",
+        "R-7",
+        "R-8"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-02",
+      "case": "case-006-uk-accountant-job",
+      "run": 2,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1"
+      ],
+      "judge": "trap",
+      "owner": null,
+      "key_agrees_with_judge": true
+    },
+    {
+      "id": "U-03",
+      "case": "case-009-en-gifts",
+      "run": 3,
+      "key": "another heuristic's item",
+      "items": [
+        "A04-1",
+        "R-6"
+      ],
+      "judge": "real defect",
+      "owner": null,
+      "key_agrees_with_judge": false
+    }
+  ],
+  "tally": {
+    "another heuristic's item": {
+      "findings": 3,
+      "judge_real": 1,
+      "judge_trap": 2,
+      "judge_not": 0,
+      "agree": 2,
+      "disagree": 1
+    }
+  }
+}

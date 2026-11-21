@@ -1,0 +1,29 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The two quotes look like a conflict: enter every primary document within two working days, versus the right not to enter a document the accountant doubts. But the document handles this case. For a document with an explanation requested, the deadline runs from the day the accountant first gets the explanation or the director's decision. Together with the right to request explanations, this means a doubtful document is held back until it is clarified, and the entry deadline starts then. The right is also a narrower rule for a special case, and the general rule covers the other documents. A reader can obey both passages, so this is not a contradiction.",
+    "cost_usd": 0.015137,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.2 defines hospitality as a meal, travel or accommodation, and defines a gift as any other thing of value. Section 7.4 then speaks of \"a gift in the form of a meal, travel or accommodation\", which the definitions place under hospitality. That is a passage that does not obey the document's own definition, which is one of the listed causes. A looser reading is possible, where 7.4 uses \"gift\" casually and means hospitality. But the document sets the definition and does not mark this sentence as an exception, so the finding stands.",
+    "cost_usd": 0.014743,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding points to a term used in two ways: «звіт» is defined as the monthly report on settlements, and the quarterly «звіт про виконання своїх обов'язків» to the director is a different document with the same word. The instruction says not to report one term used with two meanings, because that is a different kind of problem. No two passages here give conflicting rules for the same case, since the quarterly report and the monthly report are separate documents. The finding therefore reports an excluded passage type.",
+    "cost_usd": 0.005623,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

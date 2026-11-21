@@ -1,0 +1,83 @@
+{
+  "U-03": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Розділ 2 — вужче правило для особливого випадку: системний адміністратор заміщає відсутнього адміністратора баз даних і в цей час не виконує пробного відновлення. Розділ 7 — загальне правило для звичайних випадків. Інструкція велить не повідомляти про таку пару, навіть якщо виняток не позначено словами на кшталт «крім». Обидва положення можна виконати разом: у звичайний час відновлює системний адміністратор, а під час заміщення він цього не робить. Хто тоді виконує відновлення, документ не каже, але це прогалина, а не суперечність.",
+    "cost_usd": 0.014942,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages can both be true. The refusal rule is a duty on the approver, who must record a refusal within five working days. The silence rule is a fallback for when the approver does not act. An approver who obeys the document refuses the late request in time, so the deemed approval never applies. If the approver fails to decide, the fallback applies, but that is a consequence of breaking the duty, not two rules that cannot both be obeyed. A different reading is possible, since a late request could end up both required to be refused and counted as approved. But the text supports the fallback reading more.",
+    "cost_usd": 0.013752,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says an initiator is a head of a structural unit or the director. The document never says the financial manager is not a head of a structural unit, and he could lead the finance unit. Under that reading, the rule about a financial manager who is the initiator and the definition are both true. At most this is an ambiguity about the manager's role, which is a different kind of problem. The document's real contradictions lie elsewhere, such as the two quorum rules.",
+    "cost_usd": 0.012585,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The finding pairs a general duty (\"Бухгалтер вносить ... запис за кожним первинним документом протягом двох робочих днів\") with a narrower right for the special case of a document whose authenticity the accountant doubts (\"має право не вносити запис за первинним документом, у достовірності якого він сумнівається\"). The instruction says not to report a general rule and a narrower rule for a special case, even when the exception is unmarked. The narrower right applies to doubtful documents, and the general duty applies to all others. The document also treats the general duty as already having exceptions, such as returned documents and documents with an explanation requested, which have their own deadline rule. A different reading could treat the missing exception marker as a vagueness problem, but that is not a contradiction.",
+    "cost_usd": 0.015025,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages can both be obeyed. Scrambling the code dial only locks the safe, and the closing person can dial the code again to reach the log and write the entry. The document names no rule that forbids reopening the safe, so the order of the Keys and Closing log steps does not force a contradiction. At most the document leaves the reopening step unstated, which is a gap or an ambiguity, not a contradiction.",
+    "cost_usd": 0.015014,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The self-approval ban is the first sentence of section 4, and section 5 says it applies to the finance director and chief executive \"instead of sections 3 and 4\". That marks the finance director as an exception, so the ban in section 4 does not govern the finance director's own requests. When the chief executive is absent, section 8 lets the finance director decide requests the chief executive would approve, which can include the finance director's own. That is an odd result, but it follows the marked exception and is not a clash between two passages that both apply. The other reading is that \"No requester approves their own spending request\" is a general principle that survives section 5. The text does not require that reading.",
+    "cost_usd": 0.017233,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding describes one term used with two meanings (\"звіт\" defined as the monthly report, then used for a quarterly report to the director). That is a different kind of problem, not a contradiction. Both duties can be obeyed together: the accountant prepares the monthly report and also submits a quarterly performance report, and no passage forbids either one.",
+    "cost_usd": 0.003481,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 0
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Розділ 2 є вужчим правилом для окремого випадку: воно діє лише тоді, коли системний адміністратор заміщає відсутнього адміністратора баз даних, і прямо забороняє йому пробне відновлення. Розділ 7 є загальним правилом і діє в усіх інших випадках. Інструкція каже не звітувати про таке поєднання загального й вужчого правил, навіть без позначки винятку. Те, що документ не називає, хто тоді проводить відновлення, було б прогалиною, а не суперечністю.",
+    "cost_usd": 0.006256,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 7.2 defines a meal, travel and accommodation as hospitality, and a gift as only 'any other thing of value'. Section 7.4 then speaks of 'a gift in the form of a meal, travel or accommodation', which does not follow that definition. A reader who obeys the definition finds that no such gift exists, so the third-party-name rule would never apply to the meals and travel it names. The other reading is that 7.4 is only loose wording for hospitality, or a case of one term with two meanings. But 7.4 states the rule for 'gift' and the definition fixes what a gift is, so the text supports a definition not being obeyed.",
+    "cost_usd": 0.019203,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "thinking_blocks": 1
+  }
+}

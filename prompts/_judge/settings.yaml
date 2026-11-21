@@ -1,0 +1,4 @@
+# The judge's model and effort. load: the version that judges; none until the judge is chosen and trusted.
+model: claude-opus-5-5
+effort: high
+load: null

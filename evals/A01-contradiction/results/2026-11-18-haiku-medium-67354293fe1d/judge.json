@@ -1,0 +1,80 @@
+{
+  "U-01": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two quoted band lines ('From 0 to 2,000 euros inclusive…' and 'Above 2,500 and up to 15,000 euros inclusive…') cover different amounts. A reader can obey both at once, so they do not contradict each other. Their effect is a gap: amounts between 2,000 and 2,500 euros get no approver, which is a missing rule, not two incompatible statements about the same case. A contradiction verdict is arguable, because section 1 says the matrix applies 'whatever the amount' and the gap fails that promise, but the finding does not quote that passage and frames the problem as two values for one boundary, which the text does not support.",
+    "cost_usd": 0.026087
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The general duty to make an entry for every primary document within two working days and the right not to enter a document whose reliability the accountant doubts are a general rule and a narrower rule for a special case. The instruction says not to report this pattern, even when the exception is not marked. The document also links them: the deadline for a document for which an explanation was requested runs from the day the explanation or the director's decision arrives, so withholding the entry fits the overall procedure. It could look like a real defect because the duty says \"кожним\" (every) document, but under the instruction's rules the narrower rule governs its own case.",
+    "cost_usd": 0.027078
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 1 defines a system to include devices and network services. Section 2 has owners and alternate owners appointed only \"for every application and every database\". Yet section 4 requires a system owner's second decision for every access request, and section 6 sends review lists to \"the system owner and the alternate owner of each system\". For a device or network service no owner exists, so the reader cannot obey sections 4 and 6 in that case. The other verdict is possible because section 2 does not forbid owners for devices, so this could be read as a gap rather than a strict contradiction; but no passage provides owners for them, which makes the conflict real.",
+    "cost_usd": 0.026034
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The finding quotes only one sentence: \"Only the final result is rounded up, to the nearest half day.\" This reads naturally as one rule: round upward to the next half-day step, so \"to the nearest half day\" names the unit of rounding, not a second rounding method. No second passage gives a different rounding rule, so there are not two passages that cannot both be true. One could argue the wording is loose and give `trap` as an excluded ambiguity, but the plain reading leaves no contradiction at all.",
+    "cost_usd": 0.023376
+  },
+  "U-05": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 1 lists acts (\"службові записки та акти\") among the internal documents that the standard numbers and registers. Section 2 says every number must contain a kind code, yet its code list ends at \"Службова записка має код «СЗ»\" and gives no code for acts. No reading lets a reader number an act in the required four-part format, so the scope and the code list conflict. One could instead call this a gap rather than a contradiction, but the document requires a code that it never supplies, so the reader cannot obey both rules.",
+    "cost_usd": 0.030986
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 3 ends the first band at \"2,000 euros inclusive\" and starts the second band only \"Above 2,500\", so a request of, say, 2,200 euros has no approver. Section 1 says the matrix applies to every spending request \"whatever the amount\", and section 2 defines the approver as the role this matrix names, so the band list breaks a rule the document itself sets. One could call this a gap rather than a contradiction, but the \"whatever the amount\" scope rule makes it a conflict between passages.",
+    "cost_usd": 0.012134
+  },
+  "U-07": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition section says duplicate copies of a record in the same form are not records and that \"this policy does not govern them.\" The destruction section says that \"the owner also erases or shreds every copy of it,\" which imposes a duty on exactly those same-form duplicates. The document marks no exception, so the policy breaks its own scope rule. One could read the copy duty as a narrower rule for a special case, but the first passage is an absolute statement that the policy does not govern duplicates, so that reading is weak.",
+    "cost_usd": 0.02713
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 1 puts acts (\"та акти\") among the internal documents that this standard numbers and registers. Section 2 says every number must contain a type code, but the list after \"Код виду визначають так:\" gives codes for only six types and none for acts. A reader who must number an act under section 1 cannot build a number that obeys section 2. Someone could call this a gap or missing information rather than a contradiction, because the code list does not say \"only these\", but the two required rules still cannot both be obeyed for an act.",
+    "cost_usd": 0.0166
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says an initiator is \"керівник структурного підрозділу або директор\". Nothing in the document says the financial manager cannot be the head of a structural unit, for example a finance unit. So the passage where the financial manager is the initiator of a request under 50 000 UAH can be true together with the definition. No passage expressly settles the financial manager's position, so a reader could still see a mismatch between the two passages, but a compatible reading exists, so this is at most an unclear point and not a contradiction.",
+    "cost_usd": 0.02754
+  },
+  "U-10": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 3 ends the first band at \"2,000 euros inclusive\" but starts the second band only \"Above 2,500\", so a request of 2,200 euros falls in no band and gets no approver. Section 1 says the matrix applies to every spending request \"whatever the amount\", and section 2 defines the approver as the role the matrix names, so the bands break the document's own rule. One could call this a gap (incompleteness) rather than a contradiction, because the two band lines alone can both be true. The conflict with section 1's \"whatever the amount\" and the two different boundary values make the contradiction reading the better-supported one.",
+    "cost_usd": 0.017138
+  },
+  "U-11": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The duty says the accountant enters a record for every primary document within two working days. The right says the accountant may decline to enter a record for a document whose reliability is doubtful. That right is a narrower rule for a special case, and the instruction says not to report such pairs even without an \"except\" mark. The document also ties doubt to a procedure: for a document where an explanation was requested, the two-day period counts from receipt of the explanation or the director's decision. A reader could still argue that \"кожним\" is absolute, but the special-case reading is better supported by the text.",
+    "cost_usd": 0.01242
+  },
+  "U-12": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "The definition section says duplicate copies of a record in the same form \"are not records, and this policy does not govern them.\" The destruction section then requires that \"the owner also erases or shreds every copy of it,\" and \"every copy\" includes those same-form duplicates. Obeying the second passage means the policy does govern duplicates, which breaks the first, and no passage marks the copy rule as an exception. A narrower reading is possible, where \"does not govern\" means only that duplicates get no retention period of their own, which would make this a wording ambiguity rather than a contradiction, but the plain text says the policy does not govern them at all.",
+    "cost_usd": 0.021228
+  },
+  "U-13": {
+    "ended": "done",
+    "verdict": "real defect",
+    "reason": "Section 1 puts acts («та акти») among the internal documents that this standard numbers and registers. Section 2 says every number must contain a kind code, but the code list covers only six kinds and gives none for acts. A registrar who must number an act therefore cannot build a valid number, so the scope rule and the number-format rule cannot both be obeyed. The quote «Документи інших видів… не нумерують» does not itself conflict, because acts are not an 'other kind'. One could also call this a gap rather than a contradiction, but the two rules cannot both be followed for acts.",
+    "cost_usd": 0.020696
+  }
+}

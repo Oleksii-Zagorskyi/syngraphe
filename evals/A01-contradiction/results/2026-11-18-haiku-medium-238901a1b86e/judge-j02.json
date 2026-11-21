@@ -1,0 +1,82 @@
+{
+  "U-07": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The definition says an initiator is a head of a structural unit or the director. It does not say the financial manager is neither. The financial manager can be the head of a finance unit, so the rule about a financial manager as initiator can fit the definition. The document never says the financial manager is not a unit head, so the two passages can both be true. The document does have other contradictions, such as quorum of four versus three members, but this finding does not report them.",
+    "cost_usd": 0.013465,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-01": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The right not to enter a record for a document the accountant doubts is a narrower rule for a special case. The general duty to record every document within two working days applies to the other cases. The document also deals with the doubtful case: the deadline for a document 'до якого запитано пояснення' runs from the day the first explanation, correction or director's decision is received, and a refusal goes up to the chief accountant and then the director. The instruction excludes a general rule paired with a narrower unmarked rule, so this is not a reportable contradiction.",
+    "cost_usd": 0.01432,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-03": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "Section 2 is a narrower rule for a special case: while the system administrator is standing in for the absent database administrator, he does not do the trial restore. Section 7 is the general rule that gives the monthly restore to the system administrator. The two apply to different situations, so a reader can obey both, and the instruction says not to report a narrower rule that applies only to its own case. The real problem here, if any, is a gap: no rule says who does the restore during such a stand-in period. That is a different kind of problem from a contradiction.",
+    "cost_usd": 0.014197,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-02": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "Section 7.4 loosely calls a meal, travel or accommodation a \"gift\", while Section 7.2 puts these under hospitality. A reader can obey both passages. Section 7.4 then requires every gift and all hospitality to be declared, and the sentence about naming the payer can be read as covering hospitality. Obeying one passage does not break the other. The problem is at most loose use of the term \"gift\", which fits a term with two meanings better than a contradiction.",
+    "cost_usd": 0.015584,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-04": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The two passages can both be obeyed: the monthly settlement report is defined as «звіт», and the quarterly report to the director is a separate document that the accountant simply also submits. Nothing forces a reader to break one passage to obey the other. If the problem is real at all, it is a term used with two meanings (a different kind), not a contradiction, and the quarterly text does not even clearly use the defined term as a conflicting rule.",
+    "cost_usd": 0.00378,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 0
+  },
+  "U-06": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The refusal rule requires the approver to record a decision within five working days. The silence rule only applies when no decision is recorded, so it is a fallback for an approver who fails to act. A reader who obeys the refusal rule records a refusal, and the deemed approval never triggers. Both passages can be obeyed together, so there is no contradiction. A deemed approval of a late request would only follow a breach of the approver's duty.",
+    "cost_usd": 0.014967,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-08": {
+    "ended": "done",
+    "verdict": "not a defect",
+    "reason": "The quoted self-approval ban sits in section 4, and section 5 says it applies to the finance director and chief executive \"instead of sections 3 and 4\". So the ban does not govern the finance director's requests, and section 8 does not break it. When the chief executive is absent, section 8 does let the finance director decide the finance director's own request up to 300,000 euros. That is a role approving its own act, which is circular authority, not a contradiction. A reader can obey every passage together, so the finding is not a contradiction.",
+    "cost_usd": 0.017382,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  },
+  "U-09": {
+    "ended": "done",
+    "verdict": "trap",
+    "reason": "The two passages apply to different cases. Section 2 is a narrower rule: a system administrator who is covering for the absent database administrator does not do the trial restore. Section 7 is the general rule for the system administrator in the normal case. A reader can obey both, because the system administrator does the restore except while covering for the database administrator. The real problem is that no rule says who does the restore in that covering case. That is a gap, not a contradiction, and the instruction excludes a narrower rule for a special case.",
+    "cost_usd": 0.007135,
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "prompt": "prompts/_judge/prompt-02.md",
+    "thinking_blocks": 1
+  }
+}

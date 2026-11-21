@@ -1,0 +1,96 @@
+case: case-013-en-it-access
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps: []
+  A02:
+    defects: []
+    traps: []
+  A03:
+    defects:
+    - id: A03-1
+      passages:
+      - A system is any application, database, device or network service that the Organisation operates or subscribes to.
+      - The Head of Information Technology appoints one system owner and one alternate owner for every application and every database and has the Service Desk enter those appointments in the access register.
+      - 'The system owner gives the second decision: whether the access level is appropriate for the system.'
+      note: The procedure covers every system, devices and network services among them, but only applications and databases get an owner, so a request for a device or a network service has no one to give the second decision and its access is never reviewed.
+    traps: []
+  A04:
+    defects: []
+    traps:
+    - id: A04-T1
+      passages:
+      - A role is the job position that an employee holds in the Organisation.
+      - When an employee changes role, the person who was the line manager before the change notifies the Service Desk no later than the day the change takes effect.
+      why: The word role could look like it also means an access level, but it is defined as a job position and used only in that meaning; an access level is never called a role.
+  A05:
+    defects:
+    - id: A05-1
+      passages:
+      - For a request made by the Chair of the Board, the Managing Director acts as the line manager.
+      - For a request made by the Managing Director, the Chair of the Board acts as the line manager.
+      note: The Chair of the Board gives the first decision on the Managing Director's requests and the Managing Director gives it on the Chair's, so each approves the other's access, although each line alone reads as a plain substitution.
+    traps:
+    - id: A05-T1
+      passages:
+      - A Service Desk administrator grants the access within two working days after the second decision is an approval.
+      - A Service Desk administrator does not grant access to himself or herself; another Service Desk administrator grants it.
+      why: Any administrator grants access, which looks to let an administrator grant their own, but the next line forbids it and names another Service Desk administrator as the one who grants.
+  A06:
+    defects:
+    - id: A06-1
+      passages:
+      - Each access request form is kept for two years after the access is granted or the request is refused.
+      - The requester submits an access request to the Service Desk on the access request form.
+      note: The forms must be kept for two years, and no line gives the keeping to the Service Desk, the requester or any other role; the Service Desk keeps the access register, not the forms.
+    traps: []
+residue:
+- id: R-1
+  heuristic: A03
+  passages:
+  - It applies to every employee of the Organisation and to every system.
+  - The line manager is the person to whom the requester reports.
+  - For a request made by the Managing Director, the Chair of the Board acts as the line manager.
+  - When an employee changes role, the person who was the line manager before the change notifies the Service Desk no later than the day the change takes effect.
+  confidence: 0.45
+  note: The Chair of the Board acts as the line manager only for a request, so nobody is named to notify the Service Desk when the Managing Director changes role (also readable as A06).
+- id: R-2
+  heuristic: A03
+  passages:
+  - The system owner does not review his or her own access; the alternate owner reviews it in the same way within the same fifteen working days.
+  - The Service Desk reports each list not returned in time to the alternate owner, who then completes that review within ten working days of the report.
+  confidence: 0.3
+  note: The only escalation of a late review goes to the alternate owner, so no rule handles a review that the alternate owner does not complete in time.
+- id: R-3
+  heuristic: A02
+  passages:
+  - A Service Desk administrator removes all access of that employee within one working day after the change takes effect and records the removal and its date in the access register.
+  - The employee requests the access needed for the new role under section 3.
+  - A Service Desk administrator grants the access within two working days after the second decision is an approval.
+  confidence: 0.4
+  note: 'The document does not say when the employee makes the request for the new role. If the request is made and granted before the change takes effect, one administrator reads "all access" literally and removes the new access too, and another reads it as the access of the old role and keeps the new access. Each believes that he or she obeys section 7, and the employee has or does not have the access. The readings come from the passages together, as the new A02 text requires. The reason for the low confidence: a reader can also say that "all" has one reading and that the result is only an awkward rule.'
+- id: R-4
+  heuristic: A03
+  passages:
+  - It applies to every employee of the Organisation and to every system.
+  - When an employee changes role, the person who was the line manager before the change notifies the Service Desk no later than the day the change takes effect.
+  - A Service Desk administrator removes all access of that employee within one working day after the change takes effect and records the removal and its date in the access register.
+  - The Head of Information Technology appoints one system owner and one alternate owner for every application and every database and has the Service Desk enter those appointments in the access register.
+  confidence: 0.3
+  note: A system owner or an alternate owner who changes role loses all access, and the document does not say whether the appointment continues or who gives the second decision and makes the review until a new appointment. This is close to R-1 in kind and is weaker than A03-1.
+- id: R-5
+  heuristic: A03
+  passages:
+  - The line manager decides first whether the access is needed for the requester's work.
+  - 'The system owner gives the second decision: whether the access level is appropriate for the system.'
+  - The Service Desk sends the request to the line manager on the working day it receives the request.
+  confidence: 0.25
+  note: Every step of the Service Desk has a time limit, and neither decision has one, so the document does not cover the request that nobody decides. A reviewer can also call this a missing detail and not a gap in the scope.
+- id: R-6
+  heuristic: A05
+  passages:
+  - The Head of Information Technology appoints one system owner and one alternate owner for every application and every database and has the Service Desk enter those appointments in the access register.
+  - 'The system owner gives the second decision: whether the access level is appropriate for the system.'
+  confidence: 0.15
+  note: The Head of Information Technology appoints the persons who give the second decision on his or her own requests. This is an appointer and an appointee, and not "A approves B, B approves A", so a heuristic should not report it. It is listed because a model can raise it as a false positive. It is a candidate for a trap of A05.

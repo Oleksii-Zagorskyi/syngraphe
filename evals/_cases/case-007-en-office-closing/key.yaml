@@ -1,0 +1,131 @@
+case: case-007-en-office-closing
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps:
+    - id: A01-T1
+      passages:
+      - The closing person carries out the steps below in the order written.
+      - '- Lights: the closing person switches off the lights in every room except the entrance hall.'
+      - '- Doors: the closing person switches off the entrance hall light, leaves through the main door within 60 seconds of setting the alarm and locks both its locks.'
+      why: One step leaves the entrance hall light on and a later step switches it off, and the steps run in the order written, so both statements are true.
+  A02:
+    defects:
+    - id: A02-1
+      passages:
+      - A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend.
+      - On a working day the closing person is the duty officer named for that day on the closing rota.
+      - Every person other than the duty officer leaves the office by 19:00 on a working day.
+      - The person who leaves when nobody else remains is the closing person.
+      note: On a working day with a person allowed to stay past 19:00, the duty officer closes by the rota, or the weekend rule applies and the last person to leave closes; the document does not say which governs, so the duty officer either waits or leaves the closing to the late worker.
+    traps: []
+  A03:
+    defects:
+    - id: A03-1
+      passages:
+      - This section applies to each step, other than the alarm step and the doors step, that cannot be completed.
+      - '- Doors: the closing person switches off the entrance hall light, leaves through the main door within 60 seconds of setting the alarm and locks both its locks.'
+      - This section applies to the alarm step when the panel does not show "Armed" after two attempts.
+      note: The checklist covers every closing, the fault section leaves the doors step out and the alarm section covers the alarm step only, so no rule says what the closing person does when the main door will not lock.
+    traps: []
+  A04:
+    defects: []
+    traps:
+    - id: A04-T1
+      passages:
+      - The closing person is the person who must close the office under the section "Who closes the office" or the section "Weekends and public holidays".
+      - The person who leaves when nobody else remains is the closing person.
+      why: 'The closing person is the duty officer on a working day and the last to leave on a weekend, but the definition names both ways, so the term has one meaning: the person who must close.'
+  A05:
+    defects: []
+    traps: []
+  A06:
+    defects: []
+    traps: []
+residue:
+- id: R-1
+  heuristic: A02
+  passages:
+  - On a day when the Office Manager is on leave or off sick, the Head of Operations takes the Office Manager's place in every rule of this checklist, as actor and as receiver of a report.
+  - The closing person completes the remaining steps, describes the fault in the closing log and reports it to the Office Manager by message before leaving the building.
+  - The Office Manager orders the repair on the next working day.
+  - The Office Manager orders the repair of the alarm on the next working day.
+  confidence: 0.45
+  note: The substitution is tied to one day and the fault rule spans two, so when the Office Manager is absent on only one of them, readers differ on who orders the repair.
+- id: R-2
+  heuristic: A02
+  passages:
+  - On a working day the closing person is the duty officer named for that day on the closing rota.
+  - If the duty officer has not come in that day, or leaves before the others, each person checks every room before leaving, and the person who finds nobody else is the closing person.
+  - Every person other than the duty officer leaves the office by 19:00 on a working day.
+  - The closing person starts the closing steps as soon as every other person has left.
+  confidence: 0.35
+  note: Three lines make the duty officer stay until every other person has left, and one provides for the duty officer leaving first without calling it a breach, so readers differ on whether the duty officer may go early.
+- id: R-3
+  heuristic: A03
+  passages:
+  - The closing person carries out the steps below in the order written.
+  - '- Keys: the closing person puts the office key in the key safe beside the main door and scrambles the code dial.'
+  - '- Closing log: the closing person writes the date, the time of closing and their own role in the closing log, which is kept in the key safe, and signs the entry.'
+  confidence: 0.25
+  note: The order written scrambles the dial before the closing log step, the log is kept in the key safe, and no step secures the safe again.
+- id: R-4
+  heuristic: A03
+  passages:
+  - '- Windows: the closing person closes and latches every window and checks that the rear door is bolted.'
+  confidence: 0.25
+  note: The step tells the closing person to check the rear door and not to bolt it, and no rule says what follows when the check finds it not bolted.
+- id: R-5
+  heuristic: A03
+  passages:
+  - On a day when the Office Manager is on leave or off sick, the Head of Operations takes the Office Manager's place in every rule of this checklist, as actor and as receiver of a report.
+  - The Office Manager publishes the closing rota for each month no later than the last working day of the month before.
+  confidence: 0.2
+  note: The document provides one substitute and no rule for a day when both the Office Manager and the Head of Operations are absent.
+- id: R-6
+  heuristic: A02
+  passages:
+  - The closing person carries out the steps below in the order written.
+  - '- Doors: the closing person switches off the entrance hall light, leaves through the main door within 60 seconds of setting the alarm and locks both its locks.'
+  - '- Closing log: the closing person writes the date, the time of closing and their own role in the closing log, which is kept in the key safe, and signs the entry.'
+  - The closing person completes the remaining steps, describes the fault in the closing log and reports it to the Office Manager by message before leaving the building.
+  - In both cases the closing person reports the alarm fault to the Office Manager by message before leaving the building.
+  confidence: 0.3
+  note: The document uses "the office" and "the building" and does not say if they are one place, so one reader sends the message before the alarm step (or inside the 60 seconds after a remote set) and another sends it at the key safe after locking the main door; the readings differ in sequence.
+- id: R-7
+  heuristic: A03
+  passages:
+  - This checklist governs the closing of the Organisation's office on every day, including weekends and public holidays, on which at least one person has entered it.
+  - On a working day the closing person is the duty officer named for that day on the closing rota.
+  - A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend.
+  confidence: 0.3
+  note: The rules for a working day cover the duty officer, the fallback and a person allowed to stay, and none says who closes after a person enters again once the duty officer has closed and left.
+- id: R-8
+  heuristic: A01
+  passages:
+  - If the duty officer has not come in that day, or leaves before the others, each person checks every room before leaving, and the person who finds nobody else is the closing person.
+  - Every person other than the duty officer leaves the office by 19:00 on a working day.
+  - The closing person starts the closing steps as soon as every other person has left.
+  confidence: 0.2
+  note: The fallback closing person is not the duty officer and must be out by 19:00, yet starts the steps only after the others leave, which they may do at 19:00. It fails only at the limit, so it is weak.
+- id: R-9
+  heuristic: A05
+  passages:
+  - A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend.
+  - The closing person completes the remaining steps, describes the fault in the closing log and reports it to the Office Manager by message before leaving the building.
+  confidence: 0.15
+  note: The Office Manager can be the person who stays or the closing person (fallback, weekend), and then allows their own stay or receives their own report. A report is not an approval, so it is weak.
+- id: R-10
+  heuristic: A03
+  passages:
+  - The Office Manager publishes the closing rota for each month no later than the last working day of the month before.
+  - If the duty officer has not come in that day, or leaves before the others, each person checks every room before leaving, and the person who finds nobody else is the closing person.
+  confidence: 0.15
+  note: The fallback presupposes a named duty officer; a careful reader still applies it by analogy, so it is weak.
+- id: R-11
+  heuristic: A06
+  passages:
+  - '- Windows: the closing person closes and latches every window and checks that the rear door is bolted.'
+  confidence: 0.2
+  note: The bolting of the rear door is required and no person is assigned to do it; the same lines as R-4, under A06.

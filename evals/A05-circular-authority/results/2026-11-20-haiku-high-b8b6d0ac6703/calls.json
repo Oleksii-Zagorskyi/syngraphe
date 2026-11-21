@@ -1,0 +1,4211 @@
+[
+  {
+    "run": 1,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-001-en-travel-expenses/A05",
+    "ended": "done",
+    "cost_usd": 0.000633,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 769,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1476
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "03a9c246d820afde215e8080f470dab1",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWePDntwg755U4K7W",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-002-uk-procurement-committee/A05",
+    "ended": "done",
+    "cost_usd": 0.003687,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 6440,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3223
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A05-1",
+        "A05-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Фінансовий менеджер і директор погоджують заявки один одного",
+          "quotes": 4,
+          "language_ok": true,
+          "lines": [
+            10,
+            27,
+            31,
+            32
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-2"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Директор фактично погоджує власну заявку через Комітет",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            27,
+            34,
+            36
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e02a8fbf36d3a2f2750635c6713b82b7",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWhMxCkLx2Wb8zdLt",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 26.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Фінансовий менеджер і директор погоджують заявки один одного",
+          "explanation": "Директор як ініціатор може подати заявку менше 50 000 гривень фінансовому менеджеру, який її погоджує. Якщо ініціатор фінансовий менеджер, його заявку погоджує директор. Отже, кожен з них погоджує дії іншого, і для таких заявок немає незалежного погодження.",
+          "quotes": [
+            "Ініціатор — це керівник структурного підрозділу або директор, який подає заявку на закупівлю.",
+            "Ініціатор подає заявку очікуваною вартістю менше 50 000 гривень фінансовому менеджерові",
+            "Заявку очікуваною вартістю менше 50 000 гривень фінансовий менеджер погоджує або відхиляє протягом пʼяти робочих днів без участі Комітету.",
+            "Якщо ініціатором заявки очікуваною вартістю менше 50 000 гривень є фінансовий менеджер, він у день подання передає її директорові, який погоджує або відхиляє її протягом пʼяти робочих днів."
+          ]
+        },
+        {
+          "title": "Директор фактично погоджує власну заявку через Комітет",
+          "explanation": "Заявку директора на суму 50 000 гривень і більше розглядає Комітет. Заявку понад 1 000 000 гривень Комітет погоджує, але рішення набирає чинності лише після затвердження директором. Тому директор затверджує рішення Комітету щодо власної заявки і є останнім, хто її погоджує.",
+          "quotes": [
+            "а заявку очікуваною вартістю 50 000 гривень або більше — секретареві.",
+            "Заявку очікуваною вартістю понад 1 000 000 гривень погоджує або відхиляє Комітет, а його рішення про погодження набирає чинності лише після затвердження директором.",
+            "Директор затверджує або скасовує рішення Комітету про погодження закупівлі очікуваною вартістю понад 1 000 000 гривень протягом пʼяти робочих днів після отримання протоколу."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-003-en-onboarding/A05",
+    "ended": "done",
+    "cost_usd": 0.001177,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1669,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2234
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "4f91178919ee2606aca5aef5657912fd",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWburmws6tmA7U4wd",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-004-uk-window-timber-wall/A05",
+    "ended": "done",
+    "cost_usd": 0.001288,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 1618,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3315
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "6b1f22f50c2d788863fc4ce6277c9912",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWcQyKscUbokvbghp",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-005-en-spending-authority/A05",
+    "ended": "done",
+    "cost_usd": 0.002631,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 4548,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2344
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The finance director can end up deciding its own spending request when the chief executive is absent.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            44,
+            67
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "The finance director and the chief executive can pass the same request back and forth through absence rules.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            28,
+            66,
+            67
+          ],
+          "verdict": "duplicate",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 1,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8fc16e31b0e19c0b66c0548ffef159a3",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWcAN6xGbpgmUGFBW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 19.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "The finance director can end up deciding its own spending request when the chief executive is absent.",
+          "explanation": "Under section 5, the chief executive approves a finance director request of up to 300,000 euros. Section 8 then says that when the chief executive is absent, the finance director decides each request the chief executive approves. A finance director request in that range therefore goes back to the finance director, which is the same role approving its own act.",
+          "quotes": [
+            "The chief executive approves a spending request by the finance director of up to 300,000 euros inclusive.",
+            "When the chief executive is absent, the finance director decides each spending request that the chief executive approves"
+          ]
+        },
+        {
+          "title": "The finance director and the chief executive can pass the same request back and forth through absence rules.",
+          "explanation": "A request in the 15,000 to 75,000 euro band is normally decided by the finance director. If the finance director is absent, section 8 gives the decision to the chief executive as the next role above. If the chief executive is also absent, the rule for the chief executive gives the request back to the finance director, so the two roles approve each other's acts in a loop. The board, which the document names as the final fallback, is never reached.",
+          "quotes": [
+            "Above 15,000 and up to 75,000 euros inclusive, the approver is the finance director.",
+            "Where the approver is absent, the role next above the approver's role in the order in section 3 decides instead.",
+            "When the chief executive is absent, the finance director decides each spending request that the chief executive approves"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-006-uk-accountant-job/A05",
+    "ended": "done",
+    "cost_usd": 0.001661,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2356,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3353
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "c17d519d36c34f37c5935cb58b9381ce",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWetBLzyNzjD9KJDB",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-007-en-office-closing/A05",
+    "ended": "done",
+    "cost_usd": 0.003214,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 5733,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2267
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Head of Operations, standing in for the Office Manager, can approve its own stay past 19:00.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            25
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-5",
+            "R-7",
+            "R-9"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "The Office Manager can receive and order the repair of its own reported fault.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            24,
+            43,
+            44
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-6",
+            "R-9"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "b6d9445dc2a77f0602c139d2a07f9547",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWe99JF7SupwuRxsH",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 25.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Head of Operations, standing in for the Office Manager, can approve its own stay past 19:00.",
+          "explanation": "The stand-in rule makes the Head of Operations act in every rule as the Office Manager, including the rule that lets the Office Manager allow a person to stay past 19:00. The Head of Operations is itself a person who must leave by 19:00, so when it stands in, it can grant itself that exception. The same gap exists when the Office Manager is present and allows itself to stay. The document gives no other role that checks this grant.",
+          "quotes": [
+            "On a day when the Office Manager is on leave or off sick, the Head of Operations takes the Office Manager's place in every rule of this checklist, as actor and as receiver of a report.",
+            "A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend."
+          ]
+        },
+        {
+          "title": "The Office Manager can receive and order the repair of its own reported fault.",
+          "explanation": "On a weekend or public holiday, the Office Manager can be the closing person, because the person who leaves when nobody else remains is the closing person. That closing person reports the failed step to the Office Manager, and the Office Manager then orders the repair. The same role both requests and decides the repair of its own failure, and the Head of Operations has the same problem when it stands in. The alarm path has the same pattern.",
+          "quotes": [
+            "The person who leaves when nobody else remains is the closing person.",
+            "The closing person completes the remaining steps, describes the fault in the closing log and reports it to the Office Manager by message before leaving the building.",
+            "The Office Manager orders the repair on the next working day."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-008-uk-complaints/A05",
+    "ended": "done",
+    "cost_usd": 0.002307,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 3707,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3116
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "06ce0ae69162dbd04d307425435e1dfa",
+    "sent_at": "2026-11-20T14:08:00+00:00",
+    "request_id": "msg_011ChEJzWePmZ251zkNe9zFv",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-009-en-gifts",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-009-en-gifts/A05",
+    "ended": "done",
+    "cost_usd": 0.001428,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 2127,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2404
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Chief Executive and the Compliance Officer approve each other's gift and hospitality acts",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            6,
+            8,
+            39
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "2d8ef9f1fb563584f656fbcf28821399",
+    "sent_at": "2026-11-20T14:08:04+00:00",
+    "request_id": "msg_011ChEJzpn47LRBJ4mfqyieG",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Chief Executive and the Compliance Officer approve each other's gift and hospitality acts",
+          "explanation": "The Chief Executive acts in place of the Compliance Officer for the Compliance Officer's gifts and hospitality, so the Chief Executive approves those exception acts. Section 7 covers the Chief Executive as an employee, and the Compliance Officer approves that employee's exception requests under Section 7.5. The two roles therefore approve each other's acts, which is a mutual circle of authority.",
+          "quotes": [
+            "For a gift or hospitality that the Compliance Officer is offered, receives or gives, the Chief Executive acts in place of the Compliance Officer.",
+            "Section 7 applies to every employee of the Organisation, including the Chief Executive.",
+            "The Compliance Officer approves or refuses the request in writing within three working days."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-010-uk-forklift-safety/A05",
+    "ended": "done",
+    "cost_usd": 0.001216,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 1494,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3238
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "426171cc1f7f2ac0bd19c9cd8e353dc5",
+    "sent_at": "2026-11-20T14:08:08+00:00",
+    "request_id": "msg_011ChEK19AqgTkMeMPKb2UE8",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-011-en-records-retention/A05",
+    "ended": "done",
+    "cost_usd": 0.001275,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1828,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2375
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Records Manager and Legal Counsel approve each other's destruction proposals",
+          "quotes": 4,
+          "language_ok": true,
+          "lines": [
+            22,
+            25,
+            49,
+            52
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "34d2edcb33fc86501d0599ebbf3ce7cf",
+    "sent_at": "2026-11-20T14:08:08+00:00",
+    "request_id": "msg_011ChEK19L275yLfEqSkSCBC",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Records Manager and Legal Counsel approve each other's destruction proposals",
+          "explanation": "The Records Manager approves destruction proposals for contract records, which the Legal Counsel owns. The Legal Counsel approves destruction proposals for operational records of a closed unit, which the Records Manager owns. Each role therefore approves the other's acts, and no independent check exists between them for these records.",
+          "quotes": [
+            "Contract records are signed agreements with outside parties and their amendments, and the Legal Counsel owns them.",
+            "The Records Manager answers the proposal in writing within 10 calendar days.",
+            "The Records Manager owns the operational records of a unit that no longer exists.",
+            "For records that the Records Manager owns, the Legal Counsel answers the proposal instead of the Records Manager, under the same rules."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-012-uk-working-hours/A05",
+    "ended": "done",
+    "cost_usd": 0.001062,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 1321,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2698
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "190d4aa9078e0f4093565dbd2272eb57",
+    "sent_at": "2026-11-20T14:08:11+00:00",
+    "request_id": "msg_011ChEK1LUUyVXaHiVr1mkfa",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-013-en-it-access",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-013-en-it-access/A05",
+    "ended": "done",
+    "cost_usd": 0.001456,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 2179,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2425
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Managing Director and the Chair of the Board approve each other's access requests",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            17,
+            18,
+            34
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "023d7710d4a884d8895cad6d6297b906",
+    "sent_at": "2026-11-20T14:08:13+00:00",
+    "request_id": "msg_011ChEK1UMGF6qrFWGjNgFh1",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Managing Director and the Chair of the Board approve each other's access requests",
+          "explanation": "Section 2 makes the Chair of the Board the line manager for the Managing Director's requests, and the MD the line manager for the Chair's requests. Section 4 makes the line manager the first approver. So the Chair approves the MD's access, and the MD approves the Chair's access, which is a circle of approval between two roles.",
+          "quotes": [
+            "For a request made by the Managing Director, the Chair of the Board acts as the line manager.",
+            "For a request made by the Chair of the Board, the Managing Director acts as the line manager.",
+            "The line manager decides first whether the access is needed for the requester's work."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-014-uk-legal-department/A05",
+    "ended": "done",
+    "cost_usd": 0.003367,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 5794,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3244
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Начальник Відділу візує наказ, який стосується його особисто",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            22,
+            24,
+            27
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "351d0c72e2762ff23453185b0ad7a648",
+    "sent_at": "2026-11-20T14:08:15+00:00",
+    "request_id": "msg_011ChEK1fWiwppBTNUbaTQhz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 25.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Начальник Відділу візує наказ, який стосується його особисто",
+          "explanation": "Експертизу наказів про призначення, звільнення, заохочення та дисциплінарне стягнення директор проводить лише для працівників Відділу, крім начальника, тому наказ про начальника проходить правову експертизу в самому Відділі. Далі начальник Відділу, який є предметом наказу, сам його візує. Таким чином одна й та сама посадова особа перевіряє й схвалює акт про себе, а директор на цьому етапі не втручається.",
+          "quotes": [
+            "Правову експертизу проєктів наказів про призначення, звільнення, заохочення та дисциплінарне стягнення щодо працівників Відділу, крім начальника Відділу, замість Відділу проводить директор особисто.",
+            "Відділ проводить правову експертизу кожного проєкту договору та кожного проєкту наказу, який подає інший підрозділ Організації.",
+            "Якщо проєкт відповідає законодавству, начальник Відділу візує його."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-015-en-customer-letters/A05",
+    "ended": "done",
+    "cost_usd": 0.001141,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1598,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2228
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e504e278217b3135b23f37f926b5a4ed",
+    "sent_at": "2026-11-20T14:08:16+00:00",
+    "request_id": "msg_011ChEK1i41wbBwkz5Zuj1mF",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-016-uk-db-backup/A05",
+    "ended": "done",
+    "cost_usd": 0.002534,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 4152,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3151
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Адміністратор баз даних сам перевіряє копію, яку сам створив вручну",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            70,
+            71
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Системний адміністратор як заступник перевіряє власні копії",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            71
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "545cac580f1b83bb05e97aaa9a0a6a95",
+    "sent_at": "2026-11-20T14:08:16+00:00",
+    "request_id": "msg_011ChEK1jZJdVpqxWDXeNWH3",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Адміністратор баз даних сам перевіряє копію, яку сам створив вручну",
+          "explanation": "Адміністратор баз даних запускає завдання вручну, а потім сам перевіряє створену ним копію за розділом 5. Якщо копія проходить його ж перевірку, інша особа не залучається, і подальші дії не потрібні. Отже, один виконавець створює роботу і сам її приймає.",
+          "quotes": [
+            "Того самого дня адміністратор баз даних запускає завдання вручну і перевіряє створену копію способом, описаним у розділі 5.",
+            "Якщо копія, створена вручну, пройшла перевірку, подальші дії за цим розділом не потрібні."
+          ]
+        },
+        {
+          "title": "Системний адміністратор як заступник перевіряє власні копії",
+          "explanation": "Коли адміністратора баз даних немає, його обов’язки виконує системний адміністратор, а це включає перевірку за розділом 5. Він же створює копію вручну за розділом 8 і сам визнає її придатною, бо іншого перевіряльника немає. Так заступник приймає власну роботу, і це окремий шлях до самоперевірки.",
+          "quotes": [
+            "У разі відсутності адміністратора баз даних його обов’язки за цією Інструкцією виконує системний адміністратор.",
+            "Якщо копія, створена вручну, пройшла перевірку, подальші дії за цим розділом не потрібні."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-017-en-annual-leave/A05",
+    "ended": "done",
+    "cost_usd": 0.001157,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1614,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2291
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [],
+      "missed": [
+        "A05-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "55e11e9910254f418ddc0ca786a26a0e",
+    "sent_at": "2026-11-20T14:08:17+00:00",
+    "request_id": "msg_011ChEK1ngpB88yAQSJAdXL5",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-018-uk-document-numbering/A05",
+    "ended": "done",
+    "cost_usd": 0.00305,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 5191,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3121
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Виконавець сам підписує свій документ, і цього достатньо, щоб документ вважався підписаним",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            18,
+            44
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "54eb72f2999ec22d657c85853bcd484f",
+    "sent_at": "2026-11-20T14:08:19+00:00",
+    "request_id": "msg_011ChEK1yB72AciJuMgCzgFM",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 23.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Виконавець сам підписує свій документ, і цього достатньо, щоб документ вважався підписаним",
+          "explanation": "Виконавець є працівником, який готує документ і подає його на підпис. За правилом розділу 3 документ вважається підписаним, коли його підписав лише виконавець. Тобто виконавець сам схвалює власний документ, а реєстратор присвоює номер на підставі цього підпису. Це суперечить правилу про «останній потрібний підпис» у тому самому розділі.",
+          "quotes": [
+            "Документ вважається підписаним, коли його підписав виконавець.",
+            "Виконавцем є працівник, який подав документ на підпис."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-019-en-vehicles/A05",
+    "ended": "done",
+    "cost_usd": 0.002692,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 4620,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2545
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A05-1",
+        "A05-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Operations Director approves their own vehicle booking when the Fleet Manager is absent.",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            7,
+            14,
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "The Fleet Manager and the Operations Director approve each other's vehicle bookings.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            15,
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "68f8e9c7df1eb1ee33dd25b9f13df82a",
+    "sent_at": "2026-11-20T14:08:22+00:00",
+    "request_id": "msg_011ChEK28m4sBLEXcbFv91nJ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 19.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Operations Director approves their own vehicle booking when the Fleet Manager is absent.",
+          "explanation": "The Operations Director is an employee, so they may request a vehicle. When the Fleet Manager is absent, the Operations Director takes over the Fleet Manager's duties, including approving booking requests. The document has no rule that stops the Operations Director from approving their own request in this case, so they can approve their own act. The special rule for the Fleet Manager's own trips does not cover the Operations Director.",
+          "quotes": [
+            "When the Fleet Manager is absent, the Operations Director performs the Fleet Manager's duties.",
+            "The Fleet Manager approves or refuses each request before the requested start time.",
+            "It applies to every employee of the Organisation and to every such vehicle."
+          ]
+        },
+        {
+          "title": "The Fleet Manager and the Operations Director approve each other's vehicle bookings.",
+          "explanation": "The Fleet Manager approves booking requests from every authorised employee, and the Operations Director is one of them. When the Fleet Manager wants a vehicle, the Operations Director approves that booking instead. Each role therefore approves the other role's bookings, which forms a circle of approval.",
+          "quotes": [
+            "The Fleet Manager approves or refuses each request before the requested start time.",
+            "Where the Fleet Manager wishes to use a vehicle, the Operations Director performs, for that authorisation and that trip, every duty that sections 3, 4, 7, 8 and 9 give to the Fleet Manager."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-020-uk-stocktake/A05",
+    "ended": "done",
+    "cost_usd": 0.001623,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2330,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3147
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Голова комісії сам складає звіт і сам його затверджує, якщо директор відсутній",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            61,
+            67
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "d1640bf290aec18869568f5b61af884e",
+    "sent_at": "2026-11-20T14:08:23+00:00",
+    "request_id": "msg_011ChEK2EbYyM8QfoP63axZ7",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Голова комісії сам складає звіт і сам його затверджує, якщо директор відсутній",
+          "explanation": "Голова комісії складає звіт про інвентаризацію і підписує його разом із членами комісії. Якщо директор відсутній, той самий голова затверджує цей звіт і ухвалює рішення щодо кожної розбіжності, тобто затверджує власний акт. Цей звіт ніхто інший не перевіряє, тому контролю немає.",
+          "quotes": [
+            "Голова комісії складає звіт про інвентаризацію протягом пʼяти робочих днів після завершення підрахунку.",
+            "Якщо директор відсутній, звіт затверджує і рішення щодо кожної розбіжності ухвалює голова комісії."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run1/case-021-en-lab-spill/A05",
+    "ended": "done",
+    "cost_usd": 0.000908,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1064,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2501
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "82d016366c51be0a765bdb5ee45fe85b",
+    "sent_at": "2026-11-20T14:08:25+00:00",
+    "request_id": "msg_011ChEK2MMbKgc9GDuV7L24y",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-001-en-travel-expenses/A05",
+    "ended": "done",
+    "cost_usd": 0.000377,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 597,
+      "cache_read_input_tokens": 1476,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "03a9c246d820afde215e8080f470dab1",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3gbGZV7WvYxNLv7D3",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 3.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-002-uk-procurement-committee/A05",
+    "ended": "done",
+    "cost_usd": 0.003101,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 6009,
+      "cache_read_input_tokens": 3223,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A05-1",
+        "A05-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Директор фактично погоджує власну заявку понад 1 000 000 гривень через Комітет",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            10,
+            34,
+            36
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Директор сам погоджує власну заявку, якщо немає кворуму",
+          "quotes": 4,
+          "language_ok": true,
+          "lines": [
+            10,
+            27,
+            58,
+            59
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e02a8fbf36d3a2f2750635c6713b82b7",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3ggDeFo6HSA9qVe1c",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 25.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Директор фактично погоджує власну заявку понад 1 000 000 гривень через Комітет",
+          "explanation": "Директор може бути ініціатором заявки, і така заявка подається секретареві та розглядається Комітетом. Рішення Комітету про погодження понад 1 000 000 гривень набирає чинності лише після затвердження директором. Таким чином директор є останньою інстанцією щодо власної заявки, тобто ланцюг замикається на тій самій посаді.",
+          "quotes": [
+            "Ініціатор — це керівник структурного підрозділу або директор, який подає заявку на закупівлю.",
+            "Заявку очікуваною вартістю понад 1 000 000 гривень погоджує або відхиляє Комітет, а його рішення про погодження набирає чинності лише після затвердження директором.",
+            "Директор затверджує або скасовує рішення Комітету про погодження закупівлі очікуваною вартістю понад 1 000 000 гривень протягом пʼяти робочих днів після отримання протоколу."
+          ]
+        },
+        {
+          "title": "Директор сам погоджує власну заявку, якщо немає кворуму",
+          "explanation": "Заявку на 50 000 гривень і більше ініціатор подає секретареві, а не фінансовому менеджеру. Якщо кворуму немає, заявку передають директорові, який погоджує або відхиляє її замість Комітету. Якщо ініціатором є сам директор, він ухвалює рішення щодо власної заявки, і це порушує принцип, за яким рішення ухвалює інша посада.",
+          "quotes": [
+            "Ініціатор — це керівник структурного підрозділу або директор, який подає заявку на закупівлю.",
+            "Ініціатор подає заявку очікуваною вартістю менше 50 000 гривень фінансовому менеджерові, а заявку очікуваною вартістю 50 000 гривень або більше — секретареві.",
+            "Якщо кворуму щодо питання немає з будь-якої причини, виконавець обовʼязків секретаря протягом двох робочих днів після засідання передає заявку директорові.",
+            "Директор протягом пʼяти робочих днів погоджує або відхиляє цю заявку замість Комітету незалежно від її очікуваної вартості."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-003-en-onboarding/A05",
+    "ended": "done",
+    "cost_usd": 0.000988,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1804,
+      "cache_read_input_tokens": 2234,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Head of HR both owns the procedure and reviews it, so the role checks its own work.",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            26
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-7"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "4f91178919ee2606aca5aef5657912fd",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3gfyfVNd6HMH3zjSG",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Head of HR both owns the procedure and reviews it, so the role checks its own work.",
+          "explanation": "The Head of HR is the owner of this procedure and is also the role that reviews it. The same role therefore checks its own act, with no separate reviewer. A review by a different role, or by a role above the owner, would give an independent check.",
+          "quotes": [
+            "The Head of HR owns this procedure and reviews it once every calendar year."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-004-uk-window-timber-wall/A05",
+    "ended": "done",
+    "cost_usd": 0.000692,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 1189,
+      "cache_read_input_tokens": 3315,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "6b1f22f50c2d788863fc4ce6277c9912",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3gihP2agmFwG2sfHx",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-005-en-spending-authority/A05",
+    "ended": "done",
+    "cost_usd": 0.001222,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 2269,
+      "cache_read_input_tokens": 2344,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Finance director can decide its own spending request when the chief executive is absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            44,
+            67
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8fc16e31b0e19c0b66c0548ffef159a3",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3gcknKXJ4ftvrp7qJ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Finance director can decide its own spending request when the chief executive is absent",
+          "explanation": "Under section 5 the chief executive approves the finance director's spending requests up to 300,000 euros. Under section 8, when the chief executive is absent, the finance director decides each request the chief executive approves, so the finance director decides its own request. The document does not stop a requester from approving its own request in this case, which makes the authority circular.",
+          "quotes": [
+            "The chief executive approves a spending request by the finance director of up to 300,000 euros inclusive.",
+            "the finance director decides each spending request that the chief executive approves"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-006-uk-accountant-job/A05",
+    "ended": "done",
+    "cost_usd": 0.001126,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2056,
+      "cache_read_input_tokens": 3353,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "c17d519d36c34f37c5935cb58b9381ce",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3gez8vDXPtzcSdo6A",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.7,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-007-en-office-closing/A05",
+    "ended": "done",
+    "cost_usd": 0.001713,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 3253,
+      "cache_read_input_tokens": 2267,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Office Manager can give permission to stay past 19:00 to themselves",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            25
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-2",
+            "R-7",
+            "R-8",
+            "R-9"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "The Head of Operations can give permission to stay past 19:00 to themselves when standing in for the Office Manager",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            25
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-5",
+            "R-7",
+            "R-9"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "b6d9445dc2a77f0602c139d2a07f9547",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3gkBb5GGBofRmzLyW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Office Manager can give permission to stay past 19:00 to themselves",
+          "explanation": "Every person other than the duty officer must leave by 19:00, and only the Office Manager can allow someone to stay later. Nothing bars the Office Manager from being the person allowed to stay, so the Office Manager approves their own late stay. The document only restricts the duty officer role, so this self-approval is not blocked.",
+          "quotes": [
+            "Every person other than the duty officer leaves the office by 19:00 on a working day.",
+            "A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend."
+          ]
+        },
+        {
+          "title": "The Head of Operations can give permission to stay past 19:00 to themselves when standing in for the Office Manager",
+          "explanation": "When the Office Manager is absent, the Head of Operations takes the Office Manager's place as actor in every rule. That makes the Head of Operations the one who allows a person to stay past 19:00. Nothing stops the Head of Operations from allowing their own late stay, so the same role both grants and uses the permission.",
+          "quotes": [
+            "On a day when the Office Manager is on leave or off sick, the Head of Operations takes the Office Manager's place in every rule of this checklist, as actor and as receiver of a report.",
+            "A person whom the Office Manager allows to stay past 19:00 on a working day closes the office as on a weekend."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-008-uk-complaints/A05",
+    "ended": "done",
+    "cost_usd": 0.002643,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 5096,
+      "cache_read_input_tokens": 3116,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "06ce0ae69162dbd04d307425435e1dfa",
+    "sent_at": "2026-11-20T14:08:43+00:00",
+    "request_id": "msg_011ChEK3gkSQVWh7jdbrauPW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-009-en-gifts",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-009-en-gifts/A05",
+    "ended": "done",
+    "cost_usd": 0.001887,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 3599,
+      "cache_read_input_tokens": 2404,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Chief Executive and Compliance Officer approve each other's requests for exceptions",
+          "quotes": 4,
+          "language_ok": true,
+          "lines": [
+            6,
+            8,
+            38,
+            39
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "2d8ef9f1fb563584f656fbcf28821399",
+    "sent_at": "2026-11-20T14:08:46+00:00",
+    "request_id": "msg_011ChEK3vXuU4r8JC8B8zAre",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Chief Executive and Compliance Officer approve each other's requests for exceptions",
+          "explanation": "Under the scope rule, the Chief Executive acts in place of the Compliance Officer for gifts and hospitality that the Compliance Officer offers, receives or gives, so the Chief Executive approves the Compliance Officer's exception requests. The exception procedure applies to every employee, including the Chief Executive, and sends each employee's request to the Compliance Officer, so the Compliance Officer approves the Chief Executive's requests. The two roles therefore approve each other's acts, and no independent check exists for either.",
+          "quotes": [
+            "For a gift or hospitality that the Compliance Officer is offered, receives or gives, the Chief Executive acts in place of the Compliance Officer.",
+            "Section 7 applies to every employee of the Organisation, including the Chief Executive.",
+            "An employee who wishes to accept or give a gift or hospitality above its limit sends a written request to the Compliance Officer beforehand.",
+            "The Compliance Officer approves or refuses the request in writing within three working days."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-010-uk-forklift-safety/A05",
+    "ended": "done",
+    "cost_usd": 0.000764,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 1334,
+      "cache_read_input_tokens": 3238,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "426171cc1f7f2ac0bd19c9cd8e353dc5",
+    "sent_at": "2026-11-20T14:08:49+00:00",
+    "request_id": "msg_011ChEK4Atrs4mGGZLpSPjGk",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-011-en-records-retention/A05",
+    "ended": "done",
+    "cost_usd": 0.001194,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 2213,
+      "cache_read_input_tokens": 2375,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [],
+      "missed": [
+        "A05-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "34d2edcb33fc86501d0599ebbf3ce7cf",
+    "sent_at": "2026-11-20T14:08:51+00:00",
+    "request_id": "msg_011ChEK4KMbzBirqQNaJbZmW",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.1,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-012-uk-working-hours/A05",
+    "ended": "done",
+    "cost_usd": 0.000402,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 622,
+      "cache_read_input_tokens": 2698,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "190d4aa9078e0f4093565dbd2272eb57",
+    "sent_at": "2026-11-20T14:08:52+00:00",
+    "request_id": "msg_011ChEK4QNUoKR7vREzkJS9d",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 3.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-013-en-it-access",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-013-en-it-access/A05",
+    "ended": "done",
+    "cost_usd": 0.000937,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1699,
+      "cache_read_input_tokens": 2425,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Chair of the Board and the Managing Director each approve the other's access requests as line manager.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            18
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "023d7710d4a884d8895cad6d6297b906",
+    "sent_at": "2026-11-20T14:08:53+00:00",
+    "request_id": "msg_011ChEK4UJMoZQCyY4cNyEvs",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Chair of the Board and the Managing Director each approve the other's access requests as line manager.",
+          "explanation": "Under section 2, the Chair of the Board acts as line manager for requests made by the Managing Director, and the Managing Director acts as line manager for requests made by the Chair. Each role therefore approves the acts of the other, and the circle has no independent approver. Section 4 gives the alternate owner a second-decision role for the system owner's case, but it does not cover the line manager decision for these two roles.",
+          "quotes": [
+            "For a request made by the Managing Director, the Chair of the Board acts as the line manager.",
+            "For a request made by the Chair of the Board, the Managing Director acts as the line manager."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-014-uk-legal-department/A05",
+    "ended": "done",
+    "cost_usd": 0.001531,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2869,
+      "cache_read_input_tokens": 3244,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [],
+      "missed": [
+        "A05-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "351d0c72e2762ff23453185b0ad7a648",
+    "sent_at": "2026-11-20T14:08:56+00:00",
+    "request_id": "msg_011ChEK4f6WKfivzmkMvqkvA",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-015-en-customer-letters/A05",
+    "ended": "done",
+    "cost_usd": 0.001709,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 3247,
+      "cache_read_input_tokens": 2228,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e504e278217b3135b23f37f926b5a4ed",
+    "sent_at": "2026-11-20T14:08:56+00:00",
+    "request_id": "msg_011ChEK4fEgwsYA2BxfKRC87",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-016-uk-db-backup/A05",
+    "ended": "done",
+    "cost_usd": 0.002902,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 5613,
+      "cache_read_input_tokens": 3151,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Адміністратор баз даних сам створює резервну копію і сам її перевіряє",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            15,
+            41
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-4"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Адміністратор баз даних сам перевіряє копію, створену вручну після збою, і сам вирішує, чи потрібні подальші дії",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            70,
+            71
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "Системний адміністратор, який замінює адміністратора баз даних, перевіряє власні копії",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            17
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-4"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 3,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "545cac580f1b83bb05e97aaa9a0a6a95",
+    "sent_at": "2026-11-20T14:08:57+00:00",
+    "request_id": "msg_011ChEK4meegyQ3HZAVQZjFC",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Адміністратор баз даних сам створює резервну копію і сам її перевіряє",
+          "explanation": "Згідно з розділом 2 резервне копіювання виконує адміністратор баз даних, а автоматичне завдання він налаштовує і підтримує (розділ 3). Той самий адміністратор за розділом 5 перевіряє кожну копію і записує результат у журнал. Отже, одна роль створює і перевіряє власний результат, і жоден інший працівник не контролює цю перевірку.",
+          "quotes": [
+            "Резервне копіювання виконує адміністратор баз даних.",
+            "Адміністратор баз даних перевіряє кожну резервну копію до 10:00 наступного робочого дня після її створення."
+          ]
+        },
+        {
+          "title": "Адміністратор баз даних сам перевіряє копію, створену вручну після збою, і сам вирішує, чи потрібні подальші дії",
+          "explanation": "За розділом 8 адміністратор баз даних запускає завдання вручну, сам перевіряє створену копію і, якщо вона пройшла перевірку, подальші дії не потрібні. Тобто та сама роль створює копію, перевіряє її і сама закриває справу про збій, без жодного іншого погодження. Це прямий приклад того, що роль схвалює власний акт.",
+          "quotes": [
+            "Того самого дня адміністратор баз даних запускає завдання вручну і перевіряє створену копію способом, описаним у розділі 5.",
+            "Якщо копія, створена вручну, пройшла перевірку, подальші дії за цим розділом не потрібні."
+          ]
+        },
+        {
+          "title": "Системний адміністратор, який замінює адміністратора баз даних, перевіряє власні копії",
+          "explanation": "Коли адміністратора баз даних немає, його обов’язки за Інструкцією виконує системний адміністратор. Заборона на пробне відновлення стосується лише розділу 7, а перевірка копій за розділом 5 не виключена. Тому системний адміністратор створює копію і сам її перевіряє, тобто схвалює власний акт.",
+          "quotes": [
+            "У разі відсутності адміністратора баз даних його обов’язки за цією Інструкцією виконує системний адміністратор.",
+            "Системний адміністратор, який виконує обов’язки відсутнього адміністратора баз даних, не виконує пробного відновлення."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-017-en-annual-leave/A05",
+    "ended": "done",
+    "cost_usd": 0.001379,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 2584,
+      "cache_read_input_tokens": 2291,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Head of People may decide its own leave request when its line manager is absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            42
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "55e11e9910254f418ddc0ca786a26a0e",
+    "sent_at": "2026-11-20T14:09:01+00:00",
+    "request_id": "msg_011ChEK515Hkx1G6WGK9Mbxw",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Head of People may decide its own leave request when its line manager is absent",
+          "explanation": "The Head of People is the stand-in approver for any request when the line manager is absent. The document does not name a line manager for the Head of People, and it does not exclude the Head of People's own requests from this rule. So the Head of People could approve its own leave request through the stand-in path. The reader cannot tell who, if anyone, checks that approval.",
+          "quotes": [
+            "When the line manager is absent, the Head of People decides the request instead.",
+            "The line manager of the employee decides each request."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-018-uk-document-numbering/A05",
+    "ended": "done",
+    "cost_usd": 0.002586,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 4981,
+      "cache_read_input_tokens": 3121,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Виконавець фактично затверджує власний документ",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            18,
+            44
+          ],
+          "verdict": "unmatched"
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 1,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "54eb72f2999ec22d657c85853bcd484f",
+    "sent_at": "2026-11-20T14:09:01+00:00",
+    "request_id": "msg_011ChEK532cKmzmRSfQNzczk",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Виконавець фактично затверджує власний документ",
+          "explanation": "Згідно з документом, виконавець є працівником, який подав документ на підпис, а документ вважається підписаним, коли його підписав саме виконавець. Отже, та сама роль створює документ і сама дає останній підпис, який робить документ придатним до присвоєння номера. Інших підписів, які б перевіряли цю дію, у тексті не вказано.",
+          "quotes": [
+            "Виконавцем є працівник, який подав документ на підпис.",
+            "Документ вважається підписаним, коли його підписав виконавець."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-019-en-vehicles/A05",
+    "ended": "done",
+    "cost_usd": 0.000886,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1593,
+      "cache_read_input_tokens": 2545,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [],
+      "missed": [
+        "A05-2",
+        "A05-1"
+      ],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "68f8e9c7df1eb1ee33dd25b9f13df82a",
+    "sent_at": "2026-11-20T14:09:01+00:00",
+    "request_id": "msg_011ChEK54faaBA61YAGUimnd",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.0,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-020-uk-stocktake/A05",
+    "ended": "done",
+    "cost_usd": 0.001473,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2754,
+      "cache_read_input_tokens": 3147,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Голова комісії затверджує власний звіт, коли директор відсутній",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            61,
+            67
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "d1640bf290aec18869568f5b61af884e",
+    "sent_at": "2026-11-20T14:09:04+00:00",
+    "request_id": "msg_011ChEK5G4C5xAUCEvHLyJpj",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Голова комісії затверджує власний звіт, коли директор відсутній",
+          "explanation": "Голова комісії складає звіт про інвентаризацію і сам визначає розбіжності та рішення щодо них. Коли директор відсутній, той самий голова затверджує цей звіт і ухвалює рішення щодо кожної розбіжності. Таким чином орган затверджує власну роботу без незалежної перевірки, що суперечить принципу розділення повноважень.",
+          "quotes": [
+            "Голова комісії складає звіт про інвентаризацію протягом пʼяти робочих днів після завершення підрахунку.",
+            "Якщо директор відсутній, звіт затверджує і рішення щодо кожної розбіжності ухвалює голова комісії."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run2/case-021-en-lab-spill/A05",
+    "ended": "done",
+    "cost_usd": 0.000403,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 628,
+      "cache_read_input_tokens": 2501,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "82d016366c51be0a765bdb5ee45fe85b",
+    "sent_at": "2026-11-20T14:09:08+00:00",
+    "request_id": "msg_011ChEK5ZLkud9FUVCSPhvHz",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 2.8,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-001-en-travel-expenses",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-001-en-travel-expenses/A05",
+    "ended": "done",
+    "cost_usd": 0.000479,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 802,
+      "cache_read_input_tokens": 1476,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "03a9c246d820afde215e8080f470dab1",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6enD1m1NqUt6DwDyd",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.3,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-002-uk-procurement-committee",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-002-uk-procurement-committee/A05",
+    "ended": "done",
+    "cost_usd": 0.002467,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 4742,
+      "cache_read_input_tokens": 3223,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A05-1",
+        "A05-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Директор може сам затвердити рішення про свою заявку понад 1 000 000 гривень",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            10,
+            36
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Фінансовий менеджер і директор погоджують заявки один одного",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            27,
+            32
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e02a8fbf36d3a2f2750635c6713b82b7",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6ejUXPcwrv2rHe2is",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Директор може сам затвердити рішення про свою заявку понад 1 000 000 гривень",
+          "explanation": "Директор може бути ініціатором заявки. Якщо заявка понад 1 000 000 гривень подана ним, Комітет лише погоджує її, а затверджує рішення сам директор. Таким чином директор фактично затверджує власну заявку, і зовнішньої перевірки немає.",
+          "quotes": [
+            "Ініціатор — це керівник структурного підрозділу або директор, який подає заявку на закупівлю.",
+            "Директор затверджує або скасовує рішення Комітету про погодження закупівлі очікуваною вартістю понад 1 000 000 гривень протягом пʼяти робочих днів після отримання протоколу."
+          ]
+        },
+        {
+          "title": "Фінансовий менеджер і директор погоджують заявки один одного",
+          "explanation": "Заявки ініціатора до 50 000 гривень погоджує фінансовий менеджер, тому заявку директора погоджує саме він. Заявку самого фінансового менеджера погоджує директор. Два посадових діючих особи затверджують дії одна одної, тож цикл погодження замкнений.",
+          "quotes": [
+            "Ініціатор подає заявку очікуваною вартістю менше 50 000 гривень фінансовому менеджерові",
+            "Якщо ініціатором заявки очікуваною вартістю менше 50 000 гривень є фінансовий менеджер, він у день подання передає її директорові, який погоджує або відхиляє її протягом пʼяти робочих днів."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-003-en-onboarding",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-003-en-onboarding/A05",
+    "ended": "done",
+    "cost_usd": 0.000701,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1229,
+      "cache_read_input_tokens": 2234,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "4f91178919ee2606aca5aef5657912fd",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6ejypX6MvB6azacQ1",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-004-uk-window-timber-wall",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-004-uk-window-timber-wall/A05",
+    "ended": "done",
+    "cost_usd": 0.000443,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 692,
+      "cache_read_input_tokens": 3315,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "6b1f22f50c2d788863fc4ce6277c9912",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6eg1789mmL8LX4EL2",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-005-en-spending-authority",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-005-en-spending-authority/A05",
+    "ended": "done",
+    "cost_usd": 0.001387,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 2599,
+      "cache_read_input_tokens": 2344,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Finance director decides its own spending requests when the chief executive is absent",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            44,
+            67
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "8fc16e31b0e19c0b66c0548ffef159a3",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6eh18BgArcWTFvNma",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Finance director decides its own spending requests when the chief executive is absent",
+          "explanation": "Section 5 makes the chief executive the approver of the finance director's requests up to 300,000 euros. Section 8 then says that when the chief executive is absent, the finance director decides each request the chief executive approves. So for a finance director's own request up to 300,000 euros, the finance director is both the requester and the approver, which section 4 and the no-self-approval rule forbid.",
+          "quotes": [
+            "The chief executive approves a spending request by the finance director of up to 300,000 euros inclusive.",
+            "When the chief executive is absent, the finance director decides each spending request that the chief executive approves, instead of the board"
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-006-uk-accountant-job",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-006-uk-accountant-job/A05",
+    "ended": "done",
+    "cost_usd": 0.001374,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2553,
+      "cache_read_input_tokens": 3353,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "c17d519d36c34f37c5935cb58b9381ce",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6ehVe7PJygP3MPvDJ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.6,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-007-en-office-closing",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-007-en-office-closing/A05",
+    "ended": "done",
+    "cost_usd": 0.000788,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1404,
+      "cache_read_input_tokens": 2267,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "b6d9445dc2a77f0602c139d2a07f9547",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6ehFC1xy2nMuAWvNa",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 6.7,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-008-uk-complaints",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-008-uk-complaints/A05",
+    "ended": "done",
+    "cost_usd": 0.00155,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2909,
+      "cache_read_input_tokens": 3116,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "06ce0ae69162dbd04d307425435e1dfa",
+    "sent_at": "2026-11-20T14:09:23+00:00",
+    "request_id": "msg_011ChEK6emTYgCYCznnMCUf6",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.2,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-009-en-gifts",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-009-en-gifts/A05",
+    "ended": "done",
+    "cost_usd": 0.001063,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1950,
+      "cache_read_input_tokens": 2404,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Compliance Officer and Chief Executive approve each other's exception requests",
+          "quotes": 4,
+          "language_ok": true,
+          "lines": [
+            6,
+            8,
+            38,
+            39
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "2d8ef9f1fb563584f656fbcf28821399",
+    "sent_at": "2026-11-20T14:09:27+00:00",
+    "request_id": "msg_011ChEK6xgE2LzJjtrTRZaZD",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Compliance Officer and Chief Executive approve each other's exception requests",
+          "explanation": "The Chief Executive is an employee, so under Section 7.5 the Chief Executive sends exception requests to the Compliance Officer, who approves or refuses them. Under Section 7.1, for gifts and hospitality that the Compliance Officer is offered, receives or gives, the Chief Executive acts in place of the Compliance Officer and so decides those requests. Each role therefore approves the other's requests, which is a circular approval.",
+          "quotes": [
+            "Section 7 applies to every employee of the Organisation, including the Chief Executive.",
+            "For a gift or hospitality that the Compliance Officer is offered, receives or gives, the Chief Executive acts in place of the Compliance Officer.",
+            "An employee who wishes to accept or give a gift or hospitality above its limit sends a written request to the Compliance Officer beforehand.",
+            "The Compliance Officer approves or refuses the request in writing within three working days."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-010-uk-forklift-safety",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-010-uk-forklift-safety/A05",
+    "ended": "done",
+    "cost_usd": 0.000592,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 991,
+      "cache_read_input_tokens": 3238,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "426171cc1f7f2ac0bd19c9cd8e353dc5",
+    "sent_at": "2026-11-20T14:09:27+00:00",
+    "request_id": "msg_011ChEK6xy6VMHX3Hjhe9vxa",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 4.7,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-011-en-records-retention",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-011-en-records-retention/A05",
+    "ended": "done",
+    "cost_usd": 0.001768,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 3361,
+      "cache_read_input_tokens": 2375,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Records Manager and Legal Counsel approve each other's destruction proposals",
+          "quotes": 4,
+          "language_ok": true,
+          "lines": [
+            22,
+            25,
+            49,
+            52
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "34d2edcb33fc86501d0599ebbf3ce7cf",
+    "sent_at": "2026-11-20T14:09:29+00:00",
+    "request_id": "msg_011ChEK776V6YLceHogp16UG",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Records Manager and Legal Counsel approve each other's destruction proposals",
+          "explanation": "The Records Manager approves or refuses destruction proposals for contract records, which the Legal Counsel owns. The Legal Counsel approves destruction proposals for the Records Manager's own operational records of a defunct unit. Each role therefore approves acts of the other, which is a two-role loop. The acts concern different record types, but the arrangement still makes each role's approval depend on the other's.",
+          "quotes": [
+            "Contract records are signed agreements with outside parties and their amendments, and the Legal Counsel owns them.",
+            "The Records Manager answers the proposal in writing within 10 calendar days.",
+            "The Records Manager owns the operational records of a unit that no longer exists.",
+            "For records that the Records Manager owns, the Legal Counsel answers the proposal instead of the Records Manager, under the same rules."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-012-uk-working-hours",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-012-uk-working-hours/A05",
+    "ended": "done",
+    "cost_usd": 0.000431,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 680,
+      "cache_read_input_tokens": 2698,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "190d4aa9078e0f4093565dbd2272eb57",
+    "sent_at": "2026-11-20T14:09:30+00:00",
+    "request_id": "msg_011ChEK79KSLFAQysuNxY8UQ",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 3.9,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-013-en-it-access",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-013-en-it-access/A05",
+    "ended": "done",
+    "cost_usd": 0.001083,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1991,
+      "cache_read_input_tokens": 2425,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Managing Director and the Chair of the Board approve each other's access requests.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            17,
+            18
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "023d7710d4a884d8895cad6d6297b906",
+    "sent_at": "2026-11-20T14:09:32+00:00",
+    "request_id": "msg_011ChEK7K8J1ig52Mgjhb9Ct",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Managing Director and the Chair of the Board approve each other's access requests.",
+          "explanation": "Under this rule, the Chair of the Board is the line manager who makes the first decision on the Managing Director's access requests, and the Managing Director is the line manager who makes the first decision on the Chair's requests. Each role therefore approves the other's acts, which is a two-role circle of authority. The section does not name any role above either of them to break the circle.",
+          "quotes": [
+            "For a request made by the Managing Director, the Chair of the Board acts as the line manager.",
+            "For a request made by the Chair of the Board, the Managing Director acts as the line manager."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-014-uk-legal-department",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-014-uk-legal-department/A05",
+    "ended": "done",
+    "cost_usd": 0.002749,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 5305,
+      "cache_read_input_tokens": 3244,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Начальник Відділу перевіряє накази про власне призначення чи звільнення",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            22,
+            24,
+            27
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "351d0c72e2762ff23453185b0ad7a648",
+    "sent_at": "2026-11-20T14:09:34+00:00",
+    "request_id": "msg_011ChEK7RzHzb82oCPPFp3f2",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 23.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Начальник Відділу перевіряє накази про власне призначення чи звільнення",
+          "explanation": "Накази про призначення, звільнення, заохочення та стягнення щодо начальника Відділу виключені з направлення директору, на відміну від інших працівників Відділу. Тому такий проєкт, який подає інший підрозділ, наприклад відділ кадрів, за загальним правилом перевіряє Відділ, яким керує сам начальник, і він сам його візує. Це означає, що начальник погоджує акт, який стосується його самого, і жоден незалежний орган його не перевіряє.",
+          "quotes": [
+            "Правову експертизу проєктів наказів про призначення, звільнення, заохочення та дисциплінарне стягнення щодо працівників Відділу, крім начальника Відділу, замість Відділу проводить директор особисто.",
+            "Відділ проводить правову експертизу кожного проєкту договору та кожного проєкту наказу, який подає інший підрозділ Організації.",
+            "Якщо проєкт відповідає законодавству, начальник Відділу візує його."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-015-en-customer-letters",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-015-en-customer-letters/A05",
+    "ended": "done",
+    "cost_usd": 0.000865,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 1558,
+      "cache_read_input_tokens": 2228,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "e504e278217b3135b23f37f926b5a4ed",
+    "sent_at": "2026-11-20T14:09:34+00:00",
+    "request_id": "msg_011ChEK7VNC3SQBod9wxNWs5",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.4,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-016-uk-db-backup",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-016-uk-db-backup/A05",
+    "ended": "done",
+    "cost_usd": 0.003164,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 6136,
+      "cache_read_input_tokens": 3151,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Системний адміністратор, який заміняє адміністратора баз даних, сам створює копію і сам її перевіряє",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            16,
+            41
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-4"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Адміністратор баз даних сам перевіряє копію, яку запустив вручну",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            70,
+            71
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-5"
+          ]
+        },
+        {
+          "n": 3,
+          "title": "Адміністратор баз даних сам перевіряє позачергову копію, яку сам створив",
+          "quotes": 1,
+          "language_ok": true,
+          "lines": [
+            62
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 3,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "545cac580f1b83bb05e97aaa9a0a6a95",
+    "sent_at": "2026-11-20T14:09:34+00:00",
+    "request_id": "msg_011ChEK7W6qtZDAtgCQnFsvA",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 25.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Системний адміністратор, який заміняє адміністратора баз даних, сам створює копію і сам її перевіряє",
+          "explanation": "Коли адміністратор баз даних відсутній, системний адміністратор виконує його обов’язки, зокрема створює резервну копію. Перевірку копії за розділом 5 має робити адміністратор баз даних, а розділ 2 виключає з його обов’язків лише пробне відновлення. Тому системний адміністратор створює копію і сам її перевіряє, тобто схвалює власну роботу. Перевірка за розділом 5 не відокремлена від створення копії.",
+          "quotes": [
+            "У разі відсутності адміністратора баз даних його обов’язки за цією Інструкцією виконує системний адміністратор.",
+            "Адміністратор баз даних перевіряє кожну резервну копію до 10:00 наступного робочого дня після її створення."
+          ]
+        },
+        {
+          "title": "Адміністратор баз даних сам перевіряє копію, яку запустив вручну",
+          "explanation": "Адміністратор баз даних сам запускає завдання вручну, тобто створює копію. Потім він сам перевіряє цю копію. Від результату його перевірки залежить, чи потрібні подальші дії. Жодна інша посадова особа не схвалює результат його власної дії.",
+          "quotes": [
+            "Того самого дня адміністратор баз даних запускає завдання вручну і перевіряє створену копію способом, описаним у розділі 5.",
+            "Якщо копія, створена вручну, пройшла перевірку, подальші дії за цим розділом не потрібні."
+          ]
+        },
+        {
+          "title": "Адміністратор баз даних сам перевіряє позачергову копію, яку сам створив",
+          "explanation": "Після невдалого пробного відновлення адміністратор баз даних створює позачергову резервну копію. Той самий адміністратор перевіряє її за розділом 5. Таким чином одна посадова особа створює копію і сама визнає її придатною, без незалежного схвалення.",
+          "quotes": [
+            "У такому разі адміністратор баз даних того самого дня створює позачергову резервну копію і перевіряє її згідно з розділом 5."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-017-en-annual-leave",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-017-en-annual-leave/A05",
+    "ended": "done",
+    "cost_usd": 0.00134,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 2507,
+      "cache_read_input_tokens": 2291,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Head of People can approve their own leave request through the absence rule",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            39,
+            42
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "55e11e9910254f418ddc0ca786a26a0e",
+    "sent_at": "2026-11-20T14:09:35+00:00",
+    "request_id": "msg_011ChEK7YELpdrBCT5icHdmk",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Head of People can approve their own leave request through the absence rule",
+          "explanation": "The line manager decides each request, and when the line manager is absent the Head of People decides instead. If the Head of People submits a leave request and their own line manager is absent, the Head of People decides that request, so the role approves its own act. The document names no line manager for the Head of People and gives no other approver for this case.",
+          "quotes": [
+            "The line manager of the employee decides each request.",
+            "When the line manager is absent, the Head of People decides the request instead."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-018-uk-document-numbering",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-018-uk-document-numbering/A05",
+    "ended": "done",
+    "cost_usd": 0.002299,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 4407,
+      "cache_read_input_tokens": 3121,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Виконавець сам робить свій документ підписаним і тим самим отримує номер без інших підписів",
+          "quotes": 3,
+          "language_ok": true,
+          "lines": [
+            18,
+            43,
+            44
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-3"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Реєстратор сам вирішує, що його номер помилковий, і сам його анулює",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            42,
+            51
+          ],
+          "verdict": "unmatched",
+          "residue": [
+            "R-1",
+            "R-7",
+            "R-8"
+          ]
+        }
+      ],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 2,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 0.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "54eb72f2999ec22d657c85853bcd484f",
+    "sent_at": "2026-11-20T14:09:36+00:00",
+    "request_id": "msg_011ChEK7cuctoDeAYfbCEKak",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Виконавець сам робить свій документ підписаним і тим самим отримує номер без інших підписів",
+          "explanation": "Шлях такий: виконавець готує документ і подає його на підпис, а реєстратор присвоює номер лише підписаному документу. Правило каже, що документ вважається підписаним, коли його підписав виконавець, тобто автор сам робить свій акт завершеним. Підписи директора та керівників підрозділів у цьому разі не потрібні, хоча розділ 2 вимагає їх для документа з кількома підписантами.",
+          "quotes": [
+            "Документ вважається підписаним, коли його підписав виконавець.",
+            "Реєстратор не присвоює номер непідписаному документові.",
+            "Виконавцем є працівник, який подав документ на підпис."
+          ]
+        },
+        {
+          "title": "Реєстратор сам вирішує, що його номер помилковий, і сам його анулює",
+          "explanation": "Реєстратор присвоює номер, а потім сам вирішує, що номер присвоєно помилково, і сам ставить позначку «анульовано». Жодна інша посада не перевіряє і не затверджує це рішення, тому реєстратор ухвалює рішення щодо власного акта. Перевірка за розділом 4 діє лише для помилок, виявлених під час перевірки реєстрів.",
+          "quotes": [
+            "Якщо реєстратор присвоїв номер помилково, він ставить у записі позначку «анульовано».",
+            "Реєстратор присвоює наступний за порядком вільний номер."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-019-en-vehicles",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-019-en-vehicles/A05",
+    "ended": "done",
+    "cost_usd": 0.002723,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 5267,
+      "cache_read_input_tokens": 2545,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 2,
+      "defects_matched": [
+        "A05-1",
+        "A05-2"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "The Operations Director, standing in for the Fleet Manager, approves the Operations Director's own vehicle booking.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            14,
+            29
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        },
+        {
+          "n": 2,
+          "title": "The Fleet Manager approves their own private trip at a weekend.",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            15,
+            38
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-2"
+          ]
+        }
+      ],
+      "count": {
+        "match": 2,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "68f8e9c7df1eb1ee33dd25b9f13df82a",
+    "sent_at": "2026-11-20T14:09:40+00:00",
+    "request_id": "msg_011ChEK7wSMDejepJJMTaNUf",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "The Operations Director, standing in for the Fleet Manager, approves the Operations Director's own vehicle booking.",
+          "explanation": "When the Fleet Manager is absent, the Operations Director takes over the Fleet Manager's duties. Section 4 gives the Fleet Manager the approval of every booking request, and the Operations Director is an employee who may request a vehicle. The special hand-over in section 2 covers only the case where the Fleet Manager wishes to use a vehicle, so nothing stops the Operations Director from approving their own request while acting as Fleet Manager. The same gap lets the Operations Director authorise themselves under section 3.",
+          "quotes": [
+            "When the Fleet Manager is absent, the Operations Director performs the Fleet Manager's duties.",
+            "The Fleet Manager approves or refuses each request before the requested start time."
+          ]
+        },
+        {
+          "title": "The Fleet Manager approves their own private trip at a weekend.",
+          "explanation": "The Fleet Manager may approve a private trip at a weekend, and the Fleet Manager may also request a vehicle for such a trip. The hand-over in section 2 passes the Fleet Manager's booking approval to the Operations Director only for sections 3, 4, 7, 8 and 9, and leaves out section 5. The Fleet Manager therefore approves their own private-trip request, so the same role approves its own act.",
+          "quotes": [
+            "The Fleet Manager may approve a private trip at a weekend, and the driver then pays for its fuel personally.",
+            "Where the Fleet Manager wishes to use a vehicle, the Operations Director performs, for that authorisation and that trip, every duty that sections 3, 4, 7, 8 and 9 give to the Fleet Manager."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-020-uk-stocktake",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-020-uk-stocktake/A05",
+    "ended": "done",
+    "cost_usd": 0.001256,
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 2320,
+      "cache_read_input_tokens": 3147,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "uk",
+      "wrong_language": [],
+      "defects": 1,
+      "defects_matched": [
+        "A05-1"
+      ],
+      "missed": [],
+      "rows": [
+        {
+          "n": 1,
+          "title": "Голова комісії затверджує власний звіт, коли директор відсутній",
+          "quotes": 2,
+          "language_ok": true,
+          "lines": [
+            61,
+            67
+          ],
+          "verdict": "match",
+          "defects": [
+            "A05-1"
+          ]
+        }
+      ],
+      "count": {
+        "match": 1,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": 1.0,
+      "precision_if_unmatched_right": 1.0,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "d1640bf290aec18869568f5b61af884e",
+    "sent_at": "2026-11-20T14:09:42+00:00",
+    "request_id": "msg_011ChEK82oo43dCvvvonzAB4",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Голова комісії затверджує власний звіт, коли директор відсутній",
+          "explanation": "Голова комісії складає звіт про інвентаризацію і подає його директору. Якщо директор відсутній, той самий голова затверджує звіт і ухвалює рішення щодо кожної розбіжності. Так одна посада схвалює власний акт, а незалежна перевірка звіту й рішень зникає.",
+          "quotes": [
+            "Голова комісії складає звіт про інвентаризацію протягом пʼяти робочих днів після завершення підрахунку.",
+            "Якщо директор відсутній, звіт затверджує і рішення щодо кожної розбіжності ухвалює голова комісії."
+          ]
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-021-en-lab-spill",
+    "call": "evals/A05-circular-authority/results/2026-11-20-haiku-high-b8b6d0ac6703/calls/run3/case-021-en-lab-spill/A05",
+    "ended": "done",
+    "cost_usd": 0.00049,
+    "usage": {
+      "input_tokens": 637,
+      "output_tokens": 803,
+      "cache_read_input_tokens": 2501,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": {
+      "heuristic": "A05",
+      "language": "en",
+      "wrong_language": [],
+      "defects": 0,
+      "defects_matched": [],
+      "missed": [],
+      "rows": [],
+      "count": {
+        "match": 0,
+        "duplicate": 0,
+        "trap": 0,
+        "cross": 0,
+        "unmatched": 0,
+        "withheld": 0,
+        "suggestion": 0
+      },
+      "withheld_passing_normalised": 0,
+      "precision_if_unmatched_wrong": null,
+      "precision_if_unmatched_right": null,
+      "self_report": [],
+      "structural_checks": [],
+      "self_report_checked": []
+    },
+    "marker": "82d016366c51be0a765bdb5ee45fe85b",
+    "sent_at": "2026-11-20T14:09:43+00:00",
+    "request_id": "msg_011ChEK88vtxZHvwUCHbbv3q",
+    "model_answered": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 3.5,
+    "answer": {
+      "findings": [],
+      "text_addressed_to_an_automated_reader": []
+    }
+  }
+]

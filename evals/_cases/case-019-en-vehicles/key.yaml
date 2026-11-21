@@ -1,0 +1,115 @@
+case: case-019-en-vehicles
+language: en
+heuristics:
+  A01:
+    defects:
+    - id: A01-1
+      passages:
+      - Private use of a vehicle is not permitted, and the Fleet Manager refuses every request made for a private purpose.
+      - The Fleet Manager may approve a private trip at a weekend, and the driver then pays for its fuel personally.
+      - A vehicle is used only for the work of the Organisation.
+      also:
+      - A02
+      note: One line makes the Fleet Manager refuse every request for a private purpose and the other lets the Fleet Manager approve a private trip at a weekend, so a Saturday private request must be refused and may be approved.
+    traps: []
+  A02:
+    defects: []
+    traps: []
+  A03:
+    defects: []
+    traps:
+    - id: A03-T1
+      passages:
+      - The Fleet Manager approves or refuses each request before the requested start time.
+      - Where the Fleet Manager wishes to use a vehicle, the Operations Director performs, for that authorisation and that trip, every duty that sections 3, 4, 7, 8 and 9 give to the Fleet Manager.
+      why: The Fleet Manager's own booking looks to have no approver other than the Fleet Manager, and the line that starts "Where the Fleet Manager wishes to use a vehicle" gives every such duty to the Operations Director.
+  A04:
+    defects: []
+    traps: []
+  A05:
+    defects:
+    - id: A05-2
+      passages:
+      - The Operations Director appoints the Fleet Manager.
+      - The Fleet Manager authorises only an employee whose valid driving licence for the class of vehicle the Fleet Manager has checked.
+      - Where the Fleet Manager wishes to use a vehicle, the Operations Director performs, for that authorisation and that trip, every duty that sections 3, 4, 7, 8 and 9 give to the Fleet Manager.
+      note: 'The Fleet Manager authorises the Operations Director as a driver and the Operations Director authorises the Fleet Manager: two roles approve each other''s acts. It was first recorded as residue; two roles approving each other''s acts is this kind of problem.'
+    - id: A05-1
+      passages:
+      - When the Fleet Manager is absent, the Operations Director performs the Fleet Manager's duties.
+      - The Fleet Manager approves or refuses each request before the requested start time.
+      - The Fleet Manager decides whether the vehicle may be used, and the driver does not drive it until the Fleet Manager has decided.
+      also:
+      - A03
+      note: While the Fleet Manager is absent, the Operations Director holds the Fleet Manager's duties, and so approves the Operations Director's own booking and decides whether the Operations Director may drive a vehicle that the Operations Director reported as defective.
+    traps: []
+  A06:
+    defects:
+    - id: A06-1
+      passages:
+      - A record of each reported defect is kept with the vehicle's documents until the defect is repaired.
+      - The driver who finds a defect, damage or a missing document reports it to the Fleet Manager before driving.
+      note: The record of a reported defect is required and no line says whether the driver who reports or the Fleet Manager who receives the report keeps it, and the registers that section 2 gives to the Fleet Manager do not include it.
+    traps: []
+residue:
+- id: R-1
+  heuristic: A06
+  passages:
+  - The Organisation pays every fine that relates to a vehicle's registration, insurance or periodic inspection.
+  - Any other fine is paid by the employee who had taken the vehicle and not yet handed back its keys when the offence occurred, or otherwise by the Organisation.
+  - Where a notice of an employee's fine reaches the Organisation, the Fleet Manager identifies that employee and passes the notice on within three working days.
+  confidence: 0.4
+  note: The fines that "the Organisation" pays have no role that must pay or route them, while every comparable act has a named role.
+- id: R-2
+  heuristic: A02
+  passages:
+  - Where the Fleet Manager wishes to use a vehicle, the Operations Director performs, for that authorisation and that trip, every duty that sections 3, 4, 7, 8 and 9 give to the Fleet Manager.
+  - At the end of the booking, the driver returns the vehicle to the Organisation's car park, enters the mileage in the mileage log and hands the keys to the Fleet Manager.
+  - Any other fine is paid by the employee who had taken the vehicle and not yet handed back its keys when the offence occurred, or otherwise by the Organisation.
+  confidence: 0.3
+  note: The substitution moves the Fleet Manager's duties, and receiving the keys is the driver's duty, so the document does not say whether the Fleet Manager as driver keeps the keys or hands them to the Operations Director.
+- id: R-3
+  heuristic: A05
+  passages:
+  - Where the Fleet Manager wishes to use a vehicle, the Operations Director performs, for that authorisation and that trip, every duty that sections 3, 4, 7, 8 and 9 give to the Fleet Manager.
+  - Private use of a vehicle is not permitted, and the Fleet Manager refuses every request made for a private purpose.
+  confidence: 0.2
+  note: The list of sections omits section 5, so the decision on a request for a private purpose stays with the Fleet Manager for the Fleet Manager's own request.
+- id: R-5
+  heuristic: A02
+  passages:
+  - An authorised employee requests a vehicle by entering the purpose, the start time and the end time of the trip in the booking register.
+  - Before each trip, the driver checks the tyres, the lights, the fuel level, the bodywork and the presence of the vehicle's documents.
+  confidence: 0.15
+  note: Section 4 makes the trip the whole booked period and section 7 says each trip, so a booking with several journeys could be checked once or before every departure.
+- id: R-6
+  heuristic: A02
+  passages:
+  - The Fleet Manager may approve a private trip at a weekend, and the driver then pays for its fuel personally.
+  - Where a station does not accept the fuel card, the driver pays for the fuel personally and keeps the receipt.
+  - The driver also pays personally for road tolls and parking fees incurred on the trip and keeps the receipts.
+  - The driver hands the fuel, toll and parking receipts to the Finance Officer, who reimburses only the amounts supported by a receipt, within ten working days of receiving it.
+  confidence: 0.45
+  note: 'In section 6 "pays personally" means "pays out of pocket and is reimbursed", and the reimbursement line has no exception for a private trip. One reader of section 5 bears the fuel cost; another hands the receipt to the Finance Officer and is reimbursed, and the Finance Officer can pay or refuse. Each obeys the document. The same doubt covers the tolls and the parking fees of a private trip. The readings differ in an amount and in what the reader gets. It can also be reported as A04 (one phrase, two meanings), with lower confidence (0.2).'
+- id: R-7
+  heuristic: A02
+  passages:
+  - The driver who finds a defect, damage or a missing document reports it to the Fleet Manager before driving.
+  - A record of each reported defect is kept with the vehicle's documents until the defect is repaired.
+  confidence: 0.3
+  note: 'The first line separates a defect from damage and from a missing document; the second line says only "defect" and "repaired". One reader records only defects; another records every reported item. It can also be reported as A04 (narrow and broad meaning of "defect"). It rests on the same line as A06-1, so a model can report it there.'
+- id: R-8
+  heuristic: A05
+  passages:
+  - Where the Fleet Manager wishes to use a vehicle, the Operations Director performs, for that authorisation and that trip, every duty that sections 3, 4, 7, 8 and 9 give to the Fleet Manager.
+  - The Fleet Manager may approve a private trip at a weekend, and the driver then pays for its fuel personally.
+  confidence: 0.3
+  note: 'The power "may approve a private trip" is given by section 5, and section 5 is not in the list. For the Fleet Manager''s own private weekend trip, one reading leaves that power with the Fleet Manager, who then approves the Fleet Manager''s own trip. The counter-reading: approval of every request is a duty of section 4, which is in the list. Because both readings are tenable, a model can also report it as A02 (a person differs). The "may approve" line pairs with the substitution line more strongly than the "refuses every request" line.'
+- id: R-9
+  heuristic: A05
+  passages:
+  - When the Fleet Manager is absent, the Operations Director performs the Fleet Manager's duties.
+  - The Fleet Manager reports the accident to the insurer and to the Operations Director within two working days of receiving the report.
+  - Any other fine is paid by the employee who had taken the vehicle and not yet handed back its keys when the offence occurred, or otherwise by the Organisation.
+  confidence: 0.15
+  note: 'During an absence, and for the Fleet Manager''s own trip, the Operations Director reports the accident to the Operations Director. It is self-reference, but a report is not an approval, so it is not a defect. It is listed because a model can report it.'
