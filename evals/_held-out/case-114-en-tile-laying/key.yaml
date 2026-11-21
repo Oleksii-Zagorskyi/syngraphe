@@ -1,0 +1,74 @@
+case: case-114-en-tile-laying
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "Mixed adhesive stays usable for 3 hours after the second mixing."
+          - "The Tiler discards any adhesive that remains 2 hours after the second mixing ended."
+        note: "One line keeps mixed adhesive usable for 3 hours after the second mixing and the other has the Tiler discard it at 2 hours, so at 2 hours 30 minutes a Tiler who obeys one line uses the adhesive and by the other discards it."
+    traps: []
+  A02:
+    defects:
+      - id: A02-1
+        passages:
+          - "The Tiler lays the rows upward from the batten, working in each row from the centre line toward the corners."
+          - "The Tiler starts at the crossing and completes the half farthest from the door before the half nearest the door."
+          - "For large tiles, the Tiler works from the corner farthest from the door instead."
+        note: "One Tiler reads \"instead\" as replacing only the starting point of a floor of large tiles, another reads \"works\" as all laying of large tiles and lays each wall row from the far corner instead of from the centre line."
+    traps:
+      - id: A02-T1
+        passages:
+          - "A large tile is a tile whose longest side is more than 300 mm, and a small tile is a tile whose longest side is 300 mm or less."
+          - "The Tiler uses a trowel with 8 mm notches for small tiles and a trowel with 10 mm notches for large tiles."
+        why: "A tile of exactly 300 mm looks like a case that two rules could take, but \"300 mm or less\" makes it a small tile, so every Tiler uses the trowel with 8 mm notches."
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "A large tile is a tile whose longest side is more than 300 mm, and a small tile is a tile whose longest side is 300 mm or less."
+          - "The Tiler uses a trowel with 8 mm notches for small tiles and a trowel with 10 mm notches for large tiles."
+          - "The joint width is 2 mm for small tiles and 3 mm for large tiles, a large tile here being one of 600 mm or more."
+          - "- The joint width differs from the width set in the section \"Joint width\" by 0.5 mm or less."
+        also: [A01, A03]
+        note: "\"Large tile\" means a tile longer than 300 mm in the definition and for the trowel, and a tile of 600 mm or more for the joint width, so a 450 mm tile is large for the trowel and neither small nor large for the joint: one Tiler sets 3 mm joints by the definition, another finds no width set, and the Quality Inspector's check against the width set gives different answers."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A03
+    passages:
+      - "The Tiler checks each completed row with the spirit level before starting the next row."
+    confidence: 0.4
+    note: "Every other check states a limit and what follows on failure, but this one states neither, so the Tiler who finds a row out of level has no instruction."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "Where a room has both walls and a floor to tile, the Tiler completes the walls first."
+      - "After the release, the Tiler removes the spacers and presses the grout into the joints with a rubber float."
+    confidence: 0.3
+    note: "\"Completes\" is not tied to laying or to grouting, so one reader starts the floor when the last wall tile is laid and another only after the walls are released and grouted."
+  - id: R-3
+    heuristic: A02
+    passages:
+      - "If either condition is not met, the Tiler lays the affected tiles again under the section \"Adhesive mixing and open time\", and the waiting time for that wall or floor starts anew."
+      - "The Tiler sets the joints with spacers on every side of every tile."
+      - "After the release, the Tiler removes the spacers and presses the grout into the joints with a rubber float."
+    confidence: 0.25
+    note: "The re-laying is sent to one section only, so one reader lays the affected tiles again without spacers and another sets them again under the section \"Joint width\"."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "Before work starts, the Site Foreman issues to the Tiler tiles from a single production batch for each wall or floor, adhesive in 25 kg bags, primer, levelling compound, grout and spacers of 2 mm and 3 mm."
+    confidence: 0.15
+    note: "The section \"Materials and tools\" does not say who supplies the straightedge, the spirit level, the rubber float and the notched trowels that the later sections require."
+  - id: R-5
+    heuristic: A05
+    passages:
+      - "The Tiler then measures the flatness of the base with a 2 m straightedge."
+      - "If the deviation is 3 mm or less, the Tiler primes the base."
+    confidence: 0.1
+    note: "The Tiler judges the Tiler's own surface preparation, though this is a self-check inside the work and the release and the acceptance are held by other roles."

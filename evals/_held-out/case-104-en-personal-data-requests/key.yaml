@@ -1,0 +1,78 @@
+case: case-104-en-personal-data-requests
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The Records Clerk sends each refusal in writing, stating the reason and the right to ask for a review within 14 days under section 7."
+          - "The requester may ask the Records Clerk in writing for a review of a refusal within 20 days of the day the refusal is sent."
+        note: "The refusal notice gives the requester 14 days to ask for a review and section 7 gives 20 days, so a review request made on day 17 is in time under section 7 and late under the notice."
+    traps: []
+  A02:
+    defects: []
+    traps:
+      - id: A02-T1
+        passages:
+          - "The Data Protection Officer decides the request, and the Records Clerk sends the reply, within 30 days of the confirmation date."
+          - "The Records Clerk sends a refusal for unconfirmed identity within 5 days after the period set in section 4 ends, instead of within the time limit in section 5."
+        why: "Two time limits seem to apply to a refusal for unconfirmed identity, but the words \"instead of\" say that the 5-day limit governs and the 30-day limit does not."
+  A03:
+    defects:
+      - id: A03-1
+        passages:
+          - "These rules cover three kinds of request."
+          - "- An erasure request asks the Organisation to delete the personal data held about the requester."
+          - "For a granted access request, the Records Clerk sends the copy in electronic form."
+          - "For a granted correction request, the head of each unit that holds the data makes the change and confirms it to the Records Clerk in writing before the reply is sent."
+        also: [A06]
+        note: "The rules declare three kinds of request and section 7 carries out a granted access request and a granted correction request only, so for a granted erasure request no step says who deletes the data or confirms the deletion before the reply."
+    traps: []
+  A04: {defects: [], traps: []}
+  A05: {defects: [], traps: []}
+  A06:
+    defects: []
+    traps:
+      - id: A06-T1
+        passages:
+          - "The log is checked every Monday for requests that are close to their time limit."
+          - "The Data Protection Officer decides each request, checks the log every Monday for requests close to their time limit, and answers to the Managing Director for that work."
+        why: "The passive sentence in section 8 names no role for the Monday check of the log, but section 2 assigns the same check to the Data Protection Officer."
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "The Head of Legal approves each extension and reviews each refusal."
+      - "The requester may ask the Records Clerk in writing for a review of a refusal within 20 days of the day the refusal is sent."
+      - "The Head of Legal upholds or overturns the refusal within 15 days of the day the Records Clerk receives the review request."
+    confidence: 0.4
+    note: "Section 2 says the Head of Legal reviews each refusal and section 7 starts a review only when the requester asks, so one reader sends every refusal to the Head of Legal and another only the contested ones."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "The Data Protection Officer may propose one extension of up to 30 further days where the data sits in the records of more than three units or must be retrieved from the backup archive."
+      - "Where the refusal is overturned, the Data Protection Officer grants the request, and the time limit in section 5 starts again on the day of the review decision."
+    confidence: 0.35
+    note: "Where a request was extended, then refused, then the refusal overturned, the rules do not say if the time limit that starts again carries a new right to one extension or if the one extension is spent."
+  - id: R-3
+    heuristic: A02
+    passages:
+      - "Where the refusal is overturned, the Data Protection Officer grants the request, and the time limit in section 5 starts again on the day of the review decision."
+      - "Where a reason applies to only part of the data, the Data Protection Officer refuses that part and grants the remainder."
+      - "Where identity is not confirmed within those 10 days, the Data Protection Officer refuses the request under section 6."
+    confidence: 0.3
+    note: "After a refusal for unconfirmed identity is overturned, one reader grants the request whole and another applies the other reasons of section 6 within the restarted time limit and may refuse a part."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "The Head of Legal approves or rejects the proposal within 3 days of receiving it."
+      - "Where the extension is approved, the Records Clerk notifies the requester of the new date and the reason before the first 30 days end."
+    confidence: 0.25
+    note: "The rules set no latest day for the extension proposal, so a proposal made in the last 3 days can be approved after the first 30 days end, and the rules are silent on the notice in that case."
+  - id: R-5
+    heuristic: A06
+    passages:
+      - "For a granted access request, the Records Clerk sends the copy in electronic form."
+      - "- For an access request, the copy would disclose the personal data of another person and that data cannot be removed from the copy."
+    confidence: 0.2
+    note: "No role is assigned to collect the data from the units, to make the copy, or to remove the personal data of another person from it."

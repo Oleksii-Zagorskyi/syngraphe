@@ -1,0 +1,78 @@
+case: case-102-en-conflict-of-interest
+language: en
+heuristics:
+  A01: {defects: [], traps: []}
+  A02:
+    defects:
+      - id: A02-1
+        passages:
+          - "On a declaration that states at least one interest, existing or ended, the Ethics Officer decides within 10 working days of receipt."
+          - "- The interest creates a conflict that cannot be managed, and the employee must end the interest within the period that the decision sets."
+          - "The line manager puts the measures into effect within the period above and confirms this in writing to the Ethics Officer."
+        note: "\"The period above\" can point to the 10 working days of the Ethics Officer's decision or to the period that the decision sets, so two line managers put the measures into effect by different dates."
+    traps: []
+  A03:
+    defects: []
+    traps:
+      - id: A03-T1
+        passages:
+          - "The employee estimates the value of the gift at its retail price on the day of receipt."
+          - "An employee who cannot establish the retail price treats the gift as worth more than 150 euros."
+        why: "A gift whose retail price cannot be established looks like an uncovered case, but the next line treats it as worth more than 150 euros, so it is declared."
+  A04: {defects: [], traps: []}
+  A05:
+    defects:
+      - id: A05-1
+        passages:
+          - "For a declaration of a head of department, the head's deputy, who reports to the head, acts as the line manager under Sections 3 and 4."
+          - "The line manager puts the measures into effect within the period above and confirms this in writing to the Ethics Officer."
+          - "From the day of filing until the decision or, where the decision is that the employee must end the interest, until the interest ends, the line manager assigns every matter that concerns the declared interest to another employee."
+        note: "The deputy, who reports to the head of department, puts the measures on the head into effect and takes matters away from the head, while the head is the line manager for the deputy's declarations, so each enforces the decision on the other."
+    traps:
+      - id: A05-T1
+        passages:
+          - "The Ethics Officer's own declarations go to the Chair of the Governing Board instead of the Ethics Officer and the line manager."
+          - "The Chair of the Governing Board then performs every duty that Sections 4 and 5 give to the Ethics Officer and to the line manager."
+        why: "The Ethics Officer could seem to decide on the Ethics Officer's own declaration, but \"instead of\" sends that declaration to the Chair of the Governing Board, who decides it."
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "A late declaration is recorded as late and followed up with the employee."
+          - "Within 3 working days of receiving a declaration, the Ethics Officer enters the employee's post, the kind of declaration and the date of receipt."
+        note: "The part requires that a late declaration is recorded as late and followed up but names no role for either action, and the Ethics Officer's register entry lists other fields, so nobody answers for a late filing."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A01
+    passages:
+      - "This part applies to every employee of the Organisation."
+      - "Members of the Governing Board are not employees and are not covered by this part."
+      - "The Chair of the Governing Board then performs every duty that Sections 4 and 5 give to the Ethics Officer and to the line manager."
+      - "The Chair of the Governing Board reports each decision on the Ethics Officer's declarations to the Governing Board at its next meeting."
+    confidence: 0.5
+    note: "Section 1 says that members of the Governing Board are not covered by this part, yet Section 4 gives its Chair duties to decide, reassign, record and report, unless \"covered\" is read as \"obliged to declare\"."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "- The employee files an initial declaration within 10 working days of the first day of employment."
+      - "- The employee files an event declaration within 5 working days of the day on which the employee learns that an interest has begun, changed or ended."
+      - "- A business tie held by the employee."
+    confidence: 0.45
+    note: "A new employee who already holds a business tie can file within 5 working days under the event rule or within 10 working days under the initial rule, and the document does not say which governs."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "- A business tie held by a close relative of the employee."
+      - "- The employment of a close relative by the Organisation, or a close relative's application for a post in the Organisation."
+      - "- The interest creates a conflict that cannot be managed, and the employee must end the interest within the period that the decision sets."
+    confidence: 0.35
+    note: "Two kinds of interest are held by a close relative, and the document does not say what the employee does when the decision obliges the employee to end an interest that is not the employee's to end."
+  - id: R-4
+    heuristic: A05
+    passages:
+      - "- The employment of a close relative by the Organisation, or a close relative's application for a post in the Organisation."
+      - "On a declaration that states at least one interest, existing or ended, the Ethics Officer decides within 10 working days of receipt."
+      - "The Ethics Officer's own declarations go to the Chair of the Governing Board instead of the Ethics Officer and the line manager."
+    confidence: 0.25
+    note: "An employee whose close relative is the Ethics Officer declares that employment to the Ethics Officer, who then decides on a conflict that concerns the Ethics Officer's own employment, because only the Ethics Officer's own declarations go to the Chair."

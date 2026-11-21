@@ -1,0 +1,67 @@
+case: case-110-en-company-phones
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "A holder whose phone is lost through their own negligence, as the Finance Director decides, pays half the price of the replacement."
+          - "The Organisation bears the cost of every repair and every replacement."
+        note: "One line makes a negligent holder pay half the price of the replacement and the other makes the Organisation bear the cost of every replacement, so the Finance Director who obeys one breaks the other."
+    traps:
+      - id: A01-T1
+        passages:
+          - "The holder pays that amount, up to the amount of the excess, and the Organisation pays the remaining part of the excess."
+          - "A holder who sends no explanation within the five working days pays the whole excess."
+        why: "The two amounts that a holder pays look like a conflict, but the first applies after the holder sends an explanation and the second when the holder sends none."
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "A working day is any day from Monday to Friday that is not a public holiday."
+          - "A holder who leaves the Organisation returns the company phone to the IT service desk no later than their last working day, which for an on-call holder may be a Saturday or a Sunday."
+        also: [A01, A02]
+        note: "The definition makes a working day a day from Monday to Friday, while the return rule uses it for the last day the holder works, so for an on-call holder whose last shift is a Sunday the return deadline and the start of the block fall on the Friday or on the Sunday."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "A holder must not call premium-rate numbers, buy paid subscriptions through the operator, or lend the company phone to another person."
+          - "Each operator invoice is checked for premium-rate calls and paid subscriptions."
+        note: "The policy requires a check of each operator invoice for forbidden use but assigns it to no role, and the IT service desk only sends a statement of the excess, so nobody answers for finding a forbidden call."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "The Organisation bears the cost of every repair and every replacement."
+      - "If the company phone is not returned by the deadline set in this section, the IT service desk blocks it on the next working day and informs the Finance Director."
+      - "The Finance Director then deducts the residual value of the phone, as recorded in the asset register, from the holder's next payment from the Organisation."
+    confidence: 0.45
+    note: "A holder who loses the phone shortly before a return deadline cannot return it, and the document does not say whether the section \"Loss or damage\" or the deduction of the residual value governs."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "The IT service desk blocks the SIM card and erases the lost phone remotely within one hour of receiving the report."
+      - "The IT service desk works from 08:00 to 18:00 on working days at extension 400 and accepts reports of loss at any hour at extension 499."
+    confidence: 0.35
+    note: "For a report of loss at night, one reader blocks the phone within one clock hour and another reads the acceptance of reports as intake only and blocks within the first hour of work."
+  - id: R-3
+    heuristic: A05
+    passages:
+      - "The IT service desk erases the returned phone and signs the return record."
+      - "The Finance Director deducts the amount that the holder pays from the holder's next salary payment."
+      - "The Finance Director then deducts the residual value of the phone, as recorded in the asset register, from the holder's next payment from the Organisation."
+    confidence: 0.25
+    note: "The IT service desk signs the return record for its own member's phone and the Finance Director deducts from the Finance Director's own pay, although both are acts of execution without discretion."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "The IT service desk issues a replacement within three working days of the report."
+      - "If the repair estimate is half of that price or more, the IT service desk issues a replacement instead."
+    confidence: 0.25
+    note: "The time limit for a replacement is set for loss only and not for a damaged phone, and the document is silent on a lost phone that is found."

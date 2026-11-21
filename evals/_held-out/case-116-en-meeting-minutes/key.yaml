@@ -1,0 +1,88 @@
+case: case-116-en-meeting-minutes
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps:
+      - id: A01-T1
+        passages:
+          - "The Records Clerk keeps minutes of the Management Board and of standing committees for ten years from the date of the meeting."
+          - "The Records Clerk keeps the minutes of every other meeting for five years from the date of the meeting."
+        why: "Two storage periods look like a conflict, but \"every other\" gives each period its own meetings, so no minutes fall under both."
+  A02: {defects: [], traps: []}
+  A03:
+    defects:
+      - id: A03-1
+        passages:
+          - "It applies to every meeting that employees of the Organisation hold in the course of their work, whether in person or by video link."
+          - "The secretary sends the draft minutes of a meeting held in person to all participants by the Organisation's e-mail within three working days after the day of the meeting."
+        note: "The standard declares that it covers meetings in person and by video link, but sets the sending of the draft only for a meeting held in person, so for a video-link meeting no line says when or whether the draft is sent, and the comment period and the approval that count from it have no start."
+    traps: []
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "A participant is any person who attends a meeting, in person or by video link, for all or part of it."
+          - "- The name and position of each participant, with a note of who was the chair and who was the secretary, and the names of invited guests listed apart."
+          - "The secretary sends the draft minutes of a meeting held in person to all participants by the Organisation's e-mail within three working days after the day of the meeting."
+          - "Each participant may send comments on the draft to the secretary within two working days after the day the draft was sent."
+        note: "By the definition an invited guest who attends is a participant, but the list item sets guests apart from participants, so one secretary sends the draft to guests and takes their comments and another sends it only to the members."
+    traps: []
+  A05:
+    defects:
+      - id: A05-1
+        passages:
+          - "The secretary prepares the final text of the minutes and signs it within two working days after the comment period described in the section \"Circulation of the draft\" ends."
+          - "The chair approves the minutes by signing them within two working days after the day the chair receives the final text."
+          - "When the chair is absent for those two working days, the secretary approves the minutes instead."
+        note: "When the chair is absent, the secretary approves the final text that the secretary prepared and signed, so one role approves its own act and the check that the chair's approval gives is lost."
+    traps:
+      - id: A05-T1
+        passages:
+          - "When the Board Secretary is absent from such a meeting, the chair appoints another participant as secretary before the meeting opens."
+          - "The chair never appoints himself or herself as secretary."
+        why: "The chair appoints the secretary, which looks like a role that could appoint itself, but the next rule bars the chair from appointing himself or herself, so no role acts on its own appointment."
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A06
+    passages:
+      - "It applies to every meeting that employees of the Organisation hold in the course of their work, whether in person or by video link."
+      - "The chair is the participant who presides over the meeting."
+      - "- Any other meeting at which the participants make a decision that commits the Organisation's money, changes an approved document of the Organisation, or assigns a task with a deadline."
+      - "At any other meeting that requires minutes, the chair appoints a participant as secretary no later than the moment the first decision that makes minutes necessary is made."
+    confidence: 0.4
+    note: "An informal meeting comes under the standard as soon as it assigns a task with a deadline, and every later duty falls on the chair, but the document defines the chair only by the fact of presiding and names nobody when no participant presides."
+  - id: R-2
+    heuristic: A05
+    passages:
+      - "A participant is any person who attends a meeting, in person or by video link, for all or part of it."
+      - "The chair is the participant who presides over the meeting."
+      - "Each participant may send comments on the draft to the secretary within two working days after the day the draft was sent."
+      - "The secretary passes each comment that the secretary does not accept to the chair, and the chair decides the final wording of the passage concerned."
+    confidence: 0.35
+    note: "The chair is a participant and may comment, and when the secretary does not accept the chair's comment the chair decides the final wording, so the chair rules on the chair's own comment."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "The secretary passes each comment that the secretary does not accept to the chair, and the chair decides the final wording of the passage concerned."
+      - "A participant whose comment the chair rejects may hand the secretary a written remark, and the secretary attaches that remark to the minutes."
+      - "The secretary prepares the final text of the minutes and signs it within two working days after the comment period described in the section \"Circulation of the draft\" ends."
+      - "Within one working day after the day of approval, the secretary also hands the approved minutes, with any attached written remarks, to the Records Clerk of the Administrative Office."
+    confidence: 0.3
+    note: "Every other step has a time limit, but the chair's decision on a comment and the participant's written remark have none, so the document is silent on a remark that arrives after the minutes are signed, approved or handed to the Records Clerk."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "A participant is any person who attends a meeting, in person or by video link, for all or part of it."
+      - "When the Board Secretary is absent from such a meeting, the chair appoints another participant as secretary before the meeting opens."
+    confidence: 0.2
+    note: "The replacement secretary is appointed before the meeting opens, and the document does not cover a Board Secretary who arrives late or leaves early."
+  - id: R-5
+    heuristic: A02
+    passages:
+      - "The secretary sends the signed final text to the chair on the day of signing."
+      - "The chair approves the minutes by signing them within two working days after the day the chair receives the final text."
+      - "When the chair is absent for those two working days, the secretary approves the minutes instead."
+    confidence: 0.5
+    note: "For an absent chair, one secretary counts the two working days from the day the text was sent and then approves, another holds that the chair has not received it and waits."

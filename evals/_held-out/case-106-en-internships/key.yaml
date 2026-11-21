@@ -1,0 +1,90 @@
+case: case-106-en-internships
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps:
+      - id: A01-T1
+        passages:
+          - "The mentor writes an assessment of the intern against the learning plan and submits it to the head of the host department no later than the last day of the internship."
+          - "When the internship ends early under Section 3, the mentor submits the assessment within 5 working days after the last day instead."
+        why: "The two deadlines for the assessment look like a conflict, but the second applies only to an early ending and says \"instead\", so each case has one deadline."
+  A02:
+    defects:
+      - id: A02-1
+        passages:
+          - "The approving officer may extend an internship once, in writing, at the request of the head of the host department and under the conditions of Section 2, to a new agreed duration within the limits above."
+          - "The head of the department submits the hosting request to the approving officer at least 20 working days before the proposed start date."
+          - "- The department would have no more than two interns at one time, counting the intern requested."
+        note: "\"The conditions of Section 2\" can mean only the two listed conditions (a mentor, no more than two interns at one time) or also the time limit of 20 working days for the request, so one approving officer grants a late extension request and another refuses it."
+    traps:
+      - id: A02-T1
+        passages:
+          - "A department may host an intern only when the approving officer has approved its hosting request."
+          - "The approving officer is the People Team Lead, except for an internship hosted by the People Team, where the approving officer is the Operations Director instead."
+        why: "Two persons could approve a hosting request, but \"except ... instead\" names exactly one approving officer for each case, so there is one reading."
+  A03:
+    defects:
+      - id: A03-1
+        passages:
+          - "An internship lasts a whole number of weeks, no fewer than 4 and no more than 26."
+          - "- For 4 to 8 weeks inclusive, the rate is 300 crowns per week."
+          - "- For 10 to 16 weeks inclusive, the rate is 350 crowns per week."
+        note: "The policy allows an internship of 9 weeks and pays every intern, but no rate band covers 9 weeks, so the Payroll Officer has no rate for it."
+    traps: []
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "The approving officer is the People Team Lead, except for an internship hosted by the People Team, where the approving officer is the Operations Director instead."
+          - "The approving officer informs the IT Service Manager and the Payroll Officer of an extension or an early ending on the day it is approved or notified."
+          - "The head of the host department, as approving officer, approves the learning plan or returns it once with comments to the mentor, who corrects it, and approves the corrected plan before the start date."
+        note: "Section 2 defines \"the approving officer\" as the People Team Lead or the Operations Director, while Section 5 calls the head of the host department the approving officer, so a rule that names \"the approving officer\" points to two persons: one head informs the IT Service Manager of an early ending, another waits for the People Team Lead to do it."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "The IT Service Manager grants the following access on the start date."
+      - "- The intern receives access to the department tools listed in the approved learning plan."
+      - "The IT Service Manager does not grant an intern administrator rights or access to payroll data, personnel records or customer payment data."
+    confidence: 0.4
+    note: "When an approved learning plan lists a tool that holds payroll data or personnel records, the grant and the prohibition both apply and the document does not say which governs, though most readers take the prohibition as the limit on the grant."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "An internship is a fixed-term learning placement of a person who is enrolled as a student or who graduated no more than 12 months before the start date."
+      - "The approving officer approves the request when the department meets both of the following conditions and refuses it otherwise."
+    confidence: 0.3
+    note: "No step or role checks the person against the definition of an internship or selects the person, although the first line is a definition and selection can be read as outside this policy; the same passage can be reported as A06."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "The intern may end the internship early by giving the approving officer 5 working days' written notice."
+      - "The approving officer informs the IT Service Manager and the Payroll Officer of an extension or an early ending on the day it is approved or notified."
+      - "When the internship ends early under Section 3, the mentor submits the assessment within 5 working days after the last day instead."
+    confidence: 0.3
+    note: "The mentor has a time limit that runs from an early last day, but no role is obliged to tell the mentor or the head of the host department that the intern gave notice; the same passage can be reported as A06."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "The Payroll Officer pays the stipend on the last working day of each calendar month for the part of the internship that fell in that month."
+      - "When an internship ends early under Section 3, the rate does not change, and the intern receives one fifth of the weekly rate for each working day of the unfinished week up to and including the last day."
+    confidence: 0.25
+    note: "The one-fifth rule for a part of a week is given only for an early ending, so the amount for a week split between two months is not stated, though the total over the two months is the same in each reasonable method."
+  - id: R-5
+    heuristic: A03
+    passages:
+      - "The mentor revises a returned assessment within 3 working days, and the head of the host department then confirms it."
+    confidence: 0.15
+    note: "The first confirmation of the assessment has a limit of 5 working days and the second confirmation has none, though \"then\" can be read as at once."
+  - id: R-6
+    heuristic: A02
+    passages:
+      - "A department may host an intern only when the approving officer has approved its hosting request."
+      - "The head of the department submits the hosting request to the approving officer at least 20 working days before the proposed start date."
+      - "The approving officer approves the request when the department meets both of the following conditions and refuses it otherwise."
+    confidence: 0.5
+    note: "A late hosting request meets the two listed conditions, so one approving officer approves it by the closed rule and another refuses it for missing the 20 working days."

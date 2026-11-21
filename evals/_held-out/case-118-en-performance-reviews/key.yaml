@@ -1,0 +1,83 @@
+case: case-118-en-performance-reviews
+language: en
+heuristics:
+  A01: {defects: [], traps: []}
+  A02:
+    defects:
+      - id: A02-1
+        passages:
+          - "The review year runs from 1 January to 31 December."
+          - "The Appeals Committee consists of three employees, not members of the Calibration Panel, whom the Director General appoints by 31 January, and answers to the Director General for its decisions."
+          - "A date given without a year in sections 4 to 8 is in the year that follows the review year."
+        note: "The rule on dates without a year covers sections 4 to 8 only, so one reader appoints the Appeals Committee by 31 January of the review year, a year before any appeal, and another by 31 January of the year that follows, as every other date of the cycle is read."
+    traps: []
+  A03:
+    defects: []
+    traps:
+      - id: A03-T1
+        passages:
+          - "The Appeals Committee consists of three employees, not members of the Calibration Panel, whom the Director General appoints by 31 January, and answers to the Director General for its decisions."
+          - "If a member of the Appeals Committee is the appellant or the appellant's line manager, the Director General appoints another employee who meets the conditions of section 2 in that member's place for that appeal."
+        why: "A reader expects the appeal of a member of the Appeals Committee to be an uncovered case, but the replacement rule of section 7 covers it."
+  A04: {defects: [], traps: []}
+  A05:
+    defects:
+      - id: A05-1
+        passages:
+          - "The Calibration Panel consists of the HR Lead and all heads of departments, and answers to the Director General for its decisions."
+          - "The HR Lead convenes and chairs the calibration meeting of the Calibration Panel between 6 February and 20 February."
+          - "The HR Lead decides an appeal of a head of department alone, instead of the Appeals Committee."
+        note: "The HR Lead chairs and votes in the Calibration Panel that sets the final rating of a head of department, and then decides alone the appeal against that rating, so the role reviews its own decision."
+    traps:
+      - id: A05-T1
+        passages:
+          - "The Calibration Panel consists of the HR Lead and all heads of departments, and answers to the Director General for its decisions."
+          - "A member who proposed a rating as line manager takes no part in the decision on that rating."
+        why: "A head of department on the Calibration Panel seems to confirm the rating that the head proposed as line manager, but the next rule takes that member out of the decision on that rating."
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "The HR Lead records the final rating and the panel's reasons in the review form."
+          - "Each review form is kept for three years after 30 April."
+        note: "The document requires each review form to be kept for three years and names no role that keeps it; the HR Lead only writes in the form and the line manager only hands over a copy."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A05
+    passages:
+      - "The Director General and the employees who report directly to the Director General are outside this process."
+      - "The Calibration Panel consists of the HR Lead and all heads of departments, and answers to the Director General for its decisions."
+      - "For each employee the Calibration Panel either confirms the proposed rating or replaces it with another of the four ratings."
+      - "A member who proposed a rating as line manager takes no part in the decision on that rating."
+    confidence: 0.4
+    note: "The only exclusion from the vote is for the member who proposed the rating, so a panel member who is in scope would vote on the member's own final rating; the document does not say whether panel members report directly to the Director General."
+  - id: R-2
+    heuristic: A05
+    passages:
+      - "The HR Lead convenes and chairs the calibration meeting of the Calibration Panel between 6 February and 20 February."
+      - "The HR Lead rejects an appeal submitted after that time limit, and the final rating stands."
+    confidence: 0.25
+    note: "The HR Lead votes on the final rating and then alone decides whether an appeal against it is in time, though that decision is a mechanical test of a time limit and not a judgement of the rating."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "The line manager of an employee is the person to whom the employee reports on 31 December of the review year."
+      - "The line manager then records one proposed rating with written reasons in the review form and sends it to the HR Lead by 5 February."
+      - "For each employee the Calibration Panel either confirms the proposed rating or replaces it with another of the four ratings."
+    confidence: 0.25
+    note: "The Calibration Panel can only confirm or replace a proposed rating, and the document is silent on an employee whose line manager of 31 December has left or sends no proposed rating by 5 February."
+  - id: R-4
+    heuristic: A02
+    passages:
+      - "The line manager tells the employee the final rating and its reasons by the last day of February and hands over a copy of the review form that day."
+      - "An employee may appeal against the final rating in writing to the HR Lead within 10 working days after receiving the copy of the review form."
+    confidence: 0.2
+    note: "\"That day\" can be the day of the conversation or the last day of February, but the two readings come from the one sentence read alone, and section 7 counts from the actual receipt in both."
+  - id: R-5
+    heuristic: A02
+    passages:
+      - "The Appeals Committee decides within 15 working days after the HR Lead received the appeal."
+      - "The HR Lead sends the Payroll Accountant the list of final ratings by 15 April, after all appeals are decided."
+    confidence: 0.15
+    note: "If an appeal were still open on 15 April, one reader would send the list on that date and another would wait, but when the time limits of sections 6 and 7 are kept the last appeal is decided in the first days of April."

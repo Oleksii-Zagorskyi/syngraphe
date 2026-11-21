@@ -1,0 +1,80 @@
+case: case-122-en-roof-gutters
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "All gutter work is treated as work at height, whatever the height of the eaves."
+          - "Gutter work does not start without a written permit issued by the site supervisor."
+          - "Gutter work on eaves below 2 metres is not work at height and needs no permit."
+        note: "Section 1 makes all gutter work work at height whatever the height of the eaves, and section 3 lets no gutter work start without a permit, while section 4 takes work below 2 metres out of both; no reading reconciles them, so one supervisor issues a permit for a 1.8-metre eave and another lets the work start without one."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects: []
+    traps:
+      - id: A04-T1
+        passages:
+          - "For eaves up to and including 4 metres above the ground, the operative uses an extension ladder with a stabiliser."
+          - "For eaves more than 4 metres above the ground, the operative uses the mobile work platform instead of a ladder."
+          - "The operative inspects the access equipment, and the operative and the attendant each inspect the items issued to them, before each use."
+        why: "The term 'the access equipment' covers two different objects, the ladder and the mobile work platform, but in each job it means the one the operative uses there, so it keeps one meaning."
+  A05: {defects: [], traps: []}
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "When the operative falls or is injured, the attendant calls the emergency service and then informs the site supervisor."
+          - "The site supervisor reports the accident to the safety officer on the same day."
+          - "After an accident, the access equipment is taken out of use until it has been examined."
+        note: "The attendant calls for help and the site supervisor reports the accident, but taking the access equipment out of use and examining it are required and given to no role, so nobody answers for them."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "The operative inspects the access equipment, and the operative and the attendant each inspect the items issued to them, before each use."
+      - "The person who finds damage to the access equipment or to an issued item reports it to the site supervisor, and the operative does not go up until the site supervisor has provided a replacement."
+      - "The operative and the attendant each stop the work on seeing a danger."
+      - "The site supervisor allows work stopped under this section to resume under the same permit only when the danger has passed, no condition listed in section 5 is present and the work shift has not ended, and records the time of resumption in the permit."
+    confidence: 0.3
+    note: "When damage is found after the work has started, one reader follows section 4 and goes up once the replacement arrives, and another treats the damage as a danger under section 8 and waits for the site supervisor to allow resumption and record its time; the difference is only the record in the permit."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "The site supervisor issues one permit for one building and one work shift."
+      - "The site supervisor writes in the permit the building, the date, the height of the eaves, the access equipment, the operative and the attendant."
+      - "For eaves up to and including 4 metres above the ground, the operative uses an extension ladder with a stabiliser."
+      - "For eaves more than 4 metres above the ground, the operative uses the mobile work platform instead of a ladder."
+    confidence: 0.25
+    note: "The permit holds one height and one access equipment, and the document does not say what it holds for a building whose eaves are partly at 4 metres or less and partly above 4 metres, though section 4 still gives the equipment for each part."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "- The operative reports the end of the work to the site supervisor, who closes the permit."
+      - "The site supervisor allows work stopped under this section to resume under the same permit only when the danger has passed, no condition listed in section 5 is present and the work shift has not ended, and records the time of resumption in the permit."
+      - "The site supervisor hands every closed permit to the safety officer within two working days."
+    confidence: 0.25
+    note: "The permit is closed only on the operative's report of the end of the work, and the document does not say that it is closed when the work is stopped and not resumed, though a reader can take such a stop as the end of the work."
+  - id: R-4
+    heuristic: A03
+    passages:
+      - "This instruction applies to every employee of the Organisation who takes part in gutter work on its buildings."
+      - "When the operative falls or is injured, the attendant calls the emergency service and then informs the site supervisor."
+    confidence: 0.2
+    note: "The scope covers both persons and the accident rule covers only an injury to the operative, a case at the edge of the declared scope."
+  - id: R-5
+    heuristic: A03
+    passages:
+      - "The site supervisor checks the weather at the building and does not issue the permit when any of the following conditions is present."
+      - "When any of these conditions appears during the work, the attendant stops the work under section 8."
+    confidence: 0.2
+    note: "No line covers a weather condition that appears after the permit is issued and before the work starts, though the rule that the operative and the attendant each stop the work on seeing a danger reasonably covers it."
+  - id: R-6
+    heuristic: A06
+    passages:
+      - "- The operative comes down before the access equipment is moved to the next section of the gutter."
+    confidence: 0.15
+    note: "The passive 'is moved' names no person, but the line obliges the operative to come down and does not require the move as an act of its own."

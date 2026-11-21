@@ -1,0 +1,81 @@
+case: case-112-en-visitors
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "Working hours are 08:00 to 17:00 from Monday to Friday."
+          - "The receptionist registers a guest only during working hours and refuses entry to a guest at any other time."
+          - "A guest who attends a training day on a Saturday registers at reception between 08:00 and 10:00 on that Saturday."
+        note: "Section 3 makes the receptionist refuse every guest outside Monday to Friday, 08:00 to 17:00, and section 8 has a guest register on a Saturday morning; section 2 allows a different rule only for contractors, so the receptionist who obeys one line breaks the other."
+    traps: []
+  A02:
+    defects:
+      - id: A02-1
+        passages:
+          - "The host submits a visit request to the receptionist before the visitor arrives."
+          - "A host who has to leave the site while the visitor is still on it hands the visitor over to another employee and informs the receptionist, who records that employee in the visitor register as the new host."
+          - "When the leaving time of a visitor has passed and the badge has not been returned, the receptionist informs the host named in the visit request at once."
+          - "The host then brings the visitor to reception without delay."
+        note: "After a hand-over the receptionist informs the host named in the visit request, who may have left the site, while the next line has \"the host\" bring the visitor back: one reader has the original host return or send for the visitor, another has the new host, who answers for the visitor during the entry, do it, and the original host may not even be told."
+    traps: []
+  A03:
+    defects: []
+    traps:
+      - id: A03-T1
+        passages:
+          - "A guest may stay after 18:00 only if the Site Manager, at the request of the host, sends the receptionist written approval of a later leaving time before 17:00 on the same day."
+          - "When the Site Manager is the host, the Operations Director gives this approval instead."
+        why: "The case a reader expects to be missing, the late stay of the Site Manager's own guest, is covered by the next line, which names the Operations Director as the approver."
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "Working hours are 08:00 to 17:00 from Monday to Friday."
+          - "The receptionist registers a contractor only within the working hours named in the work permit and refuses entry to a contractor at any other time."
+          - "The work permit names the contractor, the work zone, the dates of the work and the working hours on each date."
+          - "A contractor leaves the site by the end of working hours, instead of by 18:00."
+        also: [A02]
+        note: "\"Working hours\" means the defined 08:00 to 17:00 from Monday to Friday in section 2 and the hours named in the work permit in sections 3 and 7, so a contractor whose work permit runs to 20:00 leaves at 17:00 on one meaning and at 20:00 on the other."
+    traps:
+      - id: A04-T1
+        passages:
+          - "A host is the employee who answers for one visitor during one entry to the site."
+          - "The host of a guest is the employee who invited the guest."
+          - "The host of a contractor is the employee who ordered the work."
+        why: "The two lines of section 4 say which employee fills the one role of host for each kind of visitor; \"host\" keeps the single meaning that section 2 gives it."
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A02
+    passages:
+      - "The receptionist then calls the host, and the visitor waits in the reception hall until the host arrives."
+      - "The open area consists of the reception hall, the ground-floor meeting rooms and the canteen."
+      - "A visitor may move in the open area without the host."
+    confidence: 0.35
+    note: "A registered visitor whose host has not yet arrived may be kept in the reception hall or allowed into the canteen, though most readers take the wait as the specific rule for that moment."
+  - id: R-2
+    heuristic: A04
+    passages:
+      - "A host is the employee who answers for one visitor during one entry to the site."
+      - "The host of a guest is the employee who invited the guest."
+      - "The host of a contractor is the employee who ordered the work."
+      - "A host who has to leave the site while the visitor is still on it hands the visitor over to another employee and informs the receptionist, who records that employee in the visitor register as the new host."
+    confidence: 0.3
+    note: "After a hand-over the new host is neither the employee who invited the guest nor the one who ordered the work, though the definition in section 2 covers both and the section 4 lines read as the rule for the first host."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "In the restricted area the host stays with the visitor at all times, except as section 7 allows for a contractor inside the work zone."
+      - "Inside the work zone the contractor may work without the host."
+      - "The host collects the visitor from the reception hall and brings the visitor back to reception at the end of the visit."
+    confidence: 0.25
+    note: "The document does not say how a contractor who works alone in a work zone calls the host in order to leave it before the end of the visit, though the rule that applies, no movement without the host, is clear."
+  - id: R-4
+    heuristic: A06
+    passages:
+      - "Reception is staffed by a receptionist at all hours."
+    confidence: 0.2
+    note: "The line requires a state and names nobody who secures it, though it reads as a statement of fact and section 1 makes the Site Manager responsible for the application of the rules."

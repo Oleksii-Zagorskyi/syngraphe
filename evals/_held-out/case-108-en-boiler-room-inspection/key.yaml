@@ -1,0 +1,68 @@
+case: case-108-en-boiler-room-inspection
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "The flow temperature of a running boiler is within limits from 60 °C to 85 °C, both values included."
+          - "A flow temperature below 60 °C or above 85 °C is an out-of-limit reading."
+          - "On a first reading above 3.5 bar or above 80 °C, the inspector shuts the boiler down at once instead of waiting for a second reading."
+        also: [A02]
+        note: "At a flow temperature of 82 °C, section 3 says the boiler is within limits and the inspection continues, while section 6 says the inspector shuts the boiler down at once; no reading reconciles them."
+    traps: []
+  A02:
+    defects: []
+    traps:
+      - id: A02-T1
+        passages:
+          - "In this checklist, \"the inspector\" means the boiler operator during a weekly inspection and the facilities engineer during an annual inspection."
+          - "The inspector takes readings only from a boiler that is running."
+        why: "\"The inspector\" could point to either role, but the definition names the person for each inspection, so every reader acts the same."
+  A03:
+    defects:
+      - id: A03-1
+        passages:
+          - "The pressure of a running boiler is within limits from 1.5 bar to 3.0 bar, both values included."
+          - "A pressure above 3.0 bar is an out-of-limit reading."
+          - "On an out-of-limit reading, the inspector waits 10 minutes and takes a second reading from the same gauge before continuing."
+        note: "The checklist governs every pressure reading, but a pressure below 1.5 bar is not within limits and no line calls it an out-of-limit reading or says what the inspector does."
+    traps:
+      - id: A03-T1
+        passages:
+          - "The boiler operator carries out the weekly inspection every Monday before 10:00."
+          - "When Monday is not a working day, the boiler operator carries it out before 10:00 on the first working day after that Monday."
+        why: "A Monday that is not a working day looks like a missing case, but the next line covers it."
+  A04: {defects: [], traps: []}
+  A05: {defects: [], traps: []}
+  A06:
+    defects:
+      - id: A06-1
+        passages:
+          - "The facilities engineer keeps the logbook on the shelf beside the boiler room door."
+          - "Each completed logbook is stored for five years after its last entry."
+        note: "The facilities engineer keeps the logbook in use on the shelf, but the five-year storage of a completed logbook is assigned to no role, so nobody answers for it."
+    traps: []
+residue:
+  - id: R-1
+    heuristic: A06
+    passages:
+      - "The boiler operator restarts that boiler only after the facilities engineer has written a restart authorisation in the logbook."
+      - "The facilities engineer restarts that boiler only after the operations director has written a restart authorisation in the logbook."
+    confidence: 0.25
+    note: "The facilities engineer and the operations director hold the power to authorise a restart, but no line obliges either to decide on it or sets a time for the decision."
+  - id: R-2
+    heuristic: A02
+    passages:
+      - "The inspector takes readings only from a boiler that is running."
+      - "On an out-of-limit reading, the inspector waits 10 minutes and takes a second reading from the same gauge before continuing."
+      - "After a shutdown during a weekly inspection, the boiler operator telephones the facilities engineer at once and then completes the remaining items."
+    confidence: 0.15
+    note: "After a shutdown on pressure, the flow temperature item of that boiler is a remaining item, and one reader may read the gauge while another writes \"shut down\", although section 3 states the answer."
+  - id: R-3
+    heuristic: A03
+    passages:
+      - "The facilities engineer assigns one boiler operator to each weekly inspection and carries out the annual inspection."
+      - "After a shutdown during a weekly inspection, the boiler operator telephones the facilities engineer at once and then completes the remaining items."
+    confidence: 0.15
+    note: "The checklist names no substitute when the facilities engineer or the operations director is absent or does not answer the telephone."

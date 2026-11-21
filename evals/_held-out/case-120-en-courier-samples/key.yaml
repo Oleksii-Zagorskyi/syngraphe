@@ -1,0 +1,68 @@
+case: case-120-en-courier-samples
+language: en
+heuristics:
+  A01:
+    defects: []
+    traps:
+      - id: A01-T1
+        passages:
+          - "The Dispatch Technician packs an Ambient box at any time between the booking and the collection."
+          - "The Dispatch Technician packs a Chilled or Frozen box on the collection day, not earlier than two hours before the booked collection window begins."
+        why: "\"Any time\" and \"not earlier than two hours\" look like a conflict, but each line names its own categories, so no box falls under both."
+  A02:
+    defects:
+      - id: A02-1
+        passages:
+          - "On the day the dispatch request arrives, the Dispatch Technician books in the courier's portal the earliest collection day that the courier offers and that this section allows for the category."
+          - "- A Chilled or Frozen box may be collected only on a Monday, Tuesday or Wednesday, and travels by the next-day service."
+          - "This rule does not apply to a box that the Sample Owner marks as urgent on the dispatch request."
+        note: "\"This rule\" is either the Chilled or Frozen line (all of it, or only its limit of days), so an urgent Chilled or Frozen box may be collected on any day but the service stays in question, or the booking rule of the whole section, so the Dispatch Technician is free of the earliest-day and service rules; two Technicians book the same urgent Frozen box on different days or by different services."
+    traps: []
+  A03:
+    defects:
+      - id: A03-1
+        passages:
+          - "- A sample stored at or below minus 15 °C is Frozen."
+          - "If an Ambient box has not been handed over by the end of the collection day, the Dispatch Technician keeps it closed and books a new collection under the section \"Courier booking\"."
+          - "If a Chilled box has not been handed over within four hours after it was closed, the Dispatch Technician opens it, returns the samples to their storage and books a new collection under the section \"Courier booking\"."
+          - "If the booking references differ, or if the courier does not sign, the Dispatch Technician does not hand over the box, and the time limits of the section \"Uncollected boxes\" continue to run for it."
+        note: "The section \"Uncollected boxes\" sets a time limit and a step for an Ambient box and for a Chilled box, and is silent on a Frozen box that is not handed over, though the hand-over section sends every refused box to that section."
+    traps: []
+  A04:
+    defects: []
+    traps:
+      - id: A04-T1
+        passages:
+          - "The Sample Owner assigns each sample to one category, using the storage temperature written on the sample record."
+          - "One box holds samples of one category only."
+          - "Each box carries on its outside the address of the receiving laboratory, the return address of the Organisation, the booking reference, the category and arrows that show which side is up."
+        why: "\"Category\" is used of a sample and of a box, but the category of a box is the one category of its samples, so the term keeps one meaning."
+  A05: {defects: [], traps: []}
+  A06:
+    defects: []
+    traps:
+      - id: A06-T1
+        passages:
+          - "The Dispatch Technician attaches all labels."
+          - "Each container carries a label with the sample number and the category."
+        why: "The container label line names no actor, but the line before it assigns every label to the Dispatch Technician."
+residue:
+  - id: R-1
+    heuristic: A03
+    passages:
+      - "Each box carries on its outside the address of the receiving laboratory, the return address of the Organisation, the booking reference, the category and arrows that show which side is up."
+      - "The Dispatch Technician puts one copy of the signed dispatch note inside the box and a second copy in a pouch on its outside."
+      - "If an Ambient box has not been handed over by the end of the collection day, the Dispatch Technician keeps it closed and books a new collection under the section \"Courier booking\"."
+      - "Before handing the box to the courier, the Dispatch Technician compares the booking reference shown by the courier with the one on the dispatch note."
+      - "If the booking references differ, or if the courier does not sign, the Dispatch Technician does not hand over the box, and the time limits of the section \"Uncollected boxes\" continue to run for it."
+    confidence: 0.4
+    note: "A new booking gives a new booking reference while the Ambient box stays closed, and the document does not say that the label, the copy inside the box or the Dispatch Supervisor's signature is renewed; it can also be read as A02."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "The Dispatch Technician takes the cooling packs out not more than 15 minutes before the box is closed."
+      - "If the box is wrong, the Dispatch Technician corrects it, and if the dispatch note is wrong, the Sample Owner corrects it."
+      - "The Dispatch Supervisor compares again after each correction and signs the dispatch note when no difference remains."
+      - "The Dispatch Technician closes the box only after that signature."
+    confidence: 0.3
+    note: "The box is closed only after the Dispatch Supervisor's signature, a correction can take longer than 15 minutes, and the document does not say what the Dispatch Technician then does with the cooling packs."
