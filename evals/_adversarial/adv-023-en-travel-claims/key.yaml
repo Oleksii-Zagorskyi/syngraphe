@@ -1,0 +1,64 @@
+case: adv-023-en-travel-claims
+language: en
+heuristics:
+  A01:
+    defects:
+      - id: A01-1
+        passages:
+          - "A form that reaches the Finance Officer within 60 calendar days after the last day of the trip is in time."
+          - "The claimant submits the form to the Finance Officer no later than 30 calendar days after the last day of the trip."
+          - "The Finance Officer refuses in writing a form first submitted after that time limit, and the Organisation does not reimburse it."
+        note: "A form first submitted 45 calendar days after the trip is in time under the 60-day line and must be refused under the 30-day time limit, so the Finance Officer cannot both check it and refuse it."
+    traps: []
+  A02: {defects: [], traps: []}
+  A03: {defects: [], traps: []}
+  A04:
+    defects:
+      - id: A04-1
+        passages:
+          - "A trip to a client's site that the claimant makes without written authorisation is paid at the same mileage rate."
+          - "A trip is a journey on the Organisation's business that the approver authorised in writing before the journey began."
+          - "A journey without that written authorisation is not a trip, and the Organisation reimburses no cost of it."
+        also: [A01]
+        note: "The defined term \"trip\" means a journey authorised in writing, and the mileage line calls a journey without written authorisation a trip and pays it, so a Finance Officer can reimburse mileage that the definition excludes."
+    traps: []
+  A05: {defects: [], traps: []}
+  A06: {defects: [], traps: []}
+residue:
+  - id: R-1
+    heuristic: A03
+    passages:
+      - "The claimant attaches a receipt for every cost claimed, except mileage."
+      - "If a receipt is lost and the cost is 20 crowns or less, the claimant attaches a signed declaration of the cost instead of the receipt."
+      - "The Organisation does not reimburse a cost above 20 crowns, other than mileage, that has no receipt."
+    confidence: 0.45
+    note: "The declaration is allowed only when a receipt is lost and the refusal covers only a cost above 20 crowns, so no rule handles a cost of 20 crowns or less for which no receipt was ever issued."
+  - id: R-2
+    heuristic: A03
+    passages:
+      - "The Finance Officer converts a cost paid in another currency into crowns at the rate that the Organisation's bank published for the date on the receipt."
+      - "If a receipt is lost and the cost is 20 crowns or less, the claimant attaches a signed declaration of the cost instead of the receipt."
+    confidence: 0.35
+    note: "A cost under a signed declaration has no receipt and so no date on the receipt, so the document gives no conversion rate for it, although the form carries each cost with its date."
+  - id: R-3
+    heuristic: A02
+    passages:
+      - "- Meals, up to and including 30 crowns for each calendar day of the trip."
+      - "The Organisation does not reimburse the part of a lodging or meal cost that is above its limit."
+    confidence: 0.3
+    note: "One reader caps the meals of each calendar day at 30 crowns and another pools 30 crowns times the days of the trip as one allowance, and the second line does not settle it."
+  - id: R-4
+    heuristic: A05
+    passages:
+      - "The approver is the claimant's line manager."
+      - "When the claimant is the Finance Officer, the Finance Manager carries out the Finance Officer's duties under this policy for that claim instead of the Finance Officer."
+    confidence: 0.2
+    note: "If the Finance Manager is the Finance Officer's line manager, one person checks, approves and pays that claim, which is a missing separation of duties that rests on a fact outside the text and not a circle."
+  - id: R-5
+    heuristic: A03
+    passages:
+      - "The claimant completes one Travel Claim Form TC-1 for each trip."
+      - "The Finance Officer refuses in writing a form first submitted after that time limit, and the Organisation does not reimburse it."
+      - "A returned form that is not resubmitted within those 10 working days lapses, and the Organisation does not reimburse it."
+    confidence: 0.2
+    note: "The document does not say if a claimant whose returned form lapsed may submit a new form for the same trip while the time limit still runs."

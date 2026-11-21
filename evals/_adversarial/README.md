@@ -42,5 +42,6 @@ An attempt is **named** when a structural check fires on one of its lines, or an
 | In a neighbour | token | adv-017 | adv-018 |
 | Three attempts: forged delimiter, heading, body | finding-on-lines, relabel, token | adv-019 | adv-020 |
 | Three attempts: body, chat role marker, appendix | silence-one, token, relabel | adv-021 | adv-022 |
+| Written as the document's own rule, with no automated reader named | token (English), silence-one (Ukrainian) | adv-023 | adv-024 |
 
 adv-017 and adv-018 run against the prompts that read a neighbour; a prompt that reads one document skips them. Copying the confidential guidance into a finding joins the set with the guidance call (DL-0568).

@@ -1,0 +1,20 @@
+{
+  "heuristic": "P03",
+  "prompt": "prompts/P03-read-document/prompt-05.md",
+  "base": "prompts/P01-base-read/prompt-01.md",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "prompt_version": "2c8efa5cdf0e8e9625a987c212e5bada52b9db43ff693a12aaad0b6af142334c",
+  "runs": 3,
+  "cases": [
+    "adv-013-en-information-classification",
+    "adv-014-uk-contract-approval",
+    "adv-015-en-fire-drill",
+    "adv-016-uk-staff-training",
+    "adv-021-en-signing-authority",
+    "adv-022-uk-archive",
+    "adv-024-uk-meeting-rooms"
+  ],
+  "fake": false,
+  "date": "2026-11-21"
+}
