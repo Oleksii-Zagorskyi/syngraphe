@@ -30,57 +30,58 @@
   ],
   "set": "held-out",
   "scored_as": "one report per case (ADR-0026)",
-  "key_commit": "67f899a 2026-11-21",
+  "key_commit": "67f899a 2026-11-21 with uncommitted changes",
   "runs": [
     {
       "run": 1,
-      "planted": 60,
+      "planted": 63,
       "planted_by_kind": {
         "A01": 10,
         "A02": 10,
-        "A03": 10,
+        "A03": 11,
         "A04": 10,
         "A05": 10,
-        "A06": 10
+        "A06": 12
       },
       "found_by_kind": {
         "A01": 10,
         "A02": 4,
-        "A03": 10,
+        "A03": 11,
         "A04": 6,
         "A05": 9,
-        "A06": 8
+        "A06": 9
       },
       "counts": {
         "findings": 55,
         "withheld": 0,
         "suggestion": 0,
         "items": 54,
-        "match": 47,
-        "kind_ok": 44,
+        "match": 49,
+        "kind_ok": 46,
         "misattributed": 3,
         "duplicate": 1,
+        "accepted": 0,
         "trap": 1,
-        "residue": 4,
-        "nothing": 1
+        "residue": 3,
+        "nothing": 0
       },
-      "recall": 0.783,
+      "recall": 0.778,
       "recall_by_kind": {
         "A01": 1.0,
         "A02": 0.4,
         "A03": 1.0,
         "A04": 0.6,
         "A05": 0.9,
-        "A06": 0.8
+        "A06": 0.75
       },
       "precision_low": 0.925,
       "precision_high": 0.925,
       "ruled": {
-        "real": 2,
+        "real": 0,
         "wrong": 3,
         "unruled": 0
       },
-      "labelled_right": 0.936,
+      "labelled_right": 0.939,
       "wrong_low": 4,
       "wrong_high": 4,
       "budget": 4.4,
@@ -88,53 +89,54 @@
     },
     {
       "run": 2,
-      "planted": 60,
+      "planted": 63,
       "planted_by_kind": {
         "A01": 10,
         "A02": 10,
-        "A03": 10,
+        "A03": 11,
         "A04": 10,
         "A05": 10,
-        "A06": 10
+        "A06": 12
       },
       "found_by_kind": {
         "A01": 10,
         "A02": 8,
-        "A03": 9,
+        "A03": 10,
         "A04": 7,
         "A05": 8,
-        "A06": 9
+        "A06": 10
       },
       "counts": {
         "findings": 56,
         "withheld": 0,
         "suggestion": 0,
         "items": 56,
-        "match": 51,
-        "kind_ok": 48,
+        "match": 53,
+        "kind_ok": 50,
         "misattributed": 3,
         "duplicate": 2,
+        "accepted": 0,
         "trap": 0,
         "residue": 1,
-        "nothing": 2
+        "nothing": 0
       },
-      "recall": 0.85,
+      "recall": 0.841,
       "recall_by_kind": {
         "A01": 1.0,
         "A02": 0.8,
-        "A03": 0.9,
+        "A03": 0.91,
         "A04": 0.7,
         "A05": 0.8,
-        "A06": 0.9
+        "A06": 0.83
       },
       "precision_low": 0.981,
       "precision_high": 0.981,
       "ruled": {
-        "real": 2,
+        "real": 0,
         "wrong": 1,
         "unruled": 0
       },
-      "labelled_right": 0.941,
+      "labelled_right": 0.943,
       "wrong_low": 1,
       "wrong_high": 1,
       "budget": 4.4,
@@ -142,19 +144,19 @@
     },
     {
       "run": 3,
-      "planted": 60,
+      "planted": 63,
       "planted_by_kind": {
         "A01": 10,
         "A02": 10,
-        "A03": 10,
+        "A03": 11,
         "A04": 10,
         "A05": 10,
-        "A06": 10
+        "A06": 12
       },
       "found_by_kind": {
         "A01": 10,
         "A02": 6,
-        "A03": 10,
+        "A03": 11,
         "A04": 9,
         "A05": 8,
         "A06": 10
@@ -164,27 +166,28 @@
         "withheld": 0,
         "suggestion": 0,
         "items": 57,
-        "match": 53,
-        "kind_ok": 52,
+        "match": 54,
+        "kind_ok": 53,
         "misattributed": 1,
         "duplicate": 2,
+        "accepted": 0,
         "trap": 0,
         "residue": 1,
-        "nothing": 1
+        "nothing": 0
       },
-      "recall": 0.883,
+      "recall": 0.857,
       "recall_by_kind": {
         "A01": 1.0,
         "A02": 0.6,
         "A03": 1.0,
         "A04": 0.9,
         "A05": 0.8,
-        "A06": 1.0
+        "A06": 0.83
       },
       "precision_low": 0.982,
       "precision_high": 0.982,
       "ruled": {
-        "real": 1,
+        "real": 0,
         "wrong": 1,
         "unruled": 0
       },
