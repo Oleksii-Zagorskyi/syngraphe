@@ -11,7 +11,7 @@
   ],
   "set": "development",
   "scored_as": "one report per case (ADR-0026)",
-  "key_commit": "a3291e0 2026-11-21 with uncommitted changes",
+  "key_commit": "67f899a 2026-11-21",
   "runs": [
     {
       "run": 1,
@@ -54,16 +54,16 @@
         "A05": 1.0,
         "A06": 1.0
       },
-      "precision_low": 0.818,
-      "precision_high": 1.0,
+      "precision_low": 0.909,
+      "precision_high": 0.909,
       "ruled": {
-        "real": 0,
-        "wrong": 0,
-        "unruled": 2
+        "real": 1,
+        "wrong": 1,
+        "unruled": 0
       },
       "labelled_right": 1.0,
-      "wrong_low": 0,
-      "wrong_high": 2,
+      "wrong_low": 1,
+      "wrong_high": 1,
       "budget": 0.6,
       "cost_usd": 0.0928
     },

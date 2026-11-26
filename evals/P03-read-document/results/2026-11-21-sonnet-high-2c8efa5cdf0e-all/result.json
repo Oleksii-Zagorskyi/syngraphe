@@ -29,7 +29,7 @@
   ],
   "set": "development",
   "scored_as": "one report per case (ADR-0026)",
-  "key_commit": "a3291e0 2026-11-21 with uncommitted changes",
+  "key_commit": "67f899a 2026-11-21",
   "runs": [
     {
       "run": 1,
@@ -73,14 +73,14 @@
         "A06": 0.89
       },
       "precision_low": 0.96,
-      "precision_high": 1.0,
+      "precision_high": 0.96,
       "ruled": {
         "real": 0,
-        "wrong": 0,
-        "unruled": 2
+        "wrong": 2,
+        "unruled": 0
       },
       "labelled_right": 0.958,
-      "wrong_low": 0,
+      "wrong_low": 2,
       "wrong_high": 2,
       "budget": 4.2,
       "cost_usd": 0.7927
@@ -126,16 +126,16 @@
         "A05": 0.73,
         "A06": 0.89
       },
-      "precision_low": 0.909,
-      "precision_high": 0.982,
+      "precision_low": 0.945,
+      "precision_high": 0.945,
       "ruled": {
-        "real": 0,
-        "wrong": 0,
-        "unruled": 4
+        "real": 2,
+        "wrong": 2,
+        "unruled": 0
       },
       "labelled_right": 0.96,
-      "wrong_low": 1,
-      "wrong_high": 5,
+      "wrong_low": 3,
+      "wrong_high": 3,
       "budget": 4.2,
       "cost_usd": 0.6486
     },

@@ -28,9 +28,9 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: not a defect
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: Line 23 pays a fixed amount for each trip day, including travel days and days on which only part of the day is spent travelling.
 
 ## U-02 — run 1, case-019-en-vehicles, lines 45-45
 
@@ -48,9 +48,9 @@ What the key holds on these lines:
 
 - `R-6`, residue the case set accepted: In section 6 "pays personally" means "pays out of pocket and is reimbursed", and the reimbursement line has no exception for a private trip. One reader of section 5 bears the fuel cost; another hands the receipt to the Finance Officer and is reimbursed, and the Finance Officer can pay or refuse. Each obeys the document. The same doubt covers the tolls and the parking fees of a private trip. The readings differ in an amount and in what the reader gets. It can also be reported as A04 (one phrase, two meanings), with lower confidence (0.2).
 
-Verdict: 
+Verdict: not a defect
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: Line 45 assigns reimbursement and its deadline to the Finance Officer. An absence creates a staffing risk while the obligation remains assigned.
 
 ## U-03 — run 2, case-001-en-travel-expenses, lines 12-12
 
@@ -68,9 +68,9 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: trap
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: Lines 13 and 14 give the director each department head's trip and the chair each director's trip, regardless of destination.
 
 ## U-04 — run 2, case-001-en-travel-expenses, lines 31-31
 
@@ -88,9 +88,9 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: Lines 31–32 leave Finance to choose whether to withhold the entire incomplete claim or pay its documented costs within fifteen working days.
 
 ## U-05 — run 2, case-002-uk-procurement-committee, lines 23-58
 
@@ -110,9 +110,9 @@ What the key holds on these lines:
 - `R-1`, residue the case set accepted: Заміну обмежено засіданням, проте протокол складає і надсилає вже після засідання «Секретар», тоді як правило про відсутність кворуму покладає обовʼязок після засідання на виконавця обовʼязків секретаря. Тому за одним прочитанням протокол складає і надсилає виконавець обовʼязків секретаря, а за іншим — призначений секретар.
 - `R-2`, residue the case set accepted: Коли кворуму немає через те, що і голова, і заступник голови відсутні або мають конфлікт інтересів, і секретар також, ніхто не може доручити обовʼязки секретаря, тож обовʼязок передати заявку директорові не має відповідального; власник може віднести це до A03. Крім того, термін «виконавець обовʼязків секретаря» не визначено, тому коли секретар присутній, читач може не знайти відповідального за передання заявки (холодне читання з ключем, N-5).
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: Line 58 requires referral whenever quorum fails, but line 23 provides an acting secretary only when the secretary is absent or conflicted.
 
 ## U-06 — run 2, case-017-en-annual-leave, lines 41-41
 
@@ -130,6 +130,6 @@ What the key holds on these lines:
 
 - `R-5`, residue the case set accepted: The document does not say if the Chair of the Board is "the line manager" of the Director for the substitute rule. Reader one: the Chair stands in the line manager's place, so when the Chair is absent the Head of People decides the Director's request. Reader two: the Chair's line is a separate rule and the substitute rule does not reach it, so nobody decides and the request counts as approved after five working days. The readings differ in the person who decides and come from the passages together (a condition stated in one place whose scope over another passage is not clear). Under reader one there is also a second A05 finding: the Director, as the likely line manager of the Head of People, decides the Head of People's requests, and the Head of People decides the Director's ("A approves B, B approves A"). That A05 rests on a reporting line that the document does not state, so on its own it is 0.2.
 
-Verdict: 
+Verdict: not a defect
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: The text leaves the Chair's employment and reporting line unspecified. If the Chair is an employee, line 39 assigns approval to their line manager.

@@ -28,9 +28,9 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: trap
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: Line 39 names the Compliance Officer as decider, line 8 names the Chief Executive as stand-in, and line 41 assigns recording to whoever decides.
 
 ## U-02 — run 1, case-009-en-gifts, lines 46-46
 
@@ -50,6 +50,6 @@ What the key holds on these lines:
 - `R-6`, residue the case set accepted: Section 7.6 foresees that an employee learns late that a received gift is above the limit, but its only rule is to hand the gift in unused; a service, a discount or a consumed good cannot be handed in, and the rule to pay the excess covers only hospitality received, so the document says nothing for a received gift that is already used.
 - `R-7`, residue the case set accepted: An employee who receives a gift above the limit by post and refuses it by handing it in can read that no declaration is needed (a refused offer) or that one is needed (Section 7.6); the more specific line most likely governs, so the confidence is low.
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: Second reviewer, accepted by the maintainer: Section 7.6 covers hospitality discovered over-limit afterwards and omits corrective action for unauthorized hospitality received or gifts given when the employee already knows their value.
