@@ -20,6 +20,8 @@ For each heuristic, the key lists:
 
 **`residue`** lists flaws that came with the writing and were not planted, each with the heuristic most likely to report it and a `confidence`, from 0 to 1, that it is a real defect of that kind. A finding on residue stays unmatched and waits on a ruling; the residue shows the reviewer what is already known on those lines. A `note` explains a judgment a reader might not share.
 
+**`accepted`** lists flaws found after the key was written and ruled real by the maintainer, each with the heuristic its finding named, the `passages` it quotes, a `note` with the ruling's reason and its `source`, the result and item it was ruled in. A finding on an accepted item counts as correct for precision, never enters recall, and is not sent for a ruling again. It becomes a planted defect only on the maintainer's word, when a careful human reviewer of that kind of document would be expected to catch it and it changes what a reader does. A held-out key's planted defects never change once the set is approved (DL-0581).
+
 ## A result
 
 | File | Holds |

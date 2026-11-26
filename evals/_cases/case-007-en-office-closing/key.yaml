@@ -33,7 +33,7 @@ heuristics:
       - The closing person carries out the steps below in the order written.
       - '- Keys: the closing person puts the office key in the key safe beside the main door and scrambles the code dial.'
       - '- Closing log: the closing person writes the date, the time of closing and their own role in the closing log, which is kept in the key safe, and signs the entry.'
-      note: The steps run in the order written, so the code dial is scrambled before the closing log, which is kept in the same key safe, is written; the closing person must open the safe again, and no step secures it after the log entry. First recorded as residue.
+      note: The steps run in the order written, so the code dial is scrambled before the closing log, which is kept in the same key safe, is written; the closing person must open the safe again, and no step secures it after the log entry. First recorded as residue; kept as a planted defect, since a careful reviewer of a closing checklist would catch it.
     traps: []
   A04:
     defects: []

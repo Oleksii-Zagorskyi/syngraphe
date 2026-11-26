@@ -99,3 +99,10 @@ residue:
   - The Compliance Officer returns the gift to the third party within ten working days.
   confidence: 0.12
   note: The line gives a time limit and no start (the receipt by the employee, the learning, or the handing in); it is one line that no other passage takes part in, so it is not A02, and as a gap it is small.
+accepted:
+- id: AC-1
+  heuristic: A03
+  passages:
+  - When an employee has received, without an approved exception, a gift above the gift limit or a money gift, the employee hands it, unused, to the Compliance Officer and declares it, both within two working days of learning that it is such a gift.
+  note: Section 7.6 covers hospitality discovered over-limit afterwards and omits corrective action for unauthorized hospitality received or gifts given when the employee already knows their value.
+  source: 2026-11-21-sonnet-high-2c8efa5cdf0e U-02

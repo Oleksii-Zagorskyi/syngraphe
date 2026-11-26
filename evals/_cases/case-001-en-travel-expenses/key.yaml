@@ -50,3 +50,10 @@ heuristics:
           - "The director decides on an urgent trip that is asked for later."
         why: "The director decides the director's own trip on one reading only; the defect is the ambiguity (A02-2), not a circle the document sets."
   A06: {defects: [], traps: []}
+accepted:
+- id: AC-1
+  heuristic: A03
+  passages:
+  - The claim includes a receipt for each cost except meals.
+  note: Lines 31–32 leave Finance to choose whether to withhold the entire incomplete claim or pay its documented costs within fifteen working days.
+  source: 2026-11-21-sonnet-high-2c8efa5cdf0e-all U-04
