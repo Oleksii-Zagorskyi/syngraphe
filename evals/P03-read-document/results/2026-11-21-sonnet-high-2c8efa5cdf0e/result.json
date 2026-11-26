@@ -11,7 +11,7 @@
   ],
   "set": "development",
   "scored_as": "one report per case (ADR-0026)",
-  "key_commit": "67f899a 2026-11-21",
+  "key_commit": "0bdd771 2026-11-26",
   "runs": [
     {
       "run": 1,
@@ -41,8 +41,9 @@
         "kind_ok": 9,
         "misattributed": 0,
         "duplicate": 0,
+        "accepted": 1,
         "trap": 0,
-        "residue": 1,
+        "residue": 0,
         "nothing": 1
       },
       "recall": 1.0,
@@ -57,7 +58,7 @@
       "precision_low": 0.909,
       "precision_high": 0.909,
       "ruled": {
-        "real": 1,
+        "real": 0,
         "wrong": 1,
         "unruled": 0
       },
@@ -95,6 +96,7 @@
         "kind_ok": 8,
         "misattributed": 0,
         "duplicate": 0,
+        "accepted": 0,
         "trap": 0,
         "residue": 0,
         "nothing": 0
@@ -149,6 +151,7 @@
         "kind_ok": 9,
         "misattributed": 0,
         "duplicate": 0,
+        "accepted": 0,
         "trap": 0,
         "residue": 0,
         "nothing": 0

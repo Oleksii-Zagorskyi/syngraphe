@@ -1,12 +1,12 @@
 # prompts/P03-read-document/prompt-05.md — 2026-11-21
 
-Prompt version `2c8efa5cdf0e8e9625a987c212e5bada52b9db43ff693a12aaad0b6af142334c` · claude-sonnet-5-5 at effort `high` · 3 cases × 3 runs · the development set, scored as one report per case, against the key at commit 67f899a 2026-11-21
+Prompt version `2c8efa5cdf0e8e9625a987c212e5bada52b9db43ff693a12aaad0b6af142334c` · claude-sonnet-5-5 at effort `high` · 3 cases × 3 runs · the development set, scored as one report per case, against the key at commit 0bdd771 2026-11-26
 
-| Run | Recall | Precision | Wrong / budget | Trap | Withheld | Unruled | Labelled right | Cost |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 1.0 (9/9) | 0.909–0.909 | 1–1 / 0.6 | 0 | 0 | 0 | 1.0 | $0.0928 |
-| 2 | 0.889 (8/9) | 1.0–1.0 | 0–0 / 0.6 | 0 | 0 | 0 | 1.0 | $0.0709 |
-| 3 | 1.0 (9/9) | 1.0–1.0 | 0–0 / 0.6 | 0 | 0 | 0 | 1.0 | $0.0903 |
+| Run | Recall | Precision | Wrong / budget | Accepted | Trap | Withheld | Unruled | Labelled right | Cost |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 1.0 (9/9) | 0.909–0.909 | 1–1 / 0.6 | 1 | 0 | 0 | 0 | 1.0 | $0.0928 |
+| 2 | 0.889 (8/9) | 1.0–1.0 | 0–0 / 0.6 | 0 | 0 | 0 | 0 | 1.0 | $0.0709 |
+| 3 | 1.0 (9/9) | 1.0–1.0 | 0–0 / 0.6 | 0 | 0 | 0 | 0 | 1.0 | $0.0903 |
 
 Recall by heuristic, reported beside the total and not a gate:
 
