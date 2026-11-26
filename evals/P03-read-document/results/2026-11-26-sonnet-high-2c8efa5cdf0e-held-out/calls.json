@@ -1,0 +1,3183 @@
+[
+  {
+    "run": 1,
+    "case": "case-101-uk-remote-work",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-101-uk-remote-work/P03",
+    "ended": "done",
+    "cost_usd": 0.031275,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 1855,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3827
+    },
+    "compare": null,
+    "marker": "bc65a639a89fa1f2bacf668c85815b20",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN41F7gCzQUvo9FBR",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різні межі днів дистанційної роботи на тиждень",
+          "explanation": "Розділ 3 дозволяє зазначити в заяві не більше трьох днів на тиждень, а розділ 4 каже, що працівник може працювати дистанційно до чотирьох днів. Працівник не може знати, чи можна просити чотири дні. Керівник не знає, чи відхиляти заяву на чотири дні, бо вона «не відповідає вимогам розділу».",
+          "quotes": [
+            "не більше трьох робочих днів на тиждень",
+            "Працівник може працювати дистанційно до чотирьох днів на тиждень."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Термін «службові документи» вжито у двох значеннях",
+          "explanation": "У розділі 1 службові документи — це будь-які паперові й електронні документи, створені або отримані під час роботи. У розділі 7 «службовий документ» названо документом із позначкою «Для службового користування», тобто лише вужчу групу. Через це незрозуміло, чи вимога повідомити про втрату за дві години стосується будь-якого документа, чи тільки документа з позначкою.",
+          "quotes": [
+            "Службові документи в цій Політиці означають будь-які паперові та електронні документи, які працівник створив або отримав під час виконання трудових обовʼязків.",
+            "Про втрату ноутбука або службового документа, тобто документа з позначкою «Для службового користування», працівник повідомляє фахівця з інформаційної безпеки протягом двох годин після виявлення."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-102-en-conflict-of-interest",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-102-en-conflict-of-interest/P03",
+    "ended": "done",
+    "cost_usd": 0.05261,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 4273,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2693
+    },
+    "compare": null,
+    "marker": "4499ba6cab63f4d3f3d0cf0a039fa55b",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN6EnX2i9iwpG3k2r",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 31.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "No role is named to record or follow up a late declaration",
+          "explanation": "The sentence is in the passive voice and says a late declaration is recorded as late and followed up. No passage gives this to the Ethics Officer, the line manager or any other role. Section 5 lists the register fields (post, kind, date of receipt), and none of them is a late flag. No one is accountable for the follow-up.",
+          "quotes": [
+            "A late declaration is recorded as late and followed up with the employee."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "\"The period above\" for putting measures into effect can mean two different periods",
+          "explanation": "The text above this sentence has two periods: the 10 working days for the Ethics Officer's decision, and the period the decision sets for ending an interest. The decision lists measures but sets no period for them. One reader takes the 10 working days from receipt, which may already be used up by the decision. Another reader takes the period set in the decision, which only exists when the interest must be ended. The two readers act on different deadlines.",
+          "quotes": [
+            "The line manager puts the measures into effect within the period above and confirms this in writing to the Ethics Officer."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-103-uk-whistleblowing",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-103-uk-whistleblowing/P03",
+    "ended": "done",
+    "cost_usd": 0.062428,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 4988,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3756
+    },
+    "compare": null,
+    "marker": "ecc7c2e5fc23501d82ff4e6c38b679e6",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN4zfmYsiBAXxYxoW",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 35.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заперечення щодо висновку розглядає той самий Уповноважений, який його склав",
+          "explanation": "Уповноважений сам готує висновок про те, чи підтвердилося порушення. Заперечення заявника проти цього висновку теж розглядає «сам Уповноважений», тож він перевіряє власний акт. Незалежної перевірки немає. У випадках розділу 7 так само діє Голова наглядової ради, бо він виконує обов’язки Уповноваженого.",
+          "quotes": [
+            "Заперечення заявника щодо висновку розглядає сам Уповноважений."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не вказано, хто інформує заявника про вжиті заходи через шість місяців",
+          "explanation": "Речення в безособовій формі вимагає поінформувати заявника про вжиті заходи. Жоден пункт Порядку не називає, хто саме це робить: Уповноважений, Директор чи інша особа. Через це ніхто не відповідає за цю дію, і її можуть не виконати.",
+          "quotes": [
+            "Через шість місяців після рішення заявника інформують про вжиті заходи."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Для особистої зустрічі не визначено дня надходження повідомлення",
+          "explanation": "Є чотири канали подання, але день надходження визначено лише для електронного листа, телефонної розмови та письмового листа. Для повідомлення, викладеного на особистій зустрічі, правила немає. Усі строки (3 робочі дні, 25 і 30 календарних днів, внесення до реєстру) рахують від дня надходження, тож для цього каналу не можна визначити початок їх відліку.",
+          "quotes": [
+            "Заявник може викласти повідомлення на особистій зустрічі з Уповноваженим.",
+            "Днем надходження повідомлення, поданого телефоном, є день розмови."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-104-en-personal-data-requests",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-104-en-personal-data-requests/P03",
+    "ended": "done",
+    "cost_usd": 0.023901,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1391,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2737
+    },
+    "compare": null,
+    "marker": "93a00000d7821dcc8a6a8bbb13c3a2b2",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN415ir7pVr1psSkQ",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different review periods for a refusal",
+          "explanation": "Section 6 tells the Records Clerk to state a 14-day right to ask for review in each refusal. Section 7 gives the requester 20 days. A requester who asks on day 17 is in time under section 7 but out of time under the notice that section 6 requires.",
+          "quotes": [
+            "stating the reason and the right to ask for a review within 14 days under section 7",
+            "within 20 days of the day the refusal is sent"
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No rule for carrying out a granted erasure request",
+          "explanation": "The scope covers erasure requests. Section 7 says how to carry out a granted access request and a granted correction request, but it says nothing about a granted erasure request. No role is told to delete the data, to have the units delete it, or to confirm the deletion before the reply is sent.",
+          "quotes": [
+            "For a granted access request, the Records Clerk sends the copy in electronic form.",
+            "For a granted correction request, the head of each unit that holds the data makes the change and confirms it to the Records Clerk in writing before the reply is sent."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-105-uk-petty-cash",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-105-uk-petty-cash/P03",
+    "ended": "done",
+    "cost_usd": 0.063753,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 5140,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3678
+    },
+    "compare": null,
+    "marker": "7c02c6dde889fb86f44365cbc7e52346",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN2GgVmqS3d7cczS9",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 38.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Два різні строки подання звіту за аванс",
+          "explanation": "У розділі про звіт строк становить п'ять робочих днів після отримання авансу. У розділі про підрахунок він становить десять робочих днів після отримання авансу. Працівник, який подав звіт на сьомий робочий день, дотримується одного правила і порушує інше.",
+          "quotes": [
+            "Працівник протягом п'яти робочих днів після дня отримання авансу подає головному бухгалтерові звіт разом з документами, що підтверджують витрати.",
+            "Звіт за аванс працівник подає не пізніше десяти робочих днів після отримання авансу."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Фінансовий директор і директор взаємно затверджують авансові ордери один одного",
+          "explanation": "Коли аванс понад 5 000 гривень отримує фінансовий директор, другий підпис ставить директор. Коли аванс отримує директор, другий підпис ставить фінансовий директор. Тож кожен із них затверджує видачу іншому, і це замкнене коло. До того ж фінансовий директор відповідає за свої рішення перед директором.",
+          "quotes": [
+            "Якщо аванс отримує фінансовий директор, другий підпис замість нього в той самий строк ставить директор Організації.",
+            "Якщо аванс отримує директор Організації, другий підпис ставить фінансовий директор."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Головний бухгалтер і фінансовий директор затверджують аванси один одного",
+          "explanation": "Для авансу фінансового директора до 5 000 гривень достатньо підпису головного бухгалтера. Коли аванс отримує головний бухгалтер, усі його дії виконує фінансовий директор. Отже, вони взаємно затверджують власні аванси, і незалежного контролю немає.",
+          "quotes": [
+            "Якщо сума авансу становить 5 000 гривень або менше, для видачі достатньо підпису головного бухгалтера на видатковому ордері.",
+            "Якщо аванс отримує головний бухгалтер, усі дії головного бухгалтера за цим розділом виконує замість нього фінансовий директор, а якщо аванс перевищує 5 000 гривень, другий підпис у той самий строк ставить директор Організації."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Термін «аванс» вживається для двох різних речей",
+          "explanation": "Аванс визначено як готівку з каси на витрати Організації, за яку подають звіт. Але «аванс у рахунок заробітної плати» виплачують разом із зарплатою, і ні каса, ні звіт тут не згадані. Працівник або бухгалтер може застосувати до зарплатного авансу порядок витратного авансу (заява, ордер, звіт) або навпаки.",
+          "quotes": [
+            "Аванс — це готівка, яку працівник отримує з каси на витрати в інтересах Організації і за яку він подає звіт.",
+            "Аванс у рахунок заробітної плати працівник отримує разом із заробітною платою за першу половину місяця."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Не сказано, хто передає рішення про нестачу касирові та головному бухгалтерові",
+          "explanation": "Фінансовий директор лише письмово вирішує питання про вину касира. Строки касира (десять днів) і головного бухгалтера (день отримання) починаються від цього рішення. Жодне правило не доручає ролі надіслати рішення цим двом, тому строки можуть не почати відлік.",
+          "quotes": [
+            "Якщо нестача виникла з вини касира, касир протягом десяти робочих днів після цього рішення вносить суму нестачі на банківський рахунок Організації.",
+            "Якщо нестача виникла не з вини касира, головний бухгалтер списує її на підставі цього рішення в день його отримання."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-106-en-internships",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-106-en-internships/P03",
+    "ended": "done",
+    "cost_usd": 0.024398,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1459,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2664
+    },
+    "compare": null,
+    "marker": "caee0195482314c3a81e7cb5d325dd85",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN6ExV45QHXYs7SMP",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 11.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "The stipend table skips 9 weeks",
+          "explanation": "Durations must be a whole number of weeks from 4 to 26, so 9 weeks is allowed. The rates cover 4 to 8, 10 to 16 and 17 to 26 weeks, so no rate applies to a 9-week internship. The Payroll Officer cannot tell what to pay.",
+          "quotes": [
+            "For 4 to 8 weeks inclusive, the rate is 300 crowns per week.",
+            "For 10 to 16 weeks inclusive, the rate is 350 crowns per week."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "\"Approving officer\" is used for two different roles",
+          "explanation": "Section 2 defines the approving officer as the People Team Lead, or the Operations Director for People Team internships. Section 5 calls the head of the host department \"approving officer\" for the learning plan. A reader may send the plan to the People Team Lead, or may think the head has the approving officer's other powers, such as approving extensions and early endings.",
+          "quotes": [
+            "The approving officer is the People Team Lead, except for an internship hosted by the People Team, where the approving officer is the Operations Director instead.",
+            "The head of the host department, as approving officer, approves the learning plan"
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-107-uk-generator-test",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-107-uk-generator-test/P03",
+    "ended": "done",
+    "cost_usd": 0.032246,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 1986,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3691
+    },
+    "compare": null,
+    "marker": "882b70d5ed40f43f8b36fd58bff027c1",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN4zkeCts7sEPvxYK",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різна тривалість роботи під навантаженням: 30 і 45 хвилин",
+          "explanation": "Розділ про випробування під навантаженням вимагає рівно 30 хвилин роботи генератора під навантаженням щита Щ-2. Розділ про зупинку вимагає перемкнути щит на мережу після 45 хвилин. Електрик не може виконати обидві вимоги: перемкнувши на 30-й хвилині, він порушить розділ про зупинку, а діючи за зупинкою, перевищить «рівно 30 хвилин». Покази також знімаються лише до 30-ї хвилини.",
+          "quotes": [
+            "Генератор працює під навантаженням щита Щ-2 рівно 30 хвилин.",
+            "Після 45 хвилин роботи під навантаженням черговий електрик перемикає живлення щита Щ-2 з генератора на мережу."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Незрозуміло, які вимоги не стосуються повторного випробування",
+          "explanation": "Речення «Ці вимоги» стоїть у кінці розділу про періодичність. З нього неясно, що саме не застосовується до повторного випробування: вівторок, вікно 10:00–12:00, попередження керівників чи все разом. Водночас розділ про відхилення каже, що повторне випробування проводять «повністю за цією інструкцією». Двоє уважних читачів можуть по-різному вирішити, чи треба попереджати керівників і чи дотримуватись часового вікна.",
+          "quotes": [
+            "Ці вимоги не застосовуються до повторного випробування.",
+            "Повторне випробування черговий електрик проводить у день, який призначив головний енергетик, повністю за цією інструкцією."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-108-en-boiler-room-inspection",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-108-en-boiler-room-inspection/P03",
+    "ended": "done",
+    "cost_usd": 0.032343,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2238,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2726
+    },
+    "compare": null,
+    "marker": "3b50c5627ce417c27618a8595b966e83",
+    "sent_at": "2026-11-26T14:18:28+00:00",
+    "request_id": "msg_011ChRgeN51EwQpMyCa8Dbdb",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Immediate shutdown at 80 °C lies inside the allowed range up to 85 °C",
+          "explanation": "Section 3 says a flow temperature up to 85 °C is within limits. Section 6 says to shut the boiler down at once on a first reading above 80 °C. A reading of 82 °C is within limits, yet it requires an immediate shutdown. Two careful readers could continue the inspection or shut the boiler down.",
+          "quotes": [
+            "The flow temperature of a running boiler is within limits from 60 °C to 85 °C, both values included.",
+            "On a first reading above 3.5 bar or above 80 °C, the inspector shuts the boiler down at once instead of waiting for a second reading."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No rule for a pressure below 1.5 bar",
+          "explanation": "A pressure from 1.5 to 3.0 bar is within limits, and a pressure above 3.0 bar is out of limit. A pressure below 1.5 bar is not called out of limit, so section 6 (second reading, shutdown) does not clearly apply to it. The inspector does not know what to do with a low pressure reading. The temperature rule, by contrast, names both the low and the high side.",
+          "quotes": [
+            "The pressure of a running boiler is within limits from 1.5 bar to 3.0 bar, both values included.",
+            "A pressure above 3.0 bar is an out-of-limit reading."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-109-uk-training-budget",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-109-uk-training-budget/P03",
+    "ended": "done",
+    "cost_usd": 0.068608,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 5589,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3824
+    },
+    "compare": null,
+    "marker": "c94d4db0b983b8c4b83d1ae4f897a851",
+    "sent_at": "2026-11-26T14:18:40+00:00",
+    "request_id": "msg_011ChRgfBkfgMJuv3ZaD2Ec4",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 40.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Оплата конференції понад 5000 грн: два різні строки передачі до фінансового відділу",
+          "explanation": "Для конференції вартістю понад 5000 гривень одне правило вимагає передати заявку до фінансового відділу в день погодження. Інше правило велить передати її лише після підписання договору директором і працівником. Договір готують після остаточного погодження, тому в день погодження його ще не підписано. Обидва правила виконати неможливо, і документ не каже, яке з них діє для такої конференції.",
+          "quotes": [
+            "Заявку на конференцію відділ персоналу передає до фінансового відділу в день погодження.",
+            "відділ персоналу передає до фінансового відділу протягом 2 робочих днів від дня, коли договір, передбачений розділом 7, підписали директор і працівник"
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Керівник відділу персоналу сам розраховує своє відшкодування",
+          "explanation": "Якщо керівника відділу персоналу звільнено за власним бажанням або за порушення дисципліни, суму, яку він має повернути, розраховує він сам. Те саме відбувається, коли він має сплатити борг: сповіщення про несплату теж подає він. Особа, на чию користь або проти чийого інтересу діє рішення, сама визначає його результат. Незалежної перевірки розрахунку немає.",
+          "quotes": [
+            "Відшкодування керівника відділу персоналу розраховує він сам."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-110-en-company-phones",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-110-en-company-phones/P03",
+    "ended": "done",
+    "cost_usd": 0.014675,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 496,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2627
+    },
+    "compare": null,
+    "marker": "5d4bfb04f4aa1a701554619ba4aa0b6f",
+    "sent_at": "2026-11-26T14:18:41+00:00",
+    "request_id": "msg_011ChRgfGdMeu48VWduKMsBf",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 0,
+    "seconds": 5.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Finance Director decides on their own negligence in loss case",
+          "explanation": "The Finance Director decides whether a holder's phone was lost through negligence. The Finance Director can also be a holder, and the policy gives a stand-in only for the excess decision, not for this one. In that case the Finance Director would decide on their own negligence and approve their own act.",
+          "quotes": [
+            "A holder whose phone is lost through their own negligence, as the Finance Director decides, pays half the price of the replacement."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Finance Director deducts from own salary",
+          "explanation": "The Finance Director deducts amounts from the holder's next salary or payment. When the Finance Director is the holder, they would carry out the deduction on themselves. The stand-in rule covers only the statement and the decision, not the deduction, so the Finance Director would carry out the deduction on their own pay.",
+          "quotes": [
+            "The Finance Director deducts the amount that the holder pays from the holder's next salary payment."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "No rule for a holder who loses the phone through negligence when the HR Manager is ... (gap in who handles replacement cost payment)",
+          "explanation": "The policy says a holder pays half the price of the replacement after negligent loss, but it does not say how or when the holder pays or who collects. No role is given the action of collecting this payment.",
+          "quotes": [
+            "pays half the price of the replacement"
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-111-uk-first-aid-kits",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-111-uk-first-aid-kits/P03",
+    "ended": "done",
+    "cost_usd": 0.047786,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 3576,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3547
+    },
+    "compare": null,
+    "marker": "a5b804c87b7b84f583fb5cc125fe5aae",
+    "sent_at": "2026-11-26T14:18:43+00:00",
+    "request_id": "msg_011ChRgfS1ACvZ7HxKgaKnXT",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для аптечки третього поверху немає переліку засобів",
+          "explanation": "Інструкція поширюється на три аптечки, але перелік складу наведено лише для першого і другого поверхів. Для третього поверху жоден розділ не каже, що має бути в аптечці. Відповідальний не може ні скомплектувати її, ні перевірити під час щомісячної перевірки. Якщо він застосує перелік у розділі «Склад аптечки», то порушить правило, що перелік стосується лише двох поверхів.",
+          "quotes": [
+            "Інструкція поширюється на три аптечки, по одній на кожному з трьох поверхів будівлі.",
+            "Аптечки першого і другого поверхів містять такі засоби.",
+            "Під час перевірки він звіряє наявність і кількість засобів із переліком у розділі «Склад аптечки»."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Запис причини травми не має виконавця",
+          "explanation": "Речення в безособовій формі вимагає записувати причину травми до журналу обліку нещасних випадків. Жодна посада в документі не має цього обов'язку: ні працівник, який узяв засоби, ні відповідальний за аптечку, ні інші. Тому запис ніхто не зобов'язаний робити, і невідомо, хто за нього відповідає.",
+          "quotes": [
+            "Після кожного використання аптечки причину травми записують до журналу обліку нещасних випадків."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-112-en-visitors",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-112-en-visitors/P03",
+    "ended": "done",
+    "cost_usd": 0.029108,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1969,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2508
+    },
+    "compare": null,
+    "marker": "2121279785c7d1ee1c3f9356222a6bf5",
+    "sent_at": "2026-11-26T14:18:44+00:00",
+    "request_id": "msg_011ChRgfUeewQdRzRsrSUhGT",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Saturday training registration conflicts with the working-hours rule for guests",
+          "explanation": "Section 3 says the receptionist registers a guest only during working hours (Monday to Friday, 08:00 to 17:00) and refuses entry at any other time. Section 8 lets a guest register on a Saturday between 08:00 and 10:00. A receptionist who obeys section 3 must refuse this guest, and one who obeys section 8 must register the guest.",
+          "quotes": [
+            "The receptionist registers a guest only during working hours and refuses entry to a guest at any other time.",
+            "A guest who attends a training day on a Saturday registers at reception between 08:00 and 10:00 on that Saturday."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "\"Working hours\" means both the defined hours and the hours in the work permit",
+          "explanation": "Section 2 defines working hours as 08:00 to 17:00 from Monday to Friday. Sections 3 and 7 use the same words for the hours that the work permit names for each date, and these can differ from the defined hours. For a contractor, section 8 says to leave \"by the end of working hours\". A reader cannot tell if this is 17:00 or the end of the hours in the permit.",
+          "quotes": [
+            "Working hours are 08:00 to 17:00 from Monday to Friday.",
+            "The receptionist registers a contractor only within the working hours named in the work permit and refuses entry to a contractor at any other time.",
+            "A contractor leaves the site by the end of working hours, instead of by 18:00."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-113-uk-sponsorship-donations",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-113-uk-sponsorship-donations/P03",
+    "ended": "done",
+    "cost_usd": 0.042518,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2987,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3796
+    },
+    "compare": null,
+    "marker": "b33cb24b259f5b09aa3b1359d3fbfc6f",
+    "sent_at": "2026-11-26T14:18:45+00:00",
+    "request_id": "msg_011ChRgfZYqJ8bzDbTK7MfcE",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Суми від 40 000 до 50 000 гривень не охоплено жодним правилом",
+          "explanation": "Директор вирішує заявки із сукупною сумою до 40 000 гривень включно, а Комітет — заявки понад 50 000 гривень. Для заявки із сукупною сумою понад 40 000 і до 50 000 гривень включно наказ не називає, хто ухвалює рішення. Виконавець не знає, кому передати таку заявку.",
+          "quotes": [
+            "Рішення щодо заявки із сукупною сумою до 40 000 гривень включно ухвалює директор.",
+            "Рішення щодо заявки із сукупною сумою понад 50 000 гривень ухвалює Комітет з підтримки замість директора."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Директор і Комітет затверджують рішення один одного по колу",
+          "explanation": "Рішення директора затверджує Комітет, а рішення Комітету затверджує директор. Жодне рішення не має остаточного затвердження незалежного органу: Комітет підтверджує директора, який підтверджує Комітет. Тому для заявок обох груп сум не видно, коли рішення вважається остаточним.",
+          "quotes": [
+            "Рішення директора за цим розділом затверджує Комітет, а рішення Комітету — директор."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Виконання договору (кошти, товари, послуги) не закріплено за жодною роллю",
+          "explanation": "Наказ вимагає забезпечити перерахування коштів, передачу товарів і надання послуг, але не вказує, хто це робить. Речення безособове, і жодна інша частина наказу не призначає виконавця. Тому підтримку за договором може ніхто не надати.",
+          "quotes": [
+            "Перерахування коштів, передачу товарів і надання послуг забезпечують у строки, визначені договором."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-114-en-tile-laying",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-114-en-tile-laying/P03",
+    "ended": "done",
+    "cost_usd": 0.029641,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1967,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2729
+    },
+    "compare": null,
+    "marker": "05cf6548065fa1a5019195d690b2b611",
+    "sent_at": "2026-11-26T14:18:46+00:00",
+    "request_id": "msg_011ChRgffmdyP7CLcvHSiR4T",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different usable times for mixed adhesive",
+          "explanation": "One passage says mixed adhesive is usable for 3 hours after the second mixing. Another says the Tiler discards adhesive that remains 2 hours after the second mixing. A Tiler cannot follow both for adhesive that is between 2 and 3 hours old.",
+          "quotes": [
+            "Mixed adhesive stays usable for 3 hours after the second mixing.",
+            "The Tiler discards any adhesive that remains 2 hours after the second mixing ended."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "\"Large tile\" has two different size limits",
+          "explanation": "The scope defines a large tile as longer than 300 mm. The joint width section redefines it as 600 mm or more. For a tile of 301 to 599 mm, the trowel rule says large, the joint rule does not, and no rule says whether the joint is 2 mm or 3 mm. The floor start rule for large tiles is also unclear for these tiles.",
+          "quotes": [
+            "A large tile is a tile whose longest side is more than 300 mm, and a small tile is a tile whose longest side is 300 mm or less.",
+            "a large tile here being one of 600 mm or more"
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-115-uk-internal-audit",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-115-uk-internal-audit/P03",
+    "ended": "done",
+    "cost_usd": 0.036421,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2385,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3765
+    },
+    "compare": null,
+    "marker": "f6bd7872829a537736641af7687e276e",
+    "sent_at": "2026-11-26T14:18:58+00:00",
+    "request_id": "msg_011ChRggWMtEKDmVoddse3Vx",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Генеральний директор затверджує план заходів щодо зауважень до власної діяльності",
+          "explanation": "Якщо зауваження стосується діяльності самого Генерального директора, він сам затверджує план заходів щодо нього. Те саме стосується нового строку виконання заходу за розділом 6. Так він схвалює власні дії, а Рада в цьому порядку не втручається.",
+          "quotes": [
+            "Генеральний директор затверджує план заходів, зокрема щодо зауважень до власної діяльності, протягом п’яти робочих днів після його отримання і надсилає керівникові Служби."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не вказано, хто передає копію звіту керівникові підрозділу",
+          "explanation": "Речення в пасивній формі вимагає передати копію звіту, але не називає ролі, яка це робить. Від цієї дії залежить строк десять робочих днів на подання плану заходів. Тому читач не знає, хто відповідає за передачу, і строк може не початися.",
+          "quotes": [
+            "Копію звіту про аудит передають керівникові структурного підрозділу, у якому Служба провела аудит, протягом двох робочих днів після отримання звіту."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Термін «зауваження» вжито у двох значеннях",
+          "explanation": "У розділі 1 зауваження — це порушення або недолік, який Служба виявила й записала у звіті. У розділі 5 «зауваження керівника підрозділу до проєкту звіту» — це заперечення або коментар підрозділу. Читач може сплутати їх з визначеним терміном і внести до плану заходів чи квартального звіту як зауваження Служби.",
+          "quotes": [
+            "Зауваження означає записане у звіті про аудит порушення або недолік, який Служба виявила під час аудиту.",
+            "Зауваження керівника підрозділу до проєкту звіту керівник Служби розглядає разом із поясненнями."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-116-en-meeting-minutes",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-116-en-meeting-minutes/P03",
+    "ended": "done",
+    "cost_usd": 0.022943,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1315,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2658
+    },
+    "compare": null,
+    "marker": "bf5a2378a97cc83aa379924cdb46eab9",
+    "sent_at": "2026-11-26T14:19:00+00:00",
+    "request_id": "msg_011ChRggh2a4Zanu1oAsAj3W",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule to circulate draft minutes of video-link meetings",
+          "explanation": "The standard covers meetings held in person or by video link. The draft circulation and comment rules cover only meetings held in person. For a video-link meeting, nobody is told to send the draft, there is no comment period, and the approval deadline that starts from the comment period has no starting point.",
+          "quotes": [
+            "It applies to every meeting that employees of the Organisation hold in the course of their work, whether in person or by video link.",
+            "The secretary sends the draft minutes of a meeting held in person to all participants by the Organisation's e-mail within three working days after the day of the meeting."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Secretary approves the minutes that the secretary wrote and signed",
+          "explanation": "The secretary prepares and signs the final text, and the chair normally approves it. If the chair is absent for two working days, the secretary approves the minutes instead. The secretary then approves the secretary's own work, and no other role checks it.",
+          "quotes": [
+            "When the chair is absent for those two working days, the secretary approves the minutes instead."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-117-uk-cold-chain-samples",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-117-uk-cold-chain-samples/P03",
+    "ended": "done",
+    "cost_usd": 0.081971,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 6961,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3681
+    },
+    "compare": null,
+    "marker": "222ef415210946047674954a32049eef",
+    "sent_at": "2026-11-26T14:19:01+00:00",
+    "request_id": "msg_011ChRggkFJ9FS3vYrdZPvEM",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 48.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заступник завідувача є черговим лаборантом, хоча його не включають до графіка чергувань",
+          "explanation": "Розділ 2 визначає чергового лаборанта як особу, яку призначає графік чергувань, і прямо виключає заступника з графіка. Розділ 4 водночас називає заступника черговим лаборантом у вихідні дні. Виконавець не може визначити, чи заступник є черговим лаборантом за цією процедурою, і чи мають на нього діяти правила про чергового.",
+          "quotes": [
+            "Завідувача лабораторії та його заступника до графіка чергувань не включають.",
+            "У вихідні дні черговим лаборантом є заступник завідувача лабораторії."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Для низькотемпературного морозильника немає діапазону",
+          "explanation": "Для холодильника і морозильника задано межі температури, а для низькотемпературного морозильника лише одне значення мінус 80 °C. Діапазон визначено як межі температури, тому для цього типу сховища межі не встановлені. Черговий лаборант не може встановити, що саме є показником поза діапазоном і температурним відхиленням, тож розділ 5 для цього типу не запускається.",
+          "quotes": [
+            "Низькотемпературний морозильник працює за температури мінус 80 °C.",
+            "Діапазон — це межі температури, встановлені для типу сховища в розділі 3."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Заступник перевіряє і затверджує власні дії за відсутності завідувача",
+          "explanation": "У вихідні дні заступник записує показники як черговий лаборант і діє за розділом 5. Якщо завідувача немає, заступник виконує всі його обов'язки: щопонеділка перевіряє й підписує журнал температури та вирішує щодо придатності зразків. У такому разі він сам перевіряє й затверджує записи та дії, які виконав як черговий лаборант.",
+          "quotes": [
+            "У вихідні дні черговим лаборантом є заступник завідувача лабораторії.",
+            "За відсутності завідувача лабораторії всі його обов'язки за цією процедурою виконує заступник завідувача лабораторії.",
+            "Завідувач лабораторії щопонеділка перевіряє записи за попередній тиждень і підписує журнал температури."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-118-en-performance-reviews",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-118-en-performance-reviews/P03",
+    "ended": "done",
+    "cost_usd": 0.047165,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 3727,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2699
+    },
+    "compare": null,
+    "marker": "2cf2c67a9c6860b40da6acc536d0888c",
+    "sent_at": "2026-11-26T14:19:04+00:00",
+    "request_id": "msg_011ChRggzBTJUAESgDj7SMgy",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 25.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "HR Lead alone decides appeals against ratings that the HR Lead helped set",
+          "explanation": "The Calibration Panel includes the HR Lead and all heads of departments, and it sets the final rating. A head of department's appeal is decided by the HR Lead alone, with no Appeals Committee. So the HR Lead reviews the HR Lead's own panel decision, and no independent body checks it.",
+          "quotes": [
+            "The HR Lead decides an appeal of a head of department alone, instead of the Appeals Committee.",
+            "The Calibration Panel consists of the HR Lead and all heads of departments, and answers to the Director General for its decisions."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Panel members can decide their own rating",
+          "explanation": "The HR Lead and the heads of departments are panel members and are also employees who receive ratings. The only exclusion covers a member who proposed the rating as line manager. A member whose own rating is under discussion can still vote on it, and so approves their own rating.",
+          "quotes": [
+            "A member who proposed a rating as line manager takes no part in the decision on that rating.",
+            "For each employee the Calibration Panel either confirms the proposed rating or replaces it with another of the four ratings."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "HR Lead receives and screens an appeal against the HR Lead's own rating",
+          "explanation": "Every appeal goes in writing to the HR Lead, who rejects late appeals and passes timely ones to the Appeals Committee. When the HR Lead is the appellant, the HR Lead decides on the HR Lead's own appeal at the gate. No rule gives another role this step in that case.",
+          "quotes": [
+            "An employee may appeal against the final rating in writing to the HR Lead within 10 working days after receiving the copy of the review form.",
+            "The HR Lead rejects an appeal submitted after that time limit, and the final rating stands."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Retention of review forms has no owner",
+          "explanation": "The document requires review forms to be kept for three years. It is written in the passive voice, and no passage gives the keeping to any role. No one is accountable for storing the forms or for ending the retention.",
+          "quotes": [
+            "Each review form is kept for three years after 30 April."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-119-uk-social-media",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-119-uk-social-media/P03",
+    "ended": "done",
+    "cost_usd": 0.041073,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2849,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3770
+    },
+    "compare": null,
+    "marker": "28eb8fb08f14369b921281289d997c49",
+    "sent_at": "2026-11-26T14:19:06+00:00",
+    "request_id": "msg_011ChRgh9ZGH9bXRg9DYDi2g",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 20.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заступник керівника відділу комунікацій — редактор — погоджує власні дописи",
+          "explanation": "Редактор готує дописи й проєкти відповідей, а погоджує їх керівник відділу комунікацій. Коли керівника немає, директор призначає на заміну саме редактора. Тоді редактор погоджує власні дописи і власні проєкти відповідей, а також сам перевіряє журнал прихованих коментарів, які приховав. Незалежного погодження в цьому разі немає.",
+          "quotes": [
+            "На цю заміну директор призначає редактора соціальних мереж.",
+            "Редактор соціальних мереж готує дописи, а керівник відділу комунікацій погоджує кожен допис до публікації."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Для редактора соціальних мереж не передбачено заміщення",
+          "explanation": "Директор має заступника, керівник відділу комунікацій — призначеного працівника. Для редактора заміни немає, хоча він має суворі строки: щоденний перегляд коментарів і зупинку дописів за тридцять хвилин. Якщо редактора немає, документ не каже, хто виконує ці обов'язки.",
+          "quotes": [
+            "Редактор соціальних мереж щоробочого дня переглядає коментарі в усіх офіційних акаунтах.",
+            "Редактор соціальних мереж зупиняє публікацію всіх запланованих дописів протягом тридцяти хвилин після отримання рішення."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-120-en-courier-samples",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-120-en-courier-samples/P03",
+    "ended": "done",
+    "cost_usd": 0.031773,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2195,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2670
+    },
+    "compare": null,
+    "marker": "aa9fd892ee6a13612fbead57d21f2530",
+    "sent_at": "2026-11-26T14:19:07+00:00",
+    "request_id": "msg_011ChRghDLiJ2bEmsCEvFvXc",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for an uncollected Frozen box",
+          "explanation": "The section on uncollected boxes covers Ambient boxes (end of the collection day) and Chilled boxes (four hours after closing). A Frozen box that is not handed over has no rule. The Dispatch Technician does not know whether to keep it closed, open it, return the samples to storage or rebook. The hand-over section sends the reader to \"time limits\" for this case, but none exists for Frozen boxes.",
+          "quotes": [
+            "If a Chilled box has not been handed over within four hours after it was closed",
+            "the time limits of the section \"Uncollected boxes\" continue to run for it"
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "No booking rule for urgent boxes",
+          "explanation": "Urgent boxes are taken out of the booking rule. That rule gives the collection day and the service for each category. No other passage says how an urgent box is booked, which day or service to use, or what applies to Chilled and Frozen urgent boxes. The Dispatch Technician has no instruction for this case.",
+          "quotes": [
+            "This rule does not apply to a box that the Sample Owner marks as urgent on the dispatch request."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-121-uk-translation-official-papers",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-121-uk-translation-official-papers/P03",
+    "ended": "done",
+    "cost_usd": 0.07239,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 6011,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 3649
+    },
+    "compare": null,
+    "marker": "2c6d7aaf92337363ac42926cec41a16e",
+    "sent_at": "2026-11-26T14:19:07+00:00",
+    "request_id": "msg_011ChRghDMi8HCKEkyonvJU4",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 42.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила засвідчення перекладу статуту й довіреності для контрагента або банку",
+          "explanation": "Розділ 2 включає до сфери Порядку переклад статуту й довіреності для іноземного контрагента чи банку. Розділ 7 передбачає засвідчення лише для документів, що подаються до органу влади чи суду, і для договору з іноземним контрагентом. Хто й як засвідчує переклад статуту та довіреності, які не подають до органу влади чи суду, документ не каже, а засвідчують «лише» зазначені переклади.",
+          "quotes": [
+            "статут і довіреність Організації, копію яких запитує іноземний контрагент або іноземний банк",
+            "Переклад договору з іноземним контрагентом, який не подають до органу влади або суду, засвідчує підписом перекладач, який його виконав."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Оплата рахунків перекладача й нотаріуса не має відповідальної особи",
+          "explanation": "Речення «оплачують» подано безособово, і жодна роль не названа виконавцем оплати. Інше речення лише каже, що «Організація сплачує з бюджету підрозділу ініціатора», але не називає працівника чи підрозділ, який перераховує кошти. Крім того, діловод передає рахунок ініціаторові, а не особі, яка платить, тож читач не знає, хто саме має оплатити у встановлений строк.",
+          "quotes": [
+            "Рахунок перекладача й нотаріуса оплачують протягом десяти робочих днів від дня, коли діловод передав рахунок і запис журналу про передачу перекладу ініціаторові."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Перекладач може сам перевіряти власний переклад",
+          "explanation": "Перевіряльник — це перекладач з Переліку, якого діловод обирає серед усіх перекладачів потрібної мови за найнижчою ставкою перевірки. Заборони обирати того, хто виконував переклад, немає. Тому та сама особа може перекласти, перевірити та перевірити власні виправлення, тобто сама схвалює свою роботу.",
+          "quotes": [
+            "Переклад перевіряє перекладач з Переліку (далі — перевіряльник).",
+            "серед перекладачів з потрібної мови за найнижчою ставкою перевірки"
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 1,
+    "case": "case-122-en-roof-gutters",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run1/case-122-en-roof-gutters/P03",
+    "ended": "done",
+    "cost_usd": 0.023193,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1354,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 2602
+    },
+    "compare": null,
+    "marker": "dc03899365c01f647495f06217694d38",
+    "sent_at": "2026-11-26T14:19:10+00:00",
+    "request_id": "msg_011ChRghPTRzJGopsXFtpavK",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 9.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Gutter work below 2 metres is both work at height and not work at height",
+          "explanation": "Section 1 says all gutter work is work at height whatever the eaves height. Section 4 says work on eaves below 2 metres is not work at height and needs no permit. Section 3 says gutter work does not start without a permit. A reader cannot tell whether low gutter work needs a permit, so obeying one passage breaks another.",
+          "quotes": [
+            "All gutter work is treated as work at height, whatever the height of the eaves.",
+            "Gutter work on eaves below 2 metres is not work at height and needs no permit."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No role takes the equipment out of use or examines it after an accident",
+          "explanation": "The sentence is in the passive voice and names no role. No other passage tells the site supervisor, the safety officer or anyone else to remove the equipment from use, to examine it, or to decide when it may be used again. The requirement can go undone with nobody accountable.",
+          "quotes": [
+            "After an accident, the access equipment is taken out of use until it has been examined."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-101-uk-remote-work",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-101-uk-remote-work/P03",
+    "ended": "done",
+    "cost_usd": 0.025311,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2177,
+      "cache_read_input_tokens": 3827,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "bc65a639a89fa1f2bacf668c85815b20",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkMK2gpLZPQU1WSMJp",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різні ліміти днів дистанційної роботи на тиждень",
+          "explanation": "Розділ 3 дозволяє зазначити в заяві не більше трьох днів на тиждень. Розділ 4 дозволяє працювати дистанційно до чотирьох днів. Працівник не може знати, чи можна подати заяву на чотири дні. Керівник, який дотримується розділу 3, відхилить заяву, яку розділ 4 дозволяє.",
+          "quotes": [
+            "Працівник зазначає в заяві не більше трьох робочих днів на тиждень і період не довший за дванадцять місяців.",
+            "Працівник може працювати дистанційно до чотирьох днів на тиждень."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Термін «службові документи» вживається у двох значеннях",
+          "explanation": "У розділі 1 службові документи — це будь-які паперові та електронні документи, пов'язані з роботою. У розділі 7 про втрату «службового документа» сказано, що це лише документ з позначкою «Для службового користування». Працівник, який втратив звичайний службовий документ, може вирішити, що повідомляти не треба. Так він порушить визначення з розділу 1.",
+          "quotes": [
+            "Службові документи в цій Політиці означають будь-які паперові та електронні документи, які працівник створив або отримав під час виконання трудових обовʼязків.",
+            "Про втрату ноутбука або службового документа, тобто документа з позначкою «Для службового користування», працівник повідомляє фахівця з інформаційної безпеки протягом двох годин після виявлення."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Незрозуміло, на які вимоги поширюється виняток для одного дня на тиждень",
+          "explanation": "Слова «Ці вимоги» можуть стосуватися лише двох попередніх речень про папери, усього розділу 7 або навіть заборони виносити документи «Для службового користування». Один читач вирішить, що працівник з одним днем на тиждень може не зберігати документи під замком. Інший вирішить, що він також може виносити документи з позначкою чи не дотримуватися правил щодо електронних документів.",
+          "quotes": [
+            "Ці вимоги не поширюються на працівника, який працює дистанційно один день на тиждень."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-102-en-conflict-of-interest",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-102-en-conflict-of-interest/P03",
+    "ended": "done",
+    "cost_usd": 0.046337,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 4292,
+      "cache_read_input_tokens": 2693,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "4499ba6cab63f4d3f3d0cf0a039fa55b",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkMFYsxLSCPWm7HEGi",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 30.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "No role is named to record and follow up late declarations",
+          "explanation": "The document requires a late declaration to be recorded as late and followed up with the employee. The sentence is in the passive voice and no passage gives the recording or the follow-up to a role. Section 5 gives the register to the Ethics Officer, but it does not mention late marks or follow-up. No one is accountable, so the reader cannot tell who must act.",
+          "quotes": [
+            "A late declaration is recorded as late and followed up with the employee."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "\"The period above\" for putting measures into effect can point to two different periods",
+          "explanation": "The line manager must put measures into effect \"within the period above\". The text above names two periods: the 10 working days within which the Ethics Officer decides, and the period the decision sets for ending an interest. A decision that only lists measures sets no period of its own. One reader will take the 10 working days from receipt, which ends when the decision is due. Another will look for a period in the decision. They will act on different deadlines.",
+          "quotes": [
+            "The line manager puts the measures into effect within the period above and confirms this in writing to the Ethics Officer.",
+            "the employee must end the interest within the period that the decision sets"
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-103-uk-whistleblowing",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-103-uk-whistleblowing/P03",
+    "ended": "done",
+    "cost_usd": 0.070304,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 6677,
+      "cache_read_input_tokens": 3756,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "ecc7c2e5fc23501d82ff4e6c38b679e6",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkMFYzqr3vkmx9aMzG",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 46.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заперечення проти висновку розглядає той самий Уповноважений, який його склав",
+          "explanation": "Уповноважений сам пише висновок, а заперечення заявника проти цього висновку розглядає також сам. Так він оцінює власний акт, і незалежної перевірки немає. У розділі 7 Голова наглядової ради виконує обов’язки Уповноваженого, тож так само розглядає заперечення проти власного висновку.",
+          "quotes": [
+            "Заперечення заявника щодо висновку розглядає сам Уповноважений."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не визначено, хто через шість місяців інформує заявника про вжиті заходи",
+          "explanation": "Речення в безособовій формі вимагає поінформувати заявника про вжиті заходи, але не називає виконавця. Попереднє речення покладає інформування про рішення на Уповноваженого, а це зобов’язання лишається без власника. Через це ніхто не відповідає за його виконання.",
+          "quotes": [
+            "Через шість місяців після рішення заявника інформують про вжиті заходи."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-104-en-personal-data-requests",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-104-en-personal-data-requests/P03",
+    "ended": "done",
+    "cost_usd": 0.032002,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2858,
+      "cache_read_input_tokens": 2737,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "93a00000d7821dcc8a6a8bbb13c3a2b2",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkNB7QYdz2jtfwYyKJ",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 20.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different time limits for asking for a review of a refusal",
+          "explanation": "Section 6 tells the Records Clerk to state a 14-day period for asking for a review. Section 7 gives the requester 20 days from the day the refusal is sent. A refusal notice that says 14 days contradicts the rule that allows 20. A reader cannot tell which period is the real one.",
+          "quotes": [
+            "the right to ask for a review within 14 days under section 7",
+            "The requester may ask the Records Clerk in writing for a review of a refusal within 20 days of the day the refusal is sent."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No rule for carrying out a granted erasure request",
+          "explanation": "The scope includes erasure requests, and section 7 says how to carry out a granted access request and a granted correction request. It has no rule for a granted erasure request. No role is told to delete the data, to have each unit delete it, or to confirm that it was deleted before the reply.",
+          "quotes": [
+            "An erasure request asks the Organisation to delete the personal data held about the requester.",
+            "For a granted access request, the Records Clerk sends the copy in electronic form."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-105-uk-petty-cash",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-105-uk-petty-cash/P03",
+    "ended": "done",
+    "cost_usd": 0.061756,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 5823,
+      "cache_read_input_tokens": 3678,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "7c02c6dde889fb86f44365cbc7e52346",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkMNVxz7pUgZbB85cb",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 41.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Два різні строки подання звіту за аванс",
+          "explanation": "Розділ «Звіт за аванс» дає працівникові п'ять робочих днів після отримання авансу. Розділ «Щомісячний підрахунок» називає граничний строк у десять робочих днів. Працівник не може виконати обидва правила однаково, а головний бухгалтер не знає, коли аванс уже вважати простроченим і вносити його до акта.",
+          "quotes": [
+            "Працівник протягом п'яти робочих днів після дня отримання авансу подає головному бухгалтерові звіт",
+            "Звіт за аванс працівник подає не пізніше десяти робочих днів після отримання авансу."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Слово «аванс» означає і підзвітні гроші, і аванс із зарплати",
+          "explanation": "Порядок визначає аванс як готівку з каси на витрати Організації, за яку подають звіт. Згодом «аванс у рахунок заробітної плати» виплачують разом із зарплатою. До нього не підходять ні заява, ні ордер, ні звіт. Читач може вимагати звіт за зарплатний аванс або видавати його за правилами підзвітного авансу.",
+          "quotes": [
+            "Аванс — це готівка, яку працівник отримує з каси на витрати в інтересах Організації і за яку він подає звіт.",
+            "Аванс у рахунок заробітної плати працівник отримує разом із заробітною платою за першу половину місяця."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Фінансовий директор і директор підписують авансові ордери один одного",
+          "explanation": "Коли аванс отримує фінансовий директор, другий підпис ставить директор. Коли аванс отримує директор, другий підпис ставить фінансовий директор. Ці дві посади затверджують витрати одна одної, і незалежного погодження немає.",
+          "quotes": [
+            "Якщо аванс отримує фінансовий директор, другий підпис замість нього в той самий строк ставить директор Організації.",
+            "Якщо аванс отримує директор Організації, другий підпис ставить фінансовий директор."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Головний бухгалтер і фінансовий директор взаємно вирішують питання щодо авансів одне одного",
+          "explanation": "Загальне правило дає головному бухгалтерові рішення за заявою кожного працівника, зокрема фінансового директора. Коли аванс отримує сам головний бухгалтер, його дії виконує фінансовий директор. Виходить замкнене коло: кожен вирішує питання іншого. Те саме стосується перевірки звітів, де головного бухгалтера замінює фінансовий директор.",
+          "quotes": [
+            "Головний бухгалтер протягом двох робочих днів після отримання заяви складає і підписує видатковий ордер або письмово відмовляє працівникові із зазначенням підстави.",
+            "Якщо аванс отримує головний бухгалтер, усі дії головного бухгалтера за цим розділом виконує замість нього фінансовий директор"
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-106-en-internships",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-106-en-internships/P03",
+    "ended": "done",
+    "cost_usd": 0.014164,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1075,
+      "cache_read_input_tokens": 2664,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "caee0195482314c3a81e7cb5d325dd85",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkMNk2dS3pxwfqc49T",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 7.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "No stipend rate for 9 weeks",
+          "explanation": "An internship may last any whole number of weeks from 4 to 26, so 9 weeks is allowed. The stipend table covers 4 to 8 weeks and 10 to 16 weeks, so no rate applies to a 9-week internship. The Payroll Officer cannot tell what to pay.",
+          "quotes": [
+            "For 4 to 8 weeks inclusive, the rate is 300 crowns per week.",
+            "For 10 to 16 weeks inclusive, the rate is 350 crowns per week."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "\"Approving officer\" used for the head of the host department",
+          "explanation": "Section 2 defines the approving officer as the People Team Lead, or the Operations Director for People Team internships. Section 5 calls the head of the host department the \"approving officer\" for the learning plan. A reader cannot tell whether the department head or the People Team Lead approves the plan.",
+          "quotes": [
+            "The approving officer is the People Team Lead, except for an internship hosted by the People Team, where the approving officer is the Operations Director instead.",
+            "The head of the host department, as approving officer, approves the learning plan"
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-107-uk-generator-test",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-107-uk-generator-test/P03",
+    "ended": "done",
+    "cost_usd": 0.026157,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2263,
+      "cache_read_input_tokens": 3691,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "882b70d5ed40f43f8b36fd58bff027c1",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkMKGpLfD9DnJZXNEN",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.1,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різна тривалість роботи під навантаженням: 30 і 45 хвилин",
+          "explanation": "Розділ про випробування під навантаженням вимагає рівно 30 хвилин роботи під навантаженням, і покази знімають до завершення цих 30 хвилин. Розділ про зупинку велить перемикати щит на мережу після 45 хвилин. Електрик не може виконати обидві вимоги: він або перемкне щит через 30 хвилин, або через 45.",
+          "quotes": [
+            "Генератор працює під навантаженням щита Щ-2 рівно 30 хвилин.",
+            "Після 45 хвилин роботи під навантаженням черговий електрик перемикає живлення щита Щ-2 з генератора на мережу."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Незрозуміло, які вимоги не діють для повторного випробування",
+          "explanation": "Речення «Ці вимоги» стоїть після правил про день, час, повідомлення керівників і призначення нового дня, тому не видно, на що воно посилається. Інший розділ велить проводити повторне випробування «повністю за цією інструкцією». Один виконавець повідомить керівників підрозділів і дотримається вікна 10:00–12:00, інший вважатиме ці правила скасованими.",
+          "quotes": [
+            "Ці вимоги не застосовуються до повторного випробування.",
+            "Повторне випробування черговий електрик проводить у день, який призначив головний енергетик, повністю за цією інструкцією."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-108-en-boiler-room-inspection",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-108-en-boiler-room-inspection/P03",
+    "ended": "done",
+    "cost_usd": 0.023441,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2002,
+      "cache_read_input_tokens": 2726,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "3b50c5627ce417c27618a8595b966e83",
+    "sent_at": "2026-11-26T14:19:50+00:00",
+    "request_id": "msg_011ChRgkMPz36J1TgJPPFbi7",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for pressure below 1.5 bar",
+          "explanation": "The document says pressure is within limits from 1.5 to 3.0 bar, but it calls only a pressure above 3.0 bar out-of-limit. Flow temperature is defined as out-of-limit on both sides. For a running boiler below 1.5 bar, the inspector cannot tell whether it is an out-of-limit reading, so the second-reading and shutdown rules of section 6 may not apply.",
+          "quotes": [
+            "A pressure above 3.0 bar is an out-of-limit reading.",
+            "The pressure of a running boiler is within limits from 1.5 bar to 3.0 bar, both values included."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Shutdown threshold of 80 °C conflicts with the 85 °C limit",
+          "explanation": "The flow temperature limit runs up to 85 °C, so a reading from above 80 °C to 85 °C is within limits and needs no action. Section 6 says that a first reading above 80 °C means an immediate shutdown. For a first reading of 82 °C, one passage says the boiler is fine and the other says to shut it down at once.",
+          "quotes": [
+            "The flow temperature of a running boiler is within limits from 60 °C to 85 °C, both values included.",
+            "On a first reading above 3.5 bar or above 80 °C, the inspector shuts the boiler down at once instead of waiting for a second reading."
+          ],
+          "kind": "A01"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-109-uk-training-budget",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-109-uk-training-budget/P03",
+    "ended": "done",
+    "cost_usd": 0.06664,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 6310,
+      "cache_read_input_tokens": 3824,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "c94d4db0b983b8c4b83d1ae4f897a851",
+    "sent_at": "2026-11-26T14:19:57+00:00",
+    "request_id": "msg_011ChRgkskrahu8ydKMVRny9",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 44.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для конференції понад 5000 гривень строки передачі до фінансового відділу суперечать один одному",
+          "explanation": "Для заявки на конференцію вартістю понад 5000 гривень одне правило вимагає передати її до фінансового відділу в день погодження. Інше правило велить передавати її лише після того, як директор і працівник підписали договір. Договір готують щонайменше через кілька днів після остаточного погодження, тому обидва правила виконати неможливо. Документ не каже, яке з них діє для конференцій.",
+          "quotes": [
+            "Заявку на конференцію відділ персоналу передає до фінансового відділу в день погодження.",
+            "Заявку з вартістю навчання понад 5000 гривень відділ персоналу передає до фінансового відділу протягом 2 робочих днів від дня, коли договір, передбачений розділом 7, підписали директор і працівник."
+          ],
+          "kind": "A01"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-110-en-company-phones",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-110-en-company-phones/P03",
+    "ended": "done",
+    "cost_usd": 0.030981,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2757,
+      "cache_read_input_tokens": 2627,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "5d4bfb04f4aa1a701554619ba4aa0b6f",
+    "sent_at": "2026-11-26T14:20:03+00:00",
+    "request_id": "msg_011ChRgmMderMchRBbAu5iDA",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Last working day can be a weekend, against the definition of working day",
+          "explanation": "The document defines a working day as Monday to Friday, excluding public holidays. The return rule says an on-call holder's last working day may be a Saturday or a Sunday, which cannot be true under that definition. A reader cannot tell if the deadline is a weekday or a weekend day.",
+          "quotes": [
+            "A working day is any day from Monday to Friday that is not a public holiday.",
+            "which for an on-call holder may be a Saturday or a Sunday"
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Cost of replacement: Organisation pays all, but negligent holder pays half",
+          "explanation": "One passage says the Organisation bears the cost of every replacement. Another says a holder who loses the phone through negligence pays half the price of the replacement. Both cannot be true for a negligent loss, and the document does not mark the second rule as an exception.",
+          "quotes": [
+            "The Organisation bears the cost of every repair and every replacement.",
+            "A holder whose phone is lost through their own negligence, as the Finance Director decides, pays half the price of the replacement."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Finance Director would decide on their own negligence",
+          "explanation": "The Finance Director decides whether a holder lost the phone through negligence. If the holder is the Finance Director, they judge their own case. Unlike the excess procedure, this rule names no stand-in, so no one else can decide.",
+          "quotes": [
+            "A holder whose phone is lost through their own negligence, as the Finance Director decides, pays half the price of the replacement."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "No role checks operator invoices for forbidden use",
+          "explanation": "The document requires each operator invoice to be checked for premium-rate calls and paid subscriptions. The sentence is passive and names no role. No other passage gives this check to the IT service desk or anyone else, and none says what to do with a finding.",
+          "quotes": [
+            "Each operator invoice is checked for premium-rate calls and paid subscriptions."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-111-uk-first-aid-kits",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-111-uk-first-aid-kits/P03",
+    "ended": "done",
+    "cost_usd": 0.030583,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2707,
+      "cache_read_input_tokens": 3547,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "a5b804c87b7b84f583fb5cc125fe5aae",
+    "sent_at": "2026-11-26T14:20:05+00:00",
+    "request_id": "msg_011ChRgmVXQt98NU6yfAY9nH",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 19.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Для аптечки третього поверху не визначено склад",
+          "explanation": "Інструкція поширюється на три аптечки, але перелік засобів подано тільки для першого і другого поверхів. Для третього поверху немає ні переліку, ні відсилання до нього. Відповідальний за аптечку третього поверху не може ні скомплектувати її, ні звірити наявність під час щомісячної перевірки.",
+          "quotes": [
+            "Інструкція поширюється на три аптечки, по одній на кожному з трьох поверхів будівлі.",
+            "Аптечки першого і другого поверхів містять такі засоби."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Запис причини травми в журнал не має виконавця",
+          "explanation": "Речення в безособовій формі вимагає записувати причину травми до журналу обліку нещасних випадків. Жодна інша частина інструкції не призначає працівника, який це робить. Цього журналу немає серед обов'язків відповідального за аптечку, його заступника, завідувача господарства чи інженера з охорони праці. Тому ніхто не відповідає за цей запис.",
+          "quotes": [
+            "Після кожного використання аптечки причину травми записують до журналу обліку нещасних випадків."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-112-en-visitors",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-112-en-visitors/P03",
+    "ended": "done",
+    "cost_usd": 0.027339,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2394,
+      "cache_read_input_tokens": 2508,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "2121279785c7d1ee1c3f9356222a6bf5",
+    "sent_at": "2026-11-26T14:20:06+00:00",
+    "request_id": "msg_011ChRgmY3idfUwrEL3xfUpj",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Saturday guests are both refused and registered",
+          "explanation": "Section 3 says a guest is registered only in working hours, which are Monday to Friday, and is refused at any other time. Section 8 says a guest at a Saturday training day registers on Saturday between 08:00 and 10:00. Section 3 does not mark this as an exception, and the exception in section 2 covers only contractors. The receptionist cannot both refuse and register a Saturday guest.",
+          "quotes": [
+            "The receptionist registers a guest only during working hours and refuses entry to a guest at any other time.",
+            "A guest who attends a training day on a Saturday registers at reception between 08:00 and 10:00 on that Saturday."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "\"Working hours\" means two different things for contractors",
+          "explanation": "Section 2 defines working hours as 08:00 to 17:00 Monday to Friday. Section 3 uses the same term for the hours named in the work permit, which can differ on each date. Section 8 then says a contractor leaves by \"the end of working hours\". A reader may apply the fixed 17:00 or the permit hours, and so a contractor with a permit for later hours may be told to leave at 17:00 or may stay.",
+          "quotes": [
+            "Working hours are 08:00 to 17:00 from Monday to Friday.",
+            "The receptionist registers a contractor only within the working hours named in the work permit and refuses entry to a contractor at any other time.",
+            "A contractor leaves the site by the end of working hours, instead of by 18:00."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Unclear which host the receptionist informs after a host change",
+          "explanation": "Section 4 lets a host hand the visitor to another employee, who is recorded as the new host. Section 8 says the receptionist informs the host named in the visit request when the leaving time has passed. After a handover, the visit request names the original host, who may have left the site, while the register names the new host. One reader would inform the original host and another the new host.",
+          "quotes": [
+            "the receptionist informs the host named in the visit request at once.",
+            "informs the receptionist, who records that employee in the visitor register as the new host."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-113-uk-sponsorship-donations",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-113-uk-sponsorship-donations/P03",
+    "ended": "done",
+    "cost_usd": 0.026678,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2314,
+      "cache_read_input_tokens": 3796,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "b33cb24b259f5b09aa3b1359d3fbfc6f",
+    "sent_at": "2026-11-26T14:20:10+00:00",
+    "request_id": "msg_011ChRgmrhdqX9RjfJnpGNop",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 16.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила для заявок із сукупною сумою від 40 000 до 50 000 гривень",
+          "explanation": "Директор вирішує заявки до 40 000 гривень включно, а Комітет — заявки понад 50 000 гривень. Для заявки із сукупною сумою, наприклад, 45 000 гривень жодне правило не визначає, хто ухвалює рішення. Виконавець не знає, кому передати таку заявку.",
+          "quotes": [
+            "Рішення щодо заявки із сукупною сумою до 40 000 гривень включно ухвалює директор.",
+            "Рішення щодо заявки із сукупною сумою понад 50 000 гривень ухвалює Комітет з підтримки замість директора."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Директор і Комітет затверджують рішення один одного по колу",
+          "explanation": "Рішення директора затверджує Комітет, а рішення Комітету затверджує директор. Рішення Комітету ухвалюється замість директора, а потім його затверджує той самий директор. Жодна з двох ролей не має незалежного затвердження, і правило не вказує, чия оцінка остаточна.",
+          "quotes": [
+            "Рішення директора за цим розділом затверджує Комітет, а рішення Комітету — директор."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не визначено, хто забезпечує перерахування коштів, передачу товарів і надання послуг",
+          "explanation": "Речення вимагає виконати дії без вказівки виконавця. Жодна інша норма наказу не доручає ці дії конкретній ролі. Тому ніхто не відповідає за те, що підтримку буде фактично надано у строк за договором.",
+          "quotes": [
+            "Перерахування коштів, передачу товарів і надання послуг забезпечують у строки, визначені договором."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-114-en-tile-laying",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-114-en-tile-laying/P03",
+    "ended": "done",
+    "cost_usd": 0.030441,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2702,
+      "cache_read_input_tokens": 2729,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "05cf6548065fa1a5019195d690b2b611",
+    "sent_at": "2026-11-26T14:20:21+00:00",
+    "request_id": "msg_011ChRgnd48avN3Dovyi2Hdm",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different usable times for mixed adhesive",
+          "explanation": "One passage says mixed adhesive stays usable for 3 hours after the second mixing. Another passage says to discard it after 2 hours. A Tiler cannot know if adhesive that is 2.5 hours old may be used or must be thrown away.",
+          "quotes": [
+            "Mixed adhesive stays usable for 3 hours after the second mixing.",
+            "The Tiler discards any adhesive that remains 2 hours after the second mixing ended."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "\"Large tile\" has two meanings (over 300 mm and 600 mm or more)",
+          "explanation": "The scope defines a large tile as longer than 300 mm. The joint width section says a large tile is 600 mm or more. A tile of 300–600 mm is large for the trowel choice and small for the joint width, so the Tiler does not know which joint width (2 mm or 3 mm) to use for it. The final check on joint width depends on this value.",
+          "quotes": [
+            "A large tile is a tile whose longest side is more than 300 mm",
+            "a large tile here being one of 600 mm or more"
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Unclear reach of the large-tile starting rule",
+          "explanation": "The sentence says that for large tiles the Tiler works from the far corner \"instead\". It does not say if this replaces only the floor start at the crossing of the centre lines, or also the wall start at the centre line. It also does not say if the half-by-half order on floors still applies. Two Tilers can lay large tiles in different orders and both think they follow the instruction.",
+          "quotes": [
+            "For large tiles, the Tiler works from the corner farthest from the door instead."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-115-uk-internal-audit",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-115-uk-internal-audit/P03",
+    "ended": "done",
+    "cost_usd": 0.033265,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2973,
+      "cache_read_input_tokens": 3765,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "f6bd7872829a537736641af7687e276e",
+    "sent_at": "2026-11-26T14:20:22+00:00",
+    "request_id": "msg_011ChRgnjquedYxKmD7a8jFr",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 21.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Генеральний директор затверджує план заходів щодо зауважень до власної діяльності",
+          "explanation": "Якщо зауваження стосуються діяльності самого Генерального директора, він сам затверджує план заходів, який має усунути ці зауваження. Згодом він же встановлює новий строк, якщо захід не виконано. Жодне правило не передає це затвердження іншій особі, наприклад Раді, тому незалежного затвердження немає.",
+          "quotes": [
+            "Генеральний директор затверджує план заходів, зокрема щодо зауважень до власної діяльності, протягом п’яти робочих днів після його отримання і надсилає керівникові Служби."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не вказано, хто передає копію звіту керівникові підрозділу",
+          "explanation": "Речення в безособовій формі вимагає передати копію звіту про аудит керівникові підрозділу протягом двох робочих днів. У документі немає ролі, яка це робить: звіт отримують Рада та Генеральний директор, а керівник Служби його лише надсилає. Від цієї копії залежить початок строку на план заходів за розділом 6, тому дію ніхто не виконує.",
+          "quotes": [
+            "Копію звіту про аудит передають керівникові структурного підрозділу, у якому Служба провела аудит, протягом двох робочих днів після отримання звіту."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Визначений термін «зауваження» вжито для іншого поняття",
+          "explanation": "У розділі 1 «зауваження» означає порушення або недолік, який Служба виявила й записала у звіті. У розділі 5 це слово вжито для коментарів керівника підрозділу до проєкту звіту. Читач може сплутати зауваження Служби, за якими потрібен план заходів, із коментарями керівника підрозділу.",
+          "quotes": [
+            "Зауваження керівника підрозділу до проєкту звіту керівник Служби розглядає разом із поясненнями.",
+            "Зауваження означає записане у звіті про аудит порушення або недолік, який Служба виявила під час аудиту."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-116-en-meeting-minutes",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-116-en-meeting-minutes/P03",
+    "ended": "done",
+    "cost_usd": 0.024134,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2072,
+      "cache_read_input_tokens": 2658,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "bf5a2378a97cc83aa379924cdb46eab9",
+    "sent_at": "2026-11-26T14:20:22+00:00",
+    "request_id": "msg_011ChRgnkZaFhWyBohQY7wdD",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "The secretary approves the minutes that the secretary prepared and signed",
+          "explanation": "The secretary prepares and signs the final text. If the chair is absent for two working days, the secretary also approves the minutes in the chair's place. The same role then writes the text and approves it, and no other role checks the secretary's act.",
+          "quotes": [
+            "The secretary prepares the final text of the minutes and signs it",
+            "When the chair is absent for those two working days, the secretary approves the minutes instead."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "No circulation rule for meetings held by video link",
+          "explanation": "The scope covers meetings held in person or by video link, and both kinds can need minutes. The rule on sending the draft and collecting comments names only meetings held in person. For a video-link meeting, the secretary has no rule on whether to send the draft, by when, or how comments are handled. The later approval steps depend on the comment period, so they are left unclear for these meetings.",
+          "quotes": [
+            "The secretary sends the draft minutes of a meeting held in person to all participants by the Organisation's e-mail within three working days after the day of the meeting."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-117-uk-cold-chain-samples",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-117-uk-cold-chain-samples/P03",
+    "ended": "done",
+    "cost_usd": 0.051946,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 4842,
+      "cache_read_input_tokens": 3681,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "222ef415210946047674954a32049eef",
+    "sent_at": "2026-11-26T14:20:24+00:00",
+    "request_id": "msg_011ChRgnunhCKy7Rwxupve8A",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 34.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заступник завідувача є черговим лаборантом у вихідні, але до графіка чергувань його не включають",
+          "explanation": "Черговий лаборант визначений як особа, яку призначає графік чергувань. Розділ 2 виключає заступника з графіка, а розділ 4 прямо робить його черговим у вихідні. Обидва твердження не можуть бути правдивими одночасно, тому незрозуміло, чи має заступник виконувати обов'язки чергового за розділами 4 і 5.",
+          "quotes": [
+            "Завідувача лабораторії та його заступника до графіка чергувань не включають.",
+            "У вихідні дні черговим лаборантом є заступник завідувача лабораторії."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Для низькотемпературного морозильника не встановлено діапазону",
+          "explanation": "Діапазон визначено як межі температури, встановлені в розділі 3, але для цього типу задано лише одне значення, мінус 80 °C. Температурне відхилення визначають як показник поза діапазоном. Тому лаборант не може вирішити, чи показник, наприклад, мінус 78 °C є відхиленням, і розділ 5 для цього типу не спрацьовує.",
+          "quotes": [
+            "Низькотемпературний морозильник працює за температури мінус 80 °C.",
+            "Діапазон — це межі температури, встановлені для типу сховища в розділі 3."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Заступник, який виконує обов'язки завідувача, перевіряє і затверджує власні дії",
+          "explanation": "У вихідні заступник веде журнал температури та виконує дії щодо відхилень як черговий лаборант. Якщо завідувача немає, заступник виконує всі його обов'язки: перевіряє й підписує журнал, вирішує щодо придатності зразків, дозволяє перенесення. Тоді він сам схвалює записи й рішення щодо власних дій, і незалежної перевірки немає.",
+          "quotes": [
+            "За відсутності завідувача лабораторії всі його обов'язки за цією процедурою виконує заступник завідувача лабораторії.",
+            "У вихідні дні черговим лаборантом є заступник завідувача лабораторії.",
+            "Завідувач лабораторії щопонеділка перевіряє записи за попередній тиждень і підписує журнал температури."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-118-en-performance-reviews",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-118-en-performance-reviews/P03",
+    "ended": "done",
+    "cost_usd": 0.056358,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 5294,
+      "cache_read_input_tokens": 2699,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "2cf2c67a9c6860b40da6acc536d0888c",
+    "sent_at": "2026-11-26T14:20:27+00:00",
+    "request_id": "msg_011ChRgo5xduU34HbSnoXp77",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 38.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Panel members decide their own ratings",
+          "explanation": "The Calibration Panel is made up of the HR Lead and all heads of departments, and it sets the final rating for each employee. Heads of department and the HR Lead are employees in scope and are rated too. Only members who proposed a rating as line manager are excluded, so a member can vote on their own rating. The panel then approves its own members' ratings.",
+          "quotes": [
+            "The Calibration Panel consists of the HR Lead and all heads of departments, and answers to the Director General for its decisions.",
+            "For each employee the Calibration Panel either confirms the proposed rating or replaces it with another of the four ratings.",
+            "A member who proposed a rating as line manager takes no part in the decision on that rating."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "HR Lead alone reviews a panel decision she took part in",
+          "explanation": "The Appeals Committee has no Calibration Panel members, so that it does not review the panel's own decisions. For a head of department's appeal, the HR Lead decides alone. The HR Lead sits on the Calibration Panel and chairs it, and so took part in the final rating under appeal. The HR Lead therefore judges an appeal against her own panel's act, and no one else checks it.",
+          "quotes": [
+            "The HR Lead decides an appeal of a head of department alone, instead of the Appeals Committee.",
+            "The Appeals Committee consists of three employees, not members of the Calibration Panel, whom the Director General appoints by 31 January, and answers to the Director General for its decisions."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "No role keeps the review forms",
+          "explanation": "The document requires review forms to be kept for three years. The sentence is passive, and no passage says which role keeps them or stores them. No one is accountable for this retention duty.",
+          "quotes": [
+            "Each review form is kept for three years after 30 April."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-119-uk-social-media",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-119-uk-social-media/P03",
+    "ended": "done",
+    "cost_usd": 0.024095,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2056,
+      "cache_read_input_tokens": 3770,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "28eb8fb08f14369b921281289d997c49",
+    "sent_at": "2026-11-26T14:20:31+00:00",
+    "request_id": "msg_011ChRgoRJDiin1T3oSYi2Ji",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заступник керівника відділу комунікацій сам погоджує власні дописи й відповіді",
+          "explanation": "Директор призначає на заміну керівника відділу комунікацій редактора соціальних мереж. Редактор готує дописи та проєкти відповідей, а керівник їх погоджує. Коли редактор заміщає керівника, він погоджує власні дописи й відповіді, і жодна інша особа цього не перевіряє.",
+          "quotes": [
+            "На цю заміну директор призначає редактора соціальних мереж.",
+            "Редактор соціальних мереж готує дописи, а керівник відділу комунікацій погоджує кожен допис до публікації."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Для редактора соціальних мереж немає заміщення",
+          "explanation": "Директор і керівник відділу комунікацій мають заступників, а редактор не має. Проте в редактора є обовʼязки зі строками: зупинити заплановані дописи за тридцять хвилин і щодня переглядати коментарі. Якщо редактор відсутній, жодне правило не каже, хто це виконує.",
+          "quotes": [
+            "У разі відсутності директора його обовʼязки за цими рекомендаціями виконує заступник директора.",
+            "Редактор соціальних мереж зупиняє публікацію всіх запланованих дописів протягом тридцяти хвилин після отримання рішення."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-120-en-courier-samples",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-120-en-courier-samples/P03",
+    "ended": "done",
+    "cost_usd": 0.021085,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1767,
+      "cache_read_input_tokens": 2670,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "aa9fd892ee6a13612fbead57d21f2530",
+    "sent_at": "2026-11-26T14:20:36+00:00",
+    "request_id": "msg_011ChRgojrw7WRemphtXFexa",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for urgent boxes",
+          "explanation": "The booking rule is switched off for a box that the Sample Owner marks as urgent. No passage says how an urgent box is booked, which collection days or service apply, or when it is packed. A Dispatch Technician with an urgent Chilled or Frozen box does not know what to book.",
+          "quotes": [
+            "This rule does not apply to a box that the Sample Owner marks as urgent on the dispatch request."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "No rule for an uncollected Frozen box",
+          "explanation": "The section on uncollected boxes covers Ambient and Chilled boxes only. The scope includes Frozen samples, and the hand-over section sends a refused box to this section. If a Frozen box is not handed over, no rule says whether to keep it closed, reopen it, return it to storage or rebook it. This matters because the cooling packs of a Frozen box do not last.",
+          "quotes": [
+            "If an Ambient box has not been handed over by the end of the collection day",
+            "If a Chilled box has not been handed over within four hours after it was closed"
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-121-uk-translation-official-papers",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-121-uk-translation-official-papers/P03",
+    "ended": "done",
+    "cost_usd": 0.064323,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 6080,
+      "cache_read_input_tokens": 3649,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "2c6d7aaf92337363ac42926cec41a16e",
+    "sent_at": "2026-11-26T14:20:36+00:00",
+    "request_id": "msg_011ChRgonALKzbVtw6RBFHmX",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 42.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила засвідчення перекладу статуту й довіреності для іноземного контрагента чи банку",
+          "explanation": "Порядок охоплює переклад статуту й довіреності на запит іноземного контрагента або банку. Розділ 7 каже, хто засвідчує лише переклад документів для органу влади чи суду та переклад договору. Для статуту й довіреності, які не подають до органу влади чи суду, засвідчувача не визначено, тож діловод не знає, кому доручити засвідчення.",
+          "quotes": [
+            "статут і довіреність Організації, копію яких запитує іноземний контрагент або іноземний банк.",
+            "Переклад договору з іноземним контрагентом, який не подають до органу влади або суду, засвідчує підписом перекладач, який його виконав."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Перекладач може сам перевіряти власний переклад",
+          "explanation": "Перевіряльника обирають серед усіх перекладачів потрібної мови за найнижчою ставкою перевірки, і виконавця перекладу з вибору не виключено. Той самий перекладач може мати найнижчу ставку і перекладу, і перевірки. Тоді він сам записує, що помилок немає, і тим самим схвалює власну роботу, після чого переклад засвідчують.",
+          "quotes": [
+            "Переклад перевіряє перекладач з Переліку (далі — перевіряльник).",
+            "Діловод обирає перевіряльника в день розрахунку вартості заявки серед перекладачів з потрібної мови за найнижчою ставкою перевірки"
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не визначено, хто оплачує рахунки перекладача й нотаріуса",
+          "explanation": "Речення в безособовій формі вимагає оплатити рахунки, але жодна роль не названа. Розділ 8 каже лише, що вартість сплачує «Організація» з бюджету підрозділу. Також не сказано, кому діловод передає рахунок і хто його отримує від перекладача чи нотаріуса. Тому відповідальної за оплату особи в документі немає.",
+          "quotes": [
+            "Рахунок перекладача й нотаріуса оплачують протягом десяти робочих днів від дня, коли діловод передав рахунок і запис журналу про передачу перекладу ініціаторові."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Не вказано, хто передає виконаний переклад діловодові",
+          "explanation": "Діловод передає перевіряльникові «отриманий» переклад у день отримання. Жоден пункт не зобов'язує перекладача передати готовий переклад діловодові і не каже, як це робиться. Розділ 5 і розділ 4 лише вимагають «виконати» переклад у строк. Тому відправника виконаного перекладу не визначено.",
+          "quotes": [
+            "Діловод передає отриманий переклад перевіряльникові в день отримання."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 2,
+    "case": "case-122-en-roof-gutters",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run2/case-122-en-roof-gutters/P03",
+    "ended": "done",
+    "cost_usd": 0.018178,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1477,
+      "cache_read_input_tokens": 2602,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "dc03899365c01f647495f06217694d38",
+    "sent_at": "2026-11-26T14:20:39+00:00",
+    "request_id": "msg_011ChRgozvYVtonrSSEbK76q",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 10.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Work under 2 metres is both work at height needing a permit and not work at height needing none",
+          "explanation": "The scope says all gutter work is work at height whatever the eaves height, and section 3 says no gutter work starts without a permit. Section 4 says work on eaves below 2 metres is not work at height and needs no permit. A reader cannot obey both: for low eaves, the permit is both required and not required.",
+          "quotes": [
+            "All gutter work is treated as work at height, whatever the height of the eaves.",
+            "Gutter work does not start without a written permit issued by the site supervisor.",
+            "Gutter work on eaves below 2 metres is not work at height and needs no permit."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No role takes the access equipment out of use or examines it after an accident",
+          "explanation": "The sentence is in the passive voice and names no person. No other passage tells the site supervisor, the safety officer or anyone else to withdraw the equipment or to examine it, or to decide when it may return to use. The action is required but nobody owns it.",
+          "quotes": [
+            "After an accident, the access equipment is taken out of use until it has been examined."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-101-uk-remote-work",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-101-uk-remote-work/P03",
+    "ended": "done",
+    "cost_usd": 0.025371,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2183,
+      "cache_read_input_tokens": 3827,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "bc65a639a89fa1f2bacf668c85815b20",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt5dArbRqncT4G9rE",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 14.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "Різні межі днів дистанційної роботи на тиждень",
+          "explanation": "Розділ 3 дозволяє зазначити в заяві не більше трьох днів на тиждень, а розділ 4 — до чотирьох. Працівник, який хоче чотири дні, за розділом 4 має право, а за розділом 3 його заява не відповідає вимогам і її відхиляють. Читач не може виконати обидва правила.",
+          "quotes": [
+            "Працівник зазначає в заяві не більше трьох робочих днів на тиждень і період не довший за дванадцять місяців.",
+            "Працівник може працювати дистанційно до чотирьох днів на тиждень."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Термін «службові документи» має два значення",
+          "explanation": "У розділі 1 це будь-які паперові та електронні документи, створені або отримані працівником. У розділі 7 «службовий документ» ототожнено лише з документом із позначкою «Для службового користування». Читач може вважати, що втрату звичайного службового документа повідомляти не треба, і так порушити правило.",
+          "quotes": [
+            "Службові документи в цій Політиці означають будь-які паперові та електронні документи, які працівник створив або отримав під час виконання трудових обовʼязків.",
+            "Про втрату ноутбука або службового документа, тобто документа з позначкою «Для службового користування», працівник повідомляє фахівця з інформаційної безпеки протягом двох годин після виявлення."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Незрозуміло, на які вимоги поширюється виняток для одного дня на тиждень",
+          "explanation": "Слова «Ці вимоги» можуть стосуватися лише правила про шафу чи скриньку, обох попередніх речень або всього розділу 7. За одним прочитанням працівник з одним днем на тиждень може виносити документи «Для службового користування», за іншим — ні. Також незрозуміло, чи він мусить повертати документи для знищення й дотримуватися інших правил.",
+          "quotes": [
+            "Ці вимоги не поширюються на працівника, який працює дистанційно один день на тиждень."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-102-en-conflict-of-interest",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-102-en-conflict-of-interest/P03",
+    "ended": "done",
+    "cost_usd": 0.042297,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 3888,
+      "cache_read_input_tokens": 2693,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "4499ba6cab63f4d3f3d0cf0a039fa55b",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt5roStzvm7jUq1qM",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 28.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "No role follows up late declarations",
+          "explanation": "The sentence is in the passive voice. It requires a late declaration to be recorded as late and followed up with the employee, but it names no role. No other passage gives the recording or the follow-up to the Ethics Officer, the line manager or anyone else, so nobody is accountable for it.",
+          "quotes": [
+            "A late declaration is recorded as late and followed up with the employee."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "\"The period above\" for putting measures into effect is unclear",
+          "explanation": "The line manager must put the measures into effect \"within the period above\", but no period is set for measures. It could mean the 10 working days for the Ethics Officer's decision, which makes no sense because the measures only exist after the decision. It could also mean the period that the decision sets for ending an interest, which applies to a different kind of decision. Two careful readers would give the line manager two different deadlines.",
+          "quotes": [
+            "The line manager puts the measures into effect within the period above",
+            "the employee must end the interest within the period that the decision sets"
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-103-uk-whistleblowing",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-103-uk-whistleblowing/P03",
+    "ended": "done",
+    "cost_usd": 0.054764,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 5123,
+      "cache_read_input_tokens": 3756,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "ecc7c2e5fc23501d82ff4e6c38b679e6",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt5Nae9fnR5rZVGEW",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 34.2,
+    "answer": {
+      "findings": [
+        {
+          "title": "Уповноважений сам розглядає заперечення щодо власного висновку",
+          "explanation": "Уповноважений складає висновок про повідомлення. За цим реченням він же розглядає заперечення заявника проти цього висновку, тобто оцінює власний акт. У справах із розділу 7 Голова наглядової ради виконує обов’язки Уповноваженого, тож і він перевіряв би власний висновок. Незалежного розгляду заперечення немає.",
+          "quotes": [
+            "Заперечення заявника щодо висновку розглядає сам Уповноважений."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не вказано, хто через шість місяців інформує заявника про вжиті заходи",
+          "explanation": "Речення в безособовій формі вимагає поінформувати заявника про вжиті заходи, але не називає ролі, яка це робить. Попереднє речення покладає на Уповноваженого лише інформування про рішення протягом 3 робочих днів. Тому ніхто не відповідає за це повторне інформування.",
+          "quotes": [
+            "Через шість місяців після рішення заявника інформують про вжиті заходи."
+          ],
+          "kind": "A06"
+        },
+        {
+          "title": "Для особистої зустрічі не визначено дня надходження повідомлення",
+          "explanation": "Усі строки розгляду відраховуються від дня надходження. Правила про день надходження є для електронного листа, телефону і письмового листа, але немає для особистої зустрічі, яка теж є каналом подання. Для повідомлень, поданих на зустрічі, не можна однозначно порахувати строки підтвердження, висновку і відповіді.",
+          "quotes": [
+            "Заявник може викласти повідомлення на особистій зустрічі з Уповноваженим.",
+            "Днем надходження повідомлення, поданого телефоном, є день розмови."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-104-en-personal-data-requests",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-104-en-personal-data-requests/P03",
+    "ended": "done",
+    "cost_usd": 0.027422,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2400,
+      "cache_read_input_tokens": 2737,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "93a00000d7821dcc8a6a8bbb13c3a2b2",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt4d1eiyty4G485sq",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different review periods for a refusal",
+          "explanation": "Section 6 tells the Records Clerk to state a 14-day period for asking for a review. Section 7 gives the requester 20 days. A requester told 14 days may lose a right that section 7 gives for 20 days. A reader cannot obey both periods.",
+          "quotes": [
+            "stating the reason and the right to ask for a review within 14 days under section 7",
+            "The requester may ask the Records Clerk in writing for a review of a refusal within 20 days of the day the refusal is sent."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No rule for carrying out a granted erasure request",
+          "explanation": "Erasure requests are in scope. Section 7 says how to carry out a granted access request and a granted correction request, but not a granted erasure request. No rule says who deletes the data, how, or what must be confirmed before the reply is sent.",
+          "quotes": [
+            "An erasure request asks the Organisation to delete the personal data held about the requester.",
+            "For a granted access request, the Records Clerk sends the copy in electronic form."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-105-uk-petty-cash",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-105-uk-petty-cash/P03",
+    "ended": "done",
+    "cost_usd": 0.067336,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 6381,
+      "cache_read_input_tokens": 3678,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "7c02c6dde889fb86f44365cbc7e52346",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt6rdhhPqHqSFb3An",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 47.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Два різні строки подання звіту за аванс",
+          "explanation": "Розділ «Звіт за аванс» дає працівникові п'ять робочих днів після отримання авансу. Розділ «Щомісячний підрахунок» дає десять робочих днів. Працівник не знає, коли звіт уже прострочено, а головний бухгалтер не знає, які аванси вносити в акт як прострочені.",
+          "quotes": [
+            "Працівник протягом п'яти робочих днів після дня отримання авансу подає головному бухгалтерові звіт",
+            "Звіт за аванс працівник подає не пізніше десяти робочих днів після отримання авансу."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Слово «аванс» вжито для двох різних речей",
+          "explanation": "Порядок визначає аванс як готівку з каси на витрати в інтересах Організації, за яку подають звіт. Далі «аванс у рахунок заробітної плати» виплачують разом із зарплатою. Це інша виплата: вона не з каси на витрати і, ймовірно, без звіту. Читач може застосувати до неї ліміт 5 000, другий підпис і вимогу звіту або, навпаки, не застосувати їх до авансу на витрати.",
+          "quotes": [
+            "Аванс — це готівка, яку працівник отримує з каси на витрати в інтересах Організації і за яку він подає звіт.",
+            "Аванс у рахунок заробітної плати працівник отримує разом із заробітною платою за першу половину місяця."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Головний бухгалтер і фінансовий директор перевіряють звіти один одного",
+          "explanation": "Звіт головного бухгалтера перевіряє замість нього фінансовий директор. Звіт фінансового директора не має окремого правила, тому його перевіряє головний бухгалтер за загальним правилом. Виходить, що вони взаємно затверджують звіти за аванси один одного, і незалежної перевірки немає.",
+          "quotes": [
+            "Якщо звіт подає головний бухгалтер, усі дії головного бухгалтера за цим розділом щодо цього звіту виконує замість нього фінансовий директор.",
+            "Головний бухгалтер протягом трьох робочих днів після отримання звіту перевіряє його"
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-106-en-internships",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-106-en-internships/P03",
+    "ended": "done",
+    "cost_usd": 0.015864,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1245,
+      "cache_read_input_tokens": 2664,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "caee0195482314c3a81e7cb5d325dd85",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt5Nr7tZt2Gkz97Rd",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 8.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "The stipend has no rate for an internship of 9 weeks",
+          "explanation": "Section 3 allows any whole number of weeks from 4 to 26, so a 9-week internship is allowed. The stipend bands cover 4 to 8, 10 to 16 and 17 to 26 weeks, so 9 weeks has no rate. The Payroll Officer cannot tell what to pay for such an internship.",
+          "quotes": [
+            "For 4 to 8 weeks inclusive, the rate is 300 crowns per week.",
+            "For 10 to 16 weeks inclusive, the rate is 350 crowns per week."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "\"Approving officer\" is used for the head of the host department",
+          "explanation": "Section 2 defines the approving officer as the People Team Lead, or the Operations Director for People Team internships. Section 5 calls the head of the host department the approving officer when approving the learning plan. A reader cannot tell who is meant by the term in this step, and the term elsewhere in the policy could be read as the head of the department.",
+          "quotes": [
+            "The head of the host department, as approving officer, approves the learning plan",
+            "The approving officer is the People Team Lead, except for an internship hosted by the People Team, where the approving officer is the Operations Director instead."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-107-uk-generator-test",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-107-uk-generator-test/P03",
+    "ended": "done",
+    "cost_usd": 0.021157,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 1763,
+      "cache_read_input_tokens": 3691,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "882b70d5ed40f43f8b36fd58bff027c1",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt4NaBPmmtNau3mtH",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Дві різні тривалості роботи під навантаженням: 30 і 45 хвилин",
+          "explanation": "Один розділ вимагає, щоб генератор працював під навантаженням рівно 30 хвилин, і зняття показів закінчується на 30-й хвилині. Розділ «Зупинка генератора» велить перемикати щит на мережу лише після 45 хвилин. Електрик не може виконати обидві вимоги одночасно.",
+          "quotes": [
+            "Генератор працює під навантаженням щита Щ-2 рівно 30 хвилин.",
+            "Після 45 хвилин роботи під навантаженням черговий електрик перемикає живлення щита Щ-2 з генератора на мережу."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Незрозуміло, які вимоги не діють для повторного випробування",
+          "explanation": "Розділ про періодичність каже, що «ці вимоги» не застосовуються до повторного випробування, але не називає, які саме: день і час, повідомлення керівників чи призначення нового дня. Інший розділ велить проводити повторне випробування «повністю за цією інструкцією». Один читач повідомить керівників підрозділів і дотримається вікна 10:00–12:00, інший — ні, і кожен вважатиме, що виконує документ.",
+          "quotes": [
+            "Ці вимоги не застосовуються до повторного випробування.",
+            "Повторне випробування черговий електрик проводить у день, який призначив головний енергетик, повністю за цією інструкцією."
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-108-en-boiler-room-inspection",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-108-en-boiler-room-inspection/P03",
+    "ended": "done",
+    "cost_usd": 0.026511,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2309,
+      "cache_read_input_tokens": 2726,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "3b50c5627ce417c27618a8595b966e83",
+    "sent_at": "2026-11-26T14:21:18+00:00",
+    "request_id": "msg_011ChRgrt5sQhti8Qni82cLj",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for a pressure below 1.5 bar",
+          "explanation": "The limits say 1.5 to 3.0 bar is within limits, and only a pressure above 3.0 bar is called out-of-limit. A running boiler with a pressure below 1.5 bar is not covered. The inspector cannot tell if it is an out-of-limit reading, so the second-reading and shutdown steps may not apply.",
+          "quotes": [
+            "The pressure of a running boiler is within limits from 1.5 bar to 3.0 bar, both values included.",
+            "A pressure above 3.0 bar is an out-of-limit reading."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Two different upper temperature limits: 85 °C and 80 °C",
+          "explanation": "Section 3 says a flow temperature up to 85 °C is within limits. Section 6 says a first reading above 80 °C needs an immediate shutdown. For a reading of 81 to 85 °C, one passage says the boiler is within limits and the other says to shut it down at once. The inspector cannot obey both.",
+          "quotes": [
+            "A flow temperature below 60 °C or above 85 °C is an out-of-limit reading.",
+            "On a first reading above 3.5 bar or above 80 °C, the inspector shuts the boiler down at once instead of waiting for a second reading."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No role stores the completed logbook",
+          "explanation": "The passive sentence requires that a completed logbook is stored for five years. No passage gives this storage to a role. The facilities engineer only keeps the logbook on the shelf, and this does not clearly cover long-term storage after it is completed.",
+          "quotes": [
+            "Each completed logbook is stored for five years after its last entry."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-109-uk-training-budget",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-109-uk-training-budget/P03",
+    "ended": "done",
+    "cost_usd": 0.05803,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 5449,
+      "cache_read_input_tokens": 3824,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "c94d4db0b983b8c4b83d1ae4f897a851",
+    "sent_at": "2026-11-26T14:21:27+00:00",
+    "request_id": "msg_011ChRgsVZKcFfptVcodu95G",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 38.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Керівник відділу персоналу сам розраховує своє відшкодування",
+          "explanation": "Відшкодування розраховує відділ персоналу, але для керівника цього відділу розрахунок робить він сам. Особа, якої стосується борг, сама визначає його суму, і ніхто цей розрахунок не перевіряє і не погоджує. Це самопогодження власної справи.",
+          "quotes": [
+            "Відшкодування керівника відділу персоналу розраховує він сам."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Для конференції понад 5000 гривень два правила дають різний строк передачі до фінансового відділу",
+          "explanation": "Правило про конференції велить передати заявку до фінансового відділу в день погодження. Правило про вартість понад 5000 гривень велить передати її після підписання договору, який готують і підписують пізніше. Для конференції вартістю понад 5000 гривень документ не каже, яке правило діє, тому двоє уважних читачів передадуть заявку в різний час.",
+          "quotes": [
+            "Заявку на конференцію відділ персоналу передає до фінансового відділу в день погодження.",
+            "Заявку з вартістю навчання понад 5000 гривень відділ персоналу передає до фінансового відділу протягом 2 робочих днів від дня, коли договір, передбачений розділом 7, підписали директор і працівник."
+          ],
+          "kind": "A02"
+        },
+        {
+          "title": "Термін «вартість навчання» має два значення для мовних курсів",
+          "explanation": "Визначення каже, що вартість навчання — це сума, яку Організація сплачує надавачу за заявкою. Для мовних курсів розділ 3 вважає вартістю плату за один місяць, хоча Організація може оплачувати весь курс. Від цієї вартості залежать залишок бюджету, рівень погодження, договір і відшкодування, тому читач може застосувати не те значення.",
+          "quotes": [
+            "Вартість навчання — це сума, яку Організація сплачує надавачу навчання за одного працівника за однією заявкою.",
+            "Для мовних курсів вартістю навчання вважається плата за один місяць."
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-110-en-company-phones",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-110-en-company-phones/P03",
+    "ended": "done",
+    "cost_usd": 0.030331,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2692,
+      "cache_read_input_tokens": 2627,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "5d4bfb04f4aa1a701554619ba4aa0b6f",
+    "sent_at": "2026-11-26T14:21:31+00:00",
+    "request_id": "msg_011ChRgsoezUije18juNkQRJ",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.7,
+    "answer": {
+      "findings": [
+        {
+          "title": "A weekend can be a \"working day\", against the definition",
+          "explanation": "The definition says a working day is Monday to Friday and not a public holiday. The return rule says the last working day of an on-call holder may be a Saturday or a Sunday. Both cannot be true, so the reader does not know the real return deadline for such a holder.",
+          "quotes": [
+            "A working day is any day from Monday to Friday that is not a public holiday.",
+            "no later than their last working day, which for an on-call holder may be a Saturday or a Sunday"
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "The Organisation pays for every replacement, but a negligent holder pays half",
+          "explanation": "One passage says the Organisation bears the cost of every replacement. Another says a holder who loses the phone through negligence pays half the price of the replacement. A reader who follows the first rule breaks the second, and the other way round.",
+          "quotes": [
+            "The Organisation bears the cost of every repair and every replacement.",
+            "A holder whose phone is lost through their own negligence, as the Finance Director decides, pays half the price of the replacement."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "The Finance Director decides on their own negligence",
+          "explanation": "The Finance Director decides whether a loss came from negligence. If the Finance Director is the holder who lost the phone, they decide their own case. The stand-in rule (the Managing Director decides instead) is written only for the monthly plan limit, so the loss section has no stand-in.",
+          "quotes": [
+            "A holder whose phone is lost through their own negligence, as the Finance Director decides, pays half the price of the replacement."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "No role checks the operator invoices",
+          "explanation": "The sentence requires a check of each invoice for premium-rate calls and paid subscriptions. It is in the passive voice, and no passage gives this check to a role. Nobody is accountable for doing it or for acting on what it finds.",
+          "quotes": [
+            "Each operator invoice is checked for premium-rate calls and paid subscriptions."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-111-uk-first-aid-kits",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-111-uk-first-aid-kits/P03",
+    "ended": "done",
+    "cost_usd": 0.027083,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2357,
+      "cache_read_input_tokens": 3547,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "a5b804c87b7b84f583fb5cc125fe5aae",
+    "sent_at": "2026-11-26T14:21:33+00:00",
+    "request_id": "msg_011ChRgsy23qj5mAwWgkFFiN",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.4,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає складу аптечки третього поверху",
+          "explanation": "Інструкція поширюється на три аптечки, по одній на кожному поверсі. Перелік засобів визначено лише для аптечок першого і другого поверхів. Для аптечки третього поверху комплектування і щомісячна перевірка «за переліком» не мають основи, а відповідальний не знає, що в неї класти.",
+          "quotes": [
+            "Аптечки першого і другого поверхів містять такі засоби.",
+            "Інструкція поширюється на три аптечки, по одній на кожному з трьох поверхів будівлі."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Запис причини травми в журнал нещасних випадків не має виконавця",
+          "explanation": "Речення в безособовій формі вимагає записати причину травми до журналу обліку нещасних випадків. Жодний розділ не називає, хто саме це робить. Не сказано і про строк запису. Тому запис можуть не зробити, бо кожен вважатиме, що це обов'язок іншого.",
+          "quotes": [
+            "Після кожного використання аптечки причину травми записують до журналу обліку нещасних випадків."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-112-en-visitors",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-112-en-visitors/P03",
+    "ended": "done",
+    "cost_usd": 0.029329,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2593,
+      "cache_read_input_tokens": 2508,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "2121279785c7d1ee1c3f9356222a6bf5",
+    "sent_at": "2026-11-26T14:21:34+00:00",
+    "request_id": "msg_011ChRgt3uFaGXiLk1En7dKG",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 17.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Saturday guest registration conflicts with the working-hours rule",
+          "explanation": "Section 3 says a guest is registered only in working hours (Monday to Friday, 08:00 to 17:00) and is refused at any other time. Section 8 says a guest at a Saturday training day registers between 08:00 and 10:00 on that Saturday. Saturday is outside working hours. The receptionist cannot both refuse and register this guest. Section 8 is not marked as an exception to section 3.",
+          "quotes": [
+            "The receptionist registers a guest only during working hours and refuses entry to a guest at any other time.",
+            "A guest who attends a training day on a Saturday registers at reception between 08:00 and 10:00 on that Saturday."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "\"Working hours\" means two things: the defined hours and the hours in the work permit",
+          "explanation": "Section 2 defines working hours as 08:00 to 17:00 Monday to Friday. Section 3 uses the same term for the hours named in the contractor's work permit, and these can differ from the defined hours. Section 8 says a contractor leaves by \"the end of working hours\" without saying which meaning applies. If a permit allows work until 19:00, one reader would send the contractor out at 17:00 and another at 19:00.",
+          "quotes": [
+            "Working hours are 08:00 to 17:00 from Monday to Friday.",
+            "The receptionist registers a contractor only within the working hours named in the work permit and refuses entry to a contractor at any other time.",
+            "A contractor leaves the site by the end of working hours, instead of by 18:00."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Unclear which host the receptionist informs when the host has changed",
+          "explanation": "Section 4 lets a host hand the visitor to another employee, who is recorded in the visitor register as the new host. Section 8 says an overdue visitor is reported to the host named in the visit request. After a handover, that is the original host, who may have left the site, while the new host answers for the visitor. Two careful receptionists could inform different people.",
+          "quotes": [
+            "the receptionist informs the host named in the visit request at once",
+            "who records that employee in the visitor register as the new host"
+          ],
+          "kind": "A02"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-113-uk-sponsorship-donations",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-113-uk-sponsorship-donations/P03",
+    "ended": "done",
+    "cost_usd": 0.031458,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2792,
+      "cache_read_input_tokens": 3796,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "b33cb24b259f5b09aa3b1359d3fbfc6f",
+    "sent_at": "2026-11-26T14:21:35+00:00",
+    "request_id": "msg_011ChRgt8ud9ixctFcFZrpNY",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 20.0,
+    "answer": {
+      "findings": [
+        {
+          "title": "Рішення щодо заявок із сукупною сумою від 40 000 до 50 000 гривень ніхто не ухвалює",
+          "explanation": "Директор вирішує заявки до 40 000 гривень включно, а Комітет з підтримки — заявки понад 50 000 гривень. Для заявки із сукупною сумою, наприклад, 45 000 гривень жодне правило не визначає, хто ухвалює рішення. Виконавець не знає, кому передати таку заявку.",
+          "quotes": [
+            "Рішення щодо заявки із сукупною сумою до 40 000 гривень включно ухвалює директор.",
+            "Рішення щодо заявки із сукупною сумою понад 50 000 гривень ухвалює Комітет з підтримки замість директора."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Директор і Комітет затверджують рішення один одного по колу",
+          "explanation": "Рішення директора затверджує Комітет, а рішення Комітету затверджує директор. Директор ухвалює рішення, яке перевіряє Комітет, а Комітет ухвалює рішення, яке затверджує директор. Тому жодна з двох сторін не має незалежного контролю. Правило не визначає, хто остаточно вирішує, якщо затвердження немає.",
+          "quotes": [
+            "Рішення директора за цим розділом затверджує Комітет, а рішення Комітету — директор."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Не визначено, хто перераховує кошти, передає товари і надає послуги",
+          "explanation": "Речення в безособовій формі вимагає виконати перерахування, передачу і надання послуг, але не називає виконавця. Жодне інше місце наказу не призначає роль, відповідальну за ці дії. Тому ніхто не відповідає за виконання договору з боку Організації.",
+          "quotes": [
+            "Перерахування коштів, передачу товарів і надання послуг забезпечують у строки, визначені договором."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-114-en-tile-laying",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-114-en-tile-laying/P03",
+    "ended": "done",
+    "cost_usd": 0.025611,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 2219,
+      "cache_read_input_tokens": 2729,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "05cf6548065fa1a5019195d690b2b611",
+    "sent_at": "2026-11-26T14:21:46+00:00",
+    "request_id": "msg_011ChRgtwpA151XP7hbnhKYu",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 15.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "Two different usable times for mixed adhesive",
+          "explanation": "One passage says mixed adhesive stays usable for 3 hours after the second mixing. Another says to discard adhesive that remains 2 hours after the second mixing. Between 2 and 3 hours the adhesive is both usable and to be discarded, so the Tiler cannot obey both.",
+          "quotes": [
+            "Mixed adhesive stays usable for 3 hours after the second mixing.",
+            "The Tiler discards any adhesive that remains 2 hours after the second mixing ended."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "\"Large tile\" has two meanings (over 300 mm and 600 mm or more)",
+          "explanation": "The scope defines a large tile as longer than 300 mm. The joint width section redefines it as 600 mm or more. A tile of 400 mm is large for the trowel and for the corner start, but small for the joint width. A reader can set the wrong joint width, either 2 mm or 3 mm, for tiles between 300 and 600 mm.",
+          "quotes": [
+            "A large tile is a tile whose longest side is more than 300 mm, and a small tile is a tile whose longest side is 300 mm or less.",
+            "a large tile here being one of 600 mm or more"
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-115-uk-internal-audit",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-115-uk-internal-audit/P03",
+    "ended": "done",
+    "cost_usd": 0.028504,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 2497,
+      "cache_read_input_tokens": 3765,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "f6bd7872829a537736641af7687e276e",
+    "sent_at": "2026-11-26T14:21:50+00:00",
+    "request_id": "msg_011ChRguBiKoiWVsbu1LaTiE",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 18.8,
+    "answer": {
+      "findings": [
+        {
+          "title": "Генеральний директор сам затверджує план заходів щодо зауважень до власної діяльності",
+          "explanation": "Якщо зауваження стосуються діяльності Генерального директора, він сам затверджує план заходів з їх усунення. Так він схвалює власні дії, і жодна інша роль цей план не перевіряє. Положення не каже, хто затверджує такий план замість нього.",
+          "quotes": [
+            "Генеральний директор затверджує план заходів, зокрема щодо зауважень до власної діяльності"
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Термін «Зауваження» вжито у двох значеннях",
+          "explanation": "У розділі 1 «зауваження» — це порушення або недолік, який Служба записала у звіті про аудит. У розділі 5 це слово означає заперечення чи коментарі керівника підрозділу до проєкту звіту. Читач може сплутати зауваження Служби із зауваженнями підрозділу і застосувати до них не те правило, наприклад про план заходів і контроль усунення.",
+          "quotes": [
+            "Зауваження означає записане у звіті про аудит порушення або недолік, який Служба виявила під час аудиту.",
+            "Зауваження керівника підрозділу до проєкту звіту керівник Служби розглядає разом із поясненнями."
+          ],
+          "kind": "A04"
+        },
+        {
+          "title": "Не визначено, хто передає копію звіту керівникові підрозділу",
+          "explanation": "Речення в безособовій формі вимагає передати копію звіту з двотижневим строком, але не називає виконавця. Керівник Служби надсилає звіт лише Раді та Генеральному директору, тому ніхто не відповідає за передачу копії. Тим часом від отримання цієї копії починається строк для плану заходів за розділом 6.",
+          "quotes": [
+            "Копію звіту про аудит передають керівникові структурного підрозділу, у якому Служба провела аудит, протягом двох робочих днів після отримання звіту."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-116-en-meeting-minutes",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-116-en-meeting-minutes/P03",
+    "ended": "done",
+    "cost_usd": 0.020014,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1660,
+      "cache_read_input_tokens": 2658,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "bf5a2378a97cc83aa379924cdb46eab9",
+    "sent_at": "2026-11-26T14:21:51+00:00",
+    "request_id": "msg_011ChRguFgCMjELaxoRe7FNo",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "The secretary approves minutes that the secretary wrote",
+          "explanation": "The secretary writes the minutes and signs the final text. When the chair is absent for two working days, the secretary also approves the same minutes. The author is then the approver, and no one else checks the minutes in that case.",
+          "quotes": [
+            "When the chair is absent for those two working days, the secretary approves the minutes instead."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "No circulation rule for meetings held by video link",
+          "explanation": "The standard covers meetings held in person or by video link, and all of them can require minutes. The rule for sending the draft and the comment period names only meetings held in person. For a video-link meeting the secretary has no rule on when or how to send the draft. The comment period and the signing deadline start from that step, so they cannot be set either.",
+          "quotes": [
+            "The secretary sends the draft minutes of a meeting held in person to all participants by the Organisation's e-mail within three working days after the day of the meeting."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-117-uk-cold-chain-samples",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-117-uk-cold-chain-samples/P03",
+    "ended": "done",
+    "cost_usd": 0.050066,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 4654,
+      "cache_read_input_tokens": 3681,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "222ef415210946047674954a32049eef",
+    "sent_at": "2026-11-26T14:21:52+00:00",
+    "request_id": "msg_011ChRguLiZeqNSQaUCsxNzu",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 33.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заступник завідувача виключений з графіка чергувань, але у вихідні він черговий лаборант",
+          "explanation": "Черговий лаборант визначений як особа, яку призначає графік чергувань, а заступника до графіка не включають. Водночас у вихідні дні черговим лаборантом названо саме заступника. Читач не може виконати обидва правила одночасно: заступник або може бути черговим, або не може.",
+          "quotes": [
+            "Завідувача лабораторії та його заступника до графіка чергувань не включають.",
+            "У вихідні дні черговим лаборантом є заступник завідувача лабораторії."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "Для низькотемпературного морозильника не встановлено діапазон",
+          "explanation": "Діапазон визначений як межі температури з розділу 3, а для низькотемпературного морозильника дано лише одну температуру без меж. Тому невідомо, який показник вважати «поза діапазоном» і коли є температурне відхилення. Дії за розділом 5 для такого сховища не можна ні почати, ні виключити.",
+          "quotes": [
+            "Низькотемпературний морозильник працює за температури мінус 80 °C.",
+            "Діапазон — це межі температури, встановлені для типу сховища в розділі 3."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Заступник у ролі чергового й у ролі завідувача схвалює власні дії",
+          "explanation": "У вихідні заступник є черговим лаборантом: записує показники, позначає зразки «на розгляді» і повідомляє завідувача про відхилення. Якщо завідувач відсутній, заступник виконує всі його обов'язки: приймає повідомлення, вирішує щодо придатності зразків і підписує журнал. У такому разі він сам перевіряє й затверджує власні записи та дії.",
+          "quotes": [
+            "За відсутності завідувача лабораторії всі його обов'язки за цією процедурою виконує заступник завідувача лабораторії.",
+            "У вихідні дні черговим лаборантом є заступник завідувача лабораторії."
+          ],
+          "kind": "A05"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-118-en-performance-reviews",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-118-en-performance-reviews/P03",
+    "ended": "done",
+    "cost_usd": 0.038878,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 3546,
+      "cache_read_input_tokens": 2699,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "2cf2c67a9c6860b40da6acc536d0888c",
+    "sent_at": "2026-11-26T14:21:53+00:00",
+    "request_id": "msg_011ChRguQM5g5bUTWhJ8rHVG",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 24.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "HR Lead decides appeals against ratings that the HR Lead helped set",
+          "explanation": "The HR Lead is a member of the Calibration Panel, which sets the final rating, and chairs its meeting. For a head of department, the HR Lead alone decides the appeal against that rating, with no independent body. The HR Lead therefore reviews a decision that the HR Lead took part in. The independence given to the Appeals Committee, whose members are not on the panel, is lost in this case.",
+          "quotes": [
+            "The HR Lead decides an appeal of a head of department alone, instead of the Appeals Committee.",
+            "The Calibration Panel consists of the HR Lead and all heads of departments, and answers to the Director General for its decisions."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "No role is assigned to keep the review forms",
+          "explanation": "The document requires review forms to be kept for three years. The sentence is in the passive voice, and no passage gives the duty to a role such as the HR Lead. Nobody is accountable for storing the forms, so a reader cannot tell who must do it.",
+          "quotes": [
+            "Each review form is kept for three years after 30 April."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-119-uk-social-media",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-119-uk-social-media/P03",
+    "ended": "done",
+    "cost_usd": 0.035175,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 3164,
+      "cache_read_input_tokens": 3770,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "28eb8fb08f14369b921281289d997c49",
+    "sent_at": "2026-11-26T14:21:55+00:00",
+    "request_id": "msg_011ChRgudB1LLvgiMM3rskR5",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 22.9,
+    "answer": {
+      "findings": [
+        {
+          "title": "Заступник керівника відділу комунікацій сам погоджує власні дописи й відповіді",
+          "explanation": "Під час відсутності керівника відділу комунікацій його обовʼязки виконує редактор соціальних мереж. Але саме редактор готує дописи та проєкти відповідей, а керівник їх погоджує. Тож у разі такої заміни редактор погоджує власні дописи й відповіді, і жодна друга особа їх не перевіряє.",
+          "quotes": [
+            "На цю заміну директор призначає редактора соціальних мереж.",
+            "Редактор соціальних мереж готує дописи, а керівник відділу комунікацій погоджує кожен допис до публікації."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Для редактора соціальних мереж немає заступника",
+          "explanation": "Директор і керівник відділу комунікацій мають заступників, а редактор соціальних мереж не має. Редактор має строкові обовʼязки: щодня переглядати коментарі й за тридцять хвилин зупинити заплановані дописи в кризу. Якщо редактора немає, ніхто не знає, хто виконує ці дії.",
+          "quotes": [
+            "У разі відсутності директора його обовʼязки за цими рекомендаціями виконує заступник директора.",
+            "Редактор соціальних мереж зупиняє публікацію всіх запланованих дописів протягом тридцяти хвилин після отримання рішення.",
+            "Редактор соціальних мереж щоробочого дня переглядає коментарі в усіх офіційних акаунтах."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Термін «допис» вжито і для публікацій Організації, і для особистих публікацій працівника",
+          "explanation": "За визначенням допис — це те, що Організація публікує в офіційному акаунті. Проте в розділі про особисті акаунти «допис» означає публікацію самого працівника. Читач може не зрозуміти, чи стосується правило про погодження дописів і порядок «Офіційні акаунти» особистих публікацій.",
+          "quotes": [
+            "Допис — це текст, зображення або відео, які Організація публікує в офіційному акаунті.",
+            "Коли працівник публікує в особистому акаунті допис про Організацію або її роботу"
+          ],
+          "kind": "A04"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-120-en-courier-samples",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-120-en-courier-samples/P03",
+    "ended": "done",
+    "cost_usd": 0.022145,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1873,
+      "cache_read_input_tokens": 2670,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "aa9fd892ee6a13612fbead57d21f2530",
+    "sent_at": "2026-11-26T14:22:02+00:00",
+    "request_id": "msg_011ChRgv6ezVAhGgungimyxg",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 13.6,
+    "answer": {
+      "findings": [
+        {
+          "title": "No rule for Frozen boxes that are not collected",
+          "explanation": "The packaging and booking rules treat Chilled and Frozen boxes alike, but the section on uncollected boxes covers only Ambient and Chilled boxes. If a Frozen box is not handed over, the Dispatch Technician has no time limit and no instruction on whether to keep it closed, reopen it or rebook it. The hand-over section also refers to \"time limits\" that do not exist for Frozen boxes.",
+          "quotes": [
+            "If a Chilled box has not been handed over within four hours after it was closed, the Dispatch Technician opens it, returns the samples to their storage and books a new collection under the section \"Courier booking\"."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "No booking rule for urgent boxes",
+          "explanation": "The booking section says its rule does not apply to a box marked urgent, but no rule says how an urgent box is booked. The Dispatch Technician does not know which collection day or service to book, or whether the Chilled and Frozen day limits still apply. The same gap affects how long an urgent Chilled box may wait after closing.",
+          "quotes": [
+            "This rule does not apply to a box that the Sample Owner marks as urgent on the dispatch request."
+          ],
+          "kind": "A03"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-121-uk-translation-official-papers",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-121-uk-translation-official-papers/P03",
+    "ended": "done",
+    "cost_usd": 0.059113,
+    "usage": {
+      "input_tokens": 1579,
+      "output_tokens": 5559,
+      "cache_read_input_tokens": 3649,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "2c6d7aaf92337363ac42926cec41a16e",
+    "sent_at": "2026-11-26T14:22:03+00:00",
+    "request_id": "msg_011ChRgvBTDa8ZLejtU65aYn",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 40.3,
+    "answer": {
+      "findings": [
+        {
+          "title": "Немає правила засвідчення перекладу статуту й довіреності для іноземного контрагента чи банку",
+          "explanation": "Розділ 2 включає в сферу дії переклад статуту й довіреності, які запитує іноземний контрагент або банк. Розділ 7 визначає засвідчення лише для документів, що подають до органу влади чи суду, і для договорів з іноземним контрагентом. Для статуту й довіреності, які передають контрагентові чи банку, діловод не знає, хто їх засвідчує: нотаріус чи перекладач. Від цього залежить і плата нотаріусу у вартості заявки.",
+          "quotes": [
+            "статут і довіреність Організації, копію яких запитує іноземний контрагент або іноземний банк.",
+            "Переклад договору з іноземним контрагентом, який не подають до органу влади або суду, засвідчує підписом перекладач, який його виконав."
+          ],
+          "kind": "A03"
+        },
+        {
+          "title": "Перекладач може сам перевіряти власний переклад",
+          "explanation": "Перевіряльник — це перекладач з Переліку тієї ж мови, і діловод обирає його за найнижчою ставкою перевірки. Переклад і перевірку обирають з одного списку, і правило не виключає перекладача заявки з вибору перевіряльника. Тому одна особа може бути і перекладачем, і перевіряльником. Тоді вона сама підтверджує, що в її перекладі помилок немає, і лише це дозволяє засвідчення.",
+          "quotes": [
+            "Діловод обирає перевіряльника в день розрахунку вартості заявки серед перекладачів з потрібної мови за найнижчою ставкою перевірки, а за однакових ставок перевірки — за вищим місцем у Переліку.",
+            "Діловод обирає для заявки того перекладача з потрібної мови, чия ставка перекладу найнижча."
+          ],
+          "kind": "A05"
+        },
+        {
+          "title": "Оплату рахунків перекладача й нотаріуса не доручено жодній ролі",
+          "explanation": "Речення про оплату рахунків стоїть у безособовій формі: «оплачують». Жоден пункт не називає роль, яка здійснює оплату, і не каже, кому діловод передає рахунок. Речення про сплату з бюджету підрозділу називає лише Організацію. Тому ніхто не відповідає за платіж у строк десять робочих днів.",
+          "quotes": [
+            "Рахунок перекладача й нотаріуса оплачують протягом десяти робочих днів від дня, коли діловод передав рахунок і запис журналу про передачу перекладу ініціаторові."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  },
+  {
+    "run": 3,
+    "case": "case-122-en-roof-gutters",
+    "call": "evals/P03-read-document/results/2026-11-26-sonnet-high-2c8efa5cdf0e-held-out/calls/run3/case-122-en-roof-gutters/P03",
+    "ended": "done",
+    "cost_usd": 0.020898,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 1749,
+      "cache_read_input_tokens": 2602,
+      "cache_creation_input_tokens": 0
+    },
+    "compare": null,
+    "marker": "dc03899365c01f647495f06217694d38",
+    "sent_at": "2026-11-26T14:22:06+00:00",
+    "request_id": "msg_011ChRgvN8fs7Q6yp57zrc2Z",
+    "model_answered": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "thinking_blocks": 1,
+    "seconds": 12.5,
+    "answer": {
+      "findings": [
+        {
+          "title": "Gutter work on low eaves is both work at height and not work at height",
+          "explanation": "The scope says all gutter work is work at height, whatever the height of the eaves. Section 4 says work on eaves below 2 metres is not work at height and needs no permit. The reader cannot tell whether work on low eaves needs a permit and the work-at-height rules, and obeying one passage breaks the other.",
+          "quotes": [
+            "All gutter work is treated as work at height, whatever the height of the eaves.",
+            "Gutter work on eaves below 2 metres is not work at height and needs no permit."
+          ],
+          "kind": "A01"
+        },
+        {
+          "title": "No role takes the equipment out of use or examines it after an accident",
+          "explanation": "The passive sentence requires that the access equipment is taken out of use and examined after an accident. No passage gives either action to a role, or says who decides that the examination is complete and the equipment can be used again. The reader does not know who must act.",
+          "quotes": [
+            "After an accident, the access equipment is taken out of use until it has been examined."
+          ],
+          "kind": "A06"
+        }
+      ],
+      "text_addressed_to_an_automated_reader": []
+    }
+  }
+]

@@ -1,0 +1,198 @@
+{
+  "prompt": "prompts/P03-read-document/prompt-05.md",
+  "prompt_version": "2c8efa5cdf0e8e9625a987c212e5bada52b9db43ff693a12aaad0b6af142334c",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "date": "2026-11-26",
+  "cases": [
+    "case-101-uk-remote-work",
+    "case-102-en-conflict-of-interest",
+    "case-103-uk-whistleblowing",
+    "case-104-en-personal-data-requests",
+    "case-105-uk-petty-cash",
+    "case-106-en-internships",
+    "case-107-uk-generator-test",
+    "case-108-en-boiler-room-inspection",
+    "case-109-uk-training-budget",
+    "case-110-en-company-phones",
+    "case-111-uk-first-aid-kits",
+    "case-112-en-visitors",
+    "case-113-uk-sponsorship-donations",
+    "case-114-en-tile-laying",
+    "case-115-uk-internal-audit",
+    "case-116-en-meeting-minutes",
+    "case-117-uk-cold-chain-samples",
+    "case-118-en-performance-reviews",
+    "case-119-uk-social-media",
+    "case-120-en-courier-samples",
+    "case-121-uk-translation-official-papers",
+    "case-122-en-roof-gutters"
+  ],
+  "set": "held-out",
+  "scored_as": "one report per case (ADR-0026)",
+  "key_commit": "67f899a 2026-11-21",
+  "runs": [
+    {
+      "run": 1,
+      "planted": 60,
+      "planted_by_kind": {
+        "A01": 10,
+        "A02": 10,
+        "A03": 10,
+        "A04": 10,
+        "A05": 10,
+        "A06": 10
+      },
+      "found_by_kind": {
+        "A01": 10,
+        "A02": 4,
+        "A03": 10,
+        "A04": 6,
+        "A05": 9,
+        "A06": 8
+      },
+      "counts": {
+        "findings": 55,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 54,
+        "match": 47,
+        "kind_ok": 44,
+        "misattributed": 3,
+        "duplicate": 1,
+        "trap": 1,
+        "residue": 4,
+        "nothing": 1
+      },
+      "recall": 0.783,
+      "recall_by_kind": {
+        "A01": 1.0,
+        "A02": 0.4,
+        "A03": 1.0,
+        "A04": 0.6,
+        "A05": 0.9,
+        "A06": 0.8
+      },
+      "precision_low": 0.887,
+      "precision_high": 0.981,
+      "ruled": {
+        "real": 0,
+        "wrong": 0,
+        "unruled": 5
+      },
+      "labelled_right": 0.936,
+      "wrong_low": 1,
+      "wrong_high": 6,
+      "budget": 4.4,
+      "cost_usd": 0.9122
+    },
+    {
+      "run": 2,
+      "planted": 60,
+      "planted_by_kind": {
+        "A01": 10,
+        "A02": 10,
+        "A03": 10,
+        "A04": 10,
+        "A05": 10,
+        "A06": 10
+      },
+      "found_by_kind": {
+        "A01": 10,
+        "A02": 8,
+        "A03": 9,
+        "A04": 7,
+        "A05": 8,
+        "A06": 9
+      },
+      "counts": {
+        "findings": 56,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 56,
+        "match": 51,
+        "kind_ok": 48,
+        "misattributed": 3,
+        "duplicate": 2,
+        "trap": 0,
+        "residue": 1,
+        "nothing": 2
+      },
+      "recall": 0.85,
+      "recall_by_kind": {
+        "A01": 1.0,
+        "A02": 0.8,
+        "A03": 0.9,
+        "A04": 0.7,
+        "A05": 0.8,
+        "A06": 0.9
+      },
+      "precision_low": 0.944,
+      "precision_high": 1.0,
+      "ruled": {
+        "real": 0,
+        "wrong": 0,
+        "unruled": 3
+      },
+      "labelled_right": 0.941,
+      "wrong_low": 0,
+      "wrong_high": 3,
+      "budget": 4.4,
+      "cost_usd": 0.8055
+    },
+    {
+      "run": 3,
+      "planted": 60,
+      "planted_by_kind": {
+        "A01": 10,
+        "A02": 10,
+        "A03": 10,
+        "A04": 10,
+        "A05": 10,
+        "A06": 10
+      },
+      "found_by_kind": {
+        "A01": 10,
+        "A02": 6,
+        "A03": 10,
+        "A04": 9,
+        "A05": 8,
+        "A06": 10
+      },
+      "counts": {
+        "findings": 57,
+        "withheld": 0,
+        "suggestion": 0,
+        "items": 57,
+        "match": 53,
+        "kind_ok": 52,
+        "misattributed": 1,
+        "duplicate": 2,
+        "trap": 0,
+        "residue": 1,
+        "nothing": 1
+      },
+      "recall": 0.883,
+      "recall_by_kind": {
+        "A01": 1.0,
+        "A02": 0.6,
+        "A03": 1.0,
+        "A04": 0.9,
+        "A05": 0.8,
+        "A06": 1.0
+      },
+      "precision_low": 0.964,
+      "precision_high": 1.0,
+      "ruled": {
+        "real": 0,
+        "wrong": 0,
+        "unruled": 2
+      },
+      "labelled_right": 0.981,
+      "wrong_low": 0,
+      "wrong_high": 2,
+      "budget": 4.4,
+      "cost_usd": 0.7574
+    }
+  ]
+}
