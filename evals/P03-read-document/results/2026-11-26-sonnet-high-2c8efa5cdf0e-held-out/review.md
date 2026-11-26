@@ -10,7 +10,7 @@
 
 Line numbers count from the first line after the case document's frontmatter.
 
-**Status.** 0 of 10 items ruled.
+**Status.** 10 of 10 items ruled.
 
 ## U-01 — run 1, case-105-uk-petty-cash, lines 35-41
 
@@ -31,9 +31,9 @@ What the key holds on these lines:
 - `R-3`, residue the case set accepted: Директорові Організації передано лише «другий підпис ставить», а право відмовити і наслідок відмови названо тільки для фінансового директора, тож один читач вважає, що директор Організації мусить підписати, а інший — що він може відмовити; якщо це мовчання, а не два прочитання, то це прогалина A03 з тією самою впевненістю.
 - `R-5`, residue the case set accepted: Для авансу до 5 000 гривень фінансовий директор сам погоджує аванс головного бухгалтера, а головний бухгалтер — аванс фінансового директора, і кожен перевіряє звіт іншого; це схоже на «A погоджує B, B погоджує A», але читається як задумана взаємна перевірка.
 
-Verdict: 
+Verdict: not a defect
 
-Note: 
+Note: Навіть якщо для видачі авансу на суму до 5 000 гривень включно достатньо одного підпису, видатковий ордер для кожного з двох посадовців підписує інший. Таке взаємне погодження саме по собі не дає жодному з них права затвердити власний аванс.
 
 ## U-02 — run 1, case-105-uk-petty-cash, lines 72-73
 
@@ -52,9 +52,9 @@ What the key holds on these lines:
 
 - `R-8`, residue the case set accepted: Для нестачі з вини касира гроші надходять на банківський рахунок, але ніхто не закриває нестачу в касовій книзі, тож книга й далі показує більше, ніж є в касі.
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: Фінансовий директор письмово вирішує, чи винен касир у нестачі, але Порядок не визначає, хто передає рішення тому, хто має його виконати. Якщо касир винен, він має внести кошти протягом десяти робочих днів від дня рішення, навіть якщо ще про нього не знає. Якщо вини касира немає, головний бухгалтер має списати нестачу в день отримання рішення, яке йому ніхто не зобов’язаний надіслати.
 
 ## U-03 — run 1, case-110-en-company-phones, lines 35-35
 
@@ -72,9 +72,9 @@ What the key holds on these lines:
 
 - `R-3`, residue the case set accepted: The IT service desk signs the return record for its own member's phone and the Finance Director deducts from the Finance Director's own pay, although both are acts of execution without discretion.
 
-Verdict: 
+Verdict: not a defect
 
-Note: 
+Note: The deduction itself is mandatory. For the director’s own monthly excess, the Managing Director decides the personal-use amount if an explanation is submitted. Without one, the full excess is due. For an unreturned phone, the asset register supplies the amount. Processing payroll gives the director no choice over the charge.
 
 ## U-04 — run 1, case-118-en-performance-reviews, lines 54-55
 
@@ -94,9 +94,9 @@ What the key holds on these lines:
 - `R-2`, residue the case set accepted: The HR Lead votes on the final rating and then alone decides whether an appeal against it is in time, though that decision is a mechanical test of a time limit and not a judgement of the rating.
 - `R-4`, residue the case set accepted: "That day" can be the day of the conversation or the last day of February, but the two readings come from the one sentence read alone, and section 7 counts from the actual receipt in both.
 
-Verdict: 
+Verdict: trap
 
-Note: 
+Note: Section 7 makes the HR Lead check whether an appeal arrived within ten working days of receipt of the form. A timely ordinary appeal must go to the Appeals Committee. Even assuming the HR Lead is in scope, the deadline check gives them no discretion to uphold their own rating or reject a timely appeal.
 
 ## U-05 — run 1, case-119-uk-social-media, lines 51-66
 
@@ -115,9 +115,9 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: Редактор має переглядати коментарі кожного робочого дня та зупиняти публікацію запланованих дописів протягом тридцяти хвилин після отримання рішення про кризову ситуацію. Розділ «Заміщення» визначає, хто заміщує директора та керівника відділу комунікацій, але не визначає, хто виконує ці два обов’язки за відсутності редактора.
 
 ## U-06 — run 2, case-105-uk-petty-cash, lines 32-41
 
@@ -139,9 +139,9 @@ What the key holds on these lines:
 - `R-3`, residue the case set accepted: Директорові Організації передано лише «другий підпис ставить», а право відмовити і наслідок відмови названо тільки для фінансового директора, тож один читач вважає, що директор Організації мусить підписати, а інший — що він може відмовити; якщо це мовчання, а не два прочитання, то це прогалина A03 з тією самою впевненістю.
 - `R-5`, residue the case set accepted: Для авансу до 5 000 гривень фінансовий директор сам погоджує аванс головного бухгалтера, а головний бухгалтер — аванс фінансового директора, і кожен перевіряє звіт іншого; це схоже на «A погоджує B, B погоджує A», але читається як задумана взаємна перевірка.
 
-Verdict: 
+Verdict: not a defect
 
-Note: 
+Note: Головний бухгалтер розглядає заяву фінансового директора й перевіряє його звіт. Коли заяву або звіт подає головний бухгалтер, ці дії виконує фінансовий директор. Кожен розглядає документи іншого, і рішення щодо одного авансу не залежить від рішення щодо іншого.
 
 ## U-07 — run 2, case-119-uk-social-media, lines 66-83
 
@@ -160,9 +160,9 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: За розділом «Заміщення» редактор заміщує керівника відділу комунікацій. Хто заміщує самого редактора й має протягом тридцяти хвилин зупинити публікацію запланованих дописів у разі кризи, документ не визначає.
 
 ## U-08 — run 2, case-121-uk-translation-official-papers, lines 75-75
 
@@ -180,9 +180,9 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: Розділи 4 і 5 встановлюють строки виконання перекладу. За розділом 6 діловод передає переклад перевіряльникові в день отримання. Хто має передати готовий переклад діловодові, Порядок не визначає. Тому навіть вчасно виконаний переклад може не надійти на перевірку.
 
 ## U-09 — run 3, case-105-uk-petty-cash, lines 56-60
 
@@ -202,9 +202,9 @@ What the key holds on these lines:
 - `R-4`, residue the case set accepted: Заміна діє, коли головний бухгалтер «подає» звіт, і лише «щодо цього звіту», тож коли головний бухгалтер сам не подав звіт у строк, він мав би вимагати звіт від самого себе (A05) або цей випадок лишається без виконавця (A03).
 - `R-5`, residue the case set accepted: Для авансу до 5 000 гривень фінансовий директор сам погоджує аванс головного бухгалтера, а головний бухгалтер — аванс фінансового директора, і кожен перевіряє звіт іншого; це схоже на «A погоджує B, B погоджує A», але читається як задумана взаємна перевірка.
 
-Verdict: 
+Verdict: not a defect
 
-Note: 
+Note: За загальним правилом звіт фінансового директора перевіряє головний бухгалтер. Коли звіт подає головний бухгалтер, перевірку проводить фінансовий директор. Отже, кожен із двох посадовців подає свій звіт на перевірку іншій особі.
 
 ## U-10 — run 3, case-119-uk-social-media, lines 51-83
 
@@ -224,6 +224,6 @@ What the key holds on these lines:
 
 - nothing
 
-Verdict: 
+Verdict: real defect
 
-Note: 
+Note: Директора заміщує його заступник, а керівника відділу комунікацій — редактор соціальних мереж. За відсутності самого редактора документ ні на кого не покладає обов’язку щоробочого дня переглядати коментарі та протягом тридцяти хвилин після отримання рішення про кризову ситуацію зупиняти публікацію запланованих дописів.
